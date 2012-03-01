@@ -6,17 +6,16 @@ Uploaders: Sebastian Dröge <slomo@debian.org>,
            Sjoerd Simons <sjoerd@debian.org>
 Build-Depends: BUILDDEPS
 Standards-Version: 3.8.4
-Vcs-Git: git://anonscm.debian.org/pkg-gstreamer/gst-plugins-bad0.10.git
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-gstreamer/gst-plugins-bad0.10.git
+Vcs-Git: git://anonscm.debian.org/pkg-gstreamer/gst-plugins-bad@GST_ABI@.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-gstreamer/gst-plugins-bad@GST_ABI@.git
 Homepage: http://gstreamer.freedesktop.org/modules/gst-plugins-bad.html
 
 Package: @GST_PKGNAME@-plugins-bad-doc
 Architecture: all
 Section: doc
 Depends: ${misc:Depends},
-         gstreamer0.10-doc,
-         gstreamer0.10-plugins-base-doc
-Replaces: gstreamer0.10-plugins-bad (<< 0.10.5-3)
+         gstreamer@GST_ABI@-doc,
+         gstreamer@GST_ABI@-plugins-base-doc
 Description: GStreamer documentation for plugins from the "bad" set
  GStreamer is a streaming media framework, based on graphs of filters
  which operate on media data.  Applications using this library can do
@@ -38,21 +37,11 @@ Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         gstreamer0.10-plugins-base,
+         gstreamer@GST_ABI@-plugins-base,
          libgstreamer-plugins-bad@GST_DEB_ABI@ (= ${binary:Version}),
-Replaces: gstreamer0.10-plugins-bad-multiverse (<< 0.10.5-2),
-          gstreamer0.10-plugins-really-bad (<< 0.10.14),
-          gstreamer0.10-plugins-farsight,
-          gstreamer0.10-schroedinger,
-          gstreamer0.10-xvid
-Provides: gstreamer0.10-plugins-farsight,
-          gstreamer0.10-schroedinger,
+Provides: gstreamer@GST_ABI@-plugins-farsight,
+          gstreamer@GST_ABI@-schroedinger,
           ${gstreamer:Provides}
-Conflicts: gstreamer0.10-plugins-ugly (<< 0.10.13.2),
-           gstreamer0.10-plugins-good (<< 0.10.15.2),
-           gstreamer0.10-plugins-farsight,
-           gstreamer0.10-schroedinger,
-           gstreamer0.10-xvid
 Suggests: frei0r-plugins
 XB-GStreamer-Version: ${gstreamer:Version}
 XB-GStreamer-Elements: ${gstreamer:Elements}
@@ -79,7 +68,6 @@ Multi-Arch: same
 Section: libs
 Depends: ${misc:Depends},
          ${shlibs:Depends}
-Replaces: gstreamer0.10-plugins-bad (<< 0.10.5-3)
 XB-GStreamer-Version: ${gstreamer:Version}
 XB-GStreamer-Elements: ${gstreamer:Elements}
 XB-GStreamer-URI-Sources: ${gstreamer:URISources}
