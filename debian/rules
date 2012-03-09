@@ -63,7 +63,7 @@ gst_extra_build_depends += , libdc1394-22-dev (>= 2.0.0) [linux-any]
 # EXTRA_PLUGINS: See debian/README.Debian for docs
 EXTRA_PLUGINS +=
 
-PLUGINS += sdl plugins-bad $(EXTRA_PLUGINS)
+PLUGINS += plugins-bad $(EXTRA_PLUGINS)
 ifeq ($(DEB_HOST_ARCH_OS),linux)
 PLUGINS +=
 endif
