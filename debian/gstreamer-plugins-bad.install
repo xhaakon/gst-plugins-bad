@@ -39,4 +39,3 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvp8.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgsty4mdec.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstzbar.so
 debian/tmp/usr/share/locale
-debian/tmp/usr/share/glib-2.0/schemas
