@@ -1,0 +1,102 @@
+
+Release notes for GStreamer Bad Plug-ins 0.11.90 "Where the good and the bad and the worst and the best have gone to their eternal rest"
+        
+
+
+The GStreamer team is proud to announce a new release
+in the 0.11.x unstable series of the
+GStreamer Ugly Plug-ins.
+
+
+The 0.11.x series is an unstable series targeted at developers and will
+eventually lead up to the stable 1.0 series.
+It is not API or ABI compatible with the stable 0.10.x series.
+It is, however, parallel installable with the 0.10.x series.
+
+
+
+No perfectly groomed moustache or any amount of fine clothing is going to
+cover up the truth - these plug-ins are Bad with a capital B.
+They look fine on the outside, and might even appear to get the job done, but
+at the end of the day they're a black sheep. Without a golden-haired angel
+to watch over them, they'll probably land in an unmarked grave at the final
+showdown.
+
+
+Don't bug us about their quality - exercise your Free Software rights,
+patch up the offender and send us the patch on the fastest steed you can
+steal from the Confederates. Because you see, in this world, there's two
+kinds of people, my friend: those with loaded guns and those who dig.
+You dig.
+
+
+This module contains a set of plug-ins that aren't up to par compared to the
+rest.  They might be close to being good quality, but they're missing something
+- be it a good code review, some documentation, a set of tests, a real live
+maintainer, or some actual wide use.  If the blanks are filled in they might be
+upgraded to become part of either gst-plugins-good or gst-plugins-ugly,
+depending on the other factors.
+If the plug-ins break, you can't complain - instead, you can fix the
+problem and send us a patch, or bribe someone into fixing them for you.
+New contributors can start here for things to work on.
+
+
+Other modules containing plug-ins are:
+
+
+gst-plugins-base
+contains a basic set of well-supported plug-ins
+gst-plugins-good
+contains a set of well-supported plug-ins under our preferred license
+gst-plugins-ugly
+contains a set of well-supported plug-ins, but might pose problems for
+    distributors
+
+
+
+  
+
+Features of this release
+    
+      * Lots of bugfixes, cleanup and other improvements
+There were no bugs fixed in this release
+    
+
+Download
+
+You can find source releases of gst-plugins-bad in the download directory:
+http://gstreamer.freedesktop.org/src/gst-plugins-bad/
+
+GStreamer Homepage
+
+More details can be found on the project's website:
+http://gstreamer.freedesktop.org/
+
+Support and Bugs
+
+We use GNOME's bugzilla for bug reports and feature requests:
+http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer
+
+Developers
+
+GStreamer is stored in Git, hosted at git.freedesktop.org, and can be cloned from there.
+Interested developers of the core library, plug-ins, and applications should
+subscribe to the gstreamer-devel list. If there is sufficient interest we
+will create more lists as necessary.
+
+        
+Applications
+  
+Contributors to this release
+    
+      * Alessandro Decina
+      * Andoni Morales Alastruey
+      * Edward Hervey
+      * Mark Nauwelaerts
+      * Olivier Crête
+      * Sebastian Dröge
+      * Stefan Sauer
+      * Thibault Saunier
+      * Wim Taymans
+      * uraeus
+ 
