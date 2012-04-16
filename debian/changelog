@@ -1,3 +1,16 @@
+gst-plugins-bad1.0 (0.11.90-1) experimental; urgency=low
+
+  * Imported Upstream version 0.11.90
+  * Imported debian/ from gst-plugins-bad 0.10.23-1
+  * Updated debian/ for GStreamer 1.0
+  * Removed gstreamer-sdl, not ported to 0.11
+  * gstreamer-plugins-bad.install: Removed the plugins that have not been ported
+  * gstreamer-plugins-bad.install: Removed schemas
+  * gstreamer-plugins-bad.install: Added presets (.prs)
+  * debian/rules: disable pvrvideosink, until it is ported to gst 0.11
+
+ -- Olivier Naudan <o-naudan@ti.com>  Fri, 23 Mar 2012 11:13:12 -0400
+
 gst-plugins-bad0.11 (0.11.1-1~ppa1) oneiric; urgency=low
 
   * New upstream release, 0.11.1
