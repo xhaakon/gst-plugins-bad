@@ -39,9 +39,7 @@ Depends: ${misc:Depends},
          ${shlibs:Depends},
          gstreamer@GST_ABI@-plugins-base,
          libgstreamer-plugins-bad@GST_DEB_ABI@ (= ${binary:Version}),
-Provides: gstreamer@GST_ABI@-plugins-farsight,
-          gstreamer@GST_ABI@-schroedinger,
-          ${gstreamer:Provides}
+Provides: ${gstreamer:Provides}
 Suggests: frei0r-plugins
 XB-GStreamer-Version: ${gstreamer:Version}
 XB-GStreamer-Elements: ${gstreamer:Elements}
@@ -90,8 +88,6 @@ Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-Breaks: @GST_PKGNAME@-plugins-bad (<< 0.10.22.3-2)
-Replaces: @GST_PKGNAME@-plugins-bad (<< 0.10.22.3-2)
 Description: GStreamer development files for libraries from the "bad" set
  GStreamer is a streaming media framework, based on graphs of filters
  which operate on media data.  Applications using this library can do
