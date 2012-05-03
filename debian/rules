@@ -73,12 +73,9 @@ VERSIONIZE= \
 #debug package
 DEB_DH_STRIP_ARGS := --dbg-package=$(gst_pkgname)-plugins-bad-dbg
 
-# enable the real and spc plugin on x86
+# enable the real plugin on x86
 ifeq ($(DEB_HOST_ARCH_CPU), i386)
 real = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstreal.so
-ifeq ($(DEB_HOST_ARCH_OS),linux)
-spc = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstspc.so
-endif
 endif
 
 ifeq ($(DEB_HOST_ARCH_OS),linux)
@@ -123,7 +120,6 @@ pre-build::
 			-e 's,@linsys@,$(linsys),g' \
 			-e 's,@fbdev@,$(fbdev),g' \
 			-e 's,@vcd@,$(vcd),g' \
-			-e 's,@spc@,$(spc),g' \
 			-e 's,@dc1394@,$(dc1394),g' \
 			-e 's,@cdaudio@,$(cdaudio),g' \
 			-e 's,@resindvd@,$(resindvd),g' \
