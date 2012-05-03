@@ -26,7 +26,7 @@ libdvdnav-dev (>= 4.1.2) [!hurd-any]
 libexempi-dev
 libexif-dev (>= 0.6.16)
 libfaad-dev
-libglib2.0-dev (>= 2.24)
+libglib2.0-dev (>= 2.31.14)
 libgme-dev
 libgsm1-dev
 libgstreamer-plugins-base@GST_ABI@-dev (>= 0.11.90)
