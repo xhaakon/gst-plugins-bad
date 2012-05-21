@@ -1,6 +1,9 @@
 gst-plugins-bad1.0 (0.11.91-1) experimental; urgency=low
 
-  * New upstream release, "Be he alive, or be he dead".
+  * New upstream release, "Be he alive, or be he dead":
+    + debian/build-deps.in,
+      debian/rules:
+      - Build depend on GStreamer core/base >= 0.11.91.
   * debian/control.in,
     debian/rules:
     + Update automake, autoconf, libtool, debhelper dependencies.
