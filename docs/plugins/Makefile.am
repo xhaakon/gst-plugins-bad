@@ -65,7 +65,12 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/assrender/gstassrender.h \
 	$(top_srcdir)/ext/celt/gstceltdec.h \
 	$(top_srcdir)/ext/celt/gstceltenc.h \
-	$(top_srcdir)/ext/curl/gstcurlsink.h \
+	$(top_srcdir)/ext/curl/gstcurlbasesink.h \
+	$(top_srcdir)/ext/curl/gstcurlfilesink.h \
+	$(top_srcdir)/ext/curl/gstcurlftpsink.h \
+	$(top_srcdir)/ext/curl/gstcurlhttpsink.h \
+	$(top_srcdir)/ext/curl/gstcurlsmtpsink.h \
+	$(top_srcdir)/ext/curl/gstcurltlssink.h \
 	$(top_srcdir)/ext/dc1394/gstdc1394.h \
 	$(top_srcdir)/ext/directfb/dfbvideosink.h \
 	$(top_srcdir)/ext/dts/gstdtsdec.h \
@@ -115,7 +120,6 @@ EXTRA_HFILES = \
 	$(top_srcdir)/gst/audiovisualizers/gstspectrascope.h \
 	$(top_srcdir)/gst/audiovisualizers/gstsynaescope.h \
 	$(top_srcdir)/gst/audiovisualizers/gstwavescope.h \
-	$(top_srcdir)/gst/camerabin/gstcamerabin.h \
 	$(top_srcdir)/gst/camerabin2/gstcamerabin2.h \
 	$(top_srcdir)/gst/coloreffects/gstcoloreffects.h \
 	$(top_srcdir)/gst/dataurisrc/gstdataurisrc.h \

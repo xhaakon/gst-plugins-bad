@@ -1,16 +1,16 @@
-AC_PREREQ(2.60)
+AC_PREREQ(2.62)
 
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT(GStreamer Bad Plug-ins, 0.11.90,
+AC_INIT(GStreamer Bad Plug-ins, 0.11.91,
     http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer,
     gst-plugins-bad)
 
 AG_GST_INIT
 
 dnl initialize automake
-AM_INIT_AUTOMAKE([-Wno-portability 1.10])
+AM_INIT_AUTOMAKE([-Wno-portability 1.11 no-dist-gzip dist-xz tar-ustar])
 
 dnl define PACKAGE_VERSION_* variables
 AS_VERSION
@@ -25,7 +25,7 @@ dnl define the output header for config
 AM_CONFIG_HEADER([config.h])
 
 dnl AM_MAINTAINER_MODE only provides the option to configure to enable it
-AM_MAINTAINER_MODE
+AM_MAINTAINER_MODE([enable])
 
 dnl sets host_* variables
 AC_CANONICAL_HOST
@@ -42,6 +42,8 @@ AC_SUBST(GST_API_VERSION)
 AC_DEFINE_UNQUOTED(GST_API_VERSION, "$GST_API_VERSION",
   [GStreamer API Version])
 
+AG_GST_LIBTOOL_PREPARE
+
 dnl CURRENT, REVISION, AGE
 dnl - library source changed -> increment REVISION
 dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
@@ -49,16 +51,6 @@ dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
 AS_LIBTOOL(GST, 0, 0, 0)
-
-AG_GST_LIBTOOL_PREPARE
-
-dnl FIXME: this macro doesn't actually work;
-dnl the generated libtool script has no support for the listed tags.
-dnl So this needs to be fixed first if we want to use this
-dnl AS_LIBTOOL_TAGS([CXX])
-
-AC_LIBTOOL_WIN32_DLL
-AM_PROG_LIBTOOL
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=0.11.90
@@ -141,7 +133,7 @@ AG_GST_PLUGIN_DOCS([1.3],[2.1])
 dnl *** checks for libraries ***
 
 dnl check for libm, for sin() etc.
-AC_CHECK_LIBM
+LT_LIB_M
 AC_SUBST(LIBM)
 
 AC_FUNC_MMAP
@@ -155,7 +147,6 @@ if test "x$HAVE_UNISTD_H" != "xyes"; then
   GST_PLUGINS_SELECTED=`echo $GST_PLUGINS_SELECTED | $SED -e s/festival//`
 fi
 
-dnl used by camerabin
 AC_CHECK_HEADERS([sys/time.h])
 
 dnl used by ext/dts
@@ -308,21 +299,22 @@ AG_GST_DEFAULT_ELEMENTS
 dnl *** plug-ins to include ***
 dnl Non ported plugins (non-dependant, then dependant)
 dnl Make sure you have a space before and after all plugins
-GST_PLUGINS_NONPORTED=" aiff asfmux \
- camerabin cdxaparse coloreffects \
+GST_PLUGINS_NONPORTED=" aiff \
+ cdxaparse \
  dccp faceoverlay festival \
- fieldanalysis freeverb freeze frei0r gaudieffects geometrictransform \
- hdvparse hls id3tag inter interlace ivfparse jpegformat jp2kdecimator \
+ fieldanalysis freeverb freeze frei0r \
+ hdvparse id3tag inter interlace ivfparse jpegformat jp2kdecimator \
  kate liveadder legacyresample librfb mpegtsmux \
  mpegpsmux mve mxf mythtv nsf nuvdemux \
  patchdetect pnm real \
  sdi siren speed subenc stereo tta videofilters \
  videomeasure videosignal vmnc \
  decklink fbdev linsys vcd \
- apexsink cdaudio cog curl dc1394 dirac directfb resindvd \
+ apexsink cdaudio cog dc1394 dirac directfb resindvd \
  gsettings jp2k ladspa mimic \
  musepack musicbrainz nas neon ofa openal opencv rsvg sdl sndfile soundtouch spandsp spc timidity \
- wildmidi xvid lv2 teletextdec dvb mpegtsdemux"
+ directsound direct3d directdraw direct3d9 acm wininet \
+ wildmidi xvid lv2 teletextdec dvb sndio"
 AC_SUBST(GST_PLUGINS_NONPORTED)
 
 dnl these are all the gst plug-ins, compilable without additional libs
@@ -333,7 +325,6 @@ AG_GST_CHECK_PLUGIN(asfmux)
 AG_GST_CHECK_PLUGIN(audiovisualizers)
 AG_GST_CHECK_PLUGIN(autoconvert)
 AG_GST_CHECK_PLUGIN(bayer)
-AG_GST_CHECK_PLUGIN(camerabin)
 AG_GST_CHECK_PLUGIN(camerabin2)
 AG_GST_CHECK_PLUGIN(cdxaparse)
 AG_GST_CHECK_PLUGIN(coloreffects)
@@ -410,26 +401,14 @@ AC_CHECK_HEADERS([sys/socket.h], HAVE_SYS_SOCKET_H=yes)
 AC_CHECK_HEADERS([winsock2.h], HAVE_WINSOCK2_H=yes)
 
 if test "x$HAVE_WINSOCK2_H" = "xyes"; then
-  WIN32_LIBS="-lws2_32"
-  AC_SUBST(WIN32_LIBS)
-fi
-
-dnl needed for festival
-AM_CONDITIONAL(HAVE_WINSOCK2_H, test "x$HAVE_WINSOCK2_H" = "xyes")
-
-if test "x$HAVE_WINSOCK2_H" = "xyes"; then
-  DCCP_LIBS="$DCCP_LIBS -lws2_32"
-  XDG_LIBS="$XDG_LIBS -lws2_32"
-  AC_SUBST(DCCP_LIBS)
-  AC_SUBST(XDG_LIBS)
+  WINSOCK2_LIBS="-lws2_32"
+  AC_SUBST(WINSOCK2_LIBS)
 fi
 
 if test "x$HAVE_PTHREAD_H" = "xyes"; then
   DCCP_LIBS="$DCCP_LIBS -lpthread"
   AC_SUBST(DCCP_LIBS)
-fi
-
-if test "x$HAVE_PTHREAD_H" != "xyes"; then
+else
   AG_GST_DISABLE_PLUGIN(dccp)
 fi
 
@@ -1503,7 +1482,13 @@ AG_GST_CHECK_FEATURE(PVR, [pvrvideosink], pvr, [
 dnl *** rsvg ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_RSVG, true)
 AG_GST_CHECK_FEATURE(RSVG, [rsvg decoder], rsvg, [
-  PKG_CHECK_MODULES(RSVG, librsvg-2.0 >= 2.14 cairo, HAVE_RSVG="yes", [
+  PKG_CHECK_MODULES(RSVG, librsvg-2.0 >= 2.14 cairo, [
+    HAVE_RSVG="yes"
+    PKG_CHECK_MODULES(RSVG_2_35_0, librsvg-2.0 >= 2.35.0, HAVE_RSVG_2_35_0="yes", HAVE_RSVG_2_35_0="no")
+    if test "x$HAVE_RSVG_2_35_0" = "xyes"; then
+      AC_DEFINE(HAVE_RSVG_2_35_0, [1], [Have RSVG 2.35.0 or newer])
+    fi
+  ], [
     HAVE_RSVG="no"
   ])
   AC_SUBST(RSVG_CFLAGS)
@@ -1847,6 +1832,19 @@ AG_GST_CHECK_FEATURE(GSETTINGS, [GSettings plugin], gsettings, [
   fi
 ])
 
+dnl *** sndio ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_SNDIO, true)
+AG_GST_CHECK_FEATURE(SNDIO, [sndio audio], sndio, [
+  AC_CHECK_HEADER(sndio.h, HAVE_SNDIO="yes", HAVE_SNDIO="no")
+  if test "x$HAVE_SNDIO" = "xyes"; then
+    AC_CHECK_LIB(sndio, sio_open, HAVE_SNDIO="yes", HAVE_SNDIO="no")
+    if test "x$HAVE_SNDIO" = "xyes"; then
+      SNDIO_LIBS=-lsndio
+      AC_SUBST(SNDIO_LIBS)
+    fi
+  fi
+])
+
 else
 
 dnl not building plugins with external dependencies,
@@ -1918,6 +1916,7 @@ AM_CONDITIONAL(USE_ZBAR, false)
 AM_CONDITIONAL(USE_VP8, false)
 AM_CONDITIONAL(USE_RTMP, false)
 AM_CONDITIONAL(USE_TELETEXTDEC, false)
+AM_CONDITIONAL(USE_SNDIO, false)
 
 fi dnl of EXT plugins
 
@@ -2001,7 +2000,6 @@ gst/asfmux/Makefile
 gst/audiovisualizers/Makefile
 gst/autoconvert/Makefile
 gst/bayer/Makefile
-gst/camerabin/Makefile
 gst/camerabin2/Makefile
 gst/cdxaparse/Makefile
 gst/coloreffects/Makefile
@@ -2101,7 +2099,6 @@ tests/Makefile
 tests/check/Makefile
 tests/files/Makefile
 tests/examples/Makefile
-tests/examples/camerabin/Makefile
 tests/examples/camerabin2/Makefile
 tests/examples/directfb/Makefile
 tests/examples/mxf/Makefile
@@ -2155,6 +2152,7 @@ ext/sdl/Makefile
 ext/sndfile/Makefile
 ext/soundtouch/Makefile
 ext/spandsp/Makefile
+ext/sndio/Makefile
 ext/teletextdec/Makefile
 ext/gme/Makefile
 ext/gsettings/Makefile

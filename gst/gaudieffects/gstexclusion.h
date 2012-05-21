@@ -1,7 +1,7 @@
 /*
  * GStreamer
- * Copyright (C) 2010 Luis de Bethencourt <luis@debethencourt.com>>
- * 
+ * Copyright (C) <2010-2012> Luis de Bethencourt <luis@debethencourt.com>>
+ *
  * Exclusion - color exclusion video effect.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -49,6 +49,7 @@
 #include <gst/gst.h>
 
 #include <gst/video/gstvideofilter.h>
+#include <gst/video/video.h>
 
 G_BEGIN_DECLS
 
@@ -72,8 +73,6 @@ struct _GstExclusion
   GstVideoFilter videofilter;
 
   /* < private > */
-
-  gint width, height;
 
   gint factor;
   gboolean silent;

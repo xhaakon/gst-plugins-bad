@@ -151,7 +151,7 @@ static gboolean new_packet_cb (guint8 * data, guint len, void *user_data,
 static void release_buffer_cb (guint8 * data, void *user_data);
 
 static void mpegtsdemux_prepare_srcpad (MpegTsMux * mux);
-static GstFlowReturn mpegtsmux_collected (GstCollectPads2 * pads,
+static GstFlowReturn mpegtsmux_collected (GstCollectPads * pads,
     MpegTsMux * mux);
 static GstPad *mpegtsmux_request_new_pad (GstElement * element,
     GstPadTemplate * templ, const gchar * name);
@@ -228,9 +228,9 @@ mpegtsmux_init (MpegTsMux * mux, MpegTsMuxClass * g_class)
   gst_pad_set_event_function (mux->srcpad, mpegtsmux_src_event);
   gst_element_add_pad (GST_ELEMENT (mux), mux->srcpad);
 
-  mux->collect = gst_collect_pads2_new ();
-  gst_collect_pads2_set_function (mux->collect,
-      (GstCollectPads2Function) GST_DEBUG_FUNCPTR (mpegtsmux_collected), mux);
+  mux->collect = gst_collect_pads_new ();
+  gst_collect_pads_set_function (mux->collect,
+      (GstCollectPadsFunction) GST_DEBUG_FUNCPTR (mpegtsmux_collected), mux);
 
   mux->tsmux = tsmux_new ();
   tsmux_set_write_func (mux->tsmux, new_packet_cb, mux);
@@ -292,6 +292,7 @@ mpegtsmux_dispose (GObject * object)
     g_list_free (mux->streamheader);
     mux->streamheader = NULL;
   }
+  gst_event_replace (&mux->force_key_unit_event, NULL);
   GST_CALL_PARENT (G_OBJECT_CLASS, dispose, (object));
 }
 
@@ -522,7 +523,7 @@ mpegtsmux_create_streams (MpegTsMux * mux)
 
   /* Create the streams */
   while (walk) {
-    GstCollectData2 *c_data = (GstCollectData2 *) walk->data;
+    GstCollectData *c_data = (GstCollectData *) walk->data;
     MpegTsPadData *ts_data = (MpegTsPadData *) walk->data;
     gchar *name = NULL;
 
@@ -582,11 +583,11 @@ static MpegTsPadData *
 mpegtsmux_choose_best_stream (MpegTsMux * mux)
 {
   MpegTsPadData *best = NULL;
-  GstCollectData2 *c_best = NULL;
+  GstCollectData *c_best = NULL;
   GSList *walk;
 
   for (walk = mux->collect->data; walk != NULL; walk = g_slist_next (walk)) {
-    GstCollectData2 *c_data = (GstCollectData2 *) walk->data;
+    GstCollectData *c_data = (GstCollectData *) walk->data;
     MpegTsPadData *ts_data = (MpegTsPadData *) walk->data;
 
     if (ts_data->eos == FALSE) {
@@ -594,7 +595,7 @@ mpegtsmux_choose_best_stream (MpegTsMux * mux)
         GstBuffer *buf;
 
         ts_data->queued_buf = buf =
-            gst_collect_pads2_peek (mux->collect, c_data);
+            gst_collect_pads_peek (mux->collect, c_data);
 
         if (buf != NULL) {
           if (ts_data->prepare_func) {
@@ -656,14 +657,14 @@ mpegtsmux_choose_best_stream (MpegTsMux * mux)
   }
   if (c_best) {
     GstBuffer *buffer;
-    if ((buffer = gst_collect_pads2_pop (mux->collect, c_best)))
+    if ((buffer = gst_collect_pads_pop (mux->collect, c_best)))
       gst_buffer_unref (buffer);
   }
 
   return best;
 }
 
-#define COLLECT_DATA_PAD(collect_data) (((GstCollectData2 *)(collect_data))->pad)
+#define COLLECT_DATA_PAD(collect_data) (((GstCollectData *)(collect_data))->pad)
 
 static gboolean
 mpegtsmux_sink_event (GstPad * pad, GstEvent * event)
@@ -714,6 +715,8 @@ mpegtsmux_sink_event (GstPad * pad, GstEvent * event)
 out:
   if (forward)
     res = ts_data->eventfunc (pad, event);
+  else
+    gst_event_unref (event);
 
   gst_object_unref (mux);
   return res;
@@ -723,7 +726,7 @@ static gboolean
 mpegtsmux_src_event (GstPad * pad, GstEvent * event)
 {
   MpegTsMux *mux = GST_MPEG_TSMUX (gst_pad_get_parent (pad));
-  gboolean res = TRUE;
+  gboolean res = TRUE, forward = TRUE;
 
   switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_CUSTOM_UPSTREAM:
@@ -737,6 +740,8 @@ mpegtsmux_src_event (GstPad * pad, GstEvent * event)
 
       if (!gst_video_event_is_force_key_unit (event))
         break;
+
+      forward = FALSE;
 
       gst_video_event_parse_upstream_force_key_unit (event,
           &running_time, &all_headers, &count);
@@ -778,14 +783,17 @@ mpegtsmux_src_event (GstPad * pad, GstEvent * event)
             break;
         }
       }
-
-      gst_event_unref (event);
+      gst_iterator_free (iter);
       break;
     }
     default:
-      res = gst_pad_event_default (pad, event);
       break;
   }
+
+  if (forward)
+    res = gst_pad_event_default (pad, event);
+  else
+    gst_event_unref (event);
 
   gst_object_unref (mux);
   return res;
@@ -840,7 +848,7 @@ out:
 }
 
 static GstFlowReturn
-mpegtsmux_collected (GstCollectPads2 * pads, MpegTsMux * mux)
+mpegtsmux_collected (GstCollectPads * pads, MpegTsMux * mux)
 {
   GstFlowReturn ret = GST_FLOW_OK;
   MpegTsPadData *best = NULL;
@@ -983,7 +991,7 @@ mpegtsmux_request_new_pad (GstElement * element,
   pad = gst_pad_new_from_template (templ, pad_name);
   g_free (pad_name);
 
-  pad_data = (MpegTsPadData *) gst_collect_pads2_add_pad (mux->collect, pad,
+  pad_data = (MpegTsPadData *) gst_collect_pads_add_pad (mux->collect, pad,
       sizeof (MpegTsPadData));
   if (pad_data == NULL)
     goto pad_failure;
@@ -1012,7 +1020,7 @@ stream_exists:
 could_not_add:
   GST_ELEMENT_ERROR (element, STREAM, FAILED,
       ("Internal data stream error."), ("Could not add pad to element"));
-  gst_collect_pads2_remove_pad (mux->collect, pad);
+  gst_collect_pads_remove_pad (mux->collect, pad);
   gst_object_unref (pad);
   return NULL;
 pad_failure:
@@ -1030,7 +1038,7 @@ mpegtsmux_release_pad (GstElement * element, GstPad * pad)
   GST_DEBUG_OBJECT (mux, "Pad %" GST_PTR_FORMAT " being released", pad);
 
   if (mux->collect) {
-    gst_collect_pads2_remove_pad (mux->collect, pad);
+    gst_collect_pads_remove_pad (mux->collect, pad);
   }
 
   /* chain up */
@@ -1292,12 +1300,12 @@ mpegtsmux_change_state (GstElement * element, GstStateChange transition)
     case GST_STATE_CHANGE_NULL_TO_READY:
       break;
     case GST_STATE_CHANGE_READY_TO_PAUSED:
-      gst_collect_pads2_start (mux->collect);
+      gst_collect_pads_start (mux->collect);
       break;
     case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
       break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:
-      gst_collect_pads2_stop (mux->collect);
+      gst_collect_pads_stop (mux->collect);
       break;
     case GST_STATE_CHANGE_READY_TO_NULL:
       if (mux->adapter)

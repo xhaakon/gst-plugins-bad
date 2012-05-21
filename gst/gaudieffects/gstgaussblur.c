@@ -1,44 +1,108 @@
+/*
+ * GStreamer
+ * Copyright (C) <2010> Jan Schmidt <thaytan@noraisin.net>
+ * Copyright (C) <2012> Luis de Bethencourt <luis@debethencourt.com>
+ *
+ * Chromium - burning chrome video effect.
+ * Based on Pete Warden's FreeFrame plugin with the same name.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * Alternatively, the contents of this file may be used under the
+ * GNU Lesser General Public License Version 2.1 (the "LGPL"), in
+ * which case the following provisions apply instead of the ones
+ * mentioned above:
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * SECTION:element-gaussianblur
+ *
+ * Gaussianblur blurs the video stream in realtime.
+ *
+ * <refsect2>
+ * <title>Example launch line</title>
+ * |[
+ * gst-launch -v videotestsrc ! gaussianblur ! ffmpegcolorspace ! autovideosink
+ * ]| This pipeline shows the effect of gaussianblur on a test stream
+ * </refsect2>
+ */
+
 #ifdef HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
+#include <string.h>
 #endif
 
 #include <math.h>
 #include <gst/gst.h>
-#include <gst/controller/gstcontroller.h>
 
 #include "gstplugin.h"
 #include "gstgaussblur.h"
 
-static gboolean gauss_blur_stop (GstBaseTransform * btrans);
-static gboolean gauss_blur_set_caps (GstBaseTransform * btrans,
-    GstCaps * incaps, GstCaps * outcaps);
-static GstFlowReturn gauss_blur_process_frame (GstBaseTransform * btrans,
-    GstBuffer * in_buf, GstBuffer * out_buf);
+static void gst_gaussianblur_finalize (GObject * object);
 
-static void gauss_blur_set_property (GObject * object,
+static gboolean gst_gaussianblur_set_info (GstVideoFilter * filter,
+    GstCaps * incaps, GstVideoInfo * in_info, GstCaps * outcaps,
+    GstVideoInfo * out_info);
+static GstFlowReturn gst_gaussianblur_transform_frame (GstVideoFilter * vfilter,
+    GstVideoFrame * in_frame, GstVideoFrame * out_frame);
+
+static void gst_gaussianblur_set_property (GObject * object,
     guint prop_id, const GValue * value, GParamSpec * pspec);
-static void gauss_blur_get_property (GObject * object,
+static void gst_gaussianblur_get_property (GObject * object,
     guint prop_id, GValue * value, GParamSpec * pspec);
 
 GST_DEBUG_CATEGORY_STATIC (gst_gauss_blur_debug);
 #define GST_CAT_DEFAULT gst_gauss_blur_debug
 
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-#define CAPS_STR_RGB GST_VIDEO_CAPS_BGRx ";" GST_VIDEO_CAPS_RGBx
+#define CAPS_STR_RGB GST_VIDEO_CAPS_MAKE ("{  BGRx, RGBx }")
 #else
-#define CAPS_STR_RGB GST_VIDEO_CAPS_xRGB ";" GST_VIDEO_CAPS_xBGR
+#define CAPS_STR_RGB GST_VIDEO_CAPS_MAKE ("{  xBGR, xRGB }")
 #endif
 
-#define CAPS_STR GST_VIDEO_CAPS_YUV("AYUV")
+#define CAPS_STR GST_VIDEO_CAPS_MAKE ("AYUV")
 
 /* The capabilities of the inputs and outputs. */
-static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
+static GstStaticPadTemplate gst_gaussianblur_sink_template =
+GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS (CAPS_STR)
     );
 
-static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
+static GstStaticPadTemplate gst_gaussianblur_src_template =
+GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS (CAPS_STR)
@@ -51,62 +115,79 @@ enum
   PROP_LAST
 };
 
-static void cleanup (GaussBlur * gb);
-static gboolean make_gaussian_kernel (GaussBlur * gb, float sigma);
-static void gaussian_smooth (GaussBlur * gb, guint8 * image,
+static gboolean make_gaussian_kernel (GstGaussianBlur * gb, float sigma);
+static void gaussian_smooth (GstGaussianBlur * gb, guint8 * image,
     guint8 * out_image);
 
-GST_BOILERPLATE (GaussBlur, gauss_blur, GstVideoFilter, GST_TYPE_VIDEO_FILTER);
+#define gst_gaussianblur_parent_class parent_class
+G_DEFINE_TYPE (GstGaussianBlur, gst_gaussianblur, GST_TYPE_VIDEO_FILTER);
 
 #define DEFAULT_SIGMA 1.2
 
+/* Initalize the gaussianblur's class. */
 static void
-gauss_blur_base_init (gpointer gclass)
+gst_gaussianblur_class_init (GstGaussianBlurClass * klass)
 {
-  GstElementClass *element_class = GST_ELEMENT_CLASS (gclass);
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GstElementClass *gstelement_class = (GstElementClass *) klass;
+  GstVideoFilterClass *vfilter_class = (GstVideoFilterClass *) klass;
 
-  gst_element_class_set_details_simple (element_class,
-      "GaussBlur",
+  gst_element_class_set_details_simple (gstelement_class,
+      "GstGaussianBlur",
       "Filter/Effect/Video",
       "Perform Gaussian blur/sharpen on a video",
       "Jan Schmidt <thaytan@noraisin.net>");
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_factory));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_factory));
-}
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&gst_gaussianblur_sink_template));
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&gst_gaussianblur_src_template));
 
-static void
-gauss_blur_class_init (GaussBlurClass * klass)
-{
-  GObjectClass *object_class = (GObjectClass *) klass;
-  GstBaseTransformClass *trans_class = (GstBaseTransformClass *) klass;
+  gobject_class->set_property = gst_gaussianblur_set_property;
+  gobject_class->get_property = gst_gaussianblur_get_property;
+  gobject_class->finalize = GST_DEBUG_FUNCPTR (gst_gaussianblur_finalize);
 
-  object_class->set_property = gauss_blur_set_property;
-  object_class->get_property = gauss_blur_get_property;
-
-  trans_class->stop = gauss_blur_stop;
-  trans_class->set_caps = gauss_blur_set_caps;
-  trans_class->transform = gauss_blur_process_frame;
-
-  g_object_class_install_property (object_class, PROP_SIGMA,
+  g_object_class_install_property (gobject_class, PROP_SIGMA,
       g_param_spec_double ("sigma", "Sigma",
           "Sigma value for gaussian blur (negative for sharpen)",
           -20.0, 20.0, DEFAULT_SIGMA,
           G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+
+  vfilter_class->transform_frame =
+      GST_DEBUG_FUNCPTR (gst_gaussianblur_transform_frame);
+  vfilter_class->set_info = GST_DEBUG_FUNCPTR (gst_gaussianblur_set_info);
+}
+
+static gboolean
+gst_gaussianblur_set_info (GstVideoFilter * filter, GstCaps * incaps,
+    GstVideoInfo * in_info, GstCaps * outcaps, GstVideoInfo * out_info)
+{
+  GstGaussianBlur *gb = GST_GAUSSIANBLUR (filter);
+  guint32 n_elems;
+
+  gb->width = GST_VIDEO_INFO_WIDTH (in_info);
+  gb->height = GST_VIDEO_INFO_HEIGHT (in_info);
+
+  /* get stride */
+  gb->stride = GST_VIDEO_INFO_COMP_STRIDE (in_info, 0);
+  n_elems = gb->stride * gb->height;
+  gb->tempim = g_malloc (sizeof (gfloat) * n_elems);
+
+  return TRUE;
 }
 
 static void
-gauss_blur_init (GaussBlur * gb, GaussBlurClass * gclass)
+gst_gaussianblur_init (GstGaussianBlur * gb)
 {
   gb->sigma = DEFAULT_SIGMA;
   gb->cur_sigma = -1.0;
 }
 
 static void
-cleanup (GaussBlur * gb)
+gst_gaussianblur_finalize (GObject * object)
 {
+  GstGaussianBlur *gb = GST_GAUSSIANBLUR (object);
+
   g_free (gb->tempim);
   gb->tempim = NULL;
 
@@ -117,73 +198,46 @@ cleanup (GaussBlur * gb)
   gb->kernel = NULL;
   g_free (gb->kernel_sum);
   gb->kernel_sum = NULL;
-}
 
-static gboolean
-gauss_blur_stop (GstBaseTransform * btrans)
-{
-  GaussBlur *gb = GAUSS_BLUR (btrans);
-
-  cleanup (gb);
-
-  return TRUE;
-}
-
-static gboolean
-gauss_blur_set_caps (GstBaseTransform * btrans,
-    GstCaps * incaps, GstCaps * outcaps)
-{
-  GaussBlur *gb = GAUSS_BLUR (btrans);
-  GstStructure *structure;
-  GstVideoFormat format;
-  guint32 n_elems;
-
-  structure = gst_caps_get_structure (incaps, 0);
-  g_return_val_if_fail (structure != NULL, FALSE);
-
-  if (!gst_video_format_parse_caps (incaps, &format, &gb->width, &gb->height))
-    return FALSE;
-
-  /* get stride */
-  gb->stride = gst_video_format_get_row_stride (format, 0, gb->width);
-
-  n_elems = gb->stride * gb->height;
-
-  gb->tempim = g_malloc (sizeof (gfloat) * n_elems);
-  //gb->smoothedim = g_malloc (sizeof (guint16) * n_elems);
-
-  return TRUE;
+  G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
 static GstFlowReturn
-gauss_blur_process_frame (GstBaseTransform * btrans,
-    GstBuffer * in_buf, GstBuffer * out_buf)
+gst_gaussianblur_transform_frame (GstVideoFilter * vfilter,
+    GstVideoFrame * in_frame, GstVideoFrame * out_frame)
 {
-  GaussBlur *gb = GAUSS_BLUR (btrans);
+  GstGaussianBlur *filter = GST_GAUSSIANBLUR (vfilter);
   GstClockTime timestamp;
   gint64 stream_time;
   gfloat sigma;
+  guint8 *src, *dest;
 
   /* GstController: update the properties */
-  timestamp = GST_BUFFER_TIMESTAMP (in_buf);
+  timestamp = GST_BUFFER_TIMESTAMP (in_frame->buffer);
   stream_time =
-      gst_segment_to_stream_time (&btrans->segment, GST_FORMAT_TIME, timestamp);
+      gst_segment_to_stream_time (&GST_BASE_TRANSFORM (filter)->segment,
+      GST_FORMAT_TIME, timestamp);
+
+  GST_DEBUG_OBJECT (filter, "sync to %" GST_TIME_FORMAT,
+      GST_TIME_ARGS (timestamp));
+
   if (GST_CLOCK_TIME_IS_VALID (stream_time))
-    gst_object_sync_values (GST_OBJECT (gb), stream_time);
+    gst_object_sync_values (GST_OBJECT (filter), stream_time);
 
-  GST_OBJECT_LOCK (gb);
-  sigma = gb->sigma;
-  GST_OBJECT_UNLOCK (gb);
+  GST_OBJECT_LOCK (filter);
+  sigma = filter->sigma;
+  GST_OBJECT_UNLOCK (filter);
 
-  if (gb->cur_sigma != sigma) {
-    g_free (gb->kernel);
-    gb->kernel = NULL;
-    g_free (gb->kernel_sum);
-    gb->kernel_sum = NULL;
-    gb->cur_sigma = sigma;
+  if (filter->cur_sigma != sigma) {
+    g_free (filter->kernel);
+    filter->kernel = NULL;
+    g_free (filter->kernel_sum);
+    filter->kernel_sum = NULL;
+    filter->cur_sigma = sigma;
   }
-  if (gb->kernel == NULL && !make_gaussian_kernel (gb, gb->cur_sigma)) {
-    GST_ELEMENT_ERROR (btrans, RESOURCE, NO_SPACE_LEFT, ("Out of memory"),
+  if (filter->kernel == NULL &&
+      !make_gaussian_kernel (filter, filter->cur_sigma)) {
+    GST_ELEMENT_ERROR (filter, RESOURCE, NO_SPACE_LEFT, ("Out of memory"),
         ("Failed to allocation gaussian kernel"));
     return GST_FLOW_ERROR;
   }
@@ -192,15 +246,16 @@ gauss_blur_process_frame (GstBaseTransform * btrans,
    * Perform gaussian smoothing on the image using the input standard
    * deviation.
    */
-  memcpy (GST_BUFFER_DATA (out_buf), GST_BUFFER_DATA (in_buf),
-      gb->height * gb->stride);
-  gaussian_smooth (gb, GST_BUFFER_DATA (in_buf), GST_BUFFER_DATA (out_buf));
+  src = GST_VIDEO_FRAME_COMP_DATA (in_frame, 0);
+  dest = GST_VIDEO_FRAME_COMP_DATA (out_frame, 0);
+  gst_video_frame_copy (out_frame, in_frame);
+  gaussian_smooth (filter, src, dest);
 
   return GST_FLOW_OK;
 }
 
 static void
-blur_row_x (GaussBlur * gb, guint8 * in_row, gfloat * out_row)
+blur_row_x (GstGaussianBlur * gb, guint8 * in_row, gfloat * out_row)
 {
   int c, cc, center;
   float dot[4], sum;
@@ -238,7 +293,7 @@ blur_row_x (GaussBlur * gb, guint8 * in_row, gfloat * out_row)
 }
 
 static void
-gaussian_smooth (GaussBlur * gb, guint8 * image, guint8 * out_image)
+gaussian_smooth (GstGaussianBlur * gb, guint8 * image, guint8 * out_image)
 {
   int r, c, rr, center;
   float dot[4], sum;
@@ -302,7 +357,7 @@ gaussian_smooth (GaussBlur * gb, guint8 * image, guint8 * out_image)
  * Create a one dimensional gaussian kernel.
  */
 static gboolean
-make_gaussian_kernel (GaussBlur * gb, float sigma)
+make_gaussian_kernel (GstGaussianBlur * gb, float sigma)
 {
   int i, center, left, right;
   float sum, sum2;
@@ -365,10 +420,10 @@ make_gaussian_kernel (GaussBlur * gb, float sigma)
 }
 
 static void
-gauss_blur_set_property (GObject * object,
+gst_gaussianblur_set_property (GObject * object,
     guint prop_id, const GValue * value, GParamSpec * pspec)
 {
-  GaussBlur *gb = GAUSS_BLUR (object);
+  GstGaussianBlur *gb = GST_GAUSSIANBLUR (object);
   switch (prop_id) {
     case PROP_SIGMA:
       GST_OBJECT_LOCK (object);
@@ -382,10 +437,10 @@ gauss_blur_set_property (GObject * object,
 }
 
 static void
-gauss_blur_get_property (GObject * object,
+gst_gaussianblur_get_property (GObject * object,
     guint prop_id, GValue * value, GParamSpec * pspec)
 {
-  GaussBlur *gb = GAUSS_BLUR (object);
+  GstGaussianBlur *gb = GST_GAUSSIANBLUR (object);
   switch (prop_id) {
     case PROP_SIGMA:
       GST_OBJECT_LOCK (gb);
@@ -407,5 +462,5 @@ gst_gauss_blur_plugin_init (GstPlugin * plugin)
       0, "Gaussian Blur video effect");
 
   return gst_element_register (plugin, "gaussianblur", GST_RANK_NONE,
-      GST_TYPE_GAUSS_BLUR);
+      GST_TYPE_GAUSSIANBLUR);
 }

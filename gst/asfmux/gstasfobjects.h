@@ -22,7 +22,7 @@
 #include <glib.h>
 #include <gst/gst.h>
 #include <gst/base/gstbytereader.h>
-#include <gst/base/gstcollectpads2.h>
+#include <gst/base/gstcollectpads.h>
 
 #define ASF_PAYLOAD_IS_KEYFRAME(pay) ((pay->stream_number & 0x80) != 0)
 #define ASF_MILI_TO_100NANO(v) (v * 10000)
@@ -75,7 +75,7 @@ typedef struct _AsfPayload
   guint32 presentation_time;
   GstBuffer *data;
 
-  GstCollectData2 *pad;
+  GstCollectData *pad;
 
   /* simple index info */
   gboolean has_packet_info;
@@ -111,6 +111,8 @@ guint16 gst_asf_put_subpayload (guint8 * buf, AsfPayload * payload,
 gboolean gst_asf_parse_packet (GstBuffer * buffer, GstAsfPacketInfo * packet,
     gboolean trust_delta_flag, guint packet_size);
 guint64 gst_asf_match_and_peek_obj_size (const guint8 * data,
+    const Guid * guid);
+guint64 gst_asf_match_and_peek_obj_size_buf (GstBuffer * buf,
     const Guid * guid);
 gboolean gst_asf_parse_headers (GstBuffer * buffer, GstAsfFileInfo * file_info);
 

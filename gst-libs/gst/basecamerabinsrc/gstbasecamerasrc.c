@@ -23,7 +23,7 @@
 /**
  * SECTION:element-basecamerasrc
  *
- * Base class for the camera source bin used by camerabin for capture. 
+ * Base class for the camera source bin used by camerabin for capture.
  * Sophisticated camera hardware can derive from this baseclass and map the
  * features to this interface.
  *
@@ -40,11 +40,32 @@
  * During construct_pipeline() vmethod a subclass can add several elements into
  * the bin and expose 3 srcs pads as ghostpads implementing the 3 pad templates.
  *
+ * However the subclass is responsable for adding the pad templates for the
+ * source pads and they must be named "vidsrc", "imgsrc" and "vfsrc". The pad
+ * templates should be installed in the subclass' class_init function, like so:
+ * |[
+ * static void
+ * my_element_class_init (GstMyElementClass *klass)
+ * {
+ *   GstElementClass *gstelement_class = GST_ELEMENT_CLASS (klass);
+ *   // pad templates should be a #GstStaticPadTemplate with direction
+ *   // #GST_PAD_SRC and name "vidsrc", "imgsrc" and "vfsrc"
+ *   gst_element_class_add_static_pad_template (gstelement_class,
+ *       &amp;vidsrc_template);
+ *   gst_element_class_add_static_pad_template (gstelement_class,
+ *       &amp;imgsrc_template);
+ *   gst_element_class_add_static_pad_template (gstelement_class,
+ *       &amp;vfsrc_template);
+ *   // see #GstElementDetails
+ *   gst_element_class_set_details (gstelement_class, &amp;details);
+ * }
+ * ]|
+ *
  * It is also possible to add regular pads from the subclass and implement the
  * dataflow methods on these pads. This way all functionality can be implemneted
  * directly in the subclass without extra elements.
  *
- * The src will receive the capture mode from #GstCameraBin2 on the 
+ * The src will receive the capture mode from #GstCameraBin2 on the
  * #GstBaseCameraSrc:mode property. Possible capture modes are defined in
  * #GstCameraBinMode.
  */
@@ -88,23 +109,6 @@ GST_DEBUG_CATEGORY (base_camera_src_debug);
 #define parent_class gst_base_camera_src_parent_class
 G_DEFINE_TYPE (GstBaseCameraSrc, gst_base_camera_src, GST_TYPE_BIN);
 
-static GstStaticPadTemplate vfsrc_template =
-GST_STATIC_PAD_TEMPLATE (GST_BASE_CAMERA_SRC_VIEWFINDER_PAD_NAME,
-    GST_PAD_SRC,
-    GST_PAD_ALWAYS,
-    GST_STATIC_CAPS_ANY);
-
-static GstStaticPadTemplate imgsrc_template =
-GST_STATIC_PAD_TEMPLATE (GST_BASE_CAMERA_SRC_IMAGE_PAD_NAME,
-    GST_PAD_SRC,
-    GST_PAD_ALWAYS,
-    GST_STATIC_CAPS_ANY);
-
-static GstStaticPadTemplate vidsrc_template =
-GST_STATIC_PAD_TEMPLATE (GST_BASE_CAMERA_SRC_VIDEO_PAD_NAME,
-    GST_PAD_SRC,
-    GST_PAD_ALWAYS,
-    GST_STATIC_CAPS_ANY);
 
 /* NOTE: we could provide a vmethod for derived class to overload to provide
  * it's own implementation of interface..  but in all cases I can think of at
@@ -287,14 +291,22 @@ gst_base_camera_src_set_property (GObject * object,
       self->post_preview = g_value_get_boolean (value);
       break;
     case PROP_PREVIEW_CAPS:{
-      GstCaps *new_caps = NULL;
+      GstCaps *new_caps;
+
       new_caps = (GstCaps *) gst_value_get_caps (value);
+      if (new_caps == NULL) {
+        new_caps = gst_caps_new_any ();
+      } else {
+        new_caps = gst_caps_ref (new_caps);
+      }
+
       if (!gst_caps_is_equal (self->preview_caps, new_caps)) {
         gst_caps_replace (&self->preview_caps, new_caps);
         gst_base_camera_src_setup_preview (self, new_caps);
       } else {
         GST_DEBUG_OBJECT (self, "New preview caps equal current preview caps");
       }
+      gst_caps_unref (new_caps);
     }
       break;
     case PROP_PREVIEW_FILTER:
@@ -477,7 +489,7 @@ gst_base_camera_src_class_init (GstBaseCameraSrcClass * klass)
 
   g_object_class_install_property (gobject_class, PROP_PREVIEW_CAPS,
       g_param_spec_boxed ("preview-caps", "Preview caps",
-          "The caps of the preview image to be posted",
+          "The caps of the preview image to be posted (NULL means ANY)",
           GST_TYPE_CAPS, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_PREVIEW_FILTER,
@@ -522,15 +534,6 @@ gst_base_camera_src_class_init (GstBaseCameraSrcClass * klass)
   gst_element_class_set_details_simple (gstelement_class,
       "Base class for camerabin src bin", "Source/Video",
       "Abstracts capture device for camerabin2", "Rob Clark <rob@ti.com>");
-
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&vfsrc_template));
-
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&imgsrc_template));
-
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&vidsrc_template));
 }
 
 static void
@@ -546,6 +549,7 @@ gst_base_camera_src_init (GstBaseCameraSrc * self)
   g_mutex_init (&self->capturing_mutex);
 
   self->post_preview = DEFAULT_POST_PREVIEW;
+  self->preview_caps = gst_caps_new_any ();
 
   self->preview_pipeline =
       gst_camerabin_create_preview_pipeline (GST_ELEMENT_CAST (self), NULL);
