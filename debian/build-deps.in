@@ -47,7 +47,6 @@ librsvg2-dev (>= 2.14.0)
 libcairo2-dev
 libpng-dev
 libslv2-dev (>= 0.6.6)
-lv2core
 flite-dev
 gstreamer@GST_ABI@-doc
 gstreamer@GST_ABI@-plugins-base-doc
