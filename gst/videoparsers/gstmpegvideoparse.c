@@ -227,15 +227,27 @@ gst_mpegv_parse_process_config (GstMpegvParse * mpvparse, GstBuffer * buf,
     guint size)
 {
   GList *tmp;
-  GstMapInfo map;
   guint8 *data;
+  guint8 *data_with_prefix;
+  GstMapInfo map;
 
   gst_buffer_map (buf, &map, GST_MAP_READ);
   data = map.data + mpvparse->seq_offset;
+  if (mpvparse->seq_offset < 4) {
+    /* This shouldn't happen, but just in case... */
+    GST_WARNING_OBJECT (mpvparse, "Sequence header start code missing.");
+    return FALSE;
+  }
+  /* pointer to sequence header data including the start code prefix -
+     used for codec private data */
+  data_with_prefix = data - 4;
 
-  /* only do stuff if something new */
+  /* only do stuff if something new; only compare first 11 bytes, changes in
+     quantiser matrix doesn't matter here. Also changing the matrices in
+     codec_data seems to cause problem with decoders */
   if (mpvparse->config && size == gst_buffer_get_size (mpvparse->config) &&
-      gst_buffer_memcmp (mpvparse->config, 0, data, size) == 0) {
+      gst_buffer_memcmp (mpvparse->config, 0, data_with_prefix, MIN (size,
+              11)) == 0) {
     gst_buffer_unmap (buf, &map);
     return TRUE;
   }
@@ -271,7 +283,7 @@ gst_mpegv_parse_process_config (GstMpegvParse * mpvparse, GstBuffer * buf,
                 map.data, map.size, tpoffsz->offset)) {
           mpvparse->fps_num =
               mpvparse->sequencehdr.fps_n * (mpvparse->sequenceext.fps_n_ext +
-              1) * 2;
+              1);
           mpvparse->fps_den =
               mpvparse->sequencehdr.fps_d * (mpvparse->sequenceext.fps_d_ext +
               1);
@@ -285,7 +297,7 @@ gst_mpegv_parse_process_config (GstMpegvParse * mpvparse, GstBuffer * buf,
     gst_buffer_unref (mpvparse->config);
 
   mpvparse->config = gst_buffer_new_and_alloc (size);
-  gst_buffer_fill (mpvparse->config, 0, data, size);
+  gst_buffer_fill (mpvparse->config, 0, data_with_prefix, size);
 
   /* trigger src caps update */
   mpvparse->update_caps = TRUE;
@@ -525,9 +537,6 @@ gst_mpegv_parse_handle_frame (GstBaseParse * parse,
 
     GST_LOG_OBJECT (mpvparse, "next start code at %d", codoffsz->offset);
 
-    if (codoffsz->size < 0)
-      break;
-
     ret = gst_mpegv_parse_process_sc (mpvparse, buf, codoffsz->offset,
         codoffsz->type);
 
@@ -541,15 +550,14 @@ gst_mpegv_parse_handle_frame (GstBaseParse * parse,
 end:
   if (fsize > 0) {
     ret = TRUE;
+    mpvparse->last_sc = -1;
   } else if (GST_BASE_PARSE_DRAINING (parse)) {
     fsize = buf_size;
     ret = TRUE;
 
   } else {
     /* resume scan where we left it */
-    if (!mpvparse->last_sc)
-      *skipsize = mpvparse->last_sc = buf_size - 3;
-    else if (mpvparse->typeoffsize)
+    if (mpvparse->typeoffsize)
       mpvparse->last_sc = buf_size - 3;
     else
       *skipsize = 0;
@@ -724,8 +732,10 @@ gst_mpegv_parse_parse_frame (GstBaseParse * parse, GstBaseParseFrame * frame)
     GST_BUFFER_DURATION (buffer) = 0;
   }
 
-  GST_BUFFER_DURATION (buffer) =
-      (1 + mpvparse->frame_repeat_count) * GST_BUFFER_DURATION (buffer);
+  if (GST_CLOCK_TIME_IS_VALID (GST_BUFFER_DURATION (buffer))) {
+    GST_BUFFER_DURATION (buffer) =
+        (1 + mpvparse->frame_repeat_count) * GST_BUFFER_DURATION (buffer) / 2;
+  }
 
   if (G_UNLIKELY (mpvparse->drop && !mpvparse->config)) {
     GST_DEBUG_OBJECT (mpvparse, "dropping frame as no config yet");

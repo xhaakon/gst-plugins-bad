@@ -54,6 +54,24 @@ GST_DEBUG_CATEGORY (wrapper_camera_bin_src_debug);
 G_DEFINE_TYPE (GstWrapperCameraBinSrc, gst_wrapper_camera_bin_src,
     GST_TYPE_BASE_CAMERA_SRC);
 
+static GstStaticPadTemplate vfsrc_template =
+GST_STATIC_PAD_TEMPLATE (GST_BASE_CAMERA_SRC_VIEWFINDER_PAD_NAME,
+    GST_PAD_SRC,
+    GST_PAD_ALWAYS,
+    GST_STATIC_CAPS_ANY);
+
+static GstStaticPadTemplate imgsrc_template =
+GST_STATIC_PAD_TEMPLATE (GST_BASE_CAMERA_SRC_IMAGE_PAD_NAME,
+    GST_PAD_SRC,
+    GST_PAD_ALWAYS,
+    GST_STATIC_CAPS_ANY);
+
+static GstStaticPadTemplate vidsrc_template =
+GST_STATIC_PAD_TEMPLATE (GST_BASE_CAMERA_SRC_VIDEO_PAD_NAME,
+    GST_PAD_SRC,
+    GST_PAD_ALWAYS,
+    GST_STATIC_CAPS_ANY);
+
 static void set_capsfilter_caps (GstWrapperCameraBinSrc * self,
     GstCaps * new_caps);
 
@@ -149,9 +167,6 @@ static void
 gst_wrapper_camera_bin_reset_video_src_caps (GstWrapperCameraBinSrc * self,
     GstCaps * caps)
 {
-  GstClock *clock;
-  gint64 base_time;
-
   GST_DEBUG_OBJECT (self, "Resetting src caps to %" GST_PTR_FORMAT, caps);
   if (self->src_vid_src) {
     GstCaps *old_caps;
@@ -166,58 +181,7 @@ gst_wrapper_camera_bin_reset_video_src_caps (GstWrapperCameraBinSrc * self,
     if (old_caps)
       gst_caps_unref (old_caps);
 
-    clock = gst_element_get_clock (self->src_vid_src);
-    base_time = gst_element_get_base_time (self->src_vid_src);
-
-    /* Ideally, we should only need to get the source to READY here,
-     * but it seems v4l2src isn't happy with this. Putting to NULL makes
-     * it work.
-     *
-     * TODO fix this in v4l2src
-     */
-    gst_element_set_state (self->src_vid_src, GST_STATE_NULL);
     set_capsfilter_caps (self, caps);
-
-    self->drop_newseg = TRUE;
-
-    GST_DEBUG_OBJECT (self, "Bringing source up");
-    if (!gst_element_sync_state_with_parent (self->src_vid_src)) {
-      GST_WARNING_OBJECT (self, "Failed to reset source caps");
-      gst_element_set_state (self->src_vid_src, GST_STATE_NULL);
-    }
-
-    if (clock) {
-      gst_element_set_clock (self->src_vid_src, clock);
-      gst_element_set_base_time (self->src_vid_src, base_time);
-
-      if (GST_IS_BIN (self->src_vid_src)) {
-        GstIterator *it =
-            gst_bin_iterate_elements (GST_BIN (self->src_vid_src));
-        GValue item = { 0 };
-        gboolean done = FALSE;
-        while (!done) {
-          switch (gst_iterator_next (it, &item)) {
-            case GST_ITERATOR_OK:
-              gst_element_set_base_time (GST_ELEMENT (g_value_get_object
-                      (&item)), base_time);
-              g_value_unset (&item);
-              break;
-            case GST_ITERATOR_RESYNC:
-              gst_iterator_resync (it);
-              break;
-            case GST_ITERATOR_ERROR:
-              done = TRUE;
-              break;
-            case GST_ITERATOR_DONE:
-              done = TRUE;
-              break;
-          }
-        }
-        gst_iterator_free (it);
-      }
-
-      gst_object_unref (clock);
-    }
   }
 }
 
@@ -235,8 +199,9 @@ gst_wrapper_camera_bin_src_imgsrc_probe (GstPad * pad, GstPadProbeInfo * info,
   GstBuffer *buffer = GST_BUFFER (info->data);
   GstPadProbeReturn ret = GST_PAD_PROBE_DROP;
 
-  GST_LOG_OBJECT (self, "Image probe, mode %d, capture count %d",
-      camerasrc->mode, self->image_capture_count);
+  GST_LOG_OBJECT (self, "Image probe, mode %d, capture count %d bufsize: %"
+      G_GSIZE_FORMAT, camerasrc->mode, self->image_capture_count,
+      gst_buffer_get_size (buffer));
 
   g_mutex_lock (&camerasrc->capturing_mutex);
   if (self->image_capture_count > 0) {
@@ -315,30 +280,6 @@ gst_wrapper_camera_bin_src_vidsrc_probe (GstPad * pad, GstPadProbeInfo * info,
   return ret;
 }
 
-static gboolean
-gst_wrapper_camera_bin_src_event (GstPad * pad, GstObject * parent,
-    GstEvent * event)
-{
-  GstWrapperCameraBinSrc *src =
-      GST_WRAPPER_CAMERA_BIN_SRC (GST_PAD_PARENT (pad));
-  const GstStructure *structure;
-
-  structure = gst_event_get_structure (event);
-  if (structure && gst_structure_has_name (structure, "renegotiate")) {
-    GST_DEBUG_OBJECT (src, "Received renegotiate on pad %s",
-        GST_PAD_NAME (pad));
-
-    if (pad == src->imgsrc) {
-      src->image_renegotiate = TRUE;
-    } else if (pad == src->vidsrc) {
-      src->video_renegotiate = TRUE;
-    }
-  }
-  //TODO porting
-  //return src->srcpad_event_func (pad, event);
-  return TRUE;
-}
-
 static GstPadProbeReturn
 gst_wrapper_camera_src_src_event_probe (GstPad * pad, GstPadProbeInfo * info,
     gpointer udata)
@@ -397,8 +338,14 @@ gst_wrapper_camera_bin_src_caps_cb (GObject * gobject, GParamSpec * pspec,
   gst_base_camera_src_setup_zoom (bcamsrc);
 
   /* Update post-zoom capsfilter */
-  if (self->src_zoom_filter)
-    g_object_set (G_OBJECT (self->src_zoom_filter), "caps", caps, NULL);
+  if (self->src_zoom_filter) {
+    GstCaps *filtercaps;
+
+    g_object_get (G_OBJECT (self->src_zoom_filter), "caps", &filtercaps, NULL);
+    if (!gst_caps_is_equal (filtercaps, caps))
+      g_object_set (G_OBJECT (self->src_zoom_filter), "caps", caps, NULL);
+    gst_caps_unref (filtercaps);
+  }
 
   /* drop our ref on the caps */
   gst_caps_unref (caps);
@@ -480,8 +427,8 @@ gst_wrapper_camera_bin_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
       gst_object_unref (pad);
     }
 
-    if (!gst_camerabin_create_and_add_element (cbin, "ffmpegcolorspace",
-            "src-colorspace"))
+    if (!gst_camerabin_create_and_add_element (cbin, "videoconvert",
+            "src-videoconvert"))
       goto done;
 
     if (!(self->src_filter =
@@ -526,7 +473,7 @@ gst_wrapper_camera_bin_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
 
     self->output_selector =
         gst_element_factory_make ("output-selector", "outsel");
-    g_object_set (self->output_selector, "pad-negotiation-mode", 0, NULL);
+    g_object_set (self->output_selector, "pad-negotiation-mode", 2, NULL);
     gst_bin_add (GST_BIN (self), self->output_selector);
     {
       GstPad *pad = gst_element_get_static_pad (self->output_selector, "sink");
@@ -590,10 +537,10 @@ gst_wrapper_camera_bin_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
   if (!self->video_filter) {
     if (self->app_vid_filter) {
       self->video_filter = gst_object_ref (self->app_vid_filter);
-      filter_csp = gst_element_factory_make ("ffmpegcolorspace",
-          "filter-colorspace");
+      filter_csp = gst_element_factory_make ("videoconvert",
+          "filter-videoconvert");
       gst_bin_add_many (cbin, self->video_filter, filter_csp, NULL);
-      src_csp = gst_bin_get_by_name (cbin, "src-colorspace");
+      src_csp = gst_bin_get_by_name (cbin, "src-videoconvert");
       capsfilter = gst_bin_get_by_name (cbin, "src-capsfilter");
       if (gst_pad_is_linked (gst_element_get_static_pad (src_csp, "src")))
         gst_element_unlink (src_csp, capsfilter);
@@ -810,7 +757,9 @@ gst_wrapper_camera_bin_src_set_mode (GstBaseCameraSrc * bcamsrc,
       g_object_set (G_OBJECT (photography), "capture-mode", mode, NULL);
     }
   } else {
-    gst_wrapper_camera_bin_reset_video_src_caps (self, NULL);
+    GstCaps *anycaps = gst_caps_new_any ();
+    gst_wrapper_camera_bin_reset_video_src_caps (self, anycaps);
+    gst_caps_unref (anycaps);
   }
 
   return TRUE;
@@ -1020,8 +969,9 @@ gst_wrapper_camera_bin_src_start_capture (GstBaseCameraSrc * camerasrc)
     GstCaps *caps = NULL;
 
     if (src->video_renegotiate) {
+      GstCaps *anycaps = gst_caps_new_any ();
       g_mutex_unlock (&camerasrc->capturing_mutex);
-      gst_wrapper_camera_bin_reset_video_src_caps (src, NULL);
+      gst_wrapper_camera_bin_reset_video_src_caps (src, anycaps);
       g_mutex_lock (&camerasrc->capturing_mutex);
 
       /* clean capsfilter caps so they don't interfere here */
@@ -1038,6 +988,7 @@ gst_wrapper_camera_bin_src_start_capture (GstBaseCameraSrc * camerasrc)
       gst_wrapper_camera_bin_reset_video_src_caps (src, caps);
       g_mutex_lock (&camerasrc->capturing_mutex);
       gst_caps_unref (caps);
+      gst_caps_unref (anycaps);
     }
     if (src->video_rec_status == GST_VIDEO_RECORDING_STATUS_DONE) {
       src->video_rec_status = GST_VIDEO_RECORDING_STATUS_STARTING;
@@ -1140,6 +1091,15 @@ gst_wrapper_camera_bin_src_class_init (GstWrapperCameraBinSrcClass * klass)
   GST_DEBUG_CATEGORY_INIT (wrapper_camera_bin_src_debug, "wrappercamerabinsrc",
       0, "wrapper camera src");
 
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&vfsrc_template));
+
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&imgsrc_template));
+
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&vidsrc_template));
+
   gst_element_class_set_details_simple (gstelement_class,
       "Wrapper camera src element for camerabin2", "Source/Video",
       "Wrapper camera src element for camerabin2",
@@ -1165,10 +1125,6 @@ gst_wrapper_camera_bin_src_init (GstWrapperCameraBinSrc * self)
   gst_element_add_pad (GST_ELEMENT (self), self->vidsrc);
 
   self->srcpad_event_func = GST_PAD_EVENTFUNC (self->vfsrc);
-
-  gst_pad_set_event_function (self->imgsrc, gst_wrapper_camera_bin_src_event);
-  gst_pad_set_event_function (self->vidsrc, gst_wrapper_camera_bin_src_event);
-  gst_pad_set_event_function (self->vfsrc, gst_wrapper_camera_bin_src_event);
 
   /* TODO where are variables reset? */
   self->image_capture_count = 0;

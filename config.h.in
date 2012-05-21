@@ -391,6 +391,9 @@
 /* Define to enable rsvg decoder (used by rsvg). */
 #undef HAVE_RSVG
 
+/* Have RSVG 2.35.0 or newer */
+#undef HAVE_RSVG_2_35_0
+
 /* Define to enable rtmp library (used by rtmp). */
 #undef HAVE_RTMP
 
@@ -405,6 +408,9 @@
 
 /* Define to enable sndfile plug-in (used by sfsrc sfsink). */
 #undef HAVE_SNDFILE
+
+/* Define to enable sndio audio (used by sndio). */
+#undef HAVE_SNDIO
 
 /* Define to enable soundtouch plug-in (used by soundtouch). */
 #undef HAVE_SOUNDTOUCH

@@ -1,7 +1,7 @@
 /*
  * GStreamer
- * Copyright (C) 2010 Luis de Bethencourt <luis@debethencourt.com>
- * 
+ * Copyright (C) <2010-2012> Luis de Bethencourt <luis@debethencourt.com>
+ *
  * Dilate - dilated eye video effect.
  * Based on Pete Warden's FreeFrame plugin with the same name.
  *
@@ -67,17 +67,17 @@
 #include "gstplugin.h"
 #include "gstdilate.h"
 
-#include <gst/video/video.h>
-#include <gst/controller/gstcontroller.h>
-
 GST_DEBUG_CATEGORY_STATIC (gst_dilate_debug);
 #define GST_CAT_DEFAULT gst_dilate_debug
 
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-#define CAPS_STR GST_VIDEO_CAPS_BGRx ";" GST_VIDEO_CAPS_RGBx
+#define CAPS_STR GST_VIDEO_CAPS_MAKE ("{  BGRx, RGBx }")
 #else
-#define CAPS_STR GST_VIDEO_CAPS_xRGB ";" GST_VIDEO_CAPS_xBGR
+#define CAPS_STR GST_VIDEO_CAPS_MAKE ("{  xBGR, xRGB }")
 #endif
+
+#define gst_dilate_parent_class parent_class
+G_DEFINE_TYPE (GstDilate, gst_dilate, GST_TYPE_VIDEO_FILTER);
 
 /* Filter signals and args. */
 enum
@@ -102,58 +102,53 @@ static inline guint32 get_luminance (guint32 in);
 
 /* The capabilities of the inputs and outputs. */
 
-static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
+static GstStaticPadTemplate gst_dilate_sink_template =
+GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS (CAPS_STR)
     );
 
-static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
+static GstStaticPadTemplate gst_dilate_src_template =
+GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS (CAPS_STR)
     );
 
-GST_BOILERPLATE (GstDilate, gst_dilate, GstVideoFilter, GST_TYPE_VIDEO_FILTER);
-
 static void gst_dilate_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
 static void gst_dilate_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
+static void gst_dilate_finalize (GObject * object);
 
-static gboolean gst_dilate_set_caps (GstBaseTransform * btrans,
-    GstCaps * incaps, GstCaps * outcaps);
-static GstFlowReturn gst_dilate_transform (GstBaseTransform * btrans,
-    GstBuffer * in_buf, GstBuffer * out_buf);
+static GstFlowReturn gst_dilate_transform_frame (GstVideoFilter * vfilter,
+    GstVideoFrame * in_frame, GstVideoFrame * out_frame);
 
 /* GObject vmethod implementations */
-
-static void
-gst_dilate_base_init (gpointer gclass)
-{
-  GstElementClass *element_class = GST_ELEMENT_CLASS (gclass);
-
-  gst_element_class_set_details_simple (element_class,
-      "Dilate",
-      "Filter/Effect/Video",
-      "Dilate copies the brightest pixel around.",
-      "Luis de Bethencourt <luis@debethencourt.com>");
-
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_factory));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_factory));
-}
 
 /* Initialize the dilate's class. */
 static void
 gst_dilate_class_init (GstDilateClass * klass)
 {
   GObjectClass *gobject_class = (GObjectClass *) klass;
-  GstBaseTransformClass *trans_class = (GstBaseTransformClass *) klass;
+  GstElementClass *gstelement_class = (GstElementClass *) klass;
+  GstVideoFilterClass *vfilter_class = (GstVideoFilterClass *) klass;
+
+  gst_element_class_set_details_simple (gstelement_class,
+      "Dilate",
+      "Filter/Effect/Video",
+      "Dilate copies the brightest pixel around.",
+      "Luis de Bethencourt <luis@debethencourt.com>");
+
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&gst_dilate_sink_template));
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&gst_dilate_src_template));
 
   gobject_class->set_property = gst_dilate_set_property;
   gobject_class->get_property = gst_dilate_get_property;
+  gobject_class->finalize = gst_dilate_finalize;
 
   g_object_class_install_property (gobject_class, PROP_ERODE,
       g_param_spec_boolean ("erode", "Erode", "Erode parameter", FALSE,
@@ -163,8 +158,8 @@ gst_dilate_class_init (GstDilateClass * klass)
       g_param_spec_boolean ("silent", "Silent", "Produce verbose output ?",
           FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  trans_class->set_caps = GST_DEBUG_FUNCPTR (gst_dilate_set_caps);
-  trans_class->transform = GST_DEBUG_FUNCPTR (gst_dilate_transform);
+  vfilter_class->transform_frame =
+      GST_DEBUG_FUNCPTR (gst_dilate_transform_frame);
 }
 
 /* Initialize the element,
@@ -173,7 +168,7 @@ gst_dilate_class_init (GstDilateClass * klass)
  * initialize instance structure.
  */
 static void
-gst_dilate_init (GstDilate * filter, GstDilateClass * gclass)
+gst_dilate_init (GstDilate * filter)
 {
   filter->erode = DEFAULT_ERODE;
   filter->silent = FALSE;
@@ -219,48 +214,37 @@ gst_dilate_get_property (GObject * object, guint prop_id,
   GST_OBJECT_UNLOCK (filter);
 }
 
-/* GstElement vmethod implementations */
-
-/* Handle the link with other elements. */
-static gboolean
-gst_dilate_set_caps (GstBaseTransform * btrans, GstCaps * incaps,
-    GstCaps * outcaps)
+static void
+gst_dilate_finalize (GObject * object)
 {
-  GstDilate *filter = GST_DILATE (btrans);
-  GstStructure *structure;
-  gboolean ret = TRUE;
-
-  structure = gst_caps_get_structure (incaps, 0);
-
-  GST_OBJECT_LOCK (filter);
-  if (gst_structure_get_int (structure, "width", &filter->width) &&
-      gst_structure_get_int (structure, "height", &filter->height)) {
-    ret = TRUE;
-  }
-  GST_OBJECT_UNLOCK (filter);
-
-  return ret;
+  G_OBJECT_CLASS (parent_class)->finalize (object);
 }
+
+/* GstElement vmethod implementations */
 
 /* Actual processing. */
 static GstFlowReturn
-gst_dilate_transform (GstBaseTransform * btrans,
-    GstBuffer * in_buf, GstBuffer * out_buf)
+gst_dilate_transform_frame (GstVideoFilter * vfilter,
+    GstVideoFrame * in_frame, GstVideoFrame * out_frame)
 {
-  GstDilate *filter = GST_DILATE (btrans);
-  gint video_size;
+  GstDilate *filter = GST_DILATE (vfilter);
+  gint video_size, width, height;
   gboolean erode;
-  guint32 *src = (guint32 *) GST_BUFFER_DATA (in_buf);
-  guint32 *dest = (guint32 *) GST_BUFFER_DATA (out_buf);
+  guint32 *src, *dest;
   GstClockTime timestamp;
   gint64 stream_time;
 
-  video_size = filter->width * filter->height;
+  src = GST_VIDEO_FRAME_PLANE_DATA (in_frame, 0);
+  dest = GST_VIDEO_FRAME_PLANE_DATA (out_frame, 0);
+
+  width = GST_VIDEO_FRAME_WIDTH (in_frame);
+  height = GST_VIDEO_FRAME_HEIGHT (in_frame);
 
   /* GstController: update the properties */
-  timestamp = GST_BUFFER_TIMESTAMP (in_buf);
+  timestamp = GST_BUFFER_TIMESTAMP (in_frame->buffer);
   stream_time =
-      gst_segment_to_stream_time (&btrans->segment, GST_FORMAT_TIME, timestamp);
+      gst_segment_to_stream_time (&GST_BASE_TRANSFORM (filter)->segment,
+      GST_FORMAT_TIME, timestamp);
 
   GST_DEBUG_OBJECT (filter, "sync to %" GST_TIME_FORMAT,
       GST_TIME_ARGS (timestamp));
@@ -272,7 +256,8 @@ gst_dilate_transform (GstBaseTransform * btrans,
   erode = filter->erode;
   GST_OBJECT_UNLOCK (filter);
 
-  transform (src, dest, video_size, filter->width, filter->height, erode);
+  video_size = width * height;
+  transform (src, dest, video_size, width, height, erode);
 
   return GST_FLOW_OK;
 }

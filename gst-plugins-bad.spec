@@ -6,7 +6,7 @@
 
 Summary: GStreamer streaming media framework "bad" plug-ins
 Name: gstreamer-plugins-bad011
-Version: 0.11.90
+Version: 0.11.91
 Release: 1.gst
 # The freeze and nfs plugins are LGPLv2 (only)
 License: LGPLv2+ and LGPLv2
@@ -258,7 +258,7 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 # %{_libdir}/gstreamer-%{majorminor}/libgstdecklink.so
 %{_libdir}/gstreamer-%{majorminor}/libgstdvbsuboverlay.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstfieldanalysis.so
-# %{_libdir}/gstreamer-%{majorminor}/libgstfragmented.so
+%{_libdir}/gstreamer-%{majorminor}/libgstfragmented.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstinterlace.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstjp2kdecimator.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstlinsys.so

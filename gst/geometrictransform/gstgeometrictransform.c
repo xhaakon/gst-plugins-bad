@@ -23,52 +23,25 @@
 
 #include "gstgeometrictransform.h"
 #include "geometricmath.h"
-#include <gst/controller/gstcontroller.h>
 #include <string.h>
 
 GST_DEBUG_CATEGORY_STATIC (geometric_transform_debug);
 #define GST_CAT_DEFAULT geometric_transform_debug
 
 static GstStaticPadTemplate gst_geometric_transform_src_template =
-    GST_STATIC_PAD_TEMPLATE ("src",
+GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (GST_VIDEO_CAPS_ABGR "; "
-        GST_VIDEO_CAPS_ARGB "; "
-        GST_VIDEO_CAPS_BGR "; "
-        GST_VIDEO_CAPS_BGRA "; "
-        GST_VIDEO_CAPS_BGRx "; "
-        GST_VIDEO_CAPS_RGB "; "
-        GST_VIDEO_CAPS_RGBA "; "
-        GST_VIDEO_CAPS_RGBx "; "
-        GST_VIDEO_CAPS_YUV ("AYUV") "; "
-        GST_VIDEO_CAPS_xBGR "; "
-        GST_VIDEO_CAPS_xRGB "; "
-        GST_VIDEO_CAPS_GRAY8 "; "
-        GST_VIDEO_CAPS_GRAY16 ("BIG_ENDIAN") "; "
-        GST_VIDEO_CAPS_GRAY16 ("LITTLE_ENDIAN")
-    )
+    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE ("{ ARGB, BGR, BGRA, BGRx, RGB, "
+            "RGBA, RGBx, AYUV, xBGR, xRGB, GRAY8, GRAY16_BE, GRAY16_LE }"))
     );
 
 static GstStaticPadTemplate gst_geometric_transform_sink_template =
-    GST_STATIC_PAD_TEMPLATE ("sink",
+GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (GST_VIDEO_CAPS_ABGR "; "
-        GST_VIDEO_CAPS_ARGB "; "
-        GST_VIDEO_CAPS_BGR "; "
-        GST_VIDEO_CAPS_BGRA "; "
-        GST_VIDEO_CAPS_BGRx "; "
-        GST_VIDEO_CAPS_RGB "; "
-        GST_VIDEO_CAPS_RGBA "; "
-        GST_VIDEO_CAPS_RGBx "; "
-        GST_VIDEO_CAPS_YUV ("AYUV") "; "
-        GST_VIDEO_CAPS_xBGR "; "
-        GST_VIDEO_CAPS_xRGB "; "
-        GST_VIDEO_CAPS_GRAY8 "; "
-        GST_VIDEO_CAPS_GRAY16 ("BIG_ENDIAN") "; "
-        GST_VIDEO_CAPS_GRAY16 ("LITTLE_ENDIAN")
-    )
+    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE ("{ ARGB, BGR, BGRA, BGRx, RGB, "
+            "RGBA, RGBx, AYUV, xBGR, xRGB, GRAY8, GRAY16_BE, GRAY16_LE }"))
     );
 
 static GstVideoFilterClass *parent_class = NULL;
@@ -155,47 +128,45 @@ end:
 }
 
 static gboolean
-gst_geometric_transform_set_caps (GstBaseTransform * btrans, GstCaps * incaps,
-    GstCaps * outcaps)
+gst_geometric_transform_set_info (GstVideoFilter * vfilter, GstCaps * incaps,
+    GstVideoInfo * in_info, GstCaps * outcaps, GstVideoInfo * out_info)
 {
   GstGeometricTransform *gt;
-  gboolean ret;
+  gboolean ret = TRUE;
   gint old_width;
   gint old_height;
   GstGeometricTransformClass *klass;
 
-  gt = GST_GEOMETRIC_TRANSFORM_CAST (btrans);
+  gt = GST_GEOMETRIC_TRANSFORM_CAST (vfilter);
   klass = GST_GEOMETRIC_TRANSFORM_GET_CLASS (gt);
 
   old_width = gt->width;
   old_height = gt->height;
 
-  ret = gst_video_format_parse_caps (incaps, &gt->format, &gt->width,
-      &gt->height);
-  if (ret) {
-    gt->row_stride = gst_video_format_get_row_stride (gt->format, 0, gt->width);
-    gt->pixel_stride = gst_video_format_get_pixel_stride (gt->format, 0);
+  gt->width = in_info->width;
+  gt->height = in_info->height;
+  gt->row_stride = in_info->stride[0];
+  gt->pixel_stride = GST_VIDEO_INFO_COMP_PSTRIDE (in_info, 0);
 
-    /* regenerate the map */
-    GST_OBJECT_LOCK (gt);
-    if (gt->map == NULL || old_width == 0 || old_height == 0
-        || gt->width != old_width || gt->height != old_height) {
-      if (klass->prepare_func)
-        if (!klass->prepare_func (gt)) {
-          GST_OBJECT_UNLOCK (gt);
-          return FALSE;
-        }
-      if (gt->precalc_map)
-        gst_geometric_transform_generate_map (gt);
-    }
-    GST_OBJECT_UNLOCK (gt);
+  /* regenerate the map */
+  GST_OBJECT_LOCK (gt);
+  if (gt->map == NULL || old_width == 0 || old_height == 0
+      || gt->width != old_width || gt->height != old_height) {
+    if (klass->prepare_func)
+      if (!klass->prepare_func (gt)) {
+        GST_OBJECT_UNLOCK (gt);
+        return FALSE;
+      }
+    if (gt->precalc_map)
+      gst_geometric_transform_generate_map (gt);
   }
+  GST_OBJECT_UNLOCK (gt);
   return ret;
 }
 
 static void
-gst_geometric_transform_do_map (GstGeometricTransform * gt, GstBuffer * inbuf,
-    GstBuffer * outbuf, gint x, gint y, gdouble in_x, gdouble in_y)
+gst_geometric_transform_do_map (GstGeometricTransform * gt, guint8 * in_data,
+    guint8 * out_data, gint x, gint y, gdouble in_x, gdouble in_y)
 {
   gint in_offset;
   gint out_offset;
@@ -230,8 +201,7 @@ gst_geometric_transform_do_map (GstGeometricTransform * gt, GstBuffer * inbuf,
         trunc_y < gt->height) {
       in_offset = trunc_y * gt->row_stride + trunc_x * gt->pixel_stride;
 
-      memcpy (GST_BUFFER_DATA (outbuf) + out_offset,
-          GST_BUFFER_DATA (inbuf) + in_offset, gt->pixel_stride);
+      memcpy (out_data + out_offset, in_data + in_offset, gt->pixel_stride);
     }
   }
 }
@@ -254,27 +224,31 @@ gst_geometric_transform_before_transform (GstBaseTransform * trans,
 }
 
 static GstFlowReturn
-gst_geometric_transform_transform (GstBaseTransform * trans, GstBuffer * buf,
-    GstBuffer * outbuf)
+gst_geometric_transform_transform_frame (GstVideoFilter * vfilter,
+    GstVideoFrame * in_frame, GstVideoFrame * out_frame)
 {
   GstGeometricTransform *gt;
   GstGeometricTransformClass *klass;
   gint x, y;
   GstFlowReturn ret = GST_FLOW_OK;
   gdouble *ptr;
+  guint8 *in_data;
+  guint8 *out_data;
 
-  gt = GST_GEOMETRIC_TRANSFORM_CAST (trans);
+  gt = GST_GEOMETRIC_TRANSFORM_CAST (vfilter);
   klass = GST_GEOMETRIC_TRANSFORM_GET_CLASS (gt);
 
-  memset (GST_BUFFER_DATA (outbuf), 0, GST_BUFFER_SIZE (outbuf));
+  in_data = GST_VIDEO_FRAME_PLANE_DATA (in_frame, 0);
+  out_data = GST_VIDEO_FRAME_PLANE_DATA (out_frame, 0);
+  memset (out_data, 0, out_frame->map[0].size);
 
   GST_OBJECT_LOCK (gt);
   if (gt->precalc_map) {
     if (gt->needs_remap) {
       if (klass->prepare_func)
         if (!klass->prepare_func (gt)) {
-          GST_OBJECT_UNLOCK (gt);
-          return FALSE;
+          ret = FALSE;
+          goto end;
         }
       gst_geometric_transform_generate_map (gt);
     }
@@ -283,7 +257,8 @@ gst_geometric_transform_transform (GstBaseTransform * trans, GstBuffer * buf,
     for (y = 0; y < gt->height; y++) {
       for (x = 0; x < gt->width; x++) {
         /* do the mapping */
-        gst_geometric_transform_do_map (gt, buf, outbuf, x, y, ptr[0], ptr[1]);
+        gst_geometric_transform_do_map (gt, in_data, out_data, x, y, ptr[0],
+            ptr[1]);
         ptr += 2;
       }
     }
@@ -293,7 +268,8 @@ gst_geometric_transform_transform (GstBaseTransform * trans, GstBuffer * buf,
         gdouble in_x, in_y;
 
         if (klass->map_func (gt, x, y, &in_x, &in_y)) {
-          gst_geometric_transform_do_map (gt, buf, outbuf, x, y, in_x, in_y);
+          gst_geometric_transform_do_map (gt, in_data, out_data, x, y, in_x,
+              in_y);
         } else {
           GST_WARNING_OBJECT (gt, "Failed to do mapping for %d %d", x, y);
           ret = GST_FLOW_ERROR;
@@ -378,9 +354,11 @@ gst_geometric_transform_class_init (gpointer klass, gpointer class_data)
 {
   GObjectClass *obj_class;
   GstBaseTransformClass *trans_class;
+  GstVideoFilterClass *vfilter_class;
 
   obj_class = (GObjectClass *) klass;
   trans_class = (GstBaseTransformClass *) klass;
+  vfilter_class = (GstVideoFilterClass *) klass;
 
   parent_class = g_type_class_peek_parent (klass);
 
@@ -390,11 +368,13 @@ gst_geometric_transform_class_init (gpointer klass, gpointer class_data)
       GST_DEBUG_FUNCPTR (gst_geometric_transform_get_property);
 
   trans_class->stop = GST_DEBUG_FUNCPTR (gst_geometric_transform_stop);
-  trans_class->set_caps = GST_DEBUG_FUNCPTR (gst_geometric_transform_set_caps);
-  trans_class->transform =
-      GST_DEBUG_FUNCPTR (gst_geometric_transform_transform);
   trans_class->before_transform =
       GST_DEBUG_FUNCPTR (gst_geometric_transform_before_transform);
+
+  vfilter_class->set_info =
+      GST_DEBUG_FUNCPTR (gst_geometric_transform_set_info);
+  vfilter_class->transform_frame =
+      GST_DEBUG_FUNCPTR (gst_geometric_transform_transform_frame);
 
   g_object_class_install_property (obj_class, PROP_OFF_EDGE_PIXELS,
       g_param_spec_enum ("off-edge-pixels", "Off edge pixels",

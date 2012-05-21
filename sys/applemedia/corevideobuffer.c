@@ -126,7 +126,8 @@ gst_core_video_buffer_new (GstCoreMediaCtx * ctx, CVBufferRef cvbuf,
     GstVideoMeta *video_meta;
 
     width = vinfo->width;
-    video_meta = gst_buffer_add_video_meta_full (buf, GST_VIDEO_FLAG_NONE,
+    video_meta =
+        gst_buffer_add_video_meta_full (buf, GST_VIDEO_FRAME_FLAG_NONE,
         GST_VIDEO_FORMAT_NV12, width, height, n_planes, offset, stride);
   }
 

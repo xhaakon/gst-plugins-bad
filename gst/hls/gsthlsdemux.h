@@ -41,6 +41,8 @@ G_BEGIN_DECLS
   (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_HLS_DEMUX))
 #define GST_IS_HLS_DEMUX_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_HLS_DEMUX))
+#define GST_HLS_DEMUX_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj),GST_TYPE_HLS_DEMUX,GstHLSDemuxClass))
 typedef struct _GstHLSDemux GstHLSDemux;
 typedef struct _GstHLSDemuxClass GstHLSDemuxClass;
 
@@ -63,27 +65,26 @@ struct _GstHLSDemux
   GQueue *queue;                /* Queue storing the fetched fragments */
   gboolean need_cache;          /* Wheter we need to cache some fragments before starting to push data */
   gboolean end_of_playlist;
-  gboolean do_typefind;		/* Whether we need to typefind the next buffer */
+  gboolean do_typefind;         /* Whether we need to typefind the next buffer */
 
   /* Properties */
   guint fragments_cache;        /* number of fragments needed to be cached to start playing */
-  gfloat bitrate_switch_tol;    /* tolerance with respect to the fragment duration to switch the bitarate*/
+  gfloat bitrate_limit;         /* limit of the available bitrate to use */
+  guint connection_speed;       /* Network connection speed in kbps (0 = unknown) */
 
   /* Streaming task */
   GstTask *stream_task;
-  GStaticRecMutex stream_lock;
+  GRecMutex stream_lock;
   gboolean stop_stream_task;
 
   /* Updates task */
   GstTask *updates_task;
-  GStaticRecMutex updates_lock;
-  GMutex *updates_timed_lock;
+  GRecMutex updates_lock;
+  GMutex updates_timed_lock;
   GTimeVal next_update;         /* Time of the next update */
-  gint64 accumulated_delay;     /* Delay accumulated fetching fragments, used to decide a playlist switch */
   gboolean cancelled;
 
   /* Position in the stream */
-  GstClockTime position;
   GstClockTime position_shift;
   gboolean need_segment;
 };

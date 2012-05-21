@@ -20,14 +20,31 @@
 #include <config.h>
 #endif
 
-#include "gstcurlsink.h"
+#include "gstcurlbasesink.h"
+#include "gstcurltlssink.h"
+#include "gstcurlhttpsink.h"
+#include "gstcurlfilesink.h"
+#include "gstcurlftpsink.h"
+#include "gstcurlsmtpsink.h"
 
 static gboolean
 plugin_init (GstPlugin * plugin)
 {
 
-  if (!gst_element_register (plugin, "curlsink", GST_RANK_NONE,
-          GST_TYPE_CURL_SINK))
+  if (!gst_element_register (plugin, "curlhttpsink", GST_RANK_NONE,
+          GST_TYPE_CURL_HTTP_SINK))
+    return FALSE;
+
+  if (!gst_element_register (plugin, "curlfilesink", GST_RANK_NONE,
+          GST_TYPE_CURL_FILE_SINK))
+    return FALSE;
+
+  if (!gst_element_register (plugin, "curlftpsink", GST_RANK_NONE,
+          GST_TYPE_CURL_FTP_SINK))
+    return FALSE;
+
+  if (!gst_element_register (plugin, "curlsmtpsink", GST_RANK_NONE,
+          GST_TYPE_CURL_SMTP_SINK))
     return FALSE;
 
   return TRUE;
