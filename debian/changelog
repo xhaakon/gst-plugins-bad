@@ -16,6 +16,8 @@ gst-plugins-bad1.0 (0.11.91-1) experimental; urgency=low
     + Patch from upstream GIT to fix vp8 encoder with libvpx 1.1.0.
   * debian/libgstreamer-plugins-bad-dev.install:
     + Drop .a files from the -dev package.
+  * debian/rules:
+    + Fix dh_gstscancodecs call.
 
  -- Sebastian Dröge <slomo@debian.org>  Mon, 21 May 2012 16:00:47 +0200
 

@@ -193,7 +193,7 @@ DEB_CONFIGURE_EXTRA_FLAGS += --enable-gtk-doc
 endif
 
 common-binary-fixup-arch::
-	LD_LIBRARY_PATH=debian/libgstreamer-plugins-bad0.10-0/usr/lib/$(DEB_HOST_MULTIARCH):$(LD_LIBRARY_PATH) \
+	LD_LIBRARY_PATH=debian/libgstreamer-plugins-bad1.0-0/usr/lib/$(DEB_HOST_MULTIARCH):$(LD_LIBRARY_PATH) \
 		dh_gstscancodecs
 
 clean::
