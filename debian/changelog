@@ -1,3 +1,11 @@
+gst-plugins-bad1.0 (0.11.91-2) experimental; urgency=low
+
+  * debian/build-deps.in,
+    debian/gstreamer-plugins-bad.install:
+    + Drop CELT plugin and add OPUS plugin.
+
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 30 May 2012 15:11:21 +0200
+
 gst-plugins-bad1.0 (0.11.91-1) experimental; urgency=low
 
   * New upstream release, "Be he alive, or be he dead":

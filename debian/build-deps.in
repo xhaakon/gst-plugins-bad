@@ -33,7 +33,6 @@ libgstreamer-plugins-base@GST_ABI@-dev (>= 0.11.91)
 libofa0-dev (>= 0.9.3)
 libdvdnav-dev (>= 4.1.2) [!hurd-any]
 libssl-dev
-libcelt-dev (>= 0.5.0)
 libjasper-dev
 libx11-dev
 libass-dev (>= 0.9.4)
@@ -61,3 +60,4 @@ libcdaudio-dev
 libopenal-dev
 libzvbi-dev
 libspandsp-dev
+libopus-dev (>= 0.9.4)

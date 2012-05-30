@@ -7,7 +7,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstautoconvert.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstbayer.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstbz2.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcamerabin2.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcelt.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopus.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcoloreffects.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcurl.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdataurisrc.so
