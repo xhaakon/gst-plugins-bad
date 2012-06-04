@@ -56,7 +56,6 @@ libcurl4-gnutls-dev (>= 7.21.0)
 libxvidcore-dev
 libvo-aacenc-dev
 libvo-amrwbenc-dev
-libcdaudio-dev
 libopenal-dev
 libzvbi-dev
 libspandsp-dev
