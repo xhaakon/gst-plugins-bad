@@ -88,6 +88,10 @@ decklink = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstd
 linsys = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstlinsys.so
 endif
 
+ifeq ($(DEB_HOST_ARCH_OS),kfreebsd)
+cdaudio = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstcdaudio.so
+endif
+
 ifneq ($(DEB_HOST_ARCH_OS),hurd)
 resindvd = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libresindvd.so
 endif

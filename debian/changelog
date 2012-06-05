@@ -1,3 +1,11 @@
+gst-plugins-bad1.0 (0.11.91-4) UNRELEASED; urgency=low
+
+  * debian/rules,
+    debian/gstreamer-plugins-bad.install:
+    + Build the cdaudio plugin on kfreebsd too.
+
+ -- Sebastian Dröge <slomo@debian.org>  Tue, 05 Jun 2012 08:53:33 +0200
+
 gst-plugins-bad1.0 (0.11.91-3) experimental; urgency=low
 
   * debian/build-deps.in:
