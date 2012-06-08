@@ -1577,6 +1577,7 @@ gst_h264_parse_pre_push_frame (GstBaseParse * parse, GstBaseParseFrame * frame)
           GstByteWriter bw;
           GstBuffer *new_buf;
           const gboolean bs = h264parse->format == GST_H264_PARSE_FORMAT_BYTE;
+          const gint nls = 4 - h264parse->nal_length_size;
           gboolean ok;
 
           gst_byte_writer_init_with_size (&bw, gst_buffer_get_size (buffer),
@@ -1587,7 +1588,10 @@ gst_h264_parse_pre_push_frame (GstBaseParse * parse, GstBaseParseFrame * frame)
             if ((codec_nal = h264parse->sps_nals[i])) {
               gsize nal_size = gst_buffer_get_size (codec_nal);
               GST_DEBUG_OBJECT (h264parse, "inserting SPS nal");
-              ok &= gst_byte_writer_put_uint32_be (&bw, bs ? 1 : nal_size);
+              ok &= gst_byte_writer_put_uint32_be (&bw,
+                  bs ? 1 : (nal_size << (nls * 8)));
+              ok &= gst_byte_writer_set_pos (&bw,
+                  gst_byte_writer_get_pos (&bw) - nls);
               ok &= gst_byte_writer_put_buffer (&bw, codec_nal, 0, nal_size);
               h264parse->last_report = new_ts;
             }
@@ -1596,8 +1600,10 @@ gst_h264_parse_pre_push_frame (GstBaseParse * parse, GstBaseParseFrame * frame)
             if ((codec_nal = h264parse->pps_nals[i])) {
               gsize nal_size = gst_buffer_get_size (codec_nal);
               GST_DEBUG_OBJECT (h264parse, "inserting PPS nal");
-              ok &= gst_byte_writer_put_uint32_be (&bw, bs ? 1 : nal_size);
-              ok &= gst_byte_writer_put_buffer (&bw, codec_nal, 0, nal_size);
+              ok &= gst_byte_writer_put_uint32_be (&bw,
+                  bs ? 1 : (nal_size << (nls * 8)));
+              ok &= gst_byte_writer_set_pos (&bw,
+                  gst_byte_writer_get_pos (&bw) - nls);
               h264parse->last_report = new_ts;
             }
           }
@@ -1815,11 +1821,10 @@ refuse_caps:
 static GstCaps *
 gst_h264_parse_get_caps (GstBaseParse * parse, GstCaps * filter)
 {
-  GstCaps *peercaps, *template_caps;
+  GstCaps *peercaps, *templ;
   GstCaps *res;
 
-  template_caps =
-      gst_pad_get_pad_template_caps (GST_BASE_PARSE_SINK_PAD (parse));
+  templ = gst_pad_get_pad_template_caps (GST_BASE_PARSE_SINK_PAD (parse));
   peercaps = gst_pad_get_allowed_caps (GST_BASE_PARSE_SRC_PAD (parse));
   if (peercaps) {
     guint i, n;
@@ -1833,12 +1838,16 @@ gst_h264_parse_get_caps (GstBaseParse * parse, GstCaps * filter)
       gst_structure_remove_field (s, "parsed");
     }
 
-    res = gst_caps_intersect_full (peercaps, template_caps,
-        GST_CAPS_INTERSECT_FIRST);
+    res = gst_caps_intersect_full (peercaps, templ, GST_CAPS_INTERSECT_FIRST);
     gst_caps_unref (peercaps);
-    gst_caps_unref (template_caps);
+
+    /* Append the template caps because we still want to accept
+     * caps without any fields in the case upstream does not
+     * know anything.
+     */
+    gst_caps_append (res, templ);
   } else {
-    res = template_caps;
+    res = templ;
   }
 
   if (filter) {

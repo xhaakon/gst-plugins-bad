@@ -52,6 +52,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+target_triplet = @target@
 subdir = sys/d3dvideosink
 DIST_COMMON = $(noinst_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -60,7 +61,6 @@ am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/as-auto-alt.m4 \
 	$(top_srcdir)/common/m4/as-compiler-flag.m4 \
 	$(top_srcdir)/common/m4/as-libtool.m4 \
-	$(top_srcdir)/common/m4/as-objc.m4 \
 	$(top_srcdir)/common/m4/as-python.m4 \
 	$(top_srcdir)/common/m4/as-scrub-include.m4 \
 	$(top_srcdir)/common/m4/as-version.m4 \
@@ -131,9 +131,9 @@ libgstd3dvideosink_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_libgstd3dvideosink_la_OBJECTS =  \
 	libgstd3dvideosink_la-d3dvideosink.lo \
-	libgstd3dvideosink_la-d3d.lo libgstd3dvideosink_la-dx.lo \
-	libgstd3dvideosink_la-dx9.lo libgstd3dvideosink_la-dx9_d3d.lo \
-	libgstd3dvideosink_la-dx10.lo \
+	libgstd3dvideosink_la-directx_d3d.lo \
+	libgstd3dvideosink_la-dx.lo libgstd3dvideosink_la-dx9.lo \
+	libgstd3dvideosink_la-dx9_d3d.lo libgstd3dvideosink_la-dx10.lo \
 	libgstd3dvideosink_la-dx10_d3d.lo \
 	libgstd3dvideosink_la-dx11.lo \
 	libgstd3dvideosink_la-dx11_d3d.lo
@@ -261,6 +261,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 ERROR_CFLAGS = @ERROR_CFLAGS@
 ERROR_CXXFLAGS = @ERROR_CXXFLAGS@
+ERROR_OBJCFLAGS = @ERROR_OBJCFLAGS@
 EXEEXT = @EXEEXT@
 EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
@@ -317,13 +318,16 @@ GST_LIBVERSION = @GST_LIBVERSION@
 GST_LIB_LDFLAGS = @GST_LIB_LDFLAGS@
 GST_LICENSE = @GST_LICENSE@
 GST_LT_LDFLAGS = @GST_LT_LDFLAGS@
+GST_OBJCFLAGS = @GST_OBJCFLAGS@
 GST_OPTION_CFLAGS = @GST_OPTION_CFLAGS@
 GST_OPTION_CXXFLAGS = @GST_OPTION_CXXFLAGS@
+GST_OPTION_OBJCFLAGS = @GST_OPTION_OBJCFLAGS@
 GST_PACKAGE_NAME = @GST_PACKAGE_NAME@
 GST_PACKAGE_ORIGIN = @GST_PACKAGE_ORIGIN@
 GST_PLUGINS_ALL = @GST_PLUGINS_ALL@
 GST_PLUGINS_BAD_CFLAGS = @GST_PLUGINS_BAD_CFLAGS@
 GST_PLUGINS_BAD_CXXFLAGS = @GST_PLUGINS_BAD_CXXFLAGS@
+GST_PLUGINS_BAD_OBJCFLAGS = @GST_PLUGINS_BAD_OBJCFLAGS@
 GST_PLUGINS_BASE_CFLAGS = @GST_PLUGINS_BASE_CFLAGS@
 GST_PLUGINS_BASE_DIR = @GST_PLUGINS_BASE_DIR@
 GST_PLUGINS_BASE_LIBS = @GST_PLUGINS_BASE_LIBS@
@@ -344,6 +348,10 @@ GST_PREFIX = @GST_PREFIX@
 GST_REVISION = @GST_REVISION@
 GST_TOOLS_DIR = @GST_TOOLS_DIR@
 GTKDOC_CHECK = @GTKDOC_CHECK@
+GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+GTKDOC_DEPS_LIBS = @GTKDOC_DEPS_LIBS@
+GTKDOC_MKPDF = @GTKDOC_MKPDF@
+GTKDOC_REBASE = @GTKDOC_REBASE@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_LIBS = @GTK_LIBS@
 HAVE_BZ2 = @HAVE_BZ2@
@@ -424,7 +432,7 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJC = @OBJC@
 OBJCDEPMODE = @OBJCDEPMODE@
-OBJC_LDFLAGS = @OBJC_LDFLAGS@
+OBJCFLAGS = @OBJCFLAGS@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OFA_CFLAGS = @OFA_CFLAGS@
@@ -514,6 +522,7 @@ VOAMRWBENC_LIBS = @VOAMRWBENC_LIBS@
 VPX_LIBS = @VPX_LIBS@
 WARNING_CFLAGS = @WARNING_CFLAGS@
 WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
+WARNING_OBJCFLAGS = @WARNING_OBJCFLAGS@
 WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
@@ -588,24 +597,28 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
 sysconfdir = @sysconfdir@
+target = @target@
 target_alias = @target_alias@
+target_cpu = @target_cpu@
+target_os = @target_os@
+target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 plugin_LTLIBRARIES = libgstd3dvideosink.la
-libgstd3dvideosink_la_SOURCES = d3dvideosink.c directx/d3d.c directx/dx.c \
+libgstd3dvideosink_la_SOURCES = d3dvideosink.c directx/directx_d3d.c directx/dx.c \
 	directx/directx9/dx9.c directx/directx9/dx9_d3d.c \
 	directx/directx10/dx10.c directx/directx10/dx10_d3d.c \
 	directx/directx11/dx11.c directx/directx11/dx11_d3d.c
 
 libgstd3dvideosink_la_CFLAGS = $(GST_PLUGINS_BAD_CFLAGS) $(GST_CFLAGS) $(DIRECTX_CFLAGS)
 libgstd3dvideosink_la_LIBADD = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS) \
-	-lgstvideo-$(GST_API_VERSION) -lgstinterfaces-$(GST_API_VERSION) \
+	-lgstvideo-$(GST_API_VERSION) \
 	$(DIRECT3D_LIBS)
 
 libgstd3dvideosink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) $(DIRECTX_LDFAGS)
 libgstd3dvideosink_la_LIBTOOLFLAGS = --tag=disable-static
-noinst_HEADERS = d3dvideosink.h directx/d3d.h directx/dx.h directx/directx.h \
+noinst_HEADERS = d3dvideosink.h directx/directx_d3d.h directx/dx.h directx/directx.h \
 	directx/directx9/dx9.h directx/directx9/dx9_d3d.h \
 	directx/directx10/dx10.h directx/directx10/dx10_d3d.h \
 	directx/directx11/dx11.h directx/directx11/dx11_d3d.h
@@ -685,8 +698,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstd3dvideosink_la-d3d.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstd3dvideosink_la-d3dvideosink.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstd3dvideosink_la-directx_d3d.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstd3dvideosink_la-dx.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstd3dvideosink_la-dx10.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstd3dvideosink_la-dx10_d3d.Plo@am__quote@
@@ -723,12 +736,12 @@ libgstd3dvideosink_la-d3dvideosink.lo: d3dvideosink.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstd3dvideosink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstd3dvideosink_la_CFLAGS) $(CFLAGS) -c -o libgstd3dvideosink_la-d3dvideosink.lo `test -f 'd3dvideosink.c' || echo '$(srcdir)/'`d3dvideosink.c
 
-libgstd3dvideosink_la-d3d.lo: directx/d3d.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstd3dvideosink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstd3dvideosink_la_CFLAGS) $(CFLAGS) -MT libgstd3dvideosink_la-d3d.lo -MD -MP -MF $(DEPDIR)/libgstd3dvideosink_la-d3d.Tpo -c -o libgstd3dvideosink_la-d3d.lo `test -f 'directx/d3d.c' || echo '$(srcdir)/'`directx/d3d.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstd3dvideosink_la-d3d.Tpo $(DEPDIR)/libgstd3dvideosink_la-d3d.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='directx/d3d.c' object='libgstd3dvideosink_la-d3d.lo' libtool=yes @AMDEPBACKSLASH@
+libgstd3dvideosink_la-directx_d3d.lo: directx/directx_d3d.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstd3dvideosink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstd3dvideosink_la_CFLAGS) $(CFLAGS) -MT libgstd3dvideosink_la-directx_d3d.lo -MD -MP -MF $(DEPDIR)/libgstd3dvideosink_la-directx_d3d.Tpo -c -o libgstd3dvideosink_la-directx_d3d.lo `test -f 'directx/directx_d3d.c' || echo '$(srcdir)/'`directx/directx_d3d.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstd3dvideosink_la-directx_d3d.Tpo $(DEPDIR)/libgstd3dvideosink_la-directx_d3d.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='directx/directx_d3d.c' object='libgstd3dvideosink_la-directx_d3d.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstd3dvideosink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstd3dvideosink_la_CFLAGS) $(CFLAGS) -c -o libgstd3dvideosink_la-d3d.lo `test -f 'directx/d3d.c' || echo '$(srcdir)/'`directx/d3d.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstd3dvideosink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstd3dvideosink_la_CFLAGS) $(CFLAGS) -c -o libgstd3dvideosink_la-directx_d3d.lo `test -f 'directx/directx_d3d.c' || echo '$(srcdir)/'`directx/directx_d3d.c
 
 libgstd3dvideosink_la-dx.lo: directx/dx.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstd3dvideosink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstd3dvideosink_la_CFLAGS) $(CFLAGS) -MT libgstd3dvideosink_la-dx.lo -MD -MP -MF $(DEPDIR)/libgstd3dvideosink_la-dx.Tpo -c -o libgstd3dvideosink_la-dx.lo `test -f 'directx/dx.c' || echo '$(srcdir)/'`directx/dx.c

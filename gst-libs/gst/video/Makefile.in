@@ -52,6 +52,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+target_triplet = @target@
 subdir = gst-libs/gst/video
 DIST_COMMON = $(libgstbasevideo_@GST_API_VERSION@include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
@@ -60,7 +61,6 @@ am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/as-auto-alt.m4 \
 	$(top_srcdir)/common/m4/as-compiler-flag.m4 \
 	$(top_srcdir)/common/m4/as-libtool.m4 \
-	$(top_srcdir)/common/m4/as-objc.m4 \
 	$(top_srcdir)/common/m4/as-python.m4 \
 	$(top_srcdir)/common/m4/as-scrub-include.m4 \
 	$(top_srcdir)/common/m4/as-version.m4 \
@@ -132,10 +132,6 @@ libgstbasevideo_@GST_API_VERSION@_la_DEPENDENCIES =  \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 am_libgstbasevideo_@GST_API_VERSION@_la_OBJECTS =  \
-	libgstbasevideo_@GST_API_VERSION@_la-gstbasevideocodec.lo \
-	libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoutils.lo \
-	libgstbasevideo_@GST_API_VERSION@_la-gstbasevideodecoder.lo \
-	libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoencoder.lo \
 	libgstbasevideo_@GST_API_VERSION@_la-gstsurfacemeta.lo \
 	libgstbasevideo_@GST_API_VERSION@_la-gstsurfaceconverter.lo \
 	libgstbasevideo_@GST_API_VERSION@_la-videocontext.lo
@@ -265,6 +261,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 ERROR_CFLAGS = @ERROR_CFLAGS@
 ERROR_CXXFLAGS = @ERROR_CXXFLAGS@
+ERROR_OBJCFLAGS = @ERROR_OBJCFLAGS@
 EXEEXT = @EXEEXT@
 EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
@@ -321,13 +318,16 @@ GST_LIBVERSION = @GST_LIBVERSION@
 GST_LIB_LDFLAGS = @GST_LIB_LDFLAGS@
 GST_LICENSE = @GST_LICENSE@
 GST_LT_LDFLAGS = @GST_LT_LDFLAGS@
+GST_OBJCFLAGS = @GST_OBJCFLAGS@
 GST_OPTION_CFLAGS = @GST_OPTION_CFLAGS@
 GST_OPTION_CXXFLAGS = @GST_OPTION_CXXFLAGS@
+GST_OPTION_OBJCFLAGS = @GST_OPTION_OBJCFLAGS@
 GST_PACKAGE_NAME = @GST_PACKAGE_NAME@
 GST_PACKAGE_ORIGIN = @GST_PACKAGE_ORIGIN@
 GST_PLUGINS_ALL = @GST_PLUGINS_ALL@
 GST_PLUGINS_BAD_CFLAGS = @GST_PLUGINS_BAD_CFLAGS@
 GST_PLUGINS_BAD_CXXFLAGS = @GST_PLUGINS_BAD_CXXFLAGS@
+GST_PLUGINS_BAD_OBJCFLAGS = @GST_PLUGINS_BAD_OBJCFLAGS@
 GST_PLUGINS_BASE_CFLAGS = @GST_PLUGINS_BASE_CFLAGS@
 GST_PLUGINS_BASE_DIR = @GST_PLUGINS_BASE_DIR@
 GST_PLUGINS_BASE_LIBS = @GST_PLUGINS_BASE_LIBS@
@@ -348,6 +348,10 @@ GST_PREFIX = @GST_PREFIX@
 GST_REVISION = @GST_REVISION@
 GST_TOOLS_DIR = @GST_TOOLS_DIR@
 GTKDOC_CHECK = @GTKDOC_CHECK@
+GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
+GTKDOC_DEPS_LIBS = @GTKDOC_DEPS_LIBS@
+GTKDOC_MKPDF = @GTKDOC_MKPDF@
+GTKDOC_REBASE = @GTKDOC_REBASE@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_LIBS = @GTK_LIBS@
 HAVE_BZ2 = @HAVE_BZ2@
@@ -428,7 +432,7 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJC = @OBJC@
 OBJCDEPMODE = @OBJCDEPMODE@
-OBJC_LDFLAGS = @OBJC_LDFLAGS@
+OBJCFLAGS = @OBJCFLAGS@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OFA_CFLAGS = @OFA_CFLAGS@
@@ -518,6 +522,7 @@ VOAMRWBENC_LIBS = @VOAMRWBENC_LIBS@
 VPX_LIBS = @VPX_LIBS@
 WARNING_CFLAGS = @WARNING_CFLAGS@
 WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
+WARNING_OBJCFLAGS = @WARNING_OBJCFLAGS@
 WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
@@ -592,27 +597,23 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
 sysconfdir = @sysconfdir@
+target = @target@
 target_alias = @target_alias@
+target_cpu = @target_cpu@
+target_os = @target_os@
+target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libgstbasevideo-@GST_API_VERSION@.la
 CLEANFILES = $(BUILT_SOURCES)
 libgstbasevideo_@GST_API_VERSION@_la_SOURCES = \
-	gstbasevideocodec.c \
-	gstbasevideoutils.c \
-	gstbasevideodecoder.c \
-	gstbasevideoencoder.c \
 	gstsurfacemeta.c \
 	gstsurfaceconverter.c \
 	videocontext.c
 
 libgstbasevideo_@GST_API_VERSION@includedir = $(includedir)/gstreamer-@GST_API_VERSION@/gst/video
 libgstbasevideo_@GST_API_VERSION@include_HEADERS = \
-	gstbasevideocodec.h \
-	gstbasevideoutils.h \
-	gstbasevideodecoder.h \
-	gstbasevideoencoder.h \
 	gstsurfacemeta.h \
 	gstsurfaceconverter.h \
 	videocontext.h
@@ -700,10 +701,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideocodec.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideodecoder.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoencoder.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoutils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstsurfaceconverter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstsurfacemeta.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-videocontext.Plo@am__quote@
@@ -728,34 +725,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
-
-libgstbasevideo_@GST_API_VERSION@_la-gstbasevideocodec.lo: gstbasevideocodec.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstbasevideo_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstbasevideo_@GST_API_VERSION@_la-gstbasevideocodec.lo -MD -MP -MF $(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideocodec.Tpo -c -o libgstbasevideo_@GST_API_VERSION@_la-gstbasevideocodec.lo `test -f 'gstbasevideocodec.c' || echo '$(srcdir)/'`gstbasevideocodec.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideocodec.Tpo $(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideocodec.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstbasevideocodec.c' object='libgstbasevideo_@GST_API_VERSION@_la-gstbasevideocodec.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstbasevideo_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstbasevideo_@GST_API_VERSION@_la-gstbasevideocodec.lo `test -f 'gstbasevideocodec.c' || echo '$(srcdir)/'`gstbasevideocodec.c
-
-libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoutils.lo: gstbasevideoutils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstbasevideo_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoutils.lo -MD -MP -MF $(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoutils.Tpo -c -o libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoutils.lo `test -f 'gstbasevideoutils.c' || echo '$(srcdir)/'`gstbasevideoutils.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoutils.Tpo $(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoutils.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstbasevideoutils.c' object='libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoutils.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstbasevideo_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoutils.lo `test -f 'gstbasevideoutils.c' || echo '$(srcdir)/'`gstbasevideoutils.c
-
-libgstbasevideo_@GST_API_VERSION@_la-gstbasevideodecoder.lo: gstbasevideodecoder.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstbasevideo_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstbasevideo_@GST_API_VERSION@_la-gstbasevideodecoder.lo -MD -MP -MF $(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideodecoder.Tpo -c -o libgstbasevideo_@GST_API_VERSION@_la-gstbasevideodecoder.lo `test -f 'gstbasevideodecoder.c' || echo '$(srcdir)/'`gstbasevideodecoder.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideodecoder.Tpo $(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideodecoder.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstbasevideodecoder.c' object='libgstbasevideo_@GST_API_VERSION@_la-gstbasevideodecoder.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstbasevideo_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstbasevideo_@GST_API_VERSION@_la-gstbasevideodecoder.lo `test -f 'gstbasevideodecoder.c' || echo '$(srcdir)/'`gstbasevideodecoder.c
-
-libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoencoder.lo: gstbasevideoencoder.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstbasevideo_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoencoder.lo -MD -MP -MF $(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoencoder.Tpo -c -o libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoencoder.lo `test -f 'gstbasevideoencoder.c' || echo '$(srcdir)/'`gstbasevideoencoder.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoencoder.Tpo $(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoencoder.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstbasevideoencoder.c' object='libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoencoder.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstbasevideo_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstbasevideo_@GST_API_VERSION@_la-gstbasevideoencoder.lo `test -f 'gstbasevideoencoder.c' || echo '$(srcdir)/'`gstbasevideoencoder.c
 
 libgstbasevideo_@GST_API_VERSION@_la-gstsurfacemeta.lo: gstsurfacemeta.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstbasevideo_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstbasevideo_@GST_API_VERSION@_la-gstsurfacemeta.lo -MD -MP -MF $(DEPDIR)/libgstbasevideo_@GST_API_VERSION@_la-gstsurfacemeta.Tpo -c -o libgstbasevideo_@GST_API_VERSION@_la-gstsurfacemeta.lo `test -f 'gstsurfacemeta.c' || echo '$(srcdir)/'`gstsurfacemeta.c

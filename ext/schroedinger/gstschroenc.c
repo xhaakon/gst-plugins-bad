@@ -23,8 +23,8 @@
 
 #include <gst/gst.h>
 #include <gst/video/video.h>
-#include <gst/video/gstbasevideoencoder.h>
-#include <gst/video/gstbasevideoutils.h>
+#include <gst/video/gstvideoencoder.h>
+#include <gst/video/gstvideoutils.h>
 #include <string.h>
 
 #include <schroedinger/schro.h>
@@ -52,7 +52,7 @@ typedef struct _GstSchroEncClass GstSchroEncClass;
 
 struct _GstSchroEnc
 {
-  GstBaseVideoEncoder base_encoder;
+  GstVideoEncoder base_encoder;
 
   GstPad *sinkpad;
   GstPad *srcpad;
@@ -63,11 +63,13 @@ struct _GstSchroEnc
 
   guint64 last_granulepos;
   guint64 granule_offset;
+
+  GstVideoCodecState *input_state;
 };
 
 struct _GstSchroEncClass
 {
-  GstBaseVideoEncoderClass parent_class;
+  GstVideoEncoderClass parent_class;
 };
 
 GType gst_schro_enc_get_type (void);
@@ -91,16 +93,16 @@ static void gst_schro_enc_get_property (GObject * object, guint prop_id,
 
 static GstFlowReturn gst_schro_enc_process (GstSchroEnc * schro_enc);
 
-static gboolean gst_schro_enc_set_format (GstBaseVideoEncoder *
-    base_video_encoder, GstVideoInfo * info);
-static gboolean gst_schro_enc_start (GstBaseVideoEncoder * base_video_encoder);
-static gboolean gst_schro_enc_stop (GstBaseVideoEncoder * base_video_encoder);
-static GstFlowReturn gst_schro_enc_finish (GstBaseVideoEncoder *
+static gboolean gst_schro_enc_set_format (GstVideoEncoder *
+    base_video_encoder, GstVideoCodecState * state);
+static gboolean gst_schro_enc_start (GstVideoEncoder * base_video_encoder);
+static gboolean gst_schro_enc_stop (GstVideoEncoder * base_video_encoder);
+static GstFlowReturn gst_schro_enc_finish (GstVideoEncoder *
     base_video_encoder);
-static GstFlowReturn gst_schro_enc_handle_frame (GstBaseVideoEncoder *
-    base_video_encoder, GstVideoFrameState * frame);
-static GstFlowReturn gst_schro_enc_shape_output (GstBaseVideoEncoder *
-    base_video_encoder, GstVideoFrameState * frame);
+static GstFlowReturn gst_schro_enc_handle_frame (GstVideoEncoder *
+    base_video_encoder, GstVideoCodecFrame * frame);
+static GstFlowReturn gst_schro_enc_pre_push (GstVideoEncoder *
+    base_video_encoder, GstVideoCodecFrame * frame);
 static void gst_schro_enc_finalize (GObject * object);
 
 static GstStaticPadTemplate gst_schro_enc_sink_template =
@@ -117,8 +119,8 @@ static GstStaticPadTemplate gst_schro_enc_src_template =
     GST_STATIC_CAPS ("video/x-dirac;video/x-qt-part;video/x-mp4-part")
     );
 
-#define gst_schro_enc_parent_class parent_class
-G_DEFINE_TYPE (GstSchroEnc, gst_schro_enc, GST_TYPE_BASE_VIDEO_ENCODER);
+#define parent_class gst_schro_enc_parent_class
+G_DEFINE_TYPE (GstSchroEnc, gst_schro_enc, GST_TYPE_VIDEO_ENCODER);
 
 static GType
 register_enum_list (const SchroEncoderSetting * setting)
@@ -150,12 +152,12 @@ gst_schro_enc_class_init (GstSchroEncClass * klass)
 {
   GObjectClass *gobject_class;
   GstElementClass *element_class;
-  GstBaseVideoEncoderClass *basevideocoder_class;
+  GstVideoEncoderClass *basevideocoder_class;
   int i;
 
   gobject_class = G_OBJECT_CLASS (klass);
   element_class = GST_ELEMENT_CLASS (klass);
-  basevideocoder_class = GST_BASE_VIDEO_ENCODER_CLASS (klass);
+  basevideocoder_class = GST_VIDEO_ENCODER_CLASS (klass);
 
   gobject_class->set_property = gst_schro_enc_set_property;
   gobject_class->get_property = gst_schro_enc_get_property;
@@ -211,8 +213,7 @@ gst_schro_enc_class_init (GstSchroEncClass * klass)
   basevideocoder_class->finish = GST_DEBUG_FUNCPTR (gst_schro_enc_finish);
   basevideocoder_class->handle_frame =
       GST_DEBUG_FUNCPTR (gst_schro_enc_handle_frame);
-  basevideocoder_class->shape_output =
-      GST_DEBUG_FUNCPTR (gst_schro_enc_shape_output);
+  basevideocoder_class->pre_push = GST_DEBUG_FUNCPTR (gst_schro_enc_pre_push);
 }
 
 static void
@@ -241,24 +242,23 @@ gst_schro_enc_finalize (GObject * object)
     g_free (schro_enc->video_format);
     schro_enc->video_format = NULL;
   }
+  if (schro_enc->input_state)
+    gst_video_codec_state_unref (schro_enc->input_state);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
 static gboolean
-gst_schro_enc_set_format (GstBaseVideoEncoder * base_video_encoder,
-    GstVideoInfo * info)
+gst_schro_enc_set_format (GstVideoEncoder * base_video_encoder,
+    GstVideoCodecState * state)
 {
   GstSchroEnc *schro_enc = GST_SCHRO_ENC (base_video_encoder);
-  GstCaps *caps;
   GstBuffer *seq_header_buffer;
-  gboolean ret;
+  GstVideoInfo *info = &state->info;
+  GstVideoCodecState *output_state;
+  GstClockTime latency;
 
   GST_DEBUG ("set_output_caps");
-
-  gst_base_video_encoder_set_latency_fields (base_video_encoder,
-      2 * (int) schro_encoder_setting_get_double (schro_enc->encoder,
-          "queue_depth"));
 
   schro_video_format_set_std_video_format (schro_enc->video_format,
       SCHRO_VIDEO_FORMAT_CUSTOM);
@@ -293,27 +293,21 @@ gst_schro_enc_set_format (GstBaseVideoEncoder * base_video_encoder,
       g_assert_not_reached ();
   }
 
-  schro_enc->video_format->frame_rate_numerator = info->fps_n;
-  schro_enc->video_format->frame_rate_denominator = info->fps_d;
+  schro_enc->video_format->frame_rate_numerator = GST_VIDEO_INFO_FPS_N (info);
+  schro_enc->video_format->frame_rate_denominator = GST_VIDEO_INFO_FPS_D (info);
 
-  schro_enc->video_format->width = info->width;
-  schro_enc->video_format->height = info->height;
-#if 0
-  schro_enc->video_format->clean_width = state->clean_width;
-  schro_enc->video_format->clean_height = state->clean_height;
-  schro_enc->video_format->left_offset = state->clean_offset_left;
-  schro_enc->video_format->top_offset = state->clean_offset_top;
-#else
-  schro_enc->video_format->clean_width = info->width;
-  schro_enc->video_format->clean_height = info->height;
+  schro_enc->video_format->width = GST_VIDEO_INFO_WIDTH (info);
+  schro_enc->video_format->height = GST_VIDEO_INFO_HEIGHT (info);
+  schro_enc->video_format->clean_width = GST_VIDEO_INFO_WIDTH (info);
+  schro_enc->video_format->clean_height = GST_VIDEO_INFO_HEIGHT (info);
   schro_enc->video_format->left_offset = 0;
   schro_enc->video_format->top_offset = 0;
-#endif
 
-  schro_enc->video_format->aspect_ratio_numerator = info->par_n;
-  schro_enc->video_format->aspect_ratio_denominator = info->par_d;
+  schro_enc->video_format->aspect_ratio_numerator = GST_VIDEO_INFO_PAR_N (info);
+  schro_enc->video_format->aspect_ratio_denominator =
+      GST_VIDEO_INFO_PAR_D (info);
 
-  switch (GST_VIDEO_INFO_FORMAT (info)) {
+  switch (GST_VIDEO_INFO_FORMAT (&state->info)) {
     default:
       schro_video_format_set_std_signal_range (schro_enc->video_format,
           SCHRO_SIGNAL_RANGE_8BIT_VIDEO);
@@ -341,6 +335,13 @@ gst_schro_enc_set_format (GstBaseVideoEncoder * base_video_encoder,
 #endif
   }
 
+  /* Finally set latency */
+  latency = gst_util_uint64_scale (GST_SECOND,
+      GST_VIDEO_INFO_FPS_D (info) *
+      (int) schro_encoder_setting_get_double (schro_enc->encoder,
+          "queue_depth"), GST_VIDEO_INFO_FPS_N (info));
+  gst_video_encoder_set_latency (base_video_encoder, latency, latency);
+
   schro_video_format_set_std_colour_spec (schro_enc->video_format,
       SCHRO_COLOUR_SPEC_HDTV);
 
@@ -353,15 +354,11 @@ gst_schro_enc_set_format (GstBaseVideoEncoder * base_video_encoder,
 
   schro_enc->granule_offset = ~0;
 
-  caps = gst_caps_new_simple ("video/x-dirac",
-      "width", G_TYPE_INT, info->width,
-      "height", G_TYPE_INT, info->height,
-      "framerate", GST_TYPE_FRACTION, info->fps_n,
-      info->fps_d,
-      "pixel-aspect-ratio", GST_TYPE_FRACTION, info->par_n, info->par_d, NULL);
+  output_state =
+      gst_video_encoder_set_output_state (base_video_encoder,
+      gst_caps_new_empty_simple ("video/x-dirac"), state);
 
   GST_BUFFER_FLAG_SET (seq_header_buffer, GST_BUFFER_FLAG_HEADER);
-
   {
     GValue array = { 0 };
     GValue value = { 0 };
@@ -399,17 +396,21 @@ gst_schro_enc_set_format (GstBaseVideoEncoder * base_video_encoder,
     gst_value_set_buffer (&value, buf);
     gst_buffer_unref (buf);
     gst_value_array_append_value (&array, &value);
-    gst_structure_set_value (gst_caps_get_structure (caps, 0),
+    gst_structure_set_value (gst_caps_get_structure (output_state->caps, 0),
         "streamheader", &array);
     g_value_unset (&value);
     g_value_unset (&array);
   }
   gst_buffer_unref (seq_header_buffer);
 
-  ret = gst_pad_set_caps (GST_BASE_VIDEO_CODEC_SRC_PAD (schro_enc), caps);
-  gst_caps_unref (caps);
+  gst_video_codec_state_unref (output_state);
 
-  return ret;
+  /* And save the input state for later use */
+  if (schro_enc->input_state)
+    gst_video_codec_state_unref (schro_enc->input_state);
+  schro_enc->input_state = gst_video_codec_state_ref (state);
+
+  return TRUE;
 }
 
 static void
@@ -482,19 +483,19 @@ gst_schro_enc_get_property (GObject * object, guint prop_id, GValue * value,
 }
 
 static gboolean
-gst_schro_enc_start (GstBaseVideoEncoder * base_video_encoder)
+gst_schro_enc_start (GstVideoEncoder * base_video_encoder)
 {
   return TRUE;
 }
 
 static gboolean
-gst_schro_enc_stop (GstBaseVideoEncoder * base_video_encoder)
+gst_schro_enc_stop (GstVideoEncoder * base_video_encoder)
 {
   return TRUE;
 }
 
 static GstFlowReturn
-gst_schro_enc_finish (GstBaseVideoEncoder * base_video_encoder)
+gst_schro_enc_finish (GstVideoEncoder * base_video_encoder)
 {
   GstSchroEnc *schro_enc = GST_SCHRO_ENC (base_video_encoder);
 
@@ -507,25 +508,25 @@ gst_schro_enc_finish (GstBaseVideoEncoder * base_video_encoder)
 }
 
 static GstFlowReturn
-gst_schro_enc_handle_frame (GstBaseVideoEncoder * base_video_encoder,
-    GstVideoFrameState * frame)
+gst_schro_enc_handle_frame (GstVideoEncoder * base_video_encoder,
+    GstVideoCodecFrame * frame)
 {
   GstSchroEnc *schro_enc = GST_SCHRO_ENC (base_video_encoder);
   SchroFrame *schro_frame;
   GstFlowReturn ret;
-  const GstVideoState *state;
-
-  state = gst_base_video_encoder_get_state (base_video_encoder);
+  GstVideoInfo *info = &schro_enc->input_state->info;
 
   if (schro_enc->granule_offset == ~0LL) {
     schro_enc->granule_offset =
-        gst_util_uint64_scale (frame->presentation_timestamp,
-        2 * state->fps_n, GST_SECOND * state->fps_d);
+        gst_util_uint64_scale (frame->pts, 2 * GST_VIDEO_INFO_FPS_N (info),
+        GST_SECOND * GST_VIDEO_INFO_FPS_D (info));
     GST_DEBUG ("granule offset %" G_GINT64_FORMAT, schro_enc->granule_offset);
   }
 
-  schro_frame = gst_schro_buffer_wrap (gst_buffer_ref (frame->sink_buffer),
-      state->format, state->width, state->height);
+  /* FIXME : We could make that method just take GstVideoInfo ... */
+  schro_frame = gst_schro_buffer_wrap (gst_buffer_ref (frame->input_buffer),
+      GST_VIDEO_INFO_FORMAT (info),
+      GST_VIDEO_INFO_WIDTH (info), GST_VIDEO_INFO_HEIGHT (info));
 
   GST_DEBUG ("pushing frame %p", frame);
   schro_encoder_push_frame_full (schro_enc->encoder, schro_frame, frame);
@@ -536,8 +537,8 @@ gst_schro_enc_handle_frame (GstBaseVideoEncoder * base_video_encoder,
 }
 
 static GstFlowReturn
-gst_schro_enc_shape_output (GstBaseVideoEncoder * base_video_encoder,
-    GstVideoFrameState * frame)
+gst_schro_enc_pre_push (GstVideoEncoder * base_video_encoder,
+    GstVideoCodecFrame * frame)
 {
   GstSchroEnc *schro_enc;
   int delay;
@@ -546,7 +547,7 @@ gst_schro_enc_shape_output (GstBaseVideoEncoder * base_video_encoder,
   int dt;
   guint64 granulepos_hi;
   guint64 granulepos_low;
-  GstBuffer *buf = frame->src_buffer;
+  GstBuffer *buf = frame->output_buffer;
 
   schro_enc = GST_SCHRO_ENC (base_video_encoder);
 
@@ -564,25 +565,29 @@ gst_schro_enc_shape_output (GstBaseVideoEncoder * base_video_encoder,
   GST_DEBUG ("granulepos %" G_GINT64_FORMAT ":%" G_GINT64_FORMAT, granulepos_hi,
       granulepos_low);
 
+#if 0
   if (frame->is_eos) {
     GST_BUFFER_OFFSET_END (buf) = schro_enc->last_granulepos;
   } else {
+#endif
     schro_enc->last_granulepos = (granulepos_hi << 22) | (granulepos_low);
     GST_BUFFER_OFFSET_END (buf) = schro_enc->last_granulepos;
+#if 0
   }
+#endif
 
-  return gst_pad_push (GST_BASE_VIDEO_CODEC_SRC_PAD (base_video_encoder), buf);
+  return GST_FLOW_OK;
 }
 
 static GstFlowReturn
 gst_schro_enc_process (GstSchroEnc * schro_enc)
 {
   SchroBuffer *encoded_buffer;
-  GstVideoFrameState *frame;
+  GstVideoCodecFrame *frame;
   GstFlowReturn ret;
   int presentation_frame;
   void *voidptr;
-  GstBaseVideoEncoder *base_video_encoder = GST_BASE_VIDEO_ENCODER (schro_enc);
+  GstVideoEncoder *base_video_encoder = GST_VIDEO_ENCODER (schro_enc);
 
   GST_DEBUG ("process");
 
@@ -632,12 +637,12 @@ gst_schro_enc_process (GstSchroEnc * schro_enc)
         /* FIXME: Get the frame from somewhere somehow... */
         if (frame) {
           if (SCHRO_PARSE_CODE_IS_SEQ_HEADER (encoded_buffer->data[4])) {
-            frame->is_sync_point = TRUE;
+            GST_VIDEO_CODEC_FRAME_SET_SYNC_POINT (frame);
           }
 
-          frame->src_buffer = gst_schro_wrap_schro_buffer (encoded_buffer);
+          frame->output_buffer = gst_schro_wrap_schro_buffer (encoded_buffer);
 
-          ret = gst_base_video_encoder_finish_frame (base_video_encoder, frame);
+          ret = gst_video_encoder_finish_frame (base_video_encoder, frame);
 
           if (ret != GST_FLOW_OK) {
             GST_DEBUG ("pad_push returned %d", ret);

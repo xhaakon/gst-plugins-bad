@@ -62,28 +62,39 @@ typedef struct _MpegTSPacketizerPrivate MpegTSPacketizerPrivate;
 
 typedef struct
 {
-  guint continuity_counter;
-  GstAdapter *section_adapter;
-  guint8 section_table_id;
-  guint section_length;
+  guint   continuity_counter;
+
+  /* Section data (reused) */
+  guint8 *section_data;
+  /* Expected length of the section */
+  guint   section_length;
+  /* Allocated length of section_data */
+  guint   section_allocated;
+  /* Current offset in section_data */
+  guint16 section_offset;
+  /* table_id of the pending section_data */
+  guint8  section_table_id;
+
   GSList *subtables;
+
+  /* Upstream offset of the data contained in the section */
   guint64 offset;
 } MpegTSPacketizerStream;
 
 struct _MpegTSPacketizer2 {
-  GObject object;
+  GObject     parent;
 
   GstAdapter *adapter;
   /* streams hashed by pid */
   /* FIXME : be more memory efficient (see how it's done in mpegtsbase) */
   MpegTSPacketizerStream **streams;
-  gboolean disposed;
-  gboolean know_packet_size;
-  guint16 packet_size;
-  GstCaps *caps;
+  gboolean    disposed;
+  gboolean    know_packet_size;
+  guint16     packet_size;
+  GstCaps    *caps;
 
   /* current offset of the tip of the adapter */
-  guint64 offset;
+  guint64  offset;
   gboolean empty;
 
   /* clock skew calculation */
@@ -104,6 +115,7 @@ struct _MpegTSPacketizer2 {
   gint64         window_min;
   gint64         skew;
   gint64         prev_send_diff;
+  gint           wrap_count;
 
   /* offset/bitrate calculator */
   gboolean       calculate_offset;
@@ -117,36 +129,38 @@ struct _MpegTSPacketizer2Class {
 
 typedef struct
 {
-  GstBuffer *buffer;
-  gint16 pid;
-  guint8 payload_unit_start_indicator;
-  guint8 adaptation_field_control;
-  guint8 continuity_counter;
+  gint16  pid;
+  guint8  payload_unit_start_indicator;
+  guint8  adaptation_field_control;
+  guint8  continuity_counter;
   guint8 *payload;
-
-  GstMapInfo bufmap;
 
   guint8 *data_start;
   guint8 *data_end;
   guint8 *data;
 
-  guint8 afc_flags;
+  guint8  afc_flags;
   guint64 pcr;
   guint64 opcr;
   guint64 offset;
+  GstClockTime origts;
 } MpegTSPacketizerPacket;
 
 typedef struct
 {
   gboolean complete;
-  GstBuffer *buffer;
-  gint16 pid;
-  guint8 table_id;
-  guint16 subtable_extension;
-  guint section_length;
-  guint8 version_number;
-  guint8 current_next_indicator;
-  guint32 crc;
+  /* GstBuffer *buffer; */
+  guint8  *data;
+  guint    section_length;
+  guint64  offset;
+
+  gint16   pid;
+  guint8   table_id;
+  guint16  subtable_extension;
+  guint8   version_number;
+  guint8   current_next_indicator;
+
+  guint32  crc;
 } MpegTSPacketizerSection; 
 
 typedef struct
@@ -184,6 +198,8 @@ void mpegts_packetizer_remove_stream(MpegTSPacketizer2 *packetizer,
 
 gboolean mpegts_packetizer_push_section (MpegTSPacketizer2 *packetzer,
   MpegTSPacketizerPacket *packet, MpegTSPacketizerSection *section);
+GstStructure *mpegts_packetizer_parse_cat (MpegTSPacketizer2 *packetizer,
+  MpegTSPacketizerSection *section);
 GstStructure *mpegts_packetizer_parse_pat (MpegTSPacketizer2 *packetizer,
   MpegTSPacketizerSection *section);
 GstStructure *mpegts_packetizer_parse_pmt (MpegTSPacketizer2 *packetizer,
@@ -195,6 +211,8 @@ GstStructure *mpegts_packetizer_parse_sdt (MpegTSPacketizer2 *packetizer,
 GstStructure *mpegts_packetizer_parse_eit (MpegTSPacketizer2 *packetizer,
   MpegTSPacketizerSection *section);
 GstStructure *mpegts_packetizer_parse_tdt (MpegTSPacketizer2 *packetizer,
+  MpegTSPacketizerSection *section);
+GstStructure *mpegts_packetizer_parse_tot (MpegTSPacketizer2 *packetizer,
   MpegTSPacketizerSection *section);
 
 /* Only valid if calculate_offset is TRUE */

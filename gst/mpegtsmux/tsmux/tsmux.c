@@ -206,7 +206,7 @@ tsmux_free (TsMux * mux)
   g_return_if_fail (mux != NULL);
 
   /* Free all programs */
-  for (cur = g_list_first (mux->programs); cur != NULL; cur = g_list_next (cur)) {
+  for (cur = mux->programs; cur; cur = cur->next) {
     TsMuxProgram *program = (TsMuxProgram *) cur->data;
 
     tsmux_program_free (program);
@@ -214,7 +214,7 @@ tsmux_free (TsMux * mux)
   g_list_free (mux->programs);
 
   /* Free all streams */
-  for (cur = g_list_first (mux->streams); cur != NULL; cur = g_list_next (cur)) {
+  for (cur = mux->streams; cur; cur = cur->next) {
     TsMuxStream *stream = (TsMuxStream *) cur->data;
 
     tsmux_stream_free (stream);
@@ -253,7 +253,6 @@ tsmux_program_new (TsMux * mux)
   program->pgm_number = mux->next_pgm_no++;
   program->pmt_pid = mux->next_pmt_pid++;
   program->pcr_stream = NULL;
-  program->last_pcr = -1;
 
   program->streams = g_array_sized_new (FALSE, TRUE, sizeof (TsMuxStream *), 1);
 
@@ -312,7 +311,6 @@ tsmux_program_add_stream (TsMuxProgram * program, TsMuxStream * stream)
   g_return_if_fail (program != NULL);
   g_return_if_fail (stream != NULL);
 
-  program->nb_streams++;
   g_array_append_val (program->streams, stream);
   program->pmt_changed = TRUE;
 }
@@ -356,9 +354,13 @@ tsmux_get_new_pid (TsMux * mux)
 {
   g_return_val_if_fail (mux != NULL, -1);
 
-  /* FIXME: It's possible that this next PID is already taken if a 
-   * specific PID was requested earlier. We should find a free PID */
-  return mux->next_stream_pid++;
+  /* make sure this PID is free
+   * (and not taken by a specific earlier request) */
+  do {
+    mux->next_stream_pid++;
+  } while (tsmux_find_stream (mux, mux->next_stream_pid));
+
+  return mux->next_stream_pid;
 }
 
 /**
@@ -417,7 +419,7 @@ tsmux_find_stream (TsMux * mux, guint16 pid)
 
   g_return_val_if_fail (mux != NULL, NULL);
 
-  for (cur = g_list_first (mux->streams); cur != NULL; cur = g_list_next (cur)) {
+  for (cur = mux->streams; cur; cur = cur->next) {
     TsMuxStream *stream = (TsMuxStream *) cur->data;
 
     if (tsmux_stream_get_pid (stream) == pid) {
@@ -749,8 +751,7 @@ tsmux_write_stream_packet (TsMux * mux, TsMuxStream * stream)
     }
 
     /* check if we need to rewrite any of the current pmts */
-    for (cur = g_list_first (mux->programs); cur != NULL;
-        cur = g_list_next (cur)) {
+    for (cur = mux->programs; cur; cur = cur->next) {
       TsMuxProgram *program = (TsMuxProgram *) cur->data;
       gboolean write_pmt;
 
@@ -915,8 +916,7 @@ tsmux_write_pat (TsMux * mux)
     /* Prepare the section data after the section header */
     pos = pat->data + TSMUX_SECTION_HDR_SIZE;
 
-    for (cur = g_list_first (mux->programs); cur != NULL;
-        cur = g_list_next (cur)) {
+    for (cur = mux->programs; cur; cur = cur->next) {
       TsMuxProgram *program = (TsMuxProgram *) cur->data;
 
       tsmux_put16 (&pos, program->pgm_number);
@@ -1003,7 +1003,7 @@ tsmux_write_pmt (TsMux * mux, TsMuxProgram * program)
     tsmux_put16 (&pos, 0xFCFC);
 
     /* Write out the entries */
-    for (i = 0; i < program->nb_streams; i++) {
+    for (i = 0; i < program->streams->len; i++) {
       TsMuxStream *stream = g_array_index (program->streams, TsMuxStream *, i);
       guint16 es_info_len;
 
@@ -1041,7 +1041,7 @@ tsmux_write_pmt (TsMux * mux, TsMuxProgram * program)
     tsmux_put32 (&pos, crc);
 
     TS_DEBUG ("PMT for program %d has %d streams, is %u bytes",
-        program->pgm_number, program->nb_streams, pmt->pi.stream_avail);
+        program->pgm_number, program->streams->len, pmt->pi.stream_avail);
 
     pmt->pi.pid = program->pmt_pid;
     program->pmt_changed = FALSE;

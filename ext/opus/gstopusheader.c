@@ -43,7 +43,7 @@ gst_opus_enc_create_id_buffer (gint nchannels, gint n_stereo_streams,
 
   /* See http://wiki.xiph.org/OggOpus */
   hdl &= gst_byte_writer_put_data (&bw, (const guint8 *) "OpusHead", 8);
-  hdl &= gst_byte_writer_put_uint8 (&bw, 0);    /* version number */
+  hdl &= gst_byte_writer_put_uint8 (&bw, 0x01); /* version number */
   hdl &= gst_byte_writer_put_uint8 (&bw, nchannels);
   hdl &= gst_byte_writer_put_uint16_le (&bw, 0);        /* pre-skip */
   hdl &= gst_byte_writer_put_uint32_le (&bw, sample_rate);
@@ -231,7 +231,7 @@ gst_opus_header_is_id_header (GstBuffer * buf)
 {
   gsize size = gst_buffer_get_size (buf);
   guint8 *data = NULL;
-  guint8 channels, channel_mapping_family, n_streams, n_stereo_streams;
+  guint8 version, channels, channel_mapping_family, n_streams, n_stereo_streams;
   gboolean ret = FALSE;
   GstMapInfo map;
 
@@ -243,6 +243,10 @@ gst_opus_header_is_id_header (GstBuffer * buf)
   gst_buffer_map (buf, &map, GST_MAP_READ);
   data = map.data;
   size = map.size;
+
+  version = data[8];
+  if (version >= 0x0f)          /* major version >=0 is what we grok */
+    goto beach;
 
   channels = data[9];
 
