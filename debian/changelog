@@ -9,6 +9,8 @@ gst-plugins-bad1.0 (0.11.92-1) experimental; urgency=low
       - Build depend on GStreamer core/base >= 0.11.92.
     + debian/build-deps.in:
       - Require orc >= 0.4.16.
+    + debian/patches/0001-vp8enc-fix-target-bitrate-config-with-libvpx-1.1.0.patch:
+      - Dropped, merged upstream.
 
  -- Sebastian Dröge <slomo@debian.org>  Fri, 08 Jun 2012 13:13:33 +0200
 
