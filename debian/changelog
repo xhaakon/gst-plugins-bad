@@ -7,6 +7,8 @@ gst-plugins-bad1.0 (0.11.92-1) experimental; urgency=low
     + debian/build-deps.in,
       debian/rules:
       - Build depend on GStreamer core/base >= 0.11.92.
+    + debian/build-deps.in:
+      - Require orc >= 0.4.16.
 
  -- Sebastian Dröge <slomo@debian.org>  Fri, 08 Jun 2012 13:13:33 +0200
 

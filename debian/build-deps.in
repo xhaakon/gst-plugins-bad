@@ -13,7 +13,7 @@ dpkg-dev (>= 1.15.1)
 pkg-config (>= 0.11.0)
 gtk-doc-tools
 libglib2.0-dev (>= 2.31.14)
-liborc-0.4-dev (>= 1:0.4.11)
+liborc-0.4-dev (>= 1:0.4.16)
 libbz2-dev
 libdca-dev
 libgsm1-dev
