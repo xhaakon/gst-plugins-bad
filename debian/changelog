@@ -3,7 +3,10 @@ gst-plugins-bad1.0 (0.11.92-1) experimental; urgency=low
   * debian/rules,
     debian/gstreamer-plugins-bad.install:
     + Build the cdaudio plugin on kfreebsd too.
-  * New upstream release, "Shine On You Crazy Diamond".
+  * New upstream release, "Shine On You Crazy Diamond":
+    + debian/build-deps.in,
+      debian/rules:
+      - Build depend on GStreamer core/base >= 0.11.92.
 
  -- Sebastian Dröge <slomo@debian.org>  Fri, 08 Jun 2012 13:13:33 +0200
 
