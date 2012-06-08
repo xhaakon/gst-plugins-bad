@@ -3,7 +3,7 @@ AC_PREREQ(2.62)
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT(GStreamer Bad Plug-ins, 0.11.91,
+AC_INIT(GStreamer Bad Plug-ins, 0.11.92,
     http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer,
     gst-plugins-bad)
 
@@ -53,8 +53,8 @@ dnl sets GST_LT_LDFLAGS
 AS_LIBTOOL(GST, 0, 0, 0)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=0.11.90
-GSTPB_REQ=0.11.90
+GST_REQ=0.11.91
+GSTPB_REQ=0.11.91
 
 dnl *** autotools stuff ****
 
@@ -114,7 +114,7 @@ AC_PROG_CXX
 dnl determine if c++ is available on this system
 AC_CHECK_PROG(HAVE_CXX, $CXX, yes, no)
 
-AS_PROG_OBJC
+AC_PROG_OBJC
 
 dnl check if the compiler supports '-c' and '-o' options
 AM_PROG_CC_C_O
@@ -256,7 +256,7 @@ AC_SUBST(EXIF_CFLAGS)
 AM_CONDITIONAL(USE_EXIF, test "x$HAVE_EXIF" = "xyes")
 
 dnl Orc
-ORC_CHECK([0.4.11])
+ORC_CHECK([0.4.16])
 
 dnl set license and copyright notice
 GST_LICENSE="LGPL"
@@ -275,6 +275,11 @@ AG_GST_SET_PACKAGE_RELEASE_DATETIME_WITH_NANO([$PACKAGE_VERSION_NANO],
   ["${srcdir}/gst-plugins-bad.doap"],
   [$PACKAGE_VERSION_MAJOR.$PACKAGE_VERSION_MINOR.$PACKAGE_VERSION_MICRO])
 
+# set by AG_GST_PARSE_SUBSYSTEM_DISABLES above
+dnl make sure it doesn't complain about unused variables if debugging is disabled
+NO_WARNINGS=""
+AG_GST_CHECK_GST_DEBUG_DISABLED([NO_WARNINGS="-Wno-unused"], [NO_WARNINGS=""])
+
 dnl define an ERROR_CFLAGS Makefile variable
 dnl -Waggregate-return - libexif returns aggregates
 dnl -Wundef - Windows headers check _MSC_VER unconditionally
@@ -282,13 +287,19 @@ AG_GST_SET_ERROR_CFLAGS($FATAL_WARNINGS, [
     -Wmissing-declarations -Wmissing-prototypes -Wredundant-decls
     -Wwrite-strings -Wformat-security -Wold-style-definition
     -Winit-self -Wmissing-include-dirs -Waddress -Wno-multichar
-    -Wnested-externs])
+    -Wnested-externs $NO_WARNINGS])
 
 dnl define an ERROR_CXXFLAGS Makefile variable
 AG_GST_SET_ERROR_CXXFLAGS($FATAL_WARNINGS, [
     -Wmissing-declarations -Wredundant-decls
     -Wwrite-strings -Wformat-nonliteral -Wformat-security
-    -Winit-self -Wmissing-include-dirs -Waddress -Wno-multichar ])
+    -Winit-self -Wmissing-include-dirs -Waddress -Wno-multichar $NO_WARNINGS])
+
+dnl define an ERROR_OBJCFLAGS Makefile variable
+AG_GST_SET_ERROR_OBJCFLAGS($FATAL_WARNINGS, [
+    -Wmissing-declarations -Wredundant-decls
+    -Wwrite-strings -Wformat-nonliteral -Wformat-security
+    -Winit-self -Wmissing-include-dirs -Wno-multichar $NO_WARNINGS])
 
 dnl define correct level for debugging messages
 AG_GST_SET_LEVEL_DEFAULT($GST_GIT)
@@ -313,7 +324,7 @@ GST_PLUGINS_NONPORTED=" aiff \
  apexsink cdaudio cog dc1394 dirac directfb resindvd \
  gsettings jp2k ladspa mimic \
  musepack musicbrainz nas neon ofa openal opencv rsvg sdl sndfile soundtouch spandsp spc timidity \
- directsound direct3d directdraw direct3d9 acm wininet \
+ directsound directdraw direct3d9 acm wininet \
  wildmidi xvid lv2 teletextdec dvb sndio"
 AC_SUBST(GST_PLUGINS_NONPORTED)
 
@@ -846,7 +857,7 @@ AG_GST_CHECK_FEATURE(DIRECTFB, [directfb], dfbvideosink , [
 dnl **** Wayland ****
 translit(dnm, m, l) AM_CONDITIONAL(USE_WAYLAND, true)
 AG_GST_CHECK_FEATURE(WAYLAND, [wayland sink], wayland , [
-  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 0.1, [
+  PKG_CHECK_MODULES(WAYLAND, wayland-server <= 0.85.0 wayland-client <= 0.85.0, [
     AC_CHECK_HEADER(wayland-client.h, HAVE_WAYLAND_CLIENT="yes", HAVE_WAYLAND_CLIENT="no")
     AC_CHECK_HEADER(wayland-client-protocol.h, HAVE_WAYLAND_CLIENT_PROTOCOL="yes", HAVE_WAYLAND_CLIENT_PROTOCOL="no")
     if test "x$HAVE_WAYLAND_CLIENT" = "xno"; then
@@ -1948,8 +1959,10 @@ dnl every flag in GST_OPTION_CFLAGS and GST_OPTION_CXXFLAGS can be overridden
 dnl at make time with e.g. make ERROR_CFLAGS=""
 GST_OPTION_CFLAGS="\$(WARNING_CFLAGS) \$(ERROR_CFLAGS) \$(DEBUG_CFLAGS) \$(PROFILE_CFLAGS) \$(GCOV_CFLAGS) \$(OPT_CFLAGS) \$(DEPRECATED_CFLAGS)"
 GST_OPTION_CXXFLAGS="\$(WARNING_CXXFLAGS) \$(ERROR_CXXFLAGS) \$(DEBUG_CFLAGS) \$(PROFILE_CFLAGS) \$(GCOV_CFLAGS) \$(OPT_CFLAGS) \$(DEPRECATED_CFLAGS)"
+GST_OPTION_OBJCFLAGS="\$(WARNING_OBJCFLAGS) \$(ERROR_OBJCFLAGS) \$(DEBUG_CFLAGS) \$(PROFILE_CFLAGS) \$(GCOV_CFLAGS) \$(OPT_CFLAGS) \$(DEPRECATED_CFLAGS)"
 AC_SUBST(GST_OPTION_CFLAGS)
 AC_SUBST(GST_OPTION_CXXFLAGS)
+AC_SUBST(GST_OPTION_OBJCFLAGS)
 
 dnl FIXME: do we want to rename to GST_ALL_* ?
 dnl prefer internal headers to already installed ones
@@ -1957,14 +1970,18 @@ dnl also add builddir include for enumtypes and marshal
 dnl add GST_OPTION_CFLAGS, but overridable
 GST_CFLAGS="$GST_CFLAGS -DGST_USE_UNSTABLE_API"
 GST_CXXFLAGS="$GST_CFLAGS $GLIB_EXTRA_CFLAGS \$(GST_OPTION_CXXFLAGS)"
+GST_OBJCFLAGS="$GST_CFLAGS $GLIB_EXTRA_CFLAGS \$(GST_OPTION_OBJCFLAGS)"
 GST_CFLAGS="$GST_CFLAGS $GLIB_EXTRA_CFLAGS \$(GST_OPTION_CFLAGS)"
 AC_SUBST(GST_CFLAGS)
 AC_SUBST(GST_CXXFLAGS)
+AC_SUBST(GST_OBJCFLAGS)
 AC_SUBST(GST_LIBS)
 GST_PLUGINS_BAD_CXXFLAGS="-I\$(top_srcdir)/gst-libs -I\$(top_builddir)/gst-libs"
+GST_PLUGINS_BAD_OBJCFLAGS="-I\$(top_srcdir)/gst-libs -I\$(top_builddir)/gst-libs"
 GST_PLUGINS_BAD_CFLAGS="-I\$(top_srcdir)/gst-libs -I\$(top_builddir)/gst-libs"
 AC_SUBST(GST_PLUGINS_BAD_CFLAGS)
 AC_SUBST(GST_PLUGINS_BAD_CXXFLAGS)
+AC_SUBST(GST_PLUGINS_BAD_OBJCFLAGS)
 
 dnl LDFLAGS really should only contain flags, not libs - they get added before
 dnl whatevertarget_LIBS and -L flags here affect the rest of the linking

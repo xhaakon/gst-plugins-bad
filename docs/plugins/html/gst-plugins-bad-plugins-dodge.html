@@ -25,6 +25,8 @@
                    | 
                   <a href="#gst-plugins-bad-plugins-dodge.description" class="shortcut">Description</a>
                    | 
+                  <a href="#gst-plugins-bad-plugins-dodge.object-hierarchy" class="shortcut">Object Hierarchy</a>
+                   | 
                   <a href="#gst-plugins-bad-plugins-dodge.properties" class="shortcut">Properties</a>
 </td></tr>
 </table>
@@ -39,7 +41,19 @@
 </tr></table></div>
 <div class="refsynopsisdiv">
 <a name="gst-plugins-bad-plugins-dodge.synopsis"></a><h2>Synopsis</h2>
-<pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-dodge.html#GstDodge" title="struct GstDodge">GstDodge</a>;
+<a name="GstDodge"></a><pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-dodge.html#GstDodge-struct" title="struct GstDodge">GstDodge</a>;
+</pre>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-dodge.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+   +----<a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+         +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
+               +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
+                     +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html">GstBaseTransform</a>
+                           +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideofilter.html#GstVideoFilter">GstVideoFilter</a>
+                                 +----GstDodge
 </pre>
 </div>
 <div class="refsect1">
@@ -56,13 +70,13 @@ Dodge saturates the colors of a video stream in realtime.
 <p>
 </p>
 <div class="refsect2">
-<a name="idp10083888"></a><h3>Example launch line</h3>
+<a name="idp6154848"></a><h3>Example launch line</h3>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
       <tr>
         <td class="listing_lines" align="right"><pre>1</pre></td>
-        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch <span class="gtkdoc opt">-</span>v videotestsrc <span class="gtkdoc opt">!</span> dodge <span class="gtkdoc opt">!</span> ffmpegcolorspace <span class="gtkdoc opt">!</span> autovideosink</pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch <span class="gtkdoc opt">-</span>v videotestsrc <span class="gtkdoc opt">!</span> dodge <span class="gtkdoc opt">!</span> videoconvert <span class="gtkdoc opt">!</span> autovideosink</pre></td>
       </tr>
     </tbody>
   </table>
@@ -74,7 +88,7 @@ Dodge saturates the colors of a video stream in realtime.
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp5626272"></a><h3>Element Information</h3>
+<a name="idp7088544"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -97,7 +111,7 @@ Dodge saturates the colors of a video stream in realtime.
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp6046144"></a><h3>Element Pads</h3>
+<a name="idp10730416"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -115,11 +129,7 @@ Dodge saturates the colors of a video stream in realtime.
 </tr>
 <tr>
 <td><p><span class="term">details</span></p></td>
-<td>video/x-raw-rgb, bpp=(int)32, depth=(int)24, endianness=(int)4321, red_mask=(int)65280, green_mask=(int)16711680, blue_mask=(int)-16777216, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
-</tr>
-<tr>
-<td><p><span class="term"></span></p></td>
-<td> video/x-raw-rgb, bpp=(int)32, depth=(int)24, endianness=(int)4321, red_mask=(int)-16777216, green_mask=(int)16711680, blue_mask=(int)65280, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
+<td>video/x-raw, format=(string){ BGRx, RGBx }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
 </tr>
 </tbody>
 </table></div>
@@ -140,11 +150,7 @@ Dodge saturates the colors of a video stream in realtime.
 </tr>
 <tr>
 <td><p><span class="term">details</span></p></td>
-<td>video/x-raw-rgb, bpp=(int)32, depth=(int)24, endianness=(int)4321, red_mask=(int)65280, green_mask=(int)16711680, blue_mask=(int)-16777216, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
-</tr>
-<tr>
-<td><p><span class="term"></span></p></td>
-<td> video/x-raw-rgb, bpp=(int)32, depth=(int)24, endianness=(int)4321, red_mask=(int)-16777216, green_mask=(int)16711680, blue_mask=(int)65280, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
+<td>video/x-raw, format=(string){ BGRx, RGBx }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
 </tr>
 </tbody>
 </table></div>
@@ -156,11 +162,8 @@ Dodge saturates the colors of a video stream in realtime.
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-dodge.details"></a><h2>Details</h2>
 <div class="refsect2">
-<a name="GstDodge"></a><h3>struct GstDodge</h3>
-<pre class="programlisting">struct GstDodge {
-  GstVideoFilter videofilter;
-};
-</pre>
+<a name="GstDodge-struct"></a><h3>struct GstDodge</h3>
+<pre class="programlisting">struct GstDodge;</pre>
 <p>
 </p>
 </div>

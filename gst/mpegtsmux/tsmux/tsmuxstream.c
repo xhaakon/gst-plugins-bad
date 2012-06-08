@@ -102,8 +102,10 @@ struct TsMuxStreamBuffer
   gint64 pts;
   gint64 dts;
 
+  /* data represents random access point */
   gboolean random_access;
 
+  /* user_data for release function */
   void *user_data;
 };
 
@@ -178,8 +180,8 @@ tsmux_stream_new (guint16 pid, TsMuxStreamType stream_type)
       break;
   }
 
-  stream->last_pts = -1;
-  stream->last_dts = -1;
+//  stream->last_pts = -1;
+//  stream->last_dts = -1;
 
   stream->pcr_ref = 0;
   stream->last_pcr = -1;
@@ -298,8 +300,8 @@ tsmux_stream_at_pes_start (TsMuxStream * stream)
  *
  * Returns: The number of bytes available.
  */
-gint
-tsmux_stream_bytes_avail (TsMuxStream * stream)
+static inline gint
+_tsmux_stream_bytes_avail (TsMuxStream * stream)
 {
   gint bytes_avail;
 
@@ -308,15 +310,23 @@ tsmux_stream_bytes_avail (TsMuxStream * stream)
   if (stream->cur_pes_payload_size != 0)
     bytes_avail = stream->cur_pes_payload_size - stream->pes_bytes_written;
   else
-    bytes_avail = tsmux_stream_bytes_in_buffer (stream);
+    bytes_avail = stream->bytes_avail;
 
-  bytes_avail = MIN (bytes_avail, tsmux_stream_bytes_in_buffer (stream));
+  bytes_avail = MIN (bytes_avail, stream->bytes_avail);
 
   /* Calculate the number of bytes available in the current PES */
   if (stream->state == TSMUX_STREAM_STATE_HEADER)
     bytes_avail += tsmux_stream_pes_header_length (stream);
 
   return bytes_avail;
+}
+
+gint
+tsmux_stream_bytes_avail (TsMuxStream * stream)
+{
+  g_return_val_if_fail (stream != NULL, 0);
+
+  return _tsmux_stream_bytes_avail (stream);
 }
 
 /**
@@ -357,11 +367,11 @@ tsmux_stream_initialize_pes_packet (TsMuxStream * stream)
   } else if (stream->is_video_stream) {
     /* Unbounded for video streams */
     stream->cur_pes_payload_size = 0;
-    tsmux_stream_find_pts_dts_within (stream,
-        tsmux_stream_bytes_in_buffer (stream), &stream->pts, &stream->dts);
+    tsmux_stream_find_pts_dts_within (stream, stream->bytes_avail, &stream->pts,
+        &stream->dts);
   } else {
     /* Output a PES packet of all currently available bytes otherwise */
-    stream->cur_pes_payload_size = tsmux_stream_bytes_in_buffer (stream);
+    stream->cur_pes_payload_size = stream->bytes_avail;
     tsmux_stream_find_pts_dts_within (stream, stream->cur_pes_payload_size,
         &stream->pts, &stream->dts);
   }
@@ -422,7 +432,7 @@ tsmux_stream_get_data (TsMuxStream * stream, guint8 * buf, guint len)
     stream->state = TSMUX_STREAM_STATE_PACKET;
   }
 
-  if (len > (guint) tsmux_stream_bytes_avail (stream))
+  if (len > (guint) _tsmux_stream_bytes_avail (stream))
     return FALSE;
 
   stream->pes_bytes_written += len;
@@ -506,8 +516,7 @@ tsmux_stream_find_pts_dts_within (TsMuxStream * stream, guint bound,
   *pts = -1;
   *dts = -1;
 
-  for (cur = g_list_first (stream->buffers); cur != NULL;
-      cur = g_list_next (cur)) {
+  for (cur = stream->buffers; cur; cur = cur->next) {
     TsMuxStreamBuffer *curbuf = cur->data;
 
     /* FIXME: This isn't quite correct - if the 'bound' is within this

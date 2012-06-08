@@ -36,13 +36,31 @@
 GST_DEBUG_CATEGORY_EXTERN (schro_debug);
 #define GST_CAT_DEFAULT schro_debug
 
-
+typedef struct
+{
+  GstBuffer *buf;
+  GstMapInfo info;
+} FrameData;
 
 
 static void
 gst_schro_frame_free (SchroFrame * frame, void *priv)
 {
-  gst_buffer_unref (GST_BUFFER (priv));
+  FrameData *data = priv;
+
+  gst_buffer_unmap (data->buf, &data->info);
+  gst_buffer_unref (data->buf);
+
+  g_slice_free (FrameData, data);
+}
+
+GstBuffer *
+gst_schro_frame_get_buffer (SchroFrame * frame)
+{
+  if (frame->priv)
+    return gst_buffer_ref (((FrameData *) frame->priv)->buf);
+
+  return NULL;
 }
 
 SchroFrame *
@@ -51,6 +69,7 @@ gst_schro_buffer_wrap (GstBuffer * buf, GstVideoFormat format, int width,
 {
   SchroFrame *frame;
   GstMapInfo info;
+  FrameData *data;
 
   if (!gst_buffer_map (buf, &info, GST_MAP_READ))
     return NULL;
@@ -97,9 +116,11 @@ gst_schro_buffer_wrap (GstBuffer * buf, GstVideoFormat format, int width,
       g_assert_not_reached ();
       return NULL;
   }
-  schro_frame_set_free_callback (frame, gst_schro_frame_free, buf);
 
-  gst_buffer_unmap (buf, &info);
+  data = g_slice_new0 (FrameData);
+  data->buf = buf;
+  data->info = info;
+  schro_frame_set_free_callback (frame, gst_schro_frame_free, data);
 
   return frame;
 }
@@ -128,10 +149,20 @@ gst_schro_wrap_schro_buffer (SchroBuffer * buffer)
   return buf;
 }
 
+typedef struct
+{
+  GstMemory *mem;
+  GstMapInfo info;
+} BufferData;
+
 static void
 gst_schro_buffer_free (SchroBuffer * buffer, void *priv)
 {
-  gst_memory_unref (GST_MEMORY_CAST (priv));
+  BufferData *data = priv;
+
+  gst_memory_unmap (data->mem, &data->info);
+  gst_memory_unref (data->mem);
+  g_slice_free (BufferData, priv);
 }
 
 SchroBuffer *
@@ -140,6 +171,7 @@ gst_schro_wrap_gst_buffer (GstBuffer * buffer)
   SchroBuffer *schrobuf;
   GstMemory *mem;
   GstMapInfo info;
+  BufferData *data;
 
   mem = gst_buffer_get_all_memory (buffer);
   if (!gst_memory_map (mem, &info, GST_MAP_READ)) {
@@ -149,10 +181,13 @@ gst_schro_wrap_gst_buffer (GstBuffer * buffer)
 
   /* FIXME : We can't control if data won't be read/write outside
    * of schro ... */
+  data = g_slice_new0 (BufferData);
+  data->info = info;
+  data->mem = mem;
+
   schrobuf = schro_buffer_new_with_data (info.data, info.size);
-  gst_memory_unmap (mem, &info);
   schrobuf->free = gst_schro_buffer_free;
-  schrobuf->priv = mem;
+  schrobuf->priv = data;
 
   return schrobuf;
 }

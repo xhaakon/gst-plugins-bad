@@ -84,7 +84,7 @@
 #define __MPEGTSMUX_H__
 
 #include <gst/gst.h>
-#include <gst/base/gstcollectpads.h>
+#include <gst/base/gstcollectpads2.h>
 #include <gst/base/gstadapter.h>
 
 G_BEGIN_DECLS
@@ -93,77 +93,6 @@ G_BEGIN_DECLS
 
 #define GST_TYPE_MPEG_TSMUX  (mpegtsmux_get_type())
 #define GST_MPEG_TSMUX(obj)  (G_TYPE_CHECK_INSTANCE_CAST((obj), GST_TYPE_MPEG_TSMUX, MpegTsMux))
-
-typedef struct MpegTsMux MpegTsMux;
-typedef struct MpegTsMuxClass MpegTsMuxClass;
-typedef struct MpegTsPadData MpegTsPadData;
-
-typedef GstBuffer * (*MpegTsPadDataPrepareFunction) (GstBuffer * buf,
-    MpegTsPadData * data, MpegTsMux * mux);
-
-typedef void (*MpegTsPadDataFreePrepareDataFunction) (gpointer prepare_data);
-
-struct MpegTsMux {
-  GstElement parent;
-
-  GstPad *srcpad;
-
-  GstCollectPads *collect;
-
-  TsMux *tsmux;
-  TsMuxProgram **programs;
-  GstStructure *prog_map;
-
-  gboolean first;
-  GstFlowReturn last_flow_ret;
-  GstAdapter *adapter;
-  gint64 previous_pcr;
-  gboolean m2ts_mode;
-  gboolean first_pcr;
-  guint pat_interval;
-  guint pmt_interval;
-
-  GstClockTime last_ts;
-  gboolean is_delta;
-
-  GList *streamheader;
-  gboolean streamheader_sent;
-  GstClockTime pending_key_unit_ts;
-  GstEvent *force_key_unit_event;
-};
-
-struct MpegTsMuxClass  {
-  GstElementClass parent_class;
-};
-
-#define MPEG_TS_PAD_DATA(data)  ((MpegTsPadData *)(data))
-
-struct MpegTsPadData {
-  GstCollectData collect; /* Parent */
-
-  gint pid;
-  TsMuxStream *stream;
-
-  GstBuffer *queued_buf; /* Currently pulled buffer */
-  GstClockTime cur_ts; /* Adjusted TS for the pulled buffer */
-  GstClockTime last_ts; /* Most recent valid TS for this stream */
-
-  GstBuffer * codec_data; /* Optional codec data available in the caps */
-
-  gpointer prepare_data; /* Opaque data pointer to a structure used by the
-                            prepare function */
-
-  MpegTsPadDataPrepareFunction prepare_func; /* Handler to prepare input data */
-  MpegTsPadDataFreePrepareDataFunction free_func; /* Handler to free the private data */
-
-  gboolean eos;
-
-  gint prog_id; /* The program id to which it is attached to (not program pid) */ 
-  TsMuxProgram *prog; /* The program to which this stream belongs to */
-  GstPadEventFunction eventfunc;
-};
-
-GType mpegtsmux_get_type (void);
 
 #define CLOCK_BASE 9LL
 #define CLOCK_FREQ (CLOCK_BASE * 10000)   /* 90 kHz PTS clock */
@@ -185,6 +114,96 @@ GType mpegtsmux_get_type (void);
 
 #define MAX_PROG_NUMBER	32
 #define DEFAULT_PROG_ID	0
+
+typedef struct MpegTsMux MpegTsMux;
+typedef struct MpegTsMuxClass MpegTsMuxClass;
+typedef struct MpegTsPadData MpegTsPadData;
+
+typedef GstBuffer * (*MpegTsPadDataPrepareFunction) (GstBuffer * buf,
+    MpegTsPadData * data, MpegTsMux * mux);
+
+typedef void (*MpegTsPadDataFreePrepareDataFunction) (gpointer prepare_data);
+
+struct MpegTsMux {
+  GstElement parent;
+
+  GstPad *srcpad;
+
+  GstCollectPads2 *collect;
+
+  TsMux *tsmux;
+  TsMuxProgram *programs[MAX_PROG_NUMBER];
+
+  /* properties */
+  gboolean m2ts_mode;
+  GstStructure *prog_map;
+  guint pat_interval;
+  guint pmt_interval;
+
+  /* state */
+  gboolean first;
+  GstClockTime pending_key_unit_ts;
+  GstEvent *force_key_unit_event;
+
+  /* write callback handling/state */
+  GstFlowReturn last_flow_ret;
+  GList *streamheader;
+  gboolean streamheader_sent;
+  gboolean is_delta;
+  GstClockTime last_ts;
+
+  /* m2ts specific */
+  gboolean first_pcr;
+  gint64 previous_pcr;
+  GstAdapter *adapter;
+
+  /* output buffer aggregation */
+  GstBuffer *out_buffer;
+  gint out_offset;
+  gint last_size;
+};
+
+struct MpegTsMuxClass {
+  GstElementClass parent_class;
+};
+
+#define MPEG_TS_PAD_DATA(data)  ((MpegTsPadData *)(data))
+
+struct MpegTsPadData {
+  /* parent */
+  GstCollectData2 collect;
+
+  gint pid;
+  TsMuxStream *stream;
+
+  /* currently pulled buffer */
+  GstBuffer *queued_buf;
+  /* adjusted TS for the pulled buffer */
+  GstClockTime cur_ts;
+  /* most recent valid TS for this stream */
+  GstClockTime last_ts;
+
+  /* optional codec data available in the caps */
+  GstBuffer *codec_data;
+
+  /* Opaque data pointer to a structure used by the prepare function */
+  gpointer prepare_data;
+
+  /* handler to prepare input data */
+  MpegTsPadDataPrepareFunction prepare_func;
+  /* handler to free the private data */
+  MpegTsPadDataFreePrepareDataFunction free_func;
+
+  gboolean eos;
+
+  /* program id == idx to which it is attached to (not program pid) */
+  gint prog_id;
+  /* program this stream belongs to == mux->programs[prog_id] */
+  TsMuxProgram *prog;
+};
+
+GType mpegtsmux_get_type (void);
+
 
 G_END_DECLS
 

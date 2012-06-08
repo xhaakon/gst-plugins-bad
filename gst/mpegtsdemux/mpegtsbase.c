@@ -48,7 +48,6 @@
 /* latency in mseconds */
 #define TS_LATENCY 700
 
-#define TABLE_ID_UNSET 0xFF
 #define RUNNING_STATUS_RUNNING 4
 
 GST_DEBUG_CATEGORY_STATIC (mpegts_base_debug);
@@ -322,21 +321,26 @@ mpegts_get_descriptor_from_stream (MpegTSBaseStream * stream, guint8 tag)
   guint8 *retval = NULL;
   int i;
 
+  if (!gst_structure_has_field_typed (stream_info, "descriptors",
+          G_TYPE_VALUE_ARRAY))
+    goto beach;
+
   gst_structure_get (stream_info, "descriptors", G_TYPE_VALUE_ARRAY,
       &descriptors, NULL);
-  if (descriptors) {
-    for (i = 0; i < descriptors->n_values; i++) {
-      GValue *value = g_value_array_get_nth (descriptors, i);
-      GString *desc = g_value_dup_boxed (value);
-      if (DESC_TAG (desc->str) == tag) {
-        retval = (guint8 *) desc->str;
-        g_string_free (desc, FALSE);
-        break;
-      } else
-        g_string_free (desc, FALSE);
-    }
-    g_value_array_free (descriptors);
+
+  for (i = 0; i < descriptors->n_values; i++) {
+    GValue *value = g_value_array_get_nth (descriptors, i);
+    GString *desc = g_value_dup_boxed (value);
+    if (DESC_TAG (desc->str) == tag) {
+      retval = (guint8 *) desc->str;
+      g_string_free (desc, FALSE);
+      break;
+    } else
+      g_string_free (desc, FALSE);
   }
+  g_value_array_free (descriptors);
+
+beach:
   return retval;
 }
 
@@ -381,23 +385,29 @@ mpegts_get_descriptor_from_program (MpegTSBaseProgram * program, guint8 tag)
   int i;
 
   if (G_UNLIKELY (program == NULL))
-    return NULL;
+    goto beach;
+
   program_info = program->pmt_info;
+  if (!gst_structure_has_field_typed (program_info, "descriptors",
+          G_TYPE_VALUE_ARRAY))
+    goto beach;
+
   gst_structure_get (program_info, "descriptors", G_TYPE_VALUE_ARRAY,
       &descriptors, NULL);
-  if (descriptors) {
-    for (i = 0; i < descriptors->n_values; i++) {
-      GValue *value = g_value_array_get_nth (descriptors, i);
-      GString *desc = g_value_dup_boxed (value);
-      if (DESC_TAG (desc->str) == tag) {
-        retval = (guint8 *) desc->str;
-        g_string_free (desc, FALSE);
-        break;
-      } else
-        g_string_free (desc, FALSE);
-    }
-    g_value_array_free (descriptors);
+
+  for (i = 0; i < descriptors->n_values; i++) {
+    GValue *value = g_value_array_get_nth (descriptors, i);
+    GString *desc = g_value_dup_boxed (value);
+    if (DESC_TAG (desc->str) == tag) {
+      retval = (guint8 *) desc->str;
+      g_string_free (desc, FALSE);
+      break;
+    } else
+      g_string_free (desc, FALSE);
   }
+  g_value_array_free (descriptors);
+
+beach:
   return retval;
 }
 
@@ -752,72 +762,71 @@ mpegts_base_activate_program (MpegTSBase * base, MpegTSBaseProgram * program,
   GST_DEBUG_OBJECT (base, "new pmt %" GST_PTR_FORMAT, pmt_info);
 }
 
-gboolean
+static inline gboolean
 mpegts_base_is_psi (MpegTSBase * base, MpegTSPacketizerPacket * packet)
 {
   gboolean retval = FALSE;
-  guint8 *data, table_id, pointer;
+  guint8 *data, table_id = TABLE_ID_UNSET, pointer;
   int i;
+
   static const guint8 si_tables[] =
       { 0x00, 0x01, 0x02, 0x03, 0x40, 0x41, 0x42, 0x46, 0x4A,
     0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59,
     0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65,
     0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x70, 0x71,
-    0x72, 0x73, 0x7E, 0x7F, TABLE_ID_UNSET
+    0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7E, 0x7F,
+    TABLE_ID_UNSET
   };
-
-  if (MPEGTS_BIT_IS_SET (base->known_psi, packet->pid))
-    retval = TRUE;
 
   /* check if it is a pes pid */
   if (MPEGTS_BIT_IS_SET (base->is_pes, packet->pid))
-    return FALSE;
+    goto invalid_pid;
 
-  if (!retval) {
-    if (packet->payload_unit_start_indicator) {
-      data = packet->data;
-      pointer = *data++;
-      data += pointer;
-      /* 'pointer' value may be invalid on malformed packet
-       * so we need to avoid out of range
-       */
-      if (!(data < packet->data_end)) {
-        GST_WARNING_OBJECT (base,
-            "Wrong offset when retrieving table id: 0x%x", pointer);
-        return FALSE;
-      }
+  /* check if it part of the PIDs we know contain PSI */
+  if (!MPEGTS_BIT_IS_SET (base->known_psi, packet->pid))
+    goto invalid_pid;
 
-      table_id = *(packet->data);
-      i = 0;
-      while (si_tables[i] != TABLE_ID_UNSET) {
-        if (G_UNLIKELY (si_tables[i] == table_id)) {
-          GST_DEBUG_OBJECT (base, "Packet has table id 0x%x", table_id);
-          retval = TRUE;
-          break;
-        }
-        i++;
-      }
-    } else {
-      MpegTSPacketizerStream *stream = (MpegTSPacketizerStream *)
-          base->packetizer->streams[packet->pid];
+  if (packet->payload_unit_start_indicator) {
+    data = packet->data;
+    pointer = *data++;
+    data += pointer;
 
-      if (stream) {
-        i = 0;
-        GST_DEBUG_OBJECT (base, "section table id: 0x%x",
-            stream->section_table_id);
-        while (si_tables[i] != TABLE_ID_UNSET) {
-          if (G_UNLIKELY (si_tables[i] == stream->section_table_id)) {
-            retval = TRUE;
-            break;
-          }
-          i++;
-        }
-      }
+    /* 'pointer' value may be invalid on malformed packet
+     * so we need to avoid out of range */
+    if (!(data < packet->data_end)) {
+      GST_WARNING_OBJECT (base,
+          "Section pointer value exceeds packet size: 0x%x", pointer);
+      return FALSE;
+    }
+
+    table_id = *(packet->data);
+  } else {
+    MpegTSPacketizerStream *stream = (MpegTSPacketizerStream *)
+        base->packetizer->streams[packet->pid];
+
+    if (stream)
+      table_id = stream->section_table_id;
+  }
+
+  if (G_UNLIKELY (table_id == TABLE_ID_UNSET))
+    goto beach;
+
+  for (i = 0; si_tables[i] != TABLE_ID_UNSET; i++) {
+    if (G_UNLIKELY (si_tables[i] == table_id)) {
+      retval = TRUE;
+      break;
     }
   }
 
-  GST_LOG_OBJECT (base, "Packet of pid 0x%x is psi: %d", packet->pid, retval);
+beach:
+  GST_DEBUG_OBJECT (base, "Packet of pid 0x%04x (table_id 0x%02x) is psi: %d",
+      packet->pid, table_id, retval);
   return retval;
+
+invalid_pid:
+  GST_LOG_OBJECT (base, "Packet of pid 0x%04x doesn't belong to a SI stream",
+      packet->pid);
+  return FALSE;
 }
 
 static void
@@ -1002,6 +1011,16 @@ same_program:
 }
 
 static void
+mpegts_base_apply_cat (MpegTSBase * base, GstStructure * cat_info)
+{
+  GST_DEBUG_OBJECT (base, "CAT %" GST_PTR_FORMAT, cat_info);
+
+  gst_element_post_message (GST_ELEMENT_CAST (base),
+      gst_message_new_element (GST_OBJECT (base),
+          gst_structure_copy (cat_info)));
+}
+
+static void
 mpegts_base_apply_nit (MpegTSBase * base,
     guint16 pmt_pid, GstStructure * nit_info)
 {
@@ -1058,38 +1077,52 @@ mpegts_base_handle_psi (MpegTSBase * base, MpegTSPacketizerSection * section)
   gboolean res = TRUE;
   GstStructure *structure = NULL;
 
-  /* table ids 0x70 - 0x73 do not have a crc */
-  if (G_LIKELY (section->table_id < 0x70 || section->table_id > 0x73)) {
-    GstMapInfo map;
-
-    gst_buffer_map (section->buffer, &map, GST_MAP_READ);
-    if (G_UNLIKELY (mpegts_base_calc_crc32 (map.data, map.size) != 0)) {
-      gst_buffer_unmap (section->buffer, &map);
-      GST_WARNING_OBJECT (base, "bad crc in psi pid 0x%x", section->pid);
+  /* table ids 0x70 - 0x73 do not have a crc (EN 300 468) */
+  /* table ids 0x75 - 0x77 do not have a crc (TS 102 323) */
+  /* table id 0x7e does not have a crc (EN 300 468) */
+  /* table ids 0x80 - 0x8f do not have a crc (CA_message section ETR 289) */
+  if (G_LIKELY ((section->table_id < 0x70 || section->table_id > 0x73)
+          && (section->table_id < 0x75 || section->table_id > 0x77)
+          && (section->table_id < 0x80 || section->table_id > 0x8f)
+          && (section->table_id != 0x7e))) {
+    if (G_UNLIKELY (mpegts_base_calc_crc32 (section->data,
+                section->section_length) != 0)) {
+      GST_WARNING_OBJECT (base, "bad crc in psi pid 0x%04x (table_id:0x%02x)",
+          section->pid, section->table_id);
       return FALSE;
     }
-    gst_buffer_unmap (section->buffer, &map);
   }
 
+  GST_DEBUG ("Handling PSI (pid: 0x%04x , table_id: 0x%02x)",
+      section->pid, section->table_id);
+
   switch (section->table_id) {
-    case 0x00:
+    case TABLE_ID_PROGRAM_ASSOCIATION:
       /* PAT */
       structure = mpegts_packetizer_parse_pat (base->packetizer, section);
       if (G_LIKELY (structure)) {
         mpegts_base_apply_pat (base, structure);
         if (base->seen_pat == FALSE) {
           base->seen_pat = TRUE;
-          GST_DEBUG ("First PAT offset: %" G_GUINT64_FORMAT,
-              GST_BUFFER_OFFSET (section->buffer));
+          GST_DEBUG ("First PAT offset: %" G_GUINT64_FORMAT, section->offset);
           mpegts_packetizer_set_reference_offset (base->packetizer,
-              GST_BUFFER_OFFSET (section->buffer));
+              section->offset);
         }
 
       } else
         res = FALSE;
 
       break;
-    case 0x02:
+    case TABLE_ID_CONDITIONAL_ACCESS:
+      /* CAT */
+      structure = mpegts_packetizer_parse_cat (base->packetizer, section);
+      if (structure)
+        mpegts_base_apply_cat (base, structure);
+      else
+        res = FALSE;
+      break;
+    case TABLE_ID_TS_PROGRAM_MAP:
+      /* PMT */
       structure = mpegts_packetizer_parse_pmt (base->packetizer, section);
       if (G_LIKELY (structure))
         mpegts_base_apply_pmt (base, section->pid, structure);
@@ -1097,9 +1130,9 @@ mpegts_base_handle_psi (MpegTSBase * base, MpegTSPacketizerSection * section)
         res = FALSE;
 
       break;
-    case 0x40:
+    case TABLE_ID_NETWORK_INFORMATION_ACTUAL_NETWORK:
       /* NIT, actual network */
-    case 0x41:
+    case TABLE_ID_NETWORK_INFORMATION_OTHER_NETWORK:
       /* NIT, other network */
       structure = mpegts_packetizer_parse_nit (base->packetizer, section);
       if (G_LIKELY (structure))
@@ -1108,8 +1141,8 @@ mpegts_base_handle_psi (MpegTSBase * base, MpegTSPacketizerSection * section)
         res = FALSE;
 
       break;
-    case 0x42:
-    case 0x46:
+    case TABLE_ID_SERVICE_DESCRIPTION_ACTUAL_TS:
+    case TABLE_ID_SERVICE_DESCRIPTION_OTHER_TS:
       structure = mpegts_packetizer_parse_sdt (base->packetizer, section);
       if (G_LIKELY (structure))
         mpegts_base_apply_sdt (base, section->pid, structure);
@@ -1152,13 +1185,14 @@ mpegts_base_handle_psi (MpegTSBase * base, MpegTSPacketizerSection * section)
     case 0x6E:
     case 0x6F:
       /* EIT, schedule */
+      /* FIXME : Can take up to 50% of total mpeg-ts demuxing cpu usage ! */
       structure = mpegts_packetizer_parse_eit (base->packetizer, section);
       if (G_LIKELY (structure))
         mpegts_base_apply_eit (base, section->pid, structure);
       else
         res = FALSE;
       break;
-    case 0x70:
+    case TABLE_ID_TIME_DATE:
       /* TDT (Time and Date table) */
       structure = mpegts_packetizer_parse_tdt (base->packetizer, section);
       if (G_LIKELY (structure))
@@ -1166,7 +1200,17 @@ mpegts_base_handle_psi (MpegTSBase * base, MpegTSPacketizerSection * section)
       else
         res = FALSE;
       break;
+    case TABLE_ID_TIME_OFFSET:
+      /* TOT (Time Offset table) */
+      structure = mpegts_packetizer_parse_tot (base->packetizer, section);
+      if (G_LIKELY (structure))
+        mpegts_base_apply_tdt (base, section->pid, structure);
+      else
+        res = FALSE;
+      break;
     default:
+      GST_WARNING ("Unhandled or unknown section type (table_id 0x%02x)",
+          section->table_id);
       break;
   }
 
@@ -1388,10 +1432,13 @@ mpegts_base_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
     if (G_UNLIKELY (pret == PACKET_BAD)) {
       /* bad header, skip the packet */
       GST_DEBUG_OBJECT (base, "bad packet, skipping");
-      gst_buffer_unref (packet.buffer);
       goto next;
     }
 
+    /* FIXME : Handle the case where we have multiple sections in one
+     * packet ! 
+     * See bug #677443
+     */
     /* base PSI data */
     if (packet.payload != NULL && mpegts_base_is_psi (base, &packet)) {
       MpegTSPacketizerSection section;
@@ -1403,10 +1450,8 @@ mpegts_base_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
       if (G_LIKELY (section.complete)) {
         /* section complete */
         based = mpegts_base_handle_psi (base, &section);
-        gst_buffer_unref (section.buffer);
 
         if (G_UNLIKELY (!based)) {
-          gst_buffer_unref (packet.buffer);
           /* bad PSI table */
           goto next;
         }
@@ -1417,8 +1462,7 @@ mpegts_base_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
     } else if (MPEGTS_BIT_IS_SET (base->is_pes, packet.pid)) {
       /* push the packet downstream */
       res = mpegts_base_push (base, &packet, NULL);
-    } else
-      gst_buffer_unref (packet.buffer);
+    }
 
   next:
     mpegts_packetizer_clear_packet (base->packetizer, &packet);
