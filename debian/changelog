@@ -1,3 +1,18 @@
+gst-plugins-bad1.0 (0.11.93-1) experimental; urgency=low
+
+  * New upstream release:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build depend on GStreamer core/base >= 0.11.93.
+    + debian/build-deps.in:
+      - Build depend on libmpg123-dev (>= 1.13).
+      - Build depend on GLIB >= 2.32.
+    + debian/gstreamer-plugins-bad.install:
+      - Add festival, interlace, mimic, mpegtsmux, mpg123
+        and soundtouch plugins.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 09 Aug 2012 11:40:32 +0200
+
 gst-plugins-bad1.0 (0.11.92-1) experimental; urgency=low
 
   * debian/rules,

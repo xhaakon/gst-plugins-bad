@@ -24,11 +24,11 @@ libdvdnav-dev (>= 4.1.2) [!hurd-any]
 libexempi-dev
 libexif-dev (>= 0.6.16)
 libfaad-dev
-libglib2.0-dev (>= 2.31.14)
+libglib2.0-dev (>= 2.32)
 libgme-dev
 libgsm1-dev
-libgstreamer-plugins-base@GST_ABI@-dev (>= 0.11.92)
-libgstreamer-plugins-base@GST_ABI@-dev (>= 0.11.92)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 0.11.93)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 0.11.93)
 libgtk2.0-dev (>= 2.14.0)
 libiptcdata0-dev (>= 1.0.2)
 libjasper-dev
@@ -37,6 +37,7 @@ libmimic-dev (>= 1.0)
 libmms-dev (>= 0.4)
 libmodplug-dev
 libmpcdec-dev
+libmpg123-dev (>= 1.13)
 libofa0-dev (>= 0.9.3)
 libopenal-dev
 libopus-dev (>= 0.9.4)
