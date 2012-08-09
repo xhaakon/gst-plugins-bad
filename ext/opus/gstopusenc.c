@@ -208,7 +208,7 @@ gst_opus_enc_class_init (GstOpusEncClass * klass)
   gst_element_class_set_details_simple (gstelement_class, "Opus audio encoder",
       "Codec/Encoder/Audio",
       "Encodes audio in Opus format",
-      "Sebastian Dröge <sebastian.droege@collabora.co.uk>");
+      "Vincent Penquerc'h <vincent.penquerch@collabora.co.uk>");
 
   base_class->start = GST_DEBUG_FUNCPTR (gst_opus_enc_start);
   base_class->stop = GST_DEBUG_FUNCPTR (gst_opus_enc_stop);
@@ -344,7 +344,7 @@ gst_opus_enc_stop (GstAudioEncoder * benc)
     opus_multistream_encoder_destroy (enc->state);
     enc->state = NULL;
   }
-  gst_tag_list_free (enc->tags);
+  gst_tag_list_unref (enc->tags);
   enc->tags = NULL;
   g_slist_foreach (enc->headers, (GFunc) gst_buffer_unref, NULL);
   g_slist_free (enc->headers);
@@ -621,8 +621,10 @@ gst_opus_enc_set_format (GstAudioEncoder * benc, GstAudioInfo * info)
     opus_multistream_encoder_destroy (enc->state);
     enc->state = NULL;
   }
-  if (!gst_opus_enc_setup (enc))
+  if (!gst_opus_enc_setup (enc)) {
+    g_mutex_unlock (enc->property_lock);
     return FALSE;
+  }
 
   enc->frame_samples = gst_opus_enc_get_frame_samples (enc);
 

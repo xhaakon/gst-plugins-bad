@@ -48,6 +48,8 @@
 GST_DEBUG_CATEGORY (dvdspu_debug);
 #define GST_CAT_DEFAULT dvdspu_debug
 
+GstDVDSPUDebugFlags dvdspu_debug_flags;
+
 /* Filter signals and args */
 enum
 {
@@ -930,7 +932,7 @@ gst_dvd_spu_subpic_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
   switch (dvdspu->spu_input_type) {
     case SPU_INPUT_TYPE_VOBSUB:
       if (size > 4) {
-        guint8 *header[2];
+        guint8 header[2];
         guint16 packet_size;
 
         gst_buffer_extract (dvdspu->partial_spu, 0, header, 2);
@@ -1201,8 +1203,21 @@ gst_dvd_spu_change_state (GstElement * element, GstStateChange transition)
 static gboolean
 gst_dvd_spu_plugin_init (GstPlugin * plugin)
 {
+  const gchar *env;
+
   GST_DEBUG_CATEGORY_INIT (dvdspu_debug, "gstspu",
       0, "Sub-picture Overlay decoder/renderer");
+
+  env = g_getenv ("GST_DVD_SPU_DEBUG");
+
+  dvdspu_debug_flags = 0;
+  if (env != NULL) {
+    if (strstr (env, "render-rectangle") != NULL)
+      dvdspu_debug_flags |= GST_DVD_SPU_DEBUG_RENDER_RECTANGLE;
+    if (strstr (env, "highlight-rectangle") != NULL)
+      dvdspu_debug_flags |= GST_DVD_SPU_DEBUG_HIGHLIGHT_RECTANGLE;
+  }
+  GST_INFO ("debug flags : 0x%02x", dvdspu_debug_flags);
 
   return gst_element_register (plugin, "dvdspu",
       GST_RANK_PRIMARY, GST_TYPE_DVD_SPU);

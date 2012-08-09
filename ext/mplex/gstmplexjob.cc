@@ -41,6 +41,7 @@ enum
       /* FILL ME */
 };
 
+#define DEFAULT_FORMAT MPEG_FORMAT_DVD
 /*
  * Property enumeration types.
  */
@@ -55,16 +56,20 @@ gst_mplex_format_get_type (void)
 
   if (!mplex_format_type) {
     static const GEnumValue mplex_formats[] = {
-      {0, "Generic MPEG-1", "0"},
-      {1, "Standard VCD", "1"},
-      {2, "User VCD", "2"},
-      {3, "Generic MPEG-2", "3"},
-      {4, "Standard SVCD", "4"},
-      {5, "User SVCD", "5"},
-      {6, "VCD Stills sequences", "6"},
-      {7, "SVCD Stills sequences", "7"},
-      {8, "DVD MPEG-2 for dvdauthor", "8"},
-      {9, "DVD MPEG-2", "9"},
+      {MPEG_FORMAT_MPEG1, "Generic MPEG-1", "mpeg-1"},
+      {MPEG_FORMAT_VCD, "Standard VCD", "vcd"},
+      {MPEG_FORMAT_VCD_NSR, "User VCD", "vcd-nsr"},
+      {MPEG_FORMAT_MPEG2, "Generic MPEG-2", "mpeg-2"},
+      {MPEG_FORMAT_SVCD, "Standard SVCD", "svcd"},
+      {MPEG_FORMAT_SVCD_NSR, "User SVCD", "svcd-nsr"},
+      {MPEG_FORMAT_VCD_STILL, "VCD Stills sequences", "vcd-still"},
+      {MPEG_FORMAT_SVCD_STILL, "SVCD Stills sequences", "svcd-still"},
+      {MPEG_FORMAT_DVD_NAV, "DVD MPEG-2 for dvdauthor", "dvd-nav"},
+      {MPEG_FORMAT_DVD, "DVD MPEG-2", "dvd"},
+      {MPEG_FORMAT_ATSC480i, "ATSC 480i", "atsc-480i"},
+      {MPEG_FORMAT_ATSC480p, "ATSC 480p", "atsc-480p"},
+      {MPEG_FORMAT_ATSC720p, "ATSC 720p", "atsc-720p"},
+      {MPEG_FORMAT_ATSC1080i, "ATSC 1080i", "atsc-1080i"},
       {0, NULL, NULL},
     };
 
@@ -96,7 +101,7 @@ GstMplexJob::initProperties (GObjectClass * klass)
   /* encoding profile */
   g_object_class_install_property (klass, ARG_FORMAT,
       g_param_spec_enum ("format", "Format", "Encoding profile format",
-          GST_TYPE_MPLEX_FORMAT, 0,
+          GST_TYPE_MPLEX_FORMAT, DEFAULT_FORMAT,
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 
   /* total stream datarate. Normally, this shouldn't be needed, but

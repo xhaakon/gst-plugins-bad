@@ -211,7 +211,7 @@ gst_nsfdec_finalize (GObject * object)
     gst_buffer_unref (nsfdec->tune_buffer);
 
   if (nsfdec->taglist)
-    gst_tag_list_free (nsfdec->taglist);
+    gst_tag_list_unref (nsfdec->taglist);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -397,7 +397,7 @@ start_play_tune (GstNsfDec * nsfdec)
       gst_event_new_new_segment (FALSE, 1.0, GST_FORMAT_TIME, 0, -1, 0));
 
   res = gst_pad_start_task (nsfdec->srcpad,
-      (GstTaskFunction) play_loop, nsfdec->srcpad);
+      (GstTaskFunction) play_loop, nsfdec->srcpad, NULL);
 
   return res;
 

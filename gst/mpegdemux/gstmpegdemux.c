@@ -1243,7 +1243,7 @@ gst_flups_demux_handle_seek_pull (GstFluPSDemux * demux, GstEvent * event)
   gst_flups_demux_mark_discont (demux, TRUE, TRUE);
 
   gst_pad_start_task (demux->sinkpad,
-      (GstTaskFunction) gst_flups_demux_loop, demux->sinkpad);
+      (GstTaskFunction) gst_flups_demux_loop, demux->sinkpad, NULL);
 
   GST_PAD_STREAM_UNLOCK (demux->sinkpad);
 
@@ -2838,12 +2838,17 @@ pause:
           gst_element_post_message (GST_ELEMENT_CAST (demux),
               gst_message_new_segment_done (GST_OBJECT_CAST (demux),
                   GST_FORMAT_TIME, stop));
+          gst_flups_demux_send_event (demux,
+              gst_event_new_segment_done (GST_FORMAT_TIME, stop));
         } else {                /* Reverse playback */
           GST_LOG_OBJECT (demux, "Sending segment done, at beginning of "
               "segment");
           gst_element_post_message (GST_ELEMENT_CAST (demux),
               gst_message_new_segment_done (GST_OBJECT_CAST (demux),
                   GST_FORMAT_TIME, demux->src_segment.start));
+          gst_flups_demux_send_event (demux,
+              gst_event_new_segment_done (GST_FORMAT_TIME,
+                  demux->src_segment.start));
         }
       } else {
         /* normal playback, send EOS to all linked pads */
@@ -2881,6 +2886,8 @@ gst_flups_demux_sink_activate (GstPad * sinkpad, GstObject * parent)
     } else {
       res = gst_pad_activate_mode (sinkpad, GST_PAD_MODE_PUSH, TRUE);
     }
+  } else {
+    res = gst_pad_activate_mode (sinkpad, GST_PAD_MODE_PUSH, TRUE);
   }
 
   gst_query_unref (query);
@@ -2898,8 +2905,6 @@ gst_flups_demux_sink_activate_push (GstPad * sinkpad, GstObject * parent,
   demux = GST_FLUPS_DEMUX (parent);
 
   demux->random_access = FALSE;
-
-  gst_object_unref (demux);
 
   return TRUE;
 }
@@ -2920,7 +2925,7 @@ gst_flups_demux_sink_activate_pull (GstPad * sinkpad, GstObject * parent,
     demux->random_access = TRUE;
     gst_object_unref (demux);
     return gst_pad_start_task (sinkpad, (GstTaskFunction) gst_flups_demux_loop,
-        sinkpad);
+        sinkpad, NULL);
   } else {
     demux->random_access = FALSE;
     gst_object_unref (demux);
@@ -3167,15 +3172,4 @@ gst_segment_set_duration (GstSegment * segment, GstFormat format,
     segment->format = format;
   }
   segment->duration = duration;
-}
-
-
-gboolean
-gst_flups_demux_plugin_init (GstPlugin * plugin)
-{
-  if (!gst_element_register (plugin, "mpegpsdemux",
-          GST_RANK_PRIMARY, GST_TYPE_FLUPS_DEMUX))
-    return FALSE;
-
-  return TRUE;
 }

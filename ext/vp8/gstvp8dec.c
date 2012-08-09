@@ -327,7 +327,7 @@ gst_vp8_dec_send_tags (GstVP8Dec * dec)
       GST_TAG_VIDEO_CODEC, "VP8 video", NULL);
 
   gst_pad_push_event (GST_VIDEO_DECODER_SRC_PAD (dec),
-      gst_event_new_tag ("GstDecoder", list));
+      gst_event_new_tag (list));
 }
 
 static void
@@ -487,7 +487,7 @@ gst_vp8_dec_handle_frame (GstVideoDecoder * decoder, GstVideoCodecFrame * frame)
           (double) -deadline / GST_SECOND);
       gst_video_decoder_drop_frame (decoder, frame);
     } else {
-      ret = gst_video_decoder_alloc_output_frame (decoder, frame);
+      ret = gst_video_decoder_allocate_output_frame (decoder, frame);
 
       if (ret == GST_FLOW_OK) {
         gst_vp8_dec_image_to_buffer (dec, img, frame->output_buffer);
@@ -526,7 +526,7 @@ gst_vp8_dec_decide_allocation (GstVideoDecoder * bdec, GstQuery * query)
   g_assert (pool != NULL);
 
   config = gst_buffer_pool_get_config (pool);
-  if (gst_query_has_allocation_meta (query, GST_VIDEO_META_API_TYPE)) {
+  if (gst_query_find_allocation_meta (query, GST_VIDEO_META_API_TYPE, NULL)) {
     gst_buffer_pool_config_add_option (config,
         GST_BUFFER_POOL_OPTION_VIDEO_META);
   }

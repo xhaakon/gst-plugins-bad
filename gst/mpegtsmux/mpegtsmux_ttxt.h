@@ -1,5 +1,5 @@
 /* 
- * Copyright 2006, 2007, 2008, 2009, 2010 Fluendo S.A. 
+ * Copyright 2006, 2007, 2008 Fluendo S.A. 
  *  Authors: Jan Schmidt <jan@fluendo.com>
  *           Kapil Agrawal <kapil@fluendo.com>
  *           Julien Moutte <julien@fluendo.com>
@@ -80,14 +80,12 @@
  *
  */
  
-#ifndef __MPEGTSMUX_H264_H__
-#define __MPEGTSMUX_H264_H__
+#ifndef __MPEGTSMUX_TTXT_H__
+#define __MPEGTSMUX_TTXT_H__
  
 #include "mpegtsmux.h"
 
-GstBuffer * mpegtsmux_prepare_h264 (GstBuffer * buf, MpegTsPadData * data,
+GstBuffer * mpegtsmux_prepare_teletext (GstBuffer * buf, MpegTsPadData * data,
     MpegTsMux * mux);
  
-void mpegtsmux_free_h264 (gpointer prepare_data);
-
-#endif /* __MPEGTSMUX_H264_H__ */
+#endif /* __MPEGTSMUX_TTXT_H__ */

@@ -1024,7 +1024,7 @@ gst_pvrvideosink_propose_allocation (GstBaseSink * bsink, GstQuery * query)
   gst_query_set_allocation_params (query, size, 3, 0, 0, 0, pool);
 
   /* we also support various metadata */
-  gst_query_add_allocation_meta (query, GST_VIDEO_CROP_META_API);
+  gst_query_add_allocation_meta (query, GST_VIDEO_CROP_META_API, NULL);
 
   gst_object_unref (pool);
 
@@ -1457,7 +1457,7 @@ gst_pvrvideosink_class_init (GstPVRVideoSinkClass * klass)
   g_object_class_install_property (gobject_class, PROP_FORCE_ASPECT_RATIO,
       g_param_spec_boolean ("force-aspect-ratio", "Force aspect ratio",
           "When enabled, reverse caps negotiation (scaling) will respect "
-          "original aspect ratio", FALSE,
+          "original aspect ratio", TRUE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   gst_element_class_set_details_simple (gstelement_class,

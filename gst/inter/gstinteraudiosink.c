@@ -160,12 +160,10 @@ gst_inter_audio_sink_class_init (GstInterAudioSinkClass * klass)
   base_sink_class->unlock_stop =
       GST_DEBUG_FUNCPTR (gst_inter_audio_sink_unlock_stop);
 
-#if 0
   g_object_class_install_property (gobject_class, PROP_CHANNEL,
       g_param_spec_string ("channel", "Channel",
           "Channel name to match inter src and sink elements",
           "default", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-#endif
 }
 
 static void
@@ -334,10 +332,11 @@ gst_inter_audio_sink_render (GstBaseSink * sink, GstBuffer * buffer)
 
   g_mutex_lock (interaudiosink->surface->mutex);
   n = gst_adapter_available (interaudiosink->surface->audio_adapter) / 4;
-  if (n > (800 * 2 * 2)) {
-    GST_INFO ("flushing 800 samples");
-    gst_adapter_flush (interaudiosink->surface->audio_adapter, 800 * 4);
-    n -= 800;
+#define SIZE 1600
+  if (n > (1600 * 3)) {
+    GST_WARNING ("flushing 800 samples");
+    gst_adapter_flush (interaudiosink->surface->audio_adapter, (SIZE / 2) * 4);
+    n -= (SIZE / 2);
   }
   gst_adapter_push (interaudiosink->surface->audio_adapter,
       gst_buffer_ref (buffer));

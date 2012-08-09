@@ -314,15 +314,13 @@ compare_ ## name (ExifEntry * entry, ExifTagCheckData * testdata)             \
   if (!gst_tag_list_get_string_index (testdata->taglist,                      \
           gst_tag, 0, &str_tag)) {                                            \
     /* fail the test if we can't get the tag */                               \
-    GST_WARNING ("Failed to get %s from taglist", gst_tag);                   \
-    fail ();                                                                  \
+    fail ("Failed to get %s from taglist", gst_tag);                          \
   }                                                                           \
                                                                               \
   value = __exif_tag_ ## name ## _to_exif_value (str_tag);                    \
                                                                               \
   if (value == -1) {                                                          \
-    GST_WARNING ("Invalid %s tag value: %s", gst_tag, str_tag);               \
-    fail ();                                                                  \
+    fail ("Invalid %s tag value: %s", gst_tag, str_tag);                      \
   }                                                                           \
                                                                               \
   if (entry->format == EXIF_TYPE_SHORT)                                       \
@@ -332,9 +330,8 @@ compare_ ## name (ExifEntry * entry, ExifTagCheckData * testdata)             \
     exif_value = (gint) entry->data[0];                                       \
                                                                               \
   if (value != exif_value) {                                                  \
-    GST_WARNING ("Gstreamer tag value (%d) is different from libexif (%d)",   \
+    fail ("Gstreamer tag value (%d) is different from libexif (%d)",          \
         value, exif_value);                                                   \
-    fail ();                                                                  \
   }                                                                           \
                                                                               \
   testdata->result = TRUE;                                                    \
@@ -503,7 +500,7 @@ compare_flash (ExifEntry * entry, ExifTagCheckData * testdata)
   } else if (strcmp (flash_mode, "never") == 0) {
     fail_unless (((flags >> 3) & 0x3) == 2);
   } else {
-    fail ();
+    fail ("unexpected flash mode");
   }
   testdata->result = TRUE;
 }
@@ -889,13 +886,14 @@ check_content (ExifContent * content, void *user_data)
     case EXIF_TYPE_UNDEFINED:{
       GstMapInfo map;
       GstBuffer *buf;
+      GstSample *sample;
       gint i;
 
-      if (!gst_tag_list_get_buffer_index (test_data->taglist,
-              tag_map[tagindex].gst_tag, 0, &buf)) {
+      if (!gst_tag_list_get_sample_index (test_data->taglist,
+              tag_map[tagindex].gst_tag, 0, &sample)) {
         return;
       }
-
+      buf = gst_sample_get_buffer (sample);
       gst_buffer_map (buf, &map, GST_MAP_READ);
       fail_unless (entry->size, map.size);
       for (i = 0; i < map.size; i++) {
@@ -904,11 +902,11 @@ check_content (ExifContent * content, void *user_data)
       gst_buffer_unmap (buf, &map);
 
       test_data->result = TRUE;
-      gst_buffer_unref (buf);
+      gst_sample_unref (sample);
     }
       break;
     default:
-      fail ();
+      fail ("unexpected exif type %d", entry->format);
   }
 }
 
@@ -978,7 +976,7 @@ generate_jif_file_with_tags (const gchar * tags, const gchar * filepath)
   taglist = gst_tag_list_new_from_string (tags);
   generate_jif_file_with_tags_from_taglist (taglist, filepath);
 
-  gst_tag_list_free (taglist);
+  gst_tag_list_unref (taglist);
 }
 
 static void
@@ -1012,7 +1010,7 @@ libexif_check_tags (const gchar * tags, const gchar * filepath)
 
   libexif_check_tags_from_taglist (taglist, filepath);
 
-  gst_tag_list_free (taglist);
+  gst_tag_list_unref (taglist);
 }
 
 GST_START_TEST (test_jifmux_tags)
@@ -1071,7 +1069,7 @@ GST_START_TEST (test_jifmux_tags)
   gst_buffer_unref (buffer);
   generate_jif_file_with_tags_from_taglist (taglist, tmpfile);
   libexif_check_tags_from_taglist (taglist, tmpfile);
-  gst_tag_list_free (taglist);
+  gst_tag_list_unref (taglist);
 
 #define IMAGE_ORIENTATION_TAG(t) "taglist," GST_TAG_IMAGE_ORIENTATION "=" t
   generate_jif_file_with_tags (IMAGE_ORIENTATION_TAG ("rotate-0"), tmpfile);

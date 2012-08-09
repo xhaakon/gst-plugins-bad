@@ -16,28 +16,10 @@ else
 APEXSINK_DIR =
 endif
 
-# if USE_ARTS
-# ARTS_DIR=arts
-# else
-ARTS_DIR=
-# endif
-
-# if USE_ARTSC
-# ARTSC_DIR=artsd
-# else
-ARTSC_DIR=
-# endif
-
 # if USE_AUDIOFILE
 # AUDIOFILE_DIR=audiofile
 # else
 AUDIOFILE_DIR=
-# endif
-
-# if USE_AUDIORESAMPLE
-# AUDIORESAMPLE_DIR=audioresample
-# else
-AUDIORESAMPLE_DIR=
 # endif
 
 if USE_BZ2
@@ -100,12 +82,6 @@ else
 WAYLAND_DIR=
 endif
 
-if USE_DIVX
-DIVX_DIR=divx
-else
-DIVX_DIR=
-endif
-
 if USE_DTS
 DTS_DIR=dts
 else
@@ -154,16 +130,10 @@ else
 GSM_DIR=
 endif
 
-# if USE_HERMES
-# HERMES_DIR=hermes
-# else
-HERMES_DIR=
-# endif
-
-if USE_JP2K
-JP2K_DIR = jp2k
+if USE_JASPER
+JASPER_DIR = jasper
 else
-JP2K_DIR =
+JASPER_DIR =
 endif
 
 if USE_KATE
@@ -183,12 +153,6 @@ LV2_DIR = lv2
 else
 LV2_DIR =
 endif
-
-# if USE_LCS
-# LCS_DIR=lcs
-# else
-LCS_DIR=
-# endif
 
 # if USE_LIBFAME
 # LIBFAME_DIR=libfame
@@ -212,6 +176,12 @@ if USE_MPEG2ENC
 MPEG2ENC_DIR=mpeg2enc
 else
 MPEG2ENC_DIR=
+endif
+
+if USE_MPG123
+MPG123_DIR=mpg123
+else
+MPG123_DIR=
 endif
 
 if USE_MIMIC
@@ -312,12 +282,6 @@ else
 SDL_DIR=
 endif
 
-# if USE_SHOUT
-# SHOUT_DIR=shout
-# else
-SHOUT_DIR=
-# endif
-
 # if USE_SMOOTHWAVE
 # SMOOTHWAVE_DIR=smoothwave
 # else
@@ -408,10 +372,7 @@ SUBDIRS=\
 	$(ASSRENDER_DIR) \
 	$(VOAMRWBENC_DIR) \
 	$(APEXSINK_DIR) \
-	$(ARTS_DIR) \
-	$(ARTSC_DIR) \
 	$(AUDIOFILE_DIR) \
-	$(AUDIORESAMPLE_DIR) \
 	$(BZ2_DIR) \
 	$(CDAUDIO_DIR) \
 	$(CELT_DIR) \
@@ -422,7 +383,6 @@ SUBDIRS=\
 	$(DIRAC_DIR) \
 	$(DIRECTFB_DIR) \
 	$(WAYLAND_DIR) \
-	$(DIVX_DIR) \
 	$(DTS_DIR) \
 	$(RESINDVD_DIR) \
 	$(FAAC_DIR) \
@@ -431,16 +391,15 @@ SUBDIRS=\
 	$(GSETTINGS_DIR) \
 	$(GSM_DIR) \
 	$(G729_DIR) \
-	$(HERMES_DIR) \
-	$(JP2K_DIR) \
+	$(JASPER_DIR) \
 	$(KATE_DIR) \
 	$(LADSPA_DIR) \
 	$(LV2_DIR) \
-	$(LCS_DIR) \
 	$(LIBFAME_DIR) \
 	$(LIBMMS_DIR) \
 	$(MODPLUG_DIR) \
 	$(MPEG2ENC_DIR) \
+	$(MPG123_DIR) \
 	$(MIMIC_DIR) \
 	$(MPLEX_DIR) \
 	$(MUSEPACK_DIR) \
@@ -455,7 +414,6 @@ SUBDIRS=\
 	$(RSVG_DIR) \
 	$(SCHRO_DIR) \
 	$(SDL_DIR) \
-	$(SHOUT_DIR) \
 	$(SMOOTHWAVE_DIR) \
 	$(SNDFILE_DIR) \
 	$(SNDIO_DIR) \
@@ -483,22 +441,22 @@ DIST_SUBDIRS = \
 	dc1394 \
 	dirac \
 	directfb \
-        wayland \
+	wayland \
 	faac \
 	faad \
 	flite \
 	gsettings \
 	gsm \
 	ladspa \
-	jp2k \
+	jasper \
 	kate \
 	libmms \
 	lv2 \
 	dts \
-	divx \
 	modplug \
 	mimic \
 	mpeg2enc \
+	mpg123 \
 	mplex \
 	musepack \
 	musicbrainz \

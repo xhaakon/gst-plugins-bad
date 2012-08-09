@@ -205,6 +205,8 @@ gst_wrapper_camera_bin_src_imgsrc_probe (GstPad * pad, GstPadProbeInfo * info,
 
   g_mutex_lock (&camerasrc->capturing_mutex);
   if (self->image_capture_count > 0) {
+    GstSample *sample;
+    GstCaps *caps;
     ret = GST_PAD_PROBE_OK;
     self->image_capture_count--;
 
@@ -212,7 +214,11 @@ gst_wrapper_camera_bin_src_imgsrc_probe (GstPad * pad, GstPadProbeInfo * info,
     /* TODO This can likely be optimized if the viewfinder caps is the same as
      * the preview caps, avoiding another scaling of the same buffer. */
     GST_DEBUG_OBJECT (self, "Posting preview for image");
-    gst_base_camera_src_post_preview (camerasrc, buffer);
+    caps = gst_pad_get_current_caps (pad);
+    sample = gst_sample_new (buffer, caps, NULL, NULL);
+    gst_base_camera_src_post_preview (camerasrc, sample);
+    gst_caps_unref (caps);
+    gst_sample_unref (sample);
 
     if (self->image_capture_count == 0) {
       gst_base_camera_src_finish_capture (camerasrc);
@@ -251,6 +257,8 @@ gst_wrapper_camera_bin_src_vidsrc_probe (GstPad * pad, GstPadProbeInfo * info,
   } else if (self->video_rec_status == GST_VIDEO_RECORDING_STATUS_STARTING) {
     GstClockTime ts;
     GstSegment segment;
+    GstCaps *caps;
+    GstSample *sample;
 
     GST_DEBUG_OBJECT (self, "Starting video recording");
     self->video_rec_status = GST_VIDEO_RECORDING_STATUS_RUNNING;
@@ -264,7 +272,11 @@ gst_wrapper_camera_bin_src_vidsrc_probe (GstPad * pad, GstPadProbeInfo * info,
 
     /* post preview */
     GST_DEBUG_OBJECT (self, "Posting preview for video");
-    gst_base_camera_src_post_preview (camerasrc, buffer);
+    caps = gst_pad_get_current_caps (pad);
+    sample = gst_sample_new (buffer, caps, NULL, NULL);
+    gst_base_camera_src_post_preview (camerasrc, sample);
+    gst_caps_unref (caps);
+    gst_sample_unref (sample);
 
     ret = GST_PAD_PROBE_OK;
   } else if (self->video_rec_status == GST_VIDEO_RECORDING_STATUS_FINISHING) {
@@ -361,6 +373,52 @@ gst_wrapper_camera_bin_src_max_zoom_cb (GObject * self, GParamSpec * pspec,
   g_object_notify (G_OBJECT (bcamsrc), "max-zoom");
 }
 
+
+static gboolean
+gst_wrapper_camera_bin_src_src_event (GstPad * pad, GstObject * parent,
+    GstEvent * event)
+{
+  gboolean ret = TRUE;
+  GstWrapperCameraBinSrc *self = GST_WRAPPER_CAMERA_BIN_SRC (parent);
+  GstPad *upstream_pad = NULL;
+
+  GST_DEBUG_OBJECT (self, "Handling event %p %" GST_PTR_FORMAT, event, event);
+
+  switch (GST_EVENT_TYPE (event)) {
+    case GST_EVENT_RECONFIGURE:
+      if (pad == self->imgsrc) {
+        GST_DEBUG_OBJECT (self, "Image mode reconfigure event received");
+        self->image_renegotiate = TRUE;
+      } else if (pad == self->vidsrc) {
+        GST_DEBUG_OBJECT (self, "Video mode reconfigure event received");
+        self->video_renegotiate = TRUE;
+      }
+      if (pad == self->imgsrc || pad == self->vidsrc) {
+        gst_event_unref (event);
+        return ret;
+      }
+      break;
+    default:
+      break;
+  }
+
+  if (pad == self->imgsrc) {
+    upstream_pad = self->outsel_imgpad;
+  } else if (pad == self->vidsrc) {
+    upstream_pad = self->outsel_vidpad;
+  }
+
+  if (upstream_pad) {
+    ret = gst_pad_send_event (upstream_pad, event);
+  } else {
+    GST_WARNING_OBJECT (self, "Event caught that doesn't have an upstream pad -"
+        "this shouldn't be possible!");
+    gst_event_unref (event);
+    ret = FALSE;
+  }
+
+  return ret;
+}
 
 /**
  * gst_wrapper_camera_bin_src_construct_pipeline:
@@ -709,6 +767,14 @@ start_image_capture (GstWrapperCameraBinSrc * self)
     gst_caps_replace (&self->image_capture_caps, caps);
     gst_caps_unref (caps);
 
+    /* FIXME - do we need to update basecamerasrc width/height somehow here?
+     * if not, i think we need to do something about _when_ they get updated
+     * to be sure that set_element_zoom doesn't use the wrong values */
+
+    /* We caught this event in the src pad event handler and now we want to
+     * actually push it upstream */
+    gst_pad_send_event (self->outsel_imgpad, gst_event_new_reconfigure ());
+
     self->image_renegotiate = FALSE;
   }
 
@@ -716,7 +782,7 @@ start_image_capture (GstWrapperCameraBinSrc * self)
     GST_DEBUG_OBJECT (self, "prepare image capture caps %" GST_PTR_FORMAT,
         self->image_capture_caps);
     ret = gst_photography_prepare_for_capture (photography,
-        (GstPhotoCapturePrepared) img_capture_prepared,
+        (GstPhotographyCapturePrepared) img_capture_prepared,
         self->image_capture_caps, self);
   } else {
     g_mutex_unlock (&bcamsrc->capturing_mutex);
@@ -989,6 +1055,10 @@ gst_wrapper_camera_bin_src_start_capture (GstBaseCameraSrc * camerasrc)
       g_mutex_lock (&camerasrc->capturing_mutex);
       gst_caps_unref (caps);
       gst_caps_unref (anycaps);
+
+      /* We caught this event in the src pad event handler and now we want to
+       * actually push it upstream */
+      gst_pad_send_event (src->outsel_vidpad, gst_event_new_reconfigure ());
     }
     if (src->video_rec_status == GST_VIDEO_RECORDING_STATUS_DONE) {
       src->video_rec_status = GST_VIDEO_RECORDING_STATUS_STARTING;
@@ -1124,7 +1194,10 @@ gst_wrapper_camera_bin_src_init (GstWrapperCameraBinSrc * self)
       GST_PAD_SRC);
   gst_element_add_pad (GST_ELEMENT (self), self->vidsrc);
 
-  self->srcpad_event_func = GST_PAD_EVENTFUNC (self->vfsrc);
+  gst_pad_set_event_function (self->imgsrc,
+      GST_DEBUG_FUNCPTR (gst_wrapper_camera_bin_src_src_event));
+  gst_pad_set_event_function (self->vidsrc,
+      GST_DEBUG_FUNCPTR (gst_wrapper_camera_bin_src_src_event));
 
   /* TODO where are variables reset? */
   self->image_capture_count = 0;

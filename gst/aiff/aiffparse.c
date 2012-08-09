@@ -171,7 +171,7 @@ gst_aiff_parse_reset (GstAiffParse * aiff)
   }
 
   if (aiff->tags != NULL) {
-    gst_tag_list_free (aiff->tags);
+    gst_tag_list_unref (aiff->tags);
     aiff->tags = NULL;
   }
 }
@@ -480,7 +480,7 @@ gst_aiff_parse_perform_seek (GstAiffParse * aiff, GstEvent * event)
   aiff->segment_running = TRUE;
   if (!aiff->streaming) {
     gst_pad_start_task (aiff->sinkpad, (GstTaskFunction) gst_aiff_parse_loop,
-        aiff->sinkpad);
+        aiff->sinkpad, NULL);
   }
 
   GST_PAD_STREAM_UNLOCK (aiff->sinkpad);
@@ -931,7 +931,7 @@ gst_aiff_parse_stream_headers (GstAiffParse * aiff)
           aiff->tags = tags;
         } else {
           gst_tag_list_insert (aiff->tags, tags, GST_TAG_MERGE_APPEND);
-          gst_tag_list_free (tags);
+          gst_tag_list_unref (tags);
         }
         break;
       }
@@ -1314,6 +1314,8 @@ pause:
         gst_element_post_message (GST_ELEMENT_CAST (aiff),
             gst_message_new_segment_done (GST_OBJECT_CAST (aiff),
                 aiff->segment.format, stop));
+        gst_pad_push_event (aiff->srcpad,
+            gst_evnet_new_segment_done (aiff->segment.format, stop));
       } else {
         gst_pad_push_event (aiff->srcpad, gst_event_new_eos ());
       }
@@ -1600,7 +1602,7 @@ gst_aiff_parse_sink_activate_pull (GstPad * sinkpad, gboolean active)
   if (active) {
     aiff->segment_running = TRUE;
     return gst_pad_start_task (sinkpad, (GstTaskFunction) gst_aiff_parse_loop,
-        sinkpad);
+        sinkpad, NULL);
   } else {
     aiff->segment_running = FALSE;
     return gst_pad_stop_task (sinkpad);

@@ -45,7 +45,7 @@
  *
  * <title>Live streaming</title>
  * asfmux and rtpasfpay are capable of generating a live asf stream.
- * asfmux has to set its 'is-live' property to true, because in this 
+ * asfmux has to set its 'streamable' property to true, because in this 
  * mode it won't try to seek back to the start of the file to replace
  * some fields that couldn't be known at the file start. In this mode,
  * it won't also send indexes at the end of the data packets (the actual
@@ -54,7 +54,7 @@
  * <para>(write everything in one line, without the backslash characters)</para>
  * Server (sender)
  * |[
- * gst-launch -ve videotestsrc ! ffenc_wmv2 ! asfmux name=mux is-live=true \
+ * gst-launch -ve videotestsrc ! ffenc_wmv2 ! asfmux name=mux streamable=true \
  * ! rtpasfpay ! udpsink host=127.0.0.1 port=3333 \
  * audiotestsrc ! ffenc_wmav2 ! mux.
  * ]|
@@ -90,7 +90,6 @@ enum
   PROP_PREROLL,
   PROP_MERGE_STREAM_TAGS,
   PROP_PADDING,
-  PROP_IS_LIVE,
   PROP_STREAMABLE
 };
 
@@ -260,10 +259,6 @@ gst_asf_mux_class_init (GstAsfMuxClass * klass)
           0, G_MAXUINT64,
           DEFAULT_PADDING,
           G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS));
-  g_object_class_install_property (gobject_class, PROP_IS_LIVE,
-      g_param_spec_boolean ("is-live", "Is Live (deprecated)",
-          "Deprecated in 0.10.20, use 'streamable' instead",
-          DEFAULT_STREAMABLE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
   g_object_class_install_property (gobject_class, PROP_STREAMABLE,
       g_param_spec_boolean ("streamable", "Streamable",
           "If set to true, the output should be as if it is to be streamed "
@@ -480,7 +475,7 @@ gst_asf_mux_get_content_description_tags (GstAsfMux * asfmux,
   tags = gst_tag_setter_get_tag_list (GST_TAG_SETTER (asfmux));
   if (tags && !gst_tag_list_is_empty (tags)) {
     if (asftags->tags != NULL) {
-      gst_tag_list_free (asftags->tags);
+      gst_tag_list_unref (asftags->tags);
     }
     asftags->tags = gst_tag_list_new_empty ();
     asftags->cont_desc_size = 0;
@@ -733,7 +728,7 @@ gst_asf_mux_write_stream_properties (GstAsfMux * asfmux, guint8 ** buf,
     GST_WRITE_UINT32_LE (*buf + 4, audiopad->audioinfo.rate);
     GST_WRITE_UINT32_LE (*buf + 8, audiopad->audioinfo.av_bps);
     GST_WRITE_UINT16_LE (*buf + 12, audiopad->audioinfo.blockalign);
-    GST_WRITE_UINT16_LE (*buf + 14, audiopad->audioinfo.size);
+    GST_WRITE_UINT16_LE (*buf + 14, audiopad->audioinfo.bits_per_sample);
     GST_WRITE_UINT16_LE (*buf + 16, codec_data_length);
 
     GST_DEBUG_OBJECT (asfmux,
@@ -744,7 +739,7 @@ gst_asf_mux_write_stream_properties (GstAsfMux * asfmux, guint8 ** buf,
         G_GUINT16_FORMAT, audiopad->audioinfo.format,
         audiopad->audioinfo.channels, audiopad->audioinfo.rate,
         audiopad->audioinfo.av_bps, audiopad->audioinfo.blockalign,
-        audiopad->audioinfo.size, codec_data_length);
+        audiopad->audioinfo.bits_per_sample, codec_data_length);
 
 
     *buf += ASF_AUDIO_SPECIFIC_DATA_SIZE;
@@ -1328,7 +1323,7 @@ gst_asf_mux_start_file (GstAsfMux * asfmux)
 
   if (asftags) {
     if (asftags->tags)
-      gst_tag_list_free (asftags->tags);
+      gst_tag_list_unref (asftags->tags);
     g_free (asftags);
   }
 
@@ -2022,7 +2017,7 @@ gst_asf_mux_pad_reset (GstAsfPad * pad)
     gst_buffer_unref (pad->codec_data);
   pad->codec_data = NULL;
   if (pad->taglist)
-    gst_tag_list_free (pad->taglist);
+    gst_tag_list_unref (pad->taglist);
   pad->taglist = NULL;
 
   pad->first_ts = GST_CLOCK_TIME_NONE;
@@ -2034,7 +2029,7 @@ gst_asf_mux_pad_reset (GstAsfPad * pad)
     audiopad->audioinfo.format = 0;
     audiopad->audioinfo.av_bps = 0;
     audiopad->audioinfo.blockalign = 0;
-    audiopad->audioinfo.size = 0;
+    audiopad->audioinfo.bits_per_sample = 0;
   } else {
     GstAsfVideoPad *videopad = (GstAsfVideoPad *) pad;
     videopad->vidinfo.size = 0;
@@ -2200,27 +2195,25 @@ gst_asf_mux_video_set_caps (GstPad * pad, GstCaps * caps)
   }
 
   if (strcmp (caps_name, "video/x-wmv") == 0) {
-    guint32 fourcc;
+    gint wmvversion;
+    const gchar *fstr;
 
     videopad->vidinfo.bit_cnt = 24;
 
-    /* in case we have a fourcc, we use it */
-    if (gst_structure_get_uint (structure, "format", &fourcc)) {
-      videopad->vidinfo.compression = fourcc;
-    } else {
-      gint version;
-      if (!gst_structure_get_int (structure, "wmvversion", &version))
-        goto refuse_caps;
-      if (version == 2) {
+    /* in case we have a format, we use it */
+    fstr = gst_structure_get_string (structure, "format");
+    if (fstr && strlen (fstr) == 4) {
+      videopad->vidinfo.compression = GST_STR_FOURCC (fstr);
+    } else if (gst_structure_get_int (structure, "wmvversion", &wmvversion)) {
+      if (wmvversion == 2) {
         videopad->vidinfo.compression = GST_MAKE_FOURCC ('W', 'M', 'V', '2');
-      } else if (version == 1) {
+      } else if (wmvversion == 1) {
         videopad->vidinfo.compression = GST_MAKE_FOURCC ('W', 'M', 'V', '1');
-      } else if (version == 3) {
+      } else if (wmvversion == 3) {
         videopad->vidinfo.compression = GST_MAKE_FOURCC ('W', 'M', 'V', '3');
-      } else {
-        goto refuse_caps;
       }
-    }
+    } else
+      goto refuse_caps;
   } else {
     goto refuse_caps;
   }
@@ -2335,11 +2328,6 @@ gst_asf_mux_get_property (GObject * object,
     case PROP_PADDING:
       g_value_set_uint64 (value, asfmux->prop_padding);
       break;
-    case PROP_IS_LIVE:
-      GST_WARNING_OBJECT (object, "The 'is-live' property is deprecated, use "
-          "the 'streamable' property instead");
-      g_value_set_boolean (value, asfmux->prop_streamable);
-      break;
     case PROP_STREAMABLE:
       g_value_set_boolean (value, asfmux->prop_streamable);
       break;
@@ -2368,10 +2356,6 @@ gst_asf_mux_set_property (GObject * object,
       break;
     case PROP_PADDING:
       asfmux->prop_padding = g_value_get_uint64 (value);
-      break;
-    case PROP_IS_LIVE:
-      g_warning ("This property is deprecated, use 'streamable' instead");
-      asfmux->prop_streamable = g_value_get_boolean (value);
       break;
     case PROP_STREAMABLE:
       asfmux->prop_streamable = g_value_get_boolean (value);

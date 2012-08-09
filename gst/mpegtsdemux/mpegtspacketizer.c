@@ -548,7 +548,7 @@ mpegts_packetizer_parse_cat (MpegTSPacketizer2 * packetizer,
   guint8 *data;
   guint8 tmp;
   GValueArray *descriptors;
-  GstMPEGDescriptor *desc;
+  GstMPEGDescriptor desc;
   guint desc_len;
 
   /* Skip parts already parsed */
@@ -570,10 +570,8 @@ mpegts_packetizer_parse_cat (MpegTSPacketizer2 * packetizer,
 
   /* descriptors */
   desc_len = section->section_length - 4 - 8;
-  desc = gst_mpeg_descriptor_parse (data, desc_len);
-  if (desc)
-    gst_mpeg_descriptor_free (desc);
-  descriptors = g_value_array_new (0);
+  gst_mpeg_descriptor_parse (&desc, data, desc_len);
+  descriptors = g_value_array_new (desc.n_desc);
   if (!mpegts_packetizer_parse_descriptors (packetizer, &data, data + desc_len,
           descriptors)) {
     g_value_array_free (descriptors);
@@ -761,18 +759,19 @@ mpegts_packetizer_parse_pmt (MpegTSPacketizer2 * packetizer,
 
     if (stream_info_length) {
       /* check for AC3 descriptor */
-      GstMPEGDescriptor *desc =
-          gst_mpeg_descriptor_parse (data, stream_info_length);
-      if (desc != NULL) {
+      GstMPEGDescriptor desc;
+
+      if (gst_mpeg_descriptor_parse (&desc, data, stream_info_length)) {
         /* DVB AC3 */
         guint8 *desc_data;
-        if (gst_mpeg_descriptor_find (desc, DESC_DVB_AC3)) {
+        if (gst_mpeg_descriptor_find (&desc, DESC_DVB_AC3)) {
           gst_structure_set (stream_info, "has-ac3", G_TYPE_BOOLEAN, TRUE,
               NULL);
         }
 
         /* DATA BROADCAST ID */
-        desc_data = gst_mpeg_descriptor_find (desc, DESC_DVB_DATA_BROADCAST_ID);
+        desc_data =
+            gst_mpeg_descriptor_find (&desc, DESC_DVB_DATA_BROADCAST_ID);
         if (desc_data) {
           guint16 data_broadcast_id;
           data_broadcast_id =
@@ -782,7 +781,7 @@ mpegts_packetizer_parse_pmt (MpegTSPacketizer2 * packetizer,
         }
 
         /* DATA BROADCAST */
-        desc_data = gst_mpeg_descriptor_find (desc, DESC_DVB_DATA_BROADCAST);
+        desc_data = gst_mpeg_descriptor_find (&desc, DESC_DVB_DATA_BROADCAST);
         if (desc_data) {
           GstStructure *databroadcast_info;
           guint16 data_broadcast_id;
@@ -799,7 +798,7 @@ mpegts_packetizer_parse_pmt (MpegTSPacketizer2 * packetizer,
 
         /* DVB CAROUSEL IDENTIFIER */
         desc_data =
-            gst_mpeg_descriptor_find (desc, DESC_DVB_CAROUSEL_IDENTIFIER);
+            gst_mpeg_descriptor_find (&desc, DESC_DVB_CAROUSEL_IDENTIFIER);
         if (desc_data) {
           guint32 carousel_id;
           carousel_id = DESC_DVB_CAROUSEL_IDENTIFIER_carousel_id (desc_data);
@@ -808,7 +807,8 @@ mpegts_packetizer_parse_pmt (MpegTSPacketizer2 * packetizer,
         }
 
         /* DVB STREAM IDENTIFIER */
-        desc_data = gst_mpeg_descriptor_find (desc, DESC_DVB_STREAM_IDENTIFIER);
+        desc_data =
+            gst_mpeg_descriptor_find (&desc, DESC_DVB_STREAM_IDENTIFIER);
         if (desc_data) {
           guint8 component_tag;
           component_tag = DESC_DVB_STREAM_IDENTIFIER_component_tag (desc_data);
@@ -817,7 +817,7 @@ mpegts_packetizer_parse_pmt (MpegTSPacketizer2 * packetizer,
         }
 
         /* ISO 639 LANGUAGE */
-        desc_data = gst_mpeg_descriptor_find (desc, DESC_ISO_639_LANGUAGE);
+        desc_data = gst_mpeg_descriptor_find (&desc, DESC_ISO_639_LANGUAGE);
         if (desc_data && DESC_ISO_639_LANGUAGE_codes_n (desc_data)) {
           gchar *lang_code;
           gchar *language_n = (gchar *)
@@ -828,22 +828,19 @@ mpegts_packetizer_parse_pmt (MpegTSPacketizer2 * packetizer,
           g_free (lang_code);
         }
 
-        gst_mpeg_descriptor_free (desc);
-      }
+        descriptors = g_value_array_new (desc.n_desc);
+        if (!mpegts_packetizer_parse_descriptors (packetizer,
+                &data, data + stream_info_length, descriptors)) {
+          g_value_unset (&programs);
+          gst_structure_free (stream_info);
+          g_value_array_free (descriptors);
+          goto error;
+        }
 
-      descriptors = g_value_array_new (0);
-      if (!mpegts_packetizer_parse_descriptors (packetizer,
-              &data, data + stream_info_length, descriptors)) {
-        g_value_unset (&programs);
-        gst_structure_free (stream_info);
+        gst_structure_id_set (stream_info,
+            QUARK_DESCRIPTORS, G_TYPE_VALUE_ARRAY, descriptors, NULL);
         g_value_array_free (descriptors);
-        goto error;
       }
-
-      gst_structure_id_set (stream_info,
-          QUARK_DESCRIPTORS, G_TYPE_VALUE_ARRAY, descriptors, NULL);
-      g_value_array_free (descriptors);
-
     }
 
     g_value_init (&stream_value, GST_TYPE_STRUCTURE);
@@ -916,7 +913,7 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
   /* see if the buffer is large enough */
   if (descriptors_loop_length) {
     guint8 *networkname_descriptor;
-    GstMPEGDescriptor *mpegdescriptor;
+    GstMPEGDescriptor mpegdescriptor;
 
     if (data + descriptors_loop_length > end - 4) {
       GST_WARNING ("PID %d invalid NIT descriptors loop length %d",
@@ -924,37 +921,37 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
       gst_structure_free (nit);
       goto error;
     }
-    mpegdescriptor = gst_mpeg_descriptor_parse (data, descriptors_loop_length);
-    networkname_descriptor =
-        gst_mpeg_descriptor_find (mpegdescriptor, DESC_DVB_NETWORK_NAME);
-    if (networkname_descriptor != NULL) {
-      gchar *networkname_tmp;
+    if (gst_mpeg_descriptor_parse (&mpegdescriptor, data,
+            descriptors_loop_length)) {
+      networkname_descriptor =
+          gst_mpeg_descriptor_find (&mpegdescriptor, DESC_DVB_NETWORK_NAME);
+      if (networkname_descriptor != NULL) {
+        gchar *networkname_tmp;
 
-      /* No need to bounds check this value as it comes from the descriptor length itself */
-      guint8 networkname_length =
-          DESC_DVB_NETWORK_NAME_length (networkname_descriptor);
-      gchar *networkname =
-          (gchar *) DESC_DVB_NETWORK_NAME_text (networkname_descriptor);
+        /* No need to bounds check this value as it comes from the descriptor length itself */
+        guint8 networkname_length =
+            DESC_DVB_NETWORK_NAME_length (networkname_descriptor);
+        gchar *networkname =
+            (gchar *) DESC_DVB_NETWORK_NAME_text (networkname_descriptor);
 
-      networkname_tmp =
-          get_encoding_and_convert (networkname, networkname_length);
-      gst_structure_id_set (nit, QUARK_NETWORK_NAME, G_TYPE_STRING,
-          networkname_tmp, NULL);
-      g_free (networkname_tmp);
-    }
-    gst_mpeg_descriptor_free (mpegdescriptor);
+        networkname_tmp =
+            get_encoding_and_convert (networkname, networkname_length);
+        gst_structure_id_set (nit, QUARK_NETWORK_NAME, G_TYPE_STRING,
+            networkname_tmp, NULL);
+        g_free (networkname_tmp);
+      }
 
-    descriptors = g_value_array_new (0);
-    if (!mpegts_packetizer_parse_descriptors (packetizer,
-            &data, data + descriptors_loop_length, descriptors)) {
-      gst_structure_free (nit);
+      descriptors = g_value_array_new (mpegdescriptor.n_desc);
+      if (!mpegts_packetizer_parse_descriptors (packetizer,
+              &data, data + descriptors_loop_length, descriptors)) {
+        gst_structure_free (nit);
+        g_value_array_free (descriptors);
+        goto error;
+      }
+      gst_structure_id_set (nit, QUARK_DESCRIPTORS, G_TYPE_VALUE_ARRAY,
+          descriptors, NULL);
       g_value_array_free (descriptors);
-      goto error;
     }
-
-    gst_structure_id_set (nit, QUARK_DESCRIPTORS, G_TYPE_VALUE_ARRAY,
-        descriptors, NULL);
-    g_value_array_free (descriptors);
   }
 
   transport_stream_loop_length = GST_READ_UINT16_BE (data) & 0x0FFF;
@@ -991,7 +988,7 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
         QUARK_ORIGINAL_NETWORK_ID, G_TYPE_UINT, original_network_id, NULL);
 
     if (descriptors_loop_length) {
-      GstMPEGDescriptor *mpegdescriptor;
+      GstMPEGDescriptor mpegdescriptor;
       guint8 *delivery;
 
       if (data + descriptors_loop_length > end - 4) {
@@ -1000,11 +997,10 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
         gst_structure_free (transport);
         goto error;
       }
-      mpegdescriptor =
-          gst_mpeg_descriptor_parse (data, descriptors_loop_length);
+      gst_mpeg_descriptor_parse (&mpegdescriptor, data,
+          descriptors_loop_length);
 
-      if ((delivery =
-              gst_mpeg_descriptor_find (mpegdescriptor,
+      if ((delivery = gst_mpeg_descriptor_find (&mpegdescriptor,
                   DESC_DVB_SATELLITE_DELIVERY_SYSTEM))) {
 
         guint8 *frequency_bcd =
@@ -1090,25 +1086,20 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
         }
         switch (modulation) {
           case 0x00:
-            modulation_str = "undefined";
+            modulation_str = "auto";
             break;
           case 0x01:
-            modulation_str = "QAM16";
+            modulation_str = "QPSK";
             break;
           case 0x02:
-            modulation_str = "QAM32";
+            modulation_str = "8PSK";
             break;
           case 0x03:
-            modulation_str = "QAM64";
-            break;
-          case 0x04:
-            modulation_str = "QAM128";
-            break;
-          case 0x05:
-            modulation_str = "QAM256";
+            modulation_str = "QAM16";
             break;
           default:
-            modulation_str = "reserved";
+            modulation_str = "";
+            break;
         }
         delivery_structure = gst_structure_new ("satellite",
             "orbital", G_TYPE_FLOAT, orbital,
@@ -1120,8 +1111,7 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
             "inner-fec", G_TYPE_STRING, fec_inner_str, NULL);
         gst_structure_set (transport, "delivery", GST_TYPE_STRUCTURE,
             delivery_structure, NULL);
-      } else if ((delivery =
-              gst_mpeg_descriptor_find (mpegdescriptor,
+      } else if ((delivery = gst_mpeg_descriptor_find (&mpegdescriptor,
                   DESC_DVB_TERRESTRIAL_DELIVERY_SYSTEM))) {
 
         guint32 frequency =
@@ -1249,8 +1239,7 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
             "other-frequency", G_TYPE_BOOLEAN, other_frequency, NULL);
         gst_structure_set (transport, "delivery", GST_TYPE_STRUCTURE,
             delivery_structure, NULL);
-      } else if ((delivery =
-              gst_mpeg_descriptor_find (mpegdescriptor,
+      } else if ((delivery = gst_mpeg_descriptor_find (&mpegdescriptor,
                   DESC_DVB_CABLE_DELIVERY_SYSTEM))) {
 
         guint8 *frequency_bcd =
@@ -1345,8 +1334,7 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
         gst_structure_free (delivery_structure);
         delivery_structure = NULL;
       }
-      if ((delivery =
-              gst_mpeg_descriptor_find (mpegdescriptor,
+      if ((delivery = gst_mpeg_descriptor_find (&mpegdescriptor,
                   DESC_DTG_LOGICAL_CHANNEL))) {
         guint8 *current_pos = delivery + 2;
         GValue channel_numbers = { 0 };
@@ -1373,8 +1361,7 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
         gst_structure_set_value (transport, "channels", &channel_numbers);
         g_value_unset (&channel_numbers);
       }
-      if ((delivery =
-              gst_mpeg_descriptor_find (mpegdescriptor,
+      if ((delivery = gst_mpeg_descriptor_find (&mpegdescriptor,
                   DESC_DVB_FREQUENCY_LIST))) {
         guint8 *current_pos = delivery + 2;
         GValue frequencies = { 0 };
@@ -1445,9 +1432,8 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
           g_value_unset (&frequencies);
         }
       }
-      gst_mpeg_descriptor_free (mpegdescriptor);
 
-      descriptors = g_value_array_new (0);
+      descriptors = g_value_array_new (mpegdescriptor.n_desc);
       if (!mpegts_packetizer_parse_descriptors (packetizer,
               &data, data + descriptors_loop_length, descriptors)) {
         gst_structure_free (transport);
@@ -1581,7 +1567,7 @@ mpegts_packetizer_parse_sdt (MpegTSPacketizer2 * packetizer,
 
     if (descriptors_loop_length) {
       guint8 *service_descriptor;
-      GstMPEGDescriptor *mpegdescriptor;
+      GstMPEGDescriptor mpegdescriptor;
 
       if (data + descriptors_loop_length > end - 4) {
         GST_WARNING ("PID %d invalid SDT entry %d descriptors loop length %d",
@@ -1589,10 +1575,10 @@ mpegts_packetizer_parse_sdt (MpegTSPacketizer2 * packetizer,
         gst_structure_free (service);
         goto error;
       }
-      mpegdescriptor =
-          gst_mpeg_descriptor_parse (data, descriptors_loop_length);
+      gst_mpeg_descriptor_parse (&mpegdescriptor, data,
+          descriptors_loop_length);
       service_descriptor =
-          gst_mpeg_descriptor_find (mpegdescriptor, DESC_DVB_SERVICE);
+          gst_mpeg_descriptor_find (&mpegdescriptor, DESC_DVB_SERVICE);
       if (service_descriptor != NULL) {
         gchar *servicename_tmp, *serviceprovider_name_tmp;
         guint8 serviceprovider_name_length =
@@ -1641,9 +1627,8 @@ mpegts_packetizer_parse_sdt (MpegTSPacketizer2 * packetizer,
           g_free (serviceprovider_name_tmp);
         }
       }
-      gst_mpeg_descriptor_free (mpegdescriptor);
 
-      descriptors = g_value_array_new (0);
+      descriptors = g_value_array_new (mpegdescriptor.n_desc);
       if (!mpegts_packetizer_parse_descriptors (packetizer,
               &data, data + descriptors_loop_length, descriptors)) {
         gst_structure_free (service);
@@ -1819,7 +1804,7 @@ mpegts_packetizer_parse_eit (MpegTSPacketizer2 * packetizer,
       guint8 *event_descriptor;
       GArray *component_descriptors;
       GArray *extended_event_descriptors;
-      GstMPEGDescriptor *mpegdescriptor;
+      GstMPEGDescriptor mpegdescriptor;
 
       if (data + descriptors_loop_length > end - 4) {
         GST_WARNING ("PID %d invalid EIT descriptors loop length %d",
@@ -1827,10 +1812,10 @@ mpegts_packetizer_parse_eit (MpegTSPacketizer2 * packetizer,
         gst_structure_free (event);
         goto error;
       }
-      mpegdescriptor =
-          gst_mpeg_descriptor_parse (data, descriptors_loop_length);
+      gst_mpeg_descriptor_parse (&mpegdescriptor, data,
+          descriptors_loop_length);
       event_descriptor =
-          gst_mpeg_descriptor_find (mpegdescriptor, DESC_DVB_SHORT_EVENT);
+          gst_mpeg_descriptor_find (&mpegdescriptor, DESC_DVB_SHORT_EVENT);
       if (event_descriptor != NULL) {
         gchar *eventname_tmp, *eventdescription_tmp;
         guint8 eventname_length =
@@ -1850,14 +1835,14 @@ mpegts_packetizer_parse_eit (MpegTSPacketizer2 * packetizer,
               get_encoding_and_convert (eventdescription,
               eventdescription_length);
 
-          gst_structure_set (event, "name", G_TYPE_STRING, eventname_tmp, NULL);
-          gst_structure_set (event, "description", G_TYPE_STRING,
-              eventdescription_tmp, NULL);
+          gst_structure_set (event, "name", G_TYPE_STRING, eventname_tmp,
+              "description", G_TYPE_STRING, eventdescription_tmp, NULL);
           g_free (eventname_tmp);
           g_free (eventdescription_tmp);
         }
       }
-      extended_event_descriptors = gst_mpeg_descriptor_find_all (mpegdescriptor,
+      extended_event_descriptors =
+          gst_mpeg_descriptor_find_all (&mpegdescriptor,
           DESC_DVB_EXTENDED_EVENT);
       if (extended_event_descriptors) {
         int i;
@@ -1930,7 +1915,7 @@ mpegts_packetizer_parse_eit (MpegTSPacketizer2 * packetizer,
         g_array_free (extended_event_descriptors, TRUE);
       }
 
-      component_descriptors = gst_mpeg_descriptor_find_all (mpegdescriptor,
+      component_descriptors = gst_mpeg_descriptor_find_all (&mpegdescriptor,
           DESC_DVB_COMPONENT);
       if (component_descriptors) {
         int i;
@@ -2132,9 +2117,8 @@ mpegts_packetizer_parse_eit (MpegTSPacketizer2 * packetizer,
         g_value_unset (&components);
         g_array_free (component_descriptors, TRUE);
       }
-      gst_mpeg_descriptor_free (mpegdescriptor);
 
-      descriptors = g_value_array_new (0);
+      descriptors = g_value_array_new (mpegdescriptor.n_desc);
       if (!mpegts_packetizer_parse_descriptors (packetizer,
               &data, data + descriptors_loop_length, descriptors)) {
         gst_structure_free (event);
@@ -2840,7 +2824,7 @@ convert_to_utf8 (const gchar * text, gint length, guint start,
     const gchar * encoding, gboolean is_multibyte, GError ** error)
 {
   gchar *new_text;
-  GByteArray *sb;
+  gchar *tmp, *pos;
   gint i;
 
   g_return_val_if_fail (text != NULL, NULL);
@@ -2848,8 +2832,7 @@ convert_to_utf8 (const gchar * text, gint length, guint start,
 
   text += start;
 
-  /* FIXME : GByteArray has a big overhead */
-  sb = g_byte_array_sized_new (length * 1.1);
+  pos = tmp = g_malloc (length * 2);
 
   if (is_multibyte) {
     if (length == -1) {
@@ -2862,12 +2845,15 @@ convert_to_utf8 (const gchar * text, gint length, guint start,
             /* skip it */
             break;
           case 0xE08A:{
-            guint8 nl[] = { 0x00, 0x0A };       /* new line */
-            g_byte_array_append (sb, nl, 2);
+            pos[0] = 0x00;      /* 0x00 0x0A is a new line */
+            pos[1] = 0x0A;
+            pos += 2;
             break;
           }
           default:
-            g_byte_array_append (sb, (guint8 *) text, 2);
+            pos[0] = text[0];
+            pos[1] = text[1];
+            pos += 2;
             break;
         }
 
@@ -2883,12 +2869,15 @@ convert_to_utf8 (const gchar * text, gint length, guint start,
             /* skip it */
             break;
           case 0xE08A:{
-            guint8 nl[] = { 0x00, 0x0A };       /* new line */
-            g_byte_array_append (sb, nl, 2);
+            pos[0] = 0x00;      /* 0x00 0x0A is a new line */
+            pos[1] = 0x0A;
+            pos += 2;
             break;
           }
           default:
-            g_byte_array_append (sb, (guint8 *) text, 2);
+            pos[0] = text[0];
+            pos[1] = text[1];
+            pos += 2;
             break;
         }
 
@@ -2906,10 +2895,12 @@ convert_to_utf8 (const gchar * text, gint length, guint start,
             /* skip it */
             break;
           case 0x8A:
-            g_byte_array_append (sb, (guint8 *) "\n", 1);
+            *pos = '\n';
+            pos += 1;
             break;
           default:
-            g_byte_array_append (sb, &code, 1);
+            *pos = *text;
+            pos += 1;
             break;
         }
 
@@ -2925,10 +2916,12 @@ convert_to_utf8 (const gchar * text, gint length, guint start,
             /* skip it */
             break;
           case 0x8A:
-            g_byte_array_append (sb, (guint8 *) "\n", 1);
+            *pos = '\n';
+            pos += 1;
             break;
           default:
-            g_byte_array_append (sb, &code, 1);
+            *pos = *text;
+            pos += 1;
             break;
         }
 
@@ -2937,15 +2930,16 @@ convert_to_utf8 (const gchar * text, gint length, guint start,
     }
   }
 
-  if (sb->len > 0) {
+  if (pos > tmp) {
+    gsize bread = 0;
     new_text =
-        g_convert ((gchar *) sb->data, sb->len, "utf-8", encoding, NULL, NULL,
-        error);
+        g_convert (tmp, pos - tmp, "utf-8", encoding, &bread, NULL, error);
+    GST_DEBUG ("Converted to : %s", new_text);
   } else {
     new_text = g_strdup ("");
   }
 
-  g_byte_array_free (sb, TRUE);
+  g_free (tmp);
 
   return new_text;
 }
