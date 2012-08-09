@@ -37,8 +37,8 @@ cleanup_curlfilesink (GstElement * sink)
 }
 
 static void
-test_verify_file_data (const gchar *dir, gchar *file_name,
-    const gchar *expected_file_content)
+test_verify_file_data (const gchar * dir, gchar * file_name,
+    const gchar * expected_file_content)
 {
   GError *err = NULL;
   gchar *res_file_content = NULL;
@@ -55,7 +55,7 @@ test_verify_file_data (const gchar *dir, gchar *file_name,
   fail_unless (res_file_content != NULL);
 
   fail_unless (strncmp (res_file_content, expected_file_content,
-        strlen (expected_file_content)) == 0);
+          strlen (expected_file_content)) == 0);
   g_free (res_file_content);
   g_unlink (path);
   g_free (path);
@@ -71,7 +71,7 @@ test_set_and_play_buffer (const gchar * _data)
   num_bytes = strlen (data);
   buffer = gst_buffer_new ();
   gst_buffer_insert_memory (buffer, 0,
-          gst_memory_new_wrapped (GST_MEMORY_FLAG_READONLY,
+      gst_memory_new_wrapped (GST_MEMORY_FLAG_READONLY,
           data, num_bytes, 0, num_bytes, data, NULL));
 
   fail_unless (gst_pad_push (srcpad, buffer) == GST_FLOW_OK);
@@ -87,46 +87,17 @@ test_set_and_fail_to_play_buffer (const gchar * _data)
   num_bytes = strlen (data);
   buffer = gst_buffer_new ();
   gst_buffer_insert_memory (buffer, 0,
-          gst_memory_new_wrapped (GST_MEMORY_FLAG_READONLY,
+      gst_memory_new_wrapped (GST_MEMORY_FLAG_READONLY,
           data, num_bytes, 0, num_bytes, data, NULL));
 
   fail_unless (gst_pad_push (srcpad, buffer) == GST_FLOW_ERROR);
-}
-
-static gboolean
-sebras_gst_pad_set_caps (GstPad * pad, GstCaps * caps)
-{
-    GstEvent *event;
-    gboolean res = TRUE;
-
-    GST_WARNING ("sebraz: a %p %p", pad, caps);
-    g_return_val_if_fail (GST_IS_PAD (pad), FALSE);
-    GST_WARNING ("sebraz: b");
-    g_return_val_if_fail (caps != NULL && gst_caps_is_fixed (caps), FALSE);
-    GST_WARNING ("sebraz: c");
-
-    GST_WARNING ("sebraz: d");
-    event = gst_event_new_caps (caps);
-    GST_WARNING ("sebraz: e");
-
-    if (GST_PAD_IS_SRC (pad)) {
-        GST_WARNING ("sebraz: f1");
-        res = gst_pad_push_event (pad, event);
-    } else {
-        GST_WARNING ("sebraz: f2");
-        res = gst_pad_send_event (pad, event);
-    }
-
-    GST_WARNING ("sebraz: g");
-
-    return res;
 }
 
 GST_START_TEST (test_properties)
 {
   GstElement *sink;
   GstCaps *caps;
-  const gchar *location= "file:///tmp/";
+  const gchar *location = "file:///tmp/";
   const gchar *file_contents = "line 1\r\n";
   gchar *file_name = g_strdup_printf ("curlfilesink_%d", g_random_int ());
   gchar *res_location = NULL;
@@ -134,72 +105,48 @@ GST_START_TEST (test_properties)
   gboolean res_create_dirs = FALSE;
   gchar *path = NULL;
 
-  GST_WARNING ("sebras: a");
-
   sink = setup_curlfilesink ();
-  GST_WARNING ("sebras: b");
 
   g_object_set (G_OBJECT (sink), "location", "mylocation", NULL);
   g_object_set (G_OBJECT (sink), "file-name", "myfile", NULL);
   g_object_set (G_OBJECT (sink), "create-dirs", TRUE, NULL);
-  GST_WARNING ("sebras: c");
 
   g_object_get (sink,
       "location", &res_location,
-      "file-name", &res_file_name,
-      "create-dirs", &res_create_dirs,
-      NULL);
-  GST_WARNING ("sebras: d");
+      "file-name", &res_file_name, "create-dirs", &res_create_dirs, NULL);
 
   fail_unless (strncmp (res_location, "mylocation", strlen ("mylocation"))
       == 0);
-  GST_WARNING ("sebras: e");
   fail_unless (strncmp (res_file_name, "myfile", strlen ("myfile"))
       == 0);
-  GST_WARNING ("sebras: f");
   fail_unless (res_create_dirs == TRUE);
-  GST_WARNING ("sebras: g");
   g_free (res_location);
   g_free (res_file_name);
-  GST_WARNING ("sebras: h");
 
   /* change properties */
   g_object_set (G_OBJECT (sink), "location", location, NULL);
   g_object_set (G_OBJECT (sink), "file-name", file_name, NULL);
   g_object_set (G_OBJECT (sink), "create-dirs", FALSE, NULL);
-  GST_WARNING ("sebras: i");
 
   g_object_get (sink,
       "location", &res_location,
-      "file-name", &res_file_name,
-      "create-dirs", &res_create_dirs,
-      NULL);
-  GST_WARNING ("sebras: j");
+      "file-name", &res_file_name, "create-dirs", &res_create_dirs, NULL);
 
   fail_unless (strncmp (res_location, location, strlen (location))
       == 0);
-  GST_WARNING ("sebras: k");
   fail_unless (strncmp (res_file_name, file_name, strlen (file_name))
       == 0);
-  GST_WARNING ("sebras: l");
   fail_unless (res_create_dirs == FALSE);
-  GST_WARNING ("sebras: m");
   g_free (res_location);
   g_free (res_file_name);
-  GST_WARNING ("sebras: n");
 
   /* start playing */
   ASSERT_SET_STATE (sink, GST_STATE_PLAYING, GST_STATE_CHANGE_ASYNC);
-  GST_WARNING ("sebras: o");
   caps = gst_caps_from_string ("application/x-gst-check");
-  GST_WARNING ("sebras: p");
-  fail_unless (sebras_gst_pad_set_caps (srcpad, caps));
   fail_unless (gst_pad_set_caps (srcpad, caps));
-  GST_WARNING ("sebras: q");
 
   /* setup buffer */
   test_set_and_play_buffer (file_contents);
-  GST_WARNING ("sebras: r");
 
   /* try to change location property while in PLAYING state */
   g_object_set (G_OBJECT (sink), "location", "newlocation", NULL);
@@ -222,13 +169,14 @@ GST_START_TEST (test_properties)
   g_free (file_name);
   g_free (path);
 }
+
 GST_END_TEST;
 
 GST_START_TEST (test_one_file)
 {
   GstElement *sink;
   GstCaps *caps;
-  const gchar *location= "file:///tmp/";
+  const gchar *location = "file:///tmp/";
   gchar *file_name = g_strdup_printf ("curlfilesink_%d", g_random_int ());
   const gchar *file_content = "line 1\r\n";
   gchar *res_location = NULL;
@@ -240,9 +188,7 @@ GST_START_TEST (test_one_file)
   g_object_set (G_OBJECT (sink), "file-name", file_name, NULL);
 
   g_object_get (sink,
-      "location", &res_location,
-      "file-name", &res_file_name,
-      NULL);
+      "location", &res_location, "file-name", &res_file_name, NULL);
 
   fail_unless (strncmp (res_location, location, strlen (location))
       == 0);
@@ -270,20 +216,19 @@ GST_START_TEST (test_one_file)
   /* verify file content */
   test_verify_file_data ("/tmp", file_name, file_content);
 }
+
 GST_END_TEST;
 
 GST_START_TEST (test_one_big_file)
 {
   GstElement *sink;
   GstCaps *caps;
-  const gchar *location= "file:///tmp/";
+  const gchar *location = "file:///tmp/";
   gchar *file_name = g_strdup_printf ("curlfilesink_%d", g_random_int ());
   const gchar *file_line1 = "line 1\r\n";
   const gchar *file_line2 = "line 2\r\n";
   const gchar *file_line3 = "line 3\r\n";
-  const gchar *expected_file_content = "line 1\r\n" \
-                                       "line 2\r\n" \
-                                       "line 3\r\n";
+  const gchar *expected_file_content = "line 1\r\n" "line 2\r\n" "line 3\r\n";
   gchar *res_location = NULL;
   gchar *res_file_name = NULL;
 
@@ -293,9 +238,7 @@ GST_START_TEST (test_one_big_file)
   g_object_set (G_OBJECT (sink), "file-name", file_name, NULL);
 
   g_object_get (sink,
-      "location", &res_location,
-      "file-name", &res_file_name,
-      NULL);
+      "location", &res_location, "file-name", &res_file_name, NULL);
 
   fail_unless (strncmp (res_location, location, strlen (location))
       == 0);
@@ -329,13 +272,14 @@ GST_START_TEST (test_one_big_file)
   /* verify file content */
   test_verify_file_data ("/tmp", file_name, expected_file_content);
 }
+
 GST_END_TEST;
 
 GST_START_TEST (test_two_files)
 {
   GstElement *sink;
   GstCaps *caps;
-  const gchar *location= "file:///tmp/";
+  const gchar *location = "file:///tmp/";
   gchar *file_name1 = g_strdup_printf ("curlfilesink_%d", g_random_int ());
   gchar *file_name2 = g_strdup_printf ("curlfilesink_%d", g_random_int ());
   const gchar *file_content1 = "file content 1\r\n";
@@ -349,9 +293,7 @@ GST_START_TEST (test_two_files)
   g_object_set (G_OBJECT (sink), "file-name", file_name1, NULL);
 
   g_object_get (sink,
-      "location", &res_location,
-      "file-name", &res_file_name,
-      NULL);
+      "location", &res_location, "file-name", &res_file_name, NULL);
 
   fail_unless (strncmp (res_location, location, strlen (location))
       == 0);
@@ -389,6 +331,7 @@ GST_START_TEST (test_two_files)
   test_verify_file_data ("/tmp", file_name1, file_content1);
   test_verify_file_data ("/tmp", file_name2, file_content2);
 }
+
 GST_END_TEST;
 
 GST_START_TEST (test_create_dirs)
@@ -441,14 +384,16 @@ GST_START_TEST (test_create_dirs)
   g_free (sub_sub_dir);
   g_free (sub_dir);
   g_free (tmp_dir);
+  g_free (location);
 }
+
 GST_END_TEST;
 
 GST_START_TEST (test_missing_path)
 {
   GstElement *sink;
   GstCaps *caps;
-  const gchar *location= "file:///missing/path/";
+  const gchar *location = "file:///missing/path/";
   gchar *file_name = g_strdup_printf ("curlfilesink_%d", g_random_int ());
   const gchar *file_content = "line 1\r\n";
   gchar *res_location = NULL;
@@ -460,9 +405,7 @@ GST_START_TEST (test_missing_path)
   g_object_set (G_OBJECT (sink), "file-name", file_name, NULL);
 
   g_object_get (sink,
-      "location", &res_location,
-      "file-name", &res_file_name,
-      NULL);
+      "location", &res_location, "file-name", &res_file_name, NULL);
 
   fail_unless (strncmp (res_location, location, strlen (location))
       == 0);
@@ -471,6 +414,7 @@ GST_START_TEST (test_missing_path)
 
   g_free (res_location);
   g_free (res_file_name);
+  g_free (file_name);
 
   /* start playing */
   ASSERT_SET_STATE (sink, GST_STATE_PLAYING, GST_STATE_CHANGE_ASYNC);
@@ -487,6 +431,7 @@ GST_START_TEST (test_missing_path)
   gst_caps_unref (caps);
   cleanup_curlfilesink (sink);
 }
+
 GST_END_TEST;
 
 static Suite *

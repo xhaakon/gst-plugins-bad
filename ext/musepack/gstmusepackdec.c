@@ -261,7 +261,7 @@ gst_musepackdec_handle_seek_event (GstMusepackDec * dec, GstEvent * event)
   GST_DEBUG_OBJECT (dec, "seek successful");
 
   gst_pad_start_task (dec->sinkpad,
-      (GstTaskFunction) gst_musepackdec_loop, dec->sinkpad);
+      (GstTaskFunction) gst_musepackdec_loop, dec->sinkpad, NULL);
 
   GST_PAD_STREAM_UNLOCK (dec->sinkpad);
 
@@ -493,7 +493,7 @@ gst_musepackdec_sink_activate_pull (GstPad * sinkpad, gboolean active)
 
   if (active) {
     result = gst_pad_start_task (sinkpad,
-        (GstTaskFunction) gst_musepackdec_loop, sinkpad);
+        (GstTaskFunction) gst_musepackdec_loop, sinkpad, NULL);
   } else {
     result = gst_pad_stop_task (sinkpad);
   }
@@ -601,6 +601,8 @@ gst_musepackdec_loop (GstPad * sinkpad)
     gst_element_post_message (GST_ELEMENT (musepackdec),
         gst_message_new_segment_done (GST_OBJECT (musepackdec),
             GST_FORMAT_TIME, stop_time));
+    gst_pad_push_event (musepackdec->srcpad,
+        gst_event_new_segment_done (GST_FORMAT_TIME, stop_time));
 
     goto pause_task;
   }

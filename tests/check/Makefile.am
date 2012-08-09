@@ -130,7 +130,7 @@ check_vp8=
 endif
 
 if HAVE_ORC
-check_orc = orc/cog
+check_orc = orc/cog orc/bayer
 else
 check_orc =
 endif
@@ -193,7 +193,6 @@ check_PROGRAMS = \
 	elements/baseaudiovisualizer \
 	elements/camerabin \
 	elements/dataurisrc \
-	elements/legacyresample \
         $(check_jifmux) \
 	elements/jpegparse \
 	$(check_logoinsert) \
@@ -286,13 +285,6 @@ elements_faac_LDADD = \
 	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
 	-lgstaudio-@GST_API_VERSION@
 
-elements_legacyresample_CFLAGS = \
-	$(GST_PLUGINS_BASE_CFLAGS) \
-	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
-elements_legacyresample_LDADD = \
-	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
-	-lgstaudio-@GST_API_VERSION@
-
 elements_voaacenc_CFLAGS = \
 	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
@@ -301,8 +293,8 @@ elements_voaacenc_LDADD = \
 	-lgstaudio-@GST_API_VERSION@
 
 elements_baseaudiovisualizer_SOURCES = elements/baseaudiovisualizer.c \
-	$(top_srcdir)/gst/audiovisualizers/gstbaseaudiovisualizer.c \
-	$(top_srcdir)/gst/audiovisualizers/gstbaseaudiovisualizer.h
+	$(top_srcdir)/gst/audiovisualizers/gstaudiovisualizer.c \
+	$(top_srcdir)/gst/audiovisualizers/gstaudiovisualizer.h
 elements_baseaudiovisualizer_CFLAGS = $(GST_PLUGINS_BAD_CFLAGS) \
 	-I$(top_srcdir)/gst/audiovisualizers $(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_BASE_CFLAGS) $(GST_CONTROLLER_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
@@ -343,10 +335,16 @@ elements_mpegtsmux_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION
 
 EXTRA_DIST = gst-plugins-bad.supp
 
+orc_bayer_CFLAGS = $(ORC_CFLAGS)
+orc_bayer_LDADD = $(ORC_LIBS) -lorc-test-0.4
 orc_cog_CFLAGS = $(ORC_CFLAGS)
 orc_cog_LDADD = $(ORC_LIBS) -lorc-test-0.4
 
 orc/cog.c: $(top_srcdir)/ext/cog/gstcogorc.orc
+	$(MKDIR_P) orc
+	$(ORCC) --test -o $@ $<
+
+orc/bayer.c: $(top_srcdir)/gst/bayer/gstbayerorc.orc
 	$(MKDIR_P) orc
 	$(ORCC) --test -o $@ $<
 

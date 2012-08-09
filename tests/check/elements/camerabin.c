@@ -42,6 +42,24 @@
 #define VIDEO_PAD_SUPPORTED_CAPS "video/x-raw, format=RGB, width=600, height=480"
 #define IMAGE_PAD_SUPPORTED_CAPS "video/x-raw, format=RGB, width=800, height=600"
 
+static GstStaticPadTemplate vfsrc_template =
+GST_STATIC_PAD_TEMPLATE (GST_BASE_CAMERA_SRC_VIEWFINDER_PAD_NAME,
+    GST_PAD_SRC,
+    GST_PAD_ALWAYS,
+    GST_STATIC_CAPS_ANY);
+
+static GstStaticPadTemplate imgsrc_template =
+GST_STATIC_PAD_TEMPLATE (GST_BASE_CAMERA_SRC_IMAGE_PAD_NAME,
+    GST_PAD_SRC,
+    GST_PAD_ALWAYS,
+    GST_STATIC_CAPS_ANY);
+
+static GstStaticPadTemplate vidsrc_template =
+GST_STATIC_PAD_TEMPLATE (GST_BASE_CAMERA_SRC_VIDEO_PAD_NAME,
+    GST_PAD_SRC,
+    GST_PAD_ALWAYS,
+    GST_STATIC_CAPS_ANY);
+
 /* custom test camera src element */
 #define GST_TYPE_TEST_CAMERA_SRC \
   (gst_test_camera_src_get_type())
@@ -140,12 +158,19 @@ gst_test_camera_src_class_init (GstTestCameraSrcClass * klass)
       "Camera/Src",
       "Some test camera src",
       "Thiago Santos <thiago.sousa.santos@collabora.com>");
+
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&vidsrc_template));
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&imgsrc_template));
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&vfsrc_template));
 }
 
 static void
 gst_test_camera_src_init (GstTestCameraSrc * self)
 {
-  GstElementClass *gstelement_class = GST_ELEMENT_CLASS (parent_class);
+  GstElementClass *gstelement_class = GST_ELEMENT_GET_CLASS (self);
   GstPadTemplate *template;
 
   /* create pads */
@@ -184,7 +209,7 @@ guint32 test_id = 0;
 static gchar *image_filename;
 static gchar *video_filename;
 
-static GstBuffer *preview_buffer;
+static GstSample *preview_sample;
 static gchar *preview_filename;
 static GstCaps *preview_caps;
 static GstTagList *tags_found;
@@ -290,16 +315,16 @@ capture_bus_cb (GstBus * bus, GstMessage * message, gpointer data)
         GST_INFO ("image captured");
       } else if (st && gst_structure_has_name (st,
               GST_BASE_CAMERA_SRC_PREVIEW_MESSAGE_NAME)) {
-        GstBuffer *buf;
+        GstSample *sample;
         const GValue *value;
 
-        value = gst_structure_get_value (st, "buffer");
+        value = gst_structure_get_value (st, "sample");
         fail_unless (value != NULL);
-        buf = gst_value_get_buffer (value);
+        sample = gst_value_get_sample (value);
 
-        if (preview_buffer)
-          gst_buffer_unref (preview_buffer);
-        preview_buffer = gst_buffer_ref (buf);
+        if (preview_sample)
+          gst_sample_unref (preview_sample);
+        preview_sample = gst_sample_ref (sample);
         g_free (preview_filename);
         preview_filename = g_strdup (gst_structure_get_string (st, "location"));
       }
@@ -313,13 +338,13 @@ check_preview_image (GstElement * camera, const gchar * filename, gint index)
 {
   gchar *prev_filename = NULL;
 
-  if (!preview_buffer && camera) {
+  if (!preview_sample && camera) {
     GstMessage *msg = wait_for_element_message (camera,
         GST_BASE_CAMERA_SRC_PREVIEW_MESSAGE_NAME, GST_CLOCK_TIME_NONE);
     fail_unless (msg != NULL);
     gst_message_unref (msg);
   }
-  fail_unless (preview_buffer != NULL);
+  fail_unless (preview_sample != NULL);
   if (filename) {
     if (index >= 0) {
       prev_filename = g_strdup_printf (filename, index);
@@ -330,11 +355,9 @@ check_preview_image (GstElement * camera, const gchar * filename, gint index)
     fail_unless (strcmp (preview_filename, prev_filename) == 0);
   }
   if (preview_caps) {
-    /* TODO porting
-       fail_unless (GST_BUFFER_CAPS (preview_buffer) != NULL);
-       fail_unless (gst_caps_can_intersect (GST_BUFFER_CAPS (preview_buffer),
-       preview_caps));
-     */
+    fail_unless (gst_sample_get_caps (preview_sample) != NULL);
+    fail_unless (gst_caps_can_intersect (gst_sample_get_caps (preview_sample),
+            preview_caps));
   }
   g_free (prev_filename);
 }
@@ -439,15 +462,15 @@ teardown (void)
     gst_caps_unref (preview_caps);
   preview_caps = NULL;
 
-  if (preview_buffer)
-    gst_buffer_unref (preview_buffer);
-  preview_buffer = NULL;
+  if (preview_sample)
+    gst_sample_unref (preview_sample);
+  preview_sample = NULL;
 
   g_free (preview_filename);
   preview_filename = NULL;
 
   if (tags_found)
-    gst_tag_list_free (tags_found);
+    gst_tag_list_unref (tags_found);
   tags_found = NULL;
 
   g_free (video_filename);
@@ -488,7 +511,7 @@ validity_bus_cb (GstBus * bus, GstMessage * message, gpointer data)
       gst_message_parse_tag (message, &taglist);
       if (tags_found) {
         gst_tag_list_insert (tags_found, taglist, GST_TAG_MERGE_REPLACE);
-        gst_tag_list_free (taglist);
+        gst_tag_list_unref (taglist);
       } else {
         tags_found = taglist;
       }
@@ -623,16 +646,16 @@ wait_for_element_message (GstElement * camera, const gchar * name,
         const GstStructure *st = gst_message_get_structure (msg);
         if (gst_structure_has_name (st,
                 GST_BASE_CAMERA_SRC_PREVIEW_MESSAGE_NAME)) {
-          GstBuffer *buf;
+          GstSample *sample;
           const GValue *value;
 
-          value = gst_structure_get_value (st, "buffer");
+          value = gst_structure_get_value (st, "sample");
           fail_unless (value != NULL);
-          buf = gst_value_get_buffer (value);
+          sample = gst_value_get_sample (value);
 
-          if (preview_buffer)
-            gst_buffer_unref (preview_buffer);
-          preview_buffer = gst_buffer_ref (buf);
+          if (preview_sample)
+            gst_sample_unref (preview_sample);
+          preview_sample = gst_sample_ref (sample);
           g_free (preview_filename);
           preview_filename =
               g_strdup (gst_structure_get_string (st, "location"));
@@ -998,9 +1021,9 @@ GST_START_TEST (test_image_capture_previews)
     check_preview_image (camera, image_filename, i);
     remove_file (image_filename, i);
 
-    if (preview_buffer)
-      gst_buffer_unref (preview_buffer);
-    preview_buffer = NULL;
+    if (preview_sample)
+      gst_sample_unref (preview_sample);
+    preview_sample = NULL;
     gst_caps_replace (&preview_caps, NULL);
   }
 
@@ -1075,7 +1098,7 @@ GST_START_TEST (test_image_capture_with_tags)
 
   for (i = 0; i < 3; i++) {
     check_file_validity (image_filename, i, taglists[i], 0, 0, NO_AUDIO);
-    gst_tag_list_free (taglists[i]);
+    gst_tag_list_unref (taglists[i]);
     remove_file (image_filename, i);
   }
 }
@@ -1153,7 +1176,7 @@ GST_START_TEST (test_video_capture_with_tags)
 
   for (i = 0; i < 3; i++) {
     check_file_validity (video_filename, i, taglists[i], 0, 0, NO_AUDIO);
-    gst_tag_list_free (taglists[i]);
+    gst_tag_list_unref (taglists[i]);
     remove_file (video_filename, i);
   }
 }

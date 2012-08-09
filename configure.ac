@@ -3,7 +3,7 @@ AC_PREREQ(2.62)
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT(GStreamer Bad Plug-ins, 0.11.92,
+AC_INIT(GStreamer Bad Plug-ins, 0.11.93,
     http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer,
     gst-plugins-bad)
 
@@ -53,8 +53,8 @@ dnl sets GST_LT_LDFLAGS
 AS_LIBTOOL(GST, 0, 0, 0)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=0.11.91
-GSTPB_REQ=0.11.91
+GST_REQ=0.11.93
+GSTPB_REQ=0.11.93
 
 dnl *** autotools stuff ****
 
@@ -182,7 +182,7 @@ AC_CHECK_FUNC(socket,,[AC_CHECK_LIB(socket,socket)])
 AC_CHECK_FUNC(gethostbyname,,[AC_CHECK_LIB(nsl,gethostbyname)])
 
 dnl GLib is required
-GLIB_REQ=2.31.14
+GLIB_REQ=2.32.0
 AG_GST_GLIB_CHECK([$GLIB_REQ])
 
 dnl checks for gstreamer
@@ -312,18 +312,18 @@ dnl Non ported plugins (non-dependant, then dependant)
 dnl Make sure you have a space before and after all plugins
 GST_PLUGINS_NONPORTED=" aiff \
  cdxaparse \
- dccp faceoverlay festival \
+ dccp faceoverlay \
  fieldanalysis freeverb freeze frei0r \
- hdvparse id3tag inter interlace ivfparse jpegformat jp2kdecimator \
- kate liveadder legacyresample librfb mpegtsmux \
+ hdvparse id3tag inter ivfparse jpegformat jp2kdecimator \
+ kate liveadder librfb \
  mpegpsmux mve mxf mythtv nsf nuvdemux \
  patchdetect pnm real \
  sdi siren speed subenc stereo tta videofilters \
  videomeasure videosignal vmnc \
  decklink fbdev linsys vcd \
  apexsink cdaudio cog dc1394 dirac directfb resindvd \
- gsettings jp2k ladspa mimic \
- musepack musicbrainz nas neon ofa openal opencv rsvg sdl sndfile soundtouch spandsp spc timidity \
+ gsettings jasper ladspa \
+ musepack musicbrainz nas neon ofa openal rsvg sdl sndfile spandsp spc timidity \
  directsound directdraw direct3d9 acm wininet \
  wildmidi xvid lv2 teletextdec dvb sndio"
 AC_SUBST(GST_PLUGINS_NONPORTED)
@@ -361,7 +361,6 @@ AG_GST_CHECK_PLUGIN(interlace)
 AG_GST_CHECK_PLUGIN(ivfparse)
 AG_GST_CHECK_PLUGIN(jp2kdecimator)
 AG_GST_CHECK_PLUGIN(jpegformat)
-AG_GST_CHECK_PLUGIN(legacyresample)
 AG_GST_CHECK_PLUGIN(librfb)
 AG_GST_CHECK_PLUGIN(liveadder)
 AG_GST_CHECK_PLUGIN(mpegdemux)
@@ -555,6 +554,48 @@ AG_GST_CHECK_FEATURE(DIRECT3D9, [Direct3D9], winscreencap, [
     AC_SUBST(DIRECT3D9_LIBS)
   fi
   AC_SUBST(HAVE_DIRECT3D9)
+])
+
+dnl DirectShow
+translit(dnm, m, l) AM_CONDITIONAL(USE_DIRECTSHOW, true)
+AG_GST_CHECK_FEATURE(DIRECTSHOW, [DirectShow plug-in], winks, [
+  HAVE_DIRECTSHOW="no"
+  save_CFLAGS="$CFLAGS"
+  save_LDFLAGS="$LDFLAGS"
+  save_LIBS="$LIBS"
+  CFLAGS="$CFLAGS $DIRECTX_CFLAGS"
+  LDFLAGS="$LDFLAGS $DIRECTX_LDFLAGS"
+  LIBS="$LIBS -lole32 -luuid -lstrmiids"
+  AC_MSG_CHECKING(for DirectShow LDFLAGS)
+  AC_LINK_IFELSE([
+#include <windows.h>
+#include <strmif.h>
+#include <uuids.h>
+
+int main () {
+  IGraphBuilder *pGraph = NULL;
+  HRESULT hr = CoInitialize(NULL);
+  hr = CoCreateInstance(&CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, 
+                        &IID_IGraphBuilder, (void **)&pGraph);
+
+  return 0;
+}
+],
+    [HAVE_DIRECTSHOW="yes"],
+    [HAVE_DIRECTSHOW="no"])
+  AC_MSG_RESULT($HAVE_DIRECTSHOW)
+  CFLAGS=$save_CFLAGS
+  LDFLAGS=$save_LDFLAGS
+  LIBS=$save_LIBS
+
+  if test "x$HAVE_DIRECTSHOW" = "xyes";  then
+    dnl this is much more than we want
+    DIRECTSHOW_LIBS="-ldxguid -lole32 -luuid -lstrmiids -lksuser -lsetupapi"
+    AC_SUBST(DIRECTX_CFLAGS)
+    AC_SUBST(DIRECTX_LDFLAGS)
+    AC_SUBST(DIRECTSHOW_LIBS)
+  fi
+  AC_SUBST(HAVE_DIRECTSHOW)
 ])
 
 dnl *** AppleMedia (OS X and iOS) ***
@@ -902,73 +943,6 @@ AG_GST_CHECK_FEATURE(DTS, [dts library], dtsdec, [
   AC_SUBST(DTS_LIBS)
 ])
 
-dnl *** DIVX ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_DIVX, true)
-AG_GST_CHECK_FEATURE(DIVX, [divx plugins], divx, [
-  HAVE_DIVX=yes
-  AC_CHECK_HEADER(encore2.h, , [
-    AC_MSG_WARN([Divx4linux encore headers not found])
-    HAVE_DIVX=no
-  ])
-  if [ test x$HAVE_DIVX = xyes ]; then
-    AC_MSG_CHECKING([Checking for valid divx4linux encore version])
-    AC_TRY_COMPILE([
-#include <encore2.h>
-#if ENCORE_VERSION != 20021024
-#error Wrong version of divx encore libraries
-#endif
-    ], [
-return 0;
-    ], [
-      HAVE_DIVX=yes
-    ], [
-      HAVE_DIVX=no
-      AC_MSG_WARN([Wrong version of divx4linux installed])
-    ])
-  fi
-  if [ test x$HAVE_DIVX = xyes ]; then
-    AC_CHECK_HEADER(decore.h, , [
-      AC_MSG_WARN([Divx4linux decoder headers not found])
-      HAVE_DIVX=no
-    ])
-  fi
-  if [ test x$HAVE_DIVX = xyes ]; then
-    AC_MSG_CHECKING([Checking for valid divx4linux decore version])
-    AC_TRY_COMPILE([
-#include <decore.h>
-#if DECORE_VERSION != 20021112
-#error Wrong version of divx decore libraries
-#endif
-    ], [
-return 0;
-    ], [
-      HAVE_DIVX=yes
-    ], [
-      HAVE_DIVX=no
-      AC_MSG_WARN([Wrong version of divx4linux installed])
-    ])
-  fi
-  LIBS="$LIBM"
-  if test x$HAVE_DIVX = xyes; then
-    AC_CHECK_LIB(divxencore, encore, , [
-      AC_MSG_WARN([Divx4linux encore libs not found])
-      HAVE_DIVX=no
-    ])
-  fi
-  if test x$HAVE_DIVX = xyes; then
-    AC_CHECK_LIB(divxdecore, decore, , [
-      AC_MSG_WARN([Divx4linux decore libs not found])
-      HAVE_DIVX=no
-  ])
-  fi
-  if test x$HAVE_DIVX = xyes; then
-    DIVXENC_LIBS="-ldivxencore $LIBM"
-    DIVXDEC_LIBS="-ldivxdecore $LIBM"
-    AC_SUBST(DIVXENC_LIBS)
-    AC_SUBST(DIVXDEC_LIBS)
-  fi
-])
-
 dnl *** resindvd ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_RESINDVD, true)
 AG_GST_CHECK_FEATURE(RESINDVD, [resindvd plugin], resindvd, [
@@ -1074,12 +1048,12 @@ AG_GST_CHECK_FEATURE(GSM, [GSM library], gsmenc gsmdec, [
   AC_SUBST(GSM_LIBS)
 ])
 
-dnl *** jp2k ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_JP2K, true)
-AG_GST_CHECK_FEATURE(JP2K, [jp2k], jp2kdec jp2kenc, [
-  AG_GST_CHECK_LIBHEADER(JP2K, jasper, jas_stream_fopen, , jasper/jasper.h,
-    JP2K_LIBS="-ljasper")
-  AC_SUBST(JP2K_LIBS)
+dnl *** jasper ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_JASPER, true)
+AG_GST_CHECK_FEATURE(JASPER, [jasper], jasperdec jasperenc, [
+  AG_GST_CHECK_LIBHEADER(JASPER, jasper, jas_stream_fopen, , jasper/jasper.h,
+    JASPER_LIBS="-ljasper")
+  AC_SUBST(JASPER_LIBS)
 ])
 
 dnl *** kate ***
@@ -1164,8 +1138,8 @@ AG_GST_CHECK_FEATURE(MODPLUG, modplug, modplug, [
 dnl *** mimic ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_MIMIC, true)
 AG_GST_CHECK_FEATURE(MIMIC, [libmimic library], mimic, [
-  MIMDEC_REQUIRED=1.0
-  PKG_CHECK_MODULES(MIMIC, libmimic >= $MIMDEC_REQUIRED,
+  MIMIC_REQUIRED=1.0
+  PKG_CHECK_MODULES(MIMIC, libmimic >= $MIMIC_REQUIRED,
       HAVE_MIMIC=yes, HAVE_MIMIC=no)
   AC_SUBST(MIMIC_CFLAGS)
   AC_SUBST(MIMIC_LIBS)
@@ -1278,6 +1252,14 @@ AG_GST_CHECK_FEATURE(MPEG2ENC, [mpeg2enc], mpeg2enc, [
       HAVE_MPEG2ENC="no"
     ])
   fi
+])
+
+dnl *** mpg123 ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_MPG123, true)
+AG_GST_CHECK_FEATURE(MPG123, [mpg123 audio decoder], mpg123, [
+  PKG_CHECK_MODULES(MPG123, libmpg123 >= 1.13, HAVE_MPG123="yes", HAVE_MPG123="no")
+  AC_SUBST(MPG123_CFLAGS)
+  AC_SUBST(MPG123_LIBS)
 ])
 
 dnl *** mplex ***
@@ -1873,11 +1855,11 @@ AM_CONDITIONAL(USE_COG, false)
 AM_CONDITIONAL(USE_CURL, false)
 AM_CONDITIONAL(USE_DC1394, false)
 AM_CONDITIONAL(USE_DECKLINK, false)
+AM_CONDITIONAL(DECKLINK_OSX, false)
 AM_CONDITIONAL(USE_DIRECTFB, false)
 AM_CONDITIONAL(USE_WAYLAND, false)
 AM_CONDITIONAL(USE_DIRAC, false)
 AM_CONDITIONAL(USE_DTS, false)
-AM_CONDITIONAL(USE_DIVX, false)
 AM_CONDITIONAL(USE_EXIF, false)
 AM_CONDITIONAL(USE_RESINDVD, false)
 AM_CONDITIONAL(USE_FAAC, false)
@@ -1885,7 +1867,7 @@ AM_CONDITIONAL(USE_FAAD, false)
 AM_CONDITIONAL(USE_FBDEV, false)
 AM_CONDITIONAL(USE_FLITE, false)
 AM_CONDITIONAL(USE_GSM, false)
-AM_CONDITIONAL(USE_JP2K, false)
+AM_CONDITIONAL(USE_JASPER, false)
 AM_CONDITIONAL(USE_KATE, false)
 AM_CONDITIONAL(USE_TIGER, false)
 AM_CONDITIONAL(USE_LADSPA, false)
@@ -1895,6 +1877,7 @@ AM_CONDITIONAL(USE_LINSYS, false)
 AM_CONDITIONAL(USE_MODPLUG, false)
 AM_CONDITIONAL(USE_MIMIC, false)
 AM_CONDITIONAL(USE_MPEG2ENC, false)
+AM_CONDITIONAL(USE_MPG123, false)
 AM_CONDITIONAL(USE_MPLEX, false)
 AM_CONDITIONAL(USE_MUSEPACK, false)
 AM_CONDITIONAL(USE_MUSICBRAINZ, false)
@@ -2042,7 +2025,6 @@ gst/interlace/Makefile
 gst/ivfparse/Makefile
 gst/jp2kdecimator/Makefile
 gst/jpegformat/Makefile
-gst/legacyresample/Makefile
 gst/librfb/Makefile
 gst/liveadder/Makefile
 gst/mpegdemux/Makefile
@@ -2136,13 +2118,12 @@ ext/dc1394/Makefile
 ext/dirac/Makefile
 ext/directfb/Makefile
 ext/wayland/Makefile
-ext/divx/Makefile
 ext/dts/Makefile
 ext/faac/Makefile
 ext/faad/Makefile
 ext/flite/Makefile
 ext/gsm/Makefile
-ext/jp2k/Makefile
+ext/jasper/Makefile
 ext/kate/Makefile
 ext/ladspa/Makefile
 ext/lv2/Makefile
@@ -2150,6 +2131,7 @@ ext/libmms/Makefile
 ext/Makefile
 ext/modplug/Makefile
 ext/mpeg2enc/Makefile
+ext/mpg123/Makefile
 ext/mimic/Makefile
 ext/mplex/Makefile
 ext/musepack/Makefile

@@ -175,13 +175,25 @@ tsmux_stream_new (guint16 pid, TsMuxStreamType stream_type)
           TSMUX_PACKET_FLAG_PES_FULL_HEADER |
           TSMUX_PACKET_FLAG_PES_EXT_STREAMID;
       break;
+    case TSMUX_ST_PS_TELETEXT:
+      /* needs fixes PES header length */
+      stream->pi.pes_header_length = 36;
+    case TSMUX_ST_PS_DVB_SUBPICTURE:
+      /* private stream 1 */
+      stream->id = 0xBD;
+      stream->stream_type = TSMUX_ST_PRIVATE_DATA;
+      stream->pi.flags |=
+          TSMUX_PACKET_FLAG_PES_FULL_HEADER |
+          TSMUX_PACKET_FLAG_PES_DATA_ALIGNMENT;
+
+      break;
     default:
       g_critical ("Stream type 0x%0x not yet implemented", stream_type);
       break;
   }
 
-//  stream->last_pts = -1;
-//  stream->last_dts = -1;
+  stream->last_pts = -1;
+  stream->last_dts = -1;
 
   stream->pcr_ref = 0;
   stream->last_pcr = -1;
@@ -214,7 +226,19 @@ tsmux_stream_get_pid (TsMuxStream * stream)
 void
 tsmux_stream_free (TsMuxStream * stream)
 {
+  GList *cur;
+
   g_return_if_fail (stream != NULL);
+
+  /* free buffers */
+  for (cur = stream->buffers; cur; cur = cur->next) {
+    TsMuxStreamBuffer *tmbuf = (TsMuxStreamBuffer *) cur->data;
+
+    if (stream->buffer_release)
+      stream->buffer_release (tmbuf->data, tmbuf->user_data);
+    g_slice_free (TsMuxStreamBuffer, tmbuf);
+  }
+  g_list_free (stream->buffers);
 
   g_slice_free (TsMuxStream, stream);
 }
@@ -379,7 +403,7 @@ tsmux_stream_initialize_pes_packet (TsMuxStream * stream)
   stream->pi.flags &= ~(TSMUX_PACKET_FLAG_PES_WRITE_PTS_DTS |
       TSMUX_PACKET_FLAG_PES_WRITE_PTS);
 
-  if (stream->pts != -1 && stream->dts != -1)
+  if (stream->pts != -1 && stream->dts != -1 && stream->pts != stream->dts)
     stream->pi.flags |= TSMUX_PACKET_FLAG_PES_WRITE_PTS_DTS;
   else {
     if (stream->pts != -1)
@@ -500,6 +524,11 @@ tsmux_stream_pes_header_length (TsMuxStream * stream)
        * length + extended stream id */
       packet_len += 3;
     }
+    if (stream->pi.pes_header_length) {
+      /* check for consistency, then we can add stuffing */
+      g_assert (packet_len <= stream->pi.pes_header_length + 6 + 3);
+      packet_len = stream->pi.pes_header_length + 6 + 3;
+    }
   }
 
   return packet_len;
@@ -544,6 +573,7 @@ tsmux_stream_write_pes_header (TsMuxStream * stream, guint8 * data)
 {
   guint16 length_to_write;
   guint8 hdr_len = tsmux_stream_pes_header_length (stream);
+  guint8 *orig_data = data;
 
   /* start_code prefix + stream_id + pes_packet_length = 6 bytes */
   data[0] = 0x00;
@@ -566,7 +596,11 @@ tsmux_stream_write_pes_header (TsMuxStream * stream, guint8 * data)
     guint8 flags = 0;
 
     /* Not scrambled, original, not-copyrighted, data_alignment not specified */
-    *data++ = 0x81;
+    flags = 0x81;
+    if (stream->pi.flags & TSMUX_PACKET_FLAG_PES_DATA_ALIGNMENT)
+      flags |= 0x4;
+    *data++ = flags;
+    flags = 0;
 
     /* Flags */
     if (stream->pi.flags & TSMUX_PACKET_FLAG_PES_WRITE_PTS_DTS)
@@ -599,6 +633,10 @@ tsmux_stream_write_pes_header (TsMuxStream * stream, guint8 * data)
       /* Write the extended streamID */
       *data++ = stream->id_extended;
     }
+    /* write stuffing bytes if fixed PES header length requested */
+    if (stream->pi.pes_header_length)
+      while (data < orig_data + stream->pi.pes_header_length + 9)
+        *data++ = 0xff;
   }
 }
 
@@ -838,6 +876,20 @@ tsmux_stream_get_es_descrs (TsMuxStream * stream, guint8 * buf, guint16 * len)
       break;
     case TSMUX_ST_PS_AUDIO_LPCM:
       /* FIXME */
+      break;
+    case TSMUX_ST_PS_DVB_SUBPICTURE:
+      /* tag */
+      *pos++ = 0x59;
+      /* FIXME empty descriptor for now;
+       * should be provided by upstream in event or so ? */
+      *pos = 0;
+      break;
+    case TSMUX_ST_PS_TELETEXT:
+      /* tag */
+      *pos++ = 0x56;
+      /* FIXME empty descriptor for now;
+       * should be provided by upstream in event or so ? */
+      *pos = 0;
       break;
     default:
       break;

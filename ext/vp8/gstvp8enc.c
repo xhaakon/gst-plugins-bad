@@ -920,6 +920,8 @@ gst_vp8_enc_set_format (GstVideoEncoder * video_encoder,
       gst_video_encoder_set_output_state (video_encoder, caps, state);
   gst_video_codec_state_unref (output_state);
 
+  gst_video_encoder_negotiate (GST_VIDEO_ENCODER (encoder));
+
   return ret;
 }
 
@@ -1098,7 +1100,7 @@ gst_vp8_enc_handle_frame (GstVideoEncoder * video_encoder,
     gst_video_codec_frame_set_user_data (frame, NULL, NULL);
     return FALSE;
   }
-
+  gst_video_codec_frame_unref (frame);
   return gst_vp8_enc_process (encoder);
 }
 
@@ -1213,7 +1215,7 @@ gst_vp8_enc_sink_event (GstVideoEncoder * benc, GstEvent * event)
 static gboolean
 gst_vp8_enc_propose_allocation (GstVideoEncoder * encoder, GstQuery * query)
 {
-  gst_query_add_allocation_meta (query, GST_VIDEO_META_API_TYPE);
+  gst_query_add_allocation_meta (query, GST_VIDEO_META_API_TYPE, NULL);
 
   return GST_VIDEO_ENCODER_CLASS (parent_class)->propose_allocation (encoder,
       query);

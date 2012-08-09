@@ -38,35 +38,33 @@
  * Portions created by Fluendo, S.L. are Copyright (C) 2005
  * Fluendo, S.L. All Rights Reserved.
  *
- * Contributor(s): Jan Schmidt <jan@fluendo.com>
+ * Contributor(s): Wim Taymans <wim@fluendo.com>
  */
 
-#ifndef __FLUTS_PAT_INFO_H__
-#define __FLUTS_PAT_INFO_H__
-
-#include <glib.h>
-
-G_BEGIN_DECLS
-
-typedef struct FluTsPatInfoClass {
-  GObjectClass parent_class;
-} MpegTsPatInfoClass;
-
-typedef struct FluTsPatInfo {
-  GObject parent;
-
-  guint16 pid;
-  guint16 program_no;
-} MpegTsPatInfo;
-
-#define MPEGTS_TYPE_PAT_INFO (mpegts_pat_info_get_type ())
-#define MPEGTS_IS_PAT_INFO(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), MPEGTS_TYPE_PAT_INFO))
-#define MPEGTS_PAT_INFO(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj),MPEGTS_TYPE_PAT_INFO, MpegTsPatInfo))
-
-GType mpegts_pat_info_get_type (void);
-
-MpegTsPatInfo *mpegts_pat_info_new (guint16 program_no, guint16 pid);
-
-G_END_DECLS
-
+#ifdef HAVE_CONFIG_H
+#include "config.h"
 #endif
+
+#include "gstmpegdemux.h"
+
+GST_DEBUG_CATEGORY_EXTERN (mpegpspesfilter_debug);
+
+static gboolean
+plugin_init (GstPlugin * plugin)
+{
+  GST_DEBUG_CATEGORY_INIT (mpegpspesfilter_debug, "mpegpspesfilter", 0,
+      "MPEG-PS PES filter");
+
+  if (!gst_element_register (plugin, "mpegpsdemux", GST_RANK_PRIMARY,
+          GST_TYPE_FLUPS_DEMUX))
+    return FALSE;
+
+  return TRUE;
+}
+
+GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
+    GST_VERSION_MINOR,
+    mpegpsdemux,
+    "MPEG-PS demuxer",
+    plugin_init, VERSION,
+    GST_LICENSE_UNKNOWN, GST_PACKAGE_NAME, GST_PACKAGE_ORIGIN);

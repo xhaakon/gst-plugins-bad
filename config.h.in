@@ -193,11 +193,11 @@
 /* Define to enable directfb (used by dfbvideosink ). */
 #undef HAVE_DIRECTFB
 
+/* Define to enable DirectShow plug-in (used by winks). */
+#undef HAVE_DIRECTSHOW
+
 /* Define to enable DirectSound (used by directsoundsrc). */
 #undef HAVE_DIRECTSOUND
-
-/* Define to enable divx plugins (used by divx). */
-#undef HAVE_DIVX
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
@@ -268,20 +268,14 @@
 /* Define if building for Apple iOS */
 #undef HAVE_IOS
 
-/* Define to enable jp2k (used by jp2kdec jp2kenc). */
-#undef HAVE_JP2K
+/* Define to enable jasper (used by jasperdec jasperenc). */
+#undef HAVE_JASPER
 
 /* Define to enable Kate (used by kate). */
 #undef HAVE_KATE
 
 /* Define to enable ladspa (used by ladspa). */
 #undef HAVE_LADSPA
-
-/* Define to 1 if you have the `divxdecore' library (-ldivxdecore). */
-#undef HAVE_LIBDIVXDECORE
-
-/* Define to 1 if you have the `divxencore' library (-ldivxencore). */
-#undef HAVE_LIBDIVXENCORE
 
 /* Define if gme 0.5.6 or newer is available */
 #undef HAVE_LIBGME_ACCURACY
@@ -318,6 +312,9 @@
 
 /* Define to enable mpeg2enc (used by mpeg2enc). */
 #undef HAVE_MPEG2ENC
+
+/* Define to enable mpg123 audio decoder (used by mpg123). */
+#undef HAVE_MPG123
 
 /* Define to enable mplex (used by mplex). */
 #undef HAVE_MPLEX

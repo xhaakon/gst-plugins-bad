@@ -172,7 +172,7 @@ struct _TSDemuxStream
       "stream-format = (string) adts; " \
     "audio/mpeg, " \
       "mpegversion = (int) 4, " \
-      "stream-format = (string) latm; " \
+      "stream-format = (string) loas; " \
     "audio/x-lpcm, " \
       "width = (int) { 16, 20, 24 }, " \
       "rate = (int) { 48000, 96000 }, " \
@@ -810,7 +810,7 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
       name = g_strdup_printf ("audio_%04x", bstream->pid);
       caps = gst_caps_new_simple ("audio/mpeg",
           "mpegversion", G_TYPE_INT, 4,
-          "stream-format", G_TYPE_STRING, "latm", NULL);
+          "stream-format", G_TYPE_STRING, "loas", NULL);
       break;
     case ST_VIDEO_MPEG4:
       template = gst_static_pad_template_get (&video_template);
@@ -959,12 +959,18 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
       break;
   }
   if (template && name && caps) {
+    gchar *stream_id;
+
     GST_LOG ("stream:%p creating pad with name %s and caps %s", stream, name,
         gst_caps_to_string (caps));
     pad = gst_pad_new_from_template (template, name);
     gst_pad_set_active (pad, TRUE);
     gst_pad_use_fixed_caps (pad);
-    gst_pad_push_event (pad, gst_event_new_stream_start ());
+    stream_id =
+        gst_pad_create_stream_id_printf (pad, GST_ELEMENT_CAST (base), "%08x",
+        bstream->pid);
+    gst_pad_push_event (pad, gst_event_new_stream_start (stream_id));
+    g_free (stream_id);
     gst_pad_set_caps (pad, caps);
     gst_pad_set_query_function (pad, gst_ts_demux_srcpad_query);
     gst_pad_set_event_function (pad, gst_ts_demux_srcpad_event);
@@ -1301,6 +1307,15 @@ gst_ts_demux_parse_pes_header (GstTSDemux * demux, TSDemuxStream * stream,
   GST_DEBUG ("Moving data forward by %d bytes (packet_size:%d, have:%d)",
       header.header_size, header.packet_length, length);
   stream->expected_size = header.packet_length;
+  if (stream->expected_size) {
+    if (G_LIKELY (stream->expected_size > header.header_size)) {
+      stream->expected_size -= header.header_size;
+    } else {
+      /* next packet will have to complete this one */
+      GST_ERROR ("invalid header and packet size combination");
+      stream->expected_size = 0;
+    }
+  }
   data += header.header_size;
   length -= header.header_size;
 
@@ -1470,8 +1485,7 @@ push_new_segment:
   if (stream->taglist) {
     GST_DEBUG_OBJECT (stream->pad, "Sending tags %" GST_PTR_FORMAT,
         stream->taglist);
-    gst_pad_push_event (stream->pad, gst_event_new_tag ("GstDemuxer",
-            stream->taglist));
+    gst_pad_push_event (stream->pad, gst_event_new_tag (stream->taglist));
     stream->taglist = NULL;
   }
 
@@ -1582,8 +1596,10 @@ gst_ts_demux_handle_packet (GstTSDemux * demux, TSDemuxStream * stream,
     GST_DEBUG ("current_size:%d, expected_size:%d",
         stream->current_size, stream->expected_size);
     /* Finally check if the data we queued completes a packet */
-    if (stream->expected_size && stream->current_size == stream->expected_size)
+    if (stream->expected_size && stream->current_size == stream->expected_size) {
+      GST_LOG ("pushing complete packet");
       res = gst_ts_demux_push_pending_data (demux, stream);
+    }
   }
 
   return res;

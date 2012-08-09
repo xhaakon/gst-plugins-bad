@@ -84,7 +84,7 @@
 #define __MPEGTSMUX_H__
 
 #include <gst/gst.h>
-#include <gst/base/gstcollectpads2.h>
+#include <gst/base/gstcollectpads.h>
 #include <gst/base/gstadapter.h>
 
 G_BEGIN_DECLS
@@ -129,7 +129,7 @@ struct MpegTsMux {
 
   GstPad *srcpad;
 
-  GstCollectPads2 *collect;
+  GstCollectPads *collect;
 
   TsMux *tsmux;
   TsMuxProgram *programs[MAX_PROG_NUMBER];
@@ -139,6 +139,7 @@ struct MpegTsMux {
   GstStructure *prog_map;
   guint pat_interval;
   guint pmt_interval;
+  gint alignment;
 
   /* state */
   gboolean first;
@@ -153,14 +154,23 @@ struct MpegTsMux {
   GstClockTime last_ts;
 
   /* m2ts specific */
-  gboolean first_pcr;
   gint64 previous_pcr;
+  gint64 previous_offset;
+  gint64 pcr_rate_num;
+  gint64 pcr_rate_den;
   GstAdapter *adapter;
 
   /* output buffer aggregation */
+  GstAdapter *out_adapter;
   GstBuffer *out_buffer;
   gint out_offset;
   gint last_size;
+
+#if 0
+  /* SPN/PTS index handling */
+  GstIndex *element_index;
+  gint spn_count;
+#endif
 };
 
 struct MpegTsMuxClass {
@@ -171,17 +181,19 @@ struct MpegTsMuxClass {
 
 struct MpegTsPadData {
   /* parent */
-  GstCollectData2 collect;
+  GstCollectData collect;
 
   gint pid;
   TsMuxStream *stream;
 
-  /* currently pulled buffer */
-  GstBuffer *queued_buf;
-  /* adjusted TS for the pulled buffer */
-  GstClockTime cur_ts;
   /* most recent valid TS for this stream */
-  GstClockTime last_ts;
+  GstClockTime last_pts;
+  GstClockTime last_dts;
+
+#if 0
+  /* (optional) index writing */
+  gint element_index_writer_id;
+#endif
 
   /* optional codec data available in the caps */
   GstBuffer *codec_data;
@@ -193,8 +205,6 @@ struct MpegTsPadData {
   MpegTsPadDataPrepareFunction prepare_func;
   /* handler to free the private data */
   MpegTsPadDataFreePrepareDataFunction free_func;
-
-  gboolean eos;
 
   /* program id == idx to which it is attached to (not program pid) */
   gint prog_id;

@@ -41,6 +41,8 @@
 #include <gst/glib-compat-private.h>
 #include "gstdvbsuboverlay.h"
 
+#include <gst/video/gstvideometa.h>
+
 #include <string.h>
 
 GST_DEBUG_CATEGORY_STATIC (gst_dvbsub_overlay_debug);
@@ -57,10 +59,12 @@ enum
   PROP_0,
   PROP_ENABLE,
   PROP_MAX_PAGE_TIMEOUT,
+  PROP_FORCE_END
 };
 
 #define DEFAULT_ENABLE (TRUE)
 #define DEFAULT_MAX_PAGE_TIMEOUT (0)
+#define DEFAULT_FORCE_END (FALSE)
 
 static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
@@ -138,6 +142,11 @@ gst_dvbsub_overlay_class_init (GstDVBSubOverlayClass * klass)
           0, G_MAXINT, DEFAULT_MAX_PAGE_TIMEOUT,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property (gobject_class, PROP_FORCE_END,
+      g_param_spec_boolean ("force-end", "Force End",
+          "Assume PES-aligned subtitles and force end-of-display",
+          DEFAULT_FORCE_END, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
   gstelement_class->change_state =
       GST_DEBUG_FUNCPTR (gst_dvbsub_overlay_change_state);
 
@@ -168,6 +177,10 @@ gst_dvbsub_overlay_flush_subtitles (GstDVBSubOverlay * render)
     dvb_subtitles_free (render->current_subtitle);
   render->current_subtitle = NULL;
 
+  if (render->current_comp)
+    gst_video_overlay_composition_unref (render->current_comp);
+  render->current_comp = NULL;
+
   if (render->dvb_sub)
     dvb_sub_free (render->dvb_sub);
 
@@ -177,6 +190,9 @@ gst_dvbsub_overlay_flush_subtitles (GstDVBSubOverlay * render)
     DvbSubCallbacks dvbsub_callbacks = { &new_dvb_subtitles_cb, };
     dvb_sub_set_callbacks (render->dvb_sub, &dvbsub_callbacks, render);
   }
+
+  render->last_text_pts = GST_CLOCK_TIME_NONE;
+  render->pending_sub = FALSE;
 
   g_mutex_unlock (&render->dvbsub_mutex);
 }
@@ -220,6 +236,7 @@ gst_dvbsub_overlay_init (GstDVBSubOverlay * render)
 
   render->enable = DEFAULT_ENABLE;
   render->max_page_timeout = DEFAULT_MAX_PAGE_TIMEOUT;
+  render->force_end = DEFAULT_FORCE_END;
 
   g_mutex_init (&render->dvbsub_mutex);
   gst_dvbsub_overlay_flush_subtitles (render);
@@ -245,6 +262,10 @@ gst_dvbsub_overlay_finalize (GObject * object)
     dvb_subtitles_free (overlay->current_subtitle);
   overlay->current_subtitle = NULL;
 
+  if (overlay->current_comp)
+    gst_video_overlay_composition_unref (overlay->current_comp);
+  overlay->current_comp = NULL;
+
   if (overlay->dvb_sub)
     dvb_sub_free (overlay->dvb_sub);
 
@@ -266,6 +287,9 @@ gst_dvbsub_overlay_set_property (GObject * object, guint prop_id,
     case PROP_MAX_PAGE_TIMEOUT:
       g_atomic_int_set (&overlay->max_page_timeout, g_value_get_int (value));
       break;
+    case PROP_FORCE_END:
+      g_atomic_int_set (&overlay->force_end, g_value_get_boolean (value));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -284,6 +308,9 @@ gst_dvbsub_overlay_get_property (GObject * object, guint prop_id,
       break;
     case PROP_MAX_PAGE_TIMEOUT:
       g_value_set_int (value, g_atomic_int_get (&overlay->max_page_timeout));
+      break;
+    case PROP_FORCE_END:
+      g_value_set_boolean (value, g_atomic_int_get (&overlay->force_end));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -431,241 +458,46 @@ gst_dvbsub_overlay_getcaps (GstPad * pad, GstCaps * filter)
   return caps;
 }
 
-static void
-blit_i420 (GstDVBSubOverlay * overlay, DVBSubtitles * subs,
-    GstVideoFrame * frame)
+/* only negotiate/query video overlay composition support for now */
+static gboolean
+gst_dvbsub_overlay_negotiate (GstDVBSubOverlay * overlay)
 {
-  guint counter;
-  DVBSubtitleRect *sub_region;
-  gint a1, a2, a3, a4;
-  gint y1, y2, y3, y4;
-  gint u1, u2, u3, u4;
-  gint v1, v2, v3, v4;
-  guint32 color;
-  const guint8 *src;
-  guint8 *dst_y, *dst_y2, *dst_u, *dst_v;
-  gint x, y;
-  gint w2;
-  gint width;
-  gint height;
-  gint src_stride;
-  guint8 *y_data, *u_data, *v_data;
-  gint y_stride, u_stride, v_stride;
-  gint scale = 0;
-  gint scale_x = 0, scale_y = 0;        /* 16.16 fixed point */
+  GstCaps *target;
+  GstQuery *query;
+  gboolean attach = FALSE;
 
-  width = GST_VIDEO_FRAME_WIDTH (frame);
-  height = GST_VIDEO_FRAME_HEIGHT (frame);
+  GST_DEBUG_OBJECT (overlay, "performing negotiation");
 
-  y_data = GST_VIDEO_FRAME_COMP_DATA (frame, 0);
-  u_data = GST_VIDEO_FRAME_COMP_DATA (frame, 1);
-  v_data = GST_VIDEO_FRAME_COMP_DATA (frame, 2);
+  target = gst_pad_get_current_caps (overlay->srcpad);
 
-  y_stride = GST_VIDEO_FRAME_COMP_STRIDE (frame, 0);
-  u_stride = GST_VIDEO_FRAME_COMP_STRIDE (frame, 1);
-  v_stride = GST_VIDEO_FRAME_COMP_STRIDE (frame, 2);
+  if (!target || gst_caps_is_empty (target))
+    goto no_format;
 
-  if (width != subs->display_def.display_width &&
-      height != subs->display_def.display_height) {
-    scale = 1;
-    if (subs->display_def.window_flag) {
-      scale_x = (width << 16) / subs->display_def.window_width;
-      scale_y = (height << 16) / subs->display_def.window_height;
-    } else {
-      scale_x = (width << 16) / subs->display_def.display_width;
-      scale_y = (height << 16) / subs->display_def.display_height;
-    }
+  /* find supported meta */
+  query = gst_query_new_allocation (target, TRUE);
+
+  if (!gst_pad_peer_query (overlay->srcpad, query)) {
+    /* no problem, we use the query defaults */
+    GST_DEBUG_OBJECT (overlay, "ALLOCATION query failed");
   }
 
-  for (counter = 0; counter < subs->num_rects; counter++) {
-    gint dw, dh, dx, dy;
-    gint32 sx = 0, sy;          /* 16.16 fixed point */
-    gint32 xstep, ystep;        /* 16.16 fixed point */
+  if (gst_query_find_allocation_meta (query,
+          GST_VIDEO_OVERLAY_COMPOSITION_META_API_TYPE, NULL))
+    attach = TRUE;
 
-    sub_region = &subs->rects[counter];
-    if (sub_region->y > height || sub_region->x > width)
-      continue;
+  overlay->attach_compo_to_buffer = attach;
 
-    /* blend subtitles onto the video frame */
-    dx = sub_region->x;
-    dy = sub_region->y;
-    dw = sub_region->w;
-    dh = sub_region->h;
+  gst_query_unref (query);
+  gst_caps_unref (target);
 
-    if (scale) {
-      dx = (dx * scale_x) >> 16;
-      dy = (dy * scale_y) >> 16;
-      dw = (dw * scale_x) >> 16;
-      dh = (dh * scale_y) >> 16;
-      /* apply subtitle window offsets after scaling */
-      if (subs->display_def.window_flag) {
-        dx += subs->display_def.window_x;
-        dy += subs->display_def.window_y;
-      }
-    }
+  return TRUE;
 
-    dw = MIN (dw, width - dx);
-    dh = MIN (dh, height - dx);
-
-    xstep = (sub_region->w << 16) / dw;
-    ystep = (sub_region->h << 16) / dh;
-
-    w2 = (dw + 1) / 2;
-
-    src_stride = sub_region->pict.rowstride;
-
-    src = sub_region->pict.data;
-    dst_y = y_data + dy * y_stride + dx;
-    dst_y2 = y_data + (dy + 1) * y_stride + dx;
-    dst_u = u_data + ((dy + 1) / 2) * u_stride + (dx + 1) / 2;
-    dst_v = v_data + ((dy + 1) / 2) * v_stride + (dx + 1) / 2;
-
-    sy = 0;
-    for (y = 0; y < dh - 1; y += 2) {
-      sx = 0;
-      for (x = 0; x < dw - 1; x += 2) {
-
-        color =
-            sub_region->pict.palette[src[(sy >> 16) * src_stride + (sx >> 16)]];
-        a1 = (color >> 24) & 0xff;
-        y1 = (color >> 16) & 0xff;
-        u1 = ((color >> 8) & 0xff) * a1;
-        v1 = (color & 0xff) * a1;
-
-        color =
-            sub_region->pict.palette[src[(sy >> 16) * src_stride + ((sx +
-                        xstep) >> 16)]];
-        a2 = (color >> 24) & 0xff;
-        y2 = (color >> 16) & 0xff;
-        u2 = ((color >> 8) & 0xff) * a2;
-        v2 = (color & 0xff) * a2;
-
-        color =
-            sub_region->pict.palette[src[((sy + ystep) >> 16) * src_stride +
-                (sx >> 16)]];
-        a3 = (color >> 24) & 0xff;
-        y3 = (color >> 16) & 0xff;
-        u3 = ((color >> 8) & 0xff) * a3;
-        v3 = (color & 0xff) * a3;
-
-        color =
-            sub_region->pict.palette[src[((sy + ystep) >> 16) * src_stride +
-                ((sx + xstep) >> 16)]];
-        a4 = (color >> 24) & 0xff;
-        y4 = (color >> 16) & 0xff;
-        u4 = ((color >> 8) & 0xff) * a4;
-        v4 = (color & 0xff) * a4;
-
-        dst_y[0] = (a1 * y1 + (255 - a1) * dst_y[0]) / 255;
-        dst_y[1] = (a2 * y2 + (255 - a2) * dst_y[1]) / 255;
-        dst_y2[0] = (a3 * y3 + (255 - a3) * dst_y2[0]) / 255;
-        dst_y2[1] = (a4 * y4 + (255 - a4) * dst_y2[1]) / 255;
-
-        a1 = (a1 + a2 + a3 + a4) / 4;
-        dst_u[0] = ((u1 + u2 + u3 + u4) / 4 + (255 - a1) * dst_u[0]) / 255;
-        dst_v[0] = ((v1 + v2 + v3 + v4) / 4 + (255 - a1) * dst_v[0]) / 255;
-
-        dst_y += 2;
-        dst_y2 += 2;
-        dst_u += 1;
-        dst_v += 1;
-        sx += 2 * xstep;
-      }
-
-      /* Odd width */
-      if (x < dw) {
-        color =
-            sub_region->pict.palette[src[(sy >> 16) * src_stride + (sx >> 16)]];
-        a1 = (color >> 24) & 0xff;
-        y1 = (color >> 16) & 0xff;
-        u1 = ((color >> 8) & 0xff) * a1;
-        v1 = (color & 0xff) * a1;
-
-        color =
-            sub_region->pict.palette[src[((sy + ystep) >> 16) * src_stride +
-                (sx >> 16)]];
-        a3 = (color >> 24) & 0xff;
-        y3 = (color >> 16) & 0xff;
-        u3 = ((color >> 8) & 0xff) * a3;
-        v3 = (color & 0xff) * a3;
-
-        dst_y[0] = (a1 * y1 + (255 - a1) * dst_y[0]) / 255;
-        dst_y2[0] = (a3 * y3 + (255 - a3) * dst_y2[0]) / 255;
-
-        a1 = (a1 + a3) / 2;
-        dst_u[0] = ((u1 + u3) / 2 + (255 - a1) * dst_u[0]) / 255;
-        dst_v[0] = ((v1 + v3) / 2 + (255 - a1) * dst_v[0]) / 255;
-
-        dst_y += 1;
-        dst_y2 += 1;
-        dst_u += 1;
-        dst_v += 1;
-        sx += xstep;
-      }
-
-      sy += 2 * ystep;
-
-      dst_y += y_stride + (y_stride - dw);
-      dst_y2 += y_stride + (y_stride - dw);
-      dst_u += u_stride - w2;
-      dst_v += v_stride - w2;
-    }
-
-    /* Odd height */
-    if (y < dh) {
-      sx = 0;
-      for (x = 0; x < dw - 1; x += 2) {
-        color =
-            sub_region->pict.palette[src[(sy >> 16) * src_stride + (sx >> 16)]];
-        a1 = (color >> 24) & 0xff;
-        y1 = (color >> 16) & 0xff;
-        u1 = ((color >> 8) & 0xff) * a1;
-        v1 = (color & 0xff) * a1;
-
-        color =
-            sub_region->pict.palette[src[(sy >> 16) * src_stride + ((sx +
-                        xstep) >> 16)]];
-        a2 = (color >> 24) & 0xff;
-        y2 = (color >> 16) & 0xff;
-        u2 = ((color >> 8) & 0xff) * a2;
-        v2 = (color & 0xff) * a2;
-
-        dst_y[0] = (a1 * y1 + (255 - a1) * dst_y[0]) / 255;
-        dst_y[1] = (a2 * y2 + (255 - a2) * dst_y[1]) / 255;
-
-        a1 = (a1 + a2) / 2;
-        dst_u[0] = ((u1 + u2) / 2 + (255 - a1) * dst_u[0]) / 255;
-        dst_v[0] = ((v1 + v2) / 2 + (255 - a1) * dst_v[0]) / 255;
-
-        dst_y += 2;
-        dst_u += 1;
-        dst_v += 1;
-        sx += 2 * xstep;
-      }
-
-      /* Odd height and width */
-      if (x < dw) {
-        color =
-            sub_region->pict.palette[src[(sy >> 16) * src_stride + (sx >> 16)]];
-        a1 = (color >> 24) & 0xff;
-        y1 = (color >> 16) & 0xff;
-        u1 = ((color >> 8) & 0xff) * a1;
-        v1 = (color & 0xff) * a1;
-
-        dst_y[0] = (a1 * y1 + (255 - a1) * dst_y[0]) / 255;
-
-        dst_u[0] = (u1 + (255 - a1) * dst_u[0]) / 255;
-        dst_v[0] = (v1 + (255 - a1) * dst_v[0]) / 255;
-
-        dst_y += 1;
-        dst_u += 1;
-        dst_v += 1;
-        sx += xstep;
-      }
-    }
+no_format:
+  {
+    if (target)
+      gst_caps_unref (target);
+    return FALSE;
   }
-
-  GST_LOG_OBJECT (overlay, "amount of rendered DVBSubtitleRect: %u", counter);
 }
 
 static gboolean
@@ -683,6 +515,8 @@ gst_dvbsub_overlay_setcaps_video (GstPad * pad, GstCaps * caps)
   ret = gst_pad_set_caps (render->srcpad, caps);
   if (!ret)
     goto out;
+
+  gst_dvbsub_overlay_negotiate (render);
 
   GST_DEBUG_OBJECT (render, "ass renderer setup complete");
 
@@ -707,9 +541,8 @@ gst_dvbsub_overlay_process_text (GstDVBSubOverlay * overlay, GstBuffer * buffer,
   GstMapInfo map;
 
   GST_DEBUG_OBJECT (overlay,
-      "Processing subtitles with fake PTS=%" G_GUINT64_FORMAT
-      " which is a running time of %" GST_TIME_FORMAT,
-      pts, GST_TIME_ARGS (pts));
+      "Processing subtitles with PTS=%" G_GUINT64_FORMAT
+      " which is a time of %" GST_TIME_FORMAT, pts, GST_TIME_ARGS (pts));
 
   gst_buffer_map (buffer, &map, GST_MAP_READ);
 
@@ -717,11 +550,18 @@ gst_dvbsub_overlay_process_text (GstDVBSubOverlay * overlay, GstBuffer * buffer,
       map.size);
 
   g_mutex_lock (&overlay->dvbsub_mutex);
+  overlay->pending_sub = TRUE;
   dvb_sub_feed_with_pts (overlay->dvb_sub, pts, map.data, map.size);
   g_mutex_unlock (&overlay->dvbsub_mutex);
 
   gst_buffer_unmap (buffer, &map);
   gst_buffer_unref (buffer);
+
+  if (overlay->pending_sub && overlay->force_end) {
+    GST_DEBUG_OBJECT (overlay, "forcing subtitle end");
+    dvb_sub_feed_with_pts (overlay->dvb_sub, overlay->last_text_pts, NULL, 0);
+    g_assert (overlay->pending_sub == FALSE);
+  }
 }
 
 static void
@@ -729,18 +569,53 @@ new_dvb_subtitles_cb (DvbSub * dvb_sub, DVBSubtitles * subs, gpointer user_data)
 {
   GstDVBSubOverlay *overlay = GST_DVBSUB_OVERLAY (user_data);
   int max_page_timeout;
+  guint64 start, stop;
 
   max_page_timeout = g_atomic_int_get (&overlay->max_page_timeout);
   if (max_page_timeout > 0)
     subs->page_time_out = MIN (subs->page_time_out, max_page_timeout);
 
   GST_INFO_OBJECT (overlay,
-      "New DVB subtitles arrived with a page_time_out of %d and %d regions for PTS=%"
-      G_GUINT64_FORMAT ", which should be at running time %" GST_TIME_FORMAT,
+      "New DVB subtitles arrived with a page_time_out of %d and %d regions for "
+      "PTS=%" G_GUINT64_FORMAT ", which should be at time %" GST_TIME_FORMAT,
       subs->page_time_out, subs->num_rects, subs->pts,
       GST_TIME_ARGS (subs->pts));
 
+  /* spec says page_time_out is not to be taken very accurately anyway,
+   * and 0 does not make useful sense anyway */
+  if (!subs->page_time_out) {
+    GST_WARNING_OBJECT (overlay, "overriding page_time_out 0");
+    subs->page_time_out = 1;
+  }
+
+  /* clip and convert to running time */
+  start = subs->pts;
+  stop = subs->pts + subs->page_time_out;
+
+  if (!(gst_segment_clip (&overlay->subtitle_segment, GST_FORMAT_TIME,
+              start, stop, &start, &stop)))
+    goto out_of_segment;
+
+  subs->page_time_out = stop - start;
+
+  gst_segment_to_running_time (&overlay->subtitle_segment, GST_FORMAT_TIME,
+      start);
+  g_assert (GST_CLOCK_TIME_IS_VALID (start));
+  subs->pts = start;
+
+  GST_DEBUG_OBJECT (overlay, "SUBTITLE real running time: %" GST_TIME_FORMAT,
+      GST_TIME_ARGS (start));
+
   g_queue_push_tail (overlay->pending_subtitles, subs);
+  overlay->pending_sub = FALSE;
+
+  return;
+
+out_of_segment:
+  {
+    GST_DEBUG_OBJECT (overlay, "subtitle out of segment, discarding");
+    dvb_subtitles_free (subs);
+  }
 }
 
 static GstFlowReturn
@@ -748,7 +623,6 @@ gst_dvbsub_overlay_chain_text (GstPad * pad, GstObject * parent,
     GstBuffer * buffer)
 {
   GstDVBSubOverlay *overlay = GST_DVBSUB_OVERLAY (parent);
-  GstClockTime sub_running_time;
 
   GST_INFO_OBJECT (overlay,
       "subpicture/x-dvb buffer with size %" G_GSIZE_FORMAT,
@@ -768,6 +642,17 @@ gst_dvbsub_overlay_chain_text (GstPad * pad, GstObject * parent,
     return GST_FLOW_OK;
   }
 
+  /* spec states multiple PES packets may have same PTS,
+   * and same PTS packets make up a display set */
+  if (overlay->pending_sub &&
+      overlay->last_text_pts != GST_BUFFER_TIMESTAMP (buffer)) {
+    GST_DEBUG_OBJECT (overlay, "finishing previous subtitle");
+    dvb_sub_feed_with_pts (overlay->dvb_sub, overlay->last_text_pts, NULL, 0);
+    overlay->pending_sub = FALSE;
+  }
+
+  overlay->last_text_pts = GST_BUFFER_TIMESTAMP (buffer);
+
   /* As the passed start and stop is equal, we shouldn't need to care about out of segment at all,
    * the subtitle data for the PTS is completely out of interest to us. A given display set must
    * carry the same PTS value. */
@@ -777,17 +662,121 @@ gst_dvbsub_overlay_chain_text (GstPad * pad, GstObject * parent,
 
   overlay->subtitle_segment.position = GST_BUFFER_TIMESTAMP (buffer);
 
-  sub_running_time =
-      gst_segment_to_running_time (&overlay->subtitle_segment, GST_FORMAT_TIME,
+  gst_dvbsub_overlay_process_text (overlay, buffer,
       GST_BUFFER_TIMESTAMP (buffer));
 
-  GST_DEBUG_OBJECT (overlay, "SUBTITLE real running time: %" GST_TIME_FORMAT,
-      GST_TIME_ARGS (sub_running_time));
-
-  /* FIXME: We are abusing libdvbsub pts value for tracking our gstreamer running time instead of real PTS. Should be mostly fine though... */
-  gst_dvbsub_overlay_process_text (overlay, buffer, sub_running_time);
-
   return GST_FLOW_OK;
+}
+
+static GstVideoOverlayComposition *
+gst_dvbsub_overlay_subs_to_comp (GstDVBSubOverlay * overlay,
+    DVBSubtitles * subs)
+{
+  GstVideoOverlayComposition *comp = NULL;
+  GstVideoOverlayRectangle *rect;
+  gint width, height, dw, dh, wx, wy;
+  gint i;
+
+  g_return_val_if_fail (subs != NULL && subs->num_rects > 0, NULL);
+
+  width = GST_VIDEO_INFO_WIDTH (&overlay->info);
+  height = GST_VIDEO_INFO_HEIGHT (&overlay->info);
+
+  dw = subs->display_def.display_width;
+  dh = subs->display_def.display_height;
+
+  GST_LOG_OBJECT (overlay,
+      "converting %d rectangles for display %dx%d -> video %dx%d",
+      subs->num_rects, dw, dh, width, height);
+
+  if (subs->display_def.window_flag) {
+    wx = subs->display_def.window_x;
+    wy = subs->display_def.window_y;
+    GST_LOG_OBJECT (overlay, "display window %dx%d @ (%d, %d)",
+        subs->display_def.window_width, subs->display_def.window_height,
+        wx, wy);
+  } else {
+    wx = 0;
+    wy = 0;
+  }
+
+  for (i = 0; i < subs->num_rects; i++) {
+    DVBSubtitleRect *srect = &subs->rects[i];
+    GstBuffer *buf;
+    gint w, h;
+    guint8 *in_data;
+    guint32 *palette, *data;
+    gint rx, ry, rw, rh, stride;
+    gint k, l;
+    GstMapInfo map;
+
+    GST_LOG_OBJECT (overlay, "rectangle %d: %dx%d @ (%d, %d)", i,
+        srect->w, srect->h, srect->x, srect->y);
+
+    w = srect->w;
+    h = srect->h;
+
+    buf = gst_buffer_new_and_alloc (w * h * 4);
+    gst_buffer_map (buf, &map, GST_MAP_WRITE);
+    data = (guint32 *) map.data;
+    in_data = srect->pict.data;
+    palette = srect->pict.palette;
+    stride = srect->pict.rowstride;
+    for (k = 0; k < h; k++) {
+      for (l = 0; l < w; l++) {
+        guint32 ayuv;
+        gint a, y, u, v, r, g, b;
+
+        /* convert ayuv to argb */
+        ayuv = palette[*in_data];
+        a = ayuv >> 24;
+        y = (ayuv >> 16) & 0xff;
+        u = (ayuv >> 8) & 0xff;
+        v = (ayuv & 0xff);
+
+        r = (298 * y + 459 * v - 63514) >> 8;
+        g = (298 * y - 55 * u - 136 * v + 19681) >> 8;
+        b = (298 * y + 541 * u - 73988) >> 8;
+
+        r = CLAMP (r, 0, 255);
+        g = CLAMP (g, 0, 255);
+        b = CLAMP (b, 0, 255);
+
+        *data = ((a << 24) | (r << 16) | (g << 8) | b);
+
+        in_data++;
+        data++;
+      }
+      in_data += stride - w;
+    }
+    gst_buffer_unmap (buf, &map);
+
+    /* this is assuming the subtitle rectangle coordinates are relative
+     * to the window (if there is one) within a display of specified dimension.
+     * Coordinate wrt the latter is then scaled to the actual dimension of
+     * the video we are dealing with here. */
+    rx = gst_util_uint64_scale (wx + srect->x, width, dw);
+    ry = gst_util_uint64_scale (wy + srect->y, height, dh);
+    rw = gst_util_uint64_scale (srect->w, width, dw);
+    rh = gst_util_uint64_scale (srect->h, height, dh);
+
+    GST_LOG_OBJECT (overlay, "rectangle %d rendered: %dx%d @ (%d, %d)", i,
+        rw, rh, rx, ry);
+
+    gst_buffer_add_video_meta (buf, GST_VIDEO_FRAME_FLAG_NONE,
+        GST_VIDEO_OVERLAY_COMPOSITION_FORMAT_RGB, w, h);
+    rect = gst_video_overlay_rectangle_new_argb (buf, rx, ry, rw, rh, 0);
+    g_assert (rect);
+    if (comp) {
+      gst_video_overlay_composition_add_rectangle (comp, rect);
+    } else {
+      comp = gst_video_overlay_composition_new (rect);
+    }
+    gst_video_overlay_rectangle_unref (rect);
+    gst_buffer_unref (buf);
+  }
+
+  return comp;
 }
 
 static GstFlowReturn
@@ -894,7 +883,10 @@ gst_dvbsub_overlay_chain_video (GstPad * pad, GstObject * parent,
           candidate->num_rects);
       dvb_subtitles_free (overlay->current_subtitle);
       overlay->current_subtitle = candidate;
-      /* FIXME: Pre-convert current_subtitle to a quick-blend format, num_rects=0 means that there are no regions, e.g, a subtitle "clear" happened */
+      if (overlay->current_comp)
+        gst_video_overlay_composition_unref (overlay->current_comp);
+      overlay->current_comp =
+          gst_dvbsub_overlay_subs_to_comp (overlay, overlay->current_subtitle);
     }
   }
 
@@ -915,10 +907,17 @@ gst_dvbsub_overlay_chain_video (GstPad * pad, GstObject * parent,
   if (g_atomic_int_get (&overlay->enable) && overlay->current_subtitle) {
     GstVideoFrame frame;
 
-    buffer = gst_buffer_make_writable (buffer);
-    gst_video_frame_map (&frame, &overlay->info, buffer, GST_MAP_WRITE);
-    blit_i420 (overlay, overlay->current_subtitle, &frame);
-    gst_video_frame_unmap (&frame);
+    g_assert (overlay->current_comp);
+    if (overlay->attach_compo_to_buffer) {
+      GST_DEBUG_OBJECT (overlay, "Attaching overlay image to video buffer");
+      gst_buffer_add_video_overlay_composition_meta (buffer,
+          overlay->current_comp);
+    } else {
+      GST_DEBUG_OBJECT (overlay, "Blending overlay image to video buffer");
+      gst_video_frame_map (&frame, &overlay->info, buffer, GST_MAP_WRITE);
+      gst_video_overlay_composition_blend (overlay->current_comp, &frame);
+      gst_video_frame_unmap (&frame);
+    }
   }
   g_mutex_unlock (&overlay->dvbsub_mutex);
 

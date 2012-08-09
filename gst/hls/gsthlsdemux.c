@@ -234,14 +234,14 @@ gst_hls_demux_init (GstHLSDemux * demux)
   /* Updates task */
   g_rec_mutex_init (&demux->updates_lock);
   demux->updates_task =
-      gst_task_new ((GstTaskFunction) gst_hls_demux_updates_loop, demux);
+      gst_task_new ((GstTaskFunction) gst_hls_demux_updates_loop, demux, NULL);
   gst_task_set_lock (demux->updates_task, &demux->updates_lock);
   g_mutex_init (&demux->updates_timed_lock);
 
   /* Streaming task */
   g_rec_mutex_init (&demux->stream_lock);
   demux->stream_task =
-      gst_task_new ((GstTaskFunction) gst_hls_demux_stream_loop, demux);
+      gst_task_new ((GstTaskFunction) gst_hls_demux_stream_loop, demux, NULL);
   gst_task_set_lock (demux->stream_task, &demux->stream_lock);
 }
 
@@ -602,6 +602,7 @@ static void
 switch_pads (GstHLSDemux * demux, GstCaps * newcaps)
 {
   GstPad *oldpad = demux->srcpad;
+  gchar *stream_id;
 
   GST_DEBUG ("Switching pads (oldpad:%p) with caps: %" GST_PTR_FORMAT, oldpad,
       newcaps);
@@ -614,9 +615,14 @@ switch_pads (GstHLSDemux * demux, GstCaps * newcaps)
       GST_DEBUG_FUNCPTR (gst_hls_demux_src_query));
   gst_pad_set_element_private (demux->srcpad, demux);
   gst_pad_set_active (demux->srcpad, TRUE);
-  gst_pad_push_event (demux->srcpad, gst_event_new_stream_start ());
+
+  stream_id =
+      gst_pad_create_stream_id (demux->srcpad, GST_ELEMENT_CAST (demux), NULL);
+  gst_pad_push_event (demux->srcpad, gst_event_new_stream_start (stream_id));
+  g_free (stream_id);
+
   gst_pad_set_caps (demux->srcpad, newcaps);
-  gst_pad_push_event (demux->srcpad, gst_event_new_caps (newcaps));
+
   gst_element_add_pad (GST_ELEMENT (demux), demux->srcpad);
 
   gst_element_no_more_pads (GST_ELEMENT (demux));
@@ -1127,7 +1133,7 @@ gst_hls_demux_switch_playlist (GstHLSDemux * demux)
   bitrate = (size * 8) / ((double) diff / GST_SECOND);
 
   GST_DEBUG ("Downloaded %d bytes in %" GST_TIME_FORMAT ". Bitrate is : %d",
-      size, GST_TIME_ARGS (diff), bitrate);
+      (guint) size, GST_TIME_ARGS (diff), bitrate);
 
   gst_buffer_unref (buffer);
   return gst_hls_demux_change_playlist (demux, bitrate * demux->bitrate_limit);

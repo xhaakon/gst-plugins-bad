@@ -325,7 +325,7 @@ gst_spc_dec_src_event (GstPad * pad, GstEvent * event)
         spc->seeking = TRUE;
 
         gst_pad_start_task (spc->srcpad, (GstTaskFunction) spc_play,
-            spc->srcpad);
+            spc->srcpad, NULL);
 
         GST_PAD_STREAM_UNLOCK (spc->srcpad);
         result = TRUE;
@@ -491,10 +491,11 @@ spc_setup (GstSpcDec * spc)
     gst_tag_list_add (taglist, GST_TAG_MERGE_REPLACE, GST_TAG_ALBUM, info->game,
         NULL);
   if (info->year) {
-    GDate *date = g_date_new_dmy (1, 1, info->year);
+    GstDateTime *dt = gst_date_time_new_y (info->year);
 
-    gst_tag_list_add (taglist, GST_TAG_MERGE_REPLACE, GST_TAG_DATE, date, NULL);
-    g_date_free (date);
+    gst_tag_list_add (taglist, GST_TAG_MERGE_REPLACE, GST_TAG_DATE_TIME, dt,
+        NULL);
+    gst_date_time_unref (dt);
   }
   if (info->track) {
     gst_tag_list_add (taglist, GST_TAG_MERGE_REPLACE, GST_TAG_TRACK_NUMBER,
@@ -534,7 +535,8 @@ spc_setup (GstSpcDec * spc)
   gst_pad_push_event (spc->srcpad, gst_event_new_new_segment (FALSE, 1.0,
           GST_FORMAT_TIME, 0, -1, 0));
 
-  gst_pad_start_task (spc->srcpad, (GstTaskFunction) spc_play, spc->srcpad);
+  gst_pad_start_task (spc->srcpad, (GstTaskFunction) spc_play, spc->srcpad,
+      NULL);
 
   /* We can't unreference this buffer because we might need to re-initialize
    * the emulator with the original data during a reverse seek

@@ -178,7 +178,7 @@ static void
 gst_inter_audio_src_init (GstInterAudioSrc * interaudiosrc,
     GstInterAudioSrcClass * interaudiosrc_class)
 {
-
+  gst_base_src_set_format (GST_BASE_SRC (interaudiosrc), GST_FORMAT_TIME);
   gst_base_src_set_live (GST_BASE_SRC (interaudiosrc), TRUE);
   gst_base_src_set_blocksize (GST_BASE_SRC (interaudiosrc), -1);
 
@@ -393,8 +393,8 @@ gst_inter_audio_src_create (GstBaseSrc * src, guint64 offset, guint size,
 
   g_mutex_lock (interaudiosrc->surface->mutex);
   n = gst_adapter_available (interaudiosrc->surface->audio_adapter) / 4;
-  if (n > SIZE * 2) {
-    GST_DEBUG ("flushing %d samples", SIZE / 2);
+  if (n > SIZE * 3) {
+    GST_WARNING ("flushing %d samples", SIZE / 2);
     gst_adapter_flush (interaudiosrc->surface->audio_adapter, (SIZE / 2) * 4);
     n -= (SIZE / 2);
   }
@@ -409,7 +409,7 @@ gst_inter_audio_src_create (GstBaseSrc * src, guint64 offset, guint size,
   if (n < SIZE) {
     GstBuffer *newbuf = gst_buffer_new_and_alloc (SIZE * 4);
 
-    GST_DEBUG ("creating %d samples of silence", SIZE - n);
+    GST_WARNING ("creating %d samples of silence", SIZE - n);
     memset (GST_BUFFER_DATA (newbuf) + n * 4, 0, SIZE * 4 - n * 4);
     if (buffer) {
       memcpy (GST_BUFFER_DATA (newbuf), GST_BUFFER_DATA (buffer), n * 4);

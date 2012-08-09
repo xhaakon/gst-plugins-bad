@@ -456,7 +456,7 @@ gst_camera_bin_start_capture (GstCameraBin2 * camerabin)
     active_pad = gst_element_get_static_pad (camerabin->src,
         GST_BASE_CAMERA_SRC_VIDEO_PAD_NAME);
     gst_pad_push_event (active_pad,
-        gst_event_new_tag ("GstSrc", gst_tag_list_copy (taglist)));
+        gst_event_new_tag (gst_tag_list_copy (taglist)));
 
     gst_object_unref (active_pad);
   }
@@ -1364,7 +1364,7 @@ gst_camera_bin_image_src_buffer_probe (GstPad * pad, GstPadProbeInfo * info,
         GST_PTR_FORMAT, tags);
     if (tags) {
       peer = gst_pad_get_peer (pad);
-      gst_pad_send_event (peer, gst_event_new_tag ("GstSrc", tags));
+      gst_pad_send_event (peer, gst_event_new_tag (tags));
       gst_object_unref (peer);
     }
   } else {
@@ -1638,8 +1638,7 @@ gst_camera_bin_create_elements (GstCameraBin2 * camera)
       srcpad = gst_element_get_static_pad (camera->image_encodebin, "src");
 
       gst_pad_add_probe (srcpad, GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM,
-          gst_camera_bin_image_sink_event_probe, gst_object_ref (camera),
-          gst_object_unref);
+          gst_camera_bin_image_sink_event_probe, camera, NULL);
 
       gst_object_unref (srcpad);
     }
@@ -1768,8 +1767,7 @@ gst_camera_bin_create_elements (GstCameraBin2 * camera)
     }
 
     gst_pad_add_probe (imgsrc, GST_PAD_PROBE_TYPE_BUFFER,
-        gst_camera_bin_image_src_buffer_probe, gst_object_ref (camera),
-        gst_object_unref);
+        gst_camera_bin_image_src_buffer_probe, camera, NULL);
     gst_object_unref (imgsrc);
   }
 
@@ -1834,8 +1832,7 @@ gst_camera_bin_create_elements (GstCameraBin2 * camera)
     /* drop EOS for audiosrc elements that push them on state_changes
      * (basesrc does this) */
     gst_pad_add_probe (srcpad, GST_PAD_PROBE_TYPE_DATA_DOWNSTREAM,
-        gst_camera_bin_audio_src_data_probe, gst_object_ref (camera),
-        gst_object_unref);
+        gst_camera_bin_audio_src_data_probe, camera, NULL);
 
     gst_object_unref (srcpad);
   }
@@ -1871,10 +1868,10 @@ fail:
 }
 
 static void
-_gst_tag_list_free_maybe (GstTagList * taglist)
+_gst_tag_list_unref_maybe (GstTagList * taglist)
 {
   if (taglist)
-    gst_tag_list_free (taglist);
+    gst_tag_list_unref (taglist);
 }
 
 static GstStateChangeReturn
@@ -1926,7 +1923,7 @@ gst_camera_bin_change_state (GstElement * element, GstStateChange trans)
       camera->image_location_list = NULL;
 
       g_slist_foreach (camera->image_tags_list,
-          (GFunc) _gst_tag_list_free_maybe, NULL);
+          (GFunc) _gst_tag_list_unref_maybe, NULL);
       g_slist_free (camera->image_tags_list);
       camera->image_tags_list = NULL;
       g_mutex_unlock (&camera->image_capture_mutex);

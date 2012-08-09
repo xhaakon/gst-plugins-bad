@@ -27,8 +27,6 @@
                       | 
                    <a class="shortcut" href="#idxD">D</a>
                       | 
-                   <a class="shortcut" href="#idxF">F</a>
-                      | 
                    <a class="shortcut" href="#idxG">G</a>
                       | 
                    <a class="shortcut" href="#idxH">H</a>
@@ -44,8 +42,6 @@
                    <a class="shortcut" href="#idxT">T</a>
                       | 
                    <a class="shortcut" href="#idxV">V</a>
-                      | 
-                   <a class="shortcut" href="#idxW">W</a>
                       | 
                    <a class="shortcut" href="#idxZ">Z</a>
 </td></tr>
@@ -104,7 +100,7 @@ GST_BASE_CAMERA_SRC_VIEWFINDER_PAD_NAME, macro in GstBaseCameraSrc
 <dd></dd>
 <a name="idxC"></a><h3 class="title">C</h3>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/gst-plugins-bad-plugins-camerabin.html#GstCameraBinMode">GstCameraBinMode</a>, enum in gstcamerabin-enum
+GstCameraBinMode, enum in gstcamerabin-enum
 </dt>
 <dd></dd>
 <dt>
@@ -125,14 +121,6 @@ gst_camerabin_preview_pipeline_post, function in gstcamerabinpreview
 <dd></dd>
 <dt>
 gst_camerabin_preview_set_caps, function in gstcamerabinpreview
-</dt>
-<dd></dd>
-<dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#GstColourToneMode">GstColourToneMode</a>, enum in gstphotography
-</dt>
-<dd></dd>
-<dt>
-gst_colour_tone_mode_get_type, function in photography-enumtypes
 </dt>
 <dd></dd>
 <a name="idxD"></a><h3 class="title">D</h3>
@@ -164,39 +152,6 @@ DEFAULT_WIDTH, macro in gstcamerabin-enum
 DEFAULT_ZOOM, macro in gstcamerabin-enum
 </dt>
 <dd></dd>
-<a name="idxF"></a><h3 class="title">F</h3>
-<dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#GstFlashMode">GstFlashMode</a>, enum in gstphotography
-</dt>
-<dd></dd>
-<dt>
-gst_flash_mode_get_type, function in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#GstFlickerReductionMode">GstFlickerReductionMode</a>, enum in gstphotography
-</dt>
-<dd></dd>
-<dt>
-gst_flicker_reduction_mode_get_type, function in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#GstFocusMode">GstFocusMode</a>, enum in gstphotography
-</dt>
-<dd></dd>
-<dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#GstFocusStatus">GstFocusStatus</a>, enum in gstphotography
-</dt>
-<dd></dd>
-<dt>
-gst_focus_mode_get_type, function in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
-gst_focus_status_get_type, function in photography-enumtypes
-</dt>
-<dd></dd>
 <a name="idxG"></a><h3 class="title">G</h3>
 <dt>
 get_aperture, user_function in gstphotography
@@ -204,10 +159,6 @@ get_aperture, user_function in gstphotography
 <dd></dd>
 <dt>
 get_capabilities, user_function in gstphotography
-</dt>
-<dd></dd>
-<dt>
-get_colour_tone_mode, user_function in gstphotography
 </dt>
 <dd></dd>
 <dt>
@@ -607,19 +558,11 @@ MIN_ZOOM, macro in GstBaseCameraSrc
 <dd></dd>
 <a name="idxP"></a><h3 class="title">P</h3>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#GstPhotoCaps">GstPhotoCaps</a>, enum in gstphotography
+GstPhotography, struct in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#GstPhotoCapturePrepared">GstPhotoCapturePrepared</a>, user_function in gstphotography
-</dt>
-<dd></dd>
-<dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html">GstPhotography</a>, struct in gstphotography
-</dt>
-<dd></dd>
-<dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#GstPhotographyNoiseReduction">GstPhotographyNoiseReduction</a>, enum in gstphotography
+GstPhotographyNoiseReduction, enum in gstphotography
 </dt>
 <dd></dd>
 <dt>
@@ -627,31 +570,27 @@ GST_PHOTOGRAPHY_AUTOFOCUS_DONE, macro in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-get-aperture">gst_photography_get_aperture</a>, function in gstphotography
+gst_photography_get_aperture, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-get-capabilities">gst_photography_get_capabilities</a>, function in gstphotography
+gst_photography_get_capabilities, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-get-colour-tone-mode">gst_photography_get_colour_tone_mode</a>, function in gstphotography
+gst_photography_get_config, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-get-config">gst_photography_get_config</a>, function in gstphotography
+gst_photography_get_ev_compensation, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-get-ev-compensation">gst_photography_get_ev_compensation</a>, function in gstphotography
+gst_photography_get_exposure, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-get-exposure">gst_photography_get_exposure</a>, function in gstphotography
-</dt>
-<dd></dd>
-<dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-get-flash-mode">gst_photography_get_flash_mode</a>, function in gstphotography
+gst_photography_get_flash_mode, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
@@ -663,23 +602,23 @@ gst_photography_get_focus_mode, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-get-iso-speed">gst_photography_get_iso_speed</a>, function in gstphotography
+gst_photography_get_iso_speed, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-get-noise-reduction">gst_photography_get_noise_reduction</a>, function in gstphotography
+gst_photography_get_noise_reduction, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-get-scene-mode">gst_photography_get_scene_mode</a>, function in gstphotography
+gst_photography_get_scene_mode, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-get-white-balance-mode">gst_photography_get_white_balance_mode</a>, function in gstphotography
+gst_photography_get_white_balance_mode, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-get-zoom">gst_photography_get_zoom</a>, function in gstphotography
+gst_photography_get_zoom, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
@@ -687,7 +626,7 @@ gst_photography_noise_reduction_get_type, function in photography-enumtypes
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-prepare-for-capture">gst_photography_prepare_for_capture</a>, function in gstphotography
+gst_photography_prepare_for_capture, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
@@ -699,15 +638,7 @@ GST_PHOTOGRAPHY_PROP_CAPABILITIES, macro in gstphotography
 </dt>
 <dd></dd>
 <dt>
-GST_PHOTOGRAPHY_PROP_COLOUR_TONE, macro in gstphotography
-</dt>
-<dd></dd>
-<dt>
 GST_PHOTOGRAPHY_PROP_EV_COMP, macro in gstphotography
-</dt>
-<dd></dd>
-<dt>
-GST_PHOTOGRAPHY_PROP_EXPOSURE, macro in gstphotography
 </dt>
 <dd></dd>
 <dt>
@@ -759,31 +690,27 @@ GST_PHOTOGRAPHY_PROP_ZOOM, macro in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-set-aperture">gst_photography_set_aperture</a>, function in gstphotography
+gst_photography_set_aperture, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-set-autofocus">gst_photography_set_autofocus</a>, function in gstphotography
+gst_photography_set_autofocus, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-set-colour-tone-mode">gst_photography_set_colour_tone_mode</a>, function in gstphotography
+gst_photography_set_config, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-set-config">gst_photography_set_config</a>, function in gstphotography
+gst_photography_set_ev_compensation, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-set-ev-compensation">gst_photography_set_ev_compensation</a>, function in gstphotography
+gst_photography_set_exposure, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-set-exposure">gst_photography_set_exposure</a>, function in gstphotography
-</dt>
-<dd></dd>
-<dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-set-flash-mode">gst_photography_set_flash_mode</a>, function in gstphotography
+gst_photography_set_flash_mode, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
@@ -795,39 +722,27 @@ gst_photography_set_focus_mode, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-set-iso-speed">gst_photography_set_iso_speed</a>, function in gstphotography
+gst_photography_set_iso_speed, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-set-noise-reduction">gst_photography_set_noise_reduction</a>, function in gstphotography
+gst_photography_set_noise_reduction, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-set-scene-mode">gst_photography_set_scene_mode</a>, function in gstphotography
+gst_photography_set_scene_mode, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-set-white-balance-mode">gst_photography_set_white_balance_mode</a>, function in gstphotography
+gst_photography_set_white_balance_mode, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#gst-photography-set-zoom">gst_photography_set_zoom</a>, function in gstphotography
+gst_photography_set_zoom, function in gstphotography
 </dt>
 <dd></dd>
 <dt>
 GST_PHOTOGRAPHY_SHAKE_RISK, macro in gstphotography
-</dt>
-<dd></dd>
-<dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#GstPhotoShakeRisk">GstPhotoShakeRisk</a>, enum in gstphotography
-</dt>
-<dd></dd>
-<dt>
-gst_photo_caps_get_type, function in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
-gst_photo_shake_risk_get_type, function in photography-enumtypes
 </dt>
 <dd></dd>
 <dt>
@@ -836,23 +751,11 @@ prepare_for_capture, user_function in gstphotography
 <dd></dd>
 <a name="idxS"></a><h3 class="title">S</h3>
 <dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#GstSceneMode">GstSceneMode</a>, enum in gstphotography
-</dt>
-<dd></dd>
-<dt>
-gst_scene_mode_get_type, function in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
 set_aperture, user_function in gstphotography
 </dt>
 <dd></dd>
 <dt>
 set_autofocus, user_function in gstphotography
-</dt>
-<dd></dd>
-<dt>
-set_colour_tone_mode, user_function in gstphotography
 </dt>
 <dd></dd>
 <dt>
@@ -961,43 +864,7 @@ GST_TYPE_CAMERABIN_MODE, macro in gstcamerabin-enum
 </dt>
 <dd></dd>
 <dt>
-GST_TYPE_COLOUR_TONE_MODE, macro in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
-GST_TYPE_FLASH_MODE, macro in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
-GST_TYPE_FLICKER_REDUCTION_MODE, macro in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
-GST_TYPE_FOCUS_MODE, macro in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
-GST_TYPE_FOCUS_STATUS, macro in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
 GST_TYPE_PHOTOGRAPHY_NOISE_REDUCTION, macro in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
-GST_TYPE_PHOTO_CAPS, macro in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
-GST_TYPE_PHOTO_SHAKE_RISK, macro in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
-GST_TYPE_SCENE_MODE, macro in photography-enumtypes
-</dt>
-<dd></dd>
-<dt>
-GST_TYPE_WHITE_BALANCE_MODE, macro in photography-enumtypes
 </dt>
 <dd></dd>
 <a name="idxV"></a><h3 class="title">V</h3>
@@ -1211,15 +1078,6 @@ GST_TYPE_WHITE_BALANCE_MODE, macro in photography-enumtypes
 <dd></dd>
 <dt>
 <a class="link" href="gst-plugins-bad-libs-GstVideoContextInterface.html#gst-video-context-set-context-string" title="gst_video_context_set_context_string ()">gst_video_context_set_context_string</a>, function in <a class="link" href="gst-plugins-bad-libs-GstVideoContextInterface.html" title="GstVideoContextInterface">GstVideoContextInterface</a>
-</dt>
-<dd></dd>
-<a name="idxW"></a><h3 class="title">W</h3>
-<dt>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/GstPhotography.html#GstWhiteBalanceMode">GstWhiteBalanceMode</a>, enum in gstphotography
-</dt>
-<dd></dd>
-<dt>
-gst_white_balance_mode_get_type, function in photography-enumtypes
 </dt>
 <dd></dd>
 <a name="idxZ"></a><h3 class="title">Z</h3>

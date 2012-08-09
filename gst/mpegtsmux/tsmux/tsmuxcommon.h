@@ -93,7 +93,7 @@ G_BEGIN_DECLS
 #define TSMUX_MIN_ES_DESC_LEN 8
 
 /* Frequency for PCR representation */
-#define TSMUX_SYS_CLOCK_FREQ (27000000L)
+#define TSMUX_SYS_CLOCK_FREQ ((gint64) 27000000)
 /* Frequency for PTS values */
 #define TSMUX_CLOCK_FREQ (TSMUX_SYS_CLOCK_FREQ / 300)
 
@@ -113,6 +113,7 @@ G_BEGIN_DECLS
 #define TSMUX_PACKET_FLAG_PES_WRITE_PTS_DTS (1 << 10)
 #define TSMUX_PACKET_FLAG_PES_WRITE_ESCR    (1 << 11)
 #define TSMUX_PACKET_FLAG_PES_EXT_STREAMID  (1 << 12)
+#define TSMUX_PACKET_FLAG_PES_DATA_ALIGNMENT (1 << 13)
 
 /* PAT interval (1/10th sec) */
 #define TSMUX_DEFAULT_PAT_INTERVAL (TSMUX_CLOCK_FREQ / 10)
@@ -126,6 +127,7 @@ typedef struct TsMuxStream TsMuxStream;
 struct TsMuxPacketInfo {
   guint16 pid;
   guint32 flags;
+  guint32 pes_header_length;
 
   gboolean packet_start_unit_indicator;
 

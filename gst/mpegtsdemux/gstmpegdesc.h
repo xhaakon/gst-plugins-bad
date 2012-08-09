@@ -293,7 +293,7 @@
 #define DESC_DVB_SATELLITE_DELIVERY_SYSTEM_orbital_position(desc)	(desc + 6)
 #define DESC_DVB_SATELLITE_DELIVERY_SYSTEM_west_east_flag(desc)	((desc[8] & 0x80) == 0x80)
 #define DESC_DVB_SATELLITE_DELIVERY_SYSTEM_polarization(desc)	((desc[8] >> 5) & 0x3)
-#define DESC_DVB_SATELLITE_DELIVERY_SYSTEM_modulation(desc)	(desc[8] & 0x1F)
+#define DESC_DVB_SATELLITE_DELIVERY_SYSTEM_modulation(desc)	(desc[8] & 0x3)
 #define DESC_DVB_SATELLITE_DELIVERY_SYSTEM_symbol_rate(desc)	(desc + 9)
 #define DESC_DVB_SATELLITE_DELIVERY_SYSTEM_fec_inner(desc)	(desc[12] & 0x0F)
 
@@ -349,8 +349,7 @@ typedef struct
 } GstMPEGDescriptor;
 
 void gst_mpegtsdesc_init_debug (void);
-GstMPEGDescriptor *gst_mpeg_descriptor_parse (guint8 * data, guint size);
-void gst_mpeg_descriptor_free                (GstMPEGDescriptor * desc);
+gboolean gst_mpeg_descriptor_parse (GstMPEGDescriptor *result, guint8 * data, guint size);
 
 guint gst_mpeg_descriptor_n_desc             (GstMPEGDescriptor * desc);
 guint8 *gst_mpeg_descriptor_find             (GstMPEGDescriptor * desc, gint tag);

@@ -200,8 +200,14 @@ mpegts_base_reset (MpegTSBase * base)
   memset (base->is_pes, 0, 1024);
   memset (base->known_psi, 0, 1024);
 
-  /* PAT */
+  /* Known PIDs : PAT, TSDT, IPMP CIT */
   MPEGTS_BIT_SET (base->known_psi, 0);
+  MPEGTS_BIT_SET (base->known_psi, 2);
+  MPEGTS_BIT_SET (base->known_psi, 3);
+  /* TDT, TOT, ST */
+  MPEGTS_BIT_SET (base->known_psi, 0x14);
+  /* network synchronization */
+  MPEGTS_BIT_SET (base->known_psi, 0x15);
 
   /* FIXME : Commenting the Following lines is to be in sync with the following
    * commit
@@ -492,7 +498,7 @@ mpegts_base_free_program (MpegTSBaseProgram * program)
   g_free (program->streams);
 
   if (program->tags)
-    gst_tag_list_free (program->tags);
+    gst_tag_list_unref (program->tags);
 
   g_free (program);
 }
@@ -729,7 +735,7 @@ mpegts_base_activate_program (MpegTSBase * base, MpegTSBaseProgram * program,
   if (program->pmt_info)
     gst_structure_free (program->pmt_info);
 
-  program->pmt_info = gst_structure_copy (pmt_info);
+  program->pmt_info = pmt_info;
   program->pmt_pid = pmt_pid;
   program->pcr_pid = pcr_pid;
 
@@ -852,7 +858,7 @@ mpegts_base_apply_pat (MpegTSBase * base, GstStructure * pat_info)
    */
 
   old_pat = base->pat;
-  base->pat = gst_structure_copy (pat_info);
+  base->pat = pat_info;
 
   gst_element_post_message (GST_ELEMENT_CAST (base),
       gst_message_new_element (GST_OBJECT (base),
@@ -983,13 +989,10 @@ mpegts_base_apply_pmt (MpegTSBase * base,
   } else
     program = old_program;
 
-  /* First activate program */
+  /* activate program */
+  /* Ownership of pmt_info is given to the program */
   mpegts_base_activate_program (base, program, pmt_pid, pmt_info,
       initial_program);
-
-  /* if (program->pmt_info) */
-  /*   gst_structure_free (program->pmt_info); */
-  /* program->pmt_info = NULL; */
 
   gst_element_post_message (GST_ELEMENT_CAST (base),
       gst_message_new_element (GST_OBJECT (base),
@@ -1000,12 +1003,14 @@ mpegts_base_apply_pmt (MpegTSBase * base,
 no_program:
   {
     GST_ERROR ("Attempted to apply a PMT on a program that wasn't created");
+    gst_structure_free (pmt_info);
     return;
   }
 
 same_program:
   {
     GST_DEBUG ("Not applying identical program");
+    gst_structure_free (pmt_info);
     return;
   }
 }
@@ -1016,8 +1021,7 @@ mpegts_base_apply_cat (MpegTSBase * base, GstStructure * cat_info)
   GST_DEBUG_OBJECT (base, "CAT %" GST_PTR_FORMAT, cat_info);
 
   gst_element_post_message (GST_ELEMENT_CAST (base),
-      gst_message_new_element (GST_OBJECT (base),
-          gst_structure_copy (cat_info)));
+      gst_message_new_element (GST_OBJECT (base), cat_info));
 }
 
 static void
@@ -1027,8 +1031,7 @@ mpegts_base_apply_nit (MpegTSBase * base,
   GST_DEBUG_OBJECT (base, "NIT %" GST_PTR_FORMAT, nit_info);
 
   gst_element_post_message (GST_ELEMENT_CAST (base),
-      gst_message_new_element (GST_OBJECT (base),
-          gst_structure_copy (nit_info)));
+      gst_message_new_element (GST_OBJECT (base), nit_info));
 }
 
 static void
@@ -1040,8 +1043,7 @@ mpegts_base_apply_sdt (MpegTSBase * base,
   mpegts_base_get_tags_from_sdt (base, sdt_info);
 
   gst_element_post_message (GST_ELEMENT_CAST (base),
-      gst_message_new_element (GST_OBJECT (base),
-          gst_structure_copy (sdt_info)));
+      gst_message_new_element (GST_OBJECT (base), sdt_info));
 }
 
 static void
@@ -1053,8 +1055,7 @@ mpegts_base_apply_eit (MpegTSBase * base,
   mpegts_base_get_tags_from_eit (base, eit_info);
 
   gst_element_post_message (GST_ELEMENT_CAST (base),
-      gst_message_new_element (GST_OBJECT (base),
-          gst_structure_copy (eit_info)));
+      gst_message_new_element (GST_OBJECT (base), eit_info));
 }
 
 static void
@@ -1066,8 +1067,7 @@ mpegts_base_apply_tdt (MpegTSBase * base,
           gst_structure_copy (tdt_info)));
 
   GST_MPEGTS_BASE_GET_CLASS (base)->push_event (base,
-      gst_event_new_custom (GST_EVENT_CUSTOM_DOWNSTREAM,
-          gst_structure_copy (tdt_info)));
+      gst_event_new_custom (GST_EVENT_CUSTOM_DOWNSTREAM, tdt_info));
 }
 
 
@@ -1214,9 +1214,6 @@ mpegts_base_handle_psi (MpegTSBase * base, MpegTSPacketizerSection * section)
       break;
   }
 
-  if (structure)
-    gst_structure_free (structure);
-
   return res;
 }
 
@@ -1337,7 +1334,7 @@ mpegts_base_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
   gboolean res = TRUE;
   MpegTSBase *base = GST_MPEGTS_BASE (parent);
 
-  GST_WARNING_OBJECT (base, "Got event %s",
+  GST_DEBUG_OBJECT (base, "Got event %s",
       gst_event_type_get_name (GST_EVENT_TYPE (event)));
 
   switch (GST_EVENT_TYPE (event)) {
@@ -1350,7 +1347,7 @@ mpegts_base_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
       break;
     case GST_EVENT_EOS:
       res = gst_mpegts_base_handle_eos (base);
-      gst_event_unref (event);
+      res = GST_MPEGTS_BASE_GET_CLASS (base)->push_event (base, event);
       break;
     case GST_EVENT_CAPS:
       /* FIXME, do something */
@@ -1721,7 +1718,8 @@ mpegts_base_handle_seek_event (MpegTSBase * base, GstPad * pad,
   }
   //else
 done:
-  gst_pad_start_task (base->sinkpad, (GstTaskFunction) mpegts_base_loop, base);
+  gst_pad_start_task (base->sinkpad, (GstTaskFunction) mpegts_base_loop, base,
+      NULL);
 push_mode:
   GST_PAD_STREAM_UNLOCK (base->sinkpad);
   return ret == GST_FLOW_OK;
@@ -1775,7 +1773,8 @@ mpegts_base_sink_activate_mode (GstPad * pad, GstObject * parent,
         base->mode = BASE_MODE_SCANNING;
         base->packetizer->calculate_offset = TRUE;
         res =
-            gst_pad_start_task (pad, (GstTaskFunction) mpegts_base_loop, base);
+            gst_pad_start_task (pad, (GstTaskFunction) mpegts_base_loop, base,
+            NULL);
       } else
         res = gst_pad_stop_task (pad);
       break;

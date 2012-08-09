@@ -66,21 +66,19 @@ GST_DEBUG_CATEGORY_STATIC (spectra_scope_debug);
 
 static void gst_spectra_scope_finalize (GObject * object);
 
-static gboolean gst_spectra_scope_setup (GstBaseAudioVisualizer * scope);
-static gboolean gst_spectra_scope_render (GstBaseAudioVisualizer * scope,
+static gboolean gst_spectra_scope_setup (GstAudioVisualizer * scope);
+static gboolean gst_spectra_scope_render (GstAudioVisualizer * scope,
     GstBuffer * audio, GstBuffer * video);
 
 
-G_DEFINE_TYPE (GstSpectraScope, gst_spectra_scope,
-    GST_TYPE_BASE_AUDIO_VISUALIZER);
+G_DEFINE_TYPE (GstSpectraScope, gst_spectra_scope, GST_TYPE_AUDIO_VISUALIZER);
 
 static void
 gst_spectra_scope_class_init (GstSpectraScopeClass * g_class)
 {
   GObjectClass *gobject_class = (GObjectClass *) g_class;
   GstElementClass *element_class = (GstElementClass *) g_class;
-  GstBaseAudioVisualizerClass *scope_class =
-      (GstBaseAudioVisualizerClass *) g_class;
+  GstAudioVisualizerClass *scope_class = (GstAudioVisualizerClass *) g_class;
 
   gobject_class->finalize = gst_spectra_scope_finalize;
 
@@ -121,7 +119,7 @@ gst_spectra_scope_finalize (GObject * object)
 }
 
 static gboolean
-gst_spectra_scope_setup (GstBaseAudioVisualizer * bscope)
+gst_spectra_scope_setup (GstAudioVisualizer * bscope)
 {
   GstSpectraScope *scope = GST_SPECTRA_SCOPE (bscope);
   guint num_freq = bscope->width + 1;
@@ -163,7 +161,7 @@ add_pixel (guint32 * _p, guint32 _c)
 }
 
 static gboolean
-gst_spectra_scope_render (GstBaseAudioVisualizer * bscope, GstBuffer * audio,
+gst_spectra_scope_render (GstAudioVisualizer * bscope, GstBuffer * audio,
     GstBuffer * video)
 {
   GstSpectraScope *scope = GST_SPECTRA_SCOPE (bscope);
@@ -211,16 +209,18 @@ gst_spectra_scope_render (GstBaseAudioVisualizer * bscope, GstBuffer * audio,
      * or even better do a log mapping? */
     fr = (gfloat) fdata[1 + x].r / 512.0;
     fi = (gfloat) fdata[1 + x].i / 512.0;
-    y = (guint) (h * fabs (fr * fr + fi * fi));
+    y = (guint) (h * sqrt (fr * fr + fi * fi));
     if (y > h)
       y = h;
     y = h - y;
     off = (y * w) + x;
     vdata[off] = 0x00FFFFFF;
-    for (l = y + 1; l <= h; l++) {
+    for (l = y; l < h; l++) {
       off += w;
       add_pixel (&vdata[off], 0x007F7F7F);
     }
+    /* ensure bottom line is full bright (especially in move-up mode) */
+    add_pixel (&vdata[off], 0x007F7F7F);
   }
   gst_buffer_unmap (video, &vmap);
   gst_buffer_unmap (audio, &amap);

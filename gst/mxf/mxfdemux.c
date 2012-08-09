@@ -87,7 +87,7 @@ gst_mxf_demux_pad_finalize (GObject * object)
   GstMXFDemuxPad *pad = GST_MXF_DEMUX_PAD (object);
 
   if (pad->tags) {
-    gst_tag_list_free (pad->tags);
+    gst_tag_list_unref (pad->tags);
     pad->tags = NULL;
   }
 
@@ -171,7 +171,7 @@ gst_mxf_demux_reset_mxf_state (GstMXFDemux * demux)
     g_free (t->mapping_data);
 
     if (t->tags)
-      gst_tag_list_free (t->tags);
+      gst_tag_list_unref (t->tags);
 
     if (t->caps)
       gst_caps_unref (t->caps);
@@ -763,7 +763,7 @@ gst_mxf_demux_update_essence_tracks (GstMXFDemux * demux)
       etrack->handler = NULL;
       etrack->handle_func = NULL;
       if (etrack->tags)
-        gst_tag_list_free (etrack->tags);
+        gst_tag_list_unref (etrack->tags);
       etrack->tags = NULL;
 
       etrack->handler = mxf_essence_element_handler_find (track);
@@ -828,7 +828,7 @@ gst_mxf_demux_update_essence_tracks (GstMXFDemux * demux)
         g_free (etrack->mapping_data);
         etrack->mapping_data = NULL;
         if (etrack->tags)
-          gst_tag_list_free (etrack->tags);
+          gst_tag_list_unref (etrack->tags);
         goto next;
       } else if (!caps) {
         GST_WARNING_OBJECT (demux, "Couldn't create updated caps for stream");
@@ -849,7 +849,7 @@ gst_mxf_demux_update_essence_tracks (GstMXFDemux * demux)
       if (new) {
         g_free (etrack->mapping_data);
         if (etrack->tags)
-          gst_tag_list_free (etrack->tags);
+          gst_tag_list_unref (etrack->tags);
         if (etrack->caps)
           gst_caps_unref (etrack->caps);
 
@@ -2773,6 +2773,7 @@ pause:
       if (demux->segment.flags & GST_SEEK_FLAG_SEGMENT) {
         gint64 stop;
         GstMessage *m;
+        GstEvent *e;
 
         /* for segment playback we need to post when (in stream time)
          * we stopped, this is either stop (when set) or the duration. */
@@ -2784,6 +2785,9 @@ pause:
             GST_FORMAT_TIME, stop);
         gst_message_set_seqnum (m, demux->seqnum);
         gst_element_post_message (GST_ELEMENT_CAST (demux), m);
+        e = gst_event_new_segment_done (GST_FORMAT_TIME, stop);
+        gst_event_set_seqnum (e, demux->seqnum);
+        gst_mxf_demux_push_src_event (demux, e);
       } else {
         GstEvent *e;
 
@@ -3360,7 +3364,7 @@ gst_mxf_demux_seek_pull (GstMXFDemux * demux, GstEvent * event)
   demux->seqnum = seqnum;
 
   gst_pad_start_task (demux->sinkpad,
-      (GstTaskFunction) gst_mxf_demux_loop, demux->sinkpad);
+      (GstTaskFunction) gst_mxf_demux_loop, demux->sinkpad, NULL);
 
   GST_PAD_STREAM_UNLOCK (demux->sinkpad);
 
@@ -3380,7 +3384,7 @@ wrong_rate:
 unresolved_metadata:
   {
     gst_pad_start_task (demux->sinkpad,
-        (GstTaskFunction) gst_mxf_demux_loop, demux->sinkpad);
+        (GstTaskFunction) gst_mxf_demux_loop, demux->sinkpad, NULL);
     GST_PAD_STREAM_UNLOCK (demux->sinkpad);
     GST_WARNING_OBJECT (demux, "metadata can't be resolved");
     return FALSE;
@@ -3592,7 +3596,7 @@ gst_mxf_demux_sink_activate_pull (GstPad * sinkpad, gboolean active)
     demux->random_access = TRUE;
     gst_object_unref (demux);
     return gst_pad_start_task (sinkpad, (GstTaskFunction) gst_mxf_demux_loop,
-        sinkpad);
+        sinkpad, NULL);
   } else {
     demux->random_access = FALSE;
     gst_object_unref (demux);

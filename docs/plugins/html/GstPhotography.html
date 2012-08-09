@@ -43,17 +43,19 @@
 <div class="refsynopsisdiv">
 <a name="GstPhotography.synopsis"></a><h2>Synopsis</h2>
 <pre class="synopsis">                    <a class="link" href="GstPhotography.html#GstPhotography-struct" title="GstPhotography">GstPhotography</a>;
+#define             <a class="link" href="GstPhotography.html#GST-PHOTOGRAPHY-AUTOFOCUS-DONE:CAPS" title="GST_PHOTOGRAPHY_AUTOFOCUS_DONE">GST_PHOTOGRAPHY_AUTOFOCUS_DONE</a>
+#define             <a class="link" href="GstPhotography.html#GST-PHOTOGRAPHY-SHAKE-RISK:CAPS" title="GST_PHOTOGRAPHY_SHAKE_RISK">GST_PHOTOGRAPHY_SHAKE_RISK</a>
 enum                <a class="link" href="GstPhotography.html#GstPhotographyNoiseReduction" title="enum GstPhotographyNoiseReduction">GstPhotographyNoiseReduction</a>;
-enum                <a class="link" href="GstPhotography.html#GstWhiteBalanceMode" title="enum GstWhiteBalanceMode">GstWhiteBalanceMode</a>;
-enum                <a class="link" href="GstPhotography.html#GstColourToneMode" title="enum GstColourToneMode">GstColourToneMode</a>;
-enum                <a class="link" href="GstPhotography.html#GstSceneMode" title="enum GstSceneMode">GstSceneMode</a>;
-enum                <a class="link" href="GstPhotography.html#GstFlashMode" title="enum GstFlashMode">GstFlashMode</a>;
-enum                <a class="link" href="GstPhotography.html#GstFlickerReductionMode" title="enum GstFlickerReductionMode">GstFlickerReductionMode</a>;
-enum                <a class="link" href="GstPhotography.html#GstFocusMode" title="enum GstFocusMode">GstFocusMode</a>;
-enum                <a class="link" href="GstPhotography.html#GstFocusStatus" title="enum GstFocusStatus">GstFocusStatus</a>;
-enum                <a class="link" href="GstPhotography.html#GstPhotoCaps" title="enum GstPhotoCaps">GstPhotoCaps</a>;
-enum                <a class="link" href="GstPhotography.html#GstPhotoShakeRisk" title="enum GstPhotoShakeRisk">GstPhotoShakeRisk</a>;
-<span class="returnvalue">void</span>                (<a class="link" href="GstPhotography.html#GstPhotoCapturePrepared" title="GstPhotoCapturePrepared ()">*GstPhotoCapturePrepared</a>)          (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>,
+enum                <a class="link" href="GstPhotography.html#GstPhotographyWhiteBalanceMode" title="enum GstPhotographyWhiteBalanceMode">GstPhotographyWhiteBalanceMode</a>;
+enum                <a class="link" href="GstPhotography.html#GstPhotographyColorToneMode" title="enum GstPhotographyColorToneMode">GstPhotographyColorToneMode</a>;
+enum                <a class="link" href="GstPhotography.html#GstPhotographySceneMode" title="enum GstPhotographySceneMode">GstPhotographySceneMode</a>;
+enum                <a class="link" href="GstPhotography.html#GstPhotographyFlashMode" title="enum GstPhotographyFlashMode">GstPhotographyFlashMode</a>;
+enum                <a class="link" href="GstPhotography.html#GstPhotographyFlickerReductionMode" title="enum GstPhotographyFlickerReductionMode">GstPhotographyFlickerReductionMode</a>;
+enum                <a class="link" href="GstPhotography.html#GstPhotographyFocusMode" title="enum GstPhotographyFocusMode">GstPhotographyFocusMode</a>;
+enum                <a class="link" href="GstPhotography.html#GstPhotographyFocusStatus" title="enum GstPhotographyFocusStatus">GstPhotographyFocusStatus</a>;
+enum                <a class="link" href="GstPhotography.html#GstPhotographyCaps" title="enum GstPhotographyCaps">GstPhotographyCaps</a>;
+enum                <a class="link" href="GstPhotography.html#GstPhotographyShakeRisk" title="enum GstPhotographyShakeRisk">GstPhotographyShakeRisk</a>;
+<span class="returnvalue">void</span>                (<a class="link" href="GstPhotography.html#GstPhotographyCapturePrepared" title="GstPhotographyCapturePrepared ()">*GstPhotographyCapturePrepared</a>)    (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>,
                                                          <em class="parameter"><code>const <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *configured_caps</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-get-ev-compensation" title="gst_photography_get_ev_compensation ()">gst_photography_get_ev_compensation</a> (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gfloat"><span class="type">gfloat</span></a> *ev_comp</code></em>);
@@ -65,14 +67,13 @@ enum                <a class="link" href="GstPhotography.html#GstPhotoShakeRisk"
                                                          <em class="parameter"><code><span class="type">guint32</span> *exposure</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-get-white-balance-mode" title="gst_photography_get_white_balance_mode ()">gst_photography_get_white_balance_mode</a>
                                                         (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstWhiteBalanceMode" title="enum GstWhiteBalanceMode"><span class="type">GstWhiteBalanceMode</span></a> *wb_mode</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-get-colour-tone-mode" title="gst_photography_get_colour_tone_mode ()">gst_photography_get_colour_tone_mode</a>
-                                                        (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstColourToneMode" title="enum GstColourToneMode"><span class="type">GstColourToneMode</span></a> *tone_mode</code></em>);
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyWhiteBalanceMode" title="enum GstPhotographyWhiteBalanceMode"><span class="type">GstPhotographyWhiteBalanceMode</span></a> *wb_mode</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-get-color-tone-mode" title="gst_photography_get_color_tone_mode ()">gst_photography_get_color_tone_mode</a> (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyColorToneMode" title="enum GstPhotographyColorToneMode"><span class="type">GstPhotographyColorToneMode</span></a> *tone_mode</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-get-scene-mode" title="gst_photography_get_scene_mode ()">gst_photography_get_scene_mode</a>      (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstSceneMode" title="enum GstSceneMode"><span class="type">GstSceneMode</span></a> *scene_mode</code></em>);
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographySceneMode" title="enum GstPhotographySceneMode"><span class="type">GstPhotographySceneMode</span></a> *scene_mode</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-get-flash-mode" title="gst_photography_get_flash_mode ()">gst_photography_get_flash_mode</a>      (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstFlashMode" title="enum GstFlashMode"><span class="type">GstFlashMode</span></a> *flash_mode</code></em>);
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyFlashMode" title="enum GstPhotographyFlashMode"><span class="type">GstPhotographyFlashMode</span></a> *flash_mode</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-get-noise-reduction" title="gst_photography_get_noise_reduction ()">gst_photography_get_noise_reduction</a> (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
                                                          <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyNoiseReduction" title="enum GstPhotographyNoiseReduction"><span class="type">GstPhotographyNoiseReduction</span></a> *noise_reduction</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-get-zoom" title="gst_photography_get_zoom ()">gst_photography_get_zoom</a>            (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
@@ -87,29 +88,28 @@ enum                <a class="link" href="GstPhotography.html#GstPhotoShakeRisk"
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> exposure</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-set-white-balance-mode" title="gst_photography_set_white_balance_mode ()">gst_photography_set_white_balance_mode</a>
                                                         (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstWhiteBalanceMode" title="enum GstWhiteBalanceMode"><span class="type">GstWhiteBalanceMode</span></a> wb_mode</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-set-colour-tone-mode" title="gst_photography_set_colour_tone_mode ()">gst_photography_set_colour_tone_mode</a>
-                                                        (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstColourToneMode" title="enum GstColourToneMode"><span class="type">GstColourToneMode</span></a> tone_mode</code></em>);
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyWhiteBalanceMode" title="enum GstPhotographyWhiteBalanceMode"><span class="type">GstPhotographyWhiteBalanceMode</span></a> wb_mode</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-set-color-tone-mode" title="gst_photography_set_color_tone_mode ()">gst_photography_set_color_tone_mode</a> (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyColorToneMode" title="enum GstPhotographyColorToneMode"><span class="type">GstPhotographyColorToneMode</span></a> tone_mode</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-set-scene-mode" title="gst_photography_set_scene_mode ()">gst_photography_set_scene_mode</a>      (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstSceneMode" title="enum GstSceneMode"><span class="type">GstSceneMode</span></a> scene_mode</code></em>);
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographySceneMode" title="enum GstPhotographySceneMode"><span class="type">GstPhotographySceneMode</span></a> scene_mode</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-set-flash-mode" title="gst_photography_set_flash_mode ()">gst_photography_set_flash_mode</a>      (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstFlashMode" title="enum GstFlashMode"><span class="type">GstFlashMode</span></a> flash_mode</code></em>);
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyFlashMode" title="enum GstPhotographyFlashMode"><span class="type">GstPhotographyFlashMode</span></a> flash_mode</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-set-noise-reduction" title="gst_photography_set_noise_reduction ()">gst_photography_set_noise_reduction</a> (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
                                                          <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyNoiseReduction" title="enum GstPhotographyNoiseReduction"><span class="type">GstPhotographyNoiseReduction</span></a> noise_reduction</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-set-zoom" title="gst_photography_set_zoom ()">gst_photography_set_zoom</a>            (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gfloat"><span class="type">gfloat</span></a> zoom</code></em>);
-<a class="link" href="GstPhotography.html#GstPhotoCaps" title="enum GstPhotoCaps"><span class="returnvalue">GstPhotoCaps</span></a>        <a class="link" href="GstPhotography.html#gst-photography-get-capabilities" title="gst_photography_get_capabilities ()">gst_photography_get_capabilities</a>    (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>);
+<a class="link" href="GstPhotography.html#GstPhotographyCaps" title="enum GstPhotographyCaps"><span class="returnvalue">GstPhotographyCaps</span></a>  <a class="link" href="GstPhotography.html#gst-photography-get-capabilities" title="gst_photography_get_capabilities ()">gst_photography_get_capabilities</a>    (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-prepare-for-capture" title="gst_photography_prepare_for_capture ()">gst_photography_prepare_for_capture</a> (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotoCapturePrepared" title="GstPhotoCapturePrepared ()"><span class="type">GstPhotoCapturePrepared</span></a> func</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyCapturePrepared" title="GstPhotographyCapturePrepared ()"><span class="type">GstPhotographyCapturePrepared</span></a> func</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *capture_caps</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="GstPhotography.html#gst-photography-set-autofocus" title="gst_photography_set_autofocus ()">gst_photography_set_autofocus</a>       (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> on</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-set-config" title="gst_photography_set_config ()">gst_photography_set_config</a>          (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><span class="type">GstPhotoSettings</span> *config</code></em>);
+                                                         <em class="parameter"><code><span class="type">GstPhotographySettings</span> *config</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="GstPhotography.html#gst-photography-get-config" title="gst_photography_get_config ()">gst_photography_get_config</a>          (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><span class="type">GstPhotoSettings</span> *config</code></em>);
+                                                         <em class="parameter"><code><span class="type">GstPhotographySettings</span> *config</code></em>);
 </pre>
 </div>
 <div class="refsect1">
@@ -130,16 +130,16 @@ GstPhotography requires
 <pre class="synopsis">
   "<a class="link" href="GstPhotography.html#GstPhotography--aperture" title='The "aperture" property'>aperture</a>"                 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>                 : Read / Write
   "<a class="link" href="GstPhotography.html#GstPhotography--capabilities" title='The "capabilities" property'>capabilities</a>"             <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gulong"><span class="type">gulong</span></a>                : Read
-  "<a class="link" href="GstPhotography.html#GstPhotography--colour-tone-mode" title='The "colour-tone-mode" property'>colour-tone-mode</a>"         <a class="link" href="GstPhotography.html#GstColourToneMode" title="enum GstColourToneMode"><span class="type">GstColourToneMode</span></a>     : Read / Write
+  "<a class="link" href="GstPhotography.html#GstPhotography--colour-tone-mode" title='The "colour-tone-mode" property'>colour-tone-mode</a>"         <span class="type">GstColourToneMode</span>     : Read / Write
   "<a class="link" href="GstPhotography.html#GstPhotography--ev-compensation" title='The "ev-compensation" property'>ev-compensation</a>"          <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gfloat"><span class="type">gfloat</span></a>                : Read / Write
   "<a class="link" href="GstPhotography.html#GstPhotography--exposure" title='The "exposure" property'>exposure</a>"                 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>                 : Read / Write
-  "<a class="link" href="GstPhotography.html#GstPhotography--flash-mode" title='The "flash-mode" property'>flash-mode</a>"               <a class="link" href="GstPhotography.html#GstFlashMode" title="enum GstFlashMode"><span class="type">GstFlashMode</span></a>          : Read / Write
-  "<a class="link" href="GstPhotography.html#GstPhotography--flicker-mode" title='The "flicker-mode" property'>flicker-mode</a>"             <a class="link" href="GstPhotography.html#GstFlickerReductionMode" title="enum GstFlickerReductionMode"><span class="type">GstFlickerReductionMode</span></a>  : Read / Write
-  "<a class="link" href="GstPhotography.html#GstPhotography--focus-mode" title='The "focus-mode" property'>focus-mode</a>"               <a class="link" href="GstPhotography.html#GstFocusMode" title="enum GstFocusMode"><span class="type">GstFocusMode</span></a>          : Read / Write
+  "<a class="link" href="GstPhotography.html#GstPhotography--flash-mode" title='The "flash-mode" property'>flash-mode</a>"               <span class="type">GstFlashMode</span>          : Read / Write
+  "<a class="link" href="GstPhotography.html#GstPhotography--flicker-mode" title='The "flicker-mode" property'>flicker-mode</a>"             <span class="type">GstFlickerReductionMode</span>  : Read / Write
+  "<a class="link" href="GstPhotography.html#GstPhotography--focus-mode" title='The "focus-mode" property'>focus-mode</a>"               <span class="type">GstFocusMode</span>          : Read / Write
   "<a class="link" href="GstPhotography.html#GstPhotography--image-capture-supported-caps" title='The "image-capture-supported-caps" property'>image-capture-supported-caps</a>" <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a>*              : Read
   "<a class="link" href="GstPhotography.html#GstPhotography--iso-speed" title='The "iso-speed" property'>iso-speed</a>"                <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>                 : Read / Write
-  "<a class="link" href="GstPhotography.html#GstPhotography--scene-mode" title='The "scene-mode" property'>scene-mode</a>"               <a class="link" href="GstPhotography.html#GstSceneMode" title="enum GstSceneMode"><span class="type">GstSceneMode</span></a>          : Read / Write
-  "<a class="link" href="GstPhotography.html#GstPhotography--white-balance-mode" title='The "white-balance-mode" property'>white-balance-mode</a>"       <a class="link" href="GstPhotography.html#GstWhiteBalanceMode" title="enum GstWhiteBalanceMode"><span class="type">GstWhiteBalanceMode</span></a>   : Read / Write
+  "<a class="link" href="GstPhotography.html#GstPhotography--scene-mode" title='The "scene-mode" property'>scene-mode</a>"               <span class="type">GstSceneMode</span>          : Read / Write
+  "<a class="link" href="GstPhotography.html#GstPhotography--white-balance-mode" title='The "white-balance-mode" property'>white-balance-mode</a>"       <span class="type">GstWhiteBalanceMode</span>   : Read / Write
   "<a class="link" href="GstPhotography.html#GstPhotography--image-preview-supported-caps" title='The "image-preview-supported-caps" property'>image-preview-supported-caps</a>" <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a>*              : Read
   "<a class="link" href="GstPhotography.html#GstPhotography--noise-reduction" title='The "noise-reduction" property'>noise-reduction</a>"          <a class="link" href="GstPhotography.html#GstPhotographyNoiseReduction" title="enum GstPhotographyNoiseReduction"><span class="type">GstPhotographyNoiseReduction</span></a>  : Read / Write
   "<a class="link" href="GstPhotography.html#GstPhotography--zoom" title='The "zoom" property'>zoom</a>"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gfloat"><span class="type">gfloat</span></a>                : Read / Write
@@ -160,6 +160,22 @@ GstPhotography requires
 </div>
 <hr>
 <div class="refsect2">
+<a name="GST-PHOTOGRAPHY-AUTOFOCUS-DONE:CAPS"></a><h3>GST_PHOTOGRAPHY_AUTOFOCUS_DONE</h3>
+<pre class="programlisting">#define GST_PHOTOGRAPHY_AUTOFOCUS_DONE "autofocus-done"
+</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GST-PHOTOGRAPHY-SHAKE-RISK:CAPS"></a><h3>GST_PHOTOGRAPHY_SHAKE_RISK</h3>
+<pre class="programlisting">#define GST_PHOTOGRAPHY_SHAKE_RISK "shake-risk"
+</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2">
 <a name="GstPhotographyNoiseReduction"></a><h3>enum GstPhotographyNoiseReduction</h3>
 <pre class="programlisting">typedef enum {
   GST_PHOTOGRAPHY_NOISE_REDUCTION_BAYER = ( 1&lt;&lt;0 ),
@@ -174,43 +190,44 @@ GstPhotography requires
 </div>
 <hr>
 <div class="refsect2">
-<a name="GstWhiteBalanceMode"></a><h3>enum GstWhiteBalanceMode</h3>
+<a name="GstPhotographyWhiteBalanceMode"></a><h3>enum GstPhotographyWhiteBalanceMode</h3>
 <pre class="programlisting">typedef enum {
   GST_PHOTOGRAPHY_WB_MODE_AUTO = 0,
   GST_PHOTOGRAPHY_WB_MODE_DAYLIGHT,
   GST_PHOTOGRAPHY_WB_MODE_CLOUDY,
   GST_PHOTOGRAPHY_WB_MODE_SUNSET,
   GST_PHOTOGRAPHY_WB_MODE_TUNGSTEN,
-  GST_PHOTOGRAPHY_WB_MODE_FLUORESCENT
-} GstWhiteBalanceMode;
+  GST_PHOTOGRAPHY_WB_MODE_FLUORESCENT,
+  GST_PHOTOGRAPHY_WB_MODE_MANUAL
+} GstPhotographyWhiteBalanceMode;
 </pre>
 <p>
 </p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="GstColourToneMode"></a><h3>enum GstColourToneMode</h3>
+<a name="GstPhotographyColorToneMode"></a><h3>enum GstPhotographyColorToneMode</h3>
 <pre class="programlisting">typedef enum {
-  GST_PHOTOGRAPHY_COLOUR_TONE_MODE_NORMAL = 0,
-  GST_PHOTOGRAPHY_COLOUR_TONE_MODE_SEPIA,
-  GST_PHOTOGRAPHY_COLOUR_TONE_MODE_NEGATIVE,
-  GST_PHOTOGRAPHY_COLOUR_TONE_MODE_GRAYSCALE,
-  GST_PHOTOGRAPHY_COLOUR_TONE_MODE_NATURAL,
-  GST_PHOTOGRAPHY_COLOUR_TONE_MODE_VIVID,
-  GST_PHOTOGRAPHY_COLOUR_TONE_MODE_COLORSWAP,
-  GST_PHOTOGRAPHY_COLOUR_TONE_MODE_SOLARIZE,
-  GST_PHOTOGRAPHY_COLOUR_TONE_MODE_OUT_OF_FOCUS,
-  GST_PHOTOGRAPHY_COLOUR_TONE_MODE_SKY_BLUE,
-  GST_PHOTOGRAPHY_COLOUR_TONE_MODE_GRASS_GREEN,
-  GST_PHOTOGRAPHY_COLOUR_TONE_MODE_SKIN_WHITEN
-} GstColourToneMode;
+  GST_PHOTOGRAPHY_COLOR_TONE_MODE_NORMAL = 0,
+  GST_PHOTOGRAPHY_COLOR_TONE_MODE_SEPIA,
+  GST_PHOTOGRAPHY_COLOR_TONE_MODE_NEGATIVE,
+  GST_PHOTOGRAPHY_COLOR_TONE_MODE_GRAYSCALE,
+  GST_PHOTOGRAPHY_COLOR_TONE_MODE_NATURAL,
+  GST_PHOTOGRAPHY_COLOR_TONE_MODE_VIVID,
+  GST_PHOTOGRAPHY_COLOR_TONE_MODE_COLORSWAP,
+  GST_PHOTOGRAPHY_COLOR_TONE_MODE_SOLARIZE,
+  GST_PHOTOGRAPHY_COLOR_TONE_MODE_OUT_OF_FOCUS,
+  GST_PHOTOGRAPHY_COLOR_TONE_MODE_SKY_BLUE,
+  GST_PHOTOGRAPHY_COLOR_TONE_MODE_GRASS_GREEN,
+  GST_PHOTOGRAPHY_COLOR_TONE_MODE_SKIN_WHITEN
+} GstPhotographyColorToneMode;
 </pre>
 <p>
 </p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="GstSceneMode"></a><h3>enum GstSceneMode</h3>
+<a name="GstPhotographySceneMode"></a><h3>enum GstPhotographySceneMode</h3>
 <pre class="programlisting">typedef enum {
   GST_PHOTOGRAPHY_SCENE_MODE_MANUAL = 0,
   GST_PHOTOGRAPHY_SCENE_MODE_CLOSEUP,
@@ -219,41 +236,41 @@ GstPhotography requires
   GST_PHOTOGRAPHY_SCENE_MODE_SPORT,
   GST_PHOTOGRAPHY_SCENE_MODE_NIGHT,
   GST_PHOTOGRAPHY_SCENE_MODE_AUTO
-} GstSceneMode;
+} GstPhotographySceneMode;
 </pre>
 <p>
 </p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="GstFlashMode"></a><h3>enum GstFlashMode</h3>
+<a name="GstPhotographyFlashMode"></a><h3>enum GstPhotographyFlashMode</h3>
 <pre class="programlisting">typedef enum {
   GST_PHOTOGRAPHY_FLASH_MODE_AUTO = 0,
   GST_PHOTOGRAPHY_FLASH_MODE_OFF,
   GST_PHOTOGRAPHY_FLASH_MODE_ON,
   GST_PHOTOGRAPHY_FLASH_MODE_FILL_IN,
   GST_PHOTOGRAPHY_FLASH_MODE_RED_EYE
-} GstFlashMode;
+} GstPhotographyFlashMode;
 </pre>
 <p>
 </p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="GstFlickerReductionMode"></a><h3>enum GstFlickerReductionMode</h3>
+<a name="GstPhotographyFlickerReductionMode"></a><h3>enum GstPhotographyFlickerReductionMode</h3>
 <pre class="programlisting">typedef enum {
   GST_PHOTOGRAPHY_FLICKER_REDUCTION_OFF = 0,
   GST_PHOTOGRAPHY_FLICKER_REDUCTION_50HZ,
   GST_PHOTOGRAPHY_FLICKER_REDUCTION_60HZ,
   GST_PHOTOGRAPHY_FLICKER_REDUCTION_AUTO,
-} GstFlickerReductionMode;
+} GstPhotographyFlickerReductionMode;
 </pre>
 <p>
 </p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="GstFocusMode"></a><h3>enum GstFocusMode</h3>
+<a name="GstPhotographyFocusMode"></a><h3>enum GstPhotographyFocusMode</h3>
 <pre class="programlisting">typedef enum {
     GST_PHOTOGRAPHY_FOCUS_MODE_AUTO = 0,
     GST_PHOTOGRAPHY_FOCUS_MODE_MACRO,
@@ -263,27 +280,28 @@ GstPhotography requires
     GST_PHOTOGRAPHY_FOCUS_MODE_EXTENDED,
     GST_PHOTOGRAPHY_FOCUS_MODE_CONTINUOUS_NORMAL,
     GST_PHOTOGRAPHY_FOCUS_MODE_CONTINUOUS_EXTENDED,
-} GstFocusMode;
+    GST_PHOTOGRAPHY_FOCUS_MODE_MANUAL
+} GstPhotographyFocusMode;
 </pre>
 <p>
 </p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="GstFocusStatus"></a><h3>enum GstFocusStatus</h3>
+<a name="GstPhotographyFocusStatus"></a><h3>enum GstPhotographyFocusStatus</h3>
 <pre class="programlisting">typedef enum {
   GST_PHOTOGRAPHY_FOCUS_STATUS_NONE = 0,
   GST_PHOTOGRAPHY_FOCUS_STATUS_RUNNING,
   GST_PHOTOGRAPHY_FOCUS_STATUS_FAIL,
   GST_PHOTOGRAPHY_FOCUS_STATUS_SUCCESS
-} GstFocusStatus;
+} GstPhotographyFocusStatus;
 </pre>
 <p>
 </p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="GstPhotoCaps"></a><h3>enum GstPhotoCaps</h3>
+<a name="GstPhotographyCaps"></a><h3>enum GstPhotographyCaps</h3>
 <pre class="programlisting">typedef enum {
   GST_PHOTOGRAPHY_CAPS_NONE = (0 &lt;&lt; 0),
   GST_PHOTOGRAPHY_CAPS_EV_COMP = (1 &lt;&lt; 0),
@@ -297,30 +315,31 @@ GstPhotography requires
   GST_PHOTOGRAPHY_CAPS_APERTURE = (1 &lt;&lt; 8),
   GST_PHOTOGRAPHY_CAPS_EXPOSURE = (1 &lt;&lt; 9),
   GST_PHOTOGRAPHY_CAPS_SHAKE = (1 &lt;&lt; 10),
-  GST_PHOTOGRAPHY_CAPS_NOISE_REDUCTION = (1 &lt;&lt; 11),
-  GST_PHOTOGRAPHY_CAPS_FLICKER_REDUCTION = (1 &lt;&lt; 12),
+  GST_PHOTOGRAPHY_CAPS_WHITE_BALANCE = (1 &lt;&lt; 11),
+  GST_PHOTOGRAPHY_CAPS_NOISE_REDUCTION = (1 &lt;&lt; 12),
+  GST_PHOTOGRAPHY_CAPS_FLICKER_REDUCTION = (1 &lt;&lt; 13),
   GST_PHOTOGRAPHY_CAPS_ALL = (~0)
-} GstPhotoCaps;
+} GstPhotographyCaps;
 </pre>
 <p>
 </p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="GstPhotoShakeRisk"></a><h3>enum GstPhotoShakeRisk</h3>
+<a name="GstPhotographyShakeRisk"></a><h3>enum GstPhotographyShakeRisk</h3>
 <pre class="programlisting">typedef enum {
   GST_PHOTOGRAPHY_SHAKE_RISK_LOW = 0,
   GST_PHOTOGRAPHY_SHAKE_RISK_MEDIUM,
   GST_PHOTOGRAPHY_SHAKE_RISK_HIGH,
-} GstPhotoShakeRisk;
+} GstPhotographyShakeRisk;
 </pre>
 <p>
 </p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="GstPhotoCapturePrepared"></a><h3>GstPhotoCapturePrepared ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>                (*GstPhotoCapturePrepared)          (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>,
+<a name="GstPhotographyCapturePrepared"></a><h3>GstPhotographyCapturePrepared ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                (*GstPhotographyCapturePrepared)    (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>,
                                                          <em class="parameter"><code>const <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *configured_caps</code></em>);</pre>
 <p>
 </p>
@@ -362,16 +381,15 @@ GstPhotography requires
 <a name="gst-photography-get-white-balance-mode"></a><h3>gst_photography_get_white_balance_mode ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_photography_get_white_balance_mode
                                                         (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstWhiteBalanceMode" title="enum GstWhiteBalanceMode"><span class="type">GstWhiteBalanceMode</span></a> *wb_mode</code></em>);</pre>
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyWhiteBalanceMode" title="enum GstPhotographyWhiteBalanceMode"><span class="type">GstPhotographyWhiteBalanceMode</span></a> *wb_mode</code></em>);</pre>
 <p>
 </p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="gst-photography-get-colour-tone-mode"></a><h3>gst_photography_get_colour_tone_mode ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_photography_get_colour_tone_mode
-                                                        (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstColourToneMode" title="enum GstColourToneMode"><span class="type">GstColourToneMode</span></a> *tone_mode</code></em>);</pre>
+<a name="gst-photography-get-color-tone-mode"></a><h3>gst_photography_get_color_tone_mode ()</h3>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_photography_get_color_tone_mode (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyColorToneMode" title="enum GstPhotographyColorToneMode"><span class="type">GstPhotographyColorToneMode</span></a> *tone_mode</code></em>);</pre>
 <p>
 </p>
 </div>
@@ -379,7 +397,7 @@ GstPhotography requires
 <div class="refsect2">
 <a name="gst-photography-get-scene-mode"></a><h3>gst_photography_get_scene_mode ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_photography_get_scene_mode      (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstSceneMode" title="enum GstSceneMode"><span class="type">GstSceneMode</span></a> *scene_mode</code></em>);</pre>
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographySceneMode" title="enum GstPhotographySceneMode"><span class="type">GstPhotographySceneMode</span></a> *scene_mode</code></em>);</pre>
 <p>
 </p>
 </div>
@@ -387,7 +405,7 @@ GstPhotography requires
 <div class="refsect2">
 <a name="gst-photography-get-flash-mode"></a><h3>gst_photography_get_flash_mode ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_photography_get_flash_mode      (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstFlashMode" title="enum GstFlashMode"><span class="type">GstFlashMode</span></a> *flash_mode</code></em>);</pre>
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyFlashMode" title="enum GstPhotographyFlashMode"><span class="type">GstPhotographyFlashMode</span></a> *flash_mode</code></em>);</pre>
 <p>
 </p>
 </div>
@@ -444,16 +462,15 @@ GstPhotography requires
 <a name="gst-photography-set-white-balance-mode"></a><h3>gst_photography_set_white_balance_mode ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_photography_set_white_balance_mode
                                                         (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstWhiteBalanceMode" title="enum GstWhiteBalanceMode"><span class="type">GstWhiteBalanceMode</span></a> wb_mode</code></em>);</pre>
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyWhiteBalanceMode" title="enum GstPhotographyWhiteBalanceMode"><span class="type">GstPhotographyWhiteBalanceMode</span></a> wb_mode</code></em>);</pre>
 <p>
 </p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="gst-photography-set-colour-tone-mode"></a><h3>gst_photography_set_colour_tone_mode ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_photography_set_colour_tone_mode
-                                                        (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstColourToneMode" title="enum GstColourToneMode"><span class="type">GstColourToneMode</span></a> tone_mode</code></em>);</pre>
+<a name="gst-photography-set-color-tone-mode"></a><h3>gst_photography_set_color_tone_mode ()</h3>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_photography_set_color_tone_mode (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyColorToneMode" title="enum GstPhotographyColorToneMode"><span class="type">GstPhotographyColorToneMode</span></a> tone_mode</code></em>);</pre>
 <p>
 </p>
 </div>
@@ -461,7 +478,7 @@ GstPhotography requires
 <div class="refsect2">
 <a name="gst-photography-set-scene-mode"></a><h3>gst_photography_set_scene_mode ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_photography_set_scene_mode      (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstSceneMode" title="enum GstSceneMode"><span class="type">GstSceneMode</span></a> scene_mode</code></em>);</pre>
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographySceneMode" title="enum GstPhotographySceneMode"><span class="type">GstPhotographySceneMode</span></a> scene_mode</code></em>);</pre>
 <p>
 </p>
 </div>
@@ -469,7 +486,7 @@ GstPhotography requires
 <div class="refsect2">
 <a name="gst-photography-set-flash-mode"></a><h3>gst_photography_set_flash_mode ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_photography_set_flash_mode      (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstFlashMode" title="enum GstFlashMode"><span class="type">GstFlashMode</span></a> flash_mode</code></em>);</pre>
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyFlashMode" title="enum GstPhotographyFlashMode"><span class="type">GstPhotographyFlashMode</span></a> flash_mode</code></em>);</pre>
 <p>
 </p>
 </div>
@@ -492,7 +509,7 @@ GstPhotography requires
 <hr>
 <div class="refsect2">
 <a name="gst-photography-get-capabilities"></a><h3>gst_photography_get_capabilities ()</h3>
-<pre class="programlisting"><a class="link" href="GstPhotography.html#GstPhotoCaps" title="enum GstPhotoCaps"><span class="returnvalue">GstPhotoCaps</span></a>        gst_photography_get_capabilities    (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>);</pre>
+<pre class="programlisting"><a class="link" href="GstPhotography.html#GstPhotographyCaps" title="enum GstPhotographyCaps"><span class="returnvalue">GstPhotographyCaps</span></a>  gst_photography_get_capabilities    (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>);</pre>
 <p>
 </p>
 </div>
@@ -500,7 +517,7 @@ GstPhotography requires
 <div class="refsect2">
 <a name="gst-photography-prepare-for-capture"></a><h3>gst_photography_prepare_for_capture ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_photography_prepare_for_capture (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotoCapturePrepared" title="GstPhotoCapturePrepared ()"><span class="type">GstPhotoCapturePrepared</span></a> func</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyCapturePrepared" title="GstPhotographyCapturePrepared ()"><span class="type">GstPhotographyCapturePrepared</span></a> func</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *capture_caps</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
 <p>
@@ -518,7 +535,7 @@ GstPhotography requires
 <div class="refsect2">
 <a name="gst-photography-set-config"></a><h3>gst_photography_set_config ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_photography_set_config          (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><span class="type">GstPhotoSettings</span> *config</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">GstPhotographySettings</span> *config</code></em>);</pre>
 <p>
 </p>
 </div>
@@ -526,7 +543,7 @@ GstPhotography requires
 <div class="refsect2">
 <a name="gst-photography-get-config"></a><h3>gst_photography_get_config ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_photography_get_config          (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
-                                                         <em class="parameter"><code><span class="type">GstPhotoSettings</span> *config</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">GstPhotographySettings</span> *config</code></em>);</pre>
 <p>
 </p>
 </div>
@@ -549,7 +566,7 @@ GstPhotography requires
 <hr>
 <div class="refsect2">
 <a name="GstPhotography--colour-tone-mode"></a><h3>The <code class="literal">"colour-tone-mode"</code> property</h3>
-<pre class="programlisting">  "colour-tone-mode"         <a class="link" href="GstPhotography.html#GstColourToneMode" title="enum GstColourToneMode"><span class="type">GstColourToneMode</span></a>     : Read / Write</pre>
+<pre class="programlisting">  "colour-tone-mode"         <span class="type">GstColourToneMode</span>     : Read / Write</pre>
 <p>Colour tone setting changes colour shading in the photo.</p>
 <p>Default value: GST_PHOTOGRAPHY_COLOUR_TONE_MODE_NORMAL</p>
 </div>
@@ -571,21 +588,21 @@ GstPhotography requires
 <hr>
 <div class="refsect2">
 <a name="GstPhotography--flash-mode"></a><h3>The <code class="literal">"flash-mode"</code> property</h3>
-<pre class="programlisting">  "flash-mode"               <a class="link" href="GstPhotography.html#GstFlashMode" title="enum GstFlashMode"><span class="type">GstFlashMode</span></a>          : Read / Write</pre>
+<pre class="programlisting">  "flash-mode"               <span class="type">GstFlashMode</span>          : Read / Write</pre>
 <p>Flash mode defines how the flash light should be used.</p>
 <p>Default value: GST_PHOTOGRAPHY_FLASH_MODE_AUTO</p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="GstPhotography--flicker-mode"></a><h3>The <code class="literal">"flicker-mode"</code> property</h3>
-<pre class="programlisting">  "flicker-mode"             <a class="link" href="GstPhotography.html#GstFlickerReductionMode" title="enum GstFlickerReductionMode"><span class="type">GstFlickerReductionMode</span></a>  : Read / Write</pre>
+<pre class="programlisting">  "flicker-mode"             <span class="type">GstFlickerReductionMode</span>  : Read / Write</pre>
 <p>Flicker reduction mode defines a line frequency for flickering prevention.</p>
 <p>Default value: GST_PHOTOGRAPHY_FLICKER_REDUCTION_OFF</p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="GstPhotography--focus-mode"></a><h3>The <code class="literal">"focus-mode"</code> property</h3>
-<pre class="programlisting">  "focus-mode"               <a class="link" href="GstPhotography.html#GstFocusMode" title="enum GstFocusMode"><span class="type">GstFocusMode</span></a>          : Read / Write</pre>
+<pre class="programlisting">  "focus-mode"               <span class="type">GstFocusMode</span>          : Read / Write</pre>
 <p>Focus mode defines the range of focal lengths to use in autofocus search.</p>
 <p>Default value: GST_PHOTOGRAPHY_FOCUS_MODE_AUTO</p>
 </div>
@@ -606,14 +623,14 @@ GstPhotography requires
 <hr>
 <div class="refsect2">
 <a name="GstPhotography--scene-mode"></a><h3>The <code class="literal">"scene-mode"</code> property</h3>
-<pre class="programlisting">  "scene-mode"               <a class="link" href="GstPhotography.html#GstSceneMode" title="enum GstSceneMode"><span class="type">GstSceneMode</span></a>          : Read / Write</pre>
+<pre class="programlisting">  "scene-mode"               <span class="type">GstSceneMode</span>          : Read / Write</pre>
 <p>Scene mode works as a preset for different photo shooting mode settings.</p>
 <p>Default value: GST_PHOTOGRAPHY_SCENE_MODE_AUTO</p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="GstPhotography--white-balance-mode"></a><h3>The <code class="literal">"white-balance-mode"</code> property</h3>
-<pre class="programlisting">  "white-balance-mode"       <a class="link" href="GstPhotography.html#GstWhiteBalanceMode" title="enum GstWhiteBalanceMode"><span class="type">GstWhiteBalanceMode</span></a>   : Read / Write</pre>
+<pre class="programlisting">  "white-balance-mode"       <span class="type">GstWhiteBalanceMode</span>   : Read / Write</pre>
 <p>White balance affects the color temperature of the photo.</p>
 <p>Default value: GST_PHOTOGRAPHY_WB_MODE_AUTO</p>
 </div>

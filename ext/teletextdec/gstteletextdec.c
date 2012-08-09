@@ -288,6 +288,8 @@ gst_teletextdec_init (GstTeletextDec * teletext, GstTeletextDecClass * klass)
 
   teletext->frame = g_new0 (GstTeletextFrame, 1);
   teletext->frame->sliced_begin = g_new (vbi_sliced, MAX_SLICES);
+  teletext->frame->current_slice = teletext->frame->sliced_begin;
+  teletext->frame->sliced_end = teletext->frame->sliced_begin + MAX_SLICES;
 
   teletext->last_ts = 0;
 
@@ -909,7 +911,7 @@ gst_teletextdec_export_html_page (GstTeletextDec * teletext, vbi_page * page,
   GstCaps *caps;
   GstFlowReturn ret;
   gchar *html;
-  guint size;
+  gssize size;
   vbi_export *ex;
   gchar *err;
 
@@ -1133,11 +1135,14 @@ gst_teletextdec_line_address (GstTeletextDec * teletext,
       return VBI_NEW_FRAME;
     }
 
+    /* FIXME : This never happens, since lofp is a guint8 */
+#if 0
     /* new segment flag */
     if (lofp < 0) {
       GST_LOG_OBJECT (teletext, "New frame");
       return VBI_NEW_FRAME;
     }
+#endif
 
     frame->last_field = field;
     frame->last_field_line = field_line;

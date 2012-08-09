@@ -672,14 +672,17 @@ setup_pipeline (void)
 
   bus = gst_pipeline_get_bus (GST_PIPELINE (camerabin));
   /* Add sync handler for time critical messages that need to be handled fast */
-  gst_bus_set_sync_handler (bus, sync_bus_callback, NULL);
+  gst_bus_set_sync_handler (bus, sync_bus_callback, NULL, NULL);
   /* Handle normal messages asynchronously */
   gst_bus_add_watch (bus, bus_callback, NULL);
   gst_object_unref (bus);
 
   GST_INFO_OBJECT (camerabin, "camerabin created");
 
-  gst_util_set_object_arg (G_OBJECT (camerabin), "flags", camerabin_flags);
+  if (camerabin_flags)
+    gst_util_set_object_arg (G_OBJECT (camerabin), "flags", camerabin_flags);
+  else
+    gst_util_set_object_arg (G_OBJECT (camerabin), "flags", "");
 
   if (videosrc_name) {
     GstElement *wrapper;

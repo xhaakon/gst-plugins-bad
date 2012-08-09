@@ -407,7 +407,7 @@ gst_timidity_src_event (GstPad * pad, GstEvent * event)
       gst_segment_set_seek (timidity->o_segment, rate, dst_format, flags,
           start_type, start, stop_type, stop, &update);
 
-      if ((flags && GST_SEEK_FLAG_SEGMENT) == GST_SEEK_FLAG_SEGMENT) {
+      if (flags & GST_SEEK_FLAG_SEGMENT) {
         GST_DEBUG_OBJECT (timidity, "received segment seek %d, %d",
             (gint) start_type, (gint) stop_type);
       } else {
@@ -423,7 +423,7 @@ gst_timidity_src_event (GstPad * pad, GstEvent * event)
       timidity->o_seek = TRUE;
 
       gst_pad_start_task (timidity->sinkpad,
-          (GstTaskFunction) gst_timidity_loop, timidity->sinkpad);
+          (GstTaskFunction) gst_timidity_loop, timidity->sinkpad, NULL);
 
       GST_PAD_STREAM_UNLOCK (timidity->sinkpad);
       GST_DEBUG ("seek done");
@@ -451,7 +451,8 @@ static gboolean
 gst_timidity_activatepull (GstPad * pad, gboolean active)
 {
   if (active) {
-    return gst_pad_start_task (pad, (GstTaskFunction) gst_timidity_loop, pad);
+    return gst_pad_start_task (pad, (GstTaskFunction) gst_timidity_loop, pad,
+        NULL);
   } else {
     return gst_pad_stop_task (pad);
   }
