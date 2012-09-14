@@ -46,7 +46,7 @@ gst_abi=$(gst_major).$(gst_minor)
 gst_lib=libgstreamer$(gst_abi)-0
 gst_lib_dev=libgstreamer$(gst_abi)-dev
 # what gstreamer version is needed
-gst_lib_dev_dep=$(gst_lib_dev) (>= 0.11.93)
+gst_lib_dev_dep=$(gst_lib_dev) (>= 0.11.94)
 
 gst_pkgname=gstreamer$(gst_abi)
 gst_deb_abi=$(gst_abi)-0
@@ -55,6 +55,8 @@ gst_extra_build_depends =
 gst_extra_build_depends += libasound2-dev (>= 0.9.1) [linux-any]
 gst_extra_build_depends += , libcdaudio-dev [linux-any]
 gst_extra_build_depends += , libdc1394-22-dev (>= 2.0.0) [linux-any]
+gst_extra_build_depends += , libgudev-1.0-dev (>= 143) [linux-any]
+gst_extra_build_depends += , libusb-1.0-0-dev [linux-any]
 
 # The plugins are basically the same.
 # Link special names to a template file.
@@ -86,6 +88,7 @@ cdaudio = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstcd
 dc1394 = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstdc1394.so
 decklink = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstdecklink.so
 linsys = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstlinsys.so
+uvch264 = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstuvch264.so
 endif
 
 ifeq ($(DEB_HOST_ARCH_OS),kfreebsd)
@@ -93,7 +96,7 @@ cdaudio = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstcd
 endif
 
 ifneq ($(DEB_HOST_ARCH_OS),hurd)
-resindvd = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libresindvd.so
+resindvd = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstresindvd.so
 endif
 
 # Let's decide the package name and url depending on the distribution
@@ -127,6 +130,7 @@ pre-build::
 			-e 's,@dc1394@,$(dc1394),g' \
 			-e 's,@cdaudio@,$(cdaudio),g' \
 			-e 's,@resindvd@,$(resindvd),g' \
+			-e 's,@uvch264@,$(uvch264),g' \
 			-e 's/@GST_ABI@/$(gst_abi)/g' \
 			debian/gstreamer-$$p.install \
 			> debian/$(gst_pkgname)-$$p.install; \
