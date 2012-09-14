@@ -362,6 +362,10 @@ struct _GstH264VUIParams
   guint32 log2_max_mv_length_vertical;
   guint32 num_reorder_frames;
   guint32 max_dec_frame_buffering;
+
+  /* calculated values */
+  guint par_n;
+  guint par_d;
 };
 
 /**
@@ -660,7 +664,7 @@ struct _GstH264SEIMessage
     GstH264BufferingPeriod buffering_period;
     GstH264PicTiming pic_timing;
     /* ... could implement more */
-  };
+  } payload;
 };
 
 /**

@@ -6,7 +6,7 @@
 
 Summary: GStreamer streaming media framework "bad" plug-ins
 Name: gstreamer-plugins-bad011
-Version: 0.11.93
+Version: 0.11.94
 Release: 1.gst
 # The freeze and nfs plugins are LGPLv2 (only)
 License: LGPLv2+ and LGPLv2

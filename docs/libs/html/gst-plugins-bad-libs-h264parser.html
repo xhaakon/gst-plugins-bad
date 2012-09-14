@@ -977,6 +977,10 @@ dpb_output_delay syntax element</td>
   guint32 log2_max_mv_length_vertical;
   guint32 num_reorder_frames;
   guint32 max_dec_frame_buffering;
+
+  /* calculated values */
+  guint par_n;
+  guint par_d;
 };
 </pre>
 <p>
@@ -1155,6 +1159,14 @@ or non-paired fields that precede any frame,</td>
 <td><p><span class="term"><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264VUIParams.max-dec-frame-buffering"></a>max_dec_frame_buffering</code></em>;</span></p></td>
 <td>specifies the required size of the HRD decoded picture buffer in
 units of frame buffers.</td>
+</tr>
+<tr>
+<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstH264VUIParams.par-n"></a>par_n</code></em>;</span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstH264VUIParams.par-d"></a>par_d</code></em>;</span></p></td>
+<td></td>
 </tr>
 </tbody>
 </table></div>
@@ -1342,7 +1354,7 @@ units of frame buffers.</td>
     GstH264BufferingPeriod buffering_period;
     GstH264PicTiming pic_timing;
     /* ... could implement more */
-  };
+  } payload;
 };
 </pre>
 </div>

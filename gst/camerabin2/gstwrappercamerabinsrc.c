@@ -280,9 +280,20 @@ gst_wrapper_camera_bin_src_vidsrc_probe (GstPad * pad, GstPadProbeInfo * info,
 
     ret = GST_PAD_PROBE_OK;
   } else if (self->video_rec_status == GST_VIDEO_RECORDING_STATUS_FINISHING) {
+    GstPad *peer;
+
     /* send eos */
     GST_DEBUG_OBJECT (self, "Finishing video recording, pushing eos");
-    gst_pad_push_event (pad, gst_event_new_eos ());
+
+    peer = gst_pad_get_peer (self->vidsrc);
+
+    if (peer) {
+      /* send to the peer as we don't want our pads with eos flag */
+      gst_pad_send_event (peer, gst_event_new_eos ());
+      gst_object_unref (peer);
+    } else {
+      GST_WARNING_OBJECT (camerasrc, "No peer pad for vidsrc");
+    }
     self->video_rec_status = GST_VIDEO_RECORDING_STATUS_DONE;
     gst_base_camera_src_finish_capture (camerasrc);
   } else {
@@ -1055,10 +1066,6 @@ gst_wrapper_camera_bin_src_start_capture (GstBaseCameraSrc * camerasrc)
       g_mutex_lock (&camerasrc->capturing_mutex);
       gst_caps_unref (caps);
       gst_caps_unref (anycaps);
-
-      /* We caught this event in the src pad event handler and now we want to
-       * actually push it upstream */
-      gst_pad_send_event (src->outsel_vidpad, gst_event_new_reconfigure ());
     }
     if (src->video_rec_status == GST_VIDEO_RECORDING_STATUS_DONE) {
       src->video_rec_status = GST_VIDEO_RECORDING_STATUS_STARTING;

@@ -187,7 +187,7 @@ struct _TSDemuxStream
 
 /* Can also use the subpicture pads for text subtitles? */
 #define SUBPICTURE_CAPS \
-    GST_STATIC_CAPS ("subpicture/x-pgs; video/x-dvd-subpicture")
+    GST_STATIC_CAPS ("subpicture/x-pgs; subpicture/x-dvd")
 
 static GstStaticPadTemplate video_template =
 GST_STATIC_PAD_TEMPLATE ("video_%04x", GST_PAD_SRC,
@@ -405,7 +405,8 @@ gst_ts_demux_srcpad_query (GstPad * pad, GstObject * parent, GstQuery * query)
             res = FALSE;
           else {
             GstClockTime dur =
-                mpegts_packetizer_offset_to_ts (base->packetizer, val);
+                mpegts_packetizer_offset_to_ts (base->packetizer, val,
+                demux->program->pcr_pid);
             if (GST_CLOCK_TIME_IS_VALID (dur))
               gst_query_set_duration (query, GST_FORMAT_TIME, dur);
             else
@@ -523,7 +524,7 @@ gst_ts_demux_do_seek (MpegTSBase * base, GstEvent * event)
   /* Convert start/stop to offset */
   start_offset =
       mpegts_packetizer_ts_to_offset (base->packetizer, MAX (0,
-          start - SEEK_TIMESTAMP_OFFSET));
+          start - SEEK_TIMESTAMP_OFFSET), demux->program->pcr_pid);
 
   if (G_UNLIKELY (start_offset == -1)) {
     GST_WARNING ("Couldn't convert start position to an offset");
@@ -946,7 +947,7 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
     case ST_PS_DVD_SUBPICTURE:
       template = gst_static_pad_template_get (&subpicture_template);
       name = g_strdup_printf ("subpicture_%04x", bstream->pid);
-      caps = gst_caps_new_empty_simple ("video/x-dvd-subpicture");
+      caps = gst_caps_new_empty_simple ("subpicture/x-dvd");
       break;
     case ST_BD_PGS_SUBPICTURE:
       template = gst_static_pad_template_get (&subpicture_template);
@@ -1131,59 +1132,17 @@ gst_ts_demux_program_started (MpegTSBase * base, MpegTSBaseProgram * program)
 
 
 
-static inline void
-gst_ts_demux_record_pcr (GstTSDemux * demux, TSDemuxStream * stream,
-    guint64 pcr, guint64 offset)
-{
-  MpegTSBaseStream *bs = (MpegTSBaseStream *) stream;
-
-  GST_LOG ("pid 0x%04x pcr:%" GST_TIME_FORMAT " at offset %"
-      G_GUINT64_FORMAT, bs->pid,
-      GST_TIME_ARGS (PCRTIME_TO_GSTTIME (pcr)), offset);
-
-  /* FIXME : packetizer should record this */
-
-  if (G_UNLIKELY (demux->emit_statistics)) {
-    GstStructure *st;
-    st = gst_structure_new_id_empty (QUARK_TSDEMUX);
-    gst_structure_id_set (st,
-        QUARK_PID, G_TYPE_UINT, bs->pid,
-        QUARK_OFFSET, G_TYPE_UINT64, offset, QUARK_PCR, G_TYPE_UINT64, pcr,
-        NULL);
-    gst_element_post_message (GST_ELEMENT_CAST (demux),
-        gst_message_new_element (GST_OBJECT (demux), st));
-  }
-}
-
-static inline void
-gst_ts_demux_record_opcr (GstTSDemux * demux, TSDemuxStream * stream,
-    guint64 opcr, guint64 offset)
-{
-  MpegTSBaseStream *bs = (MpegTSBaseStream *) stream;
-
-  GST_LOG ("pid 0x%04x opcr:%" GST_TIME_FORMAT " at offset %"
-      G_GUINT64_FORMAT, bs->pid,
-      GST_TIME_ARGS (PCRTIME_TO_GSTTIME (opcr)), offset);
-
-  /* FIXME : packetizer should record this */
-
-  if (G_UNLIKELY (demux->emit_statistics)) {
-    GstStructure *st;
-    st = gst_structure_new_id_empty (QUARK_TSDEMUX);
-    gst_structure_id_set (st,
-        QUARK_PID, G_TYPE_UINT, bs->pid,
-        QUARK_OFFSET, G_TYPE_UINT64, offset,
-        QUARK_OPCR, G_TYPE_UINT64, opcr, NULL);
-    gst_element_post_message (GST_ELEMENT_CAST (demux),
-        gst_message_new_element (GST_OBJECT (demux), st));
-  }
-}
 
 static inline void
 gst_ts_demux_record_pts (GstTSDemux * demux, TSDemuxStream * stream,
     guint64 pts, guint64 offset)
 {
   MpegTSBaseStream *bs = (MpegTSBaseStream *) stream;
+
+  if (pts == -1) {
+    stream->pts = GST_CLOCK_TIME_NONE;
+    return;
+  }
 
   GST_LOG ("pid 0x%04x pts:%" G_GUINT64_FORMAT " at offset %"
       G_GUINT64_FORMAT, bs->pid, pts, offset);
@@ -1230,6 +1189,11 @@ gst_ts_demux_record_dts (GstTSDemux * demux, TSDemuxStream * stream,
     guint64 dts, guint64 offset)
 {
   MpegTSBaseStream *bs = (MpegTSBaseStream *) stream;
+
+  if (dts == -1) {
+    stream->dts = GST_CLOCK_TIME_NONE;
+    return;
+  }
 
   GST_LOG ("pid 0x%04x dts:%" G_GUINT64_FORMAT " at offset %"
       G_GUINT64_FORMAT, bs->pid, dts, offset);
@@ -1290,18 +1254,12 @@ gst_ts_demux_parse_pes_header (GstTSDemux * demux, TSDemuxStream * stream,
     goto discont;
   }
 
-  if (header.DTS != -1)
-    gst_ts_demux_record_dts (demux, stream, header.DTS, bufferoffset);
+  gst_ts_demux_record_dts (demux, stream, header.DTS, bufferoffset);
+  gst_ts_demux_record_pts (demux, stream, header.PTS, bufferoffset);
 
-  if (header.PTS != -1) {
-    gst_ts_demux_record_pts (demux, stream, header.PTS, bufferoffset);
-
-    GST_DEBUG_OBJECT (base,
-        "stream PTS %" GST_TIME_FORMAT " DTS %" GST_TIME_FORMAT,
-        GST_TIME_ARGS (stream->pts),
-        GST_TIME_ARGS (MPEGTIME_TO_GSTTIME (header.DTS)));
-
-  }
+  GST_DEBUG_OBJECT (base,
+      "stream PTS %" GST_TIME_FORMAT " DTS %" GST_TIME_FORMAT,
+      GST_TIME_ARGS (stream->pts), GST_TIME_ARGS (stream->dts));
 
   /* Remove PES headers */
   GST_DEBUG ("Moving data forward by %d bytes (packet_size:%d, have:%d)",
@@ -1434,7 +1392,9 @@ calculate_and_push_newsegment (GstTSDemux * demux, TSDemuxStream * stream)
     }
   }
   if (GST_CLOCK_TIME_IS_VALID (lowest_pts))
-    firstts = mpegts_packetizer_pts_to_ts (base->packetizer, lowest_pts);
+    firstts =
+        mpegts_packetizer_pts_to_ts (base->packetizer, lowest_pts,
+        demux->program->pcr_pid);
   GST_DEBUG ("lowest_pts %" G_GUINT64_FORMAT " => clocktime %" GST_TIME_FORMAT,
       lowest_pts, GST_TIME_ARGS (firstts));
 
@@ -1536,14 +1496,17 @@ gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream)
       GST_TIME_ARGS (stream->pts));
   if (GST_CLOCK_TIME_IS_VALID (stream->pts))
     GST_BUFFER_PTS (buffer) =
-        mpegts_packetizer_pts_to_ts (packetizer, stream->pts);
+        mpegts_packetizer_pts_to_ts (packetizer, stream->pts,
+        demux->program->pcr_pid);
   if (GST_CLOCK_TIME_IS_VALID (stream->dts))
     GST_BUFFER_DTS (buffer) =
-        mpegts_packetizer_pts_to_ts (packetizer, stream->dts);
+        mpegts_packetizer_pts_to_ts (packetizer, stream->dts,
+        demux->program->pcr_pid);
 
   GST_DEBUG_OBJECT (stream->pad,
-      "Pushing buffer with timestamp: %" GST_TIME_FORMAT,
-      GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (buffer)));
+      "Pushing buffer with PTS: %" GST_TIME_FORMAT " , DTS: %" GST_TIME_FORMAT,
+      GST_TIME_ARGS (GST_BUFFER_PTS (buffer)),
+      GST_TIME_ARGS (GST_BUFFER_DTS (buffer)));
 
   res = gst_pad_push (stream->pad, buffer);
   GST_DEBUG_OBJECT (stream->pad, "Returned %s", gst_flow_get_name (res));
@@ -1582,13 +1545,6 @@ gst_ts_demux_handle_packet (GstTSDemux * demux, TSDemuxStream * stream,
       packet->adaptation_field_control & 0x1)
     /* Flush previous data */
     res = gst_ts_demux_push_pending_data (demux, stream);
-
-  if (packet->adaptation_field_control & 0x2) {
-    if (packet->afc_flags & MPEGTS_AFC_PCR_FLAG)
-      gst_ts_demux_record_pcr (demux, stream, packet->pcr, packet->offset);
-    if (packet->afc_flags & MPEGTS_AFC_OPCR_FLAG)
-      gst_ts_demux_record_opcr (demux, stream, packet->opcr, packet->offset);
-  }
 
   if (packet->payload && (res == GST_FLOW_OK || res == GST_FLOW_NOT_LINKED)
       && stream->pad) {

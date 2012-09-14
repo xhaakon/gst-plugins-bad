@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 0.11.93\n"
+"Project-Id-Version: gst-plugins-bad 0.11.94\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2012-08-08 12:04+0100\n"
+"POT-Creation-Date: 2012-09-14 02:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,26 +16,26 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ext/resindvd/resindvdsrc.c:366
+#: ext/resindvd/resindvdsrc.c:359
 msgid "Could not read title information for DVD."
 msgstr ""
 
-#: ext/resindvd/resindvdsrc.c:372
+#: ext/resindvd/resindvdsrc.c:365
 #, c-format
 msgid "Failed to open DVD device '%s'."
 msgstr ""
 
-#: ext/resindvd/resindvdsrc.c:378
+#: ext/resindvd/resindvdsrc.c:371
 msgid "Failed to set PGC based seeking."
 msgstr ""
 
-#: ext/resindvd/resindvdsrc.c:1153
+#: ext/resindvd/resindvdsrc.c:1148
 msgid ""
 "Could not read DVD. This may be because the DVD is encrypted and a DVD "
 "decryption library is not installed."
 msgstr ""
 
-#: ext/resindvd/resindvdsrc.c:1158 ext/resindvd/resindvdsrc.c:1166
+#: ext/resindvd/resindvdsrc.c:1153 ext/resindvd/resindvdsrc.c:1162
 msgid "Could not read DVD."
 msgstr ""
 
@@ -61,22 +61,22 @@ msgstr ""
 msgid "Internal data flow error."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:744 sys/dvb/gstdvbsrc.c:841
+#: sys/dvb/gstdvbsrc.c:758 sys/dvb/gstdvbsrc.c:855
 #, c-format
 msgid "Device \"%s\" does not exist."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:748
+#: sys/dvb/gstdvbsrc.c:762
 #, c-format
 msgid "Could not open frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:762
+#: sys/dvb/gstdvbsrc.c:776
 #, c-format
 msgid "Could not get settings from frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:845
+#: sys/dvb/gstdvbsrc.c:859
 #, c-format
 msgid "Could not open file \"%s\" for reading."
 msgstr ""

@@ -145,6 +145,7 @@ static void
 gst_h264_parse_init (GstH264Parse * h264parse)
 {
   h264parse->frame_out = gst_adapter_new ();
+  gst_base_parse_set_pts_interpolation (GST_BASE_PARSE (h264parse), FALSE);
 }
 
 
@@ -375,7 +376,7 @@ gst_h264_parse_wrap_nal (GstH264Parse * h264parse, guint format, guint8 * data,
 
   GST_DEBUG_OBJECT (h264parse, "nal length %d", size);
 
-  buf = gst_buffer_new_allocate (NULL, nl + size, NULL);
+  buf = gst_buffer_new_allocate (NULL, 4 + size, NULL);
   if (format == GST_H264_PARSE_FORMAT_AVC) {
     tmp = GUINT32_TO_BE (size << (32 - 8 * nl));
   } else {
@@ -388,6 +389,7 @@ gst_h264_parse_wrap_nal (GstH264Parse * h264parse, guint format, guint8 * data,
 
   gst_buffer_fill (buf, 0, &tmp, sizeof (guint32));
   gst_buffer_fill (buf, nl, data, size);
+  gst_buffer_set_size (buf, size + nl);
 
   return buf;
 }
@@ -491,10 +493,11 @@ gst_h264_parse_process_nal (GstH264Parse * h264parse, GstH264NalUnit * nalu)
       switch (sei.payloadType) {
         case GST_H264_SEI_PIC_TIMING:
           h264parse->sei_pic_struct_pres_flag =
-              sei.pic_timing.pic_struct_present_flag;
-          h264parse->sei_cpb_removal_delay = sei.pic_timing.cpb_removal_delay;
+              sei.payload.pic_timing.pic_struct_present_flag;
+          h264parse->sei_cpb_removal_delay =
+              sei.payload.pic_timing.cpb_removal_delay;
           if (h264parse->sei_pic_struct_pres_flag)
-            h264parse->sei_pic_struct = sei.pic_timing.pic_struct;
+            h264parse->sei_pic_struct = sei.payload.pic_timing.pic_struct;
           break;
         case GST_H264_SEI_BUF_PERIOD:
           if (h264parse->ts_trn_nb == GST_CLOCK_TIME_NONE ||

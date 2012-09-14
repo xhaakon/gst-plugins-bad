@@ -64,6 +64,23 @@ static GQuark QUARK_ACTUAL_NETWORK;
 static GQuark QUARK_NETWORK_NAME;
 static GQuark QUARK_ORIGINAL_NETWORK_ID;
 static GQuark QUARK_TRANSPORTS;
+static GQuark QUARK_TERRESTRIAL;
+static GQuark QUARK_CABLE;
+static GQuark QUARK_FREQUENCY;
+static GQuark QUARK_MODULATION;
+static GQuark QUARK_BANDWIDTH;
+static GQuark QUARK_CONSTELLATION;
+static GQuark QUARK_HIERARCHY;
+static GQuark QUARK_CODE_RATE_HP;
+static GQuark QUARK_CODE_RATE_LP;
+static GQuark QUARK_GUARD_INTERVAL;
+static GQuark QUARK_TRANSMISSION_MODE;
+static GQuark QUARK_OTHER_FREQUENCY;
+static GQuark QUARK_SYMBOL_RATE;
+static GQuark QUARK_INNER_FEC;
+static GQuark QUARK_DELIVERY;
+static GQuark QUARK_CHANNELS;
+static GQuark QUARK_LOGICAL_CHANNEL_NUMBER;
 
 static GQuark QUARK_SDT;
 static GQuark QUARK_ACTUAL_TRANSPORT_STREAM;
@@ -75,7 +92,77 @@ static GQuark QUARK_PRESENT_FOLLOWING;
 static GQuark QUARK_SEGMENT_LAST_SECTION_NUMBER;
 static GQuark QUARK_LAST_TABLE_ID;
 static GQuark QUARK_EVENTS;
+static GQuark QUARK_NAME;
+static GQuark QUARK_DESCRIPTION;
+static GQuark QUARK_EXTENDED_ITEM;
+static GQuark QUARK_EXTENDED_ITEMS;
+static GQuark QUARK_TEXT;
+static GQuark QUARK_EXTENDED_TEXT;
+static GQuark QUARK_EVENT_ID;
+static GQuark QUARK_YEAR;
+static GQuark QUARK_MONTH;
+static GQuark QUARK_DAY;
+static GQuark QUARK_HOUR;
+static GQuark QUARK_MINUTE;
+static GQuark QUARK_SECOND;
+static GQuark QUARK_DURATION;
+static GQuark QUARK_RUNNING_STATUS;
+static GQuark QUARK_FREE_CA_MODE;
 
+#define MAX_KNOWN_ICONV 25
+/* All these conversions will be to UTF8 */
+typedef enum
+{
+  _ICONV_UNKNOWN = -1,
+  _ICONV_ISO8859_1,
+  _ICONV_ISO8859_2,
+  _ICONV_ISO8859_3,
+  _ICONV_ISO8859_4,
+  _ICONV_ISO8859_5,
+  _ICONV_ISO8859_6,
+  _ICONV_ISO8859_7,
+  _ICONV_ISO8859_8,
+  _ICONV_ISO8859_9,
+  _ICONV_ISO8859_10,
+  _ICONV_ISO8859_11,
+  _ICONV_ISO8859_12,
+  _ICONV_ISO8859_13,
+  _ICONV_ISO8859_14,
+  _ICONV_ISO8859_15,
+  _ICONV_ISO10646_UC2,
+  _ICONV_EUC_KR,
+  _ICONV_GB2312,
+  _ICONV_UTF_16BE,
+  _ICONV_ISO10646_UTF8,
+  _ICONV_ISO6937,
+  /* Insert more here if needed */
+  _ICONV_MAX
+} LocalIconvCode;
+
+static const gchar *iconvtablename[] = {
+  "iso-8859-1",
+  "iso-8859-2",
+  "iso-8859-3",
+  "iso-8859-4",
+  "iso-8859-5",
+  "iso-8859-6",
+  "iso-8859-7",
+  "iso-8859-8",
+  "iso-8859-9",
+  "iso-8859-10",
+  "iso-8859-11",
+  "iso-8859-12",
+  "iso-8859-13",
+  "iso-8859-14",
+  "iso-8859-15",
+  "ISO-10646/UCS2",
+  "EUC-KR",
+  "GB2312",
+  "UTF-16BE",
+  "ISO-10646/UTF8",
+  "iso6937"
+      /* Insert more here if needed */
+};
 
 #define MPEGTS_PACKETIZER_GET_PRIVATE(obj)  \
    (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GST_TYPE_MPEGTS_PACKETIZER, MpegTSPacketizerPrivate))
@@ -84,19 +171,31 @@ static void _init_local (void);
 G_DEFINE_TYPE_EXTENDED (MpegTSPacketizer2, mpegts_packetizer, G_TYPE_OBJECT, 0,
     _init_local ());
 
-typedef struct
-{
-  guint64 offset;               /* offset in upstream */
-  guint64 pcr;                  /* pcr (wraparound not fixed) */
-} MpegTSPacketizerOffset;
+/* Maximum number of MpegTSPcr
+ * 256 should be sufficient for most multiplexes */
+#define MAX_PCR_OBS_CHANNELS 256
 
-struct _MpegTSPacketizerPrivate
+typedef struct _MpegTSPCR
 {
-  /* Shortcuts for adapter usage */
-  guint available;
-  guint8 *mapped;
-  guint offset;
-  guint mapped_size;
+  guint16 pid;
+
+  /* Following variables are only active/used when
+   * calculate_skew is TRUE */
+  GstClockTime base_time;
+  GstClockTime base_pcrtime;
+  GstClockTime prev_out_time;
+  GstClockTime prev_in_time;
+  GstClockTime last_pcrtime;
+  gint64 window[MAX_WINDOW];
+  guint window_pos;
+  guint window_size;
+  gboolean window_filling;
+  gint64 window_min;
+  gint64 skew;
+  gint64 prev_send_diff;
+
+  /* Offset to apply to PCR to handle wraparounds */
+  guint64 pcroffset;
 
   /* Used for bitrate calculation */
   /* FIXME : Replace this later on with a balanced tree or sequence */
@@ -107,6 +206,16 @@ struct _MpegTSPacketizerPrivate
   guint64 last_pcr;
   GstClockTime last_pcr_ts;
 
+} MpegTSPCR;
+
+struct _MpegTSPacketizerPrivate
+{
+  /* Shortcuts for adapter usage */
+  guint available;
+  guint8 *mapped;
+  guint offset;
+  guint mapped_size;
+
   /* Reference offset */
   guint64 refoffset;
 
@@ -114,26 +223,71 @@ struct _MpegTSPacketizerPrivate
 
   /* Last inputted timestamp */
   GstClockTime last_in_time;
+
+  /* offset to observations table */
+  guint8 pcrtablelut[0x2000];
+  MpegTSPCR *observations[MAX_PCR_OBS_CHANNELS];
+  guint8 lastobsid;
+
+  /* Conversion tables */
+  GIConv iconvs[_ICONV_MAX];
 };
 
 static void mpegts_packetizer_dispose (GObject * object);
 static void mpegts_packetizer_finalize (GObject * object);
-static gchar *convert_to_utf8 (const gchar * text, gint length, guint start,
-    const gchar * encoding, gboolean is_multibyte, GError ** error);
-static gchar *get_encoding (const gchar * text, guint * start_text,
-    gboolean * is_multibyte);
-static gchar *get_encoding_and_convert (const gchar * text, guint length);
-static GstClockTime calculate_skew (MpegTSPacketizer2 * packetizer,
-    guint64 pcrtime, GstClockTime time);
-static void record_pcr (MpegTSPacketizer2 * packetizer, guint64 pcr,
-    guint64 offset);
-static void mpegts_packetizer_reset_skew (MpegTSPacketizer2 * packetizer);
+static gchar *get_encoding_and_convert (MpegTSPacketizer2 * packetizer,
+    const gchar * text, guint length);
+static GstClockTime calculate_skew (MpegTSPCR * pcr, guint64 pcrtime,
+    GstClockTime time);
+static void record_pcr (MpegTSPacketizer2 * packetizer, MpegTSPCR * pcrtable,
+    guint64 pcr, guint64 offset);
 
 #define CONTINUITY_UNSET 255
 #define MAX_CONTINUITY 15
 #define VERSION_NUMBER_UNSET 255
 #define TABLE_ID_UNSET 0xFF
 #define PACKET_SYNC_BYTE 0x47
+
+static MpegTSPCR *
+get_pcr_table (MpegTSPacketizer2 * packetizer, guint16 pid)
+{
+  MpegTSPacketizerPrivate *priv = packetizer->priv;
+  MpegTSPCR *res;
+
+  res = priv->observations[priv->pcrtablelut[pid]];
+
+  if (G_UNLIKELY (res == NULL)) {
+    /* If we don't have a PCR table for the requested PID, create one .. */
+    res = g_new0 (MpegTSPCR, 1);
+    /* Add it to the last table position */
+    priv->observations[priv->lastobsid] = res;
+    /* Update the pcrtablelut */
+    priv->pcrtablelut[pid] = priv->lastobsid;
+    /* And increment the last know slot */
+    priv->lastobsid++;
+
+    /* Finally set the default values */
+    res->pid = pid;
+    res->first_offset = -1;
+    res->first_pcr = -1;
+    res->first_pcr_ts = GST_CLOCK_TIME_NONE;
+    res->last_offset = -1;
+    res->last_pcr = -1;
+    res->last_pcr_ts = GST_CLOCK_TIME_NONE;
+    res->base_time = GST_CLOCK_TIME_NONE;
+    res->base_pcrtime = GST_CLOCK_TIME_NONE;
+    res->last_pcrtime = GST_CLOCK_TIME_NONE;
+    res->window_pos = 0;
+    res->window_filling = TRUE;
+    res->window_min = 0;
+    res->skew = 0;
+    res->prev_send_diff = GST_CLOCK_TIME_NONE;
+    res->prev_out_time = GST_CLOCK_TIME_NONE;
+    res->pcroffset = 0;
+  }
+
+  return res;
+}
 
 static gint
 mpegts_packetizer_stream_subtable_compare (gconstpointer a, gconstpointer b)
@@ -211,7 +365,10 @@ mpegts_packetizer_class_init (MpegTSPacketizer2Class * klass)
 static void
 mpegts_packetizer_init (MpegTSPacketizer2 * packetizer)
 {
-  packetizer->priv = MPEGTS_PACKETIZER_GET_PRIVATE (packetizer);
+  MpegTSPacketizerPrivate *priv;
+  guint i;
+
+  priv = packetizer->priv = MPEGTS_PACKETIZER_GET_PRIVATE (packetizer);
   packetizer->adapter = gst_adapter_new ();
   packetizer->offset = 0;
   packetizer->empty = TRUE;
@@ -219,28 +376,29 @@ mpegts_packetizer_init (MpegTSPacketizer2 * packetizer)
   packetizer->know_packet_size = FALSE;
   packetizer->calculate_skew = FALSE;
   packetizer->calculate_offset = FALSE;
-  mpegts_packetizer_reset_skew (packetizer);
 
-  packetizer->priv->available = 0;
-  packetizer->priv->mapped = NULL;
-  packetizer->priv->mapped_size = 0;
-  packetizer->priv->offset = 0;
+  priv->available = 0;
+  priv->mapped = NULL;
+  priv->mapped_size = 0;
+  priv->offset = 0;
 
-  packetizer->priv->first_offset = -1;
-  packetizer->priv->first_pcr = -1;
-  packetizer->priv->first_pcr_ts = GST_CLOCK_TIME_NONE;
-  packetizer->priv->last_offset = -1;
-  packetizer->priv->last_pcr = -1;
-  packetizer->priv->last_pcr_ts = GST_CLOCK_TIME_NONE;
-  packetizer->priv->nb_seen_offsets = 0;
-  packetizer->priv->refoffset = -1;
-  packetizer->priv->last_in_time = GST_CLOCK_TIME_NONE;
+  memset (priv->pcrtablelut, 0xff, 0x200);
+  memset (priv->observations, 0x0, sizeof (priv->observations));
+  for (i = 0; i < _ICONV_MAX; i++)
+    priv->iconvs[i] = (GIConv) - 1;
+
+  priv->lastobsid = 0;
+
+  priv->nb_seen_offsets = 0;
+  priv->refoffset = -1;
+  priv->last_in_time = GST_CLOCK_TIME_NONE;
 }
 
 static void
 mpegts_packetizer_dispose (GObject * object)
 {
   MpegTSPacketizer2 *packetizer = GST_MPEGTS_PACKETIZER (object);
+  guint i;
 
   if (!packetizer->disposed) {
     if (packetizer->know_packet_size && packetizer->caps != NULL) {
@@ -262,6 +420,11 @@ mpegts_packetizer_dispose (GObject * object)
     packetizer->disposed = TRUE;
     packetizer->offset = 0;
     packetizer->empty = TRUE;
+
+    for (i = 0; i < _ICONV_MAX; i++)
+      if (packetizer->priv->iconvs[i] != (GIConv) - 1)
+        g_iconv_close (packetizer->priv->iconvs[i]);
+
   }
 
   if (G_OBJECT_CLASS (mpegts_packetizer_parent_class)->dispose)
@@ -331,15 +494,22 @@ mpegts_packetizer_parse_adaptation_field_control (MpegTSPacketizer2 *
 
   /* PCR */
   if (afcflags & MPEGTS_AFC_PCR_FLAG) {
+    MpegTSPCR *pcrtable = NULL;
     packet->pcr = mpegts_packetizer_compute_pcr (data);
-    *data += 6;
-    GST_DEBUG ("pcr %" G_GUINT64_FORMAT " (%" GST_TIME_FORMAT ")",
-        packet->pcr, GST_TIME_ARGS (PCRTIME_TO_GSTTIME (packet->pcr)));
+    data += 6;
+    GST_DEBUG ("pcr 0x%04x %" G_GUINT64_FORMAT " (%" GST_TIME_FORMAT
+        ") offset:%" G_GUINT64_FORMAT, packet->pid, packet->pcr,
+        GST_TIME_ARGS (PCRTIME_TO_GSTTIME (packet->pcr)), packet->offset);
 
-    if (GST_CLOCK_TIME_IS_VALID (packet->origts) && packetizer->calculate_skew)
-      packet->origts = calculate_skew (packetizer, packet->pcr, packet->origts);
-    if (packetizer->calculate_offset)
-      record_pcr (packetizer, packet->pcr, packet->offset);
+    if (GST_CLOCK_TIME_IS_VALID (packet->origts) && packetizer->calculate_skew) {
+      pcrtable = get_pcr_table (packetizer, packet->pid);
+      packet->origts = calculate_skew (pcrtable, packet->pcr, packet->origts);
+    }
+    if (packetizer->calculate_offset) {
+      if (!pcrtable)
+        pcrtable = get_pcr_table (packetizer, packet->pid);
+      record_pcr (packetizer, pcrtable, packet->pcr, packet->offset);
+    }
   }
 
   /* OPCR */
@@ -641,8 +811,7 @@ mpegts_packetizer_parse_pat (MpegTSPacketizer2 * packetizer,
     g_value_unset (&value);
   }
 
-  gst_structure_id_set_value (pat_info, QUARK_PROGRAMS, &entries);
-  g_value_unset (&entries);
+  gst_structure_id_take_value (pat_info, QUARK_PROGRAMS, &entries);
 
   if (data != end - 4) {
     /* FIXME: check the CRC before parsing the packet */
@@ -849,8 +1018,7 @@ mpegts_packetizer_parse_pmt (MpegTSPacketizer2 * packetizer,
     g_value_unset (&stream_value);
   }
 
-  gst_structure_id_set_value (pmt, QUARK_STREAMS, &programs);
-  g_value_unset (&programs);
+  gst_structure_id_take_value (pmt, QUARK_STREAMS, &programs);
 
   g_assert (data == end - 4);
 
@@ -935,7 +1103,8 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
             (gchar *) DESC_DVB_NETWORK_NAME_text (networkname_descriptor);
 
         networkname_tmp =
-            get_encoding_and_convert (networkname, networkname_length);
+            get_encoding_and_convert (packetizer, networkname,
+            networkname_length);
         gst_structure_id_set (nit, QUARK_NETWORK_NAME, G_TYPE_STRING,
             networkname_tmp, NULL);
         g_free (networkname_tmp);
@@ -1109,7 +1278,7 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
             "polarization", G_TYPE_STRING, polarization_str,
             "symbol-rate", G_TYPE_UINT, symbol_rate,
             "inner-fec", G_TYPE_STRING, fec_inner_str, NULL);
-        gst_structure_set (transport, "delivery", GST_TYPE_STRUCTURE,
+        gst_structure_id_set (transport, QUARK_DELIVERY, GST_TYPE_STRUCTURE,
             delivery_structure, NULL);
       } else if ((delivery = gst_mpeg_descriptor_find (&mpegdescriptor,
                   DESC_DVB_TERRESTRIAL_DELIVERY_SYSTEM))) {
@@ -1227,17 +1396,17 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
           default:
             transmission_mode_str = "reserved";
         }
-        delivery_structure = gst_structure_new ("terrestrial",
-            "frequency", G_TYPE_UINT, frequency,
-            "bandwidth", G_TYPE_UINT, bandwidth,
-            "constellation", G_TYPE_STRING, constellation_str,
-            "hierarchy", G_TYPE_UINT, hierarchy,
-            "code-rate-hp", G_TYPE_STRING, code_rate_hp_str,
-            "code-rate-lp", G_TYPE_STRING, code_rate_lp_str,
-            "guard-interval", G_TYPE_UINT, guard_interval,
-            "transmission-mode", G_TYPE_STRING, transmission_mode_str,
-            "other-frequency", G_TYPE_BOOLEAN, other_frequency, NULL);
-        gst_structure_set (transport, "delivery", GST_TYPE_STRUCTURE,
+        delivery_structure = gst_structure_new_id (QUARK_TERRESTRIAL,
+            QUARK_FREQUENCY, G_TYPE_UINT, frequency,
+            QUARK_BANDWIDTH, G_TYPE_UINT, bandwidth,
+            QUARK_CONSTELLATION, G_TYPE_STRING, constellation_str,
+            QUARK_HIERARCHY, G_TYPE_UINT, hierarchy,
+            QUARK_CODE_RATE_HP, G_TYPE_STRING, code_rate_hp_str,
+            QUARK_CODE_RATE_LP, G_TYPE_STRING, code_rate_lp_str,
+            QUARK_GUARD_INTERVAL, G_TYPE_UINT, guard_interval,
+            QUARK_TRANSMISSION_MODE, G_TYPE_STRING, transmission_mode_str,
+            QUARK_OTHER_FREQUENCY, G_TYPE_BOOLEAN, other_frequency, NULL);
+        gst_structure_id_set (transport, QUARK_DELIVERY, GST_TYPE_STRUCTURE,
             delivery_structure, NULL);
       } else if ((delivery = gst_mpeg_descriptor_find (&mpegdescriptor,
                   DESC_DVB_CABLE_DELIVERY_SYSTEM))) {
@@ -1321,12 +1490,12 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
           default:
             modulation_str = "reserved";
         }
-        delivery_structure = gst_structure_new ("cable",
-            "modulation", G_TYPE_STRING, modulation_str,
-            "frequency", G_TYPE_UINT, frequency,
-            "symbol-rate", G_TYPE_UINT, symbol_rate,
-            "inner-fec", G_TYPE_STRING, fec_inner_str, NULL);
-        gst_structure_set (transport, "delivery", GST_TYPE_STRUCTURE,
+        delivery_structure = gst_structure_new_id (QUARK_CABLE,
+            QUARK_MODULATION, G_TYPE_STRING, modulation_str,
+            QUARK_FREQUENCY, G_TYPE_UINT, frequency,
+            QUARK_SYMBOL_RATE, G_TYPE_UINT, symbol_rate,
+            QUARK_INNER_FEC, G_TYPE_STRING, fec_inner_str, NULL);
+        gst_structure_id_set (transport, QUARK_DELIVERY, GST_TYPE_STRUCTURE,
             delivery_structure, NULL);
       }
       /* free the temporary delivery structure */
@@ -1348,9 +1517,9 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
 
           current_pos += 2;
           logical_channel_number = GST_READ_UINT16_BE (current_pos) & 0x03ff;
-          channel =
-              gst_structure_new ("channels", "service-id", G_TYPE_UINT,
-              service_id, "logical-channel-number", G_TYPE_UINT,
+          channel = gst_structure_new_id (QUARK_CHANNELS,
+              QUARK_SERVICE_ID, G_TYPE_UINT,
+              service_id, QUARK_LOGICAL_CHANNEL_NUMBER, G_TYPE_UINT,
               logical_channel_number, NULL);
           g_value_init (&channel_value, GST_TYPE_STRUCTURE);
           g_value_take_boxed (&channel_value, channel);
@@ -1358,8 +1527,8 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
           g_value_unset (&channel_value);
           current_pos += 2;
         }
-        gst_structure_set_value (transport, "channels", &channel_numbers);
-        g_value_unset (&channel_numbers);
+        gst_structure_id_take_value (transport, QUARK_CHANNELS,
+            &channel_numbers);
       }
       if ((delivery = gst_mpeg_descriptor_find (&mpegdescriptor,
                   DESC_DVB_FREQUENCY_LIST))) {
@@ -1428,8 +1597,7 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
               break;
           }
 
-          gst_structure_set_value (transport, fieldname, &frequencies);
-          g_value_unset (&frequencies);
+          gst_structure_take_value (transport, fieldname, &frequencies);
         }
       }
 
@@ -1460,8 +1628,7 @@ mpegts_packetizer_parse_nit (MpegTSPacketizer2 * packetizer,
     goto error;
   }
 
-  gst_structure_id_set_value (nit, QUARK_TRANSPORTS, &transports);
-  g_value_unset (&transports);
+  gst_structure_id_take_value (nit, QUARK_TRANSPORTS, &transports);
 
   GST_DEBUG ("NIT %" GST_PTR_FORMAT, nit);
 
@@ -1612,9 +1779,10 @@ mpegts_packetizer_parse_sdt (MpegTSPacketizer2 * packetizer,
               running_status_tmp = "reserved";
           }
           servicename_tmp =
-              get_encoding_and_convert (servicename, servicename_length);
+              get_encoding_and_convert (packetizer, servicename,
+              servicename_length);
           serviceprovider_name_tmp =
-              get_encoding_and_convert (serviceprovider_name,
+              get_encoding_and_convert (packetizer, serviceprovider_name,
               serviceprovider_name_length);
 
           gst_structure_set (service,
@@ -1656,8 +1824,7 @@ mpegts_packetizer_parse_sdt (MpegTSPacketizer2 * packetizer,
     goto error;
   }
 
-  gst_structure_id_set_value (sdt, QUARK_SERVICES, &services);
-  g_value_unset (&services);
+  gst_structure_id_take_value (sdt, QUARK_SERVICES, &services);
 
   return sdt;
 
@@ -1787,18 +1954,19 @@ mpegts_packetizer_parse_eit (MpegTSPacketizer2 * packetizer,
 
     /* TODO: send tag event down relevant pad saying what is currently playing */
     event_name = g_strdup_printf ("event-%d", event_id);
-    event = gst_structure_new (event_name,
-        "event-id", G_TYPE_UINT, event_id,
-        "year", G_TYPE_UINT, year,
-        "month", G_TYPE_UINT, month,
-        "day", G_TYPE_UINT, day,
-        "hour", G_TYPE_UINT, hour,
-        "minute", G_TYPE_UINT, minute,
-        "second", G_TYPE_UINT, second,
-        "duration", G_TYPE_UINT, duration,
-        "running-status", G_TYPE_UINT, running_status,
-        "free-ca-mode", G_TYPE_BOOLEAN, free_ca_mode, NULL);
+    event = gst_structure_new_empty (event_name);
     g_free (event_name);
+    gst_structure_id_set (event,
+        QUARK_EVENT_ID, G_TYPE_UINT, event_id,
+        QUARK_YEAR, G_TYPE_UINT, year,
+        QUARK_MONTH, G_TYPE_UINT, month,
+        QUARK_DAY, G_TYPE_UINT, day,
+        QUARK_HOUR, G_TYPE_UINT, hour,
+        QUARK_MINUTE, G_TYPE_UINT, minute,
+        QUARK_SECOND, G_TYPE_UINT, second,
+        QUARK_DURATION, G_TYPE_UINT, duration,
+        QUARK_RUNNING_STATUS, G_TYPE_UINT, running_status,
+        QUARK_FREE_CA_MODE, G_TYPE_BOOLEAN, free_ca_mode, NULL);
 
     if (descriptors_loop_length) {
       guint8 *event_descriptor;
@@ -1830,17 +1998,19 @@ mpegts_packetizer_parse_eit (MpegTSPacketizer2 * packetizer,
             DESC_LENGTH (event_descriptor)) {
 
           eventname_tmp =
-              get_encoding_and_convert (eventname, eventname_length);
+              get_encoding_and_convert (packetizer, eventname,
+              eventname_length);
           eventdescription_tmp =
-              get_encoding_and_convert (eventdescription,
+              get_encoding_and_convert (packetizer, eventdescription,
               eventdescription_length);
 
-          gst_structure_set (event, "name", G_TYPE_STRING, eventname_tmp,
-              "description", G_TYPE_STRING, eventdescription_tmp, NULL);
+          gst_structure_id_set (event, QUARK_NAME, G_TYPE_STRING, eventname_tmp,
+              QUARK_DESCRIPTION, G_TYPE_STRING, eventdescription_tmp, NULL);
           g_free (eventname_tmp);
           g_free (eventdescription_tmp);
         }
       }
+
       extended_event_descriptors =
           gst_mpeg_descriptor_find_all (&mpegdescriptor,
           DESC_DVB_EXTENDED_EVENT);
@@ -1870,18 +2040,21 @@ mpegts_packetizer_parse_eit (MpegTSPacketizer2 * packetizer,
               length_aux = *items_aux;
               ++items_aux;
               description =
-                  get_encoding_and_convert ((gchar *) items_aux, length_aux);
+                  get_encoding_and_convert (packetizer, (gchar *) items_aux,
+                  length_aux);
               items_aux += length_aux;
 
               /* Item text */
               length_aux = *items_aux;
               ++items_aux;
-              text = get_encoding_and_convert ((gchar *) items_aux, length_aux);
+              text =
+                  get_encoding_and_convert (packetizer, (gchar *) items_aux,
+                  length_aux);
               items_aux += length_aux;
 
-              extended_item = gst_structure_new ("extended_item",
-                  "description", G_TYPE_STRING, description,
-                  "text", G_TYPE_STRING, text, NULL);
+              extended_item = gst_structure_new_id (QUARK_EXTENDED_ITEM,
+                  QUARK_DESCRIPTION, G_TYPE_STRING, description,
+                  QUARK_TEXT, G_TYPE_STRING, text, NULL);
 
               g_value_init (&extended_item_value, GST_TYPE_STRUCTURE);
               g_value_take_boxed (&extended_item_value, extended_item);
@@ -1889,29 +2062,30 @@ mpegts_packetizer_parse_eit (MpegTSPacketizer2 * packetizer,
                   &extended_item_value);
               g_value_unset (&extended_item_value);
             }
+
             if (extended_text) {
               gchar *tmp;
               gchar *old_extended_text = extended_text;
-              tmp = get_encoding_and_convert ((gchar *)
+              tmp = get_encoding_and_convert (packetizer, (gchar *)
                   DESC_DVB_EXTENDED_EVENT_text (extended_descriptor),
                   DESC_DVB_EXTENDED_EVENT_text_length (extended_descriptor));
               extended_text = g_strdup_printf ("%s%s", extended_text, tmp);
               g_free (old_extended_text);
               g_free (tmp);
             } else {
-              extended_text = get_encoding_and_convert ((gchar *)
+              extended_text = get_encoding_and_convert (packetizer, (gchar *)
                   DESC_DVB_EXTENDED_EVENT_text (extended_descriptor),
                   DESC_DVB_EXTENDED_EVENT_text_length (extended_descriptor));
             }
           }
         }
         if (extended_text) {
-          gst_structure_set (event, "extended-text", G_TYPE_STRING,
+          gst_structure_id_set (event, QUARK_EXTENDED_TEXT, G_TYPE_STRING,
               extended_text, NULL);
           g_free (extended_text);
         }
-        gst_structure_set_value (event, "extented-items", &extended_items);
-        g_value_unset (&extended_items);
+        gst_structure_id_take_value (event, QUARK_EXTENDED_ITEMS,
+            &extended_items);
         g_array_free (extended_event_descriptors, TRUE);
       }
 
@@ -2113,8 +2287,7 @@ mpegts_packetizer_parse_eit (MpegTSPacketizer2 * packetizer,
             component = NULL;
           }
         }
-        gst_structure_set_value (event, "components", &components);
-        g_value_unset (&components);
+        gst_structure_take_value (event, "components", &components);
         g_array_free (component_descriptors, TRUE);
       }
 
@@ -2142,8 +2315,7 @@ mpegts_packetizer_parse_eit (MpegTSPacketizer2 * packetizer,
     goto error;
   }
 
-  gst_structure_id_set_value (eit, QUARK_EVENTS, &events);
-  g_value_unset (&events);
+  gst_structure_id_take_value (eit, QUARK_EVENTS, &events);
 
   GST_DEBUG ("EIT %" GST_PTR_FORMAT, eit);
 
@@ -2287,6 +2459,8 @@ mpegts_packetizer_clear (MpegTSPacketizer2 * packetizer)
 void
 mpegts_packetizer_flush (MpegTSPacketizer2 * packetizer)
 {
+  GST_DEBUG ("Flushing");
+
   if (packetizer->streams) {
     int i;
     for (i = 0; i < 8192; i++) {
@@ -2434,6 +2608,7 @@ MpegTSPacketizerPacketReturn
 mpegts_packetizer_next_packet (MpegTSPacketizer2 * packetizer,
     MpegTSPacketizerPacket * packet)
 {
+  MpegTSPacketizerPrivate *priv = packetizer->priv;
   guint avail;
   int i;
 
@@ -2442,20 +2617,15 @@ mpegts_packetizer_next_packet (MpegTSPacketizer2 * packetizer,
       return PACKET_NEED_MORE;
   }
 
-  while ((avail = packetizer->priv->available) >= packetizer->packet_size) {
-    GST_DEBUG ("mapped:%p, mapped_size:%d, offset:%d",
-        packetizer->priv->mapped,
-        packetizer->priv->mapped_size, packetizer->priv->offset);
-    if (packetizer->priv->mapped == NULL) {
-      packetizer->priv->mapped_size =
-          packetizer->priv->available -
-          (packetizer->priv->available % packetizer->packet_size);
-      packetizer->priv->mapped =
-          (guint8 *) gst_adapter_map (packetizer->adapter,
-          packetizer->priv->mapped_size);
-      packetizer->priv->offset = 0;
+  while ((avail = priv->available) >= packetizer->packet_size) {
+    if (priv->mapped == NULL) {
+      priv->mapped_size =
+          priv->available - (priv->available % packetizer->packet_size);
+      priv->mapped =
+          (guint8 *) gst_adapter_map (packetizer->adapter, priv->mapped_size);
+      priv->offset = 0;
     }
-    packet->data_start = packetizer->priv->mapped + packetizer->priv->offset;
+    packet->data_start = priv->mapped + priv->offset;
 
     /* M2TS packets don't start with the sync byte, all other variants do */
     if (packetizer->packet_size == MPEGTS_M2TS_PACKETSIZE)
@@ -2466,10 +2636,10 @@ mpegts_packetizer_next_packet (MpegTSPacketizer2 * packetizer,
      * the data */
     packet->data_end = packet->data_start + 188;
     packet->offset = packetizer->offset;
-    GST_DEBUG ("offset %" G_GUINT64_FORMAT, packet->offset);
+    GST_LOG ("offset %" G_GUINT64_FORMAT, packet->offset);
     packetizer->offset += packetizer->packet_size;
     GST_MEMDUMP ("data_start", packet->data_start, 16);
-    packet->origts = packetizer->priv->last_in_time;
+    packet->origts = priv->last_in_time;
 
     /* Check sync byte */
     if (G_LIKELY (packet->data_start[0] == 0x47))
@@ -2489,13 +2659,15 @@ mpegts_packetizer_next_packet (MpegTSPacketizer2 * packetizer,
         i += 188;
     }
 
-    gst_adapter_flush (packetizer->adapter, i);
+    GST_DEBUG ("Flushing %d bytes out", i);
+    /* gst_adapter_flush (packetizer->adapter, i); */
     /* Pop out the remaining data... */
-    packetizer->priv->offset += i;
-    packetizer->priv->available -= i;
-    if (G_UNLIKELY (packetizer->priv->available < packetizer->packet_size)) {
-      gst_adapter_flush (packetizer->adapter, packetizer->priv->offset);
-      packetizer->priv->mapped = NULL;
+    priv->offset += i;
+    priv->available -= i;
+    if (G_UNLIKELY (priv->available < packetizer->packet_size)) {
+      GST_DEBUG ("Flushing %d bytes out", priv->offset);
+      gst_adapter_flush (packetizer->adapter, priv->offset);
+      priv->mapped = NULL;
     }
     continue;
   }
@@ -2528,12 +2700,14 @@ void
 mpegts_packetizer_clear_packet (MpegTSPacketizer2 * packetizer,
     MpegTSPacketizerPacket * packet)
 {
-  memset (packet, 0, sizeof (MpegTSPacketizerPacket));
-  packetizer->priv->offset += packetizer->packet_size;
-  packetizer->priv->available -= packetizer->packet_size;
-  if (G_UNLIKELY (packetizer->priv->available < packetizer->packet_size)) {
-    gst_adapter_flush (packetizer->adapter, packetizer->priv->offset);
-    packetizer->priv->mapped = NULL;
+  MpegTSPacketizerPrivate *priv = packetizer->priv;
+
+  priv->offset += packetizer->packet_size;
+  priv->available -= packetizer->packet_size;
+
+  if (G_UNLIKELY (priv->mapped && priv->available < packetizer->packet_size)) {
+    gst_adapter_flush (packetizer->adapter, priv->offset);
+    priv->mapped = NULL;
   }
 }
 
@@ -2719,6 +2893,23 @@ _init_local (void)
   QUARK_NETWORK_NAME = g_quark_from_string ("network-name");
   QUARK_ORIGINAL_NETWORK_ID = g_quark_from_string ("original-network-id");
   QUARK_TRANSPORTS = g_quark_from_string ("transports");
+  QUARK_TERRESTRIAL = g_quark_from_string ("terrestrial");
+  QUARK_CABLE = g_quark_from_string ("cable");
+  QUARK_FREQUENCY = g_quark_from_string ("frequency");
+  QUARK_MODULATION = g_quark_from_string ("modulation");
+  QUARK_BANDWIDTH = g_quark_from_string ("bandwidth");
+  QUARK_CONSTELLATION = g_quark_from_string ("constellation");
+  QUARK_HIERARCHY = g_quark_from_string ("hierarchy");
+  QUARK_CODE_RATE_HP = g_quark_from_string ("code-rate-hp");
+  QUARK_CODE_RATE_LP = g_quark_from_string ("code-rate-lp");
+  QUARK_GUARD_INTERVAL = g_quark_from_string ("guard-interval");
+  QUARK_TRANSMISSION_MODE = g_quark_from_string ("transmission-mode");
+  QUARK_OTHER_FREQUENCY = g_quark_from_string ("other-frequency");
+  QUARK_SYMBOL_RATE = g_quark_from_string ("symbol-rate");
+  QUARK_INNER_FEC = g_quark_from_string ("inner-fec");
+  QUARK_DELIVERY = g_quark_from_string ("delivery");
+  QUARK_CHANNELS = g_quark_from_string ("channels");
+  QUARK_LOGICAL_CHANNEL_NUMBER = g_quark_from_string ("logical-channel-number");
 
   QUARK_SDT = g_quark_from_string ("sdt");
   QUARK_ACTUAL_TRANSPORT_STREAM =
@@ -2732,6 +2923,22 @@ _init_local (void)
       g_quark_from_string ("segment-last-section-number");
   QUARK_LAST_TABLE_ID = g_quark_from_string ("last-table-id");
   QUARK_EVENTS = g_quark_from_string ("events");
+  QUARK_NAME = g_quark_from_string ("name");
+  QUARK_DESCRIPTION = g_quark_from_string ("description");
+  QUARK_EXTENDED_ITEM = g_quark_from_string ("extended_item");
+  QUARK_EXTENDED_ITEMS = g_quark_from_string ("extended-items");
+  QUARK_TEXT = g_quark_from_string ("text");
+  QUARK_EXTENDED_TEXT = g_quark_from_string ("extended-text");
+  QUARK_EVENT_ID = g_quark_from_string ("event-id");
+  QUARK_YEAR = g_quark_from_string ("year");
+  QUARK_MONTH = g_quark_from_string ("month");
+  QUARK_DAY = g_quark_from_string ("day");
+  QUARK_HOUR = g_quark_from_string ("hour");
+  QUARK_MINUTE = g_quark_from_string ("minute");
+  QUARK_SECOND = g_quark_from_string ("second");
+  QUARK_DURATION = g_quark_from_string ("duration");
+  QUARK_RUNNING_STATUS = g_quark_from_string ("running-status");
+  QUARK_FREE_CA_MODE = g_quark_from_string ("free-ca-mode");
 }
 
 /**
@@ -2739,70 +2946,98 @@ _init_local (void)
  * @start_text: Location where the beginning of the actual text is stored
  * @is_multibyte: Location where information whether it's a multibyte encoding
  * or not is stored
- * @returns: Name of encoding or NULL of encoding could not be detected.
- *
- * The returned string should be freed with g_free () when no longer needed.
+ * @returns: GIconv for conversion or NULL
  */
-static gchar *
-get_encoding (const gchar * text, guint * start_text, gboolean * is_multibyte)
+static LocalIconvCode
+get_encoding (MpegTSPacketizer2 * packetizer, const gchar * text,
+    guint * start_text, gboolean * is_multibyte)
 {
-  gchar *encoding;
+  LocalIconvCode encoding;
   guint8 firstbyte;
 
-  g_return_val_if_fail (text != NULL, NULL);
+  *is_multibyte = FALSE;
+  *start_text = 0;
 
   firstbyte = (guint8) text[0];
 
-  /* ETSI EN 300 468, "Selection of character table" */
+  /* A wrong value */
+  g_return_val_if_fail (firstbyte != 0x00, _ICONV_UNKNOWN);
+
   if (firstbyte <= 0x0B) {
-    encoding = g_strdup_printf ("iso8859-%u", firstbyte + 4);
+    /* 0x01 => iso 8859-5 */
+    encoding = firstbyte + _ICONV_ISO8859_4;
     *start_text = 1;
-    *is_multibyte = FALSE;
-  } else if (firstbyte >= 0x20) {
-    encoding = g_strdup ("iso6937");
-    *start_text = 0;
-    *is_multibyte = FALSE;
-  } else if (firstbyte == 0x10) {
-    guint16 table;
-    gchar table_str[6];
-
-    text++;
-    table = GST_READ_UINT16_BE (text);
-    g_snprintf (table_str, 6, "%d", table);
-
-    encoding = g_strconcat ("iso8859-", table_str, NULL);
-    *start_text = 3;
-    *is_multibyte = FALSE;
-  } else if (firstbyte == 0x11) {
-    encoding = g_strdup ("ISO-10646/UCS2");
-    *start_text = 1;
-    *is_multibyte = TRUE;
-  } else if (firstbyte == 0x12) {
-    /*  EUC-KR implements KSX1001 */
-    encoding = g_strdup ("EUC-KR");
-    *start_text = 1;
-    *is_multibyte = TRUE;
-  } else if (firstbyte == 0x13) {
-    encoding = g_strdup ("GB2312");
-    *start_text = 1;
-    *is_multibyte = FALSE;
-  } else if (firstbyte == 0x14) {
-    encoding = g_strdup ("UTF-16BE");
-    *start_text = 1;
-    *is_multibyte = TRUE;
-  } else if (firstbyte == 0x15) {
-    encoding = g_strdup ("ISO-10646/UTF8");
-    *start_text = 1;
-    *is_multibyte = FALSE;
-  } else {
-    /* reserved */
-    encoding = NULL;
-    *start_text = 0;
-    *is_multibyte = FALSE;
+    goto beach;
   }
 
+  /* ETSI EN 300 468, "Selection of character table" */
+  switch (firstbyte) {
+    case 0x0C:
+    case 0x0D:
+    case 0x0E:
+    case 0x0F:
+      /* RESERVED */
+      encoding = _ICONV_UNKNOWN;
+      break;
+    case 0x10:
+    {
+      guint16 table;
+
+      table = GST_READ_UINT16_BE (text + 1);
+
+      if (table < 17)
+        encoding = _ICONV_UNKNOWN + table;
+      else
+        encoding = _ICONV_UNKNOWN;;
+      *start_text = 3;
+      break;
+    }
+    case 0x11:
+      encoding = _ICONV_ISO10646_UC2;
+      *start_text = 1;
+      *is_multibyte = TRUE;
+      break;
+    case 0x12:
+      /*  EUC-KR implements KSX1001 */
+      encoding = _ICONV_EUC_KR;
+      *start_text = 1;
+      *is_multibyte = TRUE;
+      break;
+    case 0x13:
+      encoding = _ICONV_GB2312;
+      *start_text = 1;
+      break;
+    case 0x14:
+      encoding = _ICONV_UTF_16BE;
+      *start_text = 1;
+      *is_multibyte = TRUE;
+      break;
+    case 0x15:
+      /* TODO : Where does this come from ?? */
+      encoding = _ICONV_ISO10646_UTF8;
+      *start_text = 1;
+      break;
+    case 0x16:
+    case 0x17:
+    case 0x18:
+    case 0x19:
+    case 0x1A:
+    case 0x1B:
+    case 0x1C:
+    case 0x1D:
+    case 0x1E:
+    case 0x1F:
+      /* RESERVED */
+      encoding = _ICONV_UNKNOWN;
+      break;
+    default:
+      encoding = _ICONV_ISO6937;
+      break;
+  }
+
+beach:
   GST_DEBUG
-      ("Found encoding %s, first byte is 0x%02x, start_text: %u, is_multibyte: %d",
+      ("Found encoding %d, first byte is 0x%02x, start_text: %u, is_multibyte: %d",
       encoding, firstbyte, *start_text, *is_multibyte);
 
   return encoding;
@@ -2821,14 +3056,11 @@ get_encoding (const gchar * text, guint * start_text, gboolean * is_multibyte)
  */
 static gchar *
 convert_to_utf8 (const gchar * text, gint length, guint start,
-    const gchar * encoding, gboolean is_multibyte, GError ** error)
+    GIConv iconv, gboolean is_multibyte, GError ** error)
 {
   gchar *new_text;
   gchar *tmp, *pos;
   gint i;
-
-  g_return_val_if_fail (text != NULL, NULL);
-  g_return_val_if_fail (encoding != NULL, NULL);
 
   text += start;
 
@@ -2932,8 +3164,9 @@ convert_to_utf8 (const gchar * text, gint length, guint start,
 
   if (pos > tmp) {
     gsize bread = 0;
+
     new_text =
-        g_convert (tmp, pos - tmp, "utf-8", encoding, &bread, NULL, error);
+        g_convert_with_iconv (tmp, pos - tmp, iconv, &bread, NULL, error);
     GST_DEBUG ("Converted to : %s", new_text);
   } else {
     new_text = g_strdup ("");
@@ -2945,105 +3178,110 @@ convert_to_utf8 (const gchar * text, gint length, guint start,
 }
 
 static gchar *
-get_encoding_and_convert (const gchar * text, guint length)
+get_encoding_and_convert (MpegTSPacketizer2 * packetizer, const gchar * text,
+    guint length)
 {
   GError *error = NULL;
   gchar *converted_str;
-  gchar *encoding;
   guint start_text = 0;
   gboolean is_multibyte;
+  LocalIconvCode encoding;
+  GIConv iconv = (GIConv) - 1;
 
   g_return_val_if_fail (text != NULL, NULL);
 
-  if (length == 0)
+  if (text == NULL || length == 0)
     return g_strdup ("");
 
-  encoding = get_encoding (text, &start_text, &is_multibyte);
+  encoding = get_encoding (packetizer, text, &start_text, &is_multibyte);
 
-  if (encoding == NULL) {
+  if (encoding > _ICONV_UNKNOWN && encoding < _ICONV_MAX) {
+    GST_DEBUG ("Encoding %s", iconvtablename[encoding]);
+    if (packetizer->priv->iconvs[encoding] == (GIConv) - 1)
+      packetizer->priv->iconvs[encoding] =
+          g_iconv_open ("utf-8", iconvtablename[encoding]);
+    iconv = packetizer->priv->iconvs[encoding];
+  }
+
+  if (iconv == (GIConv) - 1) {
     GST_WARNING ("Could not detect encoding");
     converted_str = g_strndup (text, length);
-  } else {
-    converted_str = convert_to_utf8 (text, length - start_text, start_text,
-        encoding, is_multibyte, &error);
-    if (error != NULL) {
-      GST_WARNING ("Could not convert string, encoding is %s: %s",
-          encoding, error->message);
-      g_error_free (error);
-      error = NULL;
+    goto beach;
+  }
+
+  converted_str = convert_to_utf8 (text, length - start_text, start_text,
+      iconv, is_multibyte, &error);
+  if (error != NULL) {
+    GST_WARNING ("Could not convert string: %s", error->message);
+    g_error_free (error);
+    error = NULL;
+
+    if (encoding >= _ICONV_ISO8859_2 && encoding <= _ICONV_ISO8859_15) {
+      /* Sometimes using the standard 8859-1 set fixes issues */
+      GST_DEBUG ("Encoding %s", iconvtablename[_ICONV_ISO8859_1]);
+      if (packetizer->priv->iconvs[_ICONV_ISO8859_1] == (GIConv) - 1)
+        packetizer->priv->iconvs[_ICONV_ISO8859_1] =
+            g_iconv_open ("utf-8", iconvtablename[_ICONV_ISO8859_1]);
+      iconv = packetizer->priv->iconvs[_ICONV_ISO8859_1];
+
+      GST_INFO ("Trying encoding ISO 8859-1");
+      converted_str = convert_to_utf8 (text, length, 1, iconv, FALSE, &error);
+      if (error != NULL) {
+        GST_WARNING
+            ("Could not convert string while assuming encoding ISO 8859-1: %s",
+            error->message);
+        g_error_free (error);
+        goto failed;
+      }
+    } else if (encoding == _ICONV_ISO6937) {
 
       /* The first part of ISO 6937 is identical to ISO 8859-9, but
        * they differ in the second part. Some channels don't
        * provide the first byte that indicates ISO 8859-9 encoding.
        * If decoding from ISO 6937 failed, we try ISO 8859-9 here.
        */
-      if (strcmp (encoding, "iso6937") == 0) {
-        GST_INFO ("Trying encoding ISO 8859-9");
-        converted_str = convert_to_utf8 (text, length, 0,
-            "iso8859-9", FALSE, &error);
-        if (error != NULL) {
-          GST_WARNING
-              ("Could not convert string while assuming encoding ISO 8859-9: %s",
-              error->message);
-          g_error_free (error);
-          goto failed;
-        }
-      } else {
+      if (packetizer->priv->iconvs[_ICONV_ISO8859_9] == (GIConv) - 1)
+        packetizer->priv->iconvs[_ICONV_ISO8859_9] =
+            g_iconv_open ("utf-8", iconvtablename[_ICONV_ISO8859_9]);
+      iconv = packetizer->priv->iconvs[_ICONV_ISO8859_9];
+
+      GST_INFO ("Trying encoding ISO 8859-9");
+      converted_str = convert_to_utf8 (text, length, 0, iconv, FALSE, &error);
+      if (error != NULL) {
+        GST_WARNING
+            ("Could not convert string while assuming encoding ISO 8859-9: %s",
+            error->message);
+        g_error_free (error);
         goto failed;
       }
-    }
-
-    g_free (encoding);
+    } else
+      goto failed;
   }
 
+beach:
   return converted_str;
 
 failed:
   {
-    g_free (encoding);
     text += start_text;
     return g_strndup (text, length - start_text);
   }
 }
 
-/**
- * mpegts_packetizer_reset_skew:
- * @packetizer: an #MpegTSPacketizer2
- *
- * Reset the skew calculations in @packetizer.
- */
 static void
-mpegts_packetizer_reset_skew (MpegTSPacketizer2 * packetizer)
-{
-  /* FIXME : These variables should be *per* PCR PID */
-  packetizer->base_time = GST_CLOCK_TIME_NONE;
-  packetizer->base_pcrtime = GST_CLOCK_TIME_NONE;
-  packetizer->last_pcrtime = GST_CLOCK_TIME_NONE;
-  packetizer->window_pos = 0;
-  packetizer->window_filling = TRUE;
-  packetizer->window_min = 0;
-  packetizer->skew = 0;
-  packetizer->prev_send_diff = GST_CLOCK_TIME_NONE;
-  packetizer->prev_out_time = GST_CLOCK_TIME_NONE;
-  packetizer->wrap_count = 0;
-  GST_DEBUG ("reset skew correction");
-}
-
-static void
-mpegts_packetizer_resync (MpegTSPacketizer2 * packetizer, GstClockTime time,
+mpegts_packetizer_resync (MpegTSPCR * pcr, GstClockTime time,
     GstClockTime gstpcrtime, gboolean reset_skew)
 {
-  /* FIXME : These variables should be *per* PCR PID */
-  packetizer->base_time = time;
-  packetizer->base_pcrtime = gstpcrtime;
-  packetizer->prev_out_time = GST_CLOCK_TIME_NONE;
-  packetizer->prev_send_diff = GST_CLOCK_TIME_NONE;
+  pcr->base_time = time;
+  pcr->base_pcrtime = gstpcrtime;
+  pcr->prev_out_time = GST_CLOCK_TIME_NONE;
+  pcr->prev_send_diff = GST_CLOCK_TIME_NONE;
   if (reset_skew) {
-    packetizer->window_filling = TRUE;
-    packetizer->window_pos = 0;
-    packetizer->window_min = 0;
-    packetizer->window_size = 0;
-    packetizer->skew = 0;
+    pcr->window_filling = TRUE;
+    pcr->window_pos = 0;
+    pcr->window_min = 0;
+    pcr->window_size = 0;
+    pcr->skew = 0;
   }
 }
 
@@ -3113,8 +3351,7 @@ mpegts_packetizer_resync (MpegTSPacketizer2 * packetizer, GstClockTime time,
  * Returns: @time adjusted with the clock skew.
  */
 static GstClockTime
-calculate_skew (MpegTSPacketizer2 * packetizer, guint64 pcrtime,
-    GstClockTime time)
+calculate_skew (MpegTSPCR * pcr, guint64 pcrtime, GstClockTime time)
 {
   guint64 send_diff, recv_diff;
   gint64 delta;
@@ -3123,61 +3360,88 @@ calculate_skew (MpegTSPacketizer2 * packetizer, guint64 pcrtime,
   GstClockTime gstpcrtime, out_time;
   guint64 slope;
 
-  gstpcrtime =
-      PCRTIME_TO_GSTTIME (pcrtime) + packetizer->wrap_count * PCR_GST_MAX_VALUE;
+  gstpcrtime = PCRTIME_TO_GSTTIME (pcrtime) + pcr->pcroffset;
 
   /* first time, lock on to time and gstpcrtime */
-  if (G_UNLIKELY (!GST_CLOCK_TIME_IS_VALID (packetizer->base_time))) {
-    packetizer->base_time = time;
-    packetizer->prev_out_time = GST_CLOCK_TIME_NONE;
+  if (G_UNLIKELY (!GST_CLOCK_TIME_IS_VALID (pcr->base_time))) {
+    pcr->base_time = time;
+    pcr->prev_out_time = GST_CLOCK_TIME_NONE;
     GST_DEBUG ("Taking new base time %" GST_TIME_FORMAT, GST_TIME_ARGS (time));
   }
 
-  if (G_UNLIKELY (!GST_CLOCK_TIME_IS_VALID (packetizer->base_pcrtime))) {
-    packetizer->base_pcrtime = gstpcrtime;
-    packetizer->prev_send_diff = -1;
+  if (G_UNLIKELY (!GST_CLOCK_TIME_IS_VALID (pcr->base_pcrtime))) {
+    pcr->base_pcrtime = gstpcrtime;
+    pcr->prev_send_diff = -1;
     GST_DEBUG ("Taking new base pcrtime %" GST_TIME_FORMAT,
         GST_TIME_ARGS (gstpcrtime));
   }
 
-  if (G_LIKELY (gstpcrtime >= packetizer->base_pcrtime))
-    send_diff = gstpcrtime - packetizer->base_pcrtime;
-  else if (GST_CLOCK_TIME_IS_VALID (time)
-      && (packetizer->last_pcrtime - gstpcrtime > PCR_GST_MAX_VALUE / 2)) {
-    /* Detect wraparounds */
-    GST_DEBUG ("PCR wrap");
-    packetizer->wrap_count++;
-    gstpcrtime =
-        PCRTIME_TO_GSTTIME (pcrtime) +
-        packetizer->wrap_count * PCR_GST_MAX_VALUE;
-    send_diff = gstpcrtime - packetizer->base_pcrtime;
-  } else {
-    GST_WARNING ("backward timestamps at server but no timestamps");
-    send_diff = 0;
-    /* at least try to get a new timestamp.. */
-    packetizer->base_time = GST_CLOCK_TIME_NONE;
-  }
+  /* Handle PCR wraparound and resets */
+  if (GST_CLOCK_TIME_IS_VALID (pcr->last_pcrtime) &&
+      gstpcrtime < pcr->last_pcrtime) {
+    if (pcr->last_pcrtime - gstpcrtime > PCR_GST_MAX_VALUE / 2) {
+      /* PCR wraparound */
+      GST_DEBUG ("PCR wrap");
+      pcr->pcroffset += PCR_GST_MAX_VALUE;
+      gstpcrtime = PCRTIME_TO_GSTTIME (pcrtime) + pcr->pcroffset;
+      send_diff = gstpcrtime - pcr->base_pcrtime;
+    } else if (GST_CLOCK_TIME_IS_VALID (time)
+        && pcr->last_pcrtime - gstpcrtime > 15 * GST_SECOND) {
+      /* Assume a reset */
+      GST_DEBUG ("PCR reset");
+      /* Calculate PCR we would have expected for the given input time,
+       * essentially applying the reverse correction process
+       *
+       * We want to find the PCR offset to apply
+       *   pcroffset = (corrected) gstpcrtime - (received) gstpcrtime
+       *
+       * send_diff = (corrected) gstpcrtime - pcr->base_pcrtime
+       * recv_diff = time - pcr->base_time
+       * out_time = pcr->base_time + send_diff
+       *
+       * We are assuming that send_diff == recv_diff
+       *   (corrected) gstpcrtime - pcr->base_pcrtime = time - pcr->base_time
+       * Giving us:
+       *   (corrected) gstpcrtime = time - pcr->base_time + pcr->base_pcrtime
+       *
+       * And therefore:
+       *   pcroffset = time - pcr->base_time + pcr->base_pcrtime - (received) gstpcrtime
+       **/
+      pcr->pcroffset += time - pcr->base_time + pcr->base_pcrtime - gstpcrtime;
+      gstpcrtime = PCRTIME_TO_GSTTIME (pcrtime) + pcr->pcroffset;
+      send_diff = gstpcrtime - pcr->base_pcrtime;
+      GST_DEBUG ("Introduced offset is now %" GST_TIME_FORMAT
+          " corrected pcr time %" GST_TIME_FORMAT,
+          GST_TIME_ARGS (pcr->pcroffset), GST_TIME_ARGS (gstpcrtime));
+    } else {
+      GST_WARNING ("backward timestamps at server but no timestamps");
+      send_diff = 0;
+      /* at least try to get a new timestamp.. */
+      pcr->base_time = GST_CLOCK_TIME_NONE;
+    }
+  } else
+    send_diff = gstpcrtime - pcr->base_pcrtime;
 
   GST_DEBUG ("gstpcr %" GST_TIME_FORMAT ", buftime %" GST_TIME_FORMAT ", base %"
       GST_TIME_FORMAT ", send_diff %" GST_TIME_FORMAT,
       GST_TIME_ARGS (gstpcrtime), GST_TIME_ARGS (time),
-      GST_TIME_ARGS (packetizer->base_pcrtime), GST_TIME_ARGS (send_diff));
+      GST_TIME_ARGS (pcr->base_pcrtime), GST_TIME_ARGS (send_diff));
 
   /* keep track of the last extended pcrtime */
-  packetizer->last_pcrtime = gstpcrtime;
+  pcr->last_pcrtime = gstpcrtime;
 
   /* we don't have an arrival timestamp so we can't do skew detection. we
    * should still apply a timestamp based on RTP timestamp and base_time */
   if (!GST_CLOCK_TIME_IS_VALID (time)
-      || !GST_CLOCK_TIME_IS_VALID (packetizer->base_time))
+      || !GST_CLOCK_TIME_IS_VALID (pcr->base_time))
     goto no_skew;
 
   /* elapsed time at receiver, includes the jitter */
-  recv_diff = time - packetizer->base_time;
+  recv_diff = time - pcr->base_time;
 
   /* Ignore packets received at 100% the same time (i.e. from the same input buffer) */
-  if (G_UNLIKELY (time == packetizer->prev_in_time
-          && GST_CLOCK_TIME_IS_VALID (packetizer->prev_in_time)))
+  if (G_UNLIKELY (time == pcr->prev_in_time
+          && GST_CLOCK_TIME_IS_VALID (pcr->prev_in_time)))
     goto no_skew;
 
   /* measure the diff */
@@ -3190,38 +3454,38 @@ calculate_skew (MpegTSPacketizer2 * packetizer, guint64 pcrtime,
 
   GST_DEBUG ("time %" GST_TIME_FORMAT ", base %" GST_TIME_FORMAT ", recv_diff %"
       GST_TIME_FORMAT ", slope %" G_GUINT64_FORMAT, GST_TIME_ARGS (time),
-      GST_TIME_ARGS (packetizer->base_time), GST_TIME_ARGS (recv_diff), slope);
+      GST_TIME_ARGS (pcr->base_time), GST_TIME_ARGS (recv_diff), slope);
 
   /* if the difference between the sender timeline and the receiver timeline
    * changed too quickly we have to resync because the server likely restarted
    * its timestamps. */
-  if (ABS (delta - packetizer->skew) > GST_SECOND) {
+  if (ABS (delta - pcr->skew) > GST_SECOND) {
     GST_WARNING ("delta - skew: %" GST_TIME_FORMAT " too big, reset skew",
-        GST_TIME_ARGS (delta - packetizer->skew));
-    mpegts_packetizer_resync (packetizer, time, gstpcrtime, TRUE);
+        GST_TIME_ARGS (delta - pcr->skew));
+    mpegts_packetizer_resync (pcr, time, gstpcrtime, TRUE);
     send_diff = 0;
     delta = 0;
   }
 
-  pos = packetizer->window_pos;
+  pos = pcr->window_pos;
 
-  if (G_UNLIKELY (packetizer->window_filling)) {
+  if (G_UNLIKELY (pcr->window_filling)) {
     /* we are filling the window */
     GST_DEBUG ("filling %d, delta %" G_GINT64_FORMAT, pos, delta);
-    packetizer->window[pos++] = delta;
+    pcr->window[pos++] = delta;
     /* calc the min delta we observed */
-    if (G_UNLIKELY (pos == 1 || delta < packetizer->window_min))
-      packetizer->window_min = delta;
+    if (G_UNLIKELY (pos == 1 || delta < pcr->window_min))
+      pcr->window_min = delta;
 
     if (G_UNLIKELY (send_diff >= MAX_TIME || pos >= MAX_WINDOW)) {
-      packetizer->window_size = pos;
+      pcr->window_size = pos;
 
       /* window filled */
-      GST_DEBUG ("min %" G_GINT64_FORMAT, packetizer->window_min);
+      GST_DEBUG ("min %" G_GINT64_FORMAT, pcr->window_min);
 
       /* the skew is now the min */
-      packetizer->skew = packetizer->window_min;
-      packetizer->window_filling = FALSE;
+      pcr->skew = pcr->window_min;
+      pcr->window_filling = FALSE;
     } else {
       gint perc_time, perc_window, perc;
 
@@ -3237,73 +3501,70 @@ calculate_skew (MpegTSPacketizer2 * packetizer, guint64 pcrtime,
 
       /* quickly go to the min value when we are filling up, slowly when we are
        * just starting because we're not sure it's a good value yet. */
-      packetizer->skew =
-          (perc * packetizer->window_min + ((10000 -
-                  perc) * packetizer->skew)) / 10000;
-      packetizer->window_size = pos + 1;
+      pcr->skew =
+          (perc * pcr->window_min + ((10000 - perc) * pcr->skew)) / 10000;
+      pcr->window_size = pos + 1;
     }
   } else {
     /* pick old value and store new value. We keep the previous value in order
      * to quickly check if the min of the window changed */
-    old = packetizer->window[pos];
-    packetizer->window[pos++] = delta;
+    old = pcr->window[pos];
+    pcr->window[pos++] = delta;
 
-    if (G_UNLIKELY (delta <= packetizer->window_min)) {
+    if (G_UNLIKELY (delta <= pcr->window_min)) {
       /* if the new value we inserted is smaller or equal to the current min,
        * it becomes the new min */
-      packetizer->window_min = delta;
-    } else if (G_UNLIKELY (old == packetizer->window_min)) {
+      pcr->window_min = delta;
+    } else if (G_UNLIKELY (old == pcr->window_min)) {
       gint64 min = G_MAXINT64;
 
       /* if we removed the old min, we have to find a new min */
-      for (i = 0; i < packetizer->window_size; i++) {
+      for (i = 0; i < pcr->window_size; i++) {
         /* we found another value equal to the old min, we can stop searching now */
-        if (packetizer->window[i] == old) {
+        if (pcr->window[i] == old) {
           min = old;
           break;
         }
-        if (packetizer->window[i] < min)
-          min = packetizer->window[i];
+        if (pcr->window[i] < min)
+          min = pcr->window[i];
       }
-      packetizer->window_min = min;
+      pcr->window_min = min;
     }
     /* average the min values */
-    packetizer->skew =
-        (packetizer->window_min + (124 * packetizer->skew)) / 125;
+    pcr->skew = (pcr->window_min + (124 * pcr->skew)) / 125;
     GST_DEBUG ("delta %" G_GINT64_FORMAT ", new min: %" G_GINT64_FORMAT, delta,
-        packetizer->window_min);
+        pcr->window_min);
   }
   /* wrap around in the window */
-  if (G_UNLIKELY (pos >= packetizer->window_size))
+  if (G_UNLIKELY (pos >= pcr->window_size))
     pos = 0;
 
-  packetizer->window_pos = pos;
+  pcr->window_pos = pos;
 
 no_skew:
   /* the output time is defined as the base timestamp plus the PCR time
    * adjusted for the clock skew .*/
-  if (packetizer->base_time != -1) {
-    out_time = packetizer->base_time + send_diff;
+  if (pcr->base_time != -1) {
+    out_time = pcr->base_time + send_diff;
     /* skew can be negative and we don't want to make invalid timestamps */
-    if (packetizer->skew < 0 && out_time < -packetizer->skew) {
+    if (pcr->skew < 0 && out_time < -pcr->skew) {
       out_time = 0;
     } else {
-      out_time += packetizer->skew;
+      out_time += pcr->skew;
     }
     /* check if timestamps are not going backwards, we can only check this if we
      * have a previous out time and a previous send_diff */
-    if (G_LIKELY (packetizer->prev_out_time != -1
-            && packetizer->prev_send_diff != -1)) {
+    if (G_LIKELY (pcr->prev_out_time != -1 && pcr->prev_send_diff != -1)) {
       /* now check for backwards timestamps */
       if (G_UNLIKELY (
               /* if the server timestamps went up and the out_time backwards */
-              (send_diff > packetizer->prev_send_diff
-                  && out_time < packetizer->prev_out_time) ||
+              (send_diff > pcr->prev_send_diff
+                  && out_time < pcr->prev_out_time) ||
               /* if the server timestamps went backwards and the out_time forwards */
-              (send_diff < packetizer->prev_send_diff
-                  && out_time > packetizer->prev_out_time) ||
+              (send_diff < pcr->prev_send_diff
+                  && out_time > pcr->prev_out_time) ||
               /* if the server timestamps did not change */
-              send_diff == packetizer->prev_send_diff)) {
+              send_diff == pcr->prev_send_diff)) {
         GST_DEBUG ("backwards timestamps, using previous time");
         out_time = GSTTIME_TO_MPEGTIME (out_time);
       }
@@ -3313,41 +3574,42 @@ no_skew:
     out_time = time;
   }
 
-  packetizer->prev_out_time = out_time;
-  packetizer->prev_in_time = time;
-  packetizer->prev_send_diff = send_diff;
+  pcr->prev_out_time = out_time;
+  pcr->prev_in_time = time;
+  pcr->prev_send_diff = send_diff;
 
   GST_DEBUG ("skew %" G_GINT64_FORMAT ", out %" GST_TIME_FORMAT,
-      packetizer->skew, GST_TIME_ARGS (out_time));
+      pcr->skew, GST_TIME_ARGS (out_time));
 
   return out_time;
 }
 
 static void
-record_pcr (MpegTSPacketizer2 * packetizer, guint64 pcr, guint64 offset)
+record_pcr (MpegTSPacketizer2 * packetizer, MpegTSPCR * pcrtable, guint64 pcr,
+    guint64 offset)
 {
   MpegTSPacketizerPrivate *priv = packetizer->priv;
 
   /* Check against first PCR */
-  if (priv->first_pcr == -1 || priv->first_offset > offset) {
+  if (pcrtable->first_pcr == -1 || pcrtable->first_offset > offset) {
     GST_DEBUG ("Recording first value. PCR:%" G_GUINT64_FORMAT " offset:%"
-        G_GUINT64_FORMAT, pcr, offset);
-    priv->first_pcr = pcr;
-    priv->first_pcr_ts = PCRTIME_TO_GSTTIME (pcr);
-    priv->first_offset = offset;
+        G_GUINT64_FORMAT " pcr_pid:0x%04x", pcr, offset, pcrtable->pid);
+    pcrtable->first_pcr = pcr;
+    pcrtable->first_pcr_ts = PCRTIME_TO_GSTTIME (pcr);
+    pcrtable->first_offset = offset;
     priv->nb_seen_offsets++;
   } else
     /* If we didn't update the first PCR, let's check against last PCR */
-  if (priv->last_pcr == -1 || priv->last_offset < offset) {
+  if (pcrtable->last_pcr == -1 || pcrtable->last_offset < offset) {
     GST_DEBUG ("Recording last value. PCR:%" G_GUINT64_FORMAT " offset:%"
-        G_GUINT64_FORMAT, pcr, offset);
-    if (G_UNLIKELY (priv->first_pcr != -1 && pcr < priv->first_pcr)) {
+        G_GUINT64_FORMAT " pcr_pid:0x%04x", pcr, offset, pcrtable->pid);
+    if (G_UNLIKELY (pcrtable->first_pcr != -1 && pcr < pcrtable->first_pcr)) {
       GST_DEBUG ("rollover detected");
       pcr += PCR_MAX_VALUE;
     }
-    priv->last_pcr = pcr;
-    priv->last_pcr_ts = PCRTIME_TO_GSTTIME (pcr);
-    priv->last_offset = offset;
+    pcrtable->last_pcr = pcr;
+    pcrtable->last_pcr_ts = PCRTIME_TO_GSTTIME (pcr);
+    pcrtable->last_offset = offset;
     priv->nb_seen_offsets++;
   }
 }
@@ -3359,9 +3621,11 @@ mpegts_packetizer_get_seen_pcr (MpegTSPacketizer2 * packetizer)
 }
 
 GstClockTime
-mpegts_packetizer_offset_to_ts (MpegTSPacketizer2 * packetizer, guint64 offset)
+mpegts_packetizer_offset_to_ts (MpegTSPacketizer2 * packetizer, guint64 offset,
+    guint16 pid)
 {
   MpegTSPacketizerPrivate *priv = packetizer->priv;
+  MpegTSPCR *pcrtable;
   GstClockTime res;
 
   if (G_UNLIKELY (!packetizer->calculate_offset))
@@ -3373,10 +3637,12 @@ mpegts_packetizer_offset_to_ts (MpegTSPacketizer2 * packetizer, guint64 offset)
   if (G_UNLIKELY (offset < priv->refoffset))
     return GST_CLOCK_TIME_NONE;
 
+  pcrtable = get_pcr_table (packetizer, pid);
+
   /* Convert byte difference into time difference */
   res = PCRTIME_TO_GSTTIME (gst_util_uint64_scale (offset - priv->refoffset,
-          priv->last_pcr - priv->first_pcr,
-          priv->last_offset - priv->first_offset));
+          pcrtable->last_pcr - pcrtable->first_pcr,
+          pcrtable->last_offset - pcrtable->first_offset));
   GST_DEBUG ("Returning timestamp %" GST_TIME_FORMAT " for offset %"
       G_GUINT64_FORMAT, GST_TIME_ARGS (res), offset);
 
@@ -3384,48 +3650,59 @@ mpegts_packetizer_offset_to_ts (MpegTSPacketizer2 * packetizer, guint64 offset)
 }
 
 GstClockTime
-mpegts_packetizer_pts_to_ts (MpegTSPacketizer2 * packetizer, GstClockTime pts)
+mpegts_packetizer_pts_to_ts (MpegTSPacketizer2 * packetizer, GstClockTime pts,
+    guint16 pcr_pid)
 {
   GstClockTime res = GST_CLOCK_TIME_NONE;
+  MpegTSPCR *pcrtable = get_pcr_table (packetizer, pcr_pid);
 
   /* Use clock skew if present */
   if (packetizer->calculate_skew
-      && GST_CLOCK_TIME_IS_VALID (packetizer->base_time)) {
+      && GST_CLOCK_TIME_IS_VALID (pcrtable->base_time)) {
     GST_DEBUG ("pts %" G_GUINT64_FORMAT " base_pcrtime:%" G_GUINT64_FORMAT
-        " base_time:%" GST_TIME_FORMAT, pts, packetizer->base_pcrtime,
-        GST_TIME_ARGS (packetizer->base_time));
-    res = pts - packetizer->base_pcrtime + packetizer->base_time +
-        packetizer->skew;
+        " base_time:%" GST_TIME_FORMAT, pts, pcrtable->base_pcrtime,
+        GST_TIME_ARGS (pcrtable->base_time));
+    res =
+        pts + pcrtable->pcroffset - pcrtable->base_pcrtime +
+        pcrtable->base_time + pcrtable->skew;
   } else
     /* If not, use pcr observations */
-  if (packetizer->calculate_offset && packetizer->priv->first_pcr != -1) {
+  if (packetizer->calculate_offset && pcrtable->first_pcr != -1) {
     /* Rollover */
-    if (G_UNLIKELY (pts < packetizer->priv->first_pcr_ts))
+    if (G_UNLIKELY (pts < pcrtable->first_pcr_ts))
       pts += MPEGTIME_TO_GSTTIME (PTS_DTS_MAX_VALUE);
-    res = pts - packetizer->priv->first_pcr_ts;
+    res = pts - pcrtable->first_pcr_ts;
   }
 
   GST_DEBUG ("Returning timestamp %" GST_TIME_FORMAT " for pts %"
-      GST_TIME_FORMAT, GST_TIME_ARGS (res), GST_TIME_ARGS (pts));
+      GST_TIME_FORMAT " pcr_pid:0x%04x", GST_TIME_ARGS (res),
+      GST_TIME_ARGS (pts), pcr_pid);
   return res;
 }
 
 guint64
-mpegts_packetizer_ts_to_offset (MpegTSPacketizer2 * packetizer, GstClockTime ts)
+mpegts_packetizer_ts_to_offset (MpegTSPacketizer2 * packetizer, GstClockTime ts,
+    guint16 pcr_pid)
 {
   MpegTSPacketizerPrivate *priv = packetizer->priv;
+  MpegTSPCR *pcrtable;
   guint64 res;
 
-  if (!packetizer->calculate_offset || packetizer->priv->first_pcr == -1)
+  if (!packetizer->calculate_offset)
+    return -1;
+
+  pcrtable = get_pcr_table (packetizer, pcr_pid);
+  if (pcrtable->first_pcr == -1)
     return -1;
 
   GST_DEBUG ("ts(pcr) %" G_GUINT64_FORMAT " first_pcr:%" G_GUINT64_FORMAT,
-      GSTTIME_TO_MPEGTIME (ts), priv->first_pcr);
+      GSTTIME_TO_MPEGTIME (ts), pcrtable->first_pcr);
 
   /* Convert ts to PCRTIME */
   res = gst_util_uint64_scale (GSTTIME_TO_PCRTIME (ts),
-      priv->last_offset - priv->first_offset, priv->last_pcr - priv->first_pcr);
-  res += priv->first_offset + priv->refoffset;
+      pcrtable->last_offset - pcrtable->first_offset,
+      pcrtable->last_pcr - pcrtable->first_pcr);
+  res += pcrtable->first_offset + priv->refoffset;
 
   GST_DEBUG ("Returning offset %" G_GUINT64_FORMAT " for ts %" GST_TIME_FORMAT,
       res, GST_TIME_ARGS (ts));

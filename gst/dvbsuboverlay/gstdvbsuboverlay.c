@@ -99,7 +99,8 @@ static GstStateChangeReturn gst_dvbsub_overlay_change_state (GstElement *
 #define gst_dvbsub_overlay_parent_class parent_class
 G_DEFINE_TYPE (GstDVBSubOverlay, gst_dvbsub_overlay, GST_TYPE_ELEMENT);
 
-static GstCaps *gst_dvbsub_overlay_getcaps (GstPad * pad, GstCaps * filter);
+static GstCaps *gst_dvbsub_overlay_getcaps (GstDVBSubOverlay * render,
+    GstPad * pad, GstCaps * filter);
 
 static GstFlowReturn gst_dvbsub_overlay_chain_video (GstPad * pad,
     GstObject * parent, GstBuffer * buf);
@@ -368,14 +369,14 @@ gst_dvbsub_overlay_query_src (GstPad * pad, GstObject * parent,
       GstCaps *filter, *caps;
 
       gst_query_parse_caps (query, &filter);
-      caps = gst_dvbsub_overlay_getcaps (pad, filter);
+      caps = gst_dvbsub_overlay_getcaps (render, pad, filter);
       gst_query_set_caps_result (query, caps);
       gst_caps_unref (caps);
       ret = TRUE;
       break;
     }
     default:
-      ret = gst_pad_peer_query (render->video_sinkpad, query);
+      ret = gst_pad_query_default (pad, parent, query);
       break;
   }
 
@@ -424,9 +425,9 @@ gst_dvbsub_overlay_event_src (GstPad * pad, GstObject * parent,
 }
 
 static GstCaps *
-gst_dvbsub_overlay_getcaps (GstPad * pad, GstCaps * filter)
+gst_dvbsub_overlay_getcaps (GstDVBSubOverlay * render, GstPad * pad,
+    GstCaps * filter)
 {
-  GstDVBSubOverlay *render = GST_DVBSUB_OVERLAY (gst_pad_get_parent (pad));
   GstPad *otherpad;
   GstCaps *caps, *templ;
 
@@ -452,8 +453,6 @@ gst_dvbsub_overlay_getcaps (GstPad * pad, GstCaps * filter)
     /* no peer, our padtemplate is enough then */
     caps = templ;
   }
-
-  gst_object_unref (render);
 
   return caps;
 }
@@ -725,25 +724,9 @@ gst_dvbsub_overlay_subs_to_comp (GstDVBSubOverlay * overlay,
     for (k = 0; k < h; k++) {
       for (l = 0; l < w; l++) {
         guint32 ayuv;
-        gint a, y, u, v, r, g, b;
 
-        /* convert ayuv to argb */
         ayuv = palette[*in_data];
-        a = ayuv >> 24;
-        y = (ayuv >> 16) & 0xff;
-        u = (ayuv >> 8) & 0xff;
-        v = (ayuv & 0xff);
-
-        r = (298 * y + 459 * v - 63514) >> 8;
-        g = (298 * y - 55 * u - 136 * v + 19681) >> 8;
-        b = (298 * y + 541 * u - 73988) >> 8;
-
-        r = CLAMP (r, 0, 255);
-        g = CLAMP (g, 0, 255);
-        b = CLAMP (b, 0, 255);
-
-        *data = ((a << 24) | (r << 16) | (g << 8) | b);
-
+        GST_WRITE_UINT32_BE (data, ayuv);
         in_data++;
         data++;
       }
@@ -764,8 +747,8 @@ gst_dvbsub_overlay_subs_to_comp (GstDVBSubOverlay * overlay,
         rw, rh, rx, ry);
 
     gst_buffer_add_video_meta (buf, GST_VIDEO_FRAME_FLAG_NONE,
-        GST_VIDEO_OVERLAY_COMPOSITION_FORMAT_RGB, w, h);
-    rect = gst_video_overlay_rectangle_new_argb (buf, rx, ry, rw, rh, 0);
+        GST_VIDEO_OVERLAY_COMPOSITION_FORMAT_YUV, w, h);
+    rect = gst_video_overlay_rectangle_new_raw (buf, rx, ry, rw, rh, 0);
     g_assert (rect);
     if (comp) {
       gst_video_overlay_composition_add_rectangle (comp, rect);
@@ -937,6 +920,7 @@ static gboolean
 gst_dvbsub_overlay_query_video (GstPad * pad, GstObject * parent,
     GstQuery * query)
 {
+  GstDVBSubOverlay *render = (GstDVBSubOverlay *) parent;
   gboolean ret;
 
   switch (GST_QUERY_TYPE (query)) {
@@ -945,7 +929,7 @@ gst_dvbsub_overlay_query_video (GstPad * pad, GstObject * parent,
       GstCaps *filter, *caps;
 
       gst_query_parse_caps (query, &filter);
-      caps = gst_dvbsub_overlay_getcaps (pad, filter);
+      caps = gst_dvbsub_overlay_getcaps (render, pad, filter);
       gst_query_set_caps_result (query, caps);
       gst_caps_unref (caps);
       ret = TRUE;
