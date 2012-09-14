@@ -3,7 +3,7 @@
   <description>DVD Sub-picture Overlay element</description>
   <filename>../../gst/dvdspu/.libs/libgstdvdspu.so</filename>
   <basename>libgstdvdspu.so</basename>
-  <version>0.11.92</version>
+  <version>0.11.94</version>
   <license>LGPL</license>
   <source>gst-plugins-bad</source>
   <package>GStreamer Bad Plug-ins source release</package>
@@ -20,7 +20,7 @@
           <name>subpicture</name>
           <direction>sink</direction>
           <presence>always</presence>
-          <details>video/x-dvd-subpicture; subpicture/x-pgs</details>
+          <details>subpicture/x-dvd; subpicture/x-pgs</details>
         </caps>
         <caps>
           <name>video</name>

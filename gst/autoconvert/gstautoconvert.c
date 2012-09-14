@@ -1039,28 +1039,37 @@ gst_auto_convert_sink_query (GstPad * pad, GstObject * parent, GstQuery * query)
 
     gst_object_unref (sub_sinkpad);
     gst_object_unref (subelement);
-  } else {
-    if (GST_QUERY_TYPE (query) == GST_QUERY_ACCEPT_CAPS) {
-      GstCaps *caps;
-      GstCaps *accept_caps;
 
-      gst_query_parse_accept_caps (query, &accept_caps);
+    if (ret && GST_QUERY_TYPE (query) == GST_QUERY_ACCEPT_CAPS) {
+      gboolean res;
+      gst_query_parse_accept_caps_result (query, &res);
 
-      caps = gst_auto_convert_getcaps (autoconvert, accept_caps, GST_PAD_SINK);
-      gst_query_set_accept_caps_result (query,
-          gst_caps_can_intersect (caps, accept_caps));
-      gst_caps_unref (caps);
-
-      return TRUE;
+      if (!res)
+        goto ignore_acceptcaps_failure;
     }
-
-    GST_WARNING_OBJECT (autoconvert, "Got query %s while no element was"
-        " selected, letting through",
-        gst_query_type_get_name (GST_QUERY_TYPE (query)));
-    ret = gst_pad_peer_query (autoconvert->srcpad, query);
+    return ret;
   }
 
-  return ret;
+ignore_acceptcaps_failure:
+
+  if (GST_QUERY_TYPE (query) == GST_QUERY_ACCEPT_CAPS) {
+    GstCaps *caps;
+    GstCaps *accept_caps;
+
+    gst_query_parse_accept_caps (query, &accept_caps);
+
+    caps = gst_auto_convert_getcaps (autoconvert, accept_caps, GST_PAD_SINK);
+    gst_query_set_accept_caps_result (query,
+        gst_caps_can_intersect (caps, accept_caps));
+    gst_caps_unref (caps);
+
+    return TRUE;
+  }
+
+  GST_WARNING_OBJECT (autoconvert, "Got query %s while no element was"
+      " selected, letting through",
+      gst_query_type_get_name (GST_QUERY_TYPE (query)));
+  return gst_pad_peer_query (autoconvert->srcpad, query);
 }
 
 /**
@@ -1297,12 +1306,13 @@ gst_auto_convert_internal_src_event (GstPad * pad, GstObject * parent,
   gboolean drop = FALSE;
 
   GST_AUTOCONVERT_LOCK (autoconvert);
-  if (autoconvert->current_internal_sinkpad != pad) {
+  if (autoconvert->current_internal_srcpad != pad) {
     drop = TRUE;
   }
   GST_AUTOCONVERT_UNLOCK (autoconvert);
 
   if (drop) {
+    GST_DEBUG_OBJECT (autoconvert, "Dropping event %" GST_PTR_FORMAT, event);
     gst_event_unref (event);
     return TRUE;
   }
@@ -1317,6 +1327,16 @@ gst_auto_convert_internal_src_query (GstPad * pad, GstObject * parent,
   GstAutoConvert *autoconvert =
       GST_AUTO_CONVERT (g_object_get_qdata (G_OBJECT (pad),
           parent_quark));
+
+  if (GST_QUERY_TYPE (query) == GST_QUERY_CAPS) {
+    GstCaps *caps;
+
+    caps = gst_caps_new_any ();
+    gst_query_set_caps_result (query, caps);
+    gst_caps_unref (caps);
+
+    return TRUE;
+  }
 
   return gst_pad_peer_query (autoconvert->sinkpad, query);
 }

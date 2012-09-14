@@ -180,6 +180,8 @@ gst_mpeg4vparse_init (GstMpeg4VParse * parse)
 {
   parse->interval = DEFAULT_CONFIG_INTERVAL;
   parse->last_report = GST_CLOCK_TIME_NONE;
+
+  gst_base_parse_set_pts_interpolation (GST_BASE_PARSE (parse), FALSE);
 }
 
 static void
@@ -276,6 +278,44 @@ gst_mpeg4vparse_process_config (GstMpeg4VParse * mp4vparse,
   return TRUE;
 }
 
+static gboolean
+gst_mpeg4vparse_get_vop_coded (GstMpeg4VParse * mp4vparse, const guint8 * data,
+    gint vop_offset, gsize size, gsize frame_size)
+{
+  if (frame_size > 9) {         /* assuming bigger frame will always have vop_coded (saves some parsing) */
+    return TRUE;
+  } else if (size > vop_offset + 3) {
+    GstBitReader reader;
+    guint8 value;
+
+    gst_bit_reader_init (&reader, data + vop_offset + 1, size - vop_offset);
+    gst_bit_reader_skip (&reader, 2);   /* VOP_coding_type */
+
+    /* modulo_time_base (ends with 0) */
+    while (gst_bit_reader_get_bits_uint8 (&reader, &value, 1) && value);
+
+    /* marker_bit */
+    g_return_val_if_fail (gst_bit_reader_get_bits_uint8 (&reader, &value, 1)
+        && value, TRUE);
+
+    /* VOP_time_increment */
+    gst_bit_reader_skip (&reader, mp4vparse->vol.vop_time_increment_bits);
+
+    /* marker_bit */
+    g_return_val_if_fail (gst_bit_reader_get_bits_uint8 (&reader, &value, 1)
+        && value, TRUE);
+
+    /* VOP_coded */
+    if (!gst_bit_reader_get_bits_uint8 (&reader, &value, 1)) {
+      return FALSE;
+    }
+
+    return value;
+  }
+
+  return FALSE;
+}
+
 /* caller guarantees at least start code in @buf at @off */
 static gboolean
 gst_mpeg4vparse_process_sc (GstMpeg4VParse * mp4vparse, GstMpeg4Packet * packet,
@@ -295,8 +335,12 @@ gst_mpeg4vparse_process_sc (GstMpeg4VParse * mp4vparse, GstMpeg4Packet * packet,
       GST_WARNING_OBJECT (mp4vparse, "no data following VOP startcode");
       mp4vparse->intra_frame = FALSE;
     }
-    GST_LOG_OBJECT (mp4vparse, "ending frame of size %d, is intra %d",
-        packet->offset - 3, mp4vparse->intra_frame);
+    mp4vparse->vop_coded =
+        gst_mpeg4vparse_get_vop_coded (mp4vparse, packet->data,
+        mp4vparse->vop_offset, size, packet->offset - 3);
+    GST_LOG_OBJECT (mp4vparse,
+        "ending frame of size %d, is intra %d, vop_coded %d",
+        packet->offset - 3, mp4vparse->intra_frame, mp4vparse->vop_coded);
     return TRUE;
   }
 
@@ -491,6 +535,7 @@ static void
 gst_mpeg4vparse_update_src_caps (GstMpeg4VParse * mp4vparse)
 {
   GstCaps *caps = NULL;
+  GstStructure *s = NULL;
 
   GST_LOG_OBJECT (mp4vparse, "Updating caps");
 
@@ -505,6 +550,7 @@ gst_mpeg4vparse_update_src_caps (GstMpeg4VParse * mp4vparse)
     GstCaps *tmp = gst_caps_copy (caps);
     gst_caps_unref (caps);
     caps = tmp;
+    s = gst_caps_get_structure (caps, 0);
   } else {
     caps = gst_caps_new_simple ("video/mpeg",
         "mpegversion", G_TYPE_INT, 4, NULL);
@@ -528,8 +574,9 @@ gst_mpeg4vparse_update_src_caps (GstMpeg4VParse * mp4vparse)
         "height", G_TYPE_INT, mp4vparse->vol.height, NULL);
   }
 
-  /* perhaps we have  a framerate */
-  if (mp4vparse->vol.fixed_vop_time_increment != 0) {
+  /* perhaps we have a framerate */
+  if (mp4vparse->vol.fixed_vop_time_increment != 0 &&
+      (!s || !gst_structure_has_field (s, "framerate"))) {
     gint fps_num = mp4vparse->vol.vop_time_increment_resolution;
     gint fps_den = mp4vparse->vol.fixed_vop_time_increment;
     GstClockTime latency = gst_util_uint64_scale (GST_SECOND, fps_den, fps_num);
@@ -542,7 +589,8 @@ gst_mpeg4vparse_update_src_caps (GstMpeg4VParse * mp4vparse)
   }
 
   /* or pixel-aspect-ratio */
-  if (mp4vparse->vol.par_width > 0 && mp4vparse->vol.par_height > 0) {
+  if (mp4vparse->vol.par_width > 0 && mp4vparse->vol.par_height > 0 &&
+      (!s || !gst_structure_has_field (s, "pixel-aspect-ratio"))) {
     gst_caps_set_simple (caps, "pixel-aspect-ratio",
         GST_TYPE_FRACTION, mp4vparse->vol.par_width,
         mp4vparse->vol.par_height, NULL);
@@ -566,6 +614,9 @@ gst_mpeg4vparse_parse_frame (GstBaseParse * parse, GstBaseParseFrame * frame)
     GST_BUFFER_FLAG_UNSET (buffer, GST_BUFFER_FLAG_DELTA_UNIT);
   else
     GST_BUFFER_FLAG_SET (buffer, GST_BUFFER_FLAG_DELTA_UNIT);
+
+  if (!mp4vparse->vop_coded)    /* buffer without VOP_coded has no data */
+    GST_BUFFER_DURATION (buffer) = 0;
 
   if (G_UNLIKELY (mp4vparse->drop && !mp4vparse->config)) {
     GST_LOG_OBJECT (mp4vparse, "dropping frame as no config yet");

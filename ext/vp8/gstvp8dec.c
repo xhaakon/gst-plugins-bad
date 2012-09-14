@@ -54,10 +54,15 @@
 GST_DEBUG_CATEGORY_STATIC (gst_vp8dec_debug);
 #define GST_CAT_DEFAULT gst_vp8dec_debug
 
+#ifndef HAVE_VP8_MFQE
+#define VP8_MFQE (1<<10)
+#endif
+
 #define DEFAULT_POST_PROCESSING FALSE
-#define DEFAULT_POST_PROCESSING_FLAGS (VP8_DEBLOCK | VP8_DEMACROBLOCK)
+#define DEFAULT_POST_PROCESSING_FLAGS (VP8_DEBLOCK | VP8_DEMACROBLOCK | VP8_MFQE)
 #define DEFAULT_DEBLOCKING_LEVEL 4
 #define DEFAULT_NOISE_LEVEL 0
+#define DEFAULT_THREADS 1
 
 enum
 {
@@ -65,7 +70,8 @@ enum
   PROP_POST_PROCESSING,
   PROP_POST_PROCESSING_FLAGS,
   PROP_DEBLOCKING_LEVEL,
-  PROP_NOISE_LEVEL
+  PROP_NOISE_LEVEL,
+  PROP_THREADS
 };
 
 #define C_FLAGS(v) ((guint) v)
@@ -77,6 +83,7 @@ gst_vp8_dec_post_processing_flags_get_type (void)
     {C_FLAGS (VP8_DEBLOCK), "Deblock", "deblock"},
     {C_FLAGS (VP8_DEMACROBLOCK), "Demacroblock", "demacroblock"},
     {C_FLAGS (VP8_ADDNOISE), "Add noise", "addnoise"},
+    {C_FLAGS (VP8_MFQE), "Multi-frame quality enhancement", "mfqe"},
     {0, NULL, NULL}
   };
   static volatile GType id = 0;
@@ -163,6 +170,11 @@ gst_vp8_dec_class_init (GstVP8DecClass * klass)
           0, 16, DEFAULT_NOISE_LEVEL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property (gobject_class, PROP_THREADS,
+      g_param_spec_uint ("threads", "Max Threads",
+          "Maximum number of decoding threads",
+          1, 16, DEFAULT_THREADS, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&gst_vp8_dec_src_template));
   gst_element_class_add_pad_template (element_class,
@@ -221,6 +233,9 @@ gst_vp8_dec_set_property (GObject * object, guint prop_id,
     case PROP_NOISE_LEVEL:
       dec->noise_level = g_value_get_uint (value);
       break;
+    case PROP_THREADS:
+      dec->threads = g_value_get_uint (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -248,6 +263,9 @@ gst_vp8_dec_get_property (GObject * object, guint prop_id, GValue * value,
       break;
     case PROP_NOISE_LEVEL:
       g_value_set_uint (value, dec->noise_level);
+      break;
+    case PROP_THREADS:
+      g_value_set_uint (value, dec->threads);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -369,11 +387,13 @@ open_codec (GstVP8Dec * dec, GstVideoCodecFrame * frame)
   int flags = 0;
   vpx_codec_stream_info_t stream_info;
   vpx_codec_caps_t caps;
+  vpx_codec_dec_cfg_t cfg;
   GstVideoCodecState *state = dec->input_state;
   vpx_codec_err_t status;
   GstMapInfo minfo;
 
   memset (&stream_info, 0, sizeof (stream_info));
+  memset (&cfg, 0, sizeof (cfg));
   stream_info.sz = sizeof (stream_info);
 
   if (!gst_buffer_map (frame->input_buffer, &minfo, GST_MAP_READ)) {
@@ -396,7 +416,12 @@ open_codec (GstVP8Dec * dec, GstVideoCodecFrame * frame)
   dec->output_state =
       gst_video_decoder_set_output_state (GST_VIDEO_DECODER (dec),
       GST_VIDEO_FORMAT_I420, stream_info.w, stream_info.h, state);
+  gst_video_decoder_negotiate (GST_VIDEO_DECODER (dec));
   gst_vp8_dec_send_tags (dec);
+
+  cfg.w = stream_info.w;
+  cfg.h = stream_info.h;
+  cfg.threads = dec->threads;
 
   caps = vpx_codec_get_caps (&vpx_codec_vp8_dx_algo);
 
@@ -409,7 +434,7 @@ open_codec (GstVP8Dec * dec, GstVideoCodecFrame * frame)
   }
 
   status =
-      vpx_codec_dec_init (&dec->decoder, &vpx_codec_vp8_dx_algo, NULL, flags);
+      vpx_codec_dec_init (&dec->decoder, &vpx_codec_vp8_dx_algo, &cfg, flags);
   if (status != VPX_CODEC_OK) {
     GST_ELEMENT_ERROR (dec, LIBRARY, INIT,
         ("Failed to initialize VP8 decoder"), ("%s",
@@ -420,7 +445,11 @@ open_codec (GstVP8Dec * dec, GstVideoCodecFrame * frame)
   if ((caps & VPX_CODEC_CAP_POSTPROC) && dec->post_processing) {
     vp8_postproc_cfg_t pp_cfg = { 0, };
 
+#ifndef HAVE_VP8_MFQE
+    pp_cfg.post_proc_flag = (dec->post_processing_flags & (~VP8_MFQE));
+#else
     pp_cfg.post_proc_flag = dec->post_processing_flags;
+#endif
     pp_cfg.deblocking_level = dec->deblocking_level;
     pp_cfg.noise_level = dec->noise_level;
 

@@ -134,14 +134,11 @@ libgstresindvd_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 am_libgstresindvd_la_OBJECTS = libgstresindvd_la-plugin.lo \
 	libgstresindvd_la-resindvdbin.lo \
-	libgstresindvd_la-rsnaudiomunge.lo libgstresindvd_la-rsndec.lo \
-	libgstresindvd_la-rsnstreamselector.lo \
-	libgstresindvd_la-resindvdsrc.lo \
+	libgstresindvd_la-resindvdsrc.lo libgstresindvd_la-rsndec.lo \
 	libgstresindvd_la-gstmpegdesc.lo \
 	libgstresindvd_la-gstmpegdemux.lo \
 	libgstresindvd_la-gstpesfilter.lo \
-	libgstresindvd_la-rsnparsetter.lo \
-	libgstresindvd_la-rsnwrappedbuffer.lo
+	libgstresindvd_la-rsninputselector.lo
 libgstresindvd_la_OBJECTS = $(am_libgstresindvd_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -353,6 +350,8 @@ GST_PLUGIN_LDFLAGS = @GST_PLUGIN_LDFLAGS@
 GST_PREFIX = @GST_PREFIX@
 GST_REVISION = @GST_REVISION@
 GST_TOOLS_DIR = @GST_TOOLS_DIR@
+GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
+GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTKDOC_CHECK = @GTKDOC_CHECK@
 GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
 GTKDOC_DEPS_LIBS = @GTKDOC_DEPS_LIBS@
@@ -360,6 +359,8 @@ GTKDOC_MKPDF = @GTKDOC_MKPDF@
 GTKDOC_REBASE = @GTKDOC_REBASE@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_LIBS = @GTK_LIBS@
+G_UDEV_CFLAGS = @G_UDEV_CFLAGS@
+G_UDEV_LIBS = @G_UDEV_LIBS@
 HAVE_BZ2 = @HAVE_BZ2@
 HAVE_CXX = @HAVE_CXX@
 HAVE_DIRECT3D = @HAVE_DIRECT3D@
@@ -374,7 +375,6 @@ HAVE_FLITE = @HAVE_FLITE@
 HAVE_GSM = @HAVE_GSM@
 HAVE_JASPER = @HAVE_JASPER@
 HAVE_NAS = @HAVE_NAS@
-HAVE_VPX = @HAVE_VPX@
 HAVE_WILDMIDI = @HAVE_WILDMIDI@
 HAVE_X = @HAVE_X@
 HAVE_X11 = @HAVE_X11@
@@ -402,6 +402,10 @@ LIBMMS_LIBS = @LIBMMS_LIBS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
+LIBUDEV_CFLAGS = @LIBUDEV_CFLAGS@
+LIBUDEV_LIBS = @LIBUDEV_LIBS@
+LIBUSB_CFLAGS = @LIBUSB_CFLAGS@
+LIBUSB_LIBS = @LIBUSB_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -528,6 +532,7 @@ VOAACENC_CFLAGS = @VOAACENC_CFLAGS@
 VOAACENC_LIBS = @VOAACENC_LIBS@
 VOAMRWBENC_CFLAGS = @VOAMRWBENC_CFLAGS@
 VOAMRWBENC_LIBS = @VOAMRWBENC_LIBS@
+VPX_CFLAGS = @VPX_CFLAGS@
 VPX_LIBS = @VPX_LIBS@
 WARNING_CFLAGS = @WARNING_CFLAGS@
 WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
@@ -618,31 +623,28 @@ plugin_LTLIBRARIES = libgstresindvd.la
 libgstresindvd_la_SOURCES = \
         plugin.c \
         resindvdbin.c \
-	rsnaudiomunge.c \
-	rsndec.c \
-	rsnstreamselector.c \
         resindvdsrc.c  \
+	rsndec.c \
         gstmpegdesc.c   \
         gstmpegdemux.c  \
         gstpesfilter.c \
-	rsnparsetter.c \
-	rsnwrappedbuffer.c
+	rsninputselector.c \
+	# rsnparsetter.c \
+	# rsnwrappedbuffer.c
 
 libgstresindvd_la_CFLAGS = $(GST_PLUGINS_BAD_CFLAGS) \
 $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) \
 $(GST_CFLAGS) $(DVDNAV_CFLAGS)
 
 libgstresindvd_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) \
--lgstinterfaces-$(GST_API_VERSION) -lgstvideo-$(GST_API_VERSION) \
--lgstpbutils-$(GST_API_VERSION) \
+-lgstvideo-$(GST_API_VERSION) -lgstpbutils-$(GST_API_VERSION) \
 $(GST_BASE_LIBS) $(GST_LIBS) $(DVDNAV_LIBS)
 
 libgstresindvd_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstresindvd_la_LIBTOOLFLAGS = --tag=disable-static
 noinst_HEADERS = resindvdbin.h \
-	rsnaudiomunge.h \
 	rsndec.h \
-	rsnstreamselector.h \
+	rsninputselector.h \
         resindvdsrc.h \
         gstmpegdefs.h \
         gstmpegdesc.h \
@@ -733,11 +735,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstresindvd_la-plugin.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstresindvd_la-resindvdbin.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstresindvd_la-resindvdsrc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstresindvd_la-rsnaudiomunge.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstresindvd_la-rsndec.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstresindvd_la-rsnparsetter.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstresindvd_la-rsnstreamselector.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstresindvd_la-rsnwrappedbuffer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstresindvd_la-rsninputselector.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -774,12 +773,12 @@ libgstresindvd_la-resindvdbin.lo: resindvdbin.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -c -o libgstresindvd_la-resindvdbin.lo `test -f 'resindvdbin.c' || echo '$(srcdir)/'`resindvdbin.c
 
-libgstresindvd_la-rsnaudiomunge.lo: rsnaudiomunge.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -MT libgstresindvd_la-rsnaudiomunge.lo -MD -MP -MF $(DEPDIR)/libgstresindvd_la-rsnaudiomunge.Tpo -c -o libgstresindvd_la-rsnaudiomunge.lo `test -f 'rsnaudiomunge.c' || echo '$(srcdir)/'`rsnaudiomunge.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstresindvd_la-rsnaudiomunge.Tpo $(DEPDIR)/libgstresindvd_la-rsnaudiomunge.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rsnaudiomunge.c' object='libgstresindvd_la-rsnaudiomunge.lo' libtool=yes @AMDEPBACKSLASH@
+libgstresindvd_la-resindvdsrc.lo: resindvdsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -MT libgstresindvd_la-resindvdsrc.lo -MD -MP -MF $(DEPDIR)/libgstresindvd_la-resindvdsrc.Tpo -c -o libgstresindvd_la-resindvdsrc.lo `test -f 'resindvdsrc.c' || echo '$(srcdir)/'`resindvdsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstresindvd_la-resindvdsrc.Tpo $(DEPDIR)/libgstresindvd_la-resindvdsrc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='resindvdsrc.c' object='libgstresindvd_la-resindvdsrc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -c -o libgstresindvd_la-rsnaudiomunge.lo `test -f 'rsnaudiomunge.c' || echo '$(srcdir)/'`rsnaudiomunge.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -c -o libgstresindvd_la-resindvdsrc.lo `test -f 'resindvdsrc.c' || echo '$(srcdir)/'`resindvdsrc.c
 
 libgstresindvd_la-rsndec.lo: rsndec.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -MT libgstresindvd_la-rsndec.lo -MD -MP -MF $(DEPDIR)/libgstresindvd_la-rsndec.Tpo -c -o libgstresindvd_la-rsndec.lo `test -f 'rsndec.c' || echo '$(srcdir)/'`rsndec.c
@@ -787,20 +786,6 @@ libgstresindvd_la-rsndec.lo: rsndec.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rsndec.c' object='libgstresindvd_la-rsndec.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -c -o libgstresindvd_la-rsndec.lo `test -f 'rsndec.c' || echo '$(srcdir)/'`rsndec.c
-
-libgstresindvd_la-rsnstreamselector.lo: rsnstreamselector.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -MT libgstresindvd_la-rsnstreamselector.lo -MD -MP -MF $(DEPDIR)/libgstresindvd_la-rsnstreamselector.Tpo -c -o libgstresindvd_la-rsnstreamselector.lo `test -f 'rsnstreamselector.c' || echo '$(srcdir)/'`rsnstreamselector.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstresindvd_la-rsnstreamselector.Tpo $(DEPDIR)/libgstresindvd_la-rsnstreamselector.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rsnstreamselector.c' object='libgstresindvd_la-rsnstreamselector.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -c -o libgstresindvd_la-rsnstreamselector.lo `test -f 'rsnstreamselector.c' || echo '$(srcdir)/'`rsnstreamselector.c
-
-libgstresindvd_la-resindvdsrc.lo: resindvdsrc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -MT libgstresindvd_la-resindvdsrc.lo -MD -MP -MF $(DEPDIR)/libgstresindvd_la-resindvdsrc.Tpo -c -o libgstresindvd_la-resindvdsrc.lo `test -f 'resindvdsrc.c' || echo '$(srcdir)/'`resindvdsrc.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstresindvd_la-resindvdsrc.Tpo $(DEPDIR)/libgstresindvd_la-resindvdsrc.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='resindvdsrc.c' object='libgstresindvd_la-resindvdsrc.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -c -o libgstresindvd_la-resindvdsrc.lo `test -f 'resindvdsrc.c' || echo '$(srcdir)/'`resindvdsrc.c
 
 libgstresindvd_la-gstmpegdesc.lo: gstmpegdesc.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -MT libgstresindvd_la-gstmpegdesc.lo -MD -MP -MF $(DEPDIR)/libgstresindvd_la-gstmpegdesc.Tpo -c -o libgstresindvd_la-gstmpegdesc.lo `test -f 'gstmpegdesc.c' || echo '$(srcdir)/'`gstmpegdesc.c
@@ -823,19 +808,12 @@ libgstresindvd_la-gstpesfilter.lo: gstpesfilter.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -c -o libgstresindvd_la-gstpesfilter.lo `test -f 'gstpesfilter.c' || echo '$(srcdir)/'`gstpesfilter.c
 
-libgstresindvd_la-rsnparsetter.lo: rsnparsetter.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -MT libgstresindvd_la-rsnparsetter.lo -MD -MP -MF $(DEPDIR)/libgstresindvd_la-rsnparsetter.Tpo -c -o libgstresindvd_la-rsnparsetter.lo `test -f 'rsnparsetter.c' || echo '$(srcdir)/'`rsnparsetter.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstresindvd_la-rsnparsetter.Tpo $(DEPDIR)/libgstresindvd_la-rsnparsetter.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rsnparsetter.c' object='libgstresindvd_la-rsnparsetter.lo' libtool=yes @AMDEPBACKSLASH@
+libgstresindvd_la-rsninputselector.lo: rsninputselector.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -MT libgstresindvd_la-rsninputselector.lo -MD -MP -MF $(DEPDIR)/libgstresindvd_la-rsninputselector.Tpo -c -o libgstresindvd_la-rsninputselector.lo `test -f 'rsninputselector.c' || echo '$(srcdir)/'`rsninputselector.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstresindvd_la-rsninputselector.Tpo $(DEPDIR)/libgstresindvd_la-rsninputselector.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rsninputselector.c' object='libgstresindvd_la-rsninputselector.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -c -o libgstresindvd_la-rsnparsetter.lo `test -f 'rsnparsetter.c' || echo '$(srcdir)/'`rsnparsetter.c
-
-libgstresindvd_la-rsnwrappedbuffer.lo: rsnwrappedbuffer.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -MT libgstresindvd_la-rsnwrappedbuffer.lo -MD -MP -MF $(DEPDIR)/libgstresindvd_la-rsnwrappedbuffer.Tpo -c -o libgstresindvd_la-rsnwrappedbuffer.lo `test -f 'rsnwrappedbuffer.c' || echo '$(srcdir)/'`rsnwrappedbuffer.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstresindvd_la-rsnwrappedbuffer.Tpo $(DEPDIR)/libgstresindvd_la-rsnwrappedbuffer.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rsnwrappedbuffer.c' object='libgstresindvd_la-rsnwrappedbuffer.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -c -o libgstresindvd_la-rsnwrappedbuffer.lo `test -f 'rsnwrappedbuffer.c' || echo '$(srcdir)/'`rsnwrappedbuffer.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstresindvd_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstresindvd_la_CFLAGS) $(CFLAGS) -c -o libgstresindvd_la-rsninputselector.lo `test -f 'rsninputselector.c' || echo '$(srcdir)/'`rsninputselector.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

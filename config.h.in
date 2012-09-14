@@ -256,6 +256,9 @@
 /* Define to enable GSM library (used by gsmenc gsmdec). */
 #undef HAVE_GSM
 
+/* Define if gudev is installed */
+#undef HAVE_GUDEV
+
 /* Define to 1 if you have the <highgui.h> header file. */
 #undef HAVE_HIGHGUI_H
 
@@ -288,6 +291,9 @@
 
 /* Define to 1 if you have the `socket' library (-lsocket). */
 #undef HAVE_LIBSOCKET
+
+/* Define if libusb 1.x is installed */
+#undef HAVE_LIBUSB
 
 /* Define to enable Linear Systems SDI plugin (used by linsys). */
 #undef HAVE_LINSYS
@@ -466,6 +472,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define to enable UVC H264 (used by uvch264). */
+#undef HAVE_UVCH264
+
 /* Define if valgrind should be used */
 #undef HAVE_VALGRIND
 
@@ -492,6 +501,9 @@
 
 /* Defined if the VP8 encoder is available */
 #undef HAVE_VP8_ENCODER
+
+/* Defined if the VP8 decoder has MFQE support */
+#undef HAVE_VP8_MFQE
 
 /* Define to enable wayland sink (used by wayland ). */
 #undef HAVE_WAYLAND

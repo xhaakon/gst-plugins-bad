@@ -86,8 +86,9 @@ GST_STATIC_PAD_TEMPLATE ("src",
         "width=(int)[1,MAX], height=(int)[1,MAX], "
         "framerate=(fraction)[0/1,MAX], "
         "pixel-aspect-ratio=(fraction)[0/1,MAX], "
-        "interlaced=(boolean){TRUE,FALSE}, "
-        "profile=(int)[0,MAX], level=(int)[0,MAX]")
+        "interlace-mode=(string) { progressive, interleaved }, "
+        "profile=(string){ vc2-low-delay, vc2-simple, vc2-main, main }, "
+        "level=(string) { 0, 1, 128}")
     );
 
 /* class initialization */
@@ -134,6 +135,7 @@ static void
 gst_dirac_parse_init (GstDiracParse * diracparse)
 {
   gst_base_parse_set_min_frame_size (GST_BASE_PARSE (diracparse), 13);
+  gst_base_parse_set_pts_interpolation (GST_BASE_PARSE (diracparse), FALSE);
 }
 
 void
@@ -202,6 +204,42 @@ gst_dirac_parse_set_sink_caps (GstBaseParse * parse, GstCaps * caps)
 {
   /* Called when sink caps are set */
   return TRUE;
+}
+
+static const gchar *
+get_profile_name (int profile)
+{
+  switch (profile) {
+    case 0:
+      return "vc2-low-delay";
+    case 1:
+      return "vc2-simple";
+    case 2:
+      return "vc2-main";
+    case 8:
+      return "main";
+    default:
+      break;
+  }
+  return "unknown";
+}
+
+static const gchar *
+get_level_name (int level)
+{
+  switch (level) {
+    case 0:
+      return "0";
+    case 1:
+      return "1";
+    case 128:
+      return "128";
+    default:
+      break;
+  }
+  /* need to add it to template caps, so return 0 for now */
+  GST_WARNING ("unhandled dirac level %u", level);
+  return "0";
 }
 
 static GstFlowReturn
@@ -309,9 +347,10 @@ gst_dirac_parse_handle_frame (GstBaseParse * parse,
           "pixel-aspect-ratio", GST_TYPE_FRACTION,
           sequence_header.aspect_ratio_numerator,
           sequence_header.aspect_ratio_denominator,
-          "interlaced", G_TYPE_BOOLEAN, sequence_header.interlaced,
-          "profile", G_TYPE_INT, sequence_header.profile,
-          "level", G_TYPE_INT, sequence_header.level, NULL);
+          "interlace-mode", G_TYPE_STRING,
+          sequence_header.interlaced ? "interleaved" : "progressive",
+          "profile", G_TYPE_STRING, get_profile_name (sequence_header.profile),
+          "level", G_TYPE_STRING, get_level_name (sequence_header.level), NULL);
       gst_pad_set_caps (GST_BASE_PARSE_SRC_PAD (parse), caps);
       gst_caps_unref (caps);
 

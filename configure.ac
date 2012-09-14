@@ -3,7 +3,7 @@ AC_PREREQ(2.62)
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT(GStreamer Bad Plug-ins, 0.11.93,
+AC_INIT(GStreamer Bad Plug-ins, 0.11.94,
     http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer,
     gst-plugins-bad)
 
@@ -53,8 +53,8 @@ dnl sets GST_LT_LDFLAGS
 AS_LIBTOOL(GST, 0, 0, 0)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=0.11.93
-GSTPB_REQ=0.11.93
+GST_REQ=0.11.94
+GSTPB_REQ=0.11.94
 
 dnl *** autotools stuff ****
 
@@ -126,7 +126,7 @@ AC_PATH_PROG(VALGRIND_PATH, valgrind, no)
 AM_CONDITIONAL(HAVE_VALGRIND, test ! "x$VALGRIND_PATH" = "xno")
 
 dnl check for documentation tools
-GTK_DOC_CHECK([1.3])
+GTK_DOC_CHECK([1.12])
 AS_PATH_PYTHON([2.1])
 AG_GST_PLUGIN_DOCS([1.3],[2.1])
 
@@ -313,19 +313,19 @@ dnl Make sure you have a space before and after all plugins
 GST_PLUGINS_NONPORTED=" aiff \
  cdxaparse \
  dccp faceoverlay \
- fieldanalysis freeverb freeze frei0r \
- hdvparse id3tag inter ivfparse jpegformat jp2kdecimator \
- kate liveadder librfb \
+ fieldanalysis freeverb frei0r \
+ hdvparse ivfparse jp2kdecimator \
+ kate librfb \
  mpegpsmux mve mxf mythtv nsf nuvdemux \
- patchdetect pnm real \
- sdi siren speed subenc stereo tta videofilters \
+ patchdetect real \
+ sdi subenc stereo tta videofilters \
  videomeasure videosignal vmnc \
  decklink fbdev linsys vcd \
- apexsink cdaudio cog dc1394 dirac directfb resindvd \
+ apexsink cdaudio cog dc1394 dirac directfb \
  gsettings jasper ladspa \
- musepack musicbrainz nas neon ofa openal rsvg sdl sndfile spandsp spc timidity \
+ musepack musicbrainz nas neon ofa openal rsvg sdl sndfile timidity \
  directsound directdraw direct3d9 acm wininet \
- wildmidi xvid lv2 teletextdec dvb sndio"
+ wildmidi xvid lv2 teletextdec sndio uvch264"
 AC_SUBST(GST_PLUGINS_NONPORTED)
 
 dnl these are all the gst plug-ins, compilable without additional libs
@@ -353,6 +353,7 @@ AG_GST_CHECK_PLUGIN(freeverb)
 AG_GST_CHECK_PLUGIN(frei0r)
 AG_GST_CHECK_PLUGIN(gaudieffects)
 AG_GST_CHECK_PLUGIN(geometrictransform)
+AG_GST_CHECK_PLUGIN(gdp)
 AG_GST_CHECK_PLUGIN(hdvparse)
 AG_GST_CHECK_PLUGIN(hls)
 AG_GST_CHECK_PLUGIN(id3tag)
@@ -567,7 +568,7 @@ AG_GST_CHECK_FEATURE(DIRECTSHOW, [DirectShow plug-in], winks, [
   LDFLAGS="$LDFLAGS $DIRECTX_LDFLAGS"
   LIBS="$LIBS -lole32 -luuid -lstrmiids"
   AC_MSG_CHECKING(for DirectShow LDFLAGS)
-  AC_LINK_IFELSE([
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <windows.h>
 #include <strmif.h>
 #include <uuids.h>
@@ -580,7 +581,7 @@ int main () {
 
   return 0;
 }
-],
+]])],
     [HAVE_DIRECTSHOW="yes"],
     [HAVE_DIRECTSHOW="no"])
   AC_MSG_RESULT($HAVE_DIRECTSHOW)
@@ -688,6 +689,34 @@ translit(dnm, m, l) AM_CONDITIONAL(USE_VCD, true)
 AG_GST_CHECK_FEATURE(VCD, [Video CD], vcdsrc, [
   AC_CHECK_HEADER(linux/cdrom.h, HAVE_VCD="yes", HAVE_VCD="no")
 ])
+
+
+dnl *** UVC H264 ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_UVCH264, true)
+AG_GST_CHECK_FEATURE(UVCH264, [UVC H264], uvch264, [
+  AC_CHECK_HEADER(linux/uvcvideo.h, HAVE_UVCVIDEO_H=yes, HAVE_UVCVIDEO_H=no)
+  AG_GST_PKG_CHECK_MODULES(GST_VIDEO, gstreamer-video-0.10 >= 0.10.36)
+  PKG_CHECK_MODULES(G_UDEV, gudev-1.0 , [
+          AC_DEFINE([HAVE_GUDEV], 1, [Define if gudev is installed])
+          HAVE_GUDEV="yes" ],
+          [HAVE_GUDEV="no"])
+  PKG_CHECK_MODULES(LIBUSB, libusb-1.0 , [
+          AC_DEFINE([HAVE_LIBUSB], 1, [Define if libusb 1.x is installed])
+          HAVE_LIBUSB="yes" ],
+          [HAVE_LIBUSB="no"])
+  if test "x$HAVE_UVCVIDEO_H" == "xyes" && \
+     test "x$HAVE_GUDEV" == "xyes" && \
+     test "x$HAVE_LIBUSB" == "xyes"; then
+    HAVE_UVCH264=yes
+  else
+    HAVE_UVCH264=no
+  fi
+])
+AC_SUBST(LIBUDEV_CFLAGS)
+AC_SUBST(LIBUDEV_LIBS)
+AC_SUBST(LIBUSB_CFLAGS)
+AC_SUBST(LIBUSB_LIBS)
+
 
 dnl *** ext plug-ins ***
 dnl keep this list sorted alphabetically !
@@ -898,26 +927,9 @@ AG_GST_CHECK_FEATURE(DIRECTFB, [directfb], dfbvideosink , [
 dnl **** Wayland ****
 translit(dnm, m, l) AM_CONDITIONAL(USE_WAYLAND, true)
 AG_GST_CHECK_FEATURE(WAYLAND, [wayland sink], wayland , [
-  PKG_CHECK_MODULES(WAYLAND, wayland-server <= 0.85.0 wayland-client <= 0.85.0, [
-    AC_CHECK_HEADER(wayland-client.h, HAVE_WAYLAND_CLIENT="yes", HAVE_WAYLAND_CLIENT="no")
-    AC_CHECK_HEADER(wayland-client-protocol.h, HAVE_WAYLAND_CLIENT_PROTOCOL="yes", HAVE_WAYLAND_CLIENT_PROTOCOL="no")
-    if test "x$HAVE_WAYLAND_CLIENT" = "xno"; then
-      AC_MSG_RESULT(wayland-client.h could not be found.)
-      HAVE_WAYLAND="no"
-    elif test "x$HAVE_WAYLAND_CLIENT_PROTOCOL" = "xno"; then
-      AC_MSG_RESULT(wayland-client-protocol.h could not be found.)
-      HAVE_WAYLAND="no"
-    else
-      HAVE_WAYLAND="yes"
-      WAYLAND_LIBS="-lwayland-client"
-    fi
-  ], [
-    AC_MSG_RESULT(no wayland.)
-    HAVE_WAYLAND="no"
+  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 0.95.0, [
+    HAVE_WAYLAND="yes" ], [ HAVE_WAYLAND="no"
   ])
-WAYLAND_CFLAGS=""
-AC_SUBST(WAYLAND_CFLAGS)
-AC_SUBST(WAYLAND_LIBS)
 ])
 
 dnl **** Dirac ****
@@ -1761,19 +1773,17 @@ AG_GST_CHECK_FEATURE(ZBAR, [ZBar barcode detector], zbar, [
 dnl *** vp8 ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_VP8, vp8)
 AG_GST_CHECK_FEATURE(VP8, [VP8 decoder], vp8, [
-  VPX_LIBS=""
-  AG_GST_CHECK_LIBHEADER(VPX, vpx,
-                        vpx_codec_version, ,
-                        vpx/vpx_codec.h, [
+  PKG_CHECK_MODULES(VPX, vpx, [HAVE_VPX="yes"], [HAVE_VPX="no"])
+
+  if test $HAVE_VPX = "yes"; then
     HAVE_VP8_ENCODER=no
     HAVE_VP8_DECODER=no
 
     OLD_LIBS="$LIBS"
-    LIBS="$LIBS $LIBM -lpthread"
+    LIBS="$LIBS $VPX_LIBS"
     AC_CHECK_LIB(vpx, vpx_codec_vp8_cx_algo, [
       HAVE_VP8=yes
       AC_DEFINE(HAVE_VP8_ENCODER, 1, [Defined if the VP8 encoder is available])
-      VPX_LIBS="-lvpx"
 
       AC_MSG_CHECKING([for VP8E_SET_TUNING presence])
       AC_TRY_COMPILE([
@@ -1792,11 +1802,24 @@ return 0;
     AC_CHECK_LIB(vpx, vpx_codec_vp8_dx_algo, [
       HAVE_VP8=yes
       AC_DEFINE(HAVE_VP8_DECODER, 1, [Defined if the VP8 decoder is available])
-      VPX_LIBS="-lvpx"
+      AC_MSG_CHECKING([for VP8_MFQE presence])
+      AC_TRY_COMPILE([
+#include <vpx/vpx_decoder.h>
+#include <vpx/vp8dx.h>
+int foo=VP8_MFQE;
+      ], [
+return 0;
+      ], [
+        AC_DEFINE(HAVE_VP8_MFQE, 1, [Defined if the VP8 decoder has MFQE support])
+	AC_MSG_RESULT(yes)
+      ], [
+	AC_MSG_RESULT(no)
+      ])
     ])
     LIBS="$OLD_LIBS"
-  ])
+  fi
   AC_SUBST(VPX_LIBS)
+  AC_SUBST(VPX_CFLAGS)
 ])
 
 dnl *** rtmp ***
@@ -1911,6 +1934,7 @@ AM_CONDITIONAL(USE_VP8, false)
 AM_CONDITIONAL(USE_RTMP, false)
 AM_CONDITIONAL(USE_TELETEXTDEC, false)
 AM_CONDITIONAL(USE_SNDIO, false)
+AM_CONDITIONAL(USE_UVCH264, false)
 
 fi dnl of EXT plugins
 
@@ -2017,6 +2041,7 @@ gst/freeverb/Makefile
 gst/frei0r/Makefile
 gst/gaudieffects/Makefile
 gst/geometrictransform/Makefile
+gst/gdp/Makefile
 gst/hdvparse/Makefile
 gst/hls/Makefile
 gst/id3tag/Makefile
@@ -2085,6 +2110,7 @@ sys/linsys/Makefile
 sys/osxvideo/Makefile
 sys/qtwrapper/Makefile
 sys/shm/Makefile
+sys/uvch264/Makefile
 sys/vcd/Makefile
 sys/vdpau/Makefile
 sys/vdpau/gstvdp/Makefile
@@ -2103,6 +2129,7 @@ tests/examples/directfb/Makefile
 tests/examples/mxf/Makefile
 tests/examples/scaletempo/Makefile
 tests/examples/opencv/Makefile
+tests/examples/uvch264/Makefile
 tests/icles/Makefile
 ext/voamrwbenc/Makefile
 ext/voaacenc/Makefile

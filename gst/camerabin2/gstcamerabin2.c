@@ -390,20 +390,7 @@ gst_camera_bin_start_capture (GstCameraBin2 * camerabin)
   if (camerabin->location)
     location = g_strdup_printf (camerabin->location, capture_index);
 
-  if (camerabin->mode == MODE_VIDEO) {
-    if (camerabin->audio_src) {
-      GstClock *clock = gst_pipeline_get_clock (GST_PIPELINE_CAST (camerabin));
-
-      gst_element_set_state (camerabin->audio_src, GST_STATE_PAUSED);
-
-      gst_element_set_base_time (camerabin->audio_src,
-          gst_element_get_base_time (GST_ELEMENT_CAST (camerabin)));
-      if (clock) {
-        gst_element_set_clock (camerabin->audio_src, clock);
-        gst_object_unref (clock);
-      }
-    }
-  } else {
+  if (camerabin->mode == MODE_IMAGE) {
     /* store the next capture buffer filename */
     g_mutex_lock (&camerabin->image_capture_mutex);
     camerabin->image_location_list =
@@ -1191,13 +1178,11 @@ encodebin_element_added (GstElement * encodebin, GstElement * new_element,
     }
   }
 
-  /* TODO porting
-     if (gst_element_implements_interface (new_element, GST_TYPE_TAG_SETTER)) {
-     GstTagSetter *tagsetter = GST_TAG_SETTER (new_element);
+  if (GST_IS_TAG_SETTER (new_element)) {
+    GstTagSetter *tagsetter = GST_TAG_SETTER (new_element);
 
-     gst_tag_setter_set_tag_merge_mode (tagsetter, GST_TAG_MERGE_REPLACE);
-     }
-   */
+    gst_tag_setter_set_tag_merge_mode (tagsetter, GST_TAG_MERGE_REPLACE);
+  }
 }
 
 #define VIDEO_PAD 1
@@ -1261,7 +1246,12 @@ encodebin_find_pad (GstCameraBin2 * camera, GstElement * encodebin,
 
     klass = GST_ELEMENT_GET_CLASS (encodebin);
     tmpl = gst_element_class_get_pad_template (klass, pad_type == VIDEO_PAD ?
-        "video_%d" : "audio_%d");
+        "video_%u" : "audio_%u");
+
+    if (!tmpl) {
+      GST_DEBUG_OBJECT (camera, "No templates found, can't request pad");
+      return NULL;
+    }
 
     pad = gst_element_request_pad (encodebin, tmpl, NULL, NULL);
     GST_DEBUG_OBJECT (camera, "Got pad: %s", pad ? GST_PAD_NAME (pad) : "null");
@@ -1444,9 +1434,9 @@ gst_camera_bin_audio_src_data_probe (GstPad * pad, GstPadProbeInfo * info,
   GstCameraBin2 *camera = data;
   gboolean ret = GST_PAD_PROBE_OK;
 
-  if (GST_IS_BUFFER (data)) {
+  if (GST_IS_BUFFER (info->data)) {
     if (G_UNLIKELY (camera->audio_send_newseg)) {
-      GstBuffer *buf = GST_BUFFER_CAST (data);
+      GstBuffer *buf = GST_BUFFER_CAST (info->data);
       GstClockTime ts = GST_BUFFER_TIMESTAMP (buf);
       GstPad *peer;
       GstSegment segment;
