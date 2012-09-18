@@ -6,7 +6,7 @@
 <meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
-<link rel="prev" href="gst-plugins-bad-plugins-ivfparse.html" title="ivfparse">
+<link rel="prev" href="gst-plugins-bad-plugins-gaussianblur.html" title="gaussianblur">
 <link rel="next" href="gst-plugins-bad-plugins-kaleidoscope.html" title="kaleidoscope">
 <meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
@@ -14,7 +14,7 @@
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
 <tr valign="middle">
-<td><a accesskey="p" href="gst-plugins-bad-plugins-ivfparse.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="p" href="gst-plugins-bad-plugins-gaussianblur.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
 <td><a accesskey="u" href="ch01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
 <th width="100%" align="center">GStreamer Bad Plugins 1.0 Plugins Reference Manual</th>
@@ -24,6 +24,8 @@
 <a href="#gst-plugins-bad-plugins-jpegparse.synopsis" class="shortcut">Top</a>
                    | 
                   <a href="#gst-plugins-bad-plugins-jpegparse.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#gst-plugins-bad-plugins-jpegparse.object-hierarchy" class="shortcut">Object Hierarchy</a>
 </td></tr>
 </table>
 <div class="refentry">
@@ -37,7 +39,7 @@
 </tr></table></div>
 <div class="refsynopsisdiv">
 <a name="gst-plugins-bad-plugins-jpegparse.synopsis"></a><h2>Synopsis</h2>
-<pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-jpegparse.html#GstJpegParse" title="struct GstJpegParse">GstJpegParse</a>;
+<a name="GstJpegParse"></a><pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-jpegparse.html#GstJpegParse-struct" title="struct GstJpegParse">GstJpegParse</a>;
 
 struct              <a class="link" href="gst-plugins-bad-plugins-jpegparse.html#GstJpegParseClass" title="struct GstJpegParseClass">GstJpegParseClass</a>;
 #define             <a class="link" href="gst-plugins-bad-plugins-jpegparse.html#GST-JPEG-PARSE:CAPS" title="GST_JPEG_PARSE()">GST_JPEG_PARSE</a>                      (obj)
@@ -46,6 +48,16 @@ struct              <a class="link" href="gst-plugins-bad-plugins-jpegparse.html
 #define             <a class="link" href="gst-plugins-bad-plugins-jpegparse.html#GST-IS-JPEG-PARSE-CLASS:CAPS" title="GST_IS_JPEG_PARSE_CLASS()">GST_IS_JPEG_PARSE_CLASS</a>             (klass)
 #define             <a class="link" href="gst-plugins-bad-plugins-jpegparse.html#GST-TYPE-JPEG-PARSE:CAPS" title="GST_TYPE_JPEG_PARSE">GST_TYPE_JPEG_PARSE</a>
 <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Type-Information.html#GType"><span class="returnvalue">GType</span></a>               <a class="link" href="gst-plugins-bad-plugins-jpegparse.html#gst-jpeg-parse-get-type" title="gst_jpeg_parse_get_type ()">gst_jpeg_parse_get_type</a>             (<em class="parameter"><code><span class="type">void</span></code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-jpegparse.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+   +----<a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+         +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
+               +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
+                     +----GstJpegParse
 </pre>
 </div>
 <div class="refsect1">
@@ -59,7 +71,7 @@ among others. Jpegparse can also extract metadata (e.g. xmp).
 <p>
 </p>
 <div class="refsect2">
-<a name="idp7839088"></a><h3>Example launch line</h3>
+<a name="idp12001536"></a><h3>Example launch line</h3>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -79,7 +91,7 @@ HTTP and stores it in a matroska file.
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp5664464"></a><h3>Element Information</h3>
+<a name="idp6694832"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -102,7 +114,7 @@ HTTP and stores it in a matroska file.
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp11569792"></a><h3>Element Pads</h3>
+<a name="idp12314992"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -141,7 +153,7 @@ HTTP and stores it in a matroska file.
 </tr>
 <tr>
 <td><p><span class="term">details</span></p></td>
-<td>image/jpeg, format=(fourcc){ I420, Y41B, UYVY, YV12 }, width=(int)[ 0, 2147483647 ], height=(int)[ 0, 2147483647 ], interlaced=(boolean){ true, false }, framerate=(fraction)[ 0/1, 2147483647/1 ], parsed=(boolean)true</td>
+<td>image/jpeg, format=(string){ I420, Y41B, UYVY, YV12 }, width=(int)[ 0, 2147483647 ], height=(int)[ 0, 2147483647 ], interlaced=(boolean){ true, false }, framerate=(fraction)[ 0/1, 2147483647/1 ], parsed=(boolean)true</td>
 </tr>
 </tbody>
 </table></div>
@@ -153,12 +165,8 @@ HTTP and stores it in a matroska file.
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-jpegparse.details"></a><h2>Details</h2>
 <div class="refsect2">
-<a name="GstJpegParse"></a><h3>struct GstJpegParse</h3>
-<pre class="programlisting">struct GstJpegParse {
-  GstElement element;
-  GstJpegParsePrivate *priv;
-};
-</pre>
+<a name="GstJpegParse-struct"></a><h3>struct GstJpegParse</h3>
+<pre class="programlisting">struct GstJpegParse;</pre>
 <p>
 </p>
 </div>

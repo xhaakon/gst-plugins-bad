@@ -119,7 +119,7 @@ enum
 static guint _signals[LAST_SIGNAL];
 
 /* Default values */
-#define DEFAULT_COLORSPACE_NAME "ffmpegcolorspace"
+#define DEFAULT_COLORSPACE_NAME "videoconvert"
 #define DEFAULT_JPEG_DECODER_NAME "jpegdec"
 #define DEFAULT_NUM_CLOCK_SAMPLES 0
 #define DEFAULT_NUM_BUFFERS -1
@@ -273,7 +273,7 @@ gst_uvc_h264_src_base_init (gpointer g_class)
   GST_DEBUG_CATEGORY_INIT (uvc_h264_src_debug, "uvch264_src",
       0, "UVC H264 Compliant camera bin source");
 
-  gst_element_class_set_details_simple (gstelement_class,
+  gst_element_class_set_metadata (gstelement_class,
       "UVC H264 Source",
       "Source/Video",
       "UVC H264 Encoding camera source",

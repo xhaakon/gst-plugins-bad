@@ -490,21 +490,6 @@
 /* Define to enable vo-amrwbenc library (used by vo-amrwbenc). */
 #undef HAVE_VOAMRWBENC
 
-/* Define to enable VP8 decoder (used by vp8). */
-#undef HAVE_VP8
-
-/* Defined if the VP8 encoder has tuning API */
-#undef HAVE_VP8ENC_TUNING
-
-/* Defined if the VP8 decoder is available */
-#undef HAVE_VP8_DECODER
-
-/* Defined if the VP8 encoder is available */
-#undef HAVE_VP8_ENCODER
-
-/* Defined if the VP8 decoder has MFQE support */
-#undef HAVE_VP8_MFQE
-
 /* Define to enable wayland sink (used by wayland ). */
 #undef HAVE_WAYLAND
 

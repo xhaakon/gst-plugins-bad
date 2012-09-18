@@ -27,7 +27,7 @@
  * |[
  * gst-launch -v videotestsrc num-buffers=1 ! jp2kenc ! \
  *   gstjp2kdecimator max-decomposition-levels=2 ! jp2kdec ! \
- *   ffmpegcolorspace ! autovideosink
+ *   videoconvert ! autovideosink
  * ]|
  * This pipelines encodes a test image to JPEG2000, only keeps 3 decomposition levels
  * decodes the decimated image again and shows it on the screen.
@@ -94,7 +94,7 @@ gst_jp2k_decimator_base_init (gpointer g_class)
 {
   GstElementClass *gstelement_class = GST_ELEMENT_CLASS (g_class);
 
-  gst_element_class_set_details_simple (gstelement_class,
+  gst_element_class_set_metadata (gstelement_class,
       "JPEG2000 decimator",
       "Filter/Image",
       "Removes information from JPEG2000 streams without recompression",
@@ -230,7 +230,7 @@ gst_jp2k_decimator_getcaps (GstPad * pad)
 
   otherpad = (pad == self->srcpad) ? self->sinkpad : self->srcpad;
 
-  tmp = gst_pad_peer_get_caps_reffed (otherpad);
+  tmp = gst_pad_peer_get_caps (otherpad);
   if (tmp) {
     ret = gst_caps_intersect (tmp, gst_pad_get_pad_template_caps (pad));
     gst_caps_unref (tmp);

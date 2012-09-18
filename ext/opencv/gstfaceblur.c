@@ -51,7 +51,7 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch-0.10 videotestsrc ! decodebin ! ffmpegcolorspace ! faceblur ! ffmpegcolorspace ! xvimagesink
+ * gst-launch-0.10 videotestsrc ! decodebin ! videoconvert ! faceblur ! videoconvert ! xvimagesink
  * ]|
  * </refsect2>
  */
@@ -147,7 +147,7 @@ gst_face_blur_class_init (GstFaceBlurClass * klass)
           "Location of Haar cascade file to use for face blurion",
           DEFAULT_PROFILE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_set_details_simple (element_class,
+  gst_element_class_set_metadata (element_class,
       "faceblur",
       "Filter/Effect/Video",
       "Blurs faces in images and videos",

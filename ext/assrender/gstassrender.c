@@ -26,7 +26,7 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch -v filesrc location=/path/to/mkv ! matroskademux name=d ! queue ! mp3parse ! mad ! audioconvert ! autoaudiosink  d. ! queue ! ffdec_h264 ! ffmpegcolorspace ! r.   d. ! queue ! "application/x-ass" ! assrender name=r ! ffmpegcolorspace ! autovideosink
+ * gst-launch -v filesrc location=/path/to/mkv ! matroskademux name=d ! queue ! mp3parse ! mad ! audioconvert ! autoaudiosink  d. ! queue ! ffdec_h264 ! videoconvert ! r.   d. ! queue ! "application/x-ass" ! assrender name=r ! videoconvert ! autovideosink
  * ]| This pipeline demuxes a Matroska file with h.264 video, MP3 audio and embedded ASS subtitles and renders the subtitles on top of the video.
  * </refsect2>
  */
@@ -155,7 +155,7 @@ gst_ass_render_class_init (GstAssRenderClass * klass)
   gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&text_sink_factory));
 
-  gst_element_class_set_details_simple (gstelement_class, "ASS/SSA Render",
+  gst_element_class_set_metadata (gstelement_class, "ASS/SSA Render",
       "Mixer/Video/Overlay/Subtitle",
       "Renders ASS/SSA subtitles with libass",
       "Benjamin Schmitz <vortex@wolpzone.de>, "

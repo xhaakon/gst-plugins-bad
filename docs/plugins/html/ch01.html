@@ -7,7 +7,7 @@
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="prev" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
-<link rel="next" href="gst-plugins-bad-plugins-aiffparse.html" title="aiffparse">
+<link rel="next" href="gst-plugins-bad-plugins-assrender.html" title="assrender">
 <meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -17,18 +17,12 @@
 <td> </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
 <th width="100%" align="center">GStreamer Bad Plugins 1.0 Plugins Reference Manual</th>
-<td><a accesskey="n" href="gst-plugins-bad-plugins-aiffparse.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+<td><a accesskey="n" href="gst-plugins-bad-plugins-assrender.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="chapter">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="idp4163440"></a>gst-plugins-bad Elements</h2></div></div></div>
+<a name="idp282752"></a>gst-plugins-bad Elements</h2></div></div></div>
 <div class="toc"><dl>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-aiffparse.html">aiffparse</a></span><span class="refpurpose"> — Parse a .aiff file into raw audio</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-aiffmux.html">aiffmux</a></span><span class="refpurpose"> — Multiplex raw audio into AIFF</span>
-</dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-assrender.html">assrender</a></span><span class="refpurpose"> — Renders ASS/SSA subtitles with libass</span>
 </dt>
@@ -42,7 +36,7 @@
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-burn.html">burn</a></span><span class="refpurpose"> — Burn adjusts the colors in the video signal.</span>
 </dt>
 <dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-camerabin.html">camerabin</a></span><span class="refpurpose"></span>
+<span class="refentrytitle"><a href="gst-plugins-bad-plugins-camerabin.html">camerabin</a></span><span class="refpurpose"> — Take image snapshots and record movies from camera</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-celtdec.html">celtdec</a></span><span class="refpurpose"> — decode celt streams to audio</span>
@@ -58,9 +52,6 @@
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-coloreffects.html">coloreffects</a></span><span class="refpurpose"> — Color Look-up Table filter</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-curlsink.html">curlsink</a></span><span class="refpurpose"></span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-cvdilate.html">cvdilate</a></span><span class="refpurpose"> — Applies cvDilate OpenCV function to the image</span>
@@ -84,28 +75,10 @@
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-dataurisrc.html">dataurisrc</a></span><span class="refpurpose"> — Handles data: uris</span>
 </dt>
 <dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-dccpclientsink.html">dccpclientsink</a></span><span class="refpurpose"> — Send data as a client over the network via DCCP</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-dccpclientsrc.html">dccpclientsrc</a></span><span class="refpurpose"> — Receive data as a client over the network via DCCP</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-dccpserversink.html">dccpserversink</a></span><span class="refpurpose"> — Send data as a server over the network via DCCP</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-dccpserversrc.html">dccpserversrc</a></span><span class="refpurpose"> — Receive data as a server over the network via DCCP</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-dfbvideosink.html">dfbvideosink</a></span><span class="refpurpose"> — A DirectFB based videosink</span>
-</dt>
-<dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-diffuse.html">diffuse</a></span><span class="refpurpose"> — Diffuses the image by moving its pixels in random directions</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-dilate.html">dilate</a></span><span class="refpurpose"> — Dilate copies the brightest pixel around.</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-directdrawsink.html">directdrawsink</a></span><span class="refpurpose"> — Direct Draw video sink</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-dodge.html">dodge</a></span><span class="refpurpose"> — Dodge saturates the colors in the video signal.</span>
@@ -153,34 +126,13 @@
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-fpsdisplaysink.html">fpsdisplaysink</a></span><span class="refpurpose"> — Shows the current frame-rate and drop-rate of the videosink as overlay or text on stdout</span>
 </dt>
 <dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-freeze.html">freeze</a></span><span class="refpurpose"> — Makes a stream from buffers of data</span>
-</dt>
-<dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-gaussianblur.html">gaussianblur</a></span><span class="refpurpose"> — Perform Gaussian blur/sharpen on a video</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-ivfparse.html">ivfparse</a></span><span class="refpurpose"> — Demuxes a IVF stream</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-jpegparse.html">jpegparse</a></span><span class="refpurpose"> — JPEG parser</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-kaleidoscope.html">kaleidoscope</a></span><span class="refpurpose"> — Applies 'kaleidoscope' geometric transform to the image</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-kateenc.html">kateenc</a></span><span class="refpurpose"> — Encodes Kate streams from text or subpictures</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-katedec.html">katedec</a></span><span class="refpurpose"> — Decodes Kate text streams</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-kateparse.html">kateparse</a></span><span class="refpurpose"> — parse raw kate streams</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-katetag.html">katetag</a></span><span class="refpurpose"> — Retags kate streams</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-ladspa.html">ladspa</a></span><span class="refpurpose"></span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-liveadder.html">liveadder</a></span><span class="refpurpose"> — Mixes live/discontinuous audio streams</span>
@@ -207,18 +159,6 @@
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-mplex.html">mplex</a></span><span class="refpurpose"> — High-quality MPEG/DVD/SVCD/VCD video/audio multiplexer</span>
 </dt>
 <dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-mythtvsrc.html">mythtvsrc</a></span><span class="refpurpose"> — Control and receive data as a client over the network via raw socket connections using the MythTV protocol</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-mxfdemux.html">mxfdemux</a></span><span class="refpurpose"> — Demux MXF files</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-mxfmux.html">mxfmux</a></span><span class="refpurpose"> — Muxes video/audio streams into a MXF stream</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-nuvdemux.html">nuvdemux</a></span><span class="refpurpose"> — Demultiplex a MythTV NuppleVideo .nuv file into audio and video</span>
-</dt>
-<dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-pcapparse.html">pcapparse</a></span><span class="refpurpose"> — Parses a raw pcap stream</span>
 </dt>
 <dt>
@@ -226,12 +166,6 @@
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-pyramidsegment.html">pyramidsegment</a></span><span class="refpurpose"> — Applies pyramid segmentation to a video or image.</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-rsvgdec.html">rsvgdec</a></span><span class="refpurpose"> — Uses librsvg to decode SVG images</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-rsvgoverlay.html">rsvgoverlay</a></span><span class="refpurpose"> — Overlays SVG graphics over a video stream</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-rtmpsink.html">rtmpsink</a></span><span class="refpurpose"> — Sends FLV content to a server via RTMP</span>
@@ -253,12 +187,6 @@
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-scaletempo.html">scaletempo</a></span><span class="refpurpose"> — Sync audio tempo with playback rate</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-sdlaudiosink.html">sdlaudiosink</a></span><span class="refpurpose"> — Output to a sound card via SDLAUDIO</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-sdlvideosink.html">sdlvideosink</a></span><span class="refpurpose"> — An SDL-based videosink</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-shmsink.html">shmsink</a></span><span class="refpurpose"> — Send data over shared memory to the matching source</span>
@@ -291,25 +219,13 @@
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-square.html">square</a></span><span class="refpurpose"> — Distort center part of the image into a square</span>
 </dt>
 <dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-stereo.html">stereo</a></span><span class="refpurpose"> — Muck with the stereo signal to enhance its 'stereo-ness'</span>
-</dt>
-<dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-stretch.html">stretch</a></span><span class="refpurpose"> — Stretch the image in a circle around the center point</span>
 </dt>
 <dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-templatematch.html">templatematch</a></span><span class="refpurpose"> — Performs template matching on videos and images, providing detected positions via bus messages</span>
+<span class="refentrytitle"><a href="gst-plugins-bad-plugins-templatematch.html">templatematch</a></span><span class="refpurpose"> — Performs template matching on videos and images, providing detected positions via bus messages.</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-opencvtextoverlay.html">opencvtextoverlay</a></span><span class="refpurpose"> — Write text on the top of video</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-tiger.html">tiger</a></span><span class="refpurpose"> — Decodes and renders Kate streams on top of a video</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-timidity.html">timidity</a></span><span class="refpurpose"> — Midi Synthesizer Element</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-trm.html">trm</a></span><span class="refpurpose"> — Compute MusicBrainz TRM Id using libmusicbrainz</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-tunnel.html">tunnel</a></span><span class="refpurpose"> — Light tunnel effect</span>
@@ -318,22 +234,10 @@
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-twirl.html">twirl</a></span><span class="refpurpose"> — Twists the image from the center out</span>
 </dt>
 <dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-videoanalyse.html">videoanalyse</a></span><span class="refpurpose"> — Analyse video signal</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-videodetect.html">videodetect</a></span><span class="refpurpose"> — Detect patterns in a video signal</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-videomark.html">videomark</a></span><span class="refpurpose"> — Marks a video signal with a pattern</span>
-</dt>
-<dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-videoparse.html">videoparse</a></span><span class="refpurpose"> — Converts stream into video frames</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-waterripple.html">waterripple</a></span><span class="refpurpose"> — Creates a water ripple effect on the image</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-wildmidi.html">wildmidi</a></span><span class="refpurpose"> — Midi Synthesizer Element</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-zbar.html">zbar</a></span><span class="refpurpose"> — Detect bar codes in the video streams</span>
@@ -342,13 +246,7 @@
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-voaacenc.html">voaacenc</a></span><span class="refpurpose"> — AAC audio encoder</span>
 </dt>
 <dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-voamrwbenc.html">voamrwbenc</a></span><span class="refpurpose"></span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-vp8dec.html">vp8dec</a></span><span class="refpurpose"> — Decode VP8 video streams</span>
-</dt>
-<dt>
-<span class="refentrytitle"><a href="gst-plugins-bad-plugins-vp8enc.html">vp8enc</a></span><span class="refpurpose"> — Encode VP8 video streams</span>
+<span class="refentrytitle"><a href="gst-plugins-bad-plugins-voamrwbenc.html">voamrwbenc</a></span><span class="refpurpose"> — Adaptive Multi-Rate Wideband audio encoder</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-bad-plugins-wavescope.html">wavescope</a></span><span class="refpurpose"> — Simple waveform oscilloscope</span>

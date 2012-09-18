@@ -31,7 +31,7 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch filesrc test.nuv ! nuvdemux name=demux  demux.audio_00 ! decodebin ! audioconvert ! audioresample ! autoaudiosink   demux.video_00 ! queue ! decodebin ! ffmpegcolorspace ! videoscale ! autovideosink
+ * gst-launch filesrc test.nuv ! nuvdemux name=demux  demux.audio_00 ! decodebin ! audioconvert ! audioresample ! autoaudiosink   demux.video_00 ! queue ! decodebin ! videoconvert ! videoscale ! autovideosink
  * ]| Play (parse and decode) an .nuv file and try to output it to
  * an automatically detected soundcard and videosink. If the NUV file contains
  * compressed audio or video data, this will only work if you have the
@@ -132,7 +132,7 @@ gst_nuv_demux_base_init (gpointer klass)
 
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&sink_template));
-  gst_element_class_set_details_simple (element_class, "Nuv demuxer",
+  gst_element_class_set_metadata (element_class, "Nuv demuxer",
       "Codec/Demuxer",
       "Demultiplex a MythTV NuppleVideo .nuv file into audio and video",
       "Renato Araujo Oliveira Filho <renato.filho@indt.org.br>,"

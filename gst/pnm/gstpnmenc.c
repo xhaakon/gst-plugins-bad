@@ -27,7 +27,7 @@
  * <refsect>
  * <title>Example launch line</title>
  * |[
- * gst-launch videotestsrc num_buffers=1 ! ffmpegcolorspace ! "video/x-raw-gray" ! pnmenc ascii=true ! filesink location=test.pnm
+ * gst-launch videotestsrc num_buffers=1 ! videoconvert ! "video/x-raw,format=GRAY8" ! pnmenc ascii=true ! filesink location=test.pnm
  * ]| The above pipeline writes a test pnm file (ASCII encoding).
  * </refsect2>
  */
@@ -261,7 +261,7 @@ gst_pnmenc_class_init (GstPnmencClass * klass)
       gst_static_pad_template_get (&sink_pad_template));
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&src_pad_template));
-  gst_element_class_set_details_simple (element_class, "PNM image encoder",
+  gst_element_class_set_metadata (element_class, "PNM image encoder",
       "Codec/Encoder/Image",
       "Encodes images into portable pixmap or graymap (PNM) format",
       "Lutz Mueller <lutz@users.sourceforge.net>");

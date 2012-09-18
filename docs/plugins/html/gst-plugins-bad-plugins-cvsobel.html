@@ -25,6 +25,8 @@
                    | 
                   <a href="#gst-plugins-bad-plugins-cvsobel.description" class="shortcut">Description</a>
                    | 
+                  <a href="#gst-plugins-bad-plugins-cvsobel.object-hierarchy" class="shortcut">Object Hierarchy</a>
+                   | 
                   <a href="#gst-plugins-bad-plugins-cvsobel.properties" class="shortcut">Properties</a>
 </td></tr>
 </table>
@@ -39,7 +41,20 @@
 </tr></table></div>
 <div class="refsynopsisdiv">
 <a name="gst-plugins-bad-plugins-cvsobel.synopsis"></a><h2>Synopsis</h2>
-<pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel" title="struct GstCvSobel">GstCvSobel</a>;
+<a name="GstCvSobel"></a><pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel-struct" title="struct GstCvSobel">GstCvSobel</a>;
+</pre>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-cvsobel.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+   +----<a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+         +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
+               +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
+                     +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html">GstBaseTransform</a>
+                           +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideofilter.html#GstVideoFilter">GstVideoFilter</a>
+                                 +----GstOpencvVideoFilter
+                                       +----GstCvSobel
 </pre>
 </div>
 <div class="refsect1">
@@ -55,7 +70,7 @@
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp6124432"></a><h3>Element Information</h3>
+<a name="idp8750912"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -78,7 +93,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp9485824"></a><h3>Element Pads</h3>
+<a name="idp10760768"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -96,7 +111,7 @@
 </tr>
 <tr>
 <td><p><span class="term">details</span></p></td>
-<td>video/x-raw-gray, bpp=(int)8, depth=(int)8, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
+<td>video/x-raw, format=(string)GRAY8, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
 </tr>
 </tbody>
 </table></div>
@@ -117,7 +132,7 @@
 </tr>
 <tr>
 <td><p><span class="term">details</span></p></td>
-<td>video/x-raw-gray, bpp=(int)16, depth=(int)16, endianness=(int)1234, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
+<td>video/x-raw, format=(string)GRAY16_LE, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
 </tr>
 </tbody>
 </table></div>
@@ -129,15 +144,8 @@
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-cvsobel.details"></a><h2>Details</h2>
 <div class="refsect2">
-<a name="GstCvSobel"></a><h3>struct GstCvSobel</h3>
-<pre class="programlisting">struct GstCvSobel {
-  GstOpencvVideoFilter element;
-
-  gint x_order;
-  gint y_order;
-  gint aperture_size;
-};
-</pre>
+<a name="GstCvSobel-struct"></a><h3>struct GstCvSobel</h3>
+<pre class="programlisting">struct GstCvSobel;</pre>
 <p>
 </p>
 </div>
@@ -156,7 +164,7 @@
 <a name="GstCvSobel--x-order"></a><h3>The <code class="literal">"x-order"</code> property</h3>
 <pre class="programlisting">  "x-order"                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a>                  : Read / Write</pre>
 <p>Order of the derivative x.</p>
-<p>Allowed values: &gt;= -1</p>
+<p>Allowed values: &gt;= G_MAXULONG</p>
 <p>Default value: 1</p>
 </div>
 <hr>
@@ -164,7 +172,7 @@
 <a name="GstCvSobel--y-order"></a><h3>The <code class="literal">"y-order"</code> property</h3>
 <pre class="programlisting">  "y-order"                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a>                  : Read / Write</pre>
 <p>Order of the derivative y.</p>
-<p>Allowed values: &gt;= -1</p>
+<p>Allowed values: &gt;= G_MAXULONG</p>
 <p>Default value: 0</p>
 </div>
 </div>

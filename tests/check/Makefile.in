@@ -57,7 +57,7 @@ target_triplet = @target@
 DIST_COMMON = $(noinst_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/common/check.mak
 noinst_PROGRAMS = pipelines/colorspace$(EXEEXT) \
-	pipelines/streamheader$(EXEEXT) $(am__EXEEXT_21)
+	pipelines/streamheader$(EXEEXT) $(am__EXEEXT_20)
 check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4) \
 	$(am__EXEEXT_5) $(am__EXEEXT_6) $(am__EXEEXT_7) \
@@ -76,9 +76,9 @@ check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	pipelines/mxf$(EXEEXT) $(am__EXEEXT_15) \
 	elements/rtpmux$(EXEEXT) libs/mpegvideoparser$(EXEEXT) \
 	libs/h264parser$(EXEEXT) $(am__EXEEXT_16) \
-	libs/vc1parser$(EXEEXT) $(am__EXEEXT_17) $(am__EXEEXT_18) \
-	elements/viewfinderbin$(EXEEXT) $(am__EXEEXT_19) \
-	$(am__EXEEXT_20)
+	libs/vc1parser$(EXEEXT) $(am__EXEEXT_17) \
+	elements/viewfinderbin$(EXEEXT) $(am__EXEEXT_18) \
+	$(am__EXEEXT_19)
 subdir = tests/check
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
@@ -151,11 +151,9 @@ libparser_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 @USE_MIMIC_TRUE@am__EXEEXT_15 = pipelines/mimic$(EXEEXT)
 @USE_UVCH264_TRUE@am__EXEEXT_16 = elements/uvch264demux$(EXEEXT)
 @USE_SCHRO_TRUE@am__EXEEXT_17 = elements/schroenc$(EXEEXT)
-@USE_VP8_TRUE@am__EXEEXT_18 = elements/vp8enc$(EXEEXT) \
-@USE_VP8_TRUE@	elements/vp8dec$(EXEEXT)
-@USE_ZBAR_TRUE@am__EXEEXT_19 = elements/zbar$(EXEEXT)
-@HAVE_ORC_TRUE@am__EXEEXT_20 = orc/cog$(EXEEXT) orc/bayer$(EXEEXT)
-@USE_NEON_TRUE@am__EXEEXT_21 = elements/neonhttpsrc$(EXEEXT)
+@USE_ZBAR_TRUE@am__EXEEXT_18 = elements/zbar$(EXEEXT)
+@HAVE_ORC_TRUE@am__EXEEXT_19 = orc/cog$(EXEEXT) orc/bayer$(EXEEXT)
+@USE_NEON_TRUE@am__EXEEXT_20 = elements/neonhttpsrc$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 elements_asfmux_SOURCES = elements/asfmux.c
 elements_asfmux_OBJECTS = asfmux.$(OBJEXT)
@@ -379,14 +377,6 @@ elements_voamrwbenc_SOURCES = elements/voamrwbenc.c
 elements_voamrwbenc_OBJECTS = voamrwbenc.$(OBJEXT)
 elements_voamrwbenc_LDADD = $(LDADD)
 elements_voamrwbenc_DEPENDENCIES = $(am__DEPENDENCIES_1)
-elements_vp8dec_SOURCES = elements/vp8dec.c
-elements_vp8dec_OBJECTS = vp8dec.$(OBJEXT)
-elements_vp8dec_LDADD = $(LDADD)
-elements_vp8dec_DEPENDENCIES = $(am__DEPENDENCIES_1)
-elements_vp8enc_SOURCES = elements/vp8enc.c
-elements_vp8enc_OBJECTS = vp8enc.$(OBJEXT)
-elements_vp8enc_LDADD = $(LDADD)
-elements_vp8enc_DEPENDENCIES = $(am__DEPENDENCIES_1)
 elements_zbar_SOURCES = elements/zbar.c
 elements_zbar_OBJECTS = zbar.$(OBJEXT)
 elements_zbar_LDADD = $(LDADD)
@@ -499,11 +489,10 @@ SOURCES = $(libparser_la_SOURCES) elements/asfmux.c \
 	elements/opus.c elements/rtpmux.c elements/schroenc.c \
 	elements/timidity.c elements/uvch264demux.c \
 	elements/viewfinderbin.c elements/voaacenc.c \
-	elements/voamrwbenc.c elements/vp8dec.c elements/vp8enc.c \
-	elements/zbar.c generic/states.c libs/h264parser.c \
-	libs/mpegvideoparser.c libs/vc1parser.c orc/bayer.c orc/cog.c \
-	pipelines/colorspace.c pipelines/mimic.c pipelines/mxf.c \
-	pipelines/streamheader.c
+	elements/voamrwbenc.c elements/zbar.c generic/states.c \
+	libs/h264parser.c libs/mpegvideoparser.c libs/vc1parser.c \
+	orc/bayer.c orc/cog.c pipelines/colorspace.c pipelines/mimic.c \
+	pipelines/mxf.c pipelines/streamheader.c
 DIST_SOURCES = $(libparser_la_SOURCES) elements/asfmux.c \
 	elements/assrender.c elements/autoconvert.c \
 	elements/autovideoconvert.c \
@@ -521,11 +510,10 @@ DIST_SOURCES = $(libparser_la_SOURCES) elements/asfmux.c \
 	elements/opus.c elements/rtpmux.c elements/schroenc.c \
 	elements/timidity.c elements/uvch264demux.c \
 	elements/viewfinderbin.c elements/voaacenc.c \
-	elements/voamrwbenc.c elements/vp8dec.c elements/vp8enc.c \
-	elements/zbar.c generic/states.c libs/h264parser.c \
-	libs/mpegvideoparser.c libs/vc1parser.c orc/bayer.c orc/cog.c \
-	pipelines/colorspace.c pipelines/mimic.c pipelines/mxf.c \
-	pipelines/streamheader.c
+	elements/voamrwbenc.c elements/zbar.c generic/states.c \
+	libs/h264parser.c libs/mpegvideoparser.c libs/vc1parser.c \
+	orc/bayer.c orc/cog.c pipelines/colorspace.c pipelines/mimic.c \
+	pipelines/mxf.c pipelines/streamheader.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -885,8 +873,6 @@ VOAACENC_CFLAGS = @VOAACENC_CFLAGS@
 VOAACENC_LIBS = @VOAACENC_LIBS@
 VOAMRWBENC_CFLAGS = @VOAMRWBENC_CFLAGS@
 VOAMRWBENC_LIBS = @VOAMRWBENC_LIBS@
-VPX_CFLAGS = @VPX_CFLAGS@
-VPX_LIBS = @VPX_LIBS@
 WARNING_CFLAGS = @WARNING_CFLAGS@
 WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
 WARNING_OBJCFLAGS = @WARNING_OBJCFLAGS@
@@ -1029,8 +1015,6 @@ SUPPRESSIONS = $(top_srcdir)/common/gst.supp $(srcdir)/gst-plugins-bad.supp
 @USE_KATE_TRUE@check_kate = elements/kate
 @USE_MIMIC_FALSE@check_mimic = 
 @USE_MIMIC_TRUE@check_mimic = pipelines/mimic
-@USE_VP8_FALSE@check_vp8 = 
-@USE_VP8_TRUE@check_vp8 = elements/vp8enc elements/vp8dec
 @HAVE_ORC_FALSE@check_orc = 
 @HAVE_ORC_TRUE@check_orc = orc/cog orc/bayer
 @USE_ZBAR_FALSE@check_zbar = 
@@ -1375,12 +1359,6 @@ elements/voaacenc$(EXEEXT): $(elements_voaacenc_OBJECTS) $(elements_voaacenc_DEP
 elements/voamrwbenc$(EXEEXT): $(elements_voamrwbenc_OBJECTS) $(elements_voamrwbenc_DEPENDENCIES) $(EXTRA_elements_voamrwbenc_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/voamrwbenc$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(elements_voamrwbenc_OBJECTS) $(elements_voamrwbenc_LDADD) $(LIBS)
-elements/vp8dec$(EXEEXT): $(elements_vp8dec_OBJECTS) $(elements_vp8dec_DEPENDENCIES) $(EXTRA_elements_vp8dec_DEPENDENCIES) elements/$(am__dirstamp)
-	@rm -f elements/vp8dec$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(elements_vp8dec_OBJECTS) $(elements_vp8dec_LDADD) $(LIBS)
-elements/vp8enc$(EXEEXT): $(elements_vp8enc_OBJECTS) $(elements_vp8enc_DEPENDENCIES) $(EXTRA_elements_vp8enc_DEPENDENCIES) elements/$(am__dirstamp)
-	@rm -f elements/vp8enc$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(elements_vp8enc_OBJECTS) $(elements_vp8enc_LDADD) $(LIBS)
 elements/zbar$(EXEEXT): $(elements_zbar_OBJECTS) $(elements_zbar_DEPENDENCIES) $(EXTRA_elements_zbar_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/zbar$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(elements_zbar_OBJECTS) $(elements_zbar_LDADD) $(LIBS)
@@ -1484,8 +1462,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/states.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/viewfinderbin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/voamrwbenc.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vp8dec.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vp8enc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zbar.Po@am__quote@
 
 .c.o:
@@ -2075,34 +2051,6 @@ voamrwbenc.obj: elements/voamrwbenc.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/voamrwbenc.c' object='voamrwbenc.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o voamrwbenc.obj `if test -f 'elements/voamrwbenc.c'; then $(CYGPATH_W) 'elements/voamrwbenc.c'; else $(CYGPATH_W) '$(srcdir)/elements/voamrwbenc.c'; fi`
-
-vp8dec.o: elements/vp8dec.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT vp8dec.o -MD -MP -MF $(DEPDIR)/vp8dec.Tpo -c -o vp8dec.o `test -f 'elements/vp8dec.c' || echo '$(srcdir)/'`elements/vp8dec.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vp8dec.Tpo $(DEPDIR)/vp8dec.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/vp8dec.c' object='vp8dec.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o vp8dec.o `test -f 'elements/vp8dec.c' || echo '$(srcdir)/'`elements/vp8dec.c
-
-vp8dec.obj: elements/vp8dec.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT vp8dec.obj -MD -MP -MF $(DEPDIR)/vp8dec.Tpo -c -o vp8dec.obj `if test -f 'elements/vp8dec.c'; then $(CYGPATH_W) 'elements/vp8dec.c'; else $(CYGPATH_W) '$(srcdir)/elements/vp8dec.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vp8dec.Tpo $(DEPDIR)/vp8dec.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/vp8dec.c' object='vp8dec.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o vp8dec.obj `if test -f 'elements/vp8dec.c'; then $(CYGPATH_W) 'elements/vp8dec.c'; else $(CYGPATH_W) '$(srcdir)/elements/vp8dec.c'; fi`
-
-vp8enc.o: elements/vp8enc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT vp8enc.o -MD -MP -MF $(DEPDIR)/vp8enc.Tpo -c -o vp8enc.o `test -f 'elements/vp8enc.c' || echo '$(srcdir)/'`elements/vp8enc.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vp8enc.Tpo $(DEPDIR)/vp8enc.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/vp8enc.c' object='vp8enc.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o vp8enc.o `test -f 'elements/vp8enc.c' || echo '$(srcdir)/'`elements/vp8enc.c
-
-vp8enc.obj: elements/vp8enc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT vp8enc.obj -MD -MP -MF $(DEPDIR)/vp8enc.Tpo -c -o vp8enc.obj `if test -f 'elements/vp8enc.c'; then $(CYGPATH_W) 'elements/vp8enc.c'; else $(CYGPATH_W) '$(srcdir)/elements/vp8enc.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vp8enc.Tpo $(DEPDIR)/vp8enc.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/vp8enc.c' object='vp8enc.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o vp8enc.obj `if test -f 'elements/vp8enc.c'; then $(CYGPATH_W) 'elements/vp8enc.c'; else $(CYGPATH_W) '$(srcdir)/elements/vp8enc.c'; fi`
 
 zbar.o: elements/zbar.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT zbar.o -MD -MP -MF $(DEPDIR)/zbar.Tpo -c -o zbar.o `test -f 'elements/zbar.c' || echo '$(srcdir)/'`elements/zbar.c

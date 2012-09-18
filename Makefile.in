@@ -532,8 +532,6 @@ VOAACENC_CFLAGS = @VOAACENC_CFLAGS@
 VOAACENC_LIBS = @VOAACENC_LIBS@
 VOAMRWBENC_CFLAGS = @VOAMRWBENC_CFLAGS@
 VOAMRWBENC_LIBS = @VOAMRWBENC_LIBS@
-VPX_CFLAGS = @VPX_CFLAGS@
-VPX_LIBS = @VPX_LIBS@
 WARNING_CFLAGS = @WARNING_CFLAGS@
 WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
 WARNING_OBJCFLAGS = @WARNING_OBJCFLAGS@
@@ -704,7 +702,8 @@ CRUFT_DIRS = \
 	$(top_srcdir)/ext/jack \
 	$(top_srcdir)/ext/metadata \
 	$(top_srcdir)/ext/tarkin \
-	$(top_srcdir)/ext/theora
+	$(top_srcdir)/ext/theora \
+	$(top_srcdir)/ext/vp8
 
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

@@ -136,7 +136,6 @@ GObject
         GstEdgeDetect
         GstFaceBlur
         GstFestival
-        GstFreeze
         GstGDPDepay
         GstGDPPay
         GstGmeDec
@@ -179,10 +178,8 @@ GObject
         GstTemplateMatch
         GstVideoDecoder
           GstSchroDec
-          GstVP8Dec
         GstVideoEncoder
           GstSchroEnc
-          GstVP8Enc
         GstY4mDec
         MpegTSBase
           GstTSDemux
