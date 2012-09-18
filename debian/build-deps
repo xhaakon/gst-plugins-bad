@@ -27,8 +27,8 @@ libfaad-dev
 libglib2.0-dev (>= 2.32)
 libgme-dev
 libgsm1-dev
-libgstreamer-plugins-base@GST_ABI@-dev (>= 0.11.94)
-libgstreamer-plugins-base@GST_ABI@-dev (>= 0.11.94)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 0.11.99)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 0.11.99)
 libgtk2.0-dev (>= 2.14.0)
 libiptcdata0-dev (>= 1.0.2)
 libjasper-dev
@@ -54,7 +54,6 @@ libssl-dev
 libtool (>= 2.2.6)
 libvo-aacenc-dev
 libvo-amrwbenc-dev
-libvpx-dev
 libwildmidi-dev (>= 0.2.3)
 libx11-dev
 libxvidcore-dev
