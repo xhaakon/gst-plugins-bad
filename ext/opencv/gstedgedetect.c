@@ -51,7 +51,7 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch-0.10 videotestsrc ! decodebin ! ffmpegcolorspace ! edgedetect ! ffmpegcolorspace ! xvimagesink
+ * gst-launch-0.10 videotestsrc ! decodebin ! videoconvert ! edgedetect ! videoconvert ! xvimagesink
  * ]|
  * </refsect2>
  */
@@ -158,7 +158,7 @@ gst_edge_detect_class_init (GstEdgeDetectClass * klass)
           "Aperture size for Sobel operator (Must be either 3, 5 or 7", 3, 7, 3,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_set_details_simple (element_class,
+  gst_element_class_set_metadata (element_class,
       "edgedetect",
       "Filter/Effect/Video",
       "Performs canny edge detection on videos and images.",

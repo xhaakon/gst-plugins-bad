@@ -155,7 +155,7 @@ gst_mpeg4vparse_class_init (GstMpeg4VParseClass * klass)
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&sink_template));
 
-  gst_element_class_set_details_simple (element_class,
+  gst_element_class_set_metadata (element_class,
       "MPEG 4 video elementary stream parser", "Codec/Parser/Video",
       "Parses MPEG-4 Part 2 elementary video streams",
       "Julien Moutte <julien@fluendo.com>");
@@ -192,6 +192,7 @@ gst_mpeg4vparse_reset_frame (GstMpeg4VParse * mp4vparse)
   mp4vparse->vop_offset = -1;
   mp4vparse->vo_found = FALSE;
   mp4vparse->vol_offset = -1;
+  mp4vparse->vo_offset = -1;
 }
 
 static void
@@ -238,6 +239,8 @@ static gboolean
 gst_mpeg4vparse_process_config (GstMpeg4VParse * mp4vparse,
     const guint8 * data, guint offset, gsize size)
 {
+  GstMpeg4VisualObject *vo;
+
   /* only do stuff if something new */
   if (mp4vparse->config
       && !gst_buffer_memcmp (mp4vparse->config, offset, data, size))
@@ -249,10 +252,12 @@ gst_mpeg4vparse_process_config (GstMpeg4VParse * mp4vparse,
     return FALSE;
   }
 
+  vo = mp4vparse->vo_found ? &mp4vparse->vo : NULL;
+
   /* If the parsing fail, we accept the config only if we don't have
    * any config yet. */
   if (gst_mpeg4_parse_video_object_layer (&mp4vparse->vol,
-          NULL, data + mp4vparse->vol_offset,
+          vo, data + mp4vparse->vol_offset,
           size - mp4vparse->vol_offset) != GST_MPEG4_PARSER_OK &&
       mp4vparse->config)
     return FALSE;
@@ -344,34 +349,39 @@ gst_mpeg4vparse_process_sc (GstMpeg4VParse * mp4vparse, GstMpeg4Packet * packet,
     return TRUE;
   }
 
+  if (mp4vparse->vo_offset >= 0) {
+    gst_mpeg4_parse_visual_object (&mp4vparse->vo, NULL,
+        packet->data + mp4vparse->vo_offset,
+        packet->offset - 3 - mp4vparse->vo_offset);
+    mp4vparse->vo_offset = -1;
+    mp4vparse->vo_found = TRUE;
+  }
+
   switch (packet->type) {
     case GST_MPEG4_VIDEO_OBJ_PLANE:
     case GST_MPEG4_GROUP_OF_VOP:
+    case GST_MPEG4_USER_DATA:
     {
-
       if (packet->type == GST_MPEG4_VIDEO_OBJ_PLANE) {
         GST_LOG_OBJECT (mp4vparse, "startcode is VOP");
         mp4vparse->vop_offset = packet->offset;
-      } else {
+      } else if (packet->type == GST_MPEG4_GROUP_OF_VOP) {
         GST_LOG_OBJECT (mp4vparse, "startcode is GOP");
+      } else {
+        GST_LOG_OBJECT (mp4vparse, "startcode is User Data");
       }
       /* parse config data ending here if proper startcodes found earlier;
-       * preferably start at VOS (visual object sequence),
-       * otherwise at VO (video object) */
+       * we should have received a visual object before. */
       if (mp4vparse->vo_found) {
-
         /*Do not take care startcode into account */
         gst_mpeg4vparse_process_config (mp4vparse,
             packet->data, packet->offset, packet->offset - 3);
-
-        /* avoid accepting again for a VOP sc following a GOP sc */
         mp4vparse->vo_found = FALSE;
       }
       break;
     }
     case GST_MPEG4_VISUAL_OBJ_SEQ_START:
       GST_LOG_OBJECT (mp4vparse, "Visual Sequence Start");
-      mp4vparse->vo_found = TRUE;
       mp4vparse->profile = gst_codec_utils_mpeg4video_get_profile (packet->data
           + packet->offset + 1, packet->offset);
       mp4vparse->level = gst_codec_utils_mpeg4video_get_level (packet->data
@@ -379,6 +389,8 @@ gst_mpeg4vparse_process_sc (GstMpeg4VParse * mp4vparse, GstMpeg4Packet * packet,
       break;
     case GST_MPEG4_VISUAL_OBJ:
       GST_LOG_OBJECT (mp4vparse, "Visual Object");
+      mp4vparse->vo_offset = packet->offset;
+      break;
     default:
       if (packet->type >= GST_MPEG4_VIDEO_LAYER_FIRST &&
           packet->type <= GST_MPEG4_VIDEO_LAYER_LAST) {
@@ -392,7 +404,6 @@ gst_mpeg4vparse_process_sc (GstMpeg4VParse * mp4vparse, GstMpeg4Packet * packet,
         /* VO (video object) cases */
       } else if (packet->type <= GST_MPEG4_VIDEO_OBJ_LAST) {
         GST_LOG_OBJECT (mp4vparse, "Video object");
-        mp4vparse->vo_found = TRUE;
       }
       break;
   }
@@ -440,7 +451,7 @@ retry:
   }
 
   /* didn't find anything that looks like a sync word, skip */
-  switch (gst_mpeg4_parse (&packet, TRUE, NULL, data, off, size)) {
+  switch (gst_mpeg4_parse (&packet, FALSE, NULL, data, off, size)) {
     case (GST_MPEG4_PARSER_NO_PACKET):
     case (GST_MPEG4_PARSER_ERROR):
       *skipsize = size - 3;
@@ -484,7 +495,7 @@ next:
   off++;
 
   /* so now we have start code at start of data; locate next packet */
-  switch (gst_mpeg4_parse (&packet, TRUE, NULL, data, off, size)) {
+  switch (gst_mpeg4_parse (&packet, FALSE, NULL, data, off, size)) {
     case (GST_MPEG4_PARSER_NO_PACKET_END):
       ret = gst_mpeg4vparse_process_sc (mp4vparse, &packet, size);
       if (ret)
@@ -794,7 +805,7 @@ gst_mpeg4vparse_set_caps (GstBaseParse * parse, GstCaps * caps)
     gst_buffer_map (buf, &map, GST_MAP_READ);
     data = map.data;
     size = map.size;
-    res = gst_mpeg4_parse (&packet, TRUE, NULL, data, 0, size);
+    res = gst_mpeg4_parse (&packet, FALSE, NULL, data, 0, size);
 
     while (res == GST_MPEG4_PARSER_OK || res == GST_MPEG4_PARSER_NO_PACKET_END) {
 
@@ -802,7 +813,13 @@ gst_mpeg4vparse_set_caps (GstBaseParse * parse, GstCaps * caps)
           packet.type <= GST_MPEG4_VIDEO_LAYER_LAST)
         mp4vparse->vol_offset = packet.offset;
 
-      res = gst_mpeg4_parse (&packet, TRUE, NULL, data, packet.offset, size);
+      else if (packet.type == GST_MPEG4_VISUAL_OBJ) {
+        gst_mpeg4_parse_visual_object (&mp4vparse->vo, NULL,
+            data + packet.offset, MIN (packet.size, size));
+        mp4vparse->vo_found = TRUE;
+      }
+
+      res = gst_mpeg4_parse (&packet, FALSE, NULL, data, packet.offset, size);
     }
 
     /* And take it as config */

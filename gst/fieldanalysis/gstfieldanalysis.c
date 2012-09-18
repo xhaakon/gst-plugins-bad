@@ -51,7 +51,7 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch -v uridecodebin uri=/path/to/foo.bar ! fieldanalysis ! deinterlace ! ffmpegcolorspace ! autovideosink
+ * gst-launch -v uridecodebin uri=/path/to/foo.bar ! fieldanalysis ! deinterlace ! videoconvert ! autovideosink
  * ]| This pipeline will analyse a video stream with default metrics and thresholds and output progressive frames.
  * </refsect2>
  */
@@ -130,7 +130,7 @@ gst_field_analysis_base_init (gpointer gclass)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (gclass);
 
-  gst_element_class_set_details_simple (element_class,
+  gst_element_class_set_metadata (element_class,
       "Video field analysis",
       "Filter/Analysis/Video",
       "Analyse fields from video frames to identify if they are progressive/telecined/interlaced",

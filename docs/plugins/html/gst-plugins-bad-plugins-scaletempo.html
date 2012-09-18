@@ -7,7 +7,7 @@
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-rtpmux.html" title="rtpmux">
-<link rel="next" href="gst-plugins-bad-plugins-sdlaudiosink.html" title="sdlaudiosink">
+<link rel="next" href="gst-plugins-bad-plugins-shmsink.html" title="shmsink">
 <meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -18,7 +18,7 @@
 <td><a accesskey="u" href="ch01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
 <th width="100%" align="center">GStreamer Bad Plugins 1.0 Plugins Reference Manual</th>
-<td><a accesskey="n" href="gst-plugins-bad-plugins-sdlaudiosink.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+<td><a accesskey="n" href="gst-plugins-bad-plugins-shmsink.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
 <tr><td colspan="5" class="shortcuts">
 <a href="#gst-plugins-bad-plugins-scaletempo.synopsis" class="shortcut">Top</a>
@@ -77,7 +77,7 @@ Use Sceletempo to apply playback rates without the chipmunk effect.
 <p>
 </p>
 <div class="refsect2">
-<a name="idp17244576"></a><h3>Example pipelines</h3>
+<a name="idp18093984"></a><h3>Example pipelines</h3>
 <p>
 </p>
 <div class="informalexample">
@@ -89,7 +89,7 @@ Use Sceletempo to apply playback rates without the chipmunk effect.
 3</pre></td>
         <td class="listing_code"><pre class="programlisting">filesrc location<span class="gtkdoc opt">=</span>media<span class="gtkdoc opt">.</span>ext <span class="gtkdoc opt">!</span> decodebin name<span class="gtkdoc opt">=</span>d \
     d<span class="gtkdoc opt">. !</span> queue <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> audioresample <span class="gtkdoc opt">!</span> scaletempo <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> audioresample <span class="gtkdoc opt">!</span> autoaudiosink \
-    d<span class="gtkdoc opt">. !</span> queue <span class="gtkdoc opt">!</span> ffmpegcolorspace <span class="gtkdoc opt">!</span> autovideosink</pre></td>
+    d<span class="gtkdoc opt">. !</span> queue <span class="gtkdoc opt">!</span> videoconvert <span class="gtkdoc opt">!</span> autovideosink</pre></td>
       </tr>
     </tbody>
   </table>
@@ -135,7 +135,7 @@ the algoritm looks.
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp19163024"></a><h3>Element Information</h3>
+<a name="idp18427472"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -158,7 +158,7 @@ the algoritm looks.
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp16286400"></a><h3>Element Pads</h3>
+<a name="idp15046352"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>

@@ -73,7 +73,7 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch -m videotestsrc ! videoanalyse ! ffmpegcolorspace ! ximagesink
+ * gst-launch -m videotestsrc ! videoanalyse ! videoconvert ! ximagesink
  * ]| This pipeline emits messages to the console for each frame that has been analysed. 
  * </refsect2>
  *
@@ -275,7 +275,7 @@ gst_video_analyse_base_init (gpointer g_class)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
 
-  gst_element_class_set_details_simple (element_class, "Video analyser",
+  gst_element_class_set_metadata (element_class, "Video analyser",
       "Filter/Analyzer/Video",
       "Analyse video signal", "Wim Taymans <wim@fluendo.com>");
 

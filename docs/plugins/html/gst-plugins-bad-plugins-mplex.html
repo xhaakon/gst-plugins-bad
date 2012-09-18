@@ -7,7 +7,7 @@
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-mpeg2enc.html" title="mpeg2enc">
-<link rel="next" href="gst-plugins-bad-plugins-mythtvsrc.html" title="mythtvsrc">
+<link rel="next" href="gst-plugins-bad-plugins-pcapparse.html" title="pcapparse">
 <meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -18,12 +18,14 @@
 <td><a accesskey="u" href="ch01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
 <th width="100%" align="center">GStreamer Bad Plugins 1.0 Plugins Reference Manual</th>
-<td><a accesskey="n" href="gst-plugins-bad-plugins-mythtvsrc.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+<td><a accesskey="n" href="gst-plugins-bad-plugins-pcapparse.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
 <tr><td colspan="5" class="shortcuts">
 <a href="#gst-plugins-bad-plugins-mplex.synopsis" class="shortcut">Top</a>
                    | 
                   <a href="#gst-plugins-bad-plugins-mplex.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#gst-plugins-bad-plugins-mplex.object-hierarchy" class="shortcut">Object Hierarchy</a>
                    | 
                   <a href="#gst-plugins-bad-plugins-mplex.properties" class="shortcut">Properties</a>
 </td></tr>
@@ -39,7 +41,17 @@
 </tr></table></div>
 <div class="refsynopsisdiv">
 <a name="gst-plugins-bad-plugins-mplex.synopsis"></a><h2>Synopsis</h2>
-<pre class="synopsis">                    <a class="link" href="gst-plugins-bad-plugins-mplex.html#GstMplex" title="GstMplex">GstMplex</a>;
+<a name="GstMplex"></a><pre class="synopsis">                    <a class="link" href="gst-plugins-bad-plugins-mplex.html#GstMplex-struct" title="GstMplex">GstMplex</a>;
+</pre>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-mplex.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+   +----<a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+         +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
+               +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
+                     +----GstMplex
 </pre>
 </div>
 <div class="refsect1">
@@ -59,7 +71,7 @@
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp13167136"></a><h3>Element Information</h3>
+<a name="idp5943680"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -84,7 +96,7 @@ Mark Nauwelaerts &lt;mnauw@users.sourceforge.net&gt;</td>
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp6517568"></a><h3>Element Pads</h3>
+<a name="idp10282800"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -168,27 +180,8 @@ Mark Nauwelaerts &lt;mnauw@users.sourceforge.net&gt;</td>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-mplex.details"></a><h2>Details</h2>
 <div class="refsect2">
-<a name="GstMplex"></a><h3>GstMplex</h3>
-<pre class="programlisting">typedef struct {
-  GstElement parent;
-
-  /* pads */
-  GSList *pads;
-  GstPad *srcpad;
-  guint num_apads, num_vpads;
-
-  /* options wrapper */
-  GstMplexJob *job;
-
-  /* lock for syncing */
-  GMutex tlock;
-  /* with TLOCK */
-  /* muxer writer generated eos */
-  gboolean eos;
-  /* flowreturn obtained by muxer task */
-  GstFlowReturn srcresult;
-} GstMplex;
-</pre>
+<a name="GstMplex-struct"></a><h3>GstMplex</h3>
+<pre class="programlisting">typedef struct _GstMplex GstMplex;</pre>
 <p>
 </p>
 </div>
@@ -207,7 +200,7 @@ Mark Nauwelaerts &lt;mnauw@users.sourceforge.net&gt;</td>
 <a name="GstMplex--format"></a><h3>The <code class="literal">"format"</code> property</h3>
 <pre class="programlisting">  "format"                   <span class="type">GstMplexFormat</span>        : Read / Write</pre>
 <p>Encoding profile format.</p>
-<p>Default value: Generic MPEG-1</p>
+<p>Default value: DVD MPEG-2</p>
 </div>
 <hr>
 <div class="refsect2">

@@ -3,7 +3,7 @@ AC_PREREQ(2.62)
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT(GStreamer Bad Plug-ins, 0.11.94,
+AC_INIT(GStreamer Bad Plug-ins, 0.11.99,
     http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer,
     gst-plugins-bad)
 
@@ -53,8 +53,8 @@ dnl sets GST_LT_LDFLAGS
 AS_LIBTOOL(GST, 0, 0, 0)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=0.11.94
-GSTPB_REQ=0.11.94
+GST_REQ=0.11.99
+GSTPB_REQ=0.11.99
 
 dnl *** autotools stuff ****
 
@@ -348,7 +348,6 @@ AG_GST_CHECK_PLUGIN(dvdspu)
 AG_GST_CHECK_PLUGIN(faceoverlay)
 AG_GST_CHECK_PLUGIN(festival)
 AG_GST_CHECK_PLUGIN(fieldanalysis)
-AG_GST_CHECK_PLUGIN(freeze)
 AG_GST_CHECK_PLUGIN(freeverb)
 AG_GST_CHECK_PLUGIN(frei0r)
 AG_GST_CHECK_PLUGIN(gaudieffects)
@@ -1770,58 +1769,6 @@ AG_GST_CHECK_FEATURE(ZBAR, [ZBar barcode detector], zbar, [
   AG_GST_PKG_CHECK_MODULES(ZBAR, zbar >= 0.9)
 ])
 
-dnl *** vp8 ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_VP8, vp8)
-AG_GST_CHECK_FEATURE(VP8, [VP8 decoder], vp8, [
-  PKG_CHECK_MODULES(VPX, vpx, [HAVE_VPX="yes"], [HAVE_VPX="no"])
-
-  if test $HAVE_VPX = "yes"; then
-    HAVE_VP8_ENCODER=no
-    HAVE_VP8_DECODER=no
-
-    OLD_LIBS="$LIBS"
-    LIBS="$LIBS $VPX_LIBS"
-    AC_CHECK_LIB(vpx, vpx_codec_vp8_cx_algo, [
-      HAVE_VP8=yes
-      AC_DEFINE(HAVE_VP8_ENCODER, 1, [Defined if the VP8 encoder is available])
-
-      AC_MSG_CHECKING([for VP8E_SET_TUNING presence])
-      AC_TRY_COMPILE([
-#include <vpx/vpx_encoder.h>
-#include <vpx/vp8cx.h>
-int foo=VP8E_SET_TUNING;
-      ], [
-return 0;
-      ], [
-        AC_DEFINE(HAVE_VP8ENC_TUNING, 1, [Defined if the VP8 encoder has tuning API])
-	AC_MSG_RESULT(yes)
-      ], [
-	AC_MSG_RESULT(no)
-      ])
-    ])
-    AC_CHECK_LIB(vpx, vpx_codec_vp8_dx_algo, [
-      HAVE_VP8=yes
-      AC_DEFINE(HAVE_VP8_DECODER, 1, [Defined if the VP8 decoder is available])
-      AC_MSG_CHECKING([for VP8_MFQE presence])
-      AC_TRY_COMPILE([
-#include <vpx/vpx_decoder.h>
-#include <vpx/vp8dx.h>
-int foo=VP8_MFQE;
-      ], [
-return 0;
-      ], [
-        AC_DEFINE(HAVE_VP8_MFQE, 1, [Defined if the VP8 decoder has MFQE support])
-	AC_MSG_RESULT(yes)
-      ], [
-	AC_MSG_RESULT(no)
-      ])
-    ])
-    LIBS="$OLD_LIBS"
-  fi
-  AC_SUBST(VPX_LIBS)
-  AC_SUBST(VPX_CFLAGS)
-])
-
 dnl *** rtmp ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_RTMP, true)
 AG_GST_CHECK_FEATURE(RTMP, [rtmp library], rtmp, [
@@ -1930,7 +1877,6 @@ AM_CONDITIONAL(USE_ACM, false)
 AM_CONDITIONAL(USE_VDPAU, false)
 AM_CONDITIONAL(USE_SCHRO, false)
 AM_CONDITIONAL(USE_ZBAR, false)
-AM_CONDITIONAL(USE_VP8, false)
 AM_CONDITIONAL(USE_RTMP, false)
 AM_CONDITIONAL(USE_TELETEXTDEC, false)
 AM_CONDITIONAL(USE_SNDIO, false)
@@ -2036,7 +1982,6 @@ gst/dvdspu/Makefile
 gst/faceoverlay/Makefile
 gst/festival/Makefile
 gst/fieldanalysis/Makefile
-gst/freeze/Makefile
 gst/freeverb/Makefile
 gst/frei0r/Makefile
 gst/gaudieffects/Makefile
@@ -2186,7 +2131,6 @@ ext/gsettings/org.freedesktop.gstreamer.default-elements.gschema.xml
 ext/spc/Makefile
 ext/swfdec/Makefile
 ext/timidity/Makefile
-ext/vp8/Makefile
 ext/xvid/Makefile
 ext/zbar/Makefile
 po/Makefile.in

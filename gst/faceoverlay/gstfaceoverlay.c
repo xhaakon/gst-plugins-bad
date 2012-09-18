@@ -50,7 +50,7 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch autovideosrc ! ffmpegcolorspace ! faceoverlay location=/path/to/gnome-video-effects/pixmaps/bow.svg x=-5 y=-15 w=0.3 h=0.1 ! ffmpegcolorspace ! autovideosink
+ * gst-launch autovideosrc ! videoconvert ! faceoverlay location=/path/to/gnome-video-effects/pixmaps/bow.svg x=-5 y=-15 w=0.3 h=0.1 ! videoconvert ! autovideosink
  * ]|
  * </refsect2>
  */
@@ -108,7 +108,7 @@ gst_face_overlay_create_children (GstFaceOverlay * filter)
   GstElement *csp, *face_detect, *overlay;
   GstPad *pad;
 
-  csp = gst_element_factory_make ("ffmpegcolorspace", NULL);
+  csp = gst_element_factory_make ("videoconvert", NULL);
   face_detect = gst_element_factory_make ("facedetect", NULL);
   overlay = gst_element_factory_make ("rsvgoverlay", NULL);
 
@@ -141,7 +141,7 @@ missing_element:
   {
     /* clean up */
     if (csp == NULL)
-      GST_ERROR_OBJECT (filter, "ffmpegcolorspace element not found");
+      GST_ERROR_OBJECT (filter, "videoconvert element not found");
     else
       gst_object_unref (csp);
 
@@ -280,7 +280,7 @@ gst_face_overlay_base_init (gpointer gclass)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (gclass);
 
-  gst_element_class_set_details_simple (element_class,
+  gst_element_class_set_metadata (element_class,
       "faceoverlay",
       "Filter/Editor/Video",
       "Overlays SVG graphics over a detected face in a video stream",

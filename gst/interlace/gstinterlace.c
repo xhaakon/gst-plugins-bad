@@ -34,15 +34,15 @@
  * two interlaced fields as one progressive frame.
  * |[
  * gst-launch -v filesrc location=/path/to/file ! decodebin ! videorate !
- *   videoscale ! video/x-raw-yuv,format=\(fourcc\)I420,width=720,height=480,
+ *   videoscale ! video/x-raw,format=\(string\)I420,width=720,height=480,
  *   framerate=60000/1001,pixel-aspect-ratio=11/10 ! 
  *   interlace top-field-first=false ! ...
  * ]|
  * This pipeline converts a progressive video stream into an interlaced
  * stream suitable for standard definition NTSC.
  * |[
- * gst-launch -v videotestsrc pattern=ball ! video/x-raw-yuv,
- *   format=\(fourcc\)I420,width=720,height=480,framerate=24000/1001,
+ * gst-launch -v videotestsrc pattern=ball ! video/x-raw,
+ *   format=\(string\)I420,width=720,height=480,framerate=24000/1001,
  *   pixel-aspect-ratio=11/10 ! interlace pattern=2:3 !
  *   ...
  * ]|
@@ -226,7 +226,7 @@ gst_interlace_class_init (GstInterlaceClass * klass)
           "Allow generation of buffers with RFF flag set, i.e., duration of 3 fields",
           FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_set_details_simple (element_class,
+  gst_element_class_set_metadata (element_class,
       "Interlace filter", "Filter/Video",
       "Creates an interlaced video from progressive frames",
       "David Schleef <ds@schleef.org>");

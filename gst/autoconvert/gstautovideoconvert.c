@@ -20,11 +20,11 @@
 /*
  * test autovideoconvert:
  * if rgb2bayer is present
- * gst-launch videotestsrc num-buffers=2 ! "video/x-raw-rgb,width=100,height=100,framerate=10/1" ! autovideoconvert ! "video/x-raw-bayer,width=100,height=100,format=bggr,framerate=10/1" ! fakesink -v
+ * gst-launch videotestsrc num-buffers=2 ! "video/x-raw,width=100,height=100,framerate=10/1" ! autovideoconvert ! "video/x-raw-bayer,width=100,height=100,format=bggr,framerate=10/1" ! fakesink -v
  * if bayer2rgb is present
- * gst-launch videotestsrc num-buffers=2 ! "video/x-raw-bayer,width=100,height=100,format=bggr,framerate=10/1" ! autovideoconvert ! "video/x-raw-rgb,width=100,height=100,framerate=10/1" ! fakesink -v
- * test with ffmpegvideoconvert
- * gst-launch videotestsrc num-buffers=2 ! "video/x-raw-rgb,bpp=32,width=100,height=100,framerate=10/1" ! autovideoconvert ! "video/x-raw-rgb,bpp=16,width=100,height=100,framerate=10/1" ! fakesink -v
+ * gst-launch videotestsrc num-buffers=2 ! "video/x-raw-bayer,width=100,height=100,format=bggr,framerate=10/1" ! autovideoconvert ! "video/x-raw,width=100,height=100,framerate=10/1" ! fakesink -v
+ * test with videoconvert
+ * gst-launch videotestsrc num-buffers=2 ! "video/x-raw,format=RGBx,width=100,height=100,framerate=10/1" ! autovideoconvert ! "video/x-raw,format=RGB16,width=100,height=100,framerate=10/1" ! fakesink -v
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -69,7 +69,8 @@ gst_auto_video_convert_element_filter (GstPluginFeature * feature,
   if (G_UNLIKELY (!GST_IS_ELEMENT_FACTORY (feature)))
     return FALSE;
 
-  klass = gst_element_factory_get_klass (GST_ELEMENT_FACTORY_CAST (feature));
+  klass = gst_element_factory_get_metadata (GST_ELEMENT_FACTORY_CAST (feature),
+      GST_ELEMENT_METADATA_KLASS);
   /* only select color space converter */
   if (strstr (klass, "Filter") &&
       strstr (klass, "Converter") && strstr (klass, "Video")) {
@@ -144,7 +145,7 @@ gst_auto_video_convert_class_init (GstAutoVideoConvertClass * klass)
   gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&sinktemplate));
 
-  gst_element_class_set_details_simple (gstelement_class,
+  gst_element_class_set_metadata (gstelement_class,
       "Select color space convertor based on caps", "Generic/Bin",
       "Selects the right color space convertor based on the caps",
       "Benjamin Gaignard <benjamin.gaignard@stericsson.com>");

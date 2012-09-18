@@ -36,10 +36,10 @@
  * <para>(write everything in one line, without the backslash characters)</para>
  * |[
  * gst-launch videotestsrc num-buffers=250 \
- * ! "video/x-raw-yuv,format=(fourcc)I420,framerate=(fraction)25/1" ! ffenc_wmv2 \
+ * ! "video/x-raw,format=(string)I420,framerate=(fraction)25/1" ! ffenc_wmv2 \
  * ! asfmux name=mux ! filesink location=test.asf \
  * audiotestsrc num-buffers=440 ! audioconvert \
- * ! "audio/x-raw-int,rate=44100" ! ffenc_wmav2 ! mux.
+ * ! "audio/x-raw,rate=44100" ! ffenc_wmav2 ! mux.
  * ]| This creates an ASF file containing an WMV video stream
  * with a test picture and WMA audio stream of a test sound.
  *
@@ -62,7 +62,7 @@
  * |[
  * gst-launch udpsrc port=3333 ! "caps_from_rtpasfpay_at_sender" \
  * ! rtpasfdepay ! decodebin2 name=d ! queue \
- * ! ffmpegcolorspace ! autovideosink \
+ * ! videoconvert ! autovideosink \
  * d. ! queue ! audioconvert ! autoaudiosink
  * ]|
  * </refsect2>
@@ -277,7 +277,7 @@ gst_asf_mux_class_init (GstAsfMuxClass * klass)
   gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&video_sink_factory));
 
-  gst_element_class_set_details_simple (gstelement_class, "ASF muxer",
+  gst_element_class_set_metadata (gstelement_class, "ASF muxer",
       "Codec/Muxer",
       "Muxes audio and video into an ASF stream",
       "Thiago Santos <thiagoss@embedded.ufcg.edu.br>");

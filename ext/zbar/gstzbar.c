@@ -61,10 +61,10 @@
  * <refsect2>
  * <title>Example launch lines</title>
  * |[
- * gst-launch -m v4l2src ! ffmpegcolorspace ! zbar ! ffmpegcolorspace ! xvimagesink
+ * gst-launch -m v4l2src ! videoconvert ! zbar ! videoconvert ! xvimagesink
  * ]| This pipeline will detect barcodes and send them as messages.
  * |[
- * gst-launch -m v4l2src ! tee name=t ! queue ! ffmpegcolorspace ! zbar ! fakesink t. ! queue ! xvimagesink
+ * gst-launch -m v4l2src ! tee name=t ! queue ! videoconvert ! zbar ! fakesink t. ! queue ! xvimagesink
  * ]| Same as above, but running the filter on a branch to keep the display in color
  * </refsect2>
  */
@@ -163,7 +163,7 @@ gst_zbar_class_init (GstZBarClass * g_class)
           G_PARAM_READWRITE | GST_PARAM_MUTABLE_READY |
           G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_set_details_simple (gstelement_class, "Barcode detector",
+  gst_element_class_set_metadata (gstelement_class, "Barcode detector",
       "Filter/Analyzer/Video",
       "Detect bar codes in the video streams",
       "Stefan Kost <ensonic@users.sf.net>");

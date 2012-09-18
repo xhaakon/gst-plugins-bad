@@ -171,7 +171,8 @@ rsndec_factory_filter (GstPluginFeature * feature, RsnDecFactoryFilterCtx * ctx)
 
   factory = GST_ELEMENT_FACTORY (feature);
 
-  klass = gst_element_factory_get_klass (factory);
+  klass =
+      gst_element_factory_get_metadata (factory, GST_ELEMENT_METADATA_KLASS);
   /* only decoders can play */
   if (strstr (klass, "Decoder") == NULL)
     return FALSE;
@@ -211,7 +212,8 @@ rsndec_factory_filter (GstPluginFeature * feature, RsnDecFactoryFilterCtx * ctx)
 
   if (can_sink) {
     GST_DEBUG ("Found decoder element %s (%s)",
-        gst_element_factory_get_longname (factory),
+        gst_element_factory_get_metadata (factory,
+            GST_ELEMENT_METADATA_LONGNAME),
         gst_plugin_feature_get_name (feature));
   }
 
@@ -408,7 +410,7 @@ rsn_audiodec_class_init (RsnAudioDecClass * klass)
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&audio_sink_template));
 
-  gst_element_class_set_details_simple (element_class, "RsnAudioDec",
+  gst_element_class_set_metadata (element_class, "RsnAudioDec",
       "Audio/Decoder",
       "Resin DVD audio stream decoder", "Jan Schmidt <thaytan@noraisin.net>");
 
@@ -458,7 +460,7 @@ rsn_videodec_class_init (RsnAudioDecClass * klass)
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&video_sink_template));
 
-  gst_element_class_set_details_simple (element_class, "RsnVideoDec",
+  gst_element_class_set_metadata (element_class, "RsnVideoDec",
       "Video/Decoder",
       "Resin DVD video stream decoder", "Jan Schmidt <thaytan@noraisin.net>");
 

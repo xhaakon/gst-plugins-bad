@@ -50,7 +50,7 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch-0.10 videotestsrc pattern=18 ! videorate ! videoscale ! video/x-raw-yuv,width=320,height=240,framerate=5/1 ! ffmpegcolorspace ! motioncells ! ffmpegcolorspace ! xvimagesink
+ * gst-launch-0.10 videotestsrc pattern=18 ! videorate ! videoscale ! video/x-raw,width=320,height=240,framerate=5/1 ! videoconvert ! motioncells ! videoconvert ! xvimagesink
  * ]|
  * </refsect2>
  */
@@ -304,7 +304,7 @@ gst_motion_cells_class_init (GstMotioncellsClass * klass)
           THICKNESS_MIN, THICKNESS_MAX, THICKNESS_DEF,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_set_details_simple (element_class,
+  gst_element_class_set_metadata (element_class,
       "motioncells",
       "Filter/Effect/Video",
       "Performs motion detection on videos and images, providing detected motion cells index via bus messages",

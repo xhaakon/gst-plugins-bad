@@ -24,6 +24,8 @@
 <a href="#gst-plugins-bad-plugins-festival.synopsis" class="shortcut">Top</a>
                    | 
                   <a href="#gst-plugins-bad-plugins-festival.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#gst-plugins-bad-plugins-festival.object-hierarchy" class="shortcut">Object Hierarchy</a>
 </td></tr>
 </table>
 <div class="refentry">
@@ -37,7 +39,17 @@
 </tr></table></div>
 <div class="refsynopsisdiv">
 <a name="gst-plugins-bad-plugins-festival.synopsis"></a><h2>Synopsis</h2>
-<pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-festival.html#GstFestival" title="struct GstFestival">GstFestival</a>;
+<a name="GstFestival"></a><pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-festival.html#GstFestival-struct" title="struct GstFestival">GstFestival</a>;
+</pre>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-festival.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+   +----<a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+         +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
+               +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
+                     +----GstFestival
 </pre>
 </div>
 <div class="refsect1">
@@ -53,7 +65,7 @@ in server mode, started as </p>
 <p>
 </p>
 <div class="refsect2">
-<a name="idp11762160"></a><h3>Example pipeline</h3>
+<a name="idp10382912"></a><h3>Example pipeline</h3>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -71,7 +83,7 @@ in server mode, started as </p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp5971472"></a><h3>Element Information</h3>
+<a name="idp10712640"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -83,7 +95,7 @@ in server mode, started as </p>
 </tr>
 <tr>
 <td><p><span class="term">author</span></p></td>
-<td>Wim Taymans &lt;wim.taymans@chello.be&gt;</td>
+<td>Wim Taymans &lt;wim.taymans@gmail.com&gt;</td>
 </tr>
 <tr>
 <td><p><span class="term">class</span></p></td>
@@ -94,7 +106,7 @@ in server mode, started as </p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp6743744"></a><h3>Element Pads</h3>
+<a name="idp11404288"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -112,7 +124,7 @@ in server mode, started as </p>
 </tr>
 <tr>
 <td><p><span class="term">details</span></p></td>
-<td>text/plain</td>
+<td>text/x-raw, format=(string)utf8</td>
 </tr>
 </tbody>
 </table></div>
@@ -145,16 +157,8 @@ in server mode, started as </p>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-festival.details"></a><h2>Details</h2>
 <div class="refsect2">
-<a name="GstFestival"></a><h3>struct GstFestival</h3>
-<pre class="programlisting">struct GstFestival {
-  GstElement element;
-
-  /* pads */
-  GstPad *sinkpad,*srcpad;
-
-  FT_Info *info;
-};
-</pre>
+<a name="GstFestival-struct"></a><h3>struct GstFestival</h3>
+<pre class="programlisting">struct GstFestival;</pre>
 <p>
 </p>
 </div>

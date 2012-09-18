@@ -56,10 +56,10 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch-0.10 autovideosrc ! decodebin2 ! colorspace ! facedetect ! colorspace ! xvimagesink
+ * gst-launch-0.10 autovideosrc ! decodebin2 ! colorspace ! facedetect ! videoconvert ! xvimagesink
  * ]| Detect and show faces
  * |[
- * gst-launch-0.10 autovideosrc ! video/x-raw-yuv,width=320,height=240 ! colorspace ! facedetect min-size-width=60 min-size-height=60 ! colorspace ! xvimagesink
+ * gst-launch-0.10 autovideosrc ! video/x-raw,width=320,height=240 ! videoconvert ! facedetect min-size-width=60 min-size-height=60 ! colorspace ! xvimagesink
  * ]| Detect large faces on a smaller image 
  *
  * </refsect2>
@@ -270,7 +270,7 @@ gst_face_detect_class_init (GstFaceDetectClass * klass)
           "Minimum area height to be recognized as a face", 0, G_MAXINT,
           DEFAULT_MIN_SIZE_HEIGHT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_set_details_simple (element_class,
+  gst_element_class_set_metadata (element_class,
       "facedetect",
       "Filter/Effect/Video",
       "Performs face detection on videos and images, providing detected positions via bus messages",

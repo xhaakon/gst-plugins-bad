@@ -109,8 +109,6 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/timidity/gstwildmidi.h \
 	$(top_srcdir)/ext/voaacenc/gstvoaacenc.h \
 	$(top_srcdir)/ext/voamrwbenc/gstvoamrwbenc.h \
-	$(top_srcdir)/ext/vp8/gstvp8enc.h \
-	$(top_srcdir)/ext/vp8/gstvp8dec.h \
 	$(top_srcdir)/ext/zbar/gstzbar.h \
 	$(top_srcdir)/gst/aiff/aiffparse.h \
 	$(top_srcdir)/gst/aiff/aiffmux.h \
@@ -134,7 +132,6 @@ EXTRA_HFILES = \
 	$(top_srcdir)/gst/dtmf/gstrtpdtmfdepay.h \
 	$(top_srcdir)/gst/dvdspu/gstdvdspu.h \
 	$(top_srcdir)/gst/festival/gstfestival.h \
-	$(top_srcdir)/gst/freeze/gstfreeze.h \
 	$(top_srcdir)/gst/gaudieffects/gstburn.h \
 	$(top_srcdir)/gst/gaudieffects/gstchromium.h \
 	$(top_srcdir)/gst/gaudieffects/gstdilate.h \
