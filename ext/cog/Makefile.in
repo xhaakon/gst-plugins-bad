@@ -155,11 +155,9 @@ libgstcog_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_libgstcog_la_OBJECTS = libgstcog_la-cogframe.lo \
 	libgstcog_la-cogtables.lo libgstcog_la-cogvirtframe.lo \
-	libgstcog_la-gstcog.lo libgstcog_la-gstcogcolorspace.lo \
-	libgstcog_la-gstcogdownsample.lo libgstcog_la-gstcogmse.lo \
-	libgstcog_la-gstcogscale.lo libgstcog_la-gstcogutils.lo \
-	libgstcog_la-gstcolorconvert.lo libgstcog_la-gstlogoinsert.lo \
-	libgstcog_la-gstcms.lo
+	libgstcog_la-gstcog.lo libgstcog_la-gstcogdownsample.lo \
+	libgstcog_la-gstcogmse.lo libgstcog_la-gstcogscale.lo \
+	libgstcog_la-gstcogutils.lo libgstcog_la-gstcms.lo
 am__objects_1 = libgstcog_la-tmp-orc.lo
 nodist_libgstcog_la_OBJECTS = $(am__objects_1)
 libgstcog_la_OBJECTS = $(am_libgstcog_la_OBJECTS) \
@@ -690,14 +688,11 @@ libgstcog_la_SOURCES = \
 	cogvirtframe.c \
 	cogvirtframe.h \
 	gstcog.c \
-	gstcogcolorspace.c \
 	gstcogdownsample.c \
 	gstcogmse.c \
 	gstcogscale.c \
 	gstcogutils.c \
 	gstcogutils.h \
-	gstcolorconvert.c \
-	gstlogoinsert.c \
 	gstcms.h \
 	gstcms.c
 
@@ -801,13 +796,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcog_la-cogvirtframe.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcog_la-gstcms.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcog_la-gstcog.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcog_la-gstcogcolorspace.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcog_la-gstcogdownsample.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcog_la-gstcogmse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcog_la-gstcogscale.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcog_la-gstcogutils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcog_la-gstcolorconvert.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcog_la-gstlogoinsert.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcog_la-tmp-orc.Plo@am__quote@
 
 .c.o:
@@ -859,13 +851,6 @@ libgstcog_la-gstcog.lo: gstcog.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcog_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcog_la_CFLAGS) $(CFLAGS) -c -o libgstcog_la-gstcog.lo `test -f 'gstcog.c' || echo '$(srcdir)/'`gstcog.c
 
-libgstcog_la-gstcogcolorspace.lo: gstcogcolorspace.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcog_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcog_la_CFLAGS) $(CFLAGS) -MT libgstcog_la-gstcogcolorspace.lo -MD -MP -MF $(DEPDIR)/libgstcog_la-gstcogcolorspace.Tpo -c -o libgstcog_la-gstcogcolorspace.lo `test -f 'gstcogcolorspace.c' || echo '$(srcdir)/'`gstcogcolorspace.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcog_la-gstcogcolorspace.Tpo $(DEPDIR)/libgstcog_la-gstcogcolorspace.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstcogcolorspace.c' object='libgstcog_la-gstcogcolorspace.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcog_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcog_la_CFLAGS) $(CFLAGS) -c -o libgstcog_la-gstcogcolorspace.lo `test -f 'gstcogcolorspace.c' || echo '$(srcdir)/'`gstcogcolorspace.c
-
 libgstcog_la-gstcogdownsample.lo: gstcogdownsample.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcog_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcog_la_CFLAGS) $(CFLAGS) -MT libgstcog_la-gstcogdownsample.lo -MD -MP -MF $(DEPDIR)/libgstcog_la-gstcogdownsample.Tpo -c -o libgstcog_la-gstcogdownsample.lo `test -f 'gstcogdownsample.c' || echo '$(srcdir)/'`gstcogdownsample.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcog_la-gstcogdownsample.Tpo $(DEPDIR)/libgstcog_la-gstcogdownsample.Plo
@@ -893,20 +878,6 @@ libgstcog_la-gstcogutils.lo: gstcogutils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstcogutils.c' object='libgstcog_la-gstcogutils.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcog_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcog_la_CFLAGS) $(CFLAGS) -c -o libgstcog_la-gstcogutils.lo `test -f 'gstcogutils.c' || echo '$(srcdir)/'`gstcogutils.c
-
-libgstcog_la-gstcolorconvert.lo: gstcolorconvert.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcog_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcog_la_CFLAGS) $(CFLAGS) -MT libgstcog_la-gstcolorconvert.lo -MD -MP -MF $(DEPDIR)/libgstcog_la-gstcolorconvert.Tpo -c -o libgstcog_la-gstcolorconvert.lo `test -f 'gstcolorconvert.c' || echo '$(srcdir)/'`gstcolorconvert.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcog_la-gstcolorconvert.Tpo $(DEPDIR)/libgstcog_la-gstcolorconvert.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstcolorconvert.c' object='libgstcog_la-gstcolorconvert.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcog_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcog_la_CFLAGS) $(CFLAGS) -c -o libgstcog_la-gstcolorconvert.lo `test -f 'gstcolorconvert.c' || echo '$(srcdir)/'`gstcolorconvert.c
-
-libgstcog_la-gstlogoinsert.lo: gstlogoinsert.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcog_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcog_la_CFLAGS) $(CFLAGS) -MT libgstcog_la-gstlogoinsert.lo -MD -MP -MF $(DEPDIR)/libgstcog_la-gstlogoinsert.Tpo -c -o libgstcog_la-gstlogoinsert.lo `test -f 'gstlogoinsert.c' || echo '$(srcdir)/'`gstlogoinsert.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcog_la-gstlogoinsert.Tpo $(DEPDIR)/libgstcog_la-gstlogoinsert.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstlogoinsert.c' object='libgstcog_la-gstlogoinsert.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcog_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcog_la_CFLAGS) $(CFLAGS) -c -o libgstcog_la-gstlogoinsert.lo `test -f 'gstlogoinsert.c' || echo '$(srcdir)/'`gstlogoinsert.c
 
 libgstcog_la-gstcms.lo: gstcms.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcog_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcog_la_CFLAGS) $(CFLAGS) -MT libgstcog_la-gstcms.lo -MD -MP -MF $(DEPDIR)/libgstcog_la-gstcms.Tpo -c -o libgstcog_la-gstcms.lo `test -f 'gstcms.c' || echo '$(srcdir)/'`gstcms.c

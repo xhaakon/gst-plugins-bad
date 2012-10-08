@@ -3,7 +3,7 @@ AC_PREREQ(2.62)
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT(GStreamer Bad Plug-ins, 1.0.0,
+AC_INIT(GStreamer Bad Plug-ins, 1.0.1,
     http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer,
     gst-plugins-bad)
 
@@ -50,7 +50,7 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 0, 0, 0)
+AS_LIBTOOL(GST, 1, 0, 1)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.0.0
@@ -313,7 +313,7 @@ dnl Make sure you have a space before and after all plugins
 GST_PLUGINS_NONPORTED=" aiff \
  cdxaparse \
  dccp faceoverlay \
- fieldanalysis freeverb frei0r \
+ fieldanalysis freeverb \
  hdvparse ivfparse jp2kdecimator \
  kate librfb \
  mpegpsmux mve mxf mythtv nsf nuvdemux \
@@ -851,8 +851,9 @@ translit(dnm, m, l) AM_CONDITIONAL(USE_CURL, true)
 AG_GST_CHECK_FEATURE(CURL, [Curl plugin], curl, [
   PKG_CHECK_MODULES(CURL, libcurl >= 7.21.0, [
     HAVE_CURL="yes"
-    AC_CHECK_HEADERS([unistd.h sys/socket.h sys/types.h netinet/in.h netinet/ip.h netinet/tcp.h fcntl.h],
-        [ ], [HAVE_CURL="no"])
+    AC_CHECK_HEADERS([unistd.h sys/socket.h sys/types.h netinet/in.h netinet/ip.h netinet/tcp.h fcntl.h], [ ], [
+      AC_CHECK_HEADERS([unistd.h sys/types.h winsock2.h ws2tcpip.h fcntl.h], [ ], [HAVE_CURL="no"])
+    ])
     AC_MSG_CHECKING([for socket support needed by curlsink])
     AC_MSG_RESULT($HAVE_CURL)
   ], [

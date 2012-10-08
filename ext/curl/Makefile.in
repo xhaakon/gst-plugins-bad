@@ -129,7 +129,7 @@ LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstcurl_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_libgstcurl_la_OBJECTS = libgstcurl_la-gstcurl.lo \
 	libgstcurl_la-gstcurlbasesink.lo \
 	libgstcurl_la-gstcurltlssink.lo \
@@ -634,6 +634,7 @@ libgstcurl_la_LIBADD = \
 	$(GST_PLUGINS_BASE_LIBS) \
 	$(GST_BASE_LIBS) \
 	$(GST_LIBS) \
+	$(WINSOCK2_LIBS) \
 	$(CURL_LIBS)
 
 libgstcurl_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
