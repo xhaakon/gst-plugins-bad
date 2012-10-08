@@ -18,6 +18,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdvdspu.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfaad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfestival.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfragmented.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfrei0r.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstflite.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgaudieffects.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgdp.so
