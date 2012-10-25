@@ -17,6 +17,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdvbsuboverlay.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdvdspu.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfaad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfestival.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfieldanalysis.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfragmented.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfrei0r.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstflite.so
@@ -49,12 +50,13 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstscaletempoplugin.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstschro.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsdpelem.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsegmentclip.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstshm.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsiren.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsmooth.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsoundtouch.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstspandsp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstspeed.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstshm.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsmooth.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsubenc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideoparsersbad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvoaacenc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvoamrwbenc.so

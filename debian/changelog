@@ -1,3 +1,11 @@
+gst-plugins-bad1.0 (1.0.2-1) unstable; urgency=low
+
+  * New upstream bugfix release:
+    + debian/gstreamer-plugins-bad.install:
+      - Add subenc and fieldanalysis plugins.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 25 Oct 2012 14:13:33 +0200
+
 gst-plugins-bad1.0 (1.0.1-1) unstable; urgency=low
 
   * New upstream bugfix release:
