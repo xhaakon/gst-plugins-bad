@@ -3,7 +3,7 @@ AC_PREREQ(2.62)
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT(GStreamer Bad Plug-ins, 1.0.1,
+AC_INIT(GStreamer Bad Plug-ins, 1.0.2,
     http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer,
     gst-plugins-bad)
 
@@ -50,7 +50,7 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 1, 0, 1)
+AS_LIBTOOL(GST, 2, 0, 2)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.0.0
@@ -310,21 +310,21 @@ AG_GST_DEFAULT_ELEMENTS
 dnl *** plug-ins to include ***
 dnl Non ported plugins (non-dependant, then dependant)
 dnl Make sure you have a space before and after all plugins
-GST_PLUGINS_NONPORTED=" aiff \
+GST_PLUGINS_NONPORTED=" androidmedia aiff \
  cdxaparse \
- dccp faceoverlay \
- fieldanalysis freeverb \
+ dccp eglgles faceoverlay \
+ freeverb \
  hdvparse ivfparse jp2kdecimator \
  kate librfb \
  mpegpsmux mve mxf mythtv nsf nuvdemux \
  patchdetect real \
- sdi subenc stereo tta videofilters \
+ sdi stereo tta videofilters \
  videomeasure videosignal vmnc \
  decklink fbdev linsys vcd \
  apexsink cdaudio cog dc1394 dirac directfb \
  gsettings jasper ladspa \
- musepack musicbrainz nas neon ofa openal rsvg sdl sndfile timidity \
- directsound directdraw direct3d9 acm wininet \
+ musepack musicbrainz nas neon ofa openal opensles rsvg sdl sndfile timidity \
+ directdraw direct3d9 acm wininet \
  wildmidi xvid lv2 teletextdec sndio uvch264"
 AC_SUBST(GST_PLUGINS_NONPORTED)
 
@@ -598,6 +598,20 @@ int main () {
   AC_SUBST(HAVE_DIRECTSHOW)
 ])
 
+dnl *** Android Media ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_ANDROID_MEDIA, true)
+HAVE_ANDROID_MEDIA="no"
+AG_GST_CHECK_FEATURE(ANDROID_MEDIA, [Android Media], androidmedia, [
+  case "$host" in
+    *android*)
+      AC_CHECK_HEADER(jni.h, HAVE_ANDROID_MEDIA="yes", HAVE_ANDROID_MEDIA="no")
+      ;;
+    *)
+      HAVE_ANDROID_MEDIA="no"
+      ;;
+  esac
+])
+
 dnl *** AppleMedia (OS X and iOS) ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_APPLE_MEDIA, true)
 HAVE_APPLE_MEDIA="no"
@@ -689,6 +703,11 @@ AG_GST_CHECK_FEATURE(VCD, [Video CD], vcdsrc, [
   AC_CHECK_HEADER(linux/cdrom.h, HAVE_VCD="yes", HAVE_VCD="no")
 ])
 
+dnl check for OpenSL ES
+translit(dnm, m, l) AM_CONDITIONAL(USE_OPENSLES, true)
+AG_GST_CHECK_FEATURE(OPENSLES, [OpenSL ES], opensl, [
+  AC_CHECK_HEADER(SLES/OpenSLES.h, HAVE_OPENSLES="yes", HAVE_OPENSLES="no")
+])
 
 dnl *** UVC H264 ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_UVCH264, true)
@@ -927,7 +946,7 @@ AG_GST_CHECK_FEATURE(DIRECTFB, [directfb], dfbvideosink , [
 dnl **** Wayland ****
 translit(dnm, m, l) AM_CONDITIONAL(USE_WAYLAND, true)
 AG_GST_CHECK_FEATURE(WAYLAND, [wayland sink], wayland , [
-  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 0.95.0, [
+  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.0.0, [
     HAVE_WAYLAND="yes" ], [ HAVE_WAYLAND="no"
   ])
 ])
@@ -1500,6 +1519,36 @@ AG_GST_CHECK_FEATURE(RSVG, [rsvg decoder], rsvg, [
   AC_SUBST(RSVG_LIBS)
 ])
 
+dnl *** eglgles ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_EGLGLES, true)
+AG_GST_CHECK_FEATURE(EGLGLES, [eglgles sink], eglgles, [
+  HAVE_EGLGLES="no"
+  PKG_CHECK_MODULES(EGLGLES, egl glesv2, HAVE_EGLGLES="yes", [
+    HAVE_EGLGLES="no"
+    old_LIBS=$LIBS
+    old_CFLAGS=$CFLAGS
+    AC_CHECK_LIB([GLESv2], [glEnable],
+      [
+        AC_CHECK_HEADER([GLES2/gl2.h],
+          [
+            AC_CHECK_LIB([EGL], [eglGetProcAddress],
+              [
+                AC_CHECK_HEADER([EGL/egl.h],
+                  [
+                    HAVE_EGLGLES="yes"
+                    EGLGLES_LIBS="-lGLESv2 -lEGL"
+                    EGLGLES_CFLAGS=""
+                  ])
+              ])
+          ])
+      ])
+    LIBS=$old_LIBS
+    CFLAGS=$old_CFLAGS
+  ])
+  AC_SUBST(EGLGLES_CFLAGS)
+  AC_SUBST(EGLGLES_LIBS)
+])
+
 dnl *** timidity ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_TIMIDITY, true)
 AG_GST_CHECK_FEATURE(TIMIDITY, [timidity midi soft synth plugin], timidity, [
@@ -2042,6 +2091,7 @@ sys/Makefile
 sys/dshowdecwrapper/Makefile
 sys/acmenc/Makefile
 sys/acmmp3dec/Makefile
+sys/androidmedia/Makefile
 sys/applemedia/Makefile
 sys/avc/Makefile
 sys/d3dvideosink/Makefile
@@ -2053,6 +2103,7 @@ sys/dshowvideosink/Makefile
 sys/dvb/Makefile
 sys/fbdev/Makefile
 sys/linsys/Makefile
+sys/opensles/Makefile
 sys/osxvideo/Makefile
 sys/qtwrapper/Makefile
 sys/shm/Makefile
@@ -2092,6 +2143,7 @@ ext/dirac/Makefile
 ext/directfb/Makefile
 ext/wayland/Makefile
 ext/dts/Makefile
+ext/eglgles/Makefile
 ext/faac/Makefile
 ext/faad/Makefile
 ext/flite/Makefile

@@ -160,7 +160,7 @@ gst_dtsdec_class_init (GstDtsDecClass * klass)
       gst_static_pad_template_get (&sink_factory));
   gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&src_factory));
-  gst_element_class_set_metadata (gstelement_class, "DTS audio decoder",
+  gst_element_class_set_static_metadata (gstelement_class, "DTS audio decoder",
       "Codec/Decoder/Audio",
       "Decodes DTS audio streams",
       "Jan Schmidt <thaytan@noraisin.net>, "
@@ -665,10 +665,11 @@ gst_dtsdec_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
     gint offset, len;
     GstBuffer *subbuf;
 
-    size = gst_buffer_extract (buf, 0, data, 2);
+    size = gst_buffer_get_size (buf);
     if (size < 2)
       goto not_enough_data;
 
+    gst_buffer_extract (buf, 0, data, 2);
     first_access = (data[0] << 8) | data[1];
 
     /* Skip the first_access header */

@@ -89,12 +89,14 @@ struct _GstFluPSStream
   gint type;
 
   GstClockTime segment_thresh;
-  GstClockTime last_seg_start;
   GstClockTime last_ts;
+  GstFlowReturn last_flow;
 
   gboolean discont;
   gboolean notlinked;
   gboolean need_segment;
+
+  GstTagList *pending_tags;
 };
 
 struct _GstFluPSDemux
@@ -133,6 +135,7 @@ struct _GstFluPSDemux
 
   GstSegment sink_segment;
   GstSegment src_segment;
+  gboolean adjust_segment;
 
   /* stream output */
   GstFluPSStream *current_stream;
@@ -145,10 +148,6 @@ struct _GstFluPSDemux
 
   /* Indicates an MPEG-2 stream */
   gboolean is_mpeg2_pack;
-
-  /* Language codes event is stored when a dvd-lang-codes
-   * custom event arrives from upstream */
-  GstEvent *lang_codes;
 };
 
 struct _GstFluPSDemuxClass

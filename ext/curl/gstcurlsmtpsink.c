@@ -229,7 +229,7 @@ gst_curl_smtp_sink_class_init (GstCurlSmtpSinkClass * klass)
       "curl smtp sink element");
   GST_DEBUG_OBJECT (klass, "class_init");
 
-  gst_element_class_set_metadata (element_class,
+  gst_element_class_set_static_metadata (element_class,
       "Curl smtp sink",
       "Sink/Network",
       "Upload data over SMTP protocol using libcurl",
@@ -580,6 +580,12 @@ generate_encoded_word (gchar * str)
   return encoded_word;
 }
 
+/* Setup header fields (From:/To:/Date: etc) and message body for the e-mail.
+ * This data is supposed to be sent to libcurl just before any media data.
+ * This function is called once for each e-mail:
+ * 1. we are about the send the first attachment
+ * 2. we have sent all the attachments and continue sending new ones within
+ *    a new e-mail (transfer options have been reset). */
 static gboolean
 gst_curl_smtp_sink_set_transfer_options_unlocked (GstCurlBaseSink * bcsink)
 {
