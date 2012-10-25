@@ -155,7 +155,7 @@ gst_mpeg4vparse_class_init (GstMpeg4VParseClass * klass)
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&sink_template));
 
-  gst_element_class_set_metadata (element_class,
+  gst_element_class_set_static_metadata (element_class,
       "MPEG 4 video elementary stream parser", "Codec/Parser/Video",
       "Parses MPEG-4 Part 2 elementary video streams",
       "Julien Moutte <julien@fluendo.com>");
@@ -191,6 +191,7 @@ gst_mpeg4vparse_reset_frame (GstMpeg4VParse * mp4vparse)
   mp4vparse->last_sc = -1;
   mp4vparse->vop_offset = -1;
   mp4vparse->vo_found = FALSE;
+  mp4vparse->config_found = FALSE;
   mp4vparse->vol_offset = -1;
   mp4vparse->vo_offset = -1;
 }
@@ -372,7 +373,7 @@ gst_mpeg4vparse_process_sc (GstMpeg4VParse * mp4vparse, GstMpeg4Packet * packet,
       }
       /* parse config data ending here if proper startcodes found earlier;
        * we should have received a visual object before. */
-      if (mp4vparse->vo_found) {
+      if (mp4vparse->config_found) {
         /*Do not take care startcode into account */
         gst_mpeg4vparse_process_config (mp4vparse,
             packet->data, packet->offset, packet->offset - 3);
@@ -382,6 +383,7 @@ gst_mpeg4vparse_process_sc (GstMpeg4VParse * mp4vparse, GstMpeg4Packet * packet,
     }
     case GST_MPEG4_VISUAL_OBJ_SEQ_START:
       GST_LOG_OBJECT (mp4vparse, "Visual Sequence Start");
+      mp4vparse->config_found = TRUE;
       mp4vparse->profile = gst_codec_utils_mpeg4video_get_profile (packet->data
           + packet->offset + 1, packet->offset);
       mp4vparse->level = gst_codec_utils_mpeg4video_get_level (packet->data
@@ -404,6 +406,7 @@ gst_mpeg4vparse_process_sc (GstMpeg4VParse * mp4vparse, GstMpeg4Packet * packet,
         /* VO (video object) cases */
       } else if (packet->type <= GST_MPEG4_VIDEO_OBJ_LAST) {
         GST_LOG_OBJECT (mp4vparse, "Video object");
+        mp4vparse->config_found = TRUE;
       }
       break;
   }
@@ -825,6 +828,7 @@ gst_mpeg4vparse_set_caps (GstBaseParse * parse, GstCaps * caps)
     /* And take it as config */
     gst_mpeg4vparse_process_config (mp4vparse, data, 3, size);
     gst_buffer_unmap (buf, &map);
+    gst_mpeg4vparse_reset_frame (mp4vparse);
   }
 
   /* let's not interfere and accept regardless of config parsing success */

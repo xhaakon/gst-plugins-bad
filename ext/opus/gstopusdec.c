@@ -121,7 +121,7 @@ gst_opus_dec_class_init (GstOpusDecClass * klass)
       gst_static_pad_template_get (&opus_dec_src_factory));
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&opus_dec_sink_factory));
-  gst_element_class_set_metadata (element_class, "Opus audio decoder",
+  gst_element_class_set_static_metadata (element_class, "Opus audio decoder",
       "Codec/Decoder/Audio",
       "decode opus streams to audio",
       "Vincent Penquerc'h <vincent.penquerch@collabora.co.uk>");
@@ -453,7 +453,7 @@ opus_dec_chain_parse_data (GstOpusDec * dec, GstBuffer * buffer)
     n = opus_multistream_decode (dec->state, data, size, out_data, samples, 0);
   }
   gst_buffer_unmap (outbuf, &omap);
-  if (buf)
+  if (data != NULL)
     gst_buffer_unmap (buf, &map);
 
   if (n < 0) {

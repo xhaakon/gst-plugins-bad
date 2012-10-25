@@ -152,7 +152,7 @@ gst_pitch_class_init (GstPitchClass * klass)
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&gst_pitch_sink_template));
 
-  gst_element_class_set_metadata (element_class, "Pitch controller",
+  gst_element_class_set_static_metadata (element_class, "Pitch controller",
       "Filter/Effect/Audio", "Control the pitch of an audio stream",
       "Wouter Paesen <wouter@blue-gate.be>");
 }
@@ -667,7 +667,7 @@ gst_pitch_src_query (GstPad * pad, GstObject * parent, GstQuery * query)
 
 /* this function returns FALSE if not enough data is known to transform the
  * segment into proper downstream values.  If the function does return false
- * the sgement should be stalled until enough information is available.
+ * the segment should be stalled until enough information is available.
  * If the funtion returns TRUE, event will be replaced by the new downstream
  * compatible event.
  */
@@ -901,7 +901,7 @@ gst_pitch_change_state (GstElement * element, GstStateChange transition)
     case GST_STATE_CHANGE_NULL_TO_READY:
       break;
     case GST_STATE_CHANGE_READY_TO_PAUSED:
-      pitch->next_buffer_time = 0;
+      pitch->next_buffer_time = GST_CLOCK_TIME_NONE;
       pitch->next_buffer_offset = 0;
       pitch->priv->st->clear ();
       pitch->min_latency = pitch->max_latency = 0;

@@ -47,6 +47,8 @@
 #include <winsock2.h>
 #endif
 
+#include <stdlib.h>
+
 GST_DEBUG_CATEGORY_STATIC (gst_rtmp_sink_debug);
 #define GST_CAT_DEFAULT gst_rtmp_sink_debug
 
@@ -100,7 +102,7 @@ gst_rtmp_sink_class_init (GstRTMPSinkClass * klass)
       g_param_spec_string ("location", "RTMP Location", "RTMP url",
           DEFAULT_LOCATION, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_set_metadata (gstelement_class,
+  gst_element_class_set_static_metadata (gstelement_class,
       "RTMP output sink",
       "Sink/Network", "Sends FLV content to a server via RTMP",
       "Jan Schmidt <thaytan@noraisin.net>");
@@ -241,7 +243,7 @@ gst_rtmp_sink_render (GstBaseSink * bsink, GstBuffer * buf)
 
   gst_buffer_map (buf, &map, GST_MAP_READ);
 
-  if (!RTMP_Write (sink->rtmp, (char *) map.data, map.size))
+  if (RTMP_Write (sink->rtmp, (char *) map.data, map.size) <= 0)
     goto write_failed;
 
   gst_buffer_unmap (buf, &map);
@@ -293,6 +295,7 @@ gst_rtmp_sink_uri_set_uri (GstURIHandler * handler, const gchar * uri,
     GError ** error)
 {
   GstRTMPSink *sink = GST_RTMP_SINK (handler);
+  gboolean ret = TRUE;
 
   if (GST_STATE (sink) >= GST_STATE_PAUSED) {
     g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_BAD_STATE,
@@ -315,14 +318,19 @@ gst_rtmp_sink_uri_set_uri (GstURIHandler * handler, const gchar * uri,
           ("Failed to parse URI %s", uri), (NULL));
       g_set_error (error, GST_URI_ERROR, GST_URI_ERROR_BAD_URI,
           "Could not parse RTMP URI");
-      return FALSE;
+      ret = FALSE;
+    } else {
+      sink->uri = g_strdup (uri);
     }
-    sink->uri = g_strdup (uri);
+
+    if (playpath.av_val)
+      free (playpath.av_val);
   }
 
-  GST_DEBUG_OBJECT (sink, "Changed URI to %s", GST_STR_NULL (uri));
+  if (ret)
+    GST_DEBUG_OBJECT (sink, "Changed URI to %s", GST_STR_NULL (uri));
 
-  return TRUE;
+  return ret;
 }
 
 static void

@@ -102,6 +102,7 @@ static gboolean gst_hls_demux_src_query (GstPad * pad, GstObject * parent,
 static void gst_hls_demux_stream_loop (GstHLSDemux * demux);
 static void gst_hls_demux_updates_loop (GstHLSDemux * demux);
 static void gst_hls_demux_stop (GstHLSDemux * demux);
+static void gst_hls_demux_pause_tasks (GstHLSDemux * demux, gboolean caching);
 static gboolean gst_hls_demux_cache_fragments (GstHLSDemux * demux);
 static gboolean gst_hls_demux_schedule (GstHLSDemux * demux);
 static gboolean gst_hls_demux_switch_playlist (GstHLSDemux * demux);
@@ -126,6 +127,8 @@ gst_hls_demux_dispose (GObject * obj)
     if (GST_TASK_STATE (demux->stream_task) != GST_TASK_STOPPED) {
       GST_DEBUG_OBJECT (demux, "Leaving streaming task");
       gst_task_stop (demux->stream_task);
+      g_rec_mutex_lock (&demux->stream_lock);
+      g_rec_mutex_unlock (&demux->stream_lock);
       gst_task_join (demux->stream_task);
     }
     gst_object_unref (demux->stream_task);
@@ -136,7 +139,14 @@ gst_hls_demux_dispose (GObject * obj)
   if (demux->updates_task) {
     if (GST_TASK_STATE (demux->updates_task) != GST_TASK_STOPPED) {
       GST_DEBUG_OBJECT (demux, "Leaving updates task");
+      demux->cancelled = TRUE;
+      gst_uri_downloader_cancel (demux->downloader);
       gst_task_stop (demux->updates_task);
+      g_mutex_lock (&demux->updates_timed_lock);
+      GST_TASK_SIGNAL (demux->updates_task);
+      g_rec_mutex_lock (&demux->updates_lock);
+      g_rec_mutex_unlock (&demux->updates_lock);
+      g_mutex_unlock (&demux->updates_timed_lock);
       gst_task_join (demux->updates_task);
     }
     gst_object_unref (demux->updates_task);
@@ -197,7 +207,7 @@ gst_hls_demux_class_init (GstHLSDemuxClass * klass)
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&sinktemplate));
 
-  gst_element_class_set_metadata (element_class,
+  gst_element_class_set_static_metadata (element_class,
       "HLS Demuxer",
       "Demuxer/URIList",
       "HTTP Live Streaming demuxer",
@@ -315,7 +325,15 @@ gst_hls_demux_change_state (GstElement * element, GstStateChange transition)
 
   switch (transition) {
     case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+      demux->cancelled = TRUE;
+      gst_uri_downloader_cancel (demux->downloader);
       gst_task_stop (demux->updates_task);
+      g_mutex_lock (&demux->updates_timed_lock);
+      GST_TASK_SIGNAL (demux->updates_task);
+      g_mutex_unlock (&demux->updates_timed_lock);
+      g_rec_mutex_lock (&demux->updates_lock);
+      g_rec_mutex_unlock (&demux->updates_lock);
+      demux->cancelled = FALSE;
       break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:
       demux->cancelled = TRUE;
@@ -397,6 +415,11 @@ gst_hls_demux_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
       gst_task_pause (demux->stream_task);
       gst_uri_downloader_cancel (demux->downloader);
       gst_task_stop (demux->updates_task);
+      g_mutex_lock (&demux->updates_timed_lock);
+      GST_TASK_SIGNAL (demux->updates_task);
+      g_mutex_unlock (&demux->updates_timed_lock);
+      g_rec_mutex_lock (&demux->updates_lock);
+      g_rec_mutex_unlock (&demux->updates_lock);
       gst_task_pause (demux->stream_task);
 
       /* wait for streaming to finish */
@@ -584,18 +607,47 @@ gst_hls_demux_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
 }
 
 static void
+gst_hls_demux_pause_tasks (GstHLSDemux * demux, gboolean caching)
+{
+  if (GST_TASK_STATE (demux->updates_task) != GST_TASK_STOPPED) {
+    demux->cancelled = TRUE;
+    gst_uri_downloader_cancel (demux->downloader);
+    gst_task_pause (demux->updates_task);
+    if (!caching)
+      g_mutex_lock (&demux->updates_timed_lock);
+    GST_TASK_SIGNAL (demux->updates_task);
+    if (!caching)
+      g_mutex_unlock (&demux->updates_timed_lock);
+  }
+
+  if (GST_TASK_STATE (demux->stream_task) != GST_TASK_STOPPED) {
+    demux->stop_stream_task = TRUE;
+    gst_task_pause (demux->stream_task);
+  }
+}
+
+static void
 gst_hls_demux_stop (GstHLSDemux * demux)
 {
   gst_uri_downloader_cancel (demux->downloader);
 
   if (GST_TASK_STATE (demux->updates_task) != GST_TASK_STOPPED) {
-    demux->stop_stream_task = TRUE;
+    demux->cancelled = TRUE;
+    gst_uri_downloader_cancel (demux->downloader);
     gst_task_stop (demux->updates_task);
+    g_mutex_lock (&demux->updates_timed_lock);
     GST_TASK_SIGNAL (demux->updates_task);
+    g_mutex_unlock (&demux->updates_timed_lock);
+    g_rec_mutex_lock (&demux->updates_lock);
+    g_rec_mutex_unlock (&demux->updates_lock);
   }
 
-  if (GST_TASK_STATE (demux->stream_task) != GST_TASK_STOPPED)
+  if (GST_TASK_STATE (demux->stream_task) != GST_TASK_STOPPED) {
+    demux->stop_stream_task = TRUE;
     gst_task_stop (demux->stream_task);
+    g_rec_mutex_lock (&demux->stream_lock);
+    g_rec_mutex_unlock (&demux->stream_lock);
+  }
 }
 
 static void
@@ -709,7 +761,7 @@ end_of_playlist:
   {
     GST_DEBUG_OBJECT (demux, "Reached end of playlist, sending EOS");
     gst_pad_push_event (demux->srcpad, gst_event_new_eos ());
-    gst_hls_demux_stop (demux);
+    gst_hls_demux_pause_tasks (demux, FALSE);
     return;
   }
 
@@ -719,17 +771,22 @@ cache_error:
     if (!demux->cancelled) {
       GST_ELEMENT_ERROR (demux, RESOURCE, NOT_FOUND,
           ("Could not cache the first fragments"), (NULL));
-      gst_hls_demux_stop (demux);
+      gst_hls_demux_pause_tasks (demux, FALSE);
     }
     return;
   }
 
 error_pushing:
   {
-    /* FIXME: handle error */
-    GST_DEBUG_OBJECT (demux, "Error pushing buffer: %s... stopping task",
-        gst_flow_get_name (ret));
-    gst_hls_demux_stop (demux);
+    if (ret == GST_FLOW_NOT_LINKED || ret < GST_FLOW_EOS) {
+      GST_ELEMENT_ERROR (demux, STREAM, FAILED, (NULL),
+          ("stream stopped, reason %s", gst_flow_get_name (ret)));
+      gst_pad_push_event (demux->srcpad, gst_event_new_eos ());
+    } else {
+      GST_DEBUG_OBJECT (demux, "stream stopped, reason %s",
+          gst_flow_get_name (ret));
+    }
+    gst_hls_demux_pause_tasks (demux, FALSE);
     return;
   }
 
@@ -800,6 +857,9 @@ gst_hls_demux_updates_loop (GstHLSDemux * demux)
   g_mutex_lock (&demux->updates_timed_lock);
   GST_DEBUG_OBJECT (demux, "Started updates task");
   while (TRUE) {
+    if (demux->cancelled)
+      goto quit;
+
     /* schedule the next update */
     gst_hls_demux_schedule (demux);
 
@@ -808,9 +868,15 @@ gst_hls_demux_updates_loop (GstHLSDemux * demux)
             &demux->updates_timed_lock, &demux->next_update)) {
       goto quit;
     }
+
+    if (demux->cancelled)
+      goto quit;
+
     /* update the playlist for live sources */
     if (gst_m3u8_client_is_live (demux->client)) {
       if (!gst_hls_demux_update_playlist (demux, TRUE)) {
+        if (demux->cancelled)
+          goto quit;
         demux->client->update_failed_count++;
         if (demux->client->update_failed_count < DEFAULT_FAILED_COUNT) {
           GST_WARNING_OBJECT (demux, "Could not update the playlist");
@@ -818,7 +884,7 @@ gst_hls_demux_updates_loop (GstHLSDemux * demux)
         } else {
           GST_ELEMENT_ERROR (demux, RESOURCE, NOT_FOUND,
               ("Could not update the playlist"), (NULL));
-          goto quit;
+          goto error;
         }
       }
     }
@@ -834,10 +900,15 @@ gst_hls_demux_updates_loop (GstHLSDemux * demux)
       continue;
     }
 
+    if (demux->cancelled)
+      goto quit;
+
     /* fetch the next fragment */
     if (g_queue_is_empty (demux->queue)) {
       if (!gst_hls_demux_get_next_fragment (demux, FALSE)) {
-        if (!demux->end_of_playlist && !demux->cancelled) {
+        if (demux->cancelled) {
+          goto quit;
+        } else if (!demux->end_of_playlist && !demux->cancelled) {
           demux->client->update_failed_count++;
           if (demux->client->update_failed_count < DEFAULT_FAILED_COUNT) {
             GST_WARNING_OBJECT (demux, "Could not fetch the next fragment");
@@ -845,11 +916,14 @@ gst_hls_demux_updates_loop (GstHLSDemux * demux)
           } else {
             GST_ELEMENT_ERROR (demux, RESOURCE, NOT_FOUND,
                 ("Could not fetch the next fragment"), (NULL));
-            goto quit;
+            goto error;
           }
         }
       } else {
         demux->client->update_failed_count = 0;
+
+        if (demux->cancelled)
+          goto quit;
 
         /* try to switch to another bitrate if needed */
         gst_hls_demux_switch_playlist (demux);
@@ -860,7 +934,14 @@ gst_hls_demux_updates_loop (GstHLSDemux * demux)
 quit:
   {
     GST_DEBUG_OBJECT (demux, "Stopped updates task");
-    gst_hls_demux_stop (demux);
+    g_mutex_unlock (&demux->updates_timed_lock);
+    return;
+  }
+
+error:
+  {
+    GST_DEBUG_OBJECT (demux, "Stopped updates task because of error");
+    gst_hls_demux_pause_tasks (demux, TRUE);
     g_mutex_unlock (&demux->updates_timed_lock);
   }
 }
@@ -947,7 +1028,7 @@ gst_hls_src_buf_to_utf8_playlist (GstBuffer * buf)
 
   /* alloc size + 1 to end with a null character */
   playlist = g_malloc0 (info.size + 1);
-  memcpy (playlist, info.data, info.size + 1);
+  memcpy (playlist, info.data, info.size);
 
   gst_buffer_unmap (buf, &info);
   gst_buffer_unref (buf);

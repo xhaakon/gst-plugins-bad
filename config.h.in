@@ -79,6 +79,9 @@
 /* Define to enable Windows ACM library (used by acm). */
 #undef HAVE_ACM
 
+/* Define to enable Android Media (used by androidmedia). */
+#undef HAVE_ANDROID_MEDIA
+
 /* Define to enable AirPort Express Wireless sink (used by apexsink). */
 #undef HAVE_APEXSINK
 
@@ -210,6 +213,9 @@
 
 /* Define to enable DVB Source (used by dvb). */
 #undef HAVE_DVB
+
+/* Define to enable eglgles sink (used by eglgles). */
+#undef HAVE_EGLGLES
 
 /* Define to enable building of experimental plug-ins. */
 #undef HAVE_EXPERIMENTAL
@@ -363,6 +369,9 @@
 
 /* Define to 1 if you have the <opencv2/highgui/highgui_c.h> header file. */
 #undef HAVE_OPENCV2_HIGHGUI_HIGHGUI_C_H
+
+/* Define to enable OpenSL ES (used by opensl). */
+#undef HAVE_OPENSLES
 
 /* Define to enable opus (used by opus). */
 #undef HAVE_OPUS

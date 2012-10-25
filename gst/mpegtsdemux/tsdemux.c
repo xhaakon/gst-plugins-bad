@@ -226,6 +226,8 @@ enum
 /* mpegtsbase methods */
 static void
 gst_ts_demux_program_started (MpegTSBase * base, MpegTSBaseProgram * program);
+static void
+gst_ts_demux_program_stopped (MpegTSBase * base, MpegTSBaseProgram * program);
 static void gst_ts_demux_reset (MpegTSBase * base);
 static GstFlowReturn
 gst_ts_demux_push (MpegTSBase * base, MpegTSPacketizerPacket * packet,
@@ -295,7 +297,7 @@ gst_ts_demux_class_init (GstTSDemuxClass * klass)
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&private_template));
 
-  gst_element_class_set_metadata (element_class,
+  gst_element_class_set_static_metadata (element_class,
       "MPEG transport stream demuxer",
       "Codec/Demuxer",
       "Demuxes MPEG2 transport streams",
@@ -307,6 +309,7 @@ gst_ts_demux_class_init (GstTSDemuxClass * klass)
   ts_class->push = GST_DEBUG_FUNCPTR (gst_ts_demux_push);
   ts_class->push_event = GST_DEBUG_FUNCPTR (push_event);
   ts_class->program_started = GST_DEBUG_FUNCPTR (gst_ts_demux_program_started);
+  ts_class->program_stopped = GST_DEBUG_FUNCPTR (gst_ts_demux_program_stopped);
   ts_class->stream_added = gst_ts_demux_stream_added;
   ts_class->stream_removed = gst_ts_demux_stream_removed;
   ts_class->seek = GST_DEBUG_FUNCPTR (gst_ts_demux_do_seek);
@@ -1130,7 +1133,16 @@ gst_ts_demux_program_started (MpegTSBase * base, MpegTSBaseProgram * program)
   }
 }
 
+static void
+gst_ts_demux_program_stopped (MpegTSBase * base, MpegTSBaseProgram * program)
+{
+  GstTSDemux *demux = GST_TS_DEMUX (base);
 
+  if (demux->program == program) {
+    demux->program = NULL;
+    demux->program_number = -1;
+  }
+}
 
 
 static inline void
@@ -1483,6 +1495,12 @@ gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream)
     activate_pad_for_stream (demux, stream);
 
   if (G_UNLIKELY (stream->pad == NULL)) {
+    g_free (stream->data);
+    goto beach;
+  }
+
+  if (G_UNLIKELY (demux->program == NULL)) {
+    GST_LOG_OBJECT (demux, "No program");
     g_free (stream->data);
     goto beach;
   }

@@ -57,7 +57,7 @@ target_triplet = @target@
 DIST_COMMON = $(noinst_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/common/check.mak
 noinst_PROGRAMS = pipelines/colorspace$(EXEEXT) \
-	pipelines/streamheader$(EXEEXT) $(am__EXEEXT_20)
+	pipelines/streamheader$(EXEEXT) $(am__EXEEXT_21)
 check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4) \
 	$(am__EXEEXT_5) $(am__EXEEXT_6) $(am__EXEEXT_7) \
@@ -71,14 +71,14 @@ check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	$(am__EXEEXT_13) elements/jpegparse$(EXEEXT) $(am__EXEEXT_14) \
 	elements/h263parse$(EXEEXT) elements/h264parse$(EXEEXT) \
 	elements/mpegtsmux$(EXEEXT) elements/mpegvideoparse$(EXEEXT) \
-	elements/mpeg4videoparse$(EXEEXT) elements/mxfdemux$(EXEEXT) \
-	elements/mxfmux$(EXEEXT) elements/id3mux$(EXEEXT) \
-	pipelines/mxf$(EXEEXT) $(am__EXEEXT_15) \
-	elements/rtpmux$(EXEEXT) libs/mpegvideoparser$(EXEEXT) \
-	libs/h264parser$(EXEEXT) $(am__EXEEXT_16) \
-	libs/vc1parser$(EXEEXT) $(am__EXEEXT_17) \
-	elements/viewfinderbin$(EXEEXT) $(am__EXEEXT_18) \
-	$(am__EXEEXT_19)
+	elements/mpeg4videoparse$(EXEEXT) $(am__EXEEXT_15) \
+	elements/mxfdemux$(EXEEXT) elements/mxfmux$(EXEEXT) \
+	elements/id3mux$(EXEEXT) pipelines/mxf$(EXEEXT) \
+	$(am__EXEEXT_16) elements/rtpmux$(EXEEXT) \
+	libs/mpegvideoparser$(EXEEXT) libs/h264parser$(EXEEXT) \
+	$(am__EXEEXT_17) libs/vc1parser$(EXEEXT) $(am__EXEEXT_18) \
+	elements/viewfinderbin$(EXEEXT) $(am__EXEEXT_19) \
+	$(am__EXEEXT_20)
 subdir = tests/check
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
@@ -148,12 +148,13 @@ libparser_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 @USE_CURL_TRUE@	elements/curlsmtpsink$(EXEEXT)
 @USE_EXIF_TRUE@am__EXEEXT_13 = elements/jifmux$(EXEEXT)
 @USE_COG_TRUE@am__EXEEXT_14 = elements/logoinsert$(EXEEXT)
-@USE_MIMIC_TRUE@am__EXEEXT_15 = pipelines/mimic$(EXEEXT)
-@USE_UVCH264_TRUE@am__EXEEXT_16 = elements/uvch264demux$(EXEEXT)
-@USE_SCHRO_TRUE@am__EXEEXT_17 = elements/schroenc$(EXEEXT)
-@USE_ZBAR_TRUE@am__EXEEXT_18 = elements/zbar$(EXEEXT)
-@HAVE_ORC_TRUE@am__EXEEXT_19 = orc/cog$(EXEEXT) orc/bayer$(EXEEXT)
-@USE_NEON_TRUE@am__EXEEXT_20 = elements/neonhttpsrc$(EXEEXT)
+@USE_MPG123_TRUE@am__EXEEXT_15 = elements/mpg123audiodec$(EXEEXT)
+@USE_MIMIC_TRUE@am__EXEEXT_16 = pipelines/mimic$(EXEEXT)
+@USE_UVCH264_TRUE@am__EXEEXT_17 = elements/uvch264demux$(EXEEXT)
+@USE_SCHRO_TRUE@am__EXEEXT_18 = elements/schroenc$(EXEEXT)
+@USE_ZBAR_TRUE@am__EXEEXT_19 = elements/zbar$(EXEEXT)
+@HAVE_ORC_TRUE@am__EXEEXT_20 = orc/cog$(EXEEXT) orc/bayer$(EXEEXT)
+@USE_NEON_TRUE@am__EXEEXT_21 = elements/neonhttpsrc$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 elements_asfmux_SOURCES = elements/asfmux.c
 elements_asfmux_OBJECTS = asfmux.$(OBJEXT)
@@ -307,6 +308,16 @@ elements_mpegvideoparse_SOURCES = elements/mpegvideoparse.c
 elements_mpegvideoparse_OBJECTS = mpegvideoparse.$(OBJEXT)
 elements_mpegvideoparse_DEPENDENCIES = libparser.la \
 	$(am__DEPENDENCIES_2)
+elements_mpg123audiodec_SOURCES = elements/mpg123audiodec.c
+elements_mpg123audiodec_OBJECTS =  \
+	elements_mpg123audiodec-mpg123audiodec.$(OBJEXT)
+elements_mpg123audiodec_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
+elements_mpg123audiodec_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(elements_mpg123audiodec_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 elements_mplex_SOURCES = elements/mplex.c
 elements_mplex_OBJECTS = mplex.$(OBJEXT)
 elements_mplex_LDADD = $(LDADD)
@@ -484,15 +495,15 @@ SOURCES = $(libparser_la_SOURCES) elements/asfmux.c \
 	$(elements_jifmux_SOURCES) elements/jpegparse.c \
 	elements/kate.c elements/logoinsert.c elements/mpeg2enc.c \
 	elements/mpeg4videoparse.c elements/mpegtsmux.c \
-	elements/mpegvideoparse.c elements/mplex.c elements/mxfdemux.c \
-	elements/mxfmux.c elements/neonhttpsrc.c elements/ofa.c \
-	elements/opus.c elements/rtpmux.c elements/schroenc.c \
-	elements/timidity.c elements/uvch264demux.c \
-	elements/viewfinderbin.c elements/voaacenc.c \
-	elements/voamrwbenc.c elements/zbar.c generic/states.c \
-	libs/h264parser.c libs/mpegvideoparser.c libs/vc1parser.c \
-	orc/bayer.c orc/cog.c pipelines/colorspace.c pipelines/mimic.c \
-	pipelines/mxf.c pipelines/streamheader.c
+	elements/mpegvideoparse.c elements/mpg123audiodec.c \
+	elements/mplex.c elements/mxfdemux.c elements/mxfmux.c \
+	elements/neonhttpsrc.c elements/ofa.c elements/opus.c \
+	elements/rtpmux.c elements/schroenc.c elements/timidity.c \
+	elements/uvch264demux.c elements/viewfinderbin.c \
+	elements/voaacenc.c elements/voamrwbenc.c elements/zbar.c \
+	generic/states.c libs/h264parser.c libs/mpegvideoparser.c \
+	libs/vc1parser.c orc/bayer.c orc/cog.c pipelines/colorspace.c \
+	pipelines/mimic.c pipelines/mxf.c pipelines/streamheader.c
 DIST_SOURCES = $(libparser_la_SOURCES) elements/asfmux.c \
 	elements/assrender.c elements/autoconvert.c \
 	elements/autovideoconvert.c \
@@ -505,15 +516,15 @@ DIST_SOURCES = $(libparser_la_SOURCES) elements/asfmux.c \
 	$(elements_jifmux_SOURCES) elements/jpegparse.c \
 	elements/kate.c elements/logoinsert.c elements/mpeg2enc.c \
 	elements/mpeg4videoparse.c elements/mpegtsmux.c \
-	elements/mpegvideoparse.c elements/mplex.c elements/mxfdemux.c \
-	elements/mxfmux.c elements/neonhttpsrc.c elements/ofa.c \
-	elements/opus.c elements/rtpmux.c elements/schroenc.c \
-	elements/timidity.c elements/uvch264demux.c \
-	elements/viewfinderbin.c elements/voaacenc.c \
-	elements/voamrwbenc.c elements/zbar.c generic/states.c \
-	libs/h264parser.c libs/mpegvideoparser.c libs/vc1parser.c \
-	orc/bayer.c orc/cog.c pipelines/colorspace.c pipelines/mimic.c \
-	pipelines/mxf.c pipelines/streamheader.c
+	elements/mpegvideoparse.c elements/mpg123audiodec.c \
+	elements/mplex.c elements/mxfdemux.c elements/mxfmux.c \
+	elements/neonhttpsrc.c elements/ofa.c elements/opus.c \
+	elements/rtpmux.c elements/schroenc.c elements/timidity.c \
+	elements/uvch264demux.c elements/viewfinderbin.c \
+	elements/voaacenc.c elements/voamrwbenc.c elements/zbar.c \
+	generic/states.c libs/h264parser.c libs/mpegvideoparser.c \
+	libs/vc1parser.c orc/bayer.c orc/cog.c pipelines/colorspace.c \
+	pipelines/mimic.c pipelines/mxf.c pipelines/streamheader.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -600,6 +611,8 @@ DVDNAV_LIBS = @DVDNAV_LIBS@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
+EGLGLES_CFLAGS = @EGLGLES_CFLAGS@
+EGLGLES_LIBS = @EGLGLES_LIBS@
 EGREP = @EGREP@
 ERROR_CFLAGS = @ERROR_CFLAGS@
 ERROR_CXXFLAGS = @ERROR_CXXFLAGS@
@@ -1001,6 +1014,8 @@ SUPPRESSIONS = $(top_srcdir)/common/gst.supp $(srcdir)/gst-plugins-bad.supp
 @USE_COG_TRUE@check_logoinsert = elements/logoinsert
 @USE_MPEG2ENC_FALSE@check_mpeg2enc = 
 @USE_MPEG2ENC_TRUE@check_mpeg2enc = elements/mpeg2enc
+@USE_MPG123_FALSE@check_mpg123 = 
+@USE_MPG123_TRUE@check_mpg123 = elements/mpg123audiodec
 @USE_MPLEX_FALSE@check_mplex = 
 @USE_MPLEX_TRUE@check_mplex = elements/mplex
 @USE_NEON_FALSE@check_neon = 
@@ -1165,6 +1180,11 @@ elements_assrender_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_C
 elements_assrender_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) -lgstapp-$(GST_API_VERSION) $(GST_BASE_LIBS) $(LDADD)
 elements_mpegtsmux_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 elements_mpegtsmux_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) $(GST_BASE_LIBS) $(LDADD)
+elements_mpg123audiodec_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_mpg123audiodec_LDADD = \
+	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
+	-lgstaudio-@GST_API_VERSION@ -lgstfft-@GST_API_VERSION@ -lgstapp-@GST_API_VERSION@
+
 elements_uvch264demux_CFLAGS = -DUVCH264DEMUX_DATADIR="$(srcdir)/elements/uvch264demux_data" \
 				$(AM_CFLAGS)
 
@@ -1320,6 +1340,9 @@ elements/mpegtsmux$(EXEEXT): $(elements_mpegtsmux_OBJECTS) $(elements_mpegtsmux_
 elements/mpegvideoparse$(EXEEXT): $(elements_mpegvideoparse_OBJECTS) $(elements_mpegvideoparse_DEPENDENCIES) $(EXTRA_elements_mpegvideoparse_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/mpegvideoparse$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(elements_mpegvideoparse_OBJECTS) $(elements_mpegvideoparse_LDADD) $(LIBS)
+elements/mpg123audiodec$(EXEEXT): $(elements_mpg123audiodec_OBJECTS) $(elements_mpg123audiodec_DEPENDENCIES) $(EXTRA_elements_mpg123audiodec_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/mpg123audiodec$(EXEEXT)
+	$(AM_V_CCLD)$(elements_mpg123audiodec_LINK) $(elements_mpg123audiodec_OBJECTS) $(elements_mpg123audiodec_LDADD) $(LIBS)
 elements/mplex$(EXEEXT): $(elements_mplex_OBJECTS) $(elements_mplex_DEPENDENCIES) $(EXTRA_elements_mplex_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/mplex$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(elements_mplex_OBJECTS) $(elements_mplex_LDADD) $(LIBS)
@@ -1431,6 +1454,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elements_jifmux-jifmux.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elements_kate-kate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elements_mpegtsmux-mpegtsmux.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elements_rtpmux-rtpmux.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elements_timidity-timidity.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elements_uvch264demux-uvch264demux.Po@am__quote@
@@ -1869,6 +1893,20 @@ mpegvideoparse.obj: elements/mpegvideoparse.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/mpegvideoparse.c' object='mpegvideoparse.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mpegvideoparse.obj `if test -f 'elements/mpegvideoparse.c'; then $(CYGPATH_W) 'elements/mpegvideoparse.c'; else $(CYGPATH_W) '$(srcdir)/elements/mpegvideoparse.c'; fi`
+
+elements_mpg123audiodec-mpg123audiodec.o: elements/mpg123audiodec.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpg123audiodec_CFLAGS) $(CFLAGS) -MT elements_mpg123audiodec-mpg123audiodec.o -MD -MP -MF $(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Tpo -c -o elements_mpg123audiodec-mpg123audiodec.o `test -f 'elements/mpg123audiodec.c' || echo '$(srcdir)/'`elements/mpg123audiodec.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Tpo $(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/mpg123audiodec.c' object='elements_mpg123audiodec-mpg123audiodec.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpg123audiodec_CFLAGS) $(CFLAGS) -c -o elements_mpg123audiodec-mpg123audiodec.o `test -f 'elements/mpg123audiodec.c' || echo '$(srcdir)/'`elements/mpg123audiodec.c
+
+elements_mpg123audiodec-mpg123audiodec.obj: elements/mpg123audiodec.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpg123audiodec_CFLAGS) $(CFLAGS) -MT elements_mpg123audiodec-mpg123audiodec.obj -MD -MP -MF $(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Tpo -c -o elements_mpg123audiodec-mpg123audiodec.obj `if test -f 'elements/mpg123audiodec.c'; then $(CYGPATH_W) 'elements/mpg123audiodec.c'; else $(CYGPATH_W) '$(srcdir)/elements/mpg123audiodec.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Tpo $(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/mpg123audiodec.c' object='elements_mpg123audiodec-mpg123audiodec.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpg123audiodec_CFLAGS) $(CFLAGS) -c -o elements_mpg123audiodec-mpg123audiodec.obj `if test -f 'elements/mpg123audiodec.c'; then $(CYGPATH_W) 'elements/mpg123audiodec.c'; else $(CYGPATH_W) '$(srcdir)/elements/mpg123audiodec.c'; fi`
 
 mplex.o: elements/mplex.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mplex.o -MD -MP -MF $(DEPDIR)/mplex.Tpo -c -o mplex.o `test -f 'elements/mplex.c' || echo '$(srcdir)/'`elements/mplex.c

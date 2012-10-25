@@ -287,6 +287,11 @@
 <ANCHOR id="gst-plugins-bad-plugins-edgedetect.synopsis" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-edgedetect.html#gst-plugins-bad-plugins-edgedetect.synopsis">
 <ANCHOR id="gst-plugins-bad-plugins-edgedetect.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-edgedetect.html#gst-plugins-bad-plugins-edgedetect.description">
 <ANCHOR id="gst-plugins-bad-plugins-edgedetect.details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-edgedetect.html#gst-plugins-bad-plugins-edgedetect.details">
+<ANCHOR id="gst-plugins-bad-plugins-eglglessink" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-eglglessink.html">
+<ANCHOR id="gst-plugins-bad-plugins-eglglessink.synopsis" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-eglglessink.html#gst-plugins-bad-plugins-eglglessink.synopsis">
+<ANCHOR id="gst-plugins-bad-plugins-eglglessink.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-eglglessink.html#gst-plugins-bad-plugins-eglglessink.description">
+<ANCHOR id="gst-plugins-bad-plugins-eglglessink.details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-eglglessink.html#gst-plugins-bad-plugins-eglglessink.details">
+<ANCHOR id="GstEglGlesSink" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-eglglessink.html#GstEglGlesSink">
 <ANCHOR id="gst-plugins-bad-plugins-faac" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-faac.html">
 <ANCHOR id="gst-plugins-bad-plugins-faac.synopsis" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-faac.html#gst-plugins-bad-plugins-faac.synopsis">
 <ANCHOR id="GstFaac" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-faac.html#GstFaac">
@@ -520,6 +525,13 @@
 <ANCHOR id="GstMplex--sector-size" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-mplex.html#GstMplex--sector-size">
 <ANCHOR id="GstMplex--system-headers" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-mplex.html#GstMplex--system-headers">
 <ANCHOR id="GstMplex--vbr" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-mplex.html#GstMplex--vbr">
+<ANCHOR id="gst-plugins-bad-plugins-mpg123audiodec" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-mpg123audiodec.html">
+<ANCHOR id="gst-plugins-bad-plugins-mpg123audiodec.synopsis" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-mpg123audiodec.html#gst-plugins-bad-plugins-mpg123audiodec.synopsis">
+<ANCHOR id="GstMpg123AudioDec" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-mpg123audiodec.html#GstMpg123AudioDec">
+<ANCHOR id="gst-plugins-bad-plugins-mpg123audiodec.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-mpg123audiodec.html#gst-plugins-bad-plugins-mpg123audiodec.object-hierarchy">
+<ANCHOR id="gst-plugins-bad-plugins-mpg123audiodec.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-mpg123audiodec.html#gst-plugins-bad-plugins-mpg123audiodec.description">
+<ANCHOR id="gst-plugins-bad-plugins-mpg123audiodec.details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-mpg123audiodec.html#gst-plugins-bad-plugins-mpg123audiodec.details">
+<ANCHOR id="GstMpg123AudioDec-struct" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-mpg123audiodec.html#GstMpg123AudioDec-struct">
 <ANCHOR id="gst-plugins-bad-plugins-pcapparse" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-pcapparse.html">
 <ANCHOR id="gst-plugins-bad-plugins-pcapparse.synopsis" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-pcapparse.html#gst-plugins-bad-plugins-pcapparse.synopsis">
 <ANCHOR id="GstPcapParse" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-pcapparse.html#GstPcapParse">

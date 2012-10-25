@@ -575,6 +575,20 @@ gst_edgedetect_plugin_init
 </SECTION>
 
 <SECTION>
+<FILE>element-eglglessink</FILE>
+<TITLE>eglglessink</TITLE>
+GstEglGlesSink
+<SUBSECTION Standard>
+GstEglGlesSinkClass
+GST_TYPE_EGLGLESSINK
+GST_EGLGLESSINK
+GST_IS_EGLGLESSINK
+GST_EGLGLESSINK_CLASS
+GST_IS_EGLGLESSINK_CLASS
+gst_eglglessink_get_type
+</SECTION>
+
+<SECTION>
 <FILE>element-exclusion</FILE>
 <TITLE>exclusion</TITLE>
 GstExclusion
@@ -956,6 +970,20 @@ GST_MPLEX_SIGNAL
 GST_MPLEX_SIGNAL_ALL
 GST_MPLEX_WAIT
 gst_mplex_get_type
+</SECTION>
+
+<SECTION>
+<FILE>element-mpg123audiodec</FILE>
+<TITLE>mpg123audiodec</TITLE>
+GstMpg123AudioDec
+<SUBSECTION Standard>
+GstMpg123AudioDecClass
+GST_MPG123_AUDIO_DEC
+GST_MPG123_AUDIO_DEC_CLASS
+GST_IS_MPG123_AUDIO_DEC
+GST_IS_MPG123_AUDIO_DEC_CLASS
+GST_TYPE_MPG123_AUDIO_DEC
+gst_mpg123_audio_dec_get_type
 </SECTION>
 
 <SECTION>

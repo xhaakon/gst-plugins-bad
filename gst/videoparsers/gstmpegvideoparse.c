@@ -148,7 +148,7 @@ gst_mpegv_parse_class_init (GstMpegvParseClass * klass)
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&sink_template));
 
-  gst_element_class_set_metadata (element_class,
+  gst_element_class_set_static_metadata (element_class,
       "MPEG video elementary stream parser",
       "Codec/Parser/Video",
       "Parses and frames MPEG-1 and MPEG-2 elementary video streams",
@@ -741,8 +741,9 @@ gst_mpegv_parse_update_src_caps (GstMpegvParse * mpvparse)
     else
       GST_DEBUG_OBJECT (mpvparse, "Invalid level - %u", level_c);
 
-    gst_caps_set_simple (caps, "interlaced",
-        G_TYPE_BOOLEAN, !mpvparse->sequenceext.progressive, NULL);
+    gst_caps_set_simple (caps, "interlace-mode",
+        G_TYPE_STRING,
+        (mpvparse->sequenceext.progressive ? "progressive" : "mixed"), NULL);
   }
 
   gst_pad_set_caps (GST_BASE_PARSE_SRC_PAD (mpvparse), caps);
@@ -834,6 +835,7 @@ gst_mpegv_parse_set_caps (GstBaseParse * parse, GstCaps * caps)
      * src caps are based on sink caps so it will end up in there
      * whether sucessful or not */
     gst_mpegv_parse_process_config (mpvparse, buf, gst_buffer_get_size (buf));
+    gst_mpegv_parse_reset_frame (mpvparse);
   }
 
   /* let's not interfere and accept regardless of config parsing success */
