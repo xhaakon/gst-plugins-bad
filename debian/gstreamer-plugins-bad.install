@@ -36,6 +36,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmms.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmodplug.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmpegpsdemux.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmpegtsdemux.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmpegpsmux.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmpegtsmux.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmpg123.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopus.so

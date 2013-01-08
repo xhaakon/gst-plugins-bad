@@ -1,3 +1,11 @@
+gst-plugins-bad1.0 (1.0.5-1) unstable; urgency=low
+
+  * New upstream bugfix release:
+    + debian/gstreamer-plugins-bad.install:
+      - Add newly ported mpegpsmux plugin.
+
+ -- Sebastian Dröge <slomo@debian.org>  Tue, 08 Jan 2013 13:56:44 +0100
+
 gst-plugins-bad1.0 (1.0.4-1) unstable; urgency=low
 
   * New upstream bugfix release.
