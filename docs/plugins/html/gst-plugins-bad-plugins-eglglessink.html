@@ -45,7 +45,7 @@
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp9356224"></a><h3>Element Information</h3>
+<a name="idp10506384"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -68,7 +68,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp6521872"></a><h3>Element Pads</h3>
+<a name="idp7391440"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -101,17 +101,24 @@
 <a name="GstEglGlesSink"></a><h3>struct GstEglGlesSink</h3>
 <pre class="programlisting">struct GstEglGlesSink {
   GstVideoSink videosink;       /* Element hook */
-  int par_n, par_d;             /* Aspect ratio from caps */
 
-  GstVideoFormat format;
+  /* Region of the surface that should be rendered */
+  GstVideoRectangle render_region;
+  gboolean render_region_changed;
+  gboolean render_region_user;
+
+  /* Region of render_region that should be filled
+   * with the video frames */
   GstVideoRectangle display_region;
+
+  GstVideoRectangle crop;
+  gboolean crop_changed;
   GstCaps *sinkcaps;
   GstCaps *current_caps, *configured_caps;
+  GstVideoInfo configured_info;
+  gfloat stride[3];
 
-  GstEglGlesImageFmt *selected_fmt;
   GstEglGlesRenderContext eglglesctx;
-
-  GList *supported_fmts;
 
   /* Runtime flags */
   gboolean have_window;
@@ -121,11 +128,13 @@
   gboolean have_texture;
   gboolean egl_started;
 
+  gpointer own_window_data;
+
   GThread *thread;
   gboolean thread_running;
-  GstDataQueue *queue;
-  GCond *render_cond;
-  GMutex *render_lock;
+  EGLGstDataQueue *queue;
+  GCond render_cond;
+  GMutex render_lock;
   GstFlowReturn last_flow;
 
   /* Properties */

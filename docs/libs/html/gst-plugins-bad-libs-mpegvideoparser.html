@@ -92,7 +92,7 @@ struct              <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.h
 <p>
 </p>
 <div class="refsect2">
-<a name="idp10187072"></a><p>
+<a name="idp10192608"></a><p>
 Provides useful functions for mpeg videos bitstream parsing.
 </p>
 </div>
@@ -430,11 +430,11 @@ The Mpeg2 Video Sequence Header structure.
 </tr>
 <tr>
 <td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.intra-quantizer-matrix"></a>intra_quantizer_matrix</code></em>[64];</span></p></td>
-<td>intra-quantization table</td>
+<td>intra-quantization table, in zigzag scan order</td>
 </tr>
 <tr>
 <td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.non-intra-quantizer-matrix"></a>non_intra_quantizer_matrix</code></em>[64];</span></p></td>
-<td>non-intra quantization table</td>
+<td>non-intra quantization table, in zigzag scan order</td>
 </tr>
 <tr>
 <td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.par-w"></a>par_w</code></em>;</span></p></td>
@@ -749,7 +749,9 @@ The Mpeg2 Video Picture Extension structure.
 };
 </pre>
 <p>
-The Quant Matrix Extension structure
+The Quant Matrix Extension structure that exposes quantization
+matrices in zigzag scan order. i.e. the original encoded scan
+order.
 </p>
 </div>
 <hr>

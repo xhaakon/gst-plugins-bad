@@ -132,7 +132,9 @@ libgsteglglessink_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_libgsteglglessink_la_OBJECTS =  \
 	libgsteglglessink_la-gsteglglessink.lo \
-	libgsteglglessink_la-video_platform_wrapper.lo
+	libgsteglglessink_la-video_platform_wrapper.lo \
+	libgsteglglessink_la-gstqueuearray.lo \
+	libgsteglglessink_la-gstdataqueue.lo
 libgsteglglessink_la_OBJECTS = $(am_libgsteglglessink_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -255,6 +257,8 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGLGLES_CFLAGS = @EGLGLES_CFLAGS@
 EGLGLES_LIBS = @EGLGLES_LIBS@
+EGL_CFLAGS = @EGL_CFLAGS@
+EGL_LIBS = @EGL_LIBS@
 EGREP = @EGREP@
 ERROR_CFLAGS = @ERROR_CFLAGS@
 ERROR_CXXFLAGS = @ERROR_CXXFLAGS@
@@ -288,6 +292,8 @@ GLIB_REQ = @GLIB_REQ@
 GME_LIBS = @GME_LIBS@
 GMODULE_EXPORT_CFLAGS = @GMODULE_EXPORT_CFLAGS@
 GMODULE_EXPORT_LIBS = @GMODULE_EXPORT_LIBS@
+GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
+GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GMYTH_CFLAGS = @GMYTH_CFLAGS@
@@ -615,21 +621,20 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 plugin_LTLIBRARIES = libgsteglglessink.la
-libgsteglglessink_la_SOURCES = gsteglglessink.c video_platform_wrapper.c
+libgsteglglessink_la_SOURCES = gsteglglessink.c video_platform_wrapper.c gstqueuearray.c gstdataqueue.c
 libgsteglglessink_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) \
                               $(GST_BASE_CFLAGS) \
                               $(GST_CFLAGS) \
-                              $(EGLGLES_CFLAGS) \
-                              $(X11_CFLAGS)
+			      $(EGL_CFLAGS) \
+                              $(EGLGLES_CFLAGS)
 
 libgsteglglessink_la_LIBADD = $(GST_LIBS) $(GST_BASE_LIBS) \
-	$(GST_PLUGINS_BASE_LIBS) $(EGLGLES_LIBS) $(X11_LIBS) \
-	-lgstvideo-$(GST_MAJORMINOR) \
-	-lgstinterfaces-$(GST_MAJORMINOR)
+	$(GST_PLUGINS_BASE_LIBS) $(EGL_LIBS) $(EGLGLES_LIBS) \
+	-lgstvideo-$(GST_API_VERSION)
 
 libgsteglglessink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgsteglglessink_la_LIBTOOLFLAGS = --tag=disable-static
-noinst_HEADERS = gsteglglessink.h video_platform_wrapper.h
+libgsteglglessink_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
+noinst_HEADERS = gsteglglessink.h video_platform_wrapper.h gstqueuearray.h gstdataqueue.h
 all: all-am
 
 .SUFFIXES:
@@ -705,7 +710,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgsteglglessink_la-gstdataqueue.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgsteglglessink_la-gsteglglessink.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgsteglglessink_la-gstqueuearray.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgsteglglessink_la-video_platform_wrapper.Plo@am__quote@
 
 .c.o:
@@ -742,6 +749,20 @@ libgsteglglessink_la-video_platform_wrapper.lo: video_platform_wrapper.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='video_platform_wrapper.c' object='libgsteglglessink_la-video_platform_wrapper.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsteglglessink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsteglglessink_la_CFLAGS) $(CFLAGS) -c -o libgsteglglessink_la-video_platform_wrapper.lo `test -f 'video_platform_wrapper.c' || echo '$(srcdir)/'`video_platform_wrapper.c
+
+libgsteglglessink_la-gstqueuearray.lo: gstqueuearray.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsteglglessink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsteglglessink_la_CFLAGS) $(CFLAGS) -MT libgsteglglessink_la-gstqueuearray.lo -MD -MP -MF $(DEPDIR)/libgsteglglessink_la-gstqueuearray.Tpo -c -o libgsteglglessink_la-gstqueuearray.lo `test -f 'gstqueuearray.c' || echo '$(srcdir)/'`gstqueuearray.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgsteglglessink_la-gstqueuearray.Tpo $(DEPDIR)/libgsteglglessink_la-gstqueuearray.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstqueuearray.c' object='libgsteglglessink_la-gstqueuearray.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsteglglessink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsteglglessink_la_CFLAGS) $(CFLAGS) -c -o libgsteglglessink_la-gstqueuearray.lo `test -f 'gstqueuearray.c' || echo '$(srcdir)/'`gstqueuearray.c
+
+libgsteglglessink_la-gstdataqueue.lo: gstdataqueue.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsteglglessink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsteglglessink_la_CFLAGS) $(CFLAGS) -MT libgsteglglessink_la-gstdataqueue.lo -MD -MP -MF $(DEPDIR)/libgsteglglessink_la-gstdataqueue.Tpo -c -o libgsteglglessink_la-gstdataqueue.lo `test -f 'gstdataqueue.c' || echo '$(srcdir)/'`gstdataqueue.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgsteglglessink_la-gstdataqueue.Tpo $(DEPDIR)/libgsteglglessink_la-gstdataqueue.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstdataqueue.c' object='libgsteglglessink_la-gstdataqueue.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsteglglessink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsteglglessink_la_CFLAGS) $(CFLAGS) -c -o libgsteglglessink_la-gstdataqueue.lo `test -f 'gstdataqueue.c' || echo '$(srcdir)/'`gstdataqueue.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

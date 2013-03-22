@@ -24,8 +24,6 @@
 <a href="#gst-plugins-bad-plugins-cvequalizehist.synopsis" class="shortcut">Top</a>
                    | 
                   <a href="#gst-plugins-bad-plugins-cvequalizehist.description" class="shortcut">Description</a>
-                   | 
-                  <a href="#gst-plugins-bad-plugins-cvequalizehist.object-hierarchy" class="shortcut">Object Hierarchy</a>
 </td></tr>
 </table>
 <div class="refentry">
@@ -39,20 +37,7 @@
 </tr></table></div>
 <div class="refsynopsisdiv">
 <a name="gst-plugins-bad-plugins-cvequalizehist.synopsis"></a><h2>Synopsis</h2>
-<a name="GstCvEqualizeHist"></a><pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-cvequalizehist.html#GstCvEqualizeHist-struct" title="struct GstCvEqualizeHist">GstCvEqualizeHist</a>;
-</pre>
-</div>
-<div class="refsect1">
-<a name="gst-plugins-bad-plugins-cvequalizehist.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="synopsis">
-  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
-   +----<a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-         +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
-               +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
-                     +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html">GstBaseTransform</a>
-                           +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideofilter.html#GstVideoFilter">GstVideoFilter</a>
-                                 +----GstOpencvVideoFilter
-                                       +----GstCvEqualizeHist
+<pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-cvequalizehist.html#GstCvEqualizeHist" title="struct GstCvEqualizeHist">GstCvEqualizeHist</a>;
 </pre>
 </div>
 <div class="refsect1">
@@ -60,7 +45,7 @@
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp8297376"></a><h3>Element Information</h3>
+<a name="idp9531104"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -83,7 +68,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp10746512"></a><h3>Element Pads</h3>
+<a name="idp5814704"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -134,8 +119,11 @@
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-cvequalizehist.details"></a><h2>Details</h2>
 <div class="refsect2">
-<a name="GstCvEqualizeHist-struct"></a><h3>struct GstCvEqualizeHist</h3>
-<pre class="programlisting">struct GstCvEqualizeHist;</pre>
+<a name="GstCvEqualizeHist"></a><h3>struct GstCvEqualizeHist</h3>
+<pre class="programlisting">struct GstCvEqualizeHist {
+  GstOpencvVideoFilter element;
+};
+</pre>
 <p>
 </p>
 </div>

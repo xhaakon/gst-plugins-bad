@@ -605,6 +605,15 @@
 /* Define location of timidity.cfg */
 #undef TIMIDITY_CFG
 
+/* Use Mali FB EGL window system */
+#undef USE_EGL_MALI_FB
+
+/* Use RPi EGL window system */
+#undef USE_EGL_RPI
+
+/* Use X11 EGL window system */
+#undef USE_EGL_X11
+
 /* Version number of package */
 #undef VERSION
 
