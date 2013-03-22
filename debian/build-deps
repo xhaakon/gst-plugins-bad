@@ -22,9 +22,11 @@ libdca-dev
 libdirac-dev (>= 0.10)
 libdirectfb-dev (>= 0.9.25)
 libdvdnav-dev (>= 4.1.2) [!hurd-any]
+libegl1-mesa-dev
 libexempi-dev
 libexif-dev (>= 0.6.16)
 libfaad-dev
+libgles2-mesa-dev
 libglib2.0-dev (>= 2.32)
 libgme-dev
 libgsm1-dev

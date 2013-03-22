@@ -60,3 +60,5 @@ libzvbi-dev
 libspandsp-dev
 libopus-dev (>= 0.9.4)
 libmpg123-dev (>= 1.13)
+libegl1-mesa-dev
+libgles2-mesa-dev
