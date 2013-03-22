@@ -25,8 +25,6 @@
                    | 
                   <a href="#gst-plugins-bad-plugins-cvsobel.description" class="shortcut">Description</a>
                    | 
-                  <a href="#gst-plugins-bad-plugins-cvsobel.object-hierarchy" class="shortcut">Object Hierarchy</a>
-                   | 
                   <a href="#gst-plugins-bad-plugins-cvsobel.properties" class="shortcut">Properties</a>
 </td></tr>
 </table>
@@ -41,20 +39,7 @@
 </tr></table></div>
 <div class="refsynopsisdiv">
 <a name="gst-plugins-bad-plugins-cvsobel.synopsis"></a><h2>Synopsis</h2>
-<a name="GstCvSobel"></a><pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel-struct" title="struct GstCvSobel">GstCvSobel</a>;
-</pre>
-</div>
-<div class="refsect1">
-<a name="gst-plugins-bad-plugins-cvsobel.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="synopsis">
-  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
-   +----<a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-         +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
-               +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
-                     +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html">GstBaseTransform</a>
-                           +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideofilter.html#GstVideoFilter">GstVideoFilter</a>
-                                 +----GstOpencvVideoFilter
-                                       +----GstCvSobel
+<pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel" title="struct GstCvSobel">GstCvSobel</a>;
 </pre>
 </div>
 <div class="refsect1">
@@ -70,7 +55,7 @@
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp8499456"></a><h3>Element Information</h3>
+<a name="idp7330112"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -93,7 +78,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp6611872"></a><h3>Element Pads</h3>
+<a name="idp7568464"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -144,8 +129,15 @@
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-cvsobel.details"></a><h2>Details</h2>
 <div class="refsect2">
-<a name="GstCvSobel-struct"></a><h3>struct GstCvSobel</h3>
-<pre class="programlisting">struct GstCvSobel;</pre>
+<a name="GstCvSobel"></a><h3>struct GstCvSobel</h3>
+<pre class="programlisting">struct GstCvSobel {
+  GstOpencvVideoFilter element;
+
+  gint x_order;
+  gint y_order;
+  gint aperture_size;
+};
+</pre>
 <p>
 </p>
 </div>

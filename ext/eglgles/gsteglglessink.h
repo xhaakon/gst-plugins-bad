@@ -47,8 +47,9 @@
 #define __GST_EGLGLESSINK_H__
 
 #include <gst/gst.h>
+#include <gst/video/video.h>
 #include <gst/video/gstvideosink.h>
-#include <gst/base/gstdataqueue.h>
+#include "gstdataqueue.h"
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -66,10 +67,7 @@ G_BEGIN_DECLS
   (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_EGLGLESSINK))
 #define GST_IS_EGLGLESSINK_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_EGLGLESSINK))
-#define GST_EGLGLESSINK_IMAGE_NOFMT 0
-#define GST_EGLGLESSINK_IMAGE_RGB888 1
-#define GST_EGLGLESSINK_IMAGE_RGB565 2
-#define GST_EGLGLESSINK_IMAGE_RGBA8888 3
+
 #define GST_EGLGLESSINK_EGL_MIN_VERSION 1
 typedef struct _GstEglGlesSink GstEglGlesSink;
 typedef struct _GstEglGlesSinkClass GstEglGlesSinkClass;
@@ -123,8 +121,10 @@ struct _GstEglGlesRenderContext
   EGLNativeWindowType window, used_window;
   EGLSurface surface;
   gboolean buffer_preserved;
-  GLuint fragshader[2], vertshader[2], glslprogram[2];
-  GLuint texture[3];
+  GLuint fragshader[2]; /* frame, border */
+  GLuint vertshader[2]; /* frame, border */
+  GLuint glslprogram[2]; /* frame, border */
+  GLuint texture[3]; /* RGB/Y, U/UV, V */
   EGLint surface_width;
   EGLint surface_height;
   EGLint pixel_aspect_ratio;
@@ -132,42 +132,24 @@ struct _GstEglGlesRenderContext
   gint n_textures;
 
   /* shader vars */
-  GLuint position_loc[2], texpos_loc;
-  GLuint tex_loc[3];
-  coord5 position_array[12];    /* 3 x Frame, 3 x Border1, 3 x Border2 */
+  GLuint position_loc[2]; /* frame, border */
+  GLuint texpos_loc[1]; /* frame */
+  GLuint tex_scale_loc[1][3]; /* [frame] RGB/Y, U/UV, V */
+  GLuint tex_loc[1][3]; /* [frame] RGB/Y, U/UV, V */
+  coord5 position_array[12];    /* 4 x Frame, 4 x Border1, 4 x Border2 */
   unsigned short index_array[4];
   unsigned int position_buffer, index_buffer;
 };
 
 /*
- * GstEglGlesImageFmt:
- * @fmt: Internal identifier for the EGL attribs / GST caps pairing
- * @attribs: Pointer to the set of EGL attributes asociated with this format
- * @caps: Pointer to the GST caps asociated with this format
- *
- * This struct holds a pairing between GST caps and the matching EGL attributes
- * associated with a given pixel format
- */
-struct _GstEglGlesImageFmt
-{
-  gint fmt;                     /* Private identifier */
-  const EGLint *attribs;        /* EGL Attributes */
-  GstCaps *caps;                /* Matching caps for the attribs */
-};
-
-/*
  * GstEglGlesSink:
- * @par_n: Incoming frame's aspect ratio numerator
- * @par_d: Incoming frame's aspect ratio denominator
  * @format: Caps' video format field
  * @display_region: Surface region to use as rendering canvas
  * @sinkcaps: Full set of suported caps
  * @current_caps: Current caps
- * @selected_fmt: Pointer to the GST caps/EGL attribs pairing in use
  * @rendering_path: Rendering path (Slow/Fast)
  * @eglglesctx: Pointer to the associated EGL/GLESv2 rendering context
  * @flow_lock: Simple concurrent access ward to the sink's runtime state
- * @supported_fmts: Pointer to the runtime supported format list
  * @have_window: Set if the sink has access to a window to hold it's canvas
  * @using_own_window: Set if the sink created its own window
  * @have_surface: Set if the EGL surface setup has been performed
@@ -183,17 +165,24 @@ struct _GstEglGlesImageFmt
 struct _GstEglGlesSink
 {
   GstVideoSink videosink;       /* Element hook */
-  int par_n, par_d;             /* Aspect ratio from caps */
 
-  GstVideoFormat format;
+  /* Region of the surface that should be rendered */
+  GstVideoRectangle render_region;
+  gboolean render_region_changed;
+  gboolean render_region_user;
+
+  /* Region of render_region that should be filled
+   * with the video frames */
   GstVideoRectangle display_region;
+
+  GstVideoRectangle crop;
+  gboolean crop_changed;
   GstCaps *sinkcaps;
   GstCaps *current_caps, *configured_caps;
+  GstVideoInfo configured_info;
+  gfloat stride[3];
 
-  GstEglGlesImageFmt *selected_fmt;
   GstEglGlesRenderContext eglglesctx;
-
-  GList *supported_fmts;
 
   /* Runtime flags */
   gboolean have_window;
@@ -203,11 +192,13 @@ struct _GstEglGlesSink
   gboolean have_texture;
   gboolean egl_started;
 
+  gpointer own_window_data;
+
   GThread *thread;
   gboolean thread_running;
-  GstDataQueue *queue;
-  GCond *render_cond;
-  GMutex *render_lock;
+  EGLGstDataQueue *queue;
+  GCond render_cond;
+  GMutex render_lock;
   GstFlowReturn last_flow;
 
   /* Properties */

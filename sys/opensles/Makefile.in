@@ -255,6 +255,8 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGLGLES_CFLAGS = @EGLGLES_CFLAGS@
 EGLGLES_LIBS = @EGLGLES_LIBS@
+EGL_CFLAGS = @EGL_CFLAGS@
+EGL_LIBS = @EGL_LIBS@
 EGREP = @EGREP@
 ERROR_CFLAGS = @ERROR_CFLAGS@
 ERROR_CXXFLAGS = @ERROR_CXXFLAGS@
@@ -288,6 +290,8 @@ GLIB_REQ = @GLIB_REQ@
 GME_LIBS = @GME_LIBS@
 GMODULE_EXPORT_CFLAGS = @GMODULE_EXPORT_CFLAGS@
 GMODULE_EXPORT_LIBS = @GMODULE_EXPORT_LIBS@
+GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
+GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GMYTH_CFLAGS = @GMYTH_CFLAGS@
@@ -624,14 +628,13 @@ libgstopensles_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_CFLAGS) \
     -Wno-deprecated-declarations
 
 libgstopensles_la_LIBADD = \
-    -lgstinterfaces-@GST_MAJORMINOR@  \
-    -lgstaudio-@GST_MAJORMINOR@       \
+    -lgstaudio-@GST_API_VERSION@      \
     $(GST_PLUGINS_BASE_LIBS)          \
     $(GST_BASE_LIBS)                  \
     $(GST_LIBS)
 
 libgstopensles_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) -lOpenSLES
-libgstopensles_la_LIBTOOLFLAGS = --tag=disable-static --tag=CC
+libgstopensles_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 noinst_HEADERS = openslesringbuffer.h \
                  openslessink.h       \
                  openslessrc.h

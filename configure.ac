@@ -3,7 +3,7 @@ AC_PREREQ(2.62)
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT(GStreamer Bad Plug-ins, 1.0.5,
+AC_INIT(GStreamer Bad Plug-ins, 1.0.6,
     http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer,
     gst-plugins-bad)
 
@@ -50,7 +50,7 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 5, 0, 5)
+AS_LIBTOOL(GST, 6, 0, 6)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.0.0
@@ -159,6 +159,169 @@ if test "x$HAVE_PTHREAD_H" != "xyes"; then
   GST_PLUGINS_SELECTED=`echo $GST_PLUGINS_SELECTED | $SED -e s/dccp//`
 fi
 
+dnl x11 is optional for librfb and eglglessink
+HAVE_X11=NO
+PKG_CHECK_MODULES(X11, x11, HAVE_X11=yes, HAVE_X11=no)
+AC_SUBST(X11_LIBS)
+AC_SUBST(X11_CFLAGS)
+AC_SUBST(HAVE_X11)
+AM_CONDITIONAL(HAVE_X11, test "x$HAVE_X11" = "xyes")
+if test "x$HAVE_X11" = "xyes"; then
+  AC_DEFINE(HAVE_X11, 1, [Define if you have X11 library])
+fi
+
+dnl check for EGL
+AC_ARG_WITH([egl-window-system],
+              AS_HELP_STRING([--with-egl-window-system],[EGL window system to use (x11, mali-fb, rpi, none)]),
+              [EGL_WINDOW_SYSTEM="$withval"],
+              [EGL_WINDOW_SYSTEM="auto"])
+
+if test x"$EGL_WINDOW_SYSTEM" = x"auto"; then
+  dnl Mali
+  old_LIBS=$LIBS
+  old_CFLAGS=$CFLAGS
+  LIBS="$LIBS -lUMP $EGL_LIBS"
+  CFLAGS="$CFLAGS $EGL_CFLAGS"
+  AC_CHECK_LIB([Mali], [mali_image_create], [EGL_WINDOW_SYSTEM="mali-fb"], [EGL_WINDOW_SYSTEM="auto"])
+  LIBS=$old_LIBS
+  CFLAGS=$old_CFLAGS
+
+  dnl RPi
+  if test x"$EGL_WINDOW_SYSTEM" = x"auto"; then
+      old_LIBS=$LIBS
+      old_CFLAGS=$CFLAGS
+      LIBS="$LIBS -lvcos -lvchiq_arm"
+      CFLAGS="$CFLAGS"
+      AC_CHECK_LIB([bcm_host], [bcm_host_init],
+        [
+          LIBS="$LIBS -lbcm_host"
+          AC_CHECK_HEADER([bcm_host.h], [EGL_WINDOW_SYSTEM="rpi"], [EGL_WINDOW_SYSTEM="auto"])
+      ])
+      LIBS=$old_LIBS
+      CFLAGS=$old_CFLAGS
+  fi
+
+  if test x"$EGL_WINDOW_SYSTEM" = x"auto"; then
+      if test x"$HAVE_X11" = x"yes"; then
+        EGL_WINDOW_SYSTEM="x11"
+      fi
+  fi
+
+  if test x"$EGL_WINDOW_SYSTEM" = x"auto"; then
+    EGL_WINDOW_SYSTEM="none"
+  fi
+fi
+
+case "$EGL_WINDOW_SYSTEM" in
+  x11|none)
+    PKG_CHECK_MODULES(EGL, egl, HAVE_EGL="yes", [
+      HAVE_EGL="no"
+      old_LIBS=$LIBS
+      old_CFLAGS=$CFLAGS
+      
+      AC_CHECK_LIB([EGL], [eglGetProcAddress],
+        [
+          AC_CHECK_HEADER([EGL/egl.h],
+            [
+              HAVE_EGL="yes"
+              EGL_LIBS="-lEGL"
+              EGL_CFLAGS=""
+            ]
+          )
+        ]
+      )
+      
+      LIBS=$old_LIBS
+      CFLAGS=$old_CFLAGS
+    ])
+      
+    if test x"$HAVE_EGL" = x"yes" -a x"$EGL_WINDOW_SYSTEM" = x"x11"; then
+      if test x"$HAVE_X11" != x"yes"; then
+        AC_MSG_ERROR([libX11 not found and is required for EGL X11 window system])
+      else
+        AC_DEFINE(USE_EGL_X11, [1], [Use X11 EGL window system])
+        EGL_CFLAGS="$EGL_CFLAGS $X11_CFLAGS"
+        EGL_LIBS="$EGL_LIBS $X11_LIBS"
+      fi
+    fi
+    ;;
+  mali-fb)
+    dnl FIXME: Mali EGL depends on GLESv1 or GLESv2
+    HAVE_EGL="no"
+    old_LIBS=$LIBS
+    old_CFLAGS=$CFLAGS
+    AC_CHECK_HEADER([EGL/fbdev_window.h],
+      [
+        LIBS="$LIBS -lUMP"
+        AC_CHECK_LIB([Mali], [mali_image_create],
+          [
+            LIBS="$LIBS -lMali"
+            AC_CHECK_LIB([GLESv2], [glEnable],
+              [
+                AC_CHECK_HEADER([GLES2/gl2.h],
+                  [
+                    AC_CHECK_LIB([EGL], [eglGetProcAddress],
+                      [
+                        AC_CHECK_HEADER([EGL/egl.h],
+                          [
+                            HAVE_EGL="yes"
+                            EGL_LIBS="-lGLESv2 -lEGL -lMali -lUMP"
+                            EGL_CFLAGS=""
+                            AC_DEFINE(USE_EGL_MALI_FB, [1], [Use Mali FB EGL window system])
+                          ])
+                      ])
+                  ])
+              ])
+          ])
+      ])
+    LIBS=$old_LIBS
+    CFLAGS=$old_CFLAGS
+    ;;
+  rpi)
+    old_LIBS=$LIBS
+    old_CFLAGS=$CFLAGS
+
+    dnl FIXME: EGL of RPi depends on GLESv1 or GLESv2
+    dnl FIXME: GLESv2 of RPi depends on EGL... WTF!
+    LIBS="$LIBS -lvcos -lvchiq_arm"
+    AC_CHECK_LIB([bcm_host], [bcm_host_init],
+      [
+        LIBS="$LIBS -lbcm_host"
+        AC_CHECK_HEADER(bcm_host.h,
+          [
+            LIBS="$LIBS -lGLESv2"
+            AC_CHECK_LIB([EGL], [eglGetProcAddress],
+              [
+                LIBS="$LIBS -lEGL"
+                AC_CHECK_HEADER([EGL/egl.h],
+                  [
+                    AC_CHECK_LIB([GLESv2], [glEnable],
+                      [
+                        AC_CHECK_HEADER([GLES2/gl2.h],
+                          [
+                            HAVE_EGL="yes"
+                            EGL_LIBS="-lGLESv2 -lEGL -lbcm_host -lvcos -lvchiq_arm"
+                            EGL_CFLAGS=""
+                            AC_DEFINE(USE_EGL_RPI, [1], [Use RPi EGL window system])
+                        ])
+                    ])
+                ])
+            ])
+        ])
+    ])
+
+    LIBS=$old_LIBS
+    CFLAGS=$old_CFLAGS
+    ;;
+  *)
+    AC_MSG_ERROR([invalid EGL window system specified])
+    ;;
+esac
+
+AC_SUBST(EGL_LIBS)
+AC_SUBST(EGL_CFLAGS)
+AM_CONDITIONAL(HAVE_EGL, test x"$HAVE_EGL" = x"yes")
+
 dnl *** checks for types/defines ***
 
 dnl Check for FIONREAD ioctl declaration
@@ -238,16 +401,8 @@ AM_CONDITIONAL(HAVE_GTK, test "x$HAVE_GTK" = "xyes")
 dnl Needed for GtkBuilder to autoconnect signals
 PKG_CHECK_MODULES(GMODULE_EXPORT, gmodule-export-2.0, HAVE_GMODULE_EXPORT=yes, HAVE_GMODULE_EXPORT=no)
 
-dnl x11 is optional for librfb
-HAVE_X11=NO
-PKG_CHECK_MODULES(X11, x11, HAVE_X11=yes, HAVE_X11=no)
-AC_SUBST(X11_LIBS)
-AC_SUBST(X11_CFLAGS)
-AC_SUBST(HAVE_X11)
-AM_CONDITIONAL(HAVE_X11, test "x$HAVE_X11" = "xyes")
-if test "x$HAVE_X11" = "xyes"; then
-  AC_DEFINE(HAVE_X11, 1, [Define if you have X11 library])
-fi
+dnl Needed by plugins that use g_module_*() API
+PKG_CHECK_MODULES(GMODULE_NO_EXPORT, gmodule-no-export-2.0)
 
 dnl exif (used on jifmux tests) ****
 PKG_CHECK_MODULES(EXIF, libexif >= 0.6.16, HAVE_EXIF="yes", HAVE_EXIF="no")
@@ -312,7 +467,7 @@ dnl Non ported plugins (non-dependant, then dependant)
 dnl Make sure you have a space before and after all plugins
 GST_PLUGINS_NONPORTED=" androidmedia aiff \
  cdxaparse \
- dccp eglgles faceoverlay \
+ dccp faceoverlay \
  freeverb \
  hdvparse ivfparse jp2kdecimator \
  kate librfb \
@@ -320,10 +475,10 @@ GST_PLUGINS_NONPORTED=" androidmedia aiff \
  patchdetect real \
  sdi stereo tta videofilters \
  videomeasure videosignal vmnc \
- decklink fbdev linsys vcd \
+ fbdev linsys vcd \
  apexsink cdaudio cog dc1394 dirac directfb \
  gsettings jasper ladspa \
- musepack musicbrainz nas neon ofa openal opensles rsvg sdl sndfile timidity \
+ musepack musicbrainz nas neon ofa openal rsvg sdl sndfile timidity \
  directdraw direct3d9 acm wininet \
  wildmidi xvid lv2 teletextdec sndio uvch264"
 AC_SUBST(GST_PLUGINS_NONPORTED)
@@ -1532,28 +1687,29 @@ dnl *** eglgles ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_EGLGLES, true)
 AG_GST_CHECK_FEATURE(EGLGLES, [eglgles sink], eglgles, [
   HAVE_EGLGLES="no"
-  PKG_CHECK_MODULES(EGLGLES, egl glesv2, HAVE_EGLGLES="yes", [
-    HAVE_EGLGLES="no"
-    old_LIBS=$LIBS
-    old_CFLAGS=$CFLAGS
-    AC_CHECK_LIB([GLESv2], [glEnable],
-      [
-        AC_CHECK_HEADER([GLES2/gl2.h],
+
+  if test x"$HAVE_EGL" = x"yes"; then
+      PKG_CHECK_MODULES(EGLGLES, egl glesv2, HAVE_EGLGLES="yes", [
+        HAVE_EGLGLES="no"
+        old_LIBS=$LIBS
+        old_CFLAGS=$CFLAGS
+
+        LIBS="$LIBS $EGL_LIBS"
+        CFLAGS="$CFLAGS $EGL_CFLAGS"
+        AC_CHECK_LIB([GLESv2], [glEnable],
           [
-            AC_CHECK_LIB([EGL], [eglGetProcAddress],
+            AC_CHECK_HEADER([GLES2/gl2.h],
               [
-                AC_CHECK_HEADER([EGL/egl.h],
-                  [
-                    HAVE_EGLGLES="yes"
-                    EGLGLES_LIBS="-lGLESv2 -lEGL"
-                    EGLGLES_CFLAGS=""
-                  ])
+                 HAVE_EGLGLES="yes"
+                 EGLGLES_LIBS="-lGLESv2"
+                 EGLGLES_CFLAGS=""
               ])
           ])
+        LIBS=$old_LIBS
+        CFLAGS=$old_CFLAGS
       ])
-    LIBS=$old_LIBS
-    CFLAGS=$old_CFLAGS
-  ])
+  fi
+
   AC_SUBST(EGLGLES_CFLAGS)
   AC_SUBST(EGLGLES_LIBS)
 ])
