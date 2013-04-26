@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.0.6\n"
+"Project-Id-Version: gst-plugins-bad 1.0.7\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2013-03-22 10:43+0000\n"
+"POT-Creation-Date: 2013-04-26 13:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,22 +61,22 @@ msgstr ""
 msgid "Internal data flow error."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:758 sys/dvb/gstdvbsrc.c:855
+#: sys/dvb/gstdvbsrc.c:759 sys/dvb/gstdvbsrc.c:856
 #, c-format
 msgid "Device \"%s\" does not exist."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:762
+#: sys/dvb/gstdvbsrc.c:763
 #, c-format
 msgid "Could not open frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:776
+#: sys/dvb/gstdvbsrc.c:777
 #, c-format
 msgid "Could not get settings from frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:859
+#: sys/dvb/gstdvbsrc.c:860
 #, c-format
 msgid "Could not open file \"%s\" for reading."
 msgstr ""

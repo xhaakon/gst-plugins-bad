@@ -101,7 +101,7 @@ application.
 <p>
 </p>
 <div class="refsect2">
-<a name="idp12008256"></a><h3>For Element</h3>
+<a name="idp12145744"></a><h3>For Element</h3>
 <p>
   This interface shall be implement by group of elements that need to share
   a specific video context (like VDPAU, LibVA, OpenGL elements) or by video
@@ -153,7 +153,7 @@ application.
 <p>
 </p>
 <div class="refsect2">
-<a name="idp12020512"></a><h3>For Application</h3>
+<a name="idp12158000"></a><h3>For Application</h3>
 <p>
   In the case there is no neighboor element with video context to share,
   the element will first turn toward the application, by sending a
@@ -177,7 +177,7 @@ application.
 <p>
 </p>
 <div class="refsect2">
-<a name="idp12025008"></a><h3>Example using ClutterVideoGstVideoSink</h3>
+<a name="idp12162496"></a><h3>Example using ClutterVideoGstVideoSink</h3>
 <p>
   This example is for user of ClutterGstVideoSink element, the
   ClutterGstPlayer object transparently handle this.
@@ -245,16 +245,16 @@ application.
   GstVideoContext <span class="gtkdoc opt">*</span>context<span class="gtkdoc opt">;</span>
   <span class="gtkdoc kwb">const</span> gchar <span class="gtkdoc opt">**</span>types<span class="gtkdoc opt">;</span>
 
-  <span class="keyword">if</span> <span class="gtkdoc opt">(</span><span class="function"><a href="../gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-GstVideoContextInterface.html#gst-video-context-message-parse-prepare">gst_video_context_message_parse_prepare</a></span> <span class="gtkdoc opt">(</span>message<span class="gtkdoc opt">, &amp;</span>types<span class="gtkdoc opt">, &amp;</span>context<span class="gtkdoc opt">)) {</span>
+  <span class="keyword">if</span> <span class="gtkdoc opt">(</span><span class="function"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-GstVideoContextInterface.html#gst-video-context-message-parse-prepare">gst_video_context_message_parse_prepare</a></span> <span class="gtkdoc opt">(</span>message<span class="gtkdoc opt">, &amp;</span>types<span class="gtkdoc opt">, &amp;</span>context<span class="gtkdoc opt">)) {</span>
     gint i<span class="gtkdoc opt">;</span>
 
     <span class="keyword">for</span> <span class="gtkdoc opt">(</span>i <span class="gtkdoc opt">=</span> <span class="number">0</span><span class="gtkdoc opt">;</span> types<span class="gtkdoc opt">[</span>i<span class="gtkdoc opt">];</span> i<span class="gtkdoc opt">++) {</span>
 
       <span class="keyword">if</span> <span class="gtkdoc opt">(!</span><span class="function">strcmp</span><span class="gtkdoc opt">(</span>types<span class="gtkdoc opt">[</span>i<span class="gtkdoc opt">],</span> <span class="string">&quot;x11-display&quot;</span><span class="gtkdoc opt">)) {</span>
-        <span class="function"><a href="../gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-GstVideoContextInterface.html#gst-video-context-set-context-pointer">gst_video_context_set_context_pointer</a></span> <span class="gtkdoc opt">(</span>context<span class="gtkdoc opt">,</span> <span class="string">&quot;x11-display&quot;</span><span class="gtkdoc opt">,</span> display<span class="gtkdoc opt">);</span>
+        <span class="function"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-GstVideoContextInterface.html#gst-video-context-set-context-pointer">gst_video_context_set_context_pointer</a></span> <span class="gtkdoc opt">(</span>context<span class="gtkdoc opt">,</span> <span class="string">&quot;x11-display&quot;</span><span class="gtkdoc opt">,</span> display<span class="gtkdoc opt">);</span>
       <span class="gtkdoc opt">}</span>
       <span class="keyword">else if</span> <span class="gtkdoc opt">(!</span><span class="function">strcmp</span><span class="gtkdoc opt">(</span>types<span class="gtkdoc opt">[</span>i<span class="gtkdoc opt">],</span> <span class="string">&quot;x11-display-name&quot;</span><span class="gtkdoc opt">)) {</span>
-        <span class="function"><a href="../gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-GstVideoContextInterface.html#gst-video-context-set-context-string">gst_video_context_set_context_string</a></span> <span class="gtkdoc opt">(</span>context<span class="gtkdoc opt">,</span> <span class="string">&quot;x11-display-name&quot;</span><span class="gtkdoc opt">,</span>
+        <span class="function"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-GstVideoContextInterface.html#gst-video-context-set-context-string">gst_video_context_set_context_string</a></span> <span class="gtkdoc opt">(</span>context<span class="gtkdoc opt">,</span> <span class="string">&quot;x11-display-name&quot;</span><span class="gtkdoc opt">,</span>
             <span class="function">DisplayString</span> <span class="gtkdoc opt">(</span>display<span class="gtkdoc opt">));</span>
       <span class="gtkdoc opt">}</span> <span class="keyword">else</span> <span class="gtkdoc opt">{</span>
         <span class="keyword">continue</span><span class="gtkdoc opt">;</span>
@@ -281,7 +281,7 @@ gint
 
   <span class="gtkdoc ppc">#if CLUTTER_WINDOWING_X11</span>
   <span class="function"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBus.html#gst-bus-set-sync-handler">gst_bus_set_sync_handler</a></span> <span class="gtkdoc opt">(</span>priv<span class="gtkdoc opt">-&gt;</span>bus<span class="gtkdoc opt">,</span> on_sync_message<span class="gtkdoc opt">,</span>
-      <span class="function">clutter_x11_get_default_display</span> <span class="gtkdoc opt">(),</span> NULL<span class="gtkdoc opt">);</span>
+      <span class="function"><a href="/usr/share/gtk-doc/html/clutter/clutter-X11-Specific-Support.html#clutter-x11-get-default-display">clutter_x11_get_default_display</a></span> <span class="gtkdoc opt">(),</span> NULL<span class="gtkdoc opt">);</span>
   <span class="gtkdoc ppc">#endif</span>
 
   <span class="function"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html#gst-object-unref">gst_object_unref</a></span> <span class="gtkdoc opt">(</span><span class="function">GST_OBJECT</span> <span class="gtkdoc opt">(</span>priv<span class="gtkdoc opt">-&gt;</span>bus<span class="gtkdoc opt">));</span>

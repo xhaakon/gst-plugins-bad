@@ -76,6 +76,9 @@
 /* GStreamer package release date/time for plugins as YYYY-MM-DD */
 #undef GST_PACKAGE_RELEASE_DATETIME
 
+/* Define if static plugins should be built */
+#undef GST_PLUGIN_BUILD_STATIC
+
 /* Define to enable Windows ACM library (used by acm). */
 #undef HAVE_ACM
 
