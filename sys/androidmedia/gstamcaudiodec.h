@@ -22,7 +22,7 @@
 #define __GST_AMC_AUDIO_DEC_H__
 
 #include <gst/gst.h>
-#include <gst/audio/multichannel.h>
+#include <gst/audio/audio.h>
 #include <gst/audio/gstaudiodecoder.h>
 
 #include "gstamc.h"
@@ -59,10 +59,12 @@ struct _GstAmcAudioDec
   gboolean input_caps_changed;
 
   /* Output format of the codec */
-  gint channels, rate;
-  GstAudioChannelPosition *positions;
+  GstAudioInfo info;
+  /* AMC positions, might need reordering */
+  GstAudioChannelPosition positions[64];
+  gboolean needs_reorder;
+  gint reorder_map[64];
 
-  GstBuffer *codec_data;
   /* TRUE if the component is configured and saw
    * the first buffer */
   gboolean started;
@@ -71,8 +73,8 @@ struct _GstAmcAudioDec
   GstClockTime last_upstream_ts;
 
   /* Draining state */
-  GMutex *drain_lock;
-  GCond *drain_cond;
+  GMutex drain_lock;
+  GCond drain_cond;
   /* TRUE if EOS buffers shouldn't be forwarded */
   gboolean draining;
 
