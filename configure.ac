@@ -3,7 +3,7 @@ AC_PREREQ(2.62)
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT(GStreamer Bad Plug-ins, 1.0.7,
+AC_INIT(GStreamer Bad Plug-ins, 1.0.8,
     http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer,
     gst-plugins-bad)
 
@@ -50,7 +50,7 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 6, 0, 6)
+AS_LIBTOOL(GST, 7, 0, 7)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.0.0
@@ -492,7 +492,7 @@ GST_PLUGINS_NONPORTED=" aiff \
  dccp faceoverlay \
  freeverb \
  hdvparse ivfparse jp2kdecimator \
- kate librfb \
+ kate \
  mve mxf mythtv nsf nuvdemux \
  patchdetect real \
  sdi stereo tta videofilters \
@@ -500,7 +500,7 @@ GST_PLUGINS_NONPORTED=" aiff \
  fbdev linsys vcd \
  apexsink cdaudio cog dc1394 dirac directfb \
  gsettings jasper ladspa \
- musepack musicbrainz nas neon ofa openal rsvg sdl sndfile timidity \
+ musepack musicbrainz nas rsvg sdl sndfile timidity \
  directdraw direct3d9 acm wininet \
  wildmidi xvid lv2 teletextdec sndio uvch264 osx_video quicktime"
 AC_SUBST(GST_PLUGINS_NONPORTED)
@@ -582,7 +582,7 @@ if test "x$HAVE_CPU_I386" != "xyes" && test "x$HAVE_CPU_X86_64" != "xyes"; then
 fi
 
 dnl disable gst plugins we might not be able to build on this
-dnl platform: librfb (ugly but minimally invasive)
+dnl platform: (ugly but minimally invasive)
 dnl FIXME: maybe move to sys, or make work with winsock2
 AC_CHECK_HEADERS([sys/socket.h], HAVE_SYS_SOCKET_H=yes)
 AC_CHECK_HEADERS([winsock2.h], HAVE_WINSOCK2_H=yes)
@@ -1621,7 +1621,7 @@ AG_GST_CHECK_FEATURE(OFA, [ofa plugins], ofa, [
 dnl *** OpenAL ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_OPENAL, true)
 AG_GST_CHECK_FEATURE(OPENAL, [OpenAL plugin], openal, [
-  PKG_CHECK_MODULES(OPENAL, openal, HAVE_OPENAL="yes", [
+  PKG_CHECK_MODULES(OPENAL, openal >= 1.14, HAVE_OPENAL="yes", [
     HAVE_OPENAL="no"
   ])
   AC_SUBST(OPENAL_CFLAGS)
