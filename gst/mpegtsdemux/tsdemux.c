@@ -55,6 +55,9 @@
 
 #define TABLE_ID_UNSET 0xFF
 
+#define CONTINUITY_UNSET 255
+#define MAX_CONTINUITY 15
+
 #define PCR_WRAP_SIZE_128KBPS (((gint64)1490)*(1024*1024))
 /* small PCR for wrap detection */
 #define PCR_SMALL 17775000
@@ -134,20 +137,13 @@ struct _TSDemuxStream
   /* Current PTS/DTS for this stream */
   GstClockTime pts;
   GstClockTime dts;
-  /* Raw value of current PTS/DTS */
-  guint64 raw_pts;
-  guint64 raw_dts;
-  /* PTS/DTS with rollover fixed */
-  guint64 fixed_pts;
-  guint64 fixed_dts;
-  /* Number of rollover seen for PTS/DTS (default:0) */
-  guint nb_pts_rollover;
-  guint nb_dts_rollover;
 
   /* Whether this stream needs to send a newsegment */
   gboolean need_newsegment;
 
   GstTagList *taglist;
+
+  gint continuity_counter;
 };
 
 #define VIDEO_CAPS \
@@ -232,7 +228,7 @@ static void gst_ts_demux_reset (MpegTSBase * base);
 static GstFlowReturn
 gst_ts_demux_push (MpegTSBase * base, MpegTSPacketizerPacket * packet,
     MpegTSPacketizerSection * section);
-static void gst_ts_demux_flush (MpegTSBase * base);
+static void gst_ts_demux_flush (MpegTSBase * base, gboolean hard);
 static void
 gst_ts_demux_stream_added (MpegTSBase * base, MpegTSBaseStream * stream,
     MpegTSBaseProgram * program);
@@ -976,8 +972,8 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
   if (template && name && caps) {
     gchar *stream_id;
 
-    GST_LOG ("stream:%p creating pad with name %s and caps %s", stream, name,
-        gst_caps_to_string (caps));
+    GST_LOG ("stream:%p creating pad with name %s and caps %" GST_PTR_FORMAT,
+        stream, name, caps);
     pad = gst_pad_new_from_template (template, name);
     gst_pad_set_active (pad, TRUE);
     gst_pad_use_fixed_caps (pad);
@@ -1016,12 +1012,7 @@ gst_ts_demux_stream_added (MpegTSBase * base, MpegTSBaseStream * bstream,
     stream->need_newsegment = TRUE;
     stream->pts = GST_CLOCK_TIME_NONE;
     stream->dts = GST_CLOCK_TIME_NONE;
-    stream->raw_pts = 0;
-    stream->raw_dts = 0;
-    stream->fixed_pts = 0;
-    stream->fixed_dts = 0;
-    stream->nb_pts_rollover = 0;
-    stream->nb_dts_rollover = 0;
+    stream->continuity_counter = CONTINUITY_UNSET;
   }
   stream->flow_return = GST_FLOW_OK;
 }
@@ -1097,15 +1088,10 @@ gst_ts_demux_stream_flush (TSDemuxStream * stream)
   stream->need_newsegment = TRUE;
   stream->pts = GST_CLOCK_TIME_NONE;
   stream->dts = GST_CLOCK_TIME_NONE;
-  stream->raw_pts = 0;
-  stream->raw_dts = 0;
-  stream->fixed_pts = 0;
-  stream->fixed_dts = 0;
-  stream->nb_pts_rollover = 0;
-  stream->nb_dts_rollover = 0;
   if (stream->flow_return == GST_FLOW_FLUSHING) {
     stream->flow_return = GST_FLOW_OK;
   }
+  stream->continuity_counter = CONTINUITY_UNSET;
 }
 
 static void
@@ -1135,9 +1121,6 @@ gst_ts_demux_program_started (MpegTSBase * base, MpegTSBaseProgram * program)
     demux->calculate_update_segment = !program->initial_program;
 
     /* FIXME : When do we emit no_more_pads ? */
-
-    /* Inform scanner we have got our program */
-    demux->current_program_number = program->program_number;
   }
 }
 
@@ -1164,33 +1147,15 @@ gst_ts_demux_record_pts (GstTSDemux * demux, TSDemuxStream * stream,
     return;
   }
 
-  GST_LOG ("pid 0x%04x pts:%" G_GUINT64_FORMAT " at offset %"
+  GST_LOG ("pid 0x%04x raw pts:%" G_GUINT64_FORMAT " at offset %"
       G_GUINT64_FORMAT, bs->pid, pts, offset);
 
-  if (G_UNLIKELY (GST_CLOCK_TIME_IS_VALID (stream->pts) &&
-          ABSDIFF (stream->raw_pts, pts) > 900000)) {
-    /* Detect rollover if diff > 10s */
-    GST_LOG ("Detected rollover (previous:%" G_GUINT64_FORMAT " new:%"
-        G_GUINT64_FORMAT ")", stream->raw_pts, pts);
-    if (pts < stream->raw_pts) {
-      /* Forward rollover */
-      GST_LOG ("Forward rollover, incrementing nb_pts_rollover");
-      stream->nb_pts_rollover++;
-    } else {
-      /* Reverse rollover */
-      GST_LOG ("Reverse rollover, decrementing nb_pts_rollover");
-      stream->nb_pts_rollover--;
-    }
-  }
-
   /* Compute PTS in GstClockTime */
-  stream->raw_pts = pts;
-  stream->fixed_pts = pts + stream->nb_pts_rollover * PTS_DTS_MAX_VALUE;
-  stream->pts = MPEGTIME_TO_GSTTIME (stream->fixed_pts);
+  stream->pts =
+      mpegts_packetizer_pts_to_ts (MPEG_TS_BASE_PACKETIZER (demux),
+      MPEGTIME_TO_GSTTIME (pts), demux->program->pcr_pid);
 
-  GST_LOG ("pid 0x%04x Stored PTS %" G_GUINT64_FORMAT " (%" GST_TIME_FORMAT ")",
-      bs->pid, stream->raw_pts, GST_TIME_ARGS (stream->pts));
-
+  GST_LOG ("pid 0x%04x Stored PTS %" G_GUINT64_FORMAT, bs->pid, stream->pts);
 
   if (G_UNLIKELY (demux->emit_statistics)) {
     GstStructure *st;
@@ -1215,32 +1180,15 @@ gst_ts_demux_record_dts (GstTSDemux * demux, TSDemuxStream * stream,
     return;
   }
 
-  GST_LOG ("pid 0x%04x dts:%" G_GUINT64_FORMAT " at offset %"
+  GST_LOG ("pid 0x%04x raw dts:%" G_GUINT64_FORMAT " at offset %"
       G_GUINT64_FORMAT, bs->pid, dts, offset);
 
-  if (G_UNLIKELY (GST_CLOCK_TIME_IS_VALID (stream->dts) &&
-          ABSDIFF (stream->raw_dts, dts) > 900000)) {
-    /* Detect rollover if diff > 10s */
-    GST_LOG ("Detected rollover (previous:%" G_GUINT64_FORMAT " new:%"
-        G_GUINT64_FORMAT ")", stream->raw_dts, dts);
-    if (dts < stream->raw_dts) {
-      /* Forward rollover */
-      GST_LOG ("Forward rollover, incrementing nb_dts_rollover");
-      stream->nb_dts_rollover++;
-    } else {
-      /* Reverse rollover */
-      GST_LOG ("Reverse rollover, decrementing nb_dts_rollover");
-      stream->nb_dts_rollover--;
-    }
-  }
-
   /* Compute DTS in GstClockTime */
-  stream->raw_dts = dts;
-  stream->fixed_dts = dts + stream->nb_dts_rollover * PTS_DTS_MAX_VALUE;
-  stream->dts = MPEGTIME_TO_GSTTIME (stream->fixed_dts);
+  stream->dts =
+      mpegts_packetizer_pts_to_ts (MPEG_TS_BASE_PACKETIZER (demux),
+      MPEGTIME_TO_GSTTIME (dts), demux->program->pcr_pid);
 
-  GST_LOG ("pid 0x%04x Stored DTS %" G_GUINT64_FORMAT " (%" GST_TIME_FORMAT ")",
-      bs->pid, stream->raw_dts, GST_TIME_ARGS (stream->dts));
+  GST_LOG ("pid 0x%04x Stored DTS %" G_GUINT64_FORMAT, bs->pid, stream->dts);
 
   if (G_UNLIKELY (demux->emit_statistics)) {
     GstStructure *st;
@@ -1327,10 +1275,23 @@ gst_ts_demux_queue_data (GstTSDemux * demux, TSDemuxStream * stream,
   guint8 *data;
   guint size;
 
-  GST_DEBUG ("state:%d", stream->state);
+  GST_DEBUG ("pid: 0x%04x state:%d", stream->stream.pid, stream->state);
 
   size = packet->data_end - packet->payload;
   data = packet->payload;
+
+  if (stream->continuity_counter == CONTINUITY_UNSET) {
+    GST_DEBUG ("CONTINUITY: Initialize to %d", packet->continuity_counter);
+  } else if ((packet->continuity_counter == stream->continuity_counter + 1 ||
+          (stream->continuity_counter == MAX_CONTINUITY &&
+              packet->continuity_counter == 0))) {
+    GST_LOG ("CONTINUITY: Got expected %d", packet->continuity_counter);
+  } else {
+    GST_ERROR ("CONTINUITY: Mismatch packet %d, stream %d",
+        packet->continuity_counter, stream->continuity_counter);
+    stream->state = PENDING_PACKET_DISCONT;
+  }
+  stream->continuity_counter = packet->continuity_counter;
 
   if (stream->state == PENDING_PACKET_EMPTY) {
     if (G_UNLIKELY (!packet->payload_unit_start_indicator)) {
@@ -1370,6 +1331,7 @@ gst_ts_demux_queue_data (GstTSDemux * demux, TSDemuxStream * stream,
         g_free (stream->data);
         stream->data = NULL;
       }
+      stream->continuity_counter = CONTINUITY_UNSET;
       break;
     }
     default:
@@ -1426,9 +1388,7 @@ calculate_and_push_newsegment (GstTSDemux * demux, TSDemuxStream * stream)
     }
   }
   if (GST_CLOCK_TIME_IS_VALID (lowest_pts))
-    firstts =
-        mpegts_packetizer_pts_to_ts (base->packetizer, lowest_pts,
-        demux->program->pcr_pid);
+    firstts = lowest_pts;
   GST_DEBUG ("lowest_pts %" G_GUINT64_FORMAT " => clocktime %" GST_TIME_FORMAT,
       lowest_pts, GST_TIME_ARGS (firstts));
 
@@ -1492,7 +1452,6 @@ gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream)
   GstFlowReturn res = GST_FLOW_OK;
   MpegTSBaseStream *bs = (MpegTSBaseStream *) stream;
   GstBuffer *buffer = NULL;
-  MpegTSPacketizer2 *packetizer = MPEG_TS_BASE_PACKETIZER (demux);
 
   GST_DEBUG_OBJECT (stream->pad,
       "stream:%p, pid:0x%04x stream_type:%d state:%d", stream, bs->pid,
@@ -1535,13 +1494,9 @@ gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream)
   GST_DEBUG_OBJECT (stream->pad, "stream->pts %" GST_TIME_FORMAT,
       GST_TIME_ARGS (stream->pts));
   if (GST_CLOCK_TIME_IS_VALID (stream->pts))
-    GST_BUFFER_PTS (buffer) =
-        mpegts_packetizer_pts_to_ts (packetizer, stream->pts,
-        demux->program->pcr_pid);
+    GST_BUFFER_PTS (buffer) = stream->pts;
   if (GST_CLOCK_TIME_IS_VALID (stream->dts))
-    GST_BUFFER_DTS (buffer) =
-        mpegts_packetizer_pts_to_ts (packetizer, stream->dts,
-        demux->program->pcr_pid);
+    GST_BUFFER_DTS (buffer) = stream->dts;
 
   GST_DEBUG_OBJECT (stream->pad,
       "Pushing buffer with PTS: %" GST_TIME_FORMAT " , DTS: %" GST_TIME_FORMAT,
@@ -1602,7 +1557,7 @@ gst_ts_demux_handle_packet (GstTSDemux * demux, TSDemuxStream * stream,
 }
 
 static void
-gst_ts_demux_flush (MpegTSBase * base)
+gst_ts_demux_flush (MpegTSBase * base, gboolean hard)
 {
   GstTSDemux *demux = GST_TS_DEMUX_CAST (base);
 
@@ -1613,7 +1568,10 @@ gst_ts_demux_flush (MpegTSBase * base)
     demux->segment_event = NULL;
   }
   demux->calculate_update_segment = FALSE;
-  gst_segment_init (&demux->segment, GST_FORMAT_UNDEFINED);
+  if (hard) {
+    /* For pull mode seeks the current segment needs to be preserved */
+    gst_segment_init (&demux->segment, GST_FORMAT_UNDEFINED);
+  }
 }
 
 static GstFlowReturn
