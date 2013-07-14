@@ -17,8 +17,8 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -32,11 +32,11 @@
 static gboolean
 plugin_init (GstPlugin * plugin)
 {
-  if (!gst_element_register (plugin, "uvch264_mjpgdemux", GST_RANK_NONE,
+  if (!gst_element_register (plugin, "uvch264mjpgdemux", GST_RANK_NONE,
           GST_TYPE_UVC_H264_MJPG_DEMUX))
     return FALSE;
 
-  if (!gst_element_register (plugin, "uvch264_src", GST_RANK_NONE,
+  if (!gst_element_register (plugin, "uvch264src", GST_RANK_NONE,
           GST_TYPE_UVC_H264_SRC))
     return FALSE;
 
@@ -45,6 +45,6 @@ plugin_init (GstPlugin * plugin)
 
 GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
-    "uvch264",
+    uvch264,
     "UVC compliant H264 encoding cameras plugin",
     plugin_init, VERSION, "LGPL", GST_PACKAGE_NAME, GST_PACKAGE_ORIGIN)

@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef _GST_INTER_SURFACE_H_
@@ -29,7 +29,7 @@ typedef struct _GstInterSurface GstInterSurface;
 
 struct _GstInterSurface
 {
-  GMutex *mutex;
+  GMutex mutex;
   char *name;
 
   /* video */

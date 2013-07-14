@@ -126,7 +126,8 @@ gst_amc_video_dec_get_type (void)
     _type = g_type_register_static (GST_TYPE_VIDEO_DECODER, "GstAmcVideoDec",
         &info, 0);
 
-    GST_DEBUG_CATEGORY_INIT (gst_amc_video_dec_debug_category, "amcvideodec", 0, "Android MediaCodec video decoder");
+    GST_DEBUG_CATEGORY_INIT (gst_amc_video_dec_debug_category, "amcvideodec", 0,
+        "Android MediaCodec video decoder");
 
     g_once_init_leave (&type, _type);
   }
@@ -697,6 +698,7 @@ gst_amc_video_dec_set_src_caps (GstAmcVideoDec * self, GstAmcFormat * format)
   gint crop_left, crop_right;
   gint crop_top, crop_bottom;
   GstVideoFormat gst_format;
+  GstAmcVideoDecClass *klass = GST_AMC_VIDEO_DEC_GET_CLASS (self);
 
   if (!gst_amc_format_get_int (format, "color-format", &color_format) ||
       !gst_amc_format_get_int (format, "width", &width) ||
@@ -704,6 +706,10 @@ gst_amc_video_dec_set_src_caps (GstAmcVideoDec * self, GstAmcFormat * format)
     GST_ERROR_OBJECT (self, "Failed to get output format metadata");
     return FALSE;
   }
+
+  if (strcmp (klass->codec_info->name, "OMX.k3.video.decoder.avc") == 0 &&
+      color_format == COLOR_FormatYCbYCr)
+    color_format = COLOR_TI_FormatYUV420PackedSemiPlanar;
 
   if (!gst_amc_format_get_int (format, "stride", &stride) ||
       !gst_amc_format_get_int (format, "slice-height", &slice_height)) {
@@ -841,13 +847,20 @@ gst_amc_video_dec_fill_buffer (GstAmcVideoDec * self, gint idx,
           src += self->crop_left;
           row_length = self->width;
         } else if (i > 0) {
+          /* skip the Y plane */
           src += slice_height * stride;
-          src += self->crop_top * src_stride;
+
+          /* crop_top/crop_left divided by two
+           * because one byte of the U/V planes
+           * corresponds to two pixels horizontally/vertically */
+          src += self->crop_top / 2 * src_stride;
           src += self->crop_left / 2;
           row_length = (self->width + 1) / 2;
         }
-        if (i == 2)
+        if (i == 2) {
+          /* skip the U plane */
           src += ((slice_height + 1) / 2) * ((stride + 1) / 2);
+        }
 
         dest = GST_VIDEO_FRAME_COMP_DATA (&vframe, i);
         height = GST_VIDEO_FRAME_COMP_HEIGHT (&vframe, i);
@@ -913,7 +926,7 @@ gst_amc_video_dec_fill_buffer (GstAmcVideoDec * self, gint idx,
     case COLOR_FormatYUV420SemiPlanar:{
       gint i, j, height;
       guint8 *src, *dest;
-      gint src_stride, dest_stride;
+      gint src_stride, dest_stride, fixed_stride;
       gint row_length;
       GstVideoFrame vframe;
 
@@ -923,25 +936,30 @@ gst_amc_video_dec_fill_buffer (GstAmcVideoDec * self, gint idx,
         goto done;
       }
 
-      /* FIXME: This is untested! */
+      /* Samsung Galaxy S3 seems to report wrong strides.
+         I.e. BigBuckBunny 854x480 H264 reports a stride of 864 when it is
+         actually 854, so we use width instead of stride here.
+         This is obviously bound to break in the future. */
+      if (g_str_has_prefix (klass->codec_info->name, "OMX.SEC.")) {
+        fixed_stride = self->width;
+      } else {
+        fixed_stride = self->stride;
+      }
+
       gst_video_frame_map (&vframe, info, outbuf, GST_MAP_WRITE);
+
       for (i = 0; i < 2; i++) {
-        if (i == 0) {
-          src_stride = self->stride;
-          dest_stride = GST_VIDEO_FRAME_COMP_STRIDE (&vframe, i);
-        } else {
-          src_stride = self->stride;
-          dest_stride = GST_VIDEO_FRAME_COMP_STRIDE (&vframe, i);
-        }
+        src_stride = fixed_stride;
+        dest_stride = GST_VIDEO_FRAME_COMP_STRIDE (&vframe, i);
 
         src = buf->data + buffer_info->offset;
         if (i == 0) {
-          src += self->crop_top * self->stride;
+          src += self->crop_top * fixed_stride;
           src += self->crop_left;
           row_length = self->width;
         } else if (i == 1) {
-          src += self->slice_height * self->stride;
-          src += self->crop_top * self->stride;
+          src += self->slice_height * fixed_stride;
+          src += self->crop_top * fixed_stride;
           src += self->crop_left;
           row_length = self->width;
         }

@@ -97,6 +97,9 @@
 /* Define to enable AVC Video Services (used by avcsrc). */
 #undef HAVE_AVC
 
+/* Define to enable Bluez (used by bluez). */
+#undef HAVE_BLUEZ
+
 /* Define to enable bz2 library (used by bz2). */
 #undef HAVE_BZ2
 
@@ -125,9 +128,6 @@
 
 /* Define to enable chromaprint (used by chromaprint). */
 #undef HAVE_CHROMAPRINT
-
-/* Define to enable Cog plugin (used by cog). */
-#undef HAVE_COG
 
 /* Define if the target CPU is an Alpha */
 #undef HAVE_CPU_ALPHA
@@ -174,6 +174,12 @@
 /* Define to enable Curl plugin (used by curl). */
 #undef HAVE_CURL
 
+/* Define to enable daala (used by daala). */
+#undef HAVE_DAALA
+
+/* Define to enable DASH plug-in (used by dash). */
+#undef HAVE_DASH
+
 /* Define to enable libdc1394 (used by dc1394). */
 #undef HAVE_DC1394
 
@@ -184,14 +190,8 @@
 /* Define to enable decklink (used by decklink). */
 #undef HAVE_DECKLINK
 
-/* Define to enable dirac (used by dirac). */
-#undef HAVE_DIRAC
-
 /* Define to enable Direct3D plug-in (used by direct3dsink). */
 #undef HAVE_DIRECT3D
-
-/* Define to enable Direct3D9 (used by winscreencap). */
-#undef HAVE_DIRECT3D9
 
 /* Define to enable DirectDraw plug-in (used by directdrawsink). */
 #undef HAVE_DIRECTDRAW
@@ -247,6 +247,9 @@
 /* Define to enable Flite plugin (used by flite). */
 #undef HAVE_FLITE
 
+/* Define to enable fluidsynth (used by fluidsynth). */
+#undef HAVE_FLUIDSYNTH
+
 /* Define to 1 if you have the `getpagesize' function. */
 #undef HAVE_GETPAGESIZE
 
@@ -271,6 +274,9 @@
 /* Define to 1 if you have the <highgui.h> header file. */
 #undef HAVE_HIGHGUI_H
 
+/* Define to enable http live streaming plugin (used by hls). */
+#undef HAVE_HLS
+
 /* Define if you have the iconv() function and it works. */
 #undef HAVE_ICONV
 
@@ -279,9 +285,6 @@
 
 /* Define if building for Apple iOS */
 #undef HAVE_IOS
-
-/* Define to enable jasper (used by jasperdec jasperenc). */
-#undef HAVE_JASPER
 
 /* Define to enable Kate (used by kate). */
 #undef HAVE_KATE
@@ -316,6 +319,9 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
+/* Define to enable Multi Format Codec (used by mfc). */
+#undef HAVE_MFC
+
 /* Define to enable libmimic library (used by mimic). */
 #undef HAVE_MIMIC
 
@@ -339,9 +345,6 @@
 
 /* Define to enable musepackdec (used by musepack). */
 #undef HAVE_MUSEPACK
-
-/* Define to enable musicbrainz tag generation (used by musicbrainz). */
-#undef HAVE_MUSICBRAINZ
 
 /* Define to enable MythTV client plugins (used by mythtvsrc). */
 #undef HAVE_MYTHTV
@@ -372,6 +375,9 @@
 
 /* Define to 1 if you have the <opencv2/highgui/highgui_c.h> header file. */
 #undef HAVE_OPENCV2_HIGHGUI_HIGHGUI_C_H
+
+/* Define to enable openjpeg library (used by openjpeg). */
+#undef HAVE_OPENJPEG
 
 /* Define to enable OpenSL ES (used by opensl). */
 #undef HAVE_OPENSLES
@@ -406,11 +412,14 @@
 /* Define to enable rsvg decoder (used by rsvg). */
 #undef HAVE_RSVG
 
-/* Have RSVG 2.35.0 or newer */
-#undef HAVE_RSVG_2_35_0
+/* Have RSVG 2.36.2 or newer */
+#undef HAVE_RSVG_2_36_2
 
 /* Define to enable rtmp library (used by rtmp). */
 #undef HAVE_RTMP
+
+/* Define to enable SBC bluetooth audio codec (used by sbc). */
+#undef HAVE_SBC
 
 /* Define to enable Schroedinger video codec (used by schro). */
 #undef HAVE_SCHRO
@@ -420,6 +429,9 @@
 
 /* Define to enable POSIX shared memory source and sink (used by shm). */
 #undef HAVE_SHM
+
+/* Define to enable Smooth Streaming plug-in (used by smoothstreaming). */
+#undef HAVE_SMOOTHSTREAMING
 
 /* Define to enable sndfile plug-in (used by sfsrc sfsink). */
 #undef HAVE_SNDFILE
@@ -439,6 +451,9 @@
 /* Define to enable spc decoder (used by spc). */
 #undef HAVE_SPC
 
+/* Define to enable srtp library (used by srtp). */
+#undef HAVE_SRTP
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -450,9 +465,6 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
-
-/* Define to enable swfdec plug-in (used by swfdec). */
-#undef HAVE_SWFDEC
 
 /* Define to 1 if you have the <sys/param.h> header file. */
 #undef HAVE_SYS_PARAM_H
@@ -502,6 +514,9 @@
 /* Define to enable vo-amrwbenc library (used by vo-amrwbenc). */
 #undef HAVE_VOAMRWBENC
 
+/* Define to enable WASAPI plug-in (used by wasapi). */
+#undef HAVE_WASAPI
+
 /* Define to enable wayland sink (used by wayland ). */
 #undef HAVE_WAYLAND
 
@@ -522,6 +537,9 @@
 
 /* Define to 1 if you have the <wininet.h> header file. */
 #undef HAVE_WININET_H
+
+/* Define to enable winscreencap plug-in (used by winscreencap). */
+#undef HAVE_WINSCREENCAP
 
 /* Define to 1 if you have the <winsock2.h> header file. */
 #undef HAVE_WINSOCK2_H

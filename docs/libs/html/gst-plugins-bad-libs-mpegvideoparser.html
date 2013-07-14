@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>mpegvideoparser</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="codecparsers.html" title="Bitstream parsing Library">
 <link rel="prev" href="gst-plugins-bad-libs-h264parser.html" title="h264parser">
@@ -58,7 +58,7 @@ struct              <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.h
                                                          <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-sequence-header" title="gst_mpeg_video_parse_sequence_header ()">gst_mpeg_video_parse_sequence_header</a>
-                                                        (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> *params</code></em>,
+                                                        (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> *seqhdr</code></em>,
                                                          <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
                                                          <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);
@@ -80,11 +80,26 @@ struct              <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.h
                                                          <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
                                                          <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-sequence-display-extension" title="gst_mpeg_video_parse_sequence_display_extension ()">gst_mpeg_video_parse_sequence_display_extension</a>
+                                                        (<em class="parameter"><code><span class="type">GstMpegVideoSequenceDisplayExt</span> *seqdisplayext</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
+                                                         <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
+                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-quant-matrix-extension" title="gst_mpeg_video_parse_quant_matrix_extension ()">gst_mpeg_video_parse_quant_matrix_extension</a>
                                                         (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoQuantMatrixExt" title="struct GstMpegVideoQuantMatrixExt"><span class="type">GstMpegVideoQuantMatrixExt</span></a> *quant</code></em>,
                                                          <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
                                                          <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-finalise-mpeg2-sequence-header" title="gst_mpeg_video_finalise_mpeg2_sequence_header ()">gst_mpeg_video_finalise_mpeg2_sequence_header</a>
+                                                        (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> *hdr</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceExt" title="struct GstMpegVideoSequenceExt"><span class="type">GstMpegVideoSequenceExt</span></a> *seqext</code></em>,
+                                                         <em class="parameter"><code><span class="type">GstMpegVideoSequenceDisplayExt</span> *displayext</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-quant-matrix-get-raster-from-zigzag" title="gst_mpeg_video_quant_matrix_get_raster_from_zigzag ()">gst_mpeg_video_quant_matrix_get_raster_from_zigzag</a>
+                                                        (<em class="parameter"><code><span class="type">guint8</span> out_quant[64]</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">guint8</span> quant[64]</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-quant-matrix-get-zigzag-from-raster" title="gst_mpeg_video_quant_matrix_get_zigzag_from_raster ()">gst_mpeg_video_quant_matrix_get_zigzag_from_raster</a>
+                                                        (<em class="parameter"><code><span class="type">guint8</span> out_quant[64]</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">guint8</span> quant[64]</code></em>);
 </pre>
 </div>
 <div class="refsect1">
@@ -92,7 +107,7 @@ struct              <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.h
 <p>
 </p>
 <div class="refsect2">
-<a name="idp10601824"></a><p>
+<a name="idp10265104"></a><p>
 Provides useful functions for mpeg videos bitstream parsing.
 </p>
 </div>
@@ -118,8 +133,11 @@ Provides useful functions for mpeg videos bitstream parsing.
 <p>
 Indicates the type of MPEG packet
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><a name="GST-MPEG-VIDEO-PACKET-PICTURE:CAPS"></a><span class="term"><code class="literal">GST_MPEG_VIDEO_PACKET_PICTURE</code></span></p></td>
@@ -173,10 +191,11 @@ Indicates the type of MPEG packet
 <div class="refsect2">
 <a name="GstMpegVideoPacketExtensionCode"></a><h3>enum GstMpegVideoPacketExtensionCode</h3>
 <pre class="programlisting">typedef enum {
-  GST_MPEG_VIDEO_PACKET_EXT_SEQUENCE         = 0x01,
-  GST_MPEG_VIDEO_PACKET_EXT_SEQUENCE_DISPLAY = 0x02,
-  GST_MPEG_VIDEO_PACKET_EXT_QUANT_MATRIX     = 0x03,
-  GST_MPEG_VIDEO_PACKET_EXT_PICTURE          = 0x08
+  GST_MPEG_VIDEO_PACKET_EXT_SEQUENCE          = 0x01,
+  GST_MPEG_VIDEO_PACKET_EXT_SEQUENCE_DISPLAY  = 0x02,
+  GST_MPEG_VIDEO_PACKET_EXT_QUANT_MATRIX      = 0x03,
+  GST_MPEG_VIDEO_PACKET_EXT_SEQUENCE_SCALABLE = 0x05,
+  GST_MPEG_VIDEO_PACKET_EXT_PICTURE           = 0x08
 } GstMpegVideoPacketExtensionCode;
 </pre>
 <p>
@@ -184,8 +203,11 @@ Indicates what type of packets are in this block, some are mutually
 exclusive though - ie, sequence packs are accumulated separately. GOP &amp;
 Picture may occur together or separately.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><a name="GST-MPEG-VIDEO-PACKET-EXT-SEQUENCE:CAPS"></a><span class="term"><code class="literal">GST_MPEG_VIDEO_PACKET_EXT_SEQUENCE</code></span></p></td>
@@ -200,6 +222,11 @@ Picture may occur together or separately.
 <tr>
 <td><p><a name="GST-MPEG-VIDEO-PACKET-EXT-QUANT-MATRIX:CAPS"></a><span class="term"><code class="literal">GST_MPEG_VIDEO_PACKET_EXT_QUANT_MATRIX</code></span></p></td>
 <td>Quantization Matrix extension code
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG-VIDEO-PACKET-EXT-SEQUENCE-SCALABLE:CAPS"></a><span class="term"><code class="literal">GST_MPEG_VIDEO_PACKET_EXT_SEQUENCE_SCALABLE</code></span></p></td>
+<td>Sequence Scalable extension code
 </td>
 </tr>
 <tr>
@@ -223,8 +250,11 @@ Picture may occur together or separately.
 <p>
 Mpeg-2 Levels.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><a name="GST-MPEG-VIDEO-LEVEL-HIGH:CAPS"></a><span class="term"><code class="literal">GST_MPEG_VIDEO_LEVEL_HIGH</code></span></p></td>
@@ -264,8 +294,11 @@ Mpeg-2 Levels.
 <p>
 Mpeg-2 Profiles.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><a name="GST-MPEG-VIDEO-PROFILE-422:CAPS"></a><span class="term"><code class="literal">GST_MPEG_VIDEO_PROFILE_422</code></span></p></td>
@@ -313,8 +346,11 @@ Mpeg-2 Profiles.
 <p>
 Picture type.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><a name="GST-MPEG-VIDEO-PICTURE-TYPE-I:CAPS"></a><span class="term"><code class="literal">GST_MPEG_VIDEO_PICTURE_TYPE_I</code></span></p></td>
@@ -351,8 +387,11 @@ Picture type.
 <p>
 Picture structure type.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><a name="GST-MPEG-VIDEO-PICTURE-STRUCTURE-TOP-FIELD:CAPS"></a><span class="term"><code class="literal">GST_MPEG_VIDEO_PICTURE_STRUCTURE_TOP_FIELD</code></span></p></td>
@@ -396,8 +435,11 @@ Picture structure type.
 <p>
 The Mpeg2 Video Sequence Header structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.width"></a>width</code></em>;</span></p></td>
@@ -482,8 +524,11 @@ The Mpeg2 Video Sequence Header structure.
 <p>
 The Mpeg2 Video Sequence Extension structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.profile"></a>profile</code></em>;</span></p></td>
@@ -550,8 +595,11 @@ otherwise</td>
 <p>
 The Mpeg2 Video Picture Header structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.tsn"></a>tsn</code></em>;</span></p></td>
@@ -593,8 +641,11 @@ of the frame: 0 or 1.</td>
 <p>
 The Mpeg Video Group of Picture structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoGop.drop-frame-flag"></a>drop_frame_flag</code></em>;</span></p></td>
@@ -655,8 +706,11 @@ The Mpeg Video Group of Picture structure.
 <p>
 The Mpeg2 Video Picture Extension structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.f-code"></a>f_code</code></em>[2][2];</span></p></td>
@@ -763,10 +817,13 @@ order.
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
 <p>
 Parses the MPEG 1/2 video bitstream contained in <em class="parameter"><code>data</code></em> , and returns the
-detect packets as a list of <span class="type">GstMpegVideoTypeOffsetSize</span>.
+detect packets as a list of <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoTypeOffsetSize"><span class="type">GstMpegVideoTypeOffsetSize</span></a>.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
@@ -792,15 +849,22 @@ detect packets as a list of <span class="type">GstMpegVideoTypeOffsetSize</span>
 <div class="refsect2">
 <a name="gst-mpeg-video-parse-sequence-header"></a><h3>gst_mpeg_video_parse_sequence_header ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_mpeg_video_parse_sequence_header
-                                                        (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> *params</code></em>,
+                                                        (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> *seqhdr</code></em>,
                                                          <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
                                                          <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">gst_mpeg_video_parse_sequence_header</code> is deprecated and should not be used in newly-written code. Use <code class="function">gst_mpeg_video_packet_parse_sequence_header()</code> instead.</p>
+</div>
 <p>
 Parses the <em class="parameter"><code>seqhdr</code></em> Mpeg Video Sequence Header structure members from <em class="parameter"><code>data</code></em>
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>seqhdr</code></em> :</span></p></td>
@@ -836,11 +900,18 @@ Parses the <em class="parameter"><code>seqhdr</code></em> Mpeg Video Sequence He
                                                          <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
                                                          <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">gst_mpeg_video_parse_picture_header</code> is deprecated and should not be used in newly-written code. Use <code class="function">gst_mpeg_video_packet_parse_picture_header()</code> instead.</p>
+</div>
 <p>
 Parsers the <em class="parameter"><code>hdr</code></em> Mpeg Video Picture Header structure members from <em class="parameter"><code>data</code></em>
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>hdr</code></em> :</span></p></td>
@@ -877,11 +948,18 @@ otherwize.</td>
                                                          <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
                                                          <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">gst_mpeg_video_parse_picture_extension</code> is deprecated and should not be used in newly-written code. Use <code class="function">gst_mpeg_video_packet_parse_picture_extension()</code> instead.</p>
+</div>
 <p>
 Parse the <em class="parameter"><code>ext</code></em> Mpeg Video Picture Extension structure members from <em class="parameter"><code>data</code></em>
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>ext</code></em> :</span></p></td>
@@ -917,11 +995,18 @@ Parse the <em class="parameter"><code>ext</code></em> Mpeg Video Picture Extensi
                                                          <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
                                                          <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">gst_mpeg_video_parse_gop</code> is deprecated and should not be used in newly-written code. Use <code class="function">gst_mpeg_video_packet_parse_gop()</code> instead.</p>
+</div>
 <p>
 Parses the <em class="parameter"><code>gop</code></em> Mpeg Video Group of Picture structure members from <em class="parameter"><code>data</code></em>
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>gop</code></em> :</span></p></td>
@@ -957,11 +1042,18 @@ Parses the <em class="parameter"><code>gop</code></em> Mpeg Video Group of Pictu
                                                          <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
                                                          <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">gst_mpeg_video_parse_sequence_extension</code> is deprecated and should not be used in newly-written code. Use <code class="function">gst_mpeg_video_packet_parse_sequence_extension()</code> instead.</p>
+</div>
 <p>
 Parses the <em class="parameter"><code>seqext</code></em> Mpeg Video Sequence Extension structure members from <em class="parameter"><code>data</code></em>
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>seqext</code></em> :</span></p></td>
@@ -992,18 +1084,38 @@ Parses the <em class="parameter"><code>seqext</code></em> Mpeg Video Sequence Ex
 </div>
 <hr>
 <div class="refsect2">
+<a name="gst-mpeg-video-parse-sequence-display-extension"></a><h3>gst_mpeg_video_parse_sequence_display_extension ()</h3>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_mpeg_video_parse_sequence_display_extension
+                                                        (<em class="parameter"><code><span class="type">GstMpegVideoSequenceDisplayExt</span> *seqdisplayext</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
+                                                         <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
+                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">gst_mpeg_video_parse_sequence_display_extension</code> is deprecated and should not be used in newly-written code.</p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
 <a name="gst-mpeg-video-parse-quant-matrix-extension"></a><h3>gst_mpeg_video_parse_quant_matrix_extension ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_mpeg_video_parse_quant_matrix_extension
                                                         (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoQuantMatrixExt" title="struct GstMpegVideoQuantMatrixExt"><span class="type">GstMpegVideoQuantMatrixExt</span></a> *quant</code></em>,
                                                          <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
                                                          <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
+<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Warning</h3>
+<p><code class="literal">gst_mpeg_video_parse_quant_matrix_extension</code> is deprecated and should not be used in newly-written code. Use <code class="function">gst_mpeg_video_packet_parse_quant_matrix_extension()</code> instead.</p>
+</div>
 <p>
 Parses the <em class="parameter"><code>quant</code></em> Mpeg Video Quant Matrix Extension structure members from
 <em class="parameter"><code>data</code></em>
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>quant</code></em> :</span></p></td>
@@ -1031,6 +1143,80 @@ Parses the <em class="parameter"><code>quant</code></em> Mpeg Video Quant Matrix
 </tr>
 </tbody>
 </table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-mpeg-video-finalise-mpeg2-sequence-header"></a><h3>gst_mpeg_video_finalise_mpeg2_sequence_header ()</h3>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_mpeg_video_finalise_mpeg2_sequence_header
+                                                        (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> *hdr</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceExt" title="struct GstMpegVideoSequenceExt"><span class="type">GstMpegVideoSequenceExt</span></a> *seqext</code></em>,
+                                                         <em class="parameter"><code><span class="type">GstMpegVideoSequenceDisplayExt</span> *displayext</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-mpeg-video-quant-matrix-get-raster-from-zigzag"></a><h3>gst_mpeg_video_quant_matrix_get_raster_from_zigzag ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                gst_mpeg_video_quant_matrix_get_raster_from_zigzag
+                                                        (<em class="parameter"><code><span class="type">guint8</span> out_quant[64]</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">guint8</span> quant[64]</code></em>);</pre>
+<p>
+Converts quantization matrix <em class="parameter"><code>quant</code></em> from zigzag scan order to
+raster scan order and store the resulting factors into <em class="parameter"><code>out_quant</code></em>.
+</p>
+<p>
+Note: it is an error to pass the same table in both <em class="parameter"><code>quant</code></em> and
+<em class="parameter"><code>out_quant</code></em> arguments.
+</p>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out_quant</code></em> :</span></p></td>
+<td>The resulting quantization matrix. <span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>quant</code></em> :</span></p></td>
+<td>The source quantization matrix</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 1.2</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-mpeg-video-quant-matrix-get-zigzag-from-raster"></a><h3>gst_mpeg_video_quant_matrix_get_zigzag_from_raster ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                gst_mpeg_video_quant_matrix_get_zigzag_from_raster
+                                                        (<em class="parameter"><code><span class="type">guint8</span> out_quant[64]</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">guint8</span> quant[64]</code></em>);</pre>
+<p>
+Converts quantization matrix <em class="parameter"><code>quant</code></em> from raster scan order to
+zigzag scan order and store the resulting factors into <em class="parameter"><code>out_quant</code></em>.
+</p>
+<p>
+Note: it is an error to pass the same table in both <em class="parameter"><code>quant</code></em> and
+<em class="parameter"><code>out_quant</code></em> arguments.
+</p>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out_quant</code></em> :</span></p></td>
+<td>The resulting quantization matrix. <span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>quant</code></em> :</span></p></td>
+<td>The source quantization matrix</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 1.2</p>
 </div>
 </div>
 </div>

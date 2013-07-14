@@ -185,22 +185,6 @@ GstCameraBin *gstcamerabin
 </SIGNAL>
 
 <SIGNAL>
-<NAME>GstRTPDTMFMux::locking</NAME>
-<RETURNS>void</RETURNS>
-<FLAGS>l</FLAGS>
-GstRTPDTMFMux *gstrtpdtmfmux
-GstPad *arg1
-</SIGNAL>
-
-<SIGNAL>
-<NAME>GstRTPDTMFMux::unlocked</NAME>
-<RETURNS>void</RETURNS>
-<FLAGS>l</FLAGS>
-GstRTPDTMFMux *gstrtpdtmfmux
-GstPad *arg1
-</SIGNAL>
-
-<SIGNAL>
 <NAME>GstRtpBin::clear-pt-map</NAME>
 <RETURNS>void</RETURNS>
 <FLAGS>la</FLAGS>
@@ -534,5 +518,36 @@ GstCameraBin2 *gstcamerabin2
 <RETURNS>void</RETURNS>
 <FLAGS>la</FLAGS>
 GstCameraBin2 *gstcamerabin2
+</SIGNAL>
+
+<SIGNAL>
+<NAME>GstUvcH264Src::get-boolean-setting</NAME>
+<RETURNS>gboolean</RETURNS>
+<FLAGS>la</FLAGS>
+GstUvcH264Src *gstuvch264src
+gchar *arg1
+gpointer  arg2
+gpointer  arg3
+</SIGNAL>
+
+<SIGNAL>
+<NAME>GstUvcH264Src::get-enum-setting</NAME>
+<RETURNS>gboolean</RETURNS>
+<FLAGS>la</FLAGS>
+GstUvcH264Src *gstuvch264src
+gchar *arg1
+gpointer  arg2
+gpointer  arg3
+</SIGNAL>
+
+<SIGNAL>
+<NAME>GstUvcH264Src::get-int-setting</NAME>
+<RETURNS>gboolean</RETURNS>
+<FLAGS>la</FLAGS>
+GstUvcH264Src *gstuvch264src
+gchar *arg1
+gpointer  arg2
+gpointer  arg3
+gpointer  arg4
 </SIGNAL>
 

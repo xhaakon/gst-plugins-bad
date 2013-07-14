@@ -15,8 +15,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 
@@ -489,8 +489,6 @@ check_and_replace_src (GstWrapperCameraBinSrc * self)
       }
     }
   }
-  /* we lost the reference */
-  self->app_vid_src = NULL;
 
   /* we listen for changes to max-zoom in the video src so that
    * we can proxy them to the basecamerasrc property */
@@ -553,6 +551,16 @@ gst_wrapper_camera_bin_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
     if (!gst_camerabin_create_and_add_element (cbin, "videoconvert",
             "src-videoconvert"))
       goto done;
+
+    if (self->app_vid_filter) {
+      self->video_filter = gst_object_ref (self->app_vid_filter);
+
+      if (!gst_camerabin_add_element (cbin, self->video_filter))
+        goto done;
+      if (!gst_camerabin_create_and_add_element (cbin, "videoconvert",
+              "filter-videoconvert"))
+        goto done;
+    }
 
     if (!(self->src_filter =
             gst_camerabin_create_and_add_element (cbin, "capsfilter",

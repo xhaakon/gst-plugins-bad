@@ -37,8 +37,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  *
  * GPL:
  *
@@ -54,7 +54,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * MIT:
  *
@@ -1032,6 +1032,11 @@ mpegtsmux_collected_buffer (GstCollectPads * pads, GstCollectData * data,
 {
   GstFlowReturn ret = GST_FLOW_OK;
   MpegTsPadData *best = (MpegTsPadData *) data;
+  TsMuxProgram *prog;
+  gint64 pts = -1;
+  guint64 dts = -1;
+  gboolean delta = TRUE;
+  StreamData *stream_data;
 
   GST_DEBUG_OBJECT (mux, "Pads collected");
 
@@ -1045,135 +1050,130 @@ mpegtsmux_collected_buffer (GstCollectPads * pads, GstCollectData * data,
     mux->first = FALSE;
   }
 
-  if (best != NULL) {
-    TsMuxProgram *prog = best->prog;
-    gint64 pts = -1;
-    guint64 dts = -1;
-    gboolean delta = TRUE;
-    StreamData *stream_data;
-
-    if (prog == NULL)
-      goto no_program;
-
-    g_assert (buf != NULL);
-
-    if (mux->force_key_unit_event != NULL && best->stream->is_video_stream) {
-      GstEvent *event;
-
-      event = check_pending_key_unit_event (mux->force_key_unit_event,
-          &best->collect.segment, GST_BUFFER_TIMESTAMP (buf),
-          GST_BUFFER_FLAGS (buf), mux->pending_key_unit_ts);
-      if (event) {
-        GstClockTime running_time;
-        guint count;
-        GList *cur;
-
-        mux->pending_key_unit_ts = GST_CLOCK_TIME_NONE;
-        gst_event_replace (&mux->force_key_unit_event, NULL);
-
-        gst_video_event_parse_downstream_force_key_unit (event,
-            NULL, NULL, &running_time, NULL, &count);
-
-        GST_INFO_OBJECT (mux, "pushing downstream force-key-unit event %d "
-            "%" GST_TIME_FORMAT " count %d", gst_event_get_seqnum (event),
-            GST_TIME_ARGS (running_time), count);
-        gst_pad_push_event (mux->srcpad, event);
-
-        /* output PAT */
-        mux->tsmux->last_pat_ts = -1;
-
-        /* output PMT for each program */
-        for (cur = mux->tsmux->programs; cur; cur = cur->next) {
-          TsMuxProgram *program = (TsMuxProgram *) cur->data;
-
-          program->last_pmt_ts = -1;
-        }
-        tsmux_program_set_pcr_stream (prog, NULL);
-      }
-    }
-
-    if (G_UNLIKELY (prog->pcr_stream == NULL)) {
-      /* Take the first data stream for the PCR */
-      GST_DEBUG_OBJECT (COLLECT_DATA_PAD (best),
-          "Use stream (pid=%d) from pad as PCR for program (prog_id = %d)",
-          MPEG_TS_PAD_DATA (best)->pid, MPEG_TS_PAD_DATA (best)->prog_id);
-
-      /* Set the chosen PCR stream */
-      tsmux_program_set_pcr_stream (prog, best->stream);
-    }
-
-    GST_DEBUG_OBJECT (COLLECT_DATA_PAD (best),
-        "Chose stream for output (PID: 0x%04x)", best->pid);
-
-    if (GST_CLOCK_TIME_IS_VALID (GST_BUFFER_PTS (buf)) &&
-        GST_CLOCK_TIME_IS_VALID (best->last_pts)) {
-      pts = GSTTIME_TO_MPEGTIME (best->last_pts);
-      GST_DEBUG_OBJECT (mux, "Buffer has PTS %" GST_TIME_FORMAT " pts %"
-          G_GINT64_FORMAT, GST_TIME_ARGS (best->last_pts), pts);
-    }
-
-    if (GST_CLOCK_TIME_IS_VALID (GST_BUFFER_DTS (buf)) &&
-        GST_CLOCK_TIME_IS_VALID (best->last_dts)) {
-      dts = GSTTIME_TO_MPEGTIME (best->last_dts);
-      GST_DEBUG_OBJECT (mux, "Buffer has DTS %" GST_TIME_FORMAT " dts %"
-          G_GINT64_FORMAT, GST_TIME_ARGS (best->last_dts), dts);
-    }
-
-    /* should not have a DTS without PTS */
-    if (pts == -1 && dts != -1) {
-      GST_DEBUG_OBJECT (mux, "using DTS for unknown PTS");
-      pts = dts;
-    }
-
-    if (best->stream->is_video_stream) {
-      delta = GST_BUFFER_FLAG_IS_SET (buf, GST_BUFFER_FLAG_DELTA_UNIT);
-#if 0
-      GST_OBJECT_LOCK (mux);
-      if (mux->element_index && !delta && best->element_index_writer_id != -1) {
-        gst_index_add_association (mux->element_index,
-            best->element_index_writer_id,
-            GST_ASSOCIATION_FLAG_KEY_UNIT, spn_format, mux->spn_count,
-            pts_format, pts, NULL);
-      }
-      GST_OBJECT_UNLOCK (mux);
-#endif
-    }
-    GST_DEBUG_OBJECT (mux, "delta: %d", delta);
-
-    stream_data = stream_data_new (buf);
-    tsmux_stream_add_data (best->stream, stream_data->map_info.data,
-        stream_data->map_info.size, stream_data, pts, dts, !delta);
-
-    /* outgoing ts follows ts of PCR program stream */
-    if (prog->pcr_stream == best->stream) {
-      /* prefer DTS if present for PCR as it should be monotone */
-      mux->last_ts =
-          GST_CLOCK_TIME_IS_VALID (best->last_dts) ? best->
-          last_dts : best->last_pts;
-    }
-
-    mux->is_delta = delta;
-    while (tsmux_stream_bytes_in_buffer (best->stream) > 0) {
-      if (!tsmux_write_stream_packet (mux->tsmux, best->stream)) {
-        /* Failed writing data for some reason. Set appropriate error */
-        GST_DEBUG_OBJECT (mux, "Failed to write data packet");
-        GST_ELEMENT_ERROR (mux, STREAM, MUX,
-            ("Failed writing output data to stream %04x", best->stream->id),
-            (NULL));
-        goto write_fail;
-      }
-    }
-    /* flush packet cache */
-    ret = mpegtsmux_push_packets (mux, FALSE);
-  } else {
+  if (G_UNLIKELY (best == NULL)) {
     /* EOS */
     /* drain some possibly cached data */
     new_packet_m2ts (mux, NULL, -1);
-    ret = mpegtsmux_push_packets (mux, TRUE);
+    mpegtsmux_push_packets (mux, TRUE);
     gst_pad_push_event (mux->srcpad, gst_event_new_eos ());
+
+    return GST_FLOW_OK;
   }
 
-  return ret;
+  prog = best->prog;
+  if (prog == NULL)
+    goto no_program;
+
+  g_assert (buf != NULL);
+
+  if (mux->force_key_unit_event != NULL && best->stream->is_video_stream) {
+    GstEvent *event;
+
+    event = check_pending_key_unit_event (mux->force_key_unit_event,
+        &best->collect.segment, GST_BUFFER_TIMESTAMP (buf),
+        GST_BUFFER_FLAGS (buf), mux->pending_key_unit_ts);
+    if (event) {
+      GstClockTime running_time;
+      guint count;
+      GList *cur;
+
+      mux->pending_key_unit_ts = GST_CLOCK_TIME_NONE;
+      gst_event_replace (&mux->force_key_unit_event, NULL);
+
+      gst_video_event_parse_downstream_force_key_unit (event,
+          NULL, NULL, &running_time, NULL, &count);
+
+      GST_INFO_OBJECT (mux, "pushing downstream force-key-unit event %d "
+          "%" GST_TIME_FORMAT " count %d", gst_event_get_seqnum (event),
+          GST_TIME_ARGS (running_time), count);
+      gst_pad_push_event (mux->srcpad, event);
+
+      /* output PAT */
+      mux->tsmux->last_pat_ts = -1;
+
+      /* output PMT for each program */
+      for (cur = mux->tsmux->programs; cur; cur = cur->next) {
+        TsMuxProgram *program = (TsMuxProgram *) cur->data;
+
+        program->last_pmt_ts = -1;
+      }
+      tsmux_program_set_pcr_stream (prog, NULL);
+    }
+  }
+
+  if (G_UNLIKELY (prog->pcr_stream == NULL)) {
+    /* Take the first data stream for the PCR */
+    GST_DEBUG_OBJECT (COLLECT_DATA_PAD (best),
+        "Use stream (pid=%d) from pad as PCR for program (prog_id = %d)",
+        MPEG_TS_PAD_DATA (best)->pid, MPEG_TS_PAD_DATA (best)->prog_id);
+
+    /* Set the chosen PCR stream */
+    tsmux_program_set_pcr_stream (prog, best->stream);
+  }
+
+  GST_DEBUG_OBJECT (COLLECT_DATA_PAD (best),
+      "Chose stream for output (PID: 0x%04x)", best->pid);
+
+  if (GST_CLOCK_TIME_IS_VALID (GST_BUFFER_PTS (buf)) &&
+      GST_CLOCK_TIME_IS_VALID (best->last_pts)) {
+    pts = GSTTIME_TO_MPEGTIME (best->last_pts);
+    GST_DEBUG_OBJECT (mux, "Buffer has PTS %" GST_TIME_FORMAT " pts %"
+        G_GINT64_FORMAT, GST_TIME_ARGS (best->last_pts), pts);
+  }
+
+  if (GST_CLOCK_TIME_IS_VALID (GST_BUFFER_DTS (buf)) &&
+      GST_CLOCK_TIME_IS_VALID (best->last_dts)) {
+    dts = GSTTIME_TO_MPEGTIME (best->last_dts);
+    GST_DEBUG_OBJECT (mux, "Buffer has DTS %" GST_TIME_FORMAT " dts %"
+        G_GINT64_FORMAT, GST_TIME_ARGS (best->last_dts), dts);
+  }
+
+  /* should not have a DTS without PTS */
+  if (pts == -1 && dts != -1) {
+    GST_DEBUG_OBJECT (mux, "using DTS for unknown PTS");
+    pts = dts;
+  }
+
+  if (best->stream->is_video_stream) {
+    delta = GST_BUFFER_FLAG_IS_SET (buf, GST_BUFFER_FLAG_DELTA_UNIT);
+#if 0
+    GST_OBJECT_LOCK (mux);
+    if (mux->element_index && !delta && best->element_index_writer_id != -1) {
+      gst_index_add_association (mux->element_index,
+          best->element_index_writer_id,
+          GST_ASSOCIATION_FLAG_KEY_UNIT, spn_format, mux->spn_count,
+          pts_format, pts, NULL);
+    }
+    GST_OBJECT_UNLOCK (mux);
+#endif
+  }
+  GST_DEBUG_OBJECT (mux, "delta: %d", delta);
+
+  stream_data = stream_data_new (buf);
+  tsmux_stream_add_data (best->stream, stream_data->map_info.data,
+      stream_data->map_info.size, stream_data, pts, dts, !delta);
+
+  /* outgoing ts follows ts of PCR program stream */
+  if (prog->pcr_stream == best->stream) {
+    /* prefer DTS if present for PCR as it should be monotone */
+    mux->last_ts =
+        GST_CLOCK_TIME_IS_VALID (best->last_dts) ? best->last_dts : best->
+        last_pts;
+  }
+
+  mux->is_delta = delta;
+  while (tsmux_stream_bytes_in_buffer (best->stream) > 0) {
+    if (!tsmux_write_stream_packet (mux->tsmux, best->stream)) {
+      /* Failed writing data for some reason. Set appropriate error */
+      GST_DEBUG_OBJECT (mux, "Failed to write data packet");
+      GST_ELEMENT_ERROR (mux, STREAM, MUX,
+          ("Failed writing output data to stream %04x", best->stream->id),
+          (NULL));
+      goto write_fail;
+    }
+  }
+  /* flush packet cache */
+  return mpegtsmux_push_packets (mux, FALSE);
 
   /* ERRORS */
 write_fail:
@@ -1328,13 +1328,14 @@ mpegtsmux_push_packets (MpegTsMux * mux, gboolean force)
   else
     align *= packet_size;
 
+  /* FIXME: what about DTS here? */
   GST_LOG_OBJECT (mux, "aligning to %d bytes", align);
   if (G_LIKELY ((align <= av) && av)) {
     GST_LOG_OBJECT (mux, "pushing %d aligned bytes", av - (av % align));
-    ts = gst_adapter_prev_timestamp (mux->out_adapter, NULL);
+    ts = gst_adapter_prev_pts (mux->out_adapter, NULL);
     buf = gst_adapter_take_buffer (mux->out_adapter, av - (av % align));
     g_assert (buf);
-    GST_BUFFER_TIMESTAMP (buf) = ts;
+    GST_BUFFER_PTS (buf) = ts;
 
     ret = gst_pad_push (mux->srcpad, buf);
     av = av % align;
@@ -1350,11 +1351,11 @@ mpegtsmux_push_packets (MpegTsMux * mux, gboolean force)
     buf = gst_buffer_new_and_alloc (align);
     gst_buffer_map (buf, &map, GST_MAP_READ);
     data = map.data;
-    ts = gst_adapter_prev_timestamp (mux->out_adapter, NULL);
+    ts = gst_adapter_prev_pts (mux->out_adapter, NULL);
 
     gst_adapter_copy (mux->out_adapter, data, 0, av);
     gst_adapter_clear (mux->out_adapter);
-    GST_BUFFER_TIMESTAMP (buf) = ts;
+    GST_BUFFER_PTS (buf) = ts;
 
     data += av;
     header = GST_READ_UINT32_BE (data - packet_size);
@@ -1468,12 +1469,13 @@ new_packet_m2ts (MpegTsMux * mux, GstBuffer * buf, gint64 new_pcr)
             gst_util_uint64_scale (mux->previous_offset - offset,
             mux->pcr_rate_num, mux->pcr_rate_den);
 
-      ts = gst_adapter_prev_timestamp (mux->adapter, NULL);
+      /* FIXME: what about DTS here? */
+      ts = gst_adapter_prev_pts (mux->adapter, NULL);
       out_buf = gst_adapter_take_buffer (mux->adapter, M2TS_PACKET_LENGTH);
       g_assert (out_buf);
       offset += M2TS_PACKET_LENGTH;
 
-      GST_BUFFER_TIMESTAMP (out_buf) = ts;
+      GST_BUFFER_PTS (out_buf) = ts;
 
       gst_buffer_map (out_buf, &map, GST_MAP_WRITE);
 
@@ -1610,11 +1612,16 @@ mpegtsdemux_prepare_srcpad (MpegTsMux * mux)
   GstSegment seg;
   /* we are not going to seek */
   GstEvent *new_seg;
+  gchar s_id[32];
   GstCaps *caps = gst_caps_new_simple ("video/mpegts",
       "systemstream", G_TYPE_BOOLEAN, TRUE,
       "packetsize", G_TYPE_INT,
       (mux->m2ts_mode ? M2TS_PACKET_LENGTH : NORMAL_TS_PACKET_LENGTH),
       NULL);
+
+  /* stream-start (FIXME: create id based on input ids) */
+  g_snprintf (s_id, sizeof (s_id), "mpegtsmux-%08x", g_random_int ());
+  gst_pad_push_event (mux->srcpad, gst_event_new_stream_start (s_id));
 
   gst_segment_init (&seg, GST_FORMAT_TIME);
   new_seg = gst_event_new_segment (&seg);

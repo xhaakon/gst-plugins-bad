@@ -16,8 +16,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef __GLIB_COMPAT_PRIVATE_H__
@@ -78,14 +78,6 @@ gst_g_mutex_free (GMutex *mutex)
 {
   g_mutex_clear (mutex);
   g_slice_free (GMutex, mutex);
-}
-#define g_static_rec_mutex_init gst_g_static_rec_mutex_init
-static inline void
-gst_g_static_rec_mutex_init (GStaticRecMutex *mutex)
-{
-  static const GStaticRecMutex init_mutex = G_STATIC_REC_MUTEX_INIT;
-
-  *mutex = init_mutex;
 }
 #define g_cond_new gst_g_cond_new
 static inline GCond *

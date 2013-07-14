@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef __GST_CURL_BASE_SINK__
@@ -101,7 +101,8 @@ struct _GstCurlBaseSinkClass
     size_t (*transfer_data_buffer) (GstCurlBaseSink * sink, void *curl_ptr,
       size_t block_size, guint * last_chunk);
     size_t (*flush_data_unlocked) (GstCurlBaseSink * sink, void *curl_ptr,
-      size_t block_size, gboolean new_file);
+      size_t block_size, gboolean new_file, gboolean close_transfer);
+  gboolean (*has_buffered_data_unlocked) (GstCurlBaseSink * sink);
 };
 
 GType gst_curl_base_sink_get_type (void);

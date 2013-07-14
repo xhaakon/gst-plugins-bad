@@ -6,7 +6,7 @@
 
 Summary: GStreamer streaming media framework "bad" plug-ins
 Name: %{gstreamer}-plugins-bad
-Version: 1.0.8
+Version: 1.1.2
 Release: 1.gst
 # The freeze and nfs plugins are LGPLv2 (only)
 License: LGPLv2+ and LGPLv2
@@ -28,7 +28,6 @@ BuildRequires: gtk-doc
 BuildRequires: bzip2-devel
 BuildRequires: celt-devel
 BuildRequires: exempi-devel
-BuildRequires: jasper-devel
 BuildRequires: ladspa-devel
 BuildRequires: libass-devel
 %ifnarch s390 s390x
@@ -190,6 +189,9 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 %{_libdir}/gstreamer-%{majorminor}/libgstmplex.so
 #%{_libdir}/gstreamer-%{majorminor}/libgstxvid.so
 %{_libdir}/gstreamer-%{majorminor}/libgstfaac.so
+%{_libdir}/gstreamer-%{majorminor}/libgstmfc.so
+%{_libdir}/gstreamer-%{majorminor}/libgstmpegpsmux.so
+
 
 %files free
 %defattr(-,root,root,-)
@@ -199,6 +201,7 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 %{_libdir}/libgstphotography-%{majorminor}.so.*
 %{_libdir}/libgstsignalprocessor-%{majorminor}.so.*
 %{_libdir}/libgstcodecparsers-%{majorminor}.so.*
+%{_libdir}/libgstinsertbin-%{majorminor}.so.*
 # Plugins without external dependencies
 %{_libdir}/gstreamer-%{majorminor}/libgstadpcmdec.so
 %{_libdir}/gstreamer-%{majorminor}/libgstadpcmenc.so
@@ -207,11 +210,9 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 %{_libdir}/gstreamer-%{majorminor}/libgstbayer.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstcamerabin.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstcdxaparse.so
-# %{_libdir}/gstreamer-%{majorminor}/libgstcog.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstcoloreffects.so
 %{_libdir}/gstreamer-%{majorminor}/libgstdataurisrc.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstdccp.so
-%{_libdir}/gstreamer-%{majorminor}/libgstdtmf.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstfestival.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstfrei0r.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstgaudieffects.so
@@ -230,10 +231,8 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 %{_libdir}/gstreamer-%{majorminor}/libgstpcapparse.so
 %{_libdir}/gstreamer-%{majorminor}/libgstpnm.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstrfbsrc.so
-%{_libdir}/gstreamer-%{majorminor}/libgstrtpmux.so
 %{_libdir}/gstreamer-%{majorminor}/libgstsegmentclip.so
 %{_libdir}/gstreamer-%{majorminor}/libgstrawparse.so
-%{_libdir}/gstreamer-%{majorminor}/libgstscaletempoplugin.so
 %{_libdir}/gstreamer-%{majorminor}/libgstshm.so
 %{_libdir}/gstreamer-%{majorminor}/libgstsdpelem.so
 %{_libdir}/gstreamer-%{majorminor}/libgstsmooth.so
@@ -248,6 +247,12 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 # %{_libdir}/gstreamer-%{majorminor}/libgstcolorspace.so
 %{_libdir}/gstreamer-%{majorminor}/libgstcurl.so
 %{_libdir}/gstreamer-%{majorminor}/libgstgdp.so
+%{_libdir}/gstreamer-%{majorminor}/libgstaccurip.so
+%{_libdir}/gstreamer-%{majorminor}/libgstfieldanalysis.so
+%{_libdir}/gstreamer-%{majorminor}/libgstmxf.so
+%{_libdir}/gstreamer-%{majorminor}/libgstsubenc.so
+%{_libdir}/libgstbasecamerabinsrc-1.0.so.0.2.0
+
 
 # %{_libdir}/gstreamer-%{majorminor}/libgstdecklink.so
 %{_libdir}/gstreamer-%{majorminor}/libgstdvbsuboverlay.so
@@ -284,7 +289,7 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 %{_libdir}/gstreamer-%{majorminor}/libgstmpegtsmux.so
 %{_libdir}/gstreamer-%{majorminor}/libgstsoundtouch.so
 %{_libdir}/libgstbasecamerabinsrc-1.0.so.0
-%{_libdir}/libgstbasecamerabinsrc-1.0.so.0.0.0
+# %{_libdir}/libgstbasecamerabinsrc-1.0.so.0.0.0
 
 
 
@@ -302,7 +307,6 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 #%ifnarch s390 s390x
 #%{_libdir}/gstreamer-%{majorminor}/libgstdc1394.so
 #%endif
-#%{_libdir}/gstreamer-%{majorminor}/libgstdirac.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstgsm.so
 #%{_libdir}/gstreamer-%{majorminor}/libgstjp2k.so
 #%{_libdir}/gstreamer-%{majorminor}/libgstkate.so
@@ -317,7 +321,6 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 # %{_libdir}/gstreamer-%{majorminor}/libgstsndfile.so
 %{_libdir}/gstreamer-%{majorminor}/libgstfrei0r.so
 %{_libdir}/gstreamer-%{majorminor}/libgstopencv.so
-%{_libdir}/gstreamer-%{majorminor}/libgstrtpvp8.so
 %{_libdir}/gstreamer-%{majorminor}/libgstvoamrwbenc.so
 %{_datadir}/gstreamer-%{majorminor}/presets/*.prs
 
@@ -348,10 +351,12 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 %{_libdir}/libgstbasevideo-%{majorminor}.so
 %{_libdir}/libgstphotography-%{majorminor}.so
 %{_libdir}/libgstsignalprocessor-%{majorminor}.so
+%{_libdir}/libgstinsertbin-%{majorminor}.so
 %{_libdir}/libgstcodecparsers-%{majorminor}.so
 %{_libdir}/libgstbasecamerabinsrc-%{majorminor}.so
 %{_includedir}/gstreamer-%{majorminor}/gst/interfaces/photography*
 %{_includedir}/gstreamer-%{majorminor}/gst/codecparsers
+%{_includedir}/gstreamer-%{majorminor}/gst/insertbin
 %{_includedir}/gstreamer-%{majorminor}/gst/signalprocessor
 %{_includedir}/gstreamer-%{majorminor}/gst/video
 %{_includedir}/gstreamer-%{majorminor}/gst/basecamerabinsrc/gstbasecamerasrc.h
@@ -362,6 +367,7 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 # pkg-config files
 %{_libdir}/pkgconfig/gstreamer-plugins-bad-%{majorminor}.pc
 %{_libdir}/pkgconfig/gstreamer-codecparsers-%{majorminor}.pc
+%{_libdir}/pkgconfig/gstreamer-insertbin-%{majorminor}.pc
 %{_libdir}/pkgconfig/gstreamer-basevideo-%{majorminor}.pc
 
 %files devel-docs
