@@ -46,7 +46,7 @@ gst_abi=$(gst_major).$(gst_minor)
 gst_lib=libgstreamer$(gst_abi)-0
 gst_lib_dev=libgstreamer$(gst_abi)-dev
 # what gstreamer version is needed
-gst_lib_dev_dep=$(gst_lib_dev) (>= 1.0.0)
+gst_lib_dev_dep=$(gst_lib_dev) (>= 1.1.2)
 
 gst_pkgname=gstreamer$(gst_abi)
 gst_deb_abi=$(gst_abi)-0
@@ -216,7 +216,8 @@ clean::
 
 gst_patch = $(shell echo $(gst_version) | cut -d '.' -f 3)
 gst_patch_next = $(shell expr $(gst_patch) + 1)
-DEB_DH_MAKESHLIBS_ARGS_libgstreamer-plugins-bad$(gst_deb_abi) += -V "libgstreamer-plugins-bad$(gst_deb_abi) (>= $(gst_version)), libgstreamer-plugins-bad$(gst_deb_abi) (<< $(gst_major).$(gst_minor).$(gst_patch_next))"
+gst_version_next = $(shell echo $(gst_version) | cut -d '.' -f-2).$(gst_patch_next)
+DEB_DH_MAKESHLIBS_ARGS_libgstreamer-plugins-bad$(gst_deb_abi) += -V "libgstreamer-plugins-bad$(gst_deb_abi) (>= $(gst_version)), libgstreamer-plugins-bad$(gst_deb_abi) (<< $(gst_version_next))"
 DEB_INSTALL_DOCS_ALL += debian/README.Debian NEWS
 
 # Disable inclusion of large upstream ChangeLog

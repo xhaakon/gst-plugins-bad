@@ -1,3 +1,26 @@
+gst-plugins-bad1.0 (1.1.2-1) experimental; urgency=low
+
+  * New upstream development snapshot:
+    + debian/rules,
+      debian/build-deps.in:
+      - Build depend on GStreamer and gst-plugins-base >= 1.1.2.
+      - Build depend on orc >= 0.4.17.
+      - Build depend on gnutls.
+      - Build depend on rsvg >= 2.36.
+    + debian/build-deps.in,
+      debian/gstreamer-plugins-bad.install:
+      - Add new bluez, fluidsynth, dash, smoothstreaming, opencv,
+        openjpeg, sbc, srtp, accurip, audiofxbad, ivtc, midi,
+        videofiltersbad, yadif, chromaprint plugins (Closes: #702341).
+      - Add newly ported aiff, freeverbm, kate, ladspa, mxf, rsvg
+        wildmidi, decklink, fbdev, uvch264, ofa, rfbsrc, openal
+        plugins (Closes: #712966).
+    + debian/libgstreamer-plugins-bad.install:
+      - Add new EGL, insertbin, mpegts and uridownloader libs.
+      - Remove removed basevideo library.
+
+ -- Sebastian Dröge <slomo@debian.org>  Sun, 14 Jul 2013 12:44:45 +0200
+
 gst-plugins-bad1.0 (1.0.8-1) unstable; urgency=low
 
   * New upstream bugfix release.
