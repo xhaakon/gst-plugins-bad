@@ -290,10 +290,22 @@ _backup_bayer_orc_merge_bg_bgra (OrcExecutor * ORC_RESTRICT ex)
   orc_union16 var39;
   orc_union16 var40;
   orc_union16 var41;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var42;
+#else
   orc_union16 var42;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var43;
+#else
   orc_union16 var43;
+#endif
   orc_union16 var44;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var45;
+#else
   orc_union16 var45;
+#endif
   orc_union64 var46;
   orc_union16 var47;
   orc_union16 var48;
@@ -414,10 +426,22 @@ _backup_bayer_orc_merge_gr_bgra (OrcExecutor * ORC_RESTRICT ex)
   orc_union16 var39;
   orc_union16 var40;
   orc_union16 var41;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var42;
+#else
   orc_union16 var42;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var43;
+#else
   orc_union16 var43;
+#endif
   orc_union16 var44;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var45;
+#else
   orc_union16 var45;
+#endif
   orc_union64 var46;
   orc_union16 var47;
   orc_union16 var48;
@@ -538,9 +562,21 @@ _backup_bayer_orc_merge_bg_abgr (OrcExecutor * ORC_RESTRICT ex)
   orc_union16 var39;
   orc_union16 var40;
   orc_union16 var41;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var42;
+#else
   orc_union16 var42;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var43;
+#else
   orc_union16 var43;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var44;
+#else
   orc_union16 var44;
+#endif
   orc_union16 var45;
   orc_union64 var46;
   orc_union16 var47;
@@ -662,9 +698,21 @@ _backup_bayer_orc_merge_gr_abgr (OrcExecutor * ORC_RESTRICT ex)
   orc_union16 var39;
   orc_union16 var40;
   orc_union16 var41;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var42;
+#else
   orc_union16 var42;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var43;
+#else
   orc_union16 var43;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var44;
+#else
   orc_union16 var44;
+#endif
   orc_union16 var45;
   orc_union64 var46;
   orc_union16 var47;
@@ -786,10 +834,22 @@ _backup_bayer_orc_merge_bg_rgba (OrcExecutor * ORC_RESTRICT ex)
   orc_union16 var39;
   orc_union16 var40;
   orc_union16 var41;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var42;
+#else
   orc_union16 var42;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var43;
+#else
   orc_union16 var43;
+#endif
   orc_union16 var44;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var45;
+#else
   orc_union16 var45;
+#endif
   orc_union64 var46;
   orc_union16 var47;
   orc_union16 var48;
@@ -910,10 +970,22 @@ _backup_bayer_orc_merge_gr_rgba (OrcExecutor * ORC_RESTRICT ex)
   orc_union16 var39;
   orc_union16 var40;
   orc_union16 var41;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var42;
+#else
   orc_union16 var42;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var43;
+#else
   orc_union16 var43;
+#endif
   orc_union16 var44;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var45;
+#else
   orc_union16 var45;
+#endif
   orc_union64 var46;
   orc_union16 var47;
   orc_union16 var48;
@@ -1034,9 +1106,21 @@ _backup_bayer_orc_merge_bg_argb (OrcExecutor * ORC_RESTRICT ex)
   orc_union16 var39;
   orc_union16 var40;
   orc_union16 var41;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var42;
+#else
   orc_union16 var42;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var43;
+#else
   orc_union16 var43;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var44;
+#else
   orc_union16 var44;
+#endif
   orc_union16 var45;
   orc_union64 var46;
   orc_union16 var47;
@@ -1158,9 +1242,21 @@ _backup_bayer_orc_merge_gr_argb (OrcExecutor * ORC_RESTRICT ex)
   orc_union16 var39;
   orc_union16 var40;
   orc_union16 var41;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var42;
+#else
   orc_union16 var42;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var43;
+#else
   orc_union16 var43;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
+  volatile orc_union16 var44;
+#else
   orc_union16 var44;
+#endif
   orc_union16 var45;
   orc_union64 var46;
   orc_union16 var47;

@@ -3,11 +3,11 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>vc1parser</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="codecparsers.html" title="Bitstream parsing Library">
 <link rel="prev" href="gst-plugins-bad-libs-mpeg4parser.html" title="mpeg4parser">
-<link rel="next" href="video.html" title="Base video element classes">
+<link rel="next" href="gst-plugins-bad-libs-gstmpegvideometa.html" title="gstmpegvideometa">
 <meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -18,7 +18,7 @@
 <td><a accesskey="u" href="codecparsers.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
 <th width="100%" align="center">GStreamer Bad Plugins 1.0 Library Reference Manual</th>
-<td><a accesskey="n" href="video.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+<td><a accesskey="n" href="gst-plugins-bad-libs-gstmpegvideometa.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
 <tr><td colspan="5" class="shortcuts">
 <a href="#gst-plugins-bad-libs-vc1parser.synopsis" class="shortcut">Top</a>
@@ -546,8 +546,11 @@ in use.
   guint8  intcompfield;
 };
 </pre>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><span class="type">GstVC1FrameCodingMode</span> <em class="structfield"><code><a name="GstVC1PicAdvanced.fcm"></a>fcm</code></em>;</span></p></td>
@@ -784,8 +787,11 @@ in use.
   guint8 directmb; /* B pic main profile only */
 };
 </pre>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstVC1PicSimpleMain.frmcnt"></a>frmcnt</code></em>;</span></p></td>
@@ -881,13 +887,13 @@ in use.
   guint8 dquantfrm;
   guint8 dqprofile;
 
-  /* if dqprofile == GST_VC1_DQPROFILE_SINGLE_EDGE
-   * or GST_VC1_DQPROFILE_DOUBLE_EDGE:*/
-  guint8 dqsbedge;
-
-  /* if dqprofile == GST_VC1_DQPROFILE_SINGLE_EDGE
-   * or GST_VC1_DQPROFILE_DOUBLE_EDGE:*/
+  /* Boundary edge selection. This represents DQSBEDGE
+   * if dqprofile == GST_VC1_DQPROFILE_SINGLE_EDGE or
+   * DQDBEDGE if dqprofile == GST_VC1_DQPROFILE_DOUBLE_EDGE */
   guint8 dqbedge;
+
+  /* FIXME: remove */
+  guint8 unused;
 
   /* if dqprofile == GST_VC1_DQPROFILE_ALL_MBS */
   guint8 dqbilevel;
@@ -918,8 +924,11 @@ Structure that represents a Bitstream Data Unit.
 <p>
 Parses <em class="parameter"><code>data</code></em> and fills <em class="parameter"><code>bdu</code></em> fields
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
@@ -952,8 +961,11 @@ Parses <em class="parameter"><code>data</code></em> and fills <em class="paramet
 <p>
 Parses <em class="parameter"><code>data</code></em>, and fills <em class="parameter"><code>seqhdr</code></em> fields.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
@@ -985,8 +997,11 @@ Parses <em class="parameter"><code>data</code></em>, and fills <em class="parame
 <p>
 Parses <em class="parameter"><code>data</code></em>, and fills <em class="parameter"><code>seqlayer</code></em> fields.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
@@ -998,7 +1013,7 @@ Parses <em class="parameter"><code>data</code></em>, and fills <em class="parame
 </td>
 </tr>
 <tr>
-<td><p><span class="term"><em class="parameter"><code>structa</code></em> :</span></p></td>
+<td><p><span class="term"><em class="parameter"><code>seqlayer</code></em> :</span></p></td>
 <td>The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqLayer" title="struct GstVC1SeqLayer"><span class="type">GstVC1SeqLayer</span></a> to set.</td>
 </tr>
 <tr>
@@ -1019,8 +1034,11 @@ Parses <em class="parameter"><code>data</code></em>, and fills <em class="parame
 <p>
 Parses <em class="parameter"><code>data</code></em>, and fills <em class="parameter"><code>structa</code></em> fields.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
@@ -1053,8 +1071,11 @@ Parses <em class="parameter"><code>data</code></em>, and fills <em class="parame
 <p>
 Parses <em class="parameter"><code>data</code></em>, and fills <em class="parameter"><code>structb</code></em> fields.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
@@ -1066,7 +1087,7 @@ Parses <em class="parameter"><code>data</code></em>, and fills <em class="parame
 </td>
 </tr>
 <tr>
-<td><p><span class="term"><em class="parameter"><code>structa</code></em> :</span></p></td>
+<td><p><span class="term"><em class="parameter"><code>structb</code></em> :</span></p></td>
 <td>The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqStructB" title="struct GstVC1SeqStructB"><span class="type">GstVC1SeqStructB</span></a> to set.</td>
 </tr>
 <tr>
@@ -1087,8 +1108,11 @@ Parses <em class="parameter"><code>data</code></em>, and fills <em class="parame
 <p>
 Parses <em class="parameter"><code>data</code></em>, and fills <em class="parameter"><code>structc</code></em> fields.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
@@ -1121,8 +1145,11 @@ Parses <em class="parameter"><code>data</code></em>, and fills <em class="parame
 <p>
 Parses <em class="parameter"><code>data</code></em>, and sets <em class="parameter"><code>entrypoint</code></em> fields.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
@@ -1161,8 +1188,11 @@ Parses <em class="parameter"><code>data</code></em>, and sets <em class="paramet
 <p>
 Parses <em class="parameter"><code>data</code></em>, and fills <em class="parameter"><code>entrypoint</code></em> fields.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
@@ -1202,20 +1232,16 @@ Parses <em class="parameter"><code>data</code></em>, and fills <em class="parame
 Creates a new <span class="type">GstVC1BitPlanes</span>. It should be freed with
 <a class="link" href="gst-plugins-bad-libs-vc1parser.html#gst-vc1-bitplanes-free" title="gst_vc1_bitplanes_free ()"><code class="function">gst_vc1_bitplanes_free()</code></a> after use.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>seqhdr</code></em> :</span></p></td>
-<td>The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqHdr" title="struct GstVC1SeqHdr"><span class="type">GstVC1SeqHdr</span></a> from which to set <em class="parameter"><code>bitplanes</code></em>
-</td>
-</tr>
-<tr>
+<col>
+</colgroup>
+<tbody><tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
 <td>a new <span class="type">GstVC1BitPlanes</span>
 </td>
-</tr>
-</tbody>
+</tr></tbody>
 </table></div>
 </div>
 <hr>
@@ -1239,8 +1265,11 @@ should be called after <a class="link" href="gst-plugins-bad-libs-vc1parser.html
 in simple or main mode, or after <a class="link" href="gst-plugins-bad-libs-vc1parser.html#gst-vc1-parse-entry-point-header" title="gst_vc1_parse_entry_point_header ()"><span class="type">gst_vc1_parse_entry_point_header</span></a>
 if in advanced mode.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bitplanes</code></em> :</span></p></td>

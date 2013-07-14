@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Ole André Vadla Ravnås <oravnas@cisco.com>
+ * Copyright (C) 2010 Ole André Vadla Ravnås <oleavr@soundrop.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef __GST_CORE_VIDEO_BUFFER_H__
@@ -24,7 +24,7 @@
 #include <gst/video/video.h>
 #include <gst/video/gstvideometa.h>
 
-#include "coremediactx.h"
+#include "CoreVideo/CoreVideo.h"
 
 G_BEGIN_DECLS
 
@@ -36,13 +36,11 @@ typedef struct _GstCoreVideoMeta
 {
   GstMeta meta;
 
-  GstCoreMediaCtx *ctx;
   CVBufferRef cvbuf;
   CVPixelBufferRef pixbuf;
 } GstCoreVideoMeta;
 
-GstBuffer * gst_core_video_buffer_new      (GstCoreMediaCtx * ctx,
-                                            CVBufferRef cvbuf,
+GstBuffer * gst_core_video_buffer_new      (CVBufferRef cvbuf,
                                             GstVideoInfo *info);
 GType gst_core_video_meta_api_get_type (void);
 

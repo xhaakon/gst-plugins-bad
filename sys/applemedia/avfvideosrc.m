@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Ole André Vadla Ravnås <oravnas@cisco.com>
+ * Copyright (C) 2010 Ole André Vadla Ravnås <oleavr@soundrop.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -13,22 +13,19 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #include "avfvideosrc.h"
 
-#import "bufferfactory.h"
-
 #import <AVFoundation/AVFoundation.h>
 #include <gst/video/video.h>
+#include "coremediabuffer.h"
 
 #define DEFAULT_DEVICE_INDEX  -1
 #define DEFAULT_DO_STATS      FALSE
 
-#define DEVICE_VIDEO_FORMAT   GST_VIDEO_FORMAT_YUY2
-#define DEVICE_YUV_FOURCC     "YUY2"
 #define DEVICE_FPS_N          25
 #define DEVICE_FPS_D          1
 
@@ -37,11 +34,36 @@
 GST_DEBUG_CATEGORY (gst_avf_video_src_debug);
 #define GST_CAT_DEFAULT gst_avf_video_src_debug
 
+#define VIDEO_CAPS_YUV(width, height) "video/x-raw-yuv, "       \
+    "format = (fourcc) { NV12, UYVY, YUY2 }, "                  \
+    "framerate = " GST_VIDEO_FPS_RANGE ", "                     \
+    "width = (int) " G_STRINGIFY (width) ", height = (int) " G_STRINGIFY (height)
+
+#define VIDEO_CAPS_BGRA(width, height) "video/x-raw-rgb, "      \
+    "bpp = (int) 32, "                                          \
+    "depth = (int) 32, "                                        \
+    "endianness = (int) BIG_ENDIAN, "                           \
+    "red_mask = (int) " GST_VIDEO_BYTE3_MASK_32 ", "            \
+    "green_mask = (int) " GST_VIDEO_BYTE2_MASK_32 ", "          \
+    "blue_mask = (int) " GST_VIDEO_BYTE1_MASK_32 ", "           \
+    "alpha_mask = (int) " GST_VIDEO_BYTE4_MASK_32 ", "          \
+    "width = (int) " G_STRINGIFY (width) ", height = (int) " G_STRINGIFY (height)
+
 static GstStaticPadTemplate src_template = GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (
-        GST_VIDEO_CAPS_YUV (DEVICE_YUV_FOURCC))
+    GST_STATIC_CAPS (VIDEO_CAPS_YUV (192, 144) ";"
+        VIDEO_CAPS_YUV (480, 360) ";"
+        VIDEO_CAPS_YUV (352, 288) ";"
+        VIDEO_CAPS_YUV (640, 480) ";"
+        VIDEO_CAPS_YUV (1280, 720) ";"
+        VIDEO_CAPS_YUV (1920, 1280) ";"
+        VIDEO_CAPS_BGRA (192, 144) ";"
+        VIDEO_CAPS_BGRA (480, 360) ";"
+        VIDEO_CAPS_BGRA (352, 288) ";"
+        VIDEO_CAPS_BGRA (640, 480) ";"
+        VIDEO_CAPS_BGRA (1280, 720) ";"
+        VIDEO_CAPS_BGRA (1920, 1280))
 );
 
 typedef enum _QueueState {
@@ -59,7 +81,6 @@ static GstPushSrcClass * parent_class;
   gint deviceIndex;
   BOOL doStats;
 
-  GstAMBufferFactory *bufferFactory;
   AVCaptureSession *session;
   AVCaptureDeviceInput *input;
   AVCaptureVideoDataOutput *output;
@@ -71,6 +92,7 @@ static GstPushSrcClass * parent_class;
   NSMutableArray *bufQueue;
   BOOL stopRequest;
 
+  GstVideoFormat format;
   gint width, height;
   GstClockTime duration;
   guint64 offset;
@@ -152,15 +174,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (BOOL)openDevice
 {
   BOOL success = NO, *successPtr = &success;
-  GError *error;
-
-  bufferFactory = [[GstAMBufferFactory alloc] initWithError:&error];
-  if (bufferFactory == nil) {
-    GST_ELEMENT_ERROR (element, RESOURCE, FAILED, ("API error"),
-        ("%s", error->message));
-    g_clear_error (&error);
-    return NO;
-  }
 
   dispatch_async (mainQueue, ^{
     NSString *mediaType = AVMediaTypeVideo;
@@ -215,11 +228,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
   });
   [self waitForMainQueueToDrain];
 
-  if (!success) {
-    [bufferFactory release];
-    bufferFactory = nil;
-  }
-
   return success;
 }
 
@@ -244,47 +252,75 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     device = nil;
   });
   [self waitForMainQueueToDrain];
-
-  [bufferFactory release];
-  bufferFactory = nil;
 }
 
-#define GST_AVF_CAPS_NEW(w, h) \
-    (gst_video_format_new_caps (DEVICE_VIDEO_FORMAT, w, h, \
+#define GST_AVF_CAPS_NEW(format, w, h)                    \
+    (gst_video_format_new_caps (format, w, h, \
                                 DEVICE_FPS_N, DEVICE_FPS_D, 1, 1))
 
 - (GstCaps *)getCaps
 {
   GstCaps *result;
+  NSArray *formats;
 
   if (session == nil)
     return NULL; /* BaseSrc will return template caps */
+ 
+  result = gst_caps_new_empty ();
 
-  result = GST_AVF_CAPS_NEW (192, 144);
-  if ([session canSetSessionPreset:AVCaptureSessionPresetMedium])
-    gst_caps_merge (result, GST_AVF_CAPS_NEW (480, 360));
-  if ([session canSetSessionPreset:AVCaptureSessionPreset640x480])
-    gst_caps_merge (result, GST_AVF_CAPS_NEW (640, 480));
-  if ([session canSetSessionPreset:AVCaptureSessionPreset1280x720])
-    gst_caps_merge (result, GST_AVF_CAPS_NEW (1280, 720));
+  formats = output.availableVideoCVPixelFormatTypes;
+  for (id object in formats) {
+    NSNumber *nsformat = object;
+    GstVideoFormat gstformat = GST_VIDEO_FORMAT_UNKNOWN;
+
+    switch ([nsformat integerValue]) {
+    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: /* 420v */
+      gstformat = GST_VIDEO_FORMAT_NV12;
+      break;
+    case kCVPixelFormatType_422YpCbCr8: /* 2vuy */
+      gstformat = GST_VIDEO_FORMAT_UYVY;
+      break;
+    case kCVPixelFormatType_32BGRA: /* BGRA */
+      gstformat = GST_VIDEO_FORMAT_BGRA;
+      break;
+    case kCVPixelFormatType_422YpCbCr8_yuvs: /* yuvs */
+      gstformat = GST_VIDEO_FORMAT_YUY2;
+      break;
+    default:
+      continue;
+    }
+
+    gst_caps_append (result, GST_AVF_CAPS_NEW (gstformat, 192, 144));
+    if ([session canSetSessionPreset:AVCaptureSessionPreset352x288])
+      gst_caps_append (result, GST_AVF_CAPS_NEW (gstformat, 352, 288));
+    if ([session canSetSessionPreset:AVCaptureSessionPresetMedium])
+      gst_caps_append (result, GST_AVF_CAPS_NEW (gstformat, 480, 360));
+    if ([session canSetSessionPreset:AVCaptureSessionPreset640x480]) 
+      gst_caps_append (result, GST_AVF_CAPS_NEW (gstformat, 640, 480));
+    if ([session canSetSessionPreset:AVCaptureSessionPreset1280x720])
+      gst_caps_append (result, GST_AVF_CAPS_NEW (gstformat, 1280, 720));
+    if ([session canSetSessionPreset:AVCaptureSessionPreset1920x1080])
+      gst_caps_append (result, GST_AVF_CAPS_NEW (gstformat, 1920, 1080));
+  }
 
   return result;
 }
 
 - (BOOL)setCaps:(GstCaps *)caps
 {
-  GstStructure *s;
-
-  s = gst_caps_get_structure (caps, 0);
-  gst_structure_get_int (s, "width", &width);
-  gst_structure_get_int (s, "height", &height);
+  gst_video_format_parse_caps (caps, &format, &width, &height);
 
   dispatch_async (mainQueue, ^{
+    int newformat;
+
     g_assert (![session isRunning]);
 
     switch (width) {
       case 192:
         session.sessionPreset = AVCaptureSessionPresetLow;
+        break;
+      case 352:
+        session.sessionPreset = AVCaptureSessionPreset352x288;
         break;
       case 480:
         session.sessionPreset = AVCaptureSessionPresetMedium;
@@ -295,9 +331,37 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
       case 1280:
         session.sessionPreset = AVCaptureSessionPreset1280x720;
         break;
+      case 1920:
+        session.sessionPreset = AVCaptureSessionPreset1920x1080;
+        break;
       default:
         g_assert_not_reached ();
     }
+
+    switch (format) {
+      case GST_VIDEO_FORMAT_NV12:
+        newformat = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange;
+        break;
+      case GST_VIDEO_FORMAT_UYVY:
+         newformat = kCVPixelFormatType_422YpCbCr8;
+        break;
+      case GST_VIDEO_FORMAT_YUY2:
+         newformat = kCVPixelFormatType_422YpCbCr8_yuvs;
+        break;
+      case GST_VIDEO_FORMAT_BGRA:
+         newformat = kCVPixelFormatType_32BGRA;
+        break;
+      default:
+        g_assert_not_reached ();
+    }
+
+    GST_DEBUG_OBJECT(element,
+       "Width: %d Height: %d Format: %" GST_FOURCC_FORMAT,
+       width, height,
+       GST_FOURCC_ARGS (gst_video_format_to_fourc(format)));
+
+
+    output.videoSettings = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:newformat] forKey:(NSString*)kCVPixelBu
 
     [session startRunning];
   });
@@ -430,7 +494,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
   [bufQueueLock unlockWithCondition:
       ([bufQueue count] == 0) ? NO_BUFFERS : HAS_BUFFER_OR_STOP_REQUEST];
 
-  *buf = [bufferFactory createGstBufferForSampleBuffer:sbuf];
+  *buf = gst_core_media_buffer_new (sbuf);
   CFRelease (sbuf);
 
   [self timestampBuffer:*buf];
@@ -518,7 +582,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)waitForQueueToDrain:(dispatch_queue_t)dispatchQueue
 {
-  dispatch_sync (dispatchQueue, ^{});
+  if (dispatchQueue != dispatch_get_current_queue())
+      dispatch_sync (dispatchQueue, ^{});
 }
 
 @end
@@ -565,7 +630,7 @@ gst_avf_video_src_base_init (gpointer gclass)
   gst_element_class_set_metadata (element_class,
       "Video Source (AVFoundation)", "Source/Video",
       "Reads frames from an iOS AVFoundation device",
-      "Ole André Vadla Ravnås <oravnas@cisco.com>");
+      "Ole André Vadla Ravnås <oleavr@soundrop.com>");
 
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&src_template));

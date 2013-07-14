@@ -15,8 +15,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef __GST_SHM_SINK_H__
@@ -40,6 +40,7 @@ G_BEGIN_DECLS
   (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_SHM_SINK))
 typedef struct _GstShmSink GstShmSink;
 typedef struct _GstShmSinkClass GstShmSinkClass;
+typedef struct _GstShmSinkAllocator GstShmSinkAllocator;
 
 struct _GstShmSink
 {
@@ -63,7 +64,11 @@ struct _GstShmSink
   gboolean unlock;
   GstClockTimeDiff buffer_time;
 
-  GCond *cond;
+  GCond cond;
+
+  GstShmSinkAllocator *allocator;
+
+  GstAllocationParams params;
 };
 
 struct _GstShmSinkClass

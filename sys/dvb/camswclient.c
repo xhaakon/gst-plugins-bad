@@ -17,8 +17,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #include <sys/types.h>
@@ -32,7 +32,6 @@
 
 #include "camswclient.h"
 #include "cam.h"
-#include "camutils.h"
 
 #define GST_CAT_DEFAULT cam_debug_cat
 #define UNIX_PATH_MAX 108
@@ -111,7 +110,7 @@ cam_sw_client_close (CamSwClient * client)
 }
 
 static void
-send_ca_pmt (CamSwClient * client, GstStructure * pmt,
+send_ca_pmt (CamSwClient * client, GstMpegTsPMT * pmt,
     guint8 list_management, guint8 cmd_id)
 {
   guint8 *buffer;
@@ -146,7 +145,7 @@ send_ca_pmt (CamSwClient * client, GstStructure * pmt,
 }
 
 void
-cam_sw_client_set_pmt (CamSwClient * client, GstStructure * pmt)
+cam_sw_client_set_pmt (CamSwClient * client, GstMpegTsPMT * pmt)
 {
   g_return_if_fail (client != NULL);
   g_return_if_fail (pmt != NULL);
@@ -156,7 +155,7 @@ cam_sw_client_set_pmt (CamSwClient * client, GstStructure * pmt)
 }
 
 void
-cam_sw_client_update_pmt (CamSwClient * client, GstStructure * pmt)
+cam_sw_client_update_pmt (CamSwClient * client, GstMpegTsPMT * pmt)
 {
   g_return_if_fail (client != NULL);
   g_return_if_fail (pmt != NULL);

@@ -12,8 +12,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  *
  */
 
@@ -21,6 +21,7 @@
 #include "config.h"
 #endif
 
+#include <gst/mpegts/mpegts.h>
 #include "mpegtsbase.h"
 #include "mpegtspacketizer.h"
 #include "mpegtsparse.h"
@@ -30,6 +31,7 @@
 static gboolean
 plugin_init (GstPlugin * plugin)
 {
+  gst_mpegts_initialize ();
   if (!gst_mpegtsbase_plugin_init (plugin))
     return FALSE;
   if (!gst_mpegtsparse_plugin_init (plugin))

@@ -23,8 +23,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -227,7 +227,7 @@ gst_ts_demux_program_stopped (MpegTSBase * base, MpegTSBaseProgram * program);
 static void gst_ts_demux_reset (MpegTSBase * base);
 static GstFlowReturn
 gst_ts_demux_push (MpegTSBase * base, MpegTSPacketizerPacket * packet,
-    MpegTSPacketizerSection * section);
+    GstMpegTsSection * section);
 static void gst_ts_demux_flush (MpegTSBase * base, gboolean hard);
 static void
 gst_ts_demux_stream_added (MpegTSBase * base, MpegTSBaseStream * stream,
@@ -335,9 +335,14 @@ gst_ts_demux_reset (MpegTSBase * base)
 static void
 gst_ts_demux_init (GstTSDemux * demux)
 {
-  GST_MPEGTS_BASE (demux)->stream_size = sizeof (TSDemuxStream);
+  MpegTSBase *base = (MpegTSBase *) demux;
 
-  gst_ts_demux_reset ((MpegTSBase *) demux);
+  base->stream_size = sizeof (TSDemuxStream);
+  base->parse_private_sections = TRUE;
+  /* We are not interested in sections (all handled by mpegtsbase) */
+  base->push_section = FALSE;
+
+  gst_ts_demux_reset (base);
 }
 
 
@@ -634,11 +639,20 @@ done:
 static void
 gst_ts_demux_create_tags (TSDemuxStream * stream)
 {
-  guint8 *desc = NULL;
+  MpegTSBaseStream *bstream = (MpegTSBaseStream *) stream;
+  const guint8 *desc = NULL;
   int i;
 
-  desc = mpegts_get_descriptor_from_stream ((MpegTSBaseStream *) stream,
-      DESC_ISO_639_LANGUAGE);
+  desc =
+      mpegts_get_descriptor_from_stream (bstream,
+      GST_MTS_DESC_ISO_639_LANGUAGE);
+
+  if (!desc) {
+    desc =
+        mpegts_get_descriptor_from_stream (bstream,
+        GST_MTS_DESC_DVB_SUBTITLING);
+  }
+
   if (desc) {
     if (!stream->taglist)
       stream->taglist = gst_tag_list_new_empty ();
@@ -668,8 +682,6 @@ gst_ts_demux_create_tags (TSDemuxStream * stream)
       gst_tag_list_add (stream->taglist, GST_TAG_MERGE_REPLACE,
           GST_TAG_LANGUAGE_CODE, (lc) ? lc : lang_code, NULL);
     }
-
-    g_free (desc);
   }
 }
 
@@ -681,7 +693,7 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
   gchar *name = NULL;
   GstCaps *caps = NULL;
   GstPadTemplate *template = NULL;
-  guint8 *desc = NULL;
+  const guint8 *desc = NULL;
   GstPad *pad = NULL;
 
   gst_ts_demux_create_tags (stream);
@@ -689,20 +701,77 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
   GST_LOG ("Attempting to create pad for stream 0x%04x with stream_type %d",
       bstream->pid, bstream->stream_type);
 
+  /* First handle BluRay-specific stream types since there is some overlap
+   * between BluRay and non-BluRay streay type identifiers */
+  if (program->registration_id == DRF_ID_HDMV) {
+    switch (bstream->stream_type) {
+      case ST_BD_AUDIO_AC3:
+      {
+        const guint8 *ac3_desc;
+
+        /* ATSC ac3 audio descriptor */
+        ac3_desc =
+            mpegts_get_descriptor_from_stream (bstream,
+            GST_MTS_DESC_AC3_AUDIO_STREAM);
+        if (ac3_desc && DESC_AC_AUDIO_STREAM_bsid (ac3_desc) != 16) {
+          GST_LOG ("ac3 audio");
+          template = gst_static_pad_template_get (&audio_template);
+          name = g_strdup_printf ("audio_%04x", bstream->pid);
+          caps = gst_caps_new_empty_simple ("audio/x-ac3");
+        } else {
+          template = gst_static_pad_template_get (&audio_template);
+          name = g_strdup_printf ("audio_%04x", bstream->pid);
+          caps = gst_caps_new_empty_simple ("audio/x-eac3");
+        }
+        break;
+      }
+      case ST_BD_AUDIO_EAC3:
+        template = gst_static_pad_template_get (&audio_template);
+        name = g_strdup_printf ("audio_%04x", bstream->pid);
+        caps = gst_caps_new_empty_simple ("audio/x-eac3");
+        break;
+      case ST_BD_AUDIO_AC3_TRUE_HD:
+        template = gst_static_pad_template_get (&audio_template);
+        name = g_strdup_printf ("audio_%04x", bstream->pid);
+        caps = gst_caps_new_empty_simple ("audio/x-true-hd");
+        break;
+      case ST_BD_AUDIO_LPCM:
+        template = gst_static_pad_template_get (&audio_template);
+        name = g_strdup_printf ("audio_%04x", bstream->pid);
+        caps = gst_caps_new_empty_simple ("audio/x-private-ts-lpcm");
+        break;
+      case ST_BD_PGS_SUBPICTURE:
+        template = gst_static_pad_template_get (&subpicture_template);
+        name = g_strdup_printf ("subpicture_%04x", bstream->pid);
+        caps = gst_caps_new_empty_simple ("subpicture/x-pgs");
+        break;
+    }
+  }
+  if (template && name && caps)
+    goto done;
+
+  /* Handle non-BluRay stream types */
   switch (bstream->stream_type) {
-    case ST_VIDEO_MPEG1:
-    case ST_VIDEO_MPEG2:
+    case GST_MPEG_TS_STREAM_TYPE_VIDEO_MPEG1:
+    case GST_MPEG_TS_STREAM_TYPE_VIDEO_MPEG2:
+    case ST_PS_VIDEO_MPEG2_DCII:
+      /* FIXME : Use DCII registration code (ETV1 ?) to handle that special
+       * Stream type (ST_PS_VIDEO_MPEG2_DCII) */
+      /* FIXME : Use video decriptor (0x1) to refine caps with:
+       * * frame_rate
+       * * profile_and_level
+       */
       GST_LOG ("mpeg video");
       template = gst_static_pad_template_get (&video_template);
       name = g_strdup_printf ("video_%04x", bstream->pid);
       caps = gst_caps_new_simple ("video/mpeg",
           "mpegversion", G_TYPE_INT,
-          bstream->stream_type == ST_VIDEO_MPEG1 ? 1 : 2, "systemstream",
-          G_TYPE_BOOLEAN, FALSE, NULL);
+          bstream->stream_type == GST_MPEG_TS_STREAM_TYPE_VIDEO_MPEG1 ? 1 : 2,
+          "systemstream", G_TYPE_BOOLEAN, FALSE, NULL);
 
       break;
-    case ST_AUDIO_MPEG1:
-    case ST_AUDIO_MPEG2:
+    case GST_MPEG_TS_STREAM_TYPE_AUDIO_MPEG1:
+    case GST_MPEG_TS_STREAM_TYPE_AUDIO_MPEG2:
       GST_LOG ("mpeg audio");
       template = gst_static_pad_template_get (&audio_template);
       name = g_strdup_printf ("audio_%04x", bstream->pid);
@@ -710,66 +779,66 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
           gst_caps_new_simple ("audio/mpeg", "mpegversion", G_TYPE_INT, 1,
           NULL);
       break;
-    case ST_PRIVATE_DATA:
+    case GST_MPEG_TS_STREAM_TYPE_PRIVATE_PES_PACKETS:
       GST_LOG ("private data");
-      desc = mpegts_get_descriptor_from_stream ((MpegTSBaseStream *) stream,
-          DESC_DVB_AC3);
+      /* FIXME: Move all of this into a common method (there might be other
+       * types also, depending on registratino descriptors also
+       */
+      desc = mpegts_get_descriptor_from_stream (bstream, GST_MTS_DESC_DVB_AC3);
       if (desc) {
         GST_LOG ("ac3 audio");
         template = gst_static_pad_template_get (&audio_template);
         name = g_strdup_printf ("audio_%04x", bstream->pid);
         caps = gst_caps_new_empty_simple ("audio/x-ac3");
-        g_free (desc);
         break;
       }
 
-      desc = mpegts_get_descriptor_from_stream ((MpegTSBaseStream *) stream,
-          DESC_DVB_ENHANCED_AC3);
+      desc =
+          mpegts_get_descriptor_from_stream (bstream,
+          GST_MTS_DESC_DVB_ENHANCED_AC3);
       if (desc) {
         GST_LOG ("ac3 audio");
         template = gst_static_pad_template_get (&audio_template);
         name = g_strdup_printf ("audio_%04x", bstream->pid);
         caps = gst_caps_new_empty_simple ("audio/x-eac3");
-        g_free (desc);
         break;
       }
-      desc = mpegts_get_descriptor_from_stream ((MpegTSBaseStream *) stream,
-          DESC_DVB_TELETEXT);
+      desc =
+          mpegts_get_descriptor_from_stream (bstream,
+          GST_MTS_DESC_DVB_TELETEXT);
       if (desc) {
         GST_LOG ("teletext");
         template = gst_static_pad_template_get (&private_template);
         name = g_strdup_printf ("private_%04x", bstream->pid);
         caps = gst_caps_new_empty_simple ("private/teletext");
-        g_free (desc);
         break;
       }
       desc =
-          mpegts_get_descriptor_from_stream ((MpegTSBaseStream *) stream,
-          DESC_DVB_SUBTITLING);
+          mpegts_get_descriptor_from_stream (bstream,
+          GST_MTS_DESC_DVB_SUBTITLING);
       if (desc) {
         GST_LOG ("subtitling");
         template = gst_static_pad_template_get (&private_template);
         name = g_strdup_printf ("private_%04x", bstream->pid);
         caps = gst_caps_new_empty_simple ("subpicture/x-dvb");
-        g_free (desc);
         break;
       }
 
-      desc = mpegts_get_descriptor_from_stream ((MpegTSBaseStream *) stream,
-          DESC_REGISTRATION);
-      if (desc) {
-        switch (DESC_REGISTRATION_format_identifier (desc)) {
-          case DRF_ID_DTS1:
-          case DRF_ID_DTS2:
-          case DRF_ID_DTS3:
-            /* SMPTE registered DTS */
-            GST_LOG ("subtitling");
-            template = gst_static_pad_template_get (&private_template);
-            name = g_strdup_printf ("private_%04x", bstream->pid);
-            caps = gst_caps_new_empty_simple ("audio/x-dts");
-            break;
-        }
-        g_free (desc);
+      switch (bstream->registration_id) {
+        case DRF_ID_DTS1:
+        case DRF_ID_DTS2:
+        case DRF_ID_DTS3:
+          /* SMPTE registered DTS */
+          GST_LOG ("subtitling");
+          template = gst_static_pad_template_get (&private_template);
+          name = g_strdup_printf ("private_%04x", bstream->pid);
+          caps = gst_caps_new_empty_simple ("audio/x-dts");
+          break;
+        case DRF_ID_S302M:
+          template = gst_static_pad_template_get (&audio_template);
+          name = g_strdup_printf ("audio_%04x", bstream->pid);
+          caps = gst_caps_new_empty_simple ("audio/x-smpte-302m");
+          break;
       }
       if (template)
         break;
@@ -784,48 +853,41 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
       }
       break;
     case ST_HDV_AUX_V:
+      /* FIXME : Should only be used with specific PMT registration_descriptor */
       /* We don't expose those streams since they're only helper streams */
       /* template = gst_static_pad_template_get (&private_template); */
       /* name = g_strdup_printf ("private_%04x", bstream->pid); */
       /* caps = gst_caps_new_simple ("hdv/aux-v", NULL); */
       break;
     case ST_HDV_AUX_A:
+      /* FIXME : Should only be used with specific PMT registration_descriptor */
       /* We don't expose those streams since they're only helper streams */
       /* template = gst_static_pad_template_get (&private_template); */
       /* name = g_strdup_printf ("private_%04x", bstream->pid); */
       /* caps = gst_caps_new_simple ("hdv/aux-a", NULL); */
       break;
-    case ST_PRIVATE_SECTIONS:
-    case ST_MHEG:
-    case ST_DSMCC:
-    case ST_DSMCC_A:
-    case ST_DSMCC_B:
-    case ST_DSMCC_C:
-    case ST_DSMCC_D:
-      MPEGTS_BIT_UNSET (base->is_pes, bstream->pid);
-      break;
-    case ST_AUDIO_AAC_ADTS:
+    case GST_MPEG_TS_STREAM_TYPE_AUDIO_AAC_ADTS:
       template = gst_static_pad_template_get (&audio_template);
       name = g_strdup_printf ("audio_%04x", bstream->pid);
       caps = gst_caps_new_simple ("audio/mpeg",
           "mpegversion", G_TYPE_INT, 2,
           "stream-format", G_TYPE_STRING, "adts", NULL);
       break;
-    case ST_AUDIO_AAC_LATM:
+    case GST_MPEG_TS_STREAM_TYPE_AUDIO_AAC_LATM:
       template = gst_static_pad_template_get (&audio_template);
       name = g_strdup_printf ("audio_%04x", bstream->pid);
       caps = gst_caps_new_simple ("audio/mpeg",
           "mpegversion", G_TYPE_INT, 4,
           "stream-format", G_TYPE_STRING, "loas", NULL);
       break;
-    case ST_VIDEO_MPEG4:
+    case GST_MPEG_TS_STREAM_TYPE_VIDEO_MPEG4:
       template = gst_static_pad_template_get (&video_template);
       name = g_strdup_printf ("video_%04x", bstream->pid);
       caps = gst_caps_new_simple ("video/mpeg",
           "mpegversion", G_TYPE_INT, 4,
           "systemstream", G_TYPE_BOOLEAN, FALSE, NULL);
       break;
-    case ST_VIDEO_H264:
+    case GST_MPEG_TS_STREAM_TYPE_VIDEO_H264:
       template = gst_static_pad_template_get (&video_template);
       name = g_strdup_printf ("video_%04x", bstream->pid);
       caps = gst_caps_new_simple ("video/x-h264",
@@ -833,36 +895,23 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
           "alignment", G_TYPE_STRING, "nal", NULL);
       break;
     case ST_VIDEO_DIRAC:
-      desc =
-          mpegts_get_descriptor_from_stream ((MpegTSBaseStream *) stream,
-          DESC_REGISTRATION);
-      if (desc) {
-        if (DESC_LENGTH (desc) >= 4) {
-          if (DESC_REGISTRATION_format_identifier (desc) == 0x64726163) {
-            GST_LOG ("dirac");
-            /* dirac in hex */
-            template = gst_static_pad_template_get (&video_template);
-            name = g_strdup_printf ("video_%04x", bstream->pid);
-            caps = gst_caps_new_empty_simple ("video/x-dirac");
-          }
-        }
-        g_free (desc);
+      if (bstream->registration_id == 0x64726163) {
+        GST_LOG ("dirac");
+        /* dirac in hex */
+        template = gst_static_pad_template_get (&video_template);
+        name = g_strdup_printf ("video_%04x", bstream->pid);
+        caps = gst_caps_new_empty_simple ("video/x-dirac");
       }
       break;
     case ST_PRIVATE_EA:        /* Try to detect a VC1 stream */
     {
       gboolean is_vc1 = FALSE;
-      desc =
-          mpegts_get_descriptor_from_stream ((MpegTSBaseStream *) stream,
-          DESC_REGISTRATION);
-      if (desc) {
-        if (DESC_LENGTH (desc) >= 4) {
-          if (DESC_REGISTRATION_format_identifier (desc) == DRF_ID_VC1) {
-            is_vc1 = TRUE;
-          }
-        }
-        g_free (desc);
-      }
+
+      /* Note/FIXME: RP-227 specifies that the registration descriptor
+       * for vc1 can also contain other information, such as profile,
+       * level, alignment, buffer_size, .... */
+      if (bstream->registration_id == DRF_ID_VC1)
+        is_vc1 = TRUE;
       if (!is_vc1) {
         GST_WARNING ("0xea private stream type found but no descriptor "
             "for VC1. Assuming plain VC1.");
@@ -875,69 +924,27 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
 
       break;
     }
-    case ST_BD_AUDIO_AC3:
-    {
-      /* REGISTRATION DRF_ID_HDMV */
-      desc = mpegts_get_descriptor_from_program (program, DESC_REGISTRATION);
-      if (desc) {
-        if (DESC_REGISTRATION_format_identifier (desc) == DRF_ID_HDMV) {
-          guint8 *ac3_desc;
-
-          /* ATSC ac3 audio descriptor */
-          ac3_desc =
-              mpegts_get_descriptor_from_stream ((MpegTSBaseStream *) stream,
-              DESC_AC3_AUDIO_STREAM);
-          if (ac3_desc && DESC_AC_AUDIO_STREAM_bsid (ac3_desc) != 16) {
-            GST_LOG ("ac3 audio");
-            template = gst_static_pad_template_get (&audio_template);
-            name = g_strdup_printf ("audio_%04x", bstream->pid);
-            caps = gst_caps_new_empty_simple ("audio/x-ac3");
-
-            g_free (ac3_desc);
-          } else {
-            template = gst_static_pad_template_get (&audio_template);
-            name = g_strdup_printf ("audio_%04x", bstream->pid);
-            caps = gst_caps_new_empty_simple ("audio/x-eac3");
-          }
-
-        }
-
-        g_free (desc);
-      }
-      if (template)
-        break;
-
-
+    case ST_PS_AUDIO_AC3:
       /* DVB_ENHANCED_AC3 */
-      desc = mpegts_get_descriptor_from_stream ((MpegTSBaseStream *) stream,
-          DESC_DVB_ENHANCED_AC3);
+      desc =
+          mpegts_get_descriptor_from_stream (bstream,
+          GST_MTS_DESC_DVB_ENHANCED_AC3);
       if (desc) {
         template = gst_static_pad_template_get (&audio_template);
         name = g_strdup_printf ("audio_%04x", bstream->pid);
         caps = gst_caps_new_empty_simple ("audio/x-eac3");
-        g_free (desc);
         break;
       }
 
       /* DVB_AC3 */
-      desc =
-          mpegts_get_descriptor_from_stream ((MpegTSBaseStream *) stream,
-          DESC_DVB_AC3);
+      desc = mpegts_get_descriptor_from_stream (bstream, GST_MTS_DESC_DVB_AC3);
       if (!desc)
         GST_WARNING ("AC3 stream type found but no corresponding "
             "descriptor to differentiate between AC3 and EAC3. "
             "Assuming plain AC3.");
-      else
-        g_free (desc);
       template = gst_static_pad_template_get (&audio_template);
       name = g_strdup_printf ("audio_%04x", bstream->pid);
       caps = gst_caps_new_empty_simple ("audio/x-ac3");
-      break;
-    }
-    case ST_BD_AUDIO_EAC3:
-      template = gst_static_pad_template_get (&audio_template);
-      name = g_strdup_printf ("audio_%04x", bstream->pid);
-      caps = gst_caps_new_empty_simple ("audio/x-eac3");
       break;
     case ST_PS_AUDIO_DTS:
       template = gst_static_pad_template_get (&audio_template);
@@ -949,26 +956,18 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
       name = g_strdup_printf ("audio_%04x", bstream->pid);
       caps = gst_caps_new_empty_simple ("audio/x-lpcm");
       break;
-    case ST_BD_AUDIO_LPCM:
-      template = gst_static_pad_template_get (&audio_template);
-      name = g_strdup_printf ("audio_%04x", bstream->pid);
-      caps = gst_caps_new_empty_simple ("audio/x-private-ts-lpcm");
-      break;
     case ST_PS_DVD_SUBPICTURE:
       template = gst_static_pad_template_get (&subpicture_template);
       name = g_strdup_printf ("subpicture_%04x", bstream->pid);
       caps = gst_caps_new_empty_simple ("subpicture/x-dvd");
-      break;
-    case ST_BD_PGS_SUBPICTURE:
-      template = gst_static_pad_template_get (&subpicture_template);
-      name = g_strdup_printf ("subpicture_%04x", bstream->pid);
-      caps = gst_caps_new_empty_simple ("subpicture/x-pgs");
       break;
     default:
       GST_WARNING ("Non-media stream (stream_type:0x%x). Not creating pad",
           bstream->stream_type);
       break;
   }
+
+done:
   if (template && name && caps) {
     gchar *stream_id;
 
@@ -1206,7 +1205,6 @@ static void
 gst_ts_demux_parse_pes_header (GstTSDemux * demux, TSDemuxStream * stream,
     guint8 * data, guint32 length, guint64 bufferoffset)
 {
-  MpegTSBase *base = (MpegTSBase *) demux;
   PESHeader header;
   gint offset = 0;
   PESParsingResult parseres;
@@ -1225,7 +1223,7 @@ gst_ts_demux_parse_pes_header (GstTSDemux * demux, TSDemuxStream * stream,
   gst_ts_demux_record_dts (demux, stream, header.DTS, bufferoffset);
   gst_ts_demux_record_pts (demux, stream, header.PTS, bufferoffset);
 
-  GST_DEBUG_OBJECT (base,
+  GST_DEBUG_OBJECT (demux,
       "stream PTS %" GST_TIME_FORMAT " DTS %" GST_TIME_FORMAT,
       GST_TIME_ARGS (stream->pts), GST_TIME_ARGS (stream->dts));
 
@@ -1274,29 +1272,29 @@ gst_ts_demux_queue_data (GstTSDemux * demux, TSDemuxStream * stream,
 {
   guint8 *data;
   guint size;
+  guint8 cc = FLAGS_CONTINUITY_COUNTER (packet->scram_afc_cc);
 
-  GST_DEBUG ("pid: 0x%04x state:%d", stream->stream.pid, stream->state);
+  GST_LOG ("pid: 0x%04x state:%d", stream->stream.pid, stream->state);
 
   size = packet->data_end - packet->payload;
   data = packet->payload;
 
   if (stream->continuity_counter == CONTINUITY_UNSET) {
-    GST_DEBUG ("CONTINUITY: Initialize to %d", packet->continuity_counter);
-  } else if ((packet->continuity_counter == stream->continuity_counter + 1 ||
-          (stream->continuity_counter == MAX_CONTINUITY &&
-              packet->continuity_counter == 0))) {
-    GST_LOG ("CONTINUITY: Got expected %d", packet->continuity_counter);
+    GST_DEBUG ("CONTINUITY: Initialize to %d", cc);
+  } else if ((cc == stream->continuity_counter + 1 ||
+          (stream->continuity_counter == MAX_CONTINUITY && cc == 0))) {
+    GST_LOG ("CONTINUITY: Got expected %d", cc);
   } else {
     GST_ERROR ("CONTINUITY: Mismatch packet %d, stream %d",
-        packet->continuity_counter, stream->continuity_counter);
+        cc, stream->continuity_counter);
     stream->state = PENDING_PACKET_DISCONT;
   }
-  stream->continuity_counter = packet->continuity_counter;
+  stream->continuity_counter = cc;
 
   if (stream->state == PENDING_PACKET_EMPTY) {
     if (G_UNLIKELY (!packet->payload_unit_start_indicator)) {
       stream->state = PENDING_PACKET_DISCONT;
-      GST_WARNING ("Didn't get the first packet of this PES");
+      GST_DEBUG ("Didn't get the first packet of this PES");
     } else {
       GST_LOG ("EMPTY=>HEADER");
       stream->state = PENDING_PACKET_HEADER;
@@ -1450,7 +1448,9 @@ static GstFlowReturn
 gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream)
 {
   GstFlowReturn res = GST_FLOW_OK;
+#ifndef GST_DISABLE_GST_DEBUG
   MpegTSBaseStream *bs = (MpegTSBaseStream *) stream;
+#endif
   GstBuffer *buffer = NULL;
 
   GST_DEBUG_OBJECT (stream->pad,
@@ -1521,30 +1521,23 @@ beach:
 
 static GstFlowReturn
 gst_ts_demux_handle_packet (GstTSDemux * demux, TSDemuxStream * stream,
-    MpegTSPacketizerPacket * packet, MpegTSPacketizerSection * section)
+    MpegTSPacketizerPacket * packet, GstMpegTsSection * section)
 {
   GstFlowReturn res = GST_FLOW_OK;
 
-  GST_DEBUG ("data:%p", packet->data);
   GST_LOG ("pid 0x%04x pusi:%d, afc:%d, cont:%d, payload:%p", packet->pid,
-      packet->payload_unit_start_indicator, packet->adaptation_field_control,
-      packet->continuity_counter, packet->payload);
-
-  if (section) {
-    GST_DEBUG ("section complete:%d, buffer size %d",
-        section->complete, section->section_length);
-    return res;
-  }
+      packet->payload_unit_start_indicator, packet->scram_afc_cc & 0x30,
+      FLAGS_CONTINUITY_COUNTER (packet->scram_afc_cc), packet->payload);
 
   if (G_UNLIKELY (packet->payload_unit_start_indicator) &&
-      packet->adaptation_field_control & 0x1)
+      FLAGS_HAS_PAYLOAD (packet->scram_afc_cc))
     /* Flush previous data */
     res = gst_ts_demux_push_pending_data (demux, stream);
 
   if (packet->payload && (res == GST_FLOW_OK || res == GST_FLOW_NOT_LINKED)
       && stream->pad) {
     gst_ts_demux_queue_data (demux, stream, packet);
-    GST_DEBUG ("current_size:%d, expected_size:%d",
+    GST_LOG ("current_size:%d, expected_size:%d",
         stream->current_size, stream->expected_size);
     /* Finally check if the data we queued completes a packet */
     if (stream->expected_size && stream->current_size == stream->expected_size) {
@@ -1576,7 +1569,7 @@ gst_ts_demux_flush (MpegTSBase * base, gboolean hard)
 
 static GstFlowReturn
 gst_ts_demux_push (MpegTSBase * base, MpegTSPacketizerPacket * packet,
-    MpegTSPacketizerSection * section)
+    GstMpegTsSection * section)
 {
   GstTSDemux *demux = GST_TS_DEMUX_CAST (base);
   TSDemuxStream *stream = NULL;

@@ -14,8 +14,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef __GST_MPEG4UTIL_H__
@@ -144,7 +144,7 @@ typedef enum {
 } GstMpeg4VideoObjectCodingType;
 
 /**
- * GstMpeg4ChromaFormat
+ * GstMpeg4ChromaFormat:
  *
  * The chroma format in use as
  * defined in: Table 6-13 -- Meaning of chroma_format
@@ -248,6 +248,8 @@ struct _GstMpeg4VisualObjectSequence {
 };
 
 /**
+ * GstMpeg4VisualObject:
+ *
  * The visual object structure as defined in:
  * 6.2.2 Visual Object Sequence and Visual Object
  */

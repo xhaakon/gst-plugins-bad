@@ -83,7 +83,6 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/kate/gstkatetag.h \
 	$(top_srcdir)/ext/kate/gstkatetiger.h \
 	$(top_srcdir)/ext/ladspa/gstladspa.h \
-	$(top_srcdir)/ext/musicbrainz/gsttrm.h \
 	$(top_srcdir)/ext/mimic/gstmimenc.h \
 	$(top_srcdir)/ext/mimic/gstmimdec.h \
 	$(top_srcdir)/ext/modplug/gstmodplug.h \
@@ -104,6 +103,8 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/opencv/gsttextoverlay.h \
 	$(top_srcdir)/ext/rsvg/gstrsvgdec.h \
 	$(top_srcdir)/ext/rsvg/gstrsvgoverlay.h \
+	$(top_srcdir)/ext/spandsp/gstspanplc.h \
+	$(top_srcdir)/ext/spandsp/gstdtmfdetect.h \
 	$(top_srcdir)/ext/sdl/sdlaudiosink.h \
 	$(top_srcdir)/ext/sdl/sdlvideosink.h \
 	$(top_srcdir)/ext/timidity/gsttimidity.h \
@@ -127,10 +128,6 @@ EXTRA_HFILES = \
 	$(top_srcdir)/gst/dccp/gstdccpserversink.h \
 	$(top_srcdir)/gst/dccp/gstdccpserversrc.h \
 	$(top_srcdir)/gst/debugutils/fpsdisplaysink.h \
-	$(top_srcdir)/gst/dtmf/gstdtmfsrc.h \
-	$(top_srcdir)/gst/dtmf/gstdtmfdetect.h \
-	$(top_srcdir)/gst/dtmf/gstrtpdtmfsrc.h \
-	$(top_srcdir)/gst/dtmf/gstrtpdtmfdepay.h \
 	$(top_srcdir)/gst/dvdspu/gstdvdspu.h \
 	$(top_srcdir)/gst/festival/gstfestival.h \
 	$(top_srcdir)/gst/gaudieffects/gstburn.h \
@@ -164,15 +161,10 @@ EXTRA_HFILES = \
 	$(top_srcdir)/gst/pcapparse/gstpcapparse.h \
 	$(top_srcdir)/gst/rawparse/gstaudioparse.h \
 	$(top_srcdir)/gst/rawparse/gstvideoparse.h \
-	$(top_srcdir)/gst/rtpmux/gstrtpmux.h \
-	$(top_srcdir)/gst/rtpmux/gstrtpdtmfmux.h \
-	$(top_srcdir)/gst/scaletempo/gstscaletempo.h \
 	$(top_srcdir)/gst/sdp/gstsdpdemux.h \
 	$(top_srcdir)/gst/speed/gstspeed.h \
 	$(top_srcdir)/gst/stereo/gststereo.h \
 	$(top_srcdir)/gst/videosignal/gstvideoanalyse.h \
-	$(top_srcdir)/gst/videosignal/gstvideodetect.h \
-	$(top_srcdir)/gst/videosignal/gstvideomark.h \
 	$(top_srcdir)/sys/directdraw/gstdirectdrawsink.h \
 	$(top_srcdir)/sys/dvb/gstdvbsrc.h \
 	$(top_srcdir)/sys/shm/gstshmsink.h \

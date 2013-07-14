@@ -22,8 +22,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 
@@ -57,20 +57,30 @@ typedef struct _MpegTSBaseProgram MpegTSBaseProgram;
 
 struct _MpegTSBaseStream
 {
-  guint16 pid;
-  guint8 stream_type;
-  GstStructure* stream_info;
+  guint16             pid;
+  guint8              stream_type;
+
+  /* Content of the registration descriptor (if present) */
+  guint32             registration_id;
+
+  GstMpegTsPMTStream *stream;
 };
 
 struct _MpegTSBaseProgram
 {
-  gint program_number;
-  guint16 pmt_pid;
-  guint16 pcr_pid;
-  GstStructure *pmt_info;
-  MpegTSBaseStream **streams;
-  GList *stream_list;
-  gint patcount;
+  gint                program_number;
+  guint16             pmt_pid;
+  guint16             pcr_pid;
+
+  /* Content of the registration descriptor (if present) */
+  guint32             registration_id;
+
+  GstMpegTsSection   *section;
+  const GstMpegTsPMT *pmt;
+
+  MpegTSBaseStream  **streams;
+  GList              *stream_list;
+  gint                patcount;
 
   /* Pending Tags for the program */
   GstTagList *tags;
@@ -110,7 +120,7 @@ struct _MpegTSBase {
    * accessed from the application thread and the streaming thread */
   GHashTable *programs;
 
-  GstStructure *pat;
+  GArray  *pat;
   MpegTSPacketizer2 *packetizer;
 
   /* arrays that say whether a pid is a known psi pid or a pes pid */
@@ -138,6 +148,13 @@ struct _MpegTSBase {
 
   /* Upstream segment */
   GstSegment segment;
+
+  /* Whether to parse private section or not */
+  gboolean parse_private_sections;
+
+  /* Whether to push data and/or sections to subclasses */
+  gboolean push_data;
+  gboolean push_section;
 };
 
 struct _MpegTSBaseClass {
@@ -145,7 +162,7 @@ struct _MpegTSBaseClass {
 
   /* Virtual methods */
   void (*reset) (MpegTSBase *base);
-  GstFlowReturn (*push) (MpegTSBase *base, MpegTSPacketizerPacket *packet, MpegTSPacketizerSection * section);
+  GstFlowReturn (*push) (MpegTSBase *base, MpegTSPacketizerPacket *packet, GstMpegTsSection * section);
   /* takes ownership of @event */
   gboolean (*push_event) (MpegTSBase *base, GstEvent * event);
 
@@ -190,15 +207,13 @@ G_GNUC_INTERNAL GType mpegts_base_get_type(void);
 G_GNUC_INTERNAL MpegTSBaseProgram *mpegts_base_get_program (MpegTSBase * base, gint program_number);
 G_GNUC_INTERNAL MpegTSBaseProgram *mpegts_base_add_program (MpegTSBase * base, gint program_number, guint16 pmt_pid);
 
-G_GNUC_INTERNAL guint8 *mpegts_get_descriptor_from_stream (MpegTSBaseStream * stream, guint8 tag);
-G_GNUC_INTERNAL guint8 *mpegts_get_descriptor_from_program (MpegTSBaseProgram * program, guint8 tag);
+G_GNUC_INTERNAL const guint8 *mpegts_get_descriptor_from_stream (MpegTSBaseStream * stream, guint8 tag);
+G_GNUC_INTERNAL const guint8 *mpegts_get_descriptor_from_program (MpegTSBaseProgram * program, guint8 tag);
 
 G_GNUC_INTERNAL gboolean
 mpegts_base_handle_seek_event(MpegTSBase * base, GstPad * pad, GstEvent * event);
 
 G_GNUC_INTERNAL gboolean gst_mpegtsbase_plugin_init (GstPlugin * plugin);
-
-G_GNUC_INTERNAL gboolean mpegts_base_handle_psi (MpegTSBase * base, MpegTSPacketizerSection * section);
 
 G_GNUC_INTERNAL void mpegts_base_program_remove_stream (MpegTSBase * base, MpegTSBaseProgram * program, guint16 pid);
 

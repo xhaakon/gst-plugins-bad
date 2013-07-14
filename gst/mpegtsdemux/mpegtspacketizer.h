@@ -17,8 +17,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef GST_MPEGTS_PACKETIZER_H
@@ -28,6 +28,7 @@
 #include <gst/base/gstadapter.h>
 #include <glib.h>
 
+#include <gst/mpegts/mpegts.h>
 #include "gstmpegdefs.h"
 
 #define MPEGTS_NORMAL_PACKETSIZE  188
@@ -62,18 +63,22 @@ typedef struct _MpegTSPacketizerPrivate MpegTSPacketizerPrivate;
 
 typedef struct
 {
+  guint16 pid;
   guint   continuity_counter;
 
-  /* Section data (reused) */
+  /* Section data (always newly allocated) */
   guint8 *section_data;
-  /* Expected length of the section */
-  guint   section_length;
-  /* Allocated length of section_data */
-  guint   section_allocated;
   /* Current offset in section_data */
   guint16 section_offset;
+
+  /* Values for pending section */
   /* table_id of the pending section_data */
-  guint8  section_table_id;
+  guint8  table_id;
+  guint   section_length;
+  guint8  version_number;
+  guint16 subtable_extension;
+  guint8  section_number;
+  guint8  last_section_number;
 
   GSList *subtables;
 
@@ -89,9 +94,7 @@ struct _MpegTSPacketizer2 {
   /* FIXME : be more memory efficient (see how it's done in mpegtsbase) */
   MpegTSPacketizerStream **streams;
   gboolean    disposed;
-  gboolean    know_packet_size;
   guint16     packet_size;
-  GstCaps    *caps;
 
   /* current offset of the tip of the adapter */
   guint64  offset;
@@ -110,12 +113,16 @@ struct _MpegTSPacketizer2Class {
   GObjectClass object_class;
 };
 
+#define FLAGS_SCRAMBLED(f) (f & 0xc0)
+#define FLAGS_HAS_AFC(f) (f & 0x20)
+#define FLAGS_HAS_PAYLOAD(f) (f & 0x10)
+#define FLAGS_CONTINUITY_COUNTER(f) (f & 0x0f)
+
 typedef struct
 {
   gint16  pid;
   guint8  payload_unit_start_indicator;
-  guint8  adaptation_field_control;
-  guint8  continuity_counter;
+  guint8  scram_afc_cc;
   guint8 *payload;
 
   guint8 *data_start;
@@ -126,25 +133,7 @@ typedef struct
   guint64 pcr;
   guint64 opcr;
   guint64 offset;
-  GstClockTime origts;
 } MpegTSPacketizerPacket;
-
-typedef struct
-{
-  gboolean complete;
-  /* GstBuffer *buffer; */
-  guint8  *data;
-  guint    section_length;
-  guint64  offset;
-
-  gint16   pid;
-  guint8   table_id;
-  guint16  subtable_extension;
-  guint8   version_number;
-  guint8   current_next_indicator;
-
-  guint32  crc;
-} MpegTSPacketizerSection; 
 
 typedef struct
 {
@@ -152,10 +141,18 @@ typedef struct
   /* the spec says sub_table_extension is the fourth and fifth byte of a 
    * section when the section_syntax_indicator is set to a value of "1". If 
    * section_syntax_indicator is 0, sub_table_extension will be set to 0 */
-  guint16 subtable_extension;
-  guint8 version_number;
-  guint32 crc;
+  guint16  subtable_extension;
+  guint8   version_number;
+  guint8   last_section_number;
+  /* table of bits, whether the section was seen or not.
+   * Use MPEGTS_BIT_* macros to check */
+  /* Size is 32, because there's a maximum of 256 (32*8) section_number */
+  guint8   seen_section[32];
 } MpegTSPacketizerStreamSubtable;
+
+#define MPEGTS_BIT_SET(field, offs)    ((field)[(offs) >> 3] |=  (1 << ((offs) & 0x7)))
+#define MPEGTS_BIT_UNSET(field, offs)  ((field)[(offs) >> 3] &= ~(1 << ((offs) & 0x7)))
+#define MPEGTS_BIT_IS_SET(field, offs) ((field)[(offs) >> 3] &   (1 << ((offs) & 0x7)))
 
 typedef enum {
   PACKET_BAD       = FALSE,
@@ -179,24 +176,8 @@ G_GNUC_INTERNAL void mpegts_packetizer_clear_packet (MpegTSPacketizer2 *packetiz
 G_GNUC_INTERNAL void mpegts_packetizer_remove_stream(MpegTSPacketizer2 *packetizer,
   gint16 pid);
 
-G_GNUC_INTERNAL gboolean mpegts_packetizer_push_section (MpegTSPacketizer2 *packetzer,
-  MpegTSPacketizerPacket *packet, MpegTSPacketizerSection *section);
-G_GNUC_INTERNAL GstStructure *mpegts_packetizer_parse_cat (MpegTSPacketizer2 *packetizer,
-  MpegTSPacketizerSection *section);
-G_GNUC_INTERNAL GstStructure *mpegts_packetizer_parse_pat (MpegTSPacketizer2 *packetizer,
-  MpegTSPacketizerSection *section);
-G_GNUC_INTERNAL GstStructure *mpegts_packetizer_parse_pmt (MpegTSPacketizer2 *packetizer,
-  MpegTSPacketizerSection *section);
-G_GNUC_INTERNAL GstStructure *mpegts_packetizer_parse_nit (MpegTSPacketizer2 *packetizer,
-  MpegTSPacketizerSection *section);
-G_GNUC_INTERNAL GstStructure *mpegts_packetizer_parse_sdt (MpegTSPacketizer2 *packetizer,
-  MpegTSPacketizerSection *section);
-G_GNUC_INTERNAL GstStructure *mpegts_packetizer_parse_eit (MpegTSPacketizer2 *packetizer,
-  MpegTSPacketizerSection *section);
-G_GNUC_INTERNAL GstStructure *mpegts_packetizer_parse_tdt (MpegTSPacketizer2 *packetizer,
-  MpegTSPacketizerSection *section);
-G_GNUC_INTERNAL GstStructure *mpegts_packetizer_parse_tot (MpegTSPacketizer2 *packetizer,
-  MpegTSPacketizerSection *section);
+G_GNUC_INTERNAL GstMpegTsSection *mpegts_packetizer_push_section (MpegTSPacketizer2 *packetzer,
+								  MpegTSPacketizerPacket *packet, GList **remaining);
 
 /* Only valid if calculate_offset is TRUE */
 G_GNUC_INTERNAL guint mpegts_packetizer_get_seen_pcr (MpegTSPacketizer2 *packetizer);

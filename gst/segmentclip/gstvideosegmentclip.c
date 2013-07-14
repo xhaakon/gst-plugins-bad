@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -143,6 +143,7 @@ gst_video_segment_clip_clip_buffer (GstSegmentClip * base, GstBuffer * buffer,
   } else {
     GST_DEBUG_OBJECT (self, "Buffer outside the configured segment");
 
+    gst_buffer_unref (buffer);
     if (segment->rate >= 0) {
       if (segment->stop != -1 && timestamp >= segment->stop)
         return GST_FLOW_EOS;
@@ -150,7 +151,6 @@ gst_video_segment_clip_clip_buffer (GstSegmentClip * base, GstBuffer * buffer,
       if (segment->start != -1 && timestamp + duration <= segment->start)
         return GST_FLOW_EOS;
     }
-    gst_buffer_unref (buffer);
   }
 
 

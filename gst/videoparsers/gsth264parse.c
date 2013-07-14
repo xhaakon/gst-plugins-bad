@@ -18,8 +18,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -189,6 +189,7 @@ gst_h264_parse_reset (GstH264Parse * h264parse)
   h264parse->upstream_par_n = -1;
   h264parse->upstream_par_d = -1;
   gst_buffer_replace (&h264parse->codec_data, NULL);
+  gst_buffer_replace (&h264parse->codec_data_in, NULL);
   h264parse->nal_length_size = 4;
   h264parse->packetized = FALSE;
   h264parse->transform = FALSE;
@@ -881,7 +882,15 @@ gst_h264_parse_handle_frame (GstBaseParse * parse,
       }
     }
 
-    gst_h264_parse_process_nal (h264parse, &nalu);
+    if (nalu.type == GST_H264_NAL_SPS || 
+        nalu.type == GST_H264_NAL_PPS ||
+        (h264parse->have_sps && h264parse->have_pps)) {
+      gst_h264_parse_process_nal (h264parse, &nalu);
+    } else {
+      GST_WARNING_OBJECT (h264parse, "no SPS/PPS yet, nal Type: %d, Size: %u will be dropped", nalu.type, nalu.size);
+      *skipsize = nalu.size;
+      goto skip;
+    }
 
     if (nonext)
       break;
@@ -1140,8 +1149,8 @@ gst_h264_parse_update_src_caps (GstH264Parse * h264parse, GstCaps * caps)
 
       gst_buffer_unmap (buf, &map);
     } else {
-      if (h264parse->codec_data)
-        buf = gst_buffer_ref (h264parse->codec_data);
+      if (!buf && h264parse->codec_data_in)
+        buf = gst_buffer_ref (h264parse->codec_data_in);
       modified = TRUE;
     }
   }
@@ -1150,12 +1159,22 @@ gst_h264_parse_update_src_caps (GstH264Parse * h264parse, GstCaps * caps)
   if (G_UNLIKELY (!sps)) {
     caps = gst_caps_copy (sink_caps);
   } else {
-    if (G_UNLIKELY (h264parse->width != sps->width ||
-            h264parse->height != sps->height)) {
+    gint crop_width, crop_height;
+
+    if (sps->frame_cropping_flag) {
+      crop_width = sps->crop_rect_width;
+      crop_height = sps->crop_rect_height;
+    } else {
+      crop_width = sps->width;
+      crop_height = sps->height;
+    }
+
+    if (G_UNLIKELY (h264parse->width != crop_width ||
+            h264parse->height != crop_height)) {
       GST_INFO_OBJECT (h264parse, "resolution changed %dx%d",
-          sps->width, sps->height);
-      h264parse->width = sps->width;
-      h264parse->height = sps->height;
+          crop_width, crop_height);
+      h264parse->width = crop_width;
+      h264parse->height = crop_height;
       modified = TRUE;
     }
 
@@ -1193,19 +1212,42 @@ gst_h264_parse_update_src_caps (GstH264Parse * h264parse, GstCaps * caps)
       }
     }
 
-    if (G_UNLIKELY (modified)) {
+    if (G_UNLIKELY (modified || h264parse->update_caps)) {
+      gint fps_num = h264parse->fps_num;
+      gint fps_den = h264parse->fps_den;
+      gint width, height;
+      GstClockTime latency;
+
       caps = gst_caps_copy (sink_caps);
-      /* sps should give this */
-      gst_caps_set_simple (caps, "width", G_TYPE_INT, sps->width,
-          "height", G_TYPE_INT, sps->height, NULL);
+
+      /* sps should give this but upstream overrides */
+      if (s && gst_structure_has_field (s, "width"))
+        gst_structure_get_int (s, "width", &width);
+      else
+        width = h264parse->width;
+
+      if (s && gst_structure_has_field (s, "height"))
+        gst_structure_get_int (s, "height", &height);
+      else
+        height = h264parse->height;
+
+      gst_caps_set_simple (caps, "width", G_TYPE_INT, width,
+          "height", G_TYPE_INT, height, NULL);
+
+      /* upstream overrides */
+      if (s && gst_structure_has_field (s, "framerate"))
+        gst_structure_get_fraction (s, "framerate", &fps_num, &fps_den);
+
       /* but not necessarily or reliably this */
-      if (h264parse->fps_num > 0 && h264parse->fps_den > 0 &&
-          (!s || !gst_structure_has_field (s, "framerate"))) {
+      if (fps_num > 0 && fps_den > 0) {
         GST_INFO_OBJECT (h264parse, "setting framerate in caps");
         gst_caps_set_simple (caps, "framerate",
-            GST_TYPE_FRACTION, h264parse->fps_num, h264parse->fps_den, NULL);
+            GST_TYPE_FRACTION, fps_num, fps_den, NULL);
         gst_base_parse_set_frame_rate (GST_BASE_PARSE (h264parse),
-            h264parse->fps_num, h264parse->fps_den, 0, 0);
+            fps_num, fps_den, 0, 0);
+        latency = gst_util_uint64_scale (GST_SECOND, fps_den, fps_num);
+        gst_base_parse_set_latency (GST_BASE_PARSE (h264parse), latency,
+            latency);
       }
     }
   }
@@ -1237,6 +1279,7 @@ gst_h264_parse_update_src_caps (GstH264Parse * h264parse, GstCaps * caps)
       /* remove any left-over codec-data hanging around */
       s = gst_caps_get_structure (caps, 0);
       gst_structure_remove_field (s, "codec_data");
+      gst_buffer_replace (&h264parse->codec_data, NULL);
     }
     gst_pad_set_caps (GST_BASE_PARSE_SRC_PAD (h264parse), caps);
     gst_caps_unref (caps);
@@ -1270,6 +1313,10 @@ gst_h264_parse_get_timestamp (GstH264Parse * h264parse,
 
   if (!sps) {
     GST_DEBUG_OBJECT (h264parse, "referred SPS invalid");
+    goto exit;
+  } else if (!sps->vui_parameters_present_flag) {
+    GST_DEBUG_OBJECT (h264parse,
+        "unable to compute timestamp: VUI not present");
     goto exit;
   } else if (!sps->vui_parameters.timing_info_present_flag) {
     GST_DEBUG_OBJECT (h264parse,
@@ -1768,7 +1815,7 @@ gst_h264_parse_set_caps (GstBaseParse * parse, GstCaps * caps)
 
     gst_buffer_unmap (codec_data, &map);
 
-    h264parse->codec_data = gst_buffer_ref (codec_data);
+    gst_buffer_replace (&h264parse->codec_data_in, codec_data);
 
     /* if upstream sets codec_data without setting stream-format and alignment, we
      * assume stream-format=avc,alignment=au */

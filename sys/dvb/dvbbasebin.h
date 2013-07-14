@@ -17,8 +17,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef GST_DVB_BASE_BIN_H
@@ -51,12 +51,17 @@ struct _DvbBaseBin {
   GstElement *buffer_queue;
   GstElement *tsparse;
   CamDevice *hwcam;
+  gboolean trycam;
   GList *pmtlist;
   gboolean pmtlist_changed;
   gchar *filter;
   GHashTable *streams;
   GHashTable *programs;
   gboolean disposed;
+
+  GstTask *task;
+  GstPoll *poll;
+  GRecMutex lock;
 
   /* Cached value */
   gchar *program_numbers;

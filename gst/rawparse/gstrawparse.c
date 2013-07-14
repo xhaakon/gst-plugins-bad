@@ -16,8 +16,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 /* TODO: - Add locking where appropiate
@@ -225,6 +225,7 @@ gst_raw_parse_set_src_caps (GstRawParse * rp)
   }
 
   rp->negotiated = gst_pad_set_caps (rp->srcpad, caps);
+  gst_caps_unref (caps);
 
   return rp->negotiated;
 }
