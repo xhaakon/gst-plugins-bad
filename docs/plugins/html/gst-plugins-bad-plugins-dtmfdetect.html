@@ -24,6 +24,8 @@
 <a href="#gst-plugins-bad-plugins-dtmfdetect.synopsis" class="shortcut">Top</a>
                    | 
                   <a href="#gst-plugins-bad-plugins-dtmfdetect.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#gst-plugins-bad-plugins-dtmfdetect.object-hierarchy" class="shortcut">Object Hierarchy</a>
 </td></tr>
 </table>
 <div class="refentry">
@@ -31,30 +33,116 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-bad-plugins-dtmfdetect.top_of_page"></a>dtmfdetect</span></h2>
-<p>dtmfdetect</p>
+<p>dtmfdetect — This element detects DTMF tones</p>
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
 <div class="refsynopsisdiv">
 <a name="gst-plugins-bad-plugins-dtmfdetect.synopsis"></a><h2>Synopsis</h2>
-<pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-dtmfdetect.html#GstDtmfDetect" title="struct GstDtmfDetect">GstDtmfDetect</a>;
+<a name="GstDtmfDetect"></a><pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-dtmfdetect.html#GstDtmfDetect-struct" title="struct GstDtmfDetect">GstDtmfDetect</a>;
+</pre>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-dtmfdetect.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+   +----<a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+         +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
+               +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
+                     +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html">GstBaseTransform</a>
+                           +----GstDtmfDetect
 </pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-dtmfdetect.description"></a><h2>Description</h2>
+<div class="refsynopsisdiv">
+<h2>Synopsis</h2>
+<div class="refsect2">
+<a name="idp7639552"></a><h3>Element Information</h3>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><span class="term">plugin</span></p></td>
+<td>
+            spandsp
+          </td>
+</tr>
+<tr>
+<td><p><span class="term">author</span></p></td>
+<td>Olivier Crete &lt;olivier.crete@collabora.com&gt;</td>
+</tr>
+<tr>
+<td><p><span class="term">class</span></p></td>
+<td>Filter/Analyzer/Audio</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="idp5352288"></a><h3>Element Pads</h3>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><span class="term">name</span></p></td>
+<td>sink</td>
+</tr>
+<tr>
+<td><p><span class="term">direction</span></p></td>
+<td>sink</td>
+</tr>
+<tr>
+<td><p><span class="term">presence</span></p></td>
+<td>always</td>
+</tr>
+<tr>
+<td><p><span class="term">details</span></p></td>
+<td>audio/x-raw, format=(string)S16LE, rate=(int)8000, channels=(int)1</td>
+</tr>
+</tbody>
+</table></div>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><span class="term">name</span></p></td>
+<td>src</td>
+</tr>
+<tr>
+<td><p><span class="term">direction</span></p></td>
+<td>source</td>
+</tr>
+<tr>
+<td><p><span class="term">presence</span></p></td>
+<td>always</td>
+</tr>
+<tr>
+<td><p><span class="term">details</span></p></td>
+<td>audio/x-raw, format=(string)S16LE, rate=(int)8000, channels=(int)1</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
 <p>
 </p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-dtmfdetect.details"></a><h2>Details</h2>
 <div class="refsect2">
-<a name="GstDtmfDetect"></a><h3>struct GstDtmfDetect</h3>
-<pre class="programlisting">struct GstDtmfDetect {
-  GstBaseTransform parent;
-
-  dtmf_rx_state_t *dtmf_state;
-};
-</pre>
+<a name="GstDtmfDetect-struct"></a><h3>struct GstDtmfDetect</h3>
+<pre class="programlisting">struct GstDtmfDetect;</pre>
 <p>
 </p>
 </div>

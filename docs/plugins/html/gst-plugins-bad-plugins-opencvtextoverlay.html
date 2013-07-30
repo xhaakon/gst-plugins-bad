@@ -39,7 +39,7 @@
 </tr></table></div>
 <div class="refsynopsisdiv">
 <a name="gst-plugins-bad-plugins-opencvtextoverlay.synopsis"></a><h2>Synopsis</h2>
-<pre class="synopsis">                    <a class="link" href="gst-plugins-bad-plugins-opencvtextoverlay.html#GstNuvDemux" title="GstNuvDemux">GstNuvDemux</a>;
+<a name="GstOpenalSrc"></a><pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-openalsrc.html#GstOpenalSrc-struct" title="struct GstOpenalSrc">GstOpenalSrc</a>;
 struct              <a class="link" href="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay" title="struct GstOpencvTextOverlay">GstOpencvTextOverlay</a>;
 </pre>
 </div>
@@ -62,7 +62,7 @@ struct              <a class="link" href="gst-plugins-bad-plugins-opencvtextover
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp8079712"></a><h3>Element Information</h3>
+<a name="idp11833344"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -88,7 +88,7 @@ struct              <a class="link" href="gst-plugins-bad-plugins-opencvtextover
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp13474272"></a><h3>Element Pads</h3>
+<a name="idp14328816"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -145,35 +145,8 @@ struct              <a class="link" href="gst-plugins-bad-plugins-opencvtextover
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-opencvtextoverlay.details"></a><h2>Details</h2>
 <div class="refsect2">
-<a name="GstNuvDemux"></a><h3>GstNuvDemux</h3>
-<pre class="programlisting">typedef struct {
-  GstElement     parent;
-
-  guint         mode;
-  GstAdapter    *adapter; 
-  guint64       video_offset;
-  guint64       audio_offset;
-
-  /* pads */
-  GstPad        *sinkpad;
-  GstPad        *src_video_pad;  
-  GstPad        *src_audio_pad;
-  gboolean      first_video;
-  gboolean      first_audio;
-
-  /* NUV decoding state */
-  GstNuvDemuxState state;
-  guint64        offset;
-
-  /* Mpeg ExtraData */
-  guint64       mpeg_data_size;
-  GstBuffer     *mpeg_buffer;
-  
-  nuv_header *h;
-  nuv_extended_header *eh;
-  nuv_frame_header *fh;
-} GstNuvDemux;
-</pre>
+<a name="GstOpenalSrc-struct"></a><h3>struct GstOpenalSrc</h3>
+<pre class="programlisting">struct GstOpenalSrc;</pre>
 <p>
 </p>
 </div>

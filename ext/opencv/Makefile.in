@@ -176,6 +176,7 @@ am_libgstopencv_la_OBJECTS = libgstopencv_la-gstopencv.lo \
 	libgstopencv_la-gstmotioncells.lo \
 	libgstopencv_la-gstskindetect.lo libgstopencv_la-gstretinex.lo \
 	libgstopencv_la-gstsegmentation.lo \
+	libgstopencv_la-gstgrabcut.lo \
 	libgstopencv_la-motioncells_wrapper.lo \
 	libgstopencv_la-MotionCells.lo
 libgstopencv_la_OBJECTS = $(am_libgstopencv_la_OBJECTS)
@@ -292,14 +293,6 @@ CCASFLAGS = @CCASFLAGS@
 CCDEPMODE = @CCDEPMODE@
 CDAUDIO_CFLAGS = @CDAUDIO_CFLAGS@
 CDAUDIO_LIBS = @CDAUDIO_LIBS@
-CELT_0_11_CFLAGS = @CELT_0_11_CFLAGS@
-CELT_0_11_LIBS = @CELT_0_11_LIBS@
-CELT_0_7_CFLAGS = @CELT_0_7_CFLAGS@
-CELT_0_7_LIBS = @CELT_0_7_LIBS@
-CELT_0_8_CFLAGS = @CELT_0_8_CFLAGS@
-CELT_0_8_LIBS = @CELT_0_8_LIBS@
-CELT_CFLAGS = @CELT_CFLAGS@
-CELT_LIBS = @CELT_LIBS@
 CFLAGS = @CFLAGS@
 CHROMAPRINT_CFLAGS = @CHROMAPRINT_CFLAGS@
 CHROMAPRINT_LIBS = @CHROMAPRINT_LIBS@
@@ -753,6 +746,7 @@ libgstopencv_la_SOURCES = gstopencv.c \
 			gstskindetect.c \
 			gstretinex.c \
 			gstsegmentation.cpp \
+			gstgrabcut.cpp \
 			motioncells_wrapper.cpp \
 			MotionCells.cpp
 
@@ -794,6 +788,7 @@ noinst_HEADERS = gstopencvvideofilter.h gstopencvutils.h \
 		gstskindetect.h \
 		gstretinex.h \
 		gstsegmentation.h \
+		gstgrabcut.h \
 		gstmotioncells.h \
 		motioncells_wrapper.h \
 		MotionCells.h
@@ -891,6 +886,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstedgedetect.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstfaceblur.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstfacedetect.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstgrabcut.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gsthanddetect.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstmotioncells.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstopencv.Plo@am__quote@
@@ -1092,6 +1088,13 @@ libgstopencv_la-gstsegmentation.lo: gstsegmentation.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstsegmentation.cpp' object='libgstopencv_la-gstsegmentation.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstsegmentation.lo `test -f 'gstsegmentation.cpp' || echo '$(srcdir)/'`gstsegmentation.cpp
+
+libgstopencv_la-gstgrabcut.lo: gstgrabcut.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstgrabcut.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstgrabcut.Tpo -c -o libgstopencv_la-gstgrabcut.lo `test -f 'gstgrabcut.cpp' || echo '$(srcdir)/'`gstgrabcut.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstgrabcut.Tpo $(DEPDIR)/libgstopencv_la-gstgrabcut.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstgrabcut.cpp' object='libgstopencv_la-gstgrabcut.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstgrabcut.lo `test -f 'gstgrabcut.cpp' || echo '$(srcdir)/'`gstgrabcut.cpp
 
 libgstopencv_la-motioncells_wrapper.lo: motioncells_wrapper.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-motioncells_wrapper.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-motioncells_wrapper.Tpo -c -o libgstopencv_la-motioncells_wrapper.lo `test -f 'motioncells_wrapper.cpp' || echo '$(srcdir)/'`motioncells_wrapper.cpp
