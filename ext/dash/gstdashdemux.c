@@ -227,11 +227,13 @@ static void gst_dash_demux_remove_streams (GstDashDemux * demux,
     GSList * streams);
 static void gst_dash_demux_stream_free (GstDashDemuxStream * stream);
 static void gst_dash_demux_reset (GstDashDemux * demux, gboolean dispose);
+#ifndef GST_DISABLE_GST_DEBUG
 static GstClockTime gst_dash_demux_get_buffering_time (GstDashDemux * demux);
-static GstCaps *gst_dash_demux_get_input_caps (GstDashDemux * demux,
-    GstActiveStream * stream);
 static GstClockTime gst_dash_demux_stream_get_buffering_time (GstDashDemuxStream
     * stream);
+#endif
+static GstCaps *gst_dash_demux_get_input_caps (GstDashDemux * demux,
+    GstActiveStream * stream);
 static GstPad *gst_dash_demux_create_pad (GstDashDemux * demux);
 
 #define gst_dash_demux_parent_class parent_class
@@ -434,7 +436,7 @@ static gboolean
 _check_queue_full (GstDataQueue * q, guint visible, guint bytes, guint64 time,
     GstDashDemux * demux)
 {
-  return time <= demux->max_buffering_time;
+  return time >= demux->max_buffering_time;
 }
 
 static void
@@ -692,6 +694,7 @@ gst_dash_demux_setup_all_streams (GstDashDemux * demux)
     GstDashDemuxStream *stream;
     GstActiveStream *active_stream;
     GstCaps *caps;
+    GstEvent *event;
     gchar *stream_id;
 
     active_stream = gst_mpdparser_get_active_stream_by_index (demux->client, i);
@@ -719,7 +722,24 @@ gst_dash_demux_setup_all_streams (GstDashDemux * demux)
     stream_id =
         gst_pad_create_stream_id_printf (stream->pad,
         GST_ELEMENT_CAST (demux), "%d", i);
-    gst_pad_push_event (stream->pad, gst_event_new_stream_start (stream_id));
+
+    event =
+        gst_pad_get_sticky_event (demux->sinkpad, GST_EVENT_STREAM_START, 0);
+    if (event) {
+      if (gst_event_parse_group_id (event, &demux->group_id))
+        demux->have_group_id = TRUE;
+      else
+        demux->have_group_id = FALSE;
+      gst_event_unref (event);
+    } else if (!demux->have_group_id) {
+      demux->have_group_id = TRUE;
+      demux->group_id = gst_util_group_id_next ();
+    }
+    event = gst_event_new_stream_start (stream_id);
+    if (demux->have_group_id)
+      gst_event_set_group_id (event, demux->group_id);
+
+    gst_pad_push_event (stream->pad, event);
     g_free (stream_id);
 
     gst_dash_demux_stream_push_event (stream, gst_event_new_caps (caps));
@@ -875,7 +895,7 @@ gst_dash_demux_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
       gst_dash_demux_resume_download_task (demux);
       gst_dash_demux_resume_stream_task (demux);
 
-seek_quit:
+    seek_quit:
       gst_event_unref (event);
       return ret;
     }
@@ -1391,6 +1411,7 @@ gst_dash_demux_reset (GstDashDemux * demux, gboolean dispose)
   demux->cancelled = FALSE;
 }
 
+#ifndef GST_DISABLE_GST_DEBUG
 static GstClockTime
 gst_dash_demux_get_buffering_time (GstDashDemux * demux)
 {
@@ -1418,6 +1439,7 @@ gst_dash_demux_stream_get_buffering_time (GstDashDemuxStream * stream)
 
   return (GstClockTime) level.time;
 }
+#endif
 
 static gboolean
 gst_dash_demux_all_streams_have_data (GstDashDemux * demux)
@@ -1526,7 +1548,7 @@ gst_dash_demux_refresh_mpd (GstDashDemux * demux)
 
             if (!new_stream) {
               GST_DEBUG_OBJECT (demux,
-                 "Stream of index %d is missing from manifest update",
+                  "Stream of index %d is missing from manifest update",
                   demux_stream->index);
               return GST_FLOW_EOS;
             }
@@ -1684,8 +1706,7 @@ gst_dash_demux_download_loop (GstDashDemux * demux)
         } else if (pos > 0) {
           /* we're ahead, wait a little */
 
-          GST_DEBUG_OBJECT (demux,
-              "Waiting for next segment to be created");
+          GST_DEBUG_OBJECT (demux, "Waiting for next segment to be created");
           gst_mpd_client_set_segment_index (fragment_stream,
               fragment_stream->segment_idx - 1);
           gst_dash_demux_download_wait (demux, time_diff);
@@ -2169,12 +2190,16 @@ gst_dash_demux_get_next_fragment (GstDashDemux * demux,
   /* Wake the download task up */
   GST_TASK_SIGNAL (demux->download_task);
   if (selected_stream) {
+#ifndef GST_DISABLE_GST_DEBUG
     guint64 brate;
+#endif
 
     diff = (GST_TIMEVAL_TO_TIME (now) - GST_TIMEVAL_TO_TIME (start));
     gst_download_rate_add_rate (&selected_stream->dnl_rate, size_buffer, diff);
 
+#ifndef GST_DISABLE_GST_DEBUG
     brate = (size_buffer * 8) / ((double) diff / GST_SECOND);
+#endif
     GST_INFO_OBJECT (demux,
         "Stream: %d Download rate = %" PRIu64 " Kbits/s (%" PRIu64
         " Ko in %.2f s)", selected_stream->index,

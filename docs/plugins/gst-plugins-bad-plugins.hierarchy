@@ -27,6 +27,7 @@ GObject
           GstGSMDec
           GstMpg123AudioDec
           GstOpusDec
+          GstSbcDec
           GstSirenDec
         GstAudioEncoder
           ADPCMEnc
@@ -34,6 +35,7 @@ GObject
           GstFaac
           GstGSMEnc
           GstOpusEnc
+          GstSbcEnc
           GstSirenEnc
           GstVoAacEnc
           GstVoAmrWbEnc
@@ -120,6 +122,7 @@ GObject
             GstOFA
           GstBayer2RGB
           GstDebugSpy
+          GstDtmfDetect
           GstFreeverb
           GstIvtc
           GstRGB2Bayer
@@ -151,8 +154,22 @@ GObject
               GstMirror
               GstRotate
               GstSquare
+            GstGrabcut
+            GstOpencvVideoFilter
+              GstCvDilateErode
+                GstCvDilate
+                GstCvErode
+              GstCvEqualizeHist
+              GstCvLaplace
+              GstCvSmooth
+              GstCvSobel
+              GstFaceDetect
+              GstHanddetect
+              GstSkinDetect
+            GstRetinex
             GstRsvgOverlay
             GstSceneChange
+            GstSegmentation
             GstSmooth
             GstSolarize
             GstVideoDiff
@@ -188,6 +205,7 @@ GObject
             frei0r-filter-mask0mate
             frei0r-filter-nervous
             frei0r-filter-nosync0r
+            frei0r-filter-opencvfacedetect
             frei0r-filter-perspective
             frei0r-filter-pixeliz0r
             frei0r-filter-primaries
@@ -232,9 +250,13 @@ GObject
         GstDVBSubOverlay
         GstDVDSpu
         GstDashDemux
+        GstDecklinkSink
         GstDecklinkSrc
+        GstEdgeDetect
+        GstFaceBlur
         GstFestival
         GstFieldAnalysis
+        GstFluidDec
         GstGDPDepay
         GstGDPPay
         GstGmeDec
@@ -252,12 +274,15 @@ GObject
         GstMimDec
         GstMimEnc
         GstModPlug
+        GstMotioncells
         GstMpegPSDemux
         GstMssDemux
+        GstOpencvTextOverlay
         GstPcapParse
         GstPitch
         GstPnmdec
         GstPnmenc
+        GstPyramidSegment
         GstRTPBaseDepayload
           GstRTPOpusDepay
           GstRtpDTMFDepay
@@ -270,20 +295,22 @@ GObject
         GstSegmentClip
           GstAudioSegmentClip
           GstVideoSegmentClip
+        GstSpanPlc
         GstSpeed
         GstSrtEnc
+        GstSrtpDec
+        GstSrtpEnc
         GstTagMux
           GstId3Mux
+        GstTemplateMatch
         GstUvcH264MjpgDemux
         GstVideoDecoder
-          GstDaalaDec
           GstOpenJPEGDec
           GstRsvgDec
           GstSchroDec
           GstVdpDecoder
             GstVdpMpegDec
         GstVideoEncoder
-          GstDaalaEnc
           GstOpenJPEGEnc
           GstSchroEnc
         GstWebvttEnc
@@ -411,6 +438,7 @@ GObject
 GInterface
   GTypePlugin
   GstChildProxy
+  GstNavigation
   GstPhotography
   GstPreset
   GstTagSetter

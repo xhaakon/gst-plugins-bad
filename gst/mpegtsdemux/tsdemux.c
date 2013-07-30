@@ -36,6 +36,7 @@
 
 #include <glib.h>
 #include <gst/tag/tag.h>
+#include <gst/pbutils/pbutils.h>
 
 #include "mpegtsbase.h"
 #include "tsdemux.h"
@@ -50,20 +51,8 @@
  * See TODO for explanations on improvements needed
  */
 
-/* latency in mseconds */
-#define TS_LATENCY 700
-
-#define TABLE_ID_UNSET 0xFF
-
 #define CONTINUITY_UNSET 255
 #define MAX_CONTINUITY 15
-
-#define PCR_WRAP_SIZE_128KBPS (((gint64)1490)*(1024*1024))
-/* small PCR for wrap detection */
-#define PCR_SMALL 17775000
-/* maximal PCR time */
-#define PCR_MAX_VALUE (((((guint64)1)<<33) * 300) + 298)
-#define PTS_DTS_MAX_VALUE (((guint64)1) << 33)
 
 /* Seeking/Scanning related variables */
 
@@ -317,9 +306,9 @@ gst_ts_demux_reset (MpegTSBase * base)
 {
   GstTSDemux *demux = (GstTSDemux *) base;
 
-  demux->program_number = -1;
   demux->calculate_update_segment = FALSE;
 
+  demux->rate = 1.0;
   gst_segment_init (&demux->segment, GST_FORMAT_UNDEFINED);
   if (demux->segment_event) {
     gst_event_unref (demux->segment_event);
@@ -330,6 +319,9 @@ gst_ts_demux_reset (MpegTSBase * base)
     gst_event_unref (demux->update_segment);
     demux->update_segment = NULL;
   }
+
+  demux->have_group_id = FALSE;
+  demux->group_id = G_MAXUINT;
 }
 
 static void
@@ -342,6 +334,8 @@ gst_ts_demux_init (GstTSDemux * demux)
   /* We are not interested in sections (all handled by mpegtsbase) */
   base->push_section = FALSE;
 
+  demux->requested_program_number = -1;
+  demux->program_number = -1;
   gst_ts_demux_reset (base);
 }
 
@@ -356,7 +350,7 @@ gst_ts_demux_set_property (GObject * object, guint prop_id,
     case PROP_PROGRAM_NUMBER:
       /* FIXME: do something if program is switched as opposed to set at
        * beginning */
-      demux->program_number = g_value_get_int (value);
+      demux->requested_program_number = g_value_get_int (value);
       break;
     case PROP_EMIT_STATS:
       demux->emit_statistics = g_value_get_boolean (value);
@@ -374,7 +368,7 @@ gst_ts_demux_get_property (GObject * object, guint prop_id,
 
   switch (prop_id) {
     case PROP_PROGRAM_NUMBER:
-      g_value_set_int (value, demux->program_number);
+      g_value_set_int (value, demux->requested_program_number);
       break;
     case PROP_EMIT_STATS:
       g_value_set_boolean (value, demux->emit_statistics);
@@ -460,13 +454,30 @@ gst_ts_demux_srcpad_query (GstPad * pad, GstObject * parent, GstQuery * query)
         /* If upstream is not seekable in TIME format we use
          * our own values here */
         if (!seekable)
-          gst_query_set_seeking (query, GST_FORMAT_TIME,
-              demux->parent.mode != BASE_MODE_PUSHING, 0,
+          gst_query_set_seeking (query, GST_FORMAT_TIME, TRUE, 0,
               demux->segment.duration);
       } else {
         GST_DEBUG_OBJECT (demux, "only TIME is supported for query seeking");
         res = FALSE;
       }
+      break;
+    }
+    case GST_QUERY_SEGMENT:{
+      GstFormat format;
+      gint64 start, stop;
+
+      format = demux->segment.format;
+
+      start =
+          gst_segment_to_stream_time (&demux->segment, format,
+          demux->segment.start);
+      if ((stop = demux->segment.stop) == -1)
+        stop = demux->segment.duration;
+      else
+        stop = gst_segment_to_stream_time (&demux->segment, format, stop);
+
+      gst_query_set_segment (query, demux->segment.rate, format, start, stop);
+      res = TRUE;
       break;
     }
     default:
@@ -510,10 +521,7 @@ gst_ts_demux_do_seek (MpegTSBase * base, GstEvent * event)
   /* copy segment, we need this because we still need the old
    * segment when we close the current segment. */
   memcpy (&seeksegment, &demux->segment, sizeof (GstSegment));
-  if (demux->segment_event) {
-    gst_event_unref (demux->segment_event);
-    demux->segment_event = NULL;
-  }
+
   /* configure the segment with the seek variables */
   GST_DEBUG_OBJECT (demux, "configuring seek");
   GST_DEBUG ("seeksegment before set_seek " SEGMENT_FORMAT,
@@ -535,17 +543,16 @@ gst_ts_demux_do_seek (MpegTSBase * base, GstEvent * event)
     goto done;
   }
 
-  /* record offset */
+  /* record offset and rate */
   base->seek_offset = start_offset;
+  demux->rate = rate;
   res = GST_FLOW_OK;
 
-  /* commit the new segment */
-  memcpy (&demux->segment, &seeksegment, sizeof (GstSegment));
-
-  if (demux->segment.flags & GST_SEEK_FLAG_SEGMENT) {
-    gst_element_post_message (GST_ELEMENT_CAST (demux),
-        gst_message_new_segment_start (GST_OBJECT_CAST (demux),
-            demux->segment.format, demux->segment.stop));
+  /* Drop segment info, it needs to be recreated after the actual seek */
+  gst_segment_init (&demux->segment, GST_FORMAT_UNDEFINED);
+  if (demux->segment_event) {
+    gst_event_unref (demux->segment_event);
+    demux->segment_event = NULL;
   }
 
 done:
@@ -595,6 +602,11 @@ push_event (MpegTSBase * base, GstEvent * event)
   for (tmp = demux->program->stream_list; tmp; tmp = tmp->next) {
     TSDemuxStream *stream = (TSDemuxStream *) tmp->data;
     if (stream->pad) {
+      /* If we are pushing out EOS, flush out pending data first */
+      if (GST_EVENT_TYPE (event) == GST_EVENT_EOS && stream->active &&
+          gst_pad_is_active (stream->pad))
+        gst_ts_demux_push_pending_data (demux, stream);
+
       gst_event_ref (event);
       gst_pad_push_event (stream->pad, event);
     }
@@ -689,6 +701,7 @@ static GstPad *
 create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
     MpegTSBaseProgram * program)
 {
+  GstTSDemux *demux = GST_TS_DEMUX (base);
   TSDemuxStream *stream = (TSDemuxStream *) bstream;
   gchar *name = NULL;
   GstCaps *caps = NULL;
@@ -778,6 +791,9 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
       caps =
           gst_caps_new_simple ("audio/mpeg", "mpegversion", G_TYPE_INT, 1,
           NULL);
+      /* HDV is always mpeg 1 audio layer 2 */
+      if (program->registration_id == DRF_ID_TSHV)
+        gst_caps_set_simple (caps, "layer", G_TYPE_INT, 2, NULL);
       break;
     case GST_MPEG_TS_STREAM_TYPE_PRIVATE_PES_PACKETS:
       GST_LOG ("private data");
@@ -936,12 +952,22 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
         break;
       }
 
-      /* DVB_AC3 */
-      desc = mpegts_get_descriptor_from_stream (bstream, GST_MTS_DESC_DVB_AC3);
-      if (!desc)
-        GST_WARNING ("AC3 stream type found but no corresponding "
-            "descriptor to differentiate between AC3 and EAC3. "
-            "Assuming plain AC3.");
+      /* If stream has ac3 descriptor 
+       * OR program is ATSC (GA94)
+       * OR stream registration is AC-3
+       * then it's regular AC3 */
+      if (bstream->registration_id == DRF_ID_AC3 ||
+          program->registration_id == DRF_ID_GA94 ||
+          mpegts_get_descriptor_from_stream (bstream, GST_MTS_DESC_DVB_AC3)) {
+        template = gst_static_pad_template_get (&audio_template);
+        name = g_strdup_printf ("audio_%04x", bstream->pid);
+        caps = gst_caps_new_empty_simple ("audio/x-ac3");
+        break;
+      }
+
+      GST_WARNING ("AC3 stream type found but no guaranteed "
+          "way found to differentiate between AC3 and EAC3. "
+          "Assuming plain AC3.");
       template = gst_static_pad_template_get (&audio_template);
       name = g_strdup_printf ("audio_%04x", bstream->pid);
       caps = gst_caps_new_empty_simple ("audio/x-ac3");
@@ -969,6 +995,7 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
 
 done:
   if (template && name && caps) {
+    GstEvent *event;
     gchar *stream_id;
 
     GST_LOG ("stream:%p creating pad with name %s and caps %" GST_PTR_FORMAT,
@@ -979,9 +1006,29 @@ done:
     stream_id =
         gst_pad_create_stream_id_printf (pad, GST_ELEMENT_CAST (base), "%08x",
         bstream->pid);
-    gst_pad_push_event (pad, gst_event_new_stream_start (stream_id));
+
+    event = gst_pad_get_sticky_event (base->sinkpad, GST_EVENT_STREAM_START, 0);
+    if (event) {
+      if (gst_event_parse_group_id (event, &demux->group_id))
+        demux->have_group_id = TRUE;
+      else
+        demux->have_group_id = FALSE;
+      gst_event_unref (event);
+    } else if (!demux->have_group_id) {
+      demux->have_group_id = TRUE;
+      demux->group_id = gst_util_group_id_next ();
+    }
+    event = gst_event_new_stream_start (stream_id);
+    if (demux->have_group_id)
+      gst_event_set_group_id (event, demux->group_id);
+
+    gst_pad_push_event (pad, event);
     g_free (stream_id);
     gst_pad_set_caps (pad, caps);
+    if (!stream->taglist)
+      stream->taglist = gst_tag_list_new_empty ();
+    gst_pb_utils_add_codec_description_to_tag_list (stream->taglist, NULL,
+        caps);
     gst_pad_set_query_function (pad, gst_ts_demux_srcpad_query);
     gst_pad_set_event_function (pad, gst_ts_demux_srcpad_event);
   }
@@ -1105,11 +1152,12 @@ gst_ts_demux_program_started (MpegTSBase * base, MpegTSBaseProgram * program)
 {
   GstTSDemux *demux = GST_TS_DEMUX (base);
 
-  GST_DEBUG ("Current program %d, new program %d",
-      demux->program_number, program->program_number);
+  GST_DEBUG ("Current program %d, new program %d requested program %d",
+      (gint) demux->program_number, program->program_number,
+      demux->requested_program_number);
 
-  if (demux->program_number == -1 ||
-      demux->program_number == program->program_number) {
+  if (demux->requested_program_number == program->program_number ||
+      (demux->requested_program_number == -1 && demux->program_number == -1)) {
 
     GST_LOG ("program %d started", program->program_number);
     demux->program_number = program->program_number;
@@ -1349,20 +1397,6 @@ calculate_and_push_newsegment (GstTSDemux * demux, TSDemuxStream * stream)
 
   GST_DEBUG ("Creating new newsegment for stream %p", stream);
 
-  /* 0) If we don't have a time segment yet try to recover segment info from
-   *    base when it's in time otherwise just initialize segment with
-   *    defaults.
-   *    It will happen only if it's first program or after flushes. */
-  if (demux->segment.format == GST_FORMAT_UNDEFINED) {
-    if (base->segment.format == GST_FORMAT_TIME) {
-      demux->segment = base->segment;
-      /* We can shortcut and create the segment event directly */
-      demux->segment_event = gst_event_new_segment (&demux->segment);
-    } else {
-      gst_segment_init (&demux->segment, GST_FORMAT_TIME);
-    }
-  }
-
   /* 1) If we need to calculate an update newsegment, do it
    * 2) If we need to calculate a new newsegment, do it
    * 3) If an update_segment is valid, push it
@@ -1404,20 +1438,26 @@ calculate_and_push_newsegment (GstTSDemux * demux, TSDemuxStream * stream)
     demux->calculate_update_segment = FALSE;
   }
 
-  if (!demux->segment_event) {
-    GstSegment new_segment;
-
+  if (demux->segment.format != GST_FORMAT_TIME) {
+    /* It will happen only if it's first program or after flushes. */
     GST_DEBUG ("Calculating actual segment");
-
-    gst_segment_copy_into (&demux->segment, &new_segment);
-    if (new_segment.format != GST_FORMAT_TIME) {
+    if (base->segment.format == GST_FORMAT_TIME) {
+      /* Try to recover segment info from base if it's in TIME format */
+      demux->segment = base->segment;
+    } else {
       /* Start from the first ts/pts */
-      new_segment.start = firstts;
-      new_segment.stop = GST_CLOCK_TIME_NONE;
-      new_segment.position = firstts;
+      gst_segment_init (&demux->segment, GST_FORMAT_TIME);
+      demux->segment.start = firstts;
+      demux->segment.stop = GST_CLOCK_TIME_NONE;
+      demux->segment.position = firstts;
+      demux->segment.time = firstts;
+      demux->segment.rate = demux->rate;
     }
+  }
 
-    demux->segment_event = gst_event_new_segment (&new_segment);
+  if (!demux->segment_event) {
+    demux->segment_event = gst_event_new_segment (&demux->segment);
+    GST_EVENT_SEQNUM (demux->segment_event) = base->last_seek_seqnum;
   }
 
 push_new_segment:
@@ -1563,6 +1603,7 @@ gst_ts_demux_flush (MpegTSBase * base, gboolean hard)
   demux->calculate_update_segment = FALSE;
   if (hard) {
     /* For pull mode seeks the current segment needs to be preserved */
+    demux->rate = 1.0;
     gst_segment_init (&demux->segment, GST_FORMAT_UNDEFINED);
   }
 }

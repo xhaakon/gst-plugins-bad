@@ -779,9 +779,11 @@ mpegtsmux_sink_event (GstCollectPads * pads, GstCollectData * data,
   MpegTsMux *mux = GST_MPEG_TSMUX (user_data);
   gboolean res = FALSE;
   gboolean forward = TRUE;
+#ifndef GST_DISABLE_GST_DEBUG
   GstPad *pad;
 
   pad = data->pad;
+#endif
 
   switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_CUSTOM_DOWNSTREAM:
@@ -977,6 +979,7 @@ mpegtsmux_clip_inc_running_time (GstCollectPads * pads,
       GST_DEBUG_OBJECT (cdata->pad, "clipping buffer on pad outside segment");
       gst_buffer_unref (buf);
       *outbuf = NULL;
+      goto beach;
     } else {
       GST_LOG_OBJECT (cdata->pad, "buffer pts %" GST_TIME_FORMAT " -> %"
           GST_TIME_FORMAT " running time",
@@ -1023,6 +1026,7 @@ mpegtsmux_clip_inc_running_time (GstCollectPads * pads,
     gst_buffer_unref (buf);
   }
 
+beach:
   return GST_FLOW_OK;
 }
 
