@@ -3,7 +3,7 @@ AC_PREREQ(2.62)
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT(GStreamer Bad Plug-ins, 1.0.8,
+AC_INIT(GStreamer Bad Plug-ins, 1.0.9,
     http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer,
     gst-plugins-bad)
 
@@ -50,11 +50,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 7, 0, 7)
+AS_LIBTOOL(GST, 8, 0, 8)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.0.0
-GSTPB_REQ=1.0.0
+GSTPB_REQ=1.0.8
 
 dnl *** autotools stuff ****
 
@@ -501,7 +501,7 @@ GST_PLUGINS_NONPORTED=" aiff \
  apexsink cdaudio cog dc1394 dirac directfb \
  gsettings jasper ladspa \
  musepack musicbrainz nas rsvg sdl sndfile timidity \
- directdraw direct3d9 acm wininet \
+ directdraw acm wininet \
  wildmidi xvid lv2 teletextdec sndio uvch264 osx_video quicktime"
 AC_SUBST(GST_PLUGINS_NONPORTED)
 
@@ -540,6 +540,7 @@ AG_GST_CHECK_PLUGIN(jp2kdecimator)
 AG_GST_CHECK_PLUGIN(jpegformat)
 AG_GST_CHECK_PLUGIN(librfb)
 AG_GST_CHECK_PLUGIN(liveadder)
+AG_GST_CHECK_PLUGIN(midi)
 AG_GST_CHECK_PLUGIN(mpegdemux)
 AG_GST_CHECK_PLUGIN(mpegtsdemux)
 AG_GST_CHECK_PLUGIN(mpegtsmux)
@@ -662,7 +663,7 @@ AG_GST_CHECK_FEATURE(DIRECT3D, [Direct3D plug-in], direct3dsink, [
   LIBS=$save_LIBS
 
   if test "x$HAVE_DIRECT3D" = "xyes";  then
-    DIRECT3D_LIBS="-lgdi32"
+    DIRECT3D_LIBS="-ld3d9 -lgdi32"
     AC_SUBST(DIRECT3D_LIBS)
   fi
   AC_SUBST(HAVE_DIRECT3D)
@@ -703,34 +704,35 @@ AG_GST_CHECK_FEATURE(DIRECTDRAW, [DirectDraw plug-in], directdrawsink, [
   AC_SUBST(HAVE_DIRECTDRAW)
 ])
 
-dnl Direct3D9
-AM_CONDITIONAL(USE_DIRECT3D9, true)
-AG_GST_CHECK_FEATURE(DIRECT3D9, [Direct3D9], winscreencap, [
-  HAVE_DIRECT3D="no"
-
+dnl winscreencap
+translit(dnm, m, l) AM_CONDITIONAL(USE_WINSCREENCAP, true)
+AG_GST_CHECK_FEATURE(WINSCREENCAP, [winscreencap plug-in], winscreencap, [
+  HAVE_WINSCREENCAP="no"
+  save_CFLAGS="$CFLAGS"
+  save_LDFLAGS="$LDFLAGS"
   save_LIBS="$LIBS"
-
+  CFLAGS="$CFLAGS $DIRECTX_CFLAGS"
+  LDFLAGS="$LDFLAGS $DIRECTX_LDFLAGS"
   LIBS="$LIBS -ld3d9 -lgdi32"
-  AC_MSG_CHECKING(for Direct3D9 LDFLAGS)
-
+  AC_MSG_CHECKING(for Direct3D LDFLAGS)
   AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <windows.h>
 #include <d3d9.h>
 ]], [[
   Direct3DCreate9(D3D_SDK_VERSION);
 ]])],
-    [HAVE_DIRECT3D9="yes"],
-    [HAVE_DIRECT3D9="no"])
-  AC_MSG_RESULT($HAVE_DIRECT3D9)
-
+    [HAVE_WINSCREENCAP="yes"],
+    [HAVE_WINSCREENCAP="no"])
+  AC_MSG_RESULT($HAVE_WINSCREENCAP)
+  CFLAGS=$save_CFLAGS
+  LDFLAGS=$save_LDFLAGS
   LIBS=$save_LIBS
 
-  if test "x$HAVE_DIRECT3D9" = "xyes";  then
-
-    DIRECT3D9_LIBS="-ld3d9 -lgdi32"
-    AC_SUBST(DIRECT3D9_LIBS)
+  if test "x$HAVE_WINSCREENCAP" = "xyes";  then
+    WINSCREENCAP_LIBS="-ld3d9 -lgdi32"
+    AC_SUBST(WINSCREENCAP_LIBS)
   fi
-  AC_SUBST(HAVE_DIRECT3D9)
+  AC_SUBST(HAVE_WINSCREENCAP)
 ])
 
 dnl DirectShow
@@ -1252,6 +1254,14 @@ AG_GST_CHECK_FEATURE(FLITE, [Flite plugin], flite, [
   AC_SUBST(FLITE_LIBS)
 ])
 
+dnl *** fluidSynth ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_FLUIDSYNTH, true)
+AG_GST_CHECK_FEATURE(FLUIDSYNTH, [fluidsynth], fluidsynth, [
+  PKG_CHECK_MODULES(FLUIDSYNTH, fluidsynth >= 1.0, HAVE_FLUIDSYNTH="yes", [
+    HAVE_FLUIDSYNTH="no"
+  ])
+])
+
 dnl *** gsm ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_GSM, true)
 AG_GST_CHECK_FEATURE(GSM, [GSM library], gsmenc gsmdec, [
@@ -1271,6 +1281,18 @@ AG_GST_CHECK_FEATURE(JASPER, [jasper], jasperdec jasperenc, [
   AG_GST_CHECK_LIBHEADER(JASPER, jasper, jas_stream_fopen, , jasper/jasper.h,
     JASPER_LIBS="-ljasper")
   AC_SUBST(JASPER_LIBS)
+])
+
+dnl *** OpenJPEG ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_OPENJPEG, true)
+AG_GST_CHECK_FEATURE(OPENJPEG, [openjpeg library], openjpeg, [
+  HAVE_OPENJPEG="no"
+  PKG_CHECK_MODULES(OPENJPEG, libopenjpeg1,
+    HAVE_OPENJPEG="yes",
+    AG_GST_CHECK_LIBHEADER(OPENJPEG, openjpeg, opj_version, , openjpeg.h, OPENJPEG_LIBS="-lopenjpeg")
+  )
+  AC_SUBST(OPENJPEG_CFLAGS)
+  AC_SUBST(OPENJPEG_LIBS)
 ])
 
 dnl *** kate ***
@@ -2073,8 +2095,10 @@ AM_CONDITIONAL(USE_FAAC, false)
 AM_CONDITIONAL(USE_FAAD, false)
 AM_CONDITIONAL(USE_FBDEV, false)
 AM_CONDITIONAL(USE_FLITE, false)
+AM_CONDITIONAL(USE_FLUIDSYNTH, false)
 AM_CONDITIONAL(USE_GSM, false)
 AM_CONDITIONAL(USE_JASPER, false)
+AM_CONDITIONAL(USE_OPENJPEG, false)
 AM_CONDITIONAL(USE_KATE, false)
 AM_CONDITIONAL(USE_TIGER, false)
 AM_CONDITIONAL(USE_LADSPA, false)
@@ -2234,6 +2258,7 @@ gst/jp2kdecimator/Makefile
 gst/jpegformat/Makefile
 gst/librfb/Makefile
 gst/liveadder/Makefile
+gst/midi/Makefile
 gst/mpegdemux/Makefile
 gst/mpegtsdemux/Makefile
 gst/mpegtsmux/Makefile
@@ -2334,6 +2359,7 @@ ext/eglgles/Makefile
 ext/faac/Makefile
 ext/faad/Makefile
 ext/flite/Makefile
+ext/fluidsynth/Makefile
 ext/gsm/Makefile
 ext/jasper/Makefile
 ext/kate/Makefile
@@ -2354,6 +2380,7 @@ ext/neon/Makefile
 ext/ofa/Makefile
 ext/openal/Makefile
 ext/opencv/Makefile
+ext/openjpeg/Makefile
 ext/opus/Makefile
 ext/rsvg/Makefile
 ext/resindvd/Makefile

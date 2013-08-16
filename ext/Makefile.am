@@ -142,6 +142,12 @@ else
 JASPER_DIR =
 endif
 
+if USE_OPENJPEG
+OPENJPEG_DIR = openjpeg
+else
+OPENJPEG_DIR =
+endif
+
 if USE_KATE
 KATE_DIR=kate
 else
@@ -276,6 +282,10 @@ TIMIDITY_DIR=
 endif
 endif
 
+if USE_FLUIDSYNTH
+FLUIDSYNTH_DIR=fluidsynth
+endif
+
 if USE_SCHRO
 SCHRO_DIR=schroedinger
 else
@@ -389,10 +399,12 @@ SUBDIRS=\
 	$(FAAC_DIR) \
 	$(FAAD_DIR) \
 	$(FLITE_DIR) \
+	$(FLUIDSYNTH_DIR) \
 	$(GSETTINGS_DIR) \
 	$(GSM_DIR) \
 	$(G729_DIR) \
 	$(JASPER_DIR) \
+	$(OPENJPEG_DIR) \
 	$(KATE_DIR) \
 	$(LADSPA_DIR) \
 	$(LV2_DIR) \
@@ -445,10 +457,12 @@ DIST_SUBDIRS = \
 	faac \
 	faad \
 	flite \
+	fluidsynth \
 	gsettings \
 	gsm \
 	ladspa \
 	jasper \
+	openjpeg \
 	kate \
 	libmms \
 	lv2 \

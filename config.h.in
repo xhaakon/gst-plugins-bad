@@ -190,9 +190,6 @@
 /* Define to enable Direct3D plug-in (used by direct3dsink). */
 #undef HAVE_DIRECT3D
 
-/* Define to enable Direct3D9 (used by winscreencap). */
-#undef HAVE_DIRECT3D9
-
 /* Define to enable DirectDraw plug-in (used by directdrawsink). */
 #undef HAVE_DIRECTDRAW
 
@@ -246,6 +243,9 @@
 
 /* Define to enable Flite plugin (used by flite). */
 #undef HAVE_FLITE
+
+/* Define to enable fluidsynth (used by fluidsynth). */
+#undef HAVE_FLUIDSYNTH
 
 /* Define to 1 if you have the `getpagesize' function. */
 #undef HAVE_GETPAGESIZE
@@ -372,6 +372,9 @@
 
 /* Define to 1 if you have the <opencv2/highgui/highgui_c.h> header file. */
 #undef HAVE_OPENCV2_HIGHGUI_HIGHGUI_C_H
+
+/* Define to enable openjpeg library (used by openjpeg). */
+#undef HAVE_OPENJPEG
 
 /* Define to enable OpenSL ES (used by opensl). */
 #undef HAVE_OPENSLES
@@ -522,6 +525,9 @@
 
 /* Define to 1 if you have the <wininet.h> header file. */
 #undef HAVE_WININET_H
+
+/* Define to enable winscreencap plug-in (used by winscreencap). */
+#undef HAVE_WINSCREENCAP
 
 /* Define to 1 if you have the <winsock2.h> header file. */
 #undef HAVE_WINSOCK2_H
