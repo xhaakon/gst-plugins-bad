@@ -1,3 +1,13 @@
+gst-plugins-bad1.0 (1.0.10-1) unstable; urgency=low
+
+  * New upstream bugfix release.
+  * debian/patches/01_fix-modplug-linking.patch:
+    + Patch from the Ubuntu package to fix linking of the modplug
+      plugin on some architectures, probably due to a toolchain
+      bug (Closes: #717331).
+
+ -- Sebastian Dröge <slomo@debian.org>  Fri, 30 Aug 2013 11:04:36 +0200
+
 gst-plugins-bad1.0 (1.0.9-1) unstable; urgency=low
 
   * New upstream bugfix release.
