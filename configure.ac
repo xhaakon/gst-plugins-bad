@@ -3,7 +3,7 @@ AC_PREREQ(2.62)
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT(GStreamer Bad Plug-ins, 1.0.9,
+AC_INIT(GStreamer Bad Plug-ins, 1.0.10,
     http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer,
     gst-plugins-bad)
 
@@ -50,7 +50,7 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 8, 0, 8)
+AS_LIBTOOL(GST, 9, 0, 9)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.0.0
@@ -973,8 +973,17 @@ AG_GST_CHECK_FEATURE(APEXSINK, [AirPort Express Wireless sink], apexsink, [
 dnl *** BZ2 ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_BZ2, true)
 AG_GST_CHECK_FEATURE(BZ2, [bz2 library], bz2, [
-  AG_GST_CHECK_LIBHEADER(BZ2, bz2, BZ2_bzCompress, ,bzlib.h, BZ2_LIBS="-lbz2")
-  AC_SUBST(BZ2_LIBS)
+  save_LIBS=$LIBS
+  LIBS="$LIBS -lbz2"
+  AC_MSG_CHECKING([for BZ2_bzlibVersion in -lbz2])
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <bzlib.h>]], [[const char *version = BZ2_bzlibVersion ();]])],[HAVE_BZ2=yes],[HAVE_BZ2=no])
+  AC_MSG_RESULT($HAVE_BZ2)
+  LIBS=$save_LIBS
+  if test "x$HAVE_BZ2" = "xyes"; then
+    BZ2_LIBS="-lbz2"
+  fi
+  AC_SUBST(BZ2_LIBS):w
+
 ])
 
 #dnl *** cairo ***
@@ -1623,7 +1632,7 @@ AG_GST_CHECK_FEATURE(NAS, [nas plug-in], nassink, [
 dnl *** neon ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_NEON, true)
 AG_GST_CHECK_FEATURE(NEON, [neon http client plugins], neonhttpsrc, [
-  PKG_CHECK_MODULES(NEON, neon >= 0.27.0  neon <= 0.29.99, HAVE_NEON="yes", [
+  PKG_CHECK_MODULES(NEON, neon >= 0.27.0  neon <= 0.30.99, HAVE_NEON="yes", [
     HAVE_NEON="no"
   ])
   AC_SUBST(NEON_CFLAGS)
