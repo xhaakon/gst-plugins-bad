@@ -81,6 +81,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideofiltersbad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideoparsersbad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvoaacenc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvoamrwbenc.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstwebp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstwildmidi.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgsty4mdec.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstyadif.so
