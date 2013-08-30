@@ -56,16 +56,16 @@ enum                <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sect
 #define             <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-unref" title="gst_mpegts_section_unref()">gst_mpegts_section_unref</a>            (section)
 
 struct              <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsPatProgram" title="struct GstMpegTsPatProgram">GstMpegTsPatProgram</a>;
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-get-pat" title="gst_mpegts_section_get_pat ()">gst_mpegts_section_get_pat</a>          (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *         <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-get-pat" title="gst_mpegts_section_get_pat ()">gst_mpegts_section_get_pat</a>          (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);
 
 struct              <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsPMT" title="struct GstMpegTsPMT">GstMpegTsPMT</a>;
 struct              <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsPMTStream" title="struct GstMpegTsPMTStream">GstMpegTsPMTStream</a>;
 enum                <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsStreamType-enum" title="enum GstMpegTsStreamType">GstMpegTsStreamType</a>;
 const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsPMT" title="struct GstMpegTsPMT"><span class="returnvalue">GstMpegTsPMT</span></a> * <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-get-pmt" title="gst_mpegts_section_get_pmt ()">gst_mpegts_section_get_pmt</a>         (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);
 
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-get-tsdt" title="gst_mpegts_section_get_tsdt ()">gst_mpegts_section_get_tsdt</a>         (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *         <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-get-tsdt" title="gst_mpegts_section_get_tsdt ()">gst_mpegts_section_get_tsdt</a>         (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);
 
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-get-cat" title="gst_mpegts_section_get_cat ()">gst_mpegts_section_get_cat</a>          (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *         <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-get-cat" title="gst_mpegts_section_get_cat ()">gst_mpegts_section_get_cat</a>          (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);
 </pre>
 </div>
 <div class="refsect1">
@@ -441,7 +441,7 @@ A program entry from a Program Association Table (ITU H.222.0, ISO/IEC 13818-1).
 <hr>
 <div class="refsect2">
 <a name="gst-mpegts-section-get-pat"></a><h3>gst_mpegts_section_get_pat ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            gst_mpegts_section_get_pat          (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);</pre>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *         gst_mpegts_section_get_pat          (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);</pre>
 <p>
 Parses a Program Association Table (ITU H.222.0, ISO/IEC 13818-1).
 </p>
@@ -479,7 +479,7 @@ happened. Release with <a href="http://library.gnome.org/devel/glib/unstable/gli
 <pre class="programlisting">struct GstMpegTsPMT {
   guint16    pcr_pid;
 
-  GArray    *descriptors;
+  GPtrArray    *descriptors;
   GPtrArray *streams;
 };
 </pre>
@@ -501,7 +501,7 @@ container <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#
 <td>PID of the stream containing PCR</td>
 </tr>
 <tr>
-<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="type">GArray</span></a> *<em class="structfield"><code><a name="GstMpegTsPMT.descriptors"></a>descriptors</code></em>;</span></p></td>
+<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="type">GPtrArray</span></a> *<em class="structfield"><code><a name="GstMpegTsPMT.descriptors"></a>descriptors</code></em>;</span></p></td>
 <td>array of <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsDescriptor"><span class="type">GstMpegTsDescriptor</span></a>. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> GstMpegTsDescriptor]</span>
 </td>
 </tr>
@@ -520,7 +520,7 @@ container <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#
   guint8      stream_type;
   guint16     pid;
 
-  GArray     *descriptors;
+  GPtrArray     *descriptors;
 };
 </pre>
 <p>
@@ -542,7 +542,7 @@ An individual stream definition.
 <td>the PID of the stream</td>
 </tr>
 <tr>
-<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="type">GArray</span></a> *<em class="structfield"><code><a name="GstMpegTsPMTStream.descriptors"></a>descriptors</code></em>;</span></p></td>
+<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="type">GPtrArray</span></a> *<em class="structfield"><code><a name="GstMpegTsPMTStream.descriptors"></a>descriptors</code></em>;</span></p></td>
 <td>the descriptors of the
 stream. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> GstMpegTsDescriptor]</span>
 </td>
@@ -854,7 +854,7 @@ happened.</td>
 <hr>
 <div class="refsect2">
 <a name="gst-mpegts-section-get-tsdt"></a><h3>gst_mpegts_section_get_tsdt ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            gst_mpegts_section_get_tsdt         (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);</pre>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *         gst_mpegts_section_get_tsdt         (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);</pre>
 <p>
 Returns the array of <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsDescriptor"><span class="type">GstMpegTsDescriptor</span></a> contained in the section
 </p>
@@ -882,7 +882,7 @@ happened. Release with <a href="http://library.gnome.org/devel/glib/unstable/gli
 <hr>
 <div class="refsect2">
 <a name="gst-mpegts-section-get-cat"></a><h3>gst_mpegts_section_get_cat ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            gst_mpegts_section_get_cat          (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);</pre>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *         gst_mpegts_section_get_cat          (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);</pre>
 <p>
 Returns the array of <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsDescriptor"><span class="type">GstMpegTsDescriptor</span></a> contained in the Condtional
 Access Table.

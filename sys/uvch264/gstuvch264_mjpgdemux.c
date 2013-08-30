@@ -144,6 +144,9 @@ struct _GstUvcH264MjpgDemuxPrivate
   guint16 yuy2_height;
   guint16 nv12_width;
   guint16 nv12_height;
+
+  /* input segment */
+  GstSegment segment;
 };
 
 typedef struct
@@ -365,14 +368,21 @@ gst_uvc_h264_mjpg_demux_sink_event (GstPad * pad, GstObject * parent,
     GstEvent * event)
 {
   GstUvcH264MjpgDemux *self = GST_UVC_H264_MJPG_DEMUX (parent);
+  gboolean res;
 
   switch (GST_EVENT_TYPE (event)) {
+    case GST_EVENT_SEGMENT:
+      gst_event_copy_segment (event, &self->priv->segment);
+      res = gst_pad_push_event (self->priv->jpeg_pad, event);
+      break;
     case GST_EVENT_CAPS:
-      return gst_pad_push_event (self->priv->jpeg_pad, event);
+      res = gst_pad_push_event (self->priv->jpeg_pad, event);
+      break;
     default:
+      res = gst_pad_event_default (pad, parent, event);
       break;
   }
-  return gst_pad_event_default (pad, parent, event);
+  return res;
 }
 
 static gboolean
@@ -471,6 +481,7 @@ gst_uvc_h264_mjpg_demux_chain (GstPad * pad,
   guint last_offset;
   guint i;
   GstMapInfo info;
+  guint16 segment_size;
 
   self = GST_UVC_H264_MJPG_DEMUX (GST_PAD_PARENT (pad));
 
@@ -486,7 +497,6 @@ gst_uvc_h264_mjpg_demux_chain (GstPad * pad,
   for (i = 0; i < info.size - 1; i++) {
     /* Check for APP4 (0xe4) marker in the jpeg */
     if (info.data[i] == 0xff && info.data[i + 1] == 0xe4) {
-      guint16 segment_size;
 
       /* Sanity check sizes and get segment size */
       if (i + 4 >= info.size) {
@@ -612,10 +622,9 @@ gst_uvc_h264_mjpg_demux_chain (GstPad * pad,
                 "width", G_TYPE_INT, aux_header.width,
                 "height", G_TYPE_INT, aux_header.height,
                 "framerate", GST_TYPE_FRACTION, fps_num, fps_den, NULL);
-            if (!gst_pad_set_caps (aux_pad, *aux_caps)) {
-              ret = GST_FLOW_NOT_NEGOTIATED;
-              goto done;
-            }
+            gst_pad_push_event (aux_pad, gst_event_new_caps (*aux_caps));
+            gst_pad_push_event (aux_pad,
+                gst_event_new_segment (&self->priv->segment));
           }
 
           /* Create new auxiliary buffer list and adjust i/segment size */
@@ -677,9 +686,10 @@ gst_uvc_h264_mjpg_demux_chain (GstPad * pad,
   }
 
   if (aux_buf != NULL) {
-    GST_ELEMENT_ERROR (self, STREAM, DEMUX,
-        ("Incomplete auxiliary stream. %d bytes missing", aux_size), (NULL));
-    ret = GST_FLOW_ERROR;
+    GST_DEBUG_OBJECT (self, "Incomplete auxiliary stream: %d bytes missing, "
+        "%d segment size remaining -- missing segment, C920 bug?",
+        aux_size, segment_size);
+    ret = GST_FLOW_OK;
     goto done;
   }
 

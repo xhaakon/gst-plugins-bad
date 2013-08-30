@@ -505,13 +505,14 @@ gst_ts_demux_do_seek (MpegTSBase * base, GstEvent * event)
   gst_event_parse_seek (event, &rate, &format, &flags, &start_type, &start,
       &stop_type, &stop);
 
-  if (format != GST_FORMAT_TIME) {
-    goto done;
-  }
-
   GST_DEBUG ("seek event, rate: %f start: %" GST_TIME_FORMAT
       " stop: %" GST_TIME_FORMAT, rate, GST_TIME_ARGS (start),
       GST_TIME_ARGS (stop));
+
+  if (rate <= 0.0) {
+    GST_WARNING ("Negative rate not supported");
+    goto done;
+  }
 
   if (flags & (GST_SEEK_FLAG_SEGMENT | GST_SEEK_FLAG_SKIP)) {
     GST_WARNING ("seek flags 0x%x are not supported", (int) flags);
@@ -826,7 +827,7 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
         GST_LOG ("teletext");
         template = gst_static_pad_template_get (&private_template);
         name = g_strdup_printf ("private_%04x", bstream->pid);
-        caps = gst_caps_new_empty_simple ("private/teletext");
+        caps = gst_caps_new_empty_simple ("application/x-teletext");
         break;
       }
       desc =
@@ -1254,12 +1255,11 @@ gst_ts_demux_parse_pes_header (GstTSDemux * demux, TSDemuxStream * stream,
     guint8 * data, guint32 length, guint64 bufferoffset)
 {
   PESHeader header;
-  gint offset = 0;
   PESParsingResult parseres;
 
   GST_MEMDUMP ("Header buffer", data, MIN (length, 32));
 
-  parseres = mpegts_parse_pes_header (data, length, &header, &offset);
+  parseres = mpegts_parse_pes_header (data, length, &header);
   if (G_UNLIKELY (parseres == PES_PARSING_NEED_MORE))
     goto discont;
   if (G_UNLIKELY (parseres == PES_PARSING_BAD)) {

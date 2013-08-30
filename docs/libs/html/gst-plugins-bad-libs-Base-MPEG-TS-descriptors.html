@@ -45,9 +45,9 @@
 struct              <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsDescriptor-struct" title="struct GstMpegTsDescriptor">GstMpegTsDescriptor</a>;
 enum                <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsDescriptorType-enum" title="enum GstMpegTsDescriptorType">GstMpegTsDescriptorType</a>;
 enum                <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsMiscDescriptorType" title="enum GstMpegTsMiscDescriptorType">GstMpegTsMiscDescriptorType</a>;
-const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsDescriptor"><span class="returnvalue">GstMpegTsDescriptor</span></a> * <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-find-descriptor" title="gst_mpegts_find_descriptor ()">gst_mpegts_find_descriptor</a>  (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="type">GArray</span></a> *descriptors</code></em>,
+const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsDescriptor"><span class="returnvalue">GstMpegTsDescriptor</span></a> * <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-find-descriptor" title="gst_mpegts_find_descriptor ()">gst_mpegts_find_descriptor</a>  (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="type">GPtrArray</span></a> *descriptors</code></em>,
                                                          <em class="parameter"><code><span class="type">guint8</span> tag</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-parse-descriptors" title="gst_mpegts_parse_descriptors ()">gst_mpegts_parse_descriptors</a>        (<em class="parameter"><code><span class="type">guint8</span> *buffer</code></em>,
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *         <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-parse-descriptors" title="gst_mpegts_parse_descriptors ()">gst_mpegts_parse_descriptors</a>        (<em class="parameter"><code><span class="type">guint8</span> *buffer</code></em>,
                                                          <em class="parameter"><code><span class="type">gsize</span> buf_len</code></em>);
 
 struct              <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsISO639LanguageDescriptor" title="struct GstMpegTsISO639LanguageDescriptor">GstMpegTsISO639LanguageDescriptor</a>;
@@ -96,10 +96,10 @@ and other specifications mentionned in the documentation.
 <div class="refsect2">
 <a name="GstMpegTsDescriptor-struct"></a><h3>struct GstMpegTsDescriptor</h3>
 <pre class="programlisting">struct GstMpegTsDescriptor {
-  guint8 descriptor_tag;
-  guint8 descriptor_tag_extension;
-  guint8 descriptor_length;
-  const guint8 *descriptor_data;
+  guint8 tag;
+  guint8 tag_extension;
+  guint8 length;
+  const guint8 *data;
 };
 </pre>
 <p>
@@ -112,20 +112,21 @@ Mpeg-TS descriptor (ISO/IEC 13818-1).
 </colgroup>
 <tbody>
 <tr>
-<td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegTsDescriptor-struct.descriptor-tag"></a>descriptor_tag</code></em>;</span></p></td>
+<td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegTsDescriptor-struct.tag"></a>tag</code></em>;</span></p></td>
 <td>the type of descriptor</td>
 </tr>
 <tr>
-<td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegTsDescriptor-struct.descriptor-tag-extension"></a>descriptor_tag_extension</code></em>;</span></p></td>
+<td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegTsDescriptor-struct.tag-extension"></a>tag_extension</code></em>;</span></p></td>
 <td>the extended type (if <em class="parameter"><code>descriptor_tag</code></em> is 0x7f)</td>
 </tr>
 <tr>
-<td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegTsDescriptor-struct.descriptor-length"></a>descriptor_length</code></em>;</span></p></td>
+<td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegTsDescriptor-struct.length"></a>length</code></em>;</span></p></td>
 <td>the length of the descriptor content (excluding tag/length field)</td>
 </tr>
 <tr>
-<td><p><span class="term">const <span class="type">guint8</span> *<em class="structfield"><code><a name="GstMpegTsDescriptor-struct.descriptor-data"></a>descriptor_data</code></em>;</span></p></td>
-<td>the full descriptor data (including tag, extension, length)</td>
+<td><p><span class="term">const <span class="type">guint8</span> *<em class="structfield"><code><a name="GstMpegTsDescriptor-struct.data"></a>data</code></em>;</span></p></td>
+<td>the full descriptor data (including tag, extension, length). The first
+two bytes are the <em class="parameter"><code>tag</code></em> and <em class="parameter"><code>tag_extension</code></em>.</td>
 </tr>
 </tbody>
 </table></div>
@@ -230,7 +231,7 @@ not yet identified from known specifications.
 <hr>
 <div class="refsect2">
 <a name="gst-mpegts-find-descriptor"></a><h3>gst_mpegts_find_descriptor ()</h3>
-<pre class="programlisting">const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsDescriptor"><span class="returnvalue">GstMpegTsDescriptor</span></a> * gst_mpegts_find_descriptor  (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="type">GArray</span></a> *descriptors</code></em>,
+<pre class="programlisting">const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsDescriptor"><span class="returnvalue">GstMpegTsDescriptor</span></a> * gst_mpegts_find_descriptor  (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="type">GPtrArray</span></a> *descriptors</code></em>,
                                                          <em class="parameter"><code><span class="type">guint8</span> tag</code></em>);</pre>
 <p>
 Finds the first descriptor of type <em class="parameter"><code>tag</code></em> in the array.
@@ -266,7 +267,7 @@ of <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstM
 <hr>
 <div class="refsect2">
 <a name="gst-mpegts-parse-descriptors"></a><h3>gst_mpegts_parse_descriptors ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            gst_mpegts_parse_descriptors        (<em class="parameter"><code><span class="type">guint8</span> *buffer</code></em>,
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *         gst_mpegts_parse_descriptors        (<em class="parameter"><code><span class="type">guint8</span> *buffer</code></em>,
                                                          <em class="parameter"><code><span class="type">gsize</span> buf_len</code></em>);</pre>
 <p>
 Parses the descriptors present in <em class="parameter"><code>buffer</code></em> and returns them as an

@@ -158,12 +158,13 @@ libgstvdpau_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/codecparsers/libgstco
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+am__dirstamp = $(am__leading_dot)dirstamp
 am_libgstvdpau_la_OBJECTS = libgstvdpau_la-gstvdpau.lo \
 	libgstvdpau_la-gstvdputils.lo \
 	libgstvdpau_la-gstvdpvideomemory.lo \
 	libgstvdpau_la-gstvdpvideobufferpool.lo \
 	libgstvdpau_la-gstvdpdevice.lo libgstvdpau_la-gstvdpdecoder.lo \
-	libgstvdpau_la-gstvdpmpegdec.lo
+	mpeg/libgstvdpau_la-gstvdpmpegdec.lo
 libgstvdpau_la_OBJECTS = $(am_libgstvdpau_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -417,7 +418,6 @@ GTK_CFLAGS = @GTK_CFLAGS@
 GTK_LIBS = @GTK_LIBS@
 G_UDEV_CFLAGS = @G_UDEV_CFLAGS@
 G_UDEV_LIBS = @G_UDEV_LIBS@
-HAVE_BZ2 = @HAVE_BZ2@
 HAVE_CXX = @HAVE_CXX@
 HAVE_DIRECT3D = @HAVE_DIRECT3D@
 HAVE_DIRECTDRAW = @HAVE_DIRECTDRAW@
@@ -607,6 +607,8 @@ WARNING_OBJCFLAGS = @WARNING_OBJCFLAGS@
 WASAPI_LIBS = @WASAPI_LIBS@
 WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
+WEBP_CFLAGS = @WEBP_CFLAGS@
+WEBP_LIBS = @WEBP_LIBS@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
 WINSCREENCAP_LIBS = @WINSCREENCAP_LIBS@
@@ -792,12 +794,22 @@ clean-pluginLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
+mpeg/$(am__dirstamp):
+	@$(MKDIR_P) mpeg
+	@: > mpeg/$(am__dirstamp)
+mpeg/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) mpeg/$(DEPDIR)
+	@: > mpeg/$(DEPDIR)/$(am__dirstamp)
+mpeg/libgstvdpau_la-gstvdpmpegdec.lo: mpeg/$(am__dirstamp) \
+	mpeg/$(DEPDIR)/$(am__dirstamp)
 
 libgstvdpau.la: $(libgstvdpau_la_OBJECTS) $(libgstvdpau_la_DEPENDENCIES) $(EXTRA_libgstvdpau_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libgstvdpau_la_LINK) -rpath $(plugindir) $(libgstvdpau_la_OBJECTS) $(libgstvdpau_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f mpeg/*.$(OBJEXT)
+	-rm -f mpeg/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -805,28 +817,31 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstvdpau_la-gstvdpau.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstvdpau_la-gstvdpdecoder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstvdpau_la-gstvdpdevice.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstvdpau_la-gstvdpmpegdec.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstvdpau_la-gstvdputils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstvdpau_la-gstvdpvideobufferpool.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstvdpau_la-gstvdpvideomemory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@mpeg/$(DEPDIR)/libgstvdpau_la-gstvdpmpegdec.Plo@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c $<
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c `$(CYGPATH_W) '$<'`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
@@ -873,18 +888,19 @@ libgstvdpau_la-gstvdpdecoder.lo: gstvdpdecoder.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstvdpau_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstvdpau_la_CFLAGS) $(CFLAGS) -c -o libgstvdpau_la-gstvdpdecoder.lo `test -f 'gstvdpdecoder.c' || echo '$(srcdir)/'`gstvdpdecoder.c
 
-libgstvdpau_la-gstvdpmpegdec.lo: mpeg/gstvdpmpegdec.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstvdpau_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstvdpau_la_CFLAGS) $(CFLAGS) -MT libgstvdpau_la-gstvdpmpegdec.lo -MD -MP -MF $(DEPDIR)/libgstvdpau_la-gstvdpmpegdec.Tpo -c -o libgstvdpau_la-gstvdpmpegdec.lo `test -f 'mpeg/gstvdpmpegdec.c' || echo '$(srcdir)/'`mpeg/gstvdpmpegdec.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstvdpau_la-gstvdpmpegdec.Tpo $(DEPDIR)/libgstvdpau_la-gstvdpmpegdec.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpeg/gstvdpmpegdec.c' object='libgstvdpau_la-gstvdpmpegdec.lo' libtool=yes @AMDEPBACKSLASH@
+mpeg/libgstvdpau_la-gstvdpmpegdec.lo: mpeg/gstvdpmpegdec.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstvdpau_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstvdpau_la_CFLAGS) $(CFLAGS) -MT mpeg/libgstvdpau_la-gstvdpmpegdec.lo -MD -MP -MF mpeg/$(DEPDIR)/libgstvdpau_la-gstvdpmpegdec.Tpo -c -o mpeg/libgstvdpau_la-gstvdpmpegdec.lo `test -f 'mpeg/gstvdpmpegdec.c' || echo '$(srcdir)/'`mpeg/gstvdpmpegdec.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) mpeg/$(DEPDIR)/libgstvdpau_la-gstvdpmpegdec.Tpo mpeg/$(DEPDIR)/libgstvdpau_la-gstvdpmpegdec.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpeg/gstvdpmpegdec.c' object='mpeg/libgstvdpau_la-gstvdpmpegdec.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstvdpau_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstvdpau_la_CFLAGS) $(CFLAGS) -c -o libgstvdpau_la-gstvdpmpegdec.lo `test -f 'mpeg/gstvdpmpegdec.c' || echo '$(srcdir)/'`mpeg/gstvdpmpegdec.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstvdpau_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstvdpau_la_CFLAGS) $(CFLAGS) -c -o mpeg/libgstvdpau_la-gstvdpmpegdec.lo `test -f 'mpeg/gstvdpmpegdec.c' || echo '$(srcdir)/'`mpeg/gstvdpmpegdec.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf mpeg/.libs mpeg/_libs
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -1001,6 +1017,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f mpeg/$(DEPDIR)/$(am__dirstamp)
+	-rm -f mpeg/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1011,7 +1029,7 @@ clean-am: clean-generic clean-libtool clean-pluginLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) mpeg/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1057,7 +1075,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) mpeg/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
