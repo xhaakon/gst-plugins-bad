@@ -107,7 +107,7 @@ struct              <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.h
 <p>
 </p>
 <div class="refsect2">
-<a name="idp9771200"></a><p>
+<a name="idp59869424"></a><p>
 Provides useful functions for mpeg videos bitstream parsing.
 </p>
 </div>
@@ -816,8 +816,9 @@ order.
                                                          <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
 <p>
-Parses the MPEG 1/2 video bitstream contained in <em class="parameter"><code>data</code></em> , and returns the
-detect packets as a list of <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoTypeOffsetSize"><span class="type">GstMpegVideoTypeOffsetSize</span></a>.
+Parses the MPEG 1/2 video bitstream contained in <em class="parameter"><code>data</code></em>, and returns the
+offset, and if known also the size, in <em class="parameter"><code>packet</code></em>. This function will scan
+the data to find the next packet if needed.
 </p>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
@@ -825,6 +826,11 @@ detect packets as a list of <a href="http://gstreamer.freedesktop.org/data/doc/g
 <col>
 </colgroup>
 <tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>packet</code></em> :</span></p></td>
+<td>a <span class="type">GstMpegVideoPacket</span> to fill with the data and offset of the
+next packet found</td>
+</tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
 <td>The data to parse</td>
@@ -840,7 +846,7 @@ detect packets as a list of <a href="http://gstreamer.freedesktop.org/data/doc/g
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>TRUE if a packet start code was found</td>
+<td>TRUE if a packet start code was found, otherwise FALSE.</td>
 </tr>
 </tbody>
 </table></div>

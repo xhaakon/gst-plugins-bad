@@ -201,7 +201,20 @@ gst_ivtc_fixate_caps (GstBaseTransform * trans, GstPadDirection direction,
 
   result = gst_caps_make_writable (othercaps);
   if (direction == GST_PAD_SINK) {
-    gst_caps_set_simple (result, "framerate", GST_TYPE_FRACTION, 24, 1, NULL);
+    GstVideoInfo info;
+    if (gst_video_info_from_caps (&info, caps)) {
+      /* Smarter decision */
+      GST_DEBUG_OBJECT (trans, "Input framerate is %d/%d", info.fps_n,
+          info.fps_d);
+      if (info.fps_n == 30000 && info.fps_d == 1001)
+        gst_caps_set_simple (result, "framerate", GST_TYPE_FRACTION, 24000,
+            1001, NULL);
+      else
+        gst_caps_set_simple (result, "framerate", GST_TYPE_FRACTION, 24, 1,
+            NULL);
+    } else {
+      gst_caps_set_simple (result, "framerate", GST_TYPE_FRACTION, 24, 1, NULL);
+    }
   }
 
   result = gst_caps_fixate (result);
@@ -253,7 +266,9 @@ gst_ivtc_sink_event (GstBaseTransform * trans, GstEvent * event)
 static void
 gst_ivtc_flush (GstIvtc * ivtc)
 {
-  GST_FIXME_OBJECT (ivtc, "not sending flushed fields to srcpad");
+  if (ivtc->n_fields > 0) {
+    GST_FIXME_OBJECT (ivtc, "not sending flushed fields to srcpad");
+  }
 
   gst_ivtc_retire_fields (ivtc, ivtc->n_fields);
 }
@@ -351,6 +366,24 @@ reconstruct (GstIvtc * ivtc, GstVideoFrame * dest_frame, int i1, int i2)
 
 }
 
+static int
+reconstruct_line (guint8 * line1, guint8 * line2, int i, int a, int b, int c,
+    int d)
+{
+  int x;
+
+  x = line1[i - 3] * a;
+  x += line1[i - 2] * b;
+  x += line1[i - 1] * c;
+  x += line1[i - 0] * d;
+  x += line2[i + 0] * d;
+  x += line2[i + 1] * c;
+  x += line2[i + 2] * b;
+  x += line2[i + 3] * a;
+  return (x + 16) >> 5;
+}
+
+
 static void
 reconstruct_single (GstIvtc * ivtc, GstVideoFrame * dest_frame, int i1)
 {
@@ -360,7 +393,77 @@ reconstruct_single (GstIvtc * ivtc, GstVideoFrame * dest_frame, int i1)
   int width;
   GstIvtcField *field = &ivtc->fields[i1];
 
-  for (k = 0; k < 3; k++) {
+  for (k = 0; k < 1; k++) {
+    height = GST_VIDEO_FRAME_COMP_HEIGHT (dest_frame, k);
+    width = GST_VIDEO_FRAME_COMP_WIDTH (dest_frame, k);
+    for (j = 0; j < height; j++) {
+      if ((j & 1) == field->parity) {
+        memcpy (GET_LINE (dest_frame, k, j),
+            GET_LINE (&field->frame, k, j), width);
+      } else {
+        if (j == 0 || j == height - 1) {
+          memcpy (GET_LINE (dest_frame, k, j),
+              GET_LINE (&field->frame, k, (j ^ 1)), width);
+        } else {
+          guint8 *dest = GET_LINE (dest_frame, k, j);
+          guint8 *line1 = GET_LINE (&field->frame, k, j - 1);
+          guint8 *line2 = GET_LINE (&field->frame, k, j + 1);
+          int i;
+
+#define MARGIN 3
+          for (i = MARGIN; i < width - MARGIN; i++) {
+            int dx, dy;
+
+            dx = -line1[i - 1] - line2[i - 1] + line1[i + 1] + line2[i + 1];
+            dx *= 2;
+
+            dy = -line1[i - 1] - 2 * line1[i] - line1[i + 1]
+                + line2[i - 1] + 2 * line2[i] + line2[i + 1];
+            if (dy < 0) {
+              dy = -dy;
+              dx = -dx;
+            }
+
+            if (dx == 0 && dy == 0) {
+              dest[i] = (line1[i] + line2[i] + 1) >> 1;
+            } else if (dx < 0) {
+              if (dx < -2 * dy) {
+                dest[i] = reconstruct_line (line1, line2, i, 0, 0, 0, 16);
+              } else if (dx < -dy) {
+                dest[i] = reconstruct_line (line1, line2, i, 0, 0, 8, 8);
+              } else if (2 * dx < -dy) {
+                dest[i] = reconstruct_line (line1, line2, i, 0, 4, 8, 4);
+              } else if (3 * dx < -dy) {
+                dest[i] = reconstruct_line (line1, line2, i, 1, 7, 7, 1);
+              } else {
+                dest[i] = reconstruct_line (line1, line2, i, 4, 8, 4, 0);
+              }
+            } else {
+              if (dx > 2 * dy) {
+                dest[i] = reconstruct_line (line2, line1, i, 0, 0, 0, 16);
+              } else if (dx > dy) {
+                dest[i] = reconstruct_line (line2, line1, i, 0, 0, 8, 8);
+              } else if (2 * dx > dy) {
+                dest[i] = reconstruct_line (line2, line1, i, 0, 4, 8, 4);
+              } else if (3 * dx > dy) {
+                dest[i] = reconstruct_line (line2, line1, i, 1, 7, 7, 1);
+              } else {
+                dest[i] = reconstruct_line (line2, line1, i, 4, 8, 4, 0);
+              }
+            }
+          }
+
+          for (i = 0; i < MARGIN; i++) {
+            dest[i] = (line1[i] + line2[i] + 1) >> 1;
+          }
+          for (i = width - MARGIN; i < width; i++) {
+            dest[i] = (line1[i] + line2[i] + 1) >> 1;
+          }
+        }
+      }
+    }
+  }
+  for (k = 1; k < 3; k++) {
     height = GST_VIDEO_FRAME_COMP_HEIGHT (dest_frame, k);
     width = GST_VIDEO_FRAME_COMP_WIDTH (dest_frame, k);
     for (j = 0; j < height; j++) {

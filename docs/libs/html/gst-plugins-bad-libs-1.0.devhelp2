@@ -68,7 +68,7 @@
     <keyword type="function" name="gst_h264_nal_parser_free ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-nal-parser-free"/>
     <keyword type="function" name="gst_h264_parse_sps ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-parse-sps"/>
     <keyword type="function" name="gst_h264_parse_pps ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-parse-pps"/>
-    <keyword type="" name="" link="gst-plugins-bad-libs-mpegvideoparser.html#idp9771200"/>
+    <keyword type="" name="" link="gst-plugins-bad-libs-mpegvideoparser.html#idp59869424"/>
     <keyword type="enum" name="enum GstMpegVideoPacketTypeCode" link="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPacketTypeCode"/>
     <keyword type="enum" name="enum GstMpegVideoPacketExtensionCode" link="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPacketExtensionCode"/>
     <keyword type="enum" name="enum GstMpegVideoLevel" link="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoLevel"/>

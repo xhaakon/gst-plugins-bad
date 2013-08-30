@@ -156,7 +156,7 @@ see also: <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#
 <pre class="programlisting">struct GstMpegTsNIT {
   gboolean   actual_network;
 
-  GArray    *descriptors;
+  GPtrArray    *descriptors;
 
   GPtrArray *streams;
 };
@@ -179,7 +179,7 @@ container <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#
 <td>Whether this NIT corresponds to the actual stream</td>
 </tr>
 <tr>
-<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="type">GArray</span></a> *<em class="structfield"><code><a name="GstMpegTsNIT.descriptors"></a>descriptors</code></em>;</span></p></td>
+<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="type">GPtrArray</span></a> *<em class="structfield"><code><a name="GstMpegTsNIT.descriptors"></a>descriptors</code></em>;</span></p></td>
 <td>the global descriptors. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> GstMpegTsDescriptor]</span>
 </td>
 </tr>
@@ -198,7 +198,7 @@ container <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#
   guint16  transport_stream_id;
   guint16  original_network_id;
 
-  GArray  *descriptors;
+  GPtrArray  *descriptors;
 };
 </pre>
 <div class="variablelist"><table border="0" class="variablelist">
@@ -216,7 +216,7 @@ container <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#
 <td></td>
 </tr>
 <tr>
-<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="type">GArray</span></a> *<em class="structfield"><code><a name="GstMpegTsNITStream.descriptors"></a>descriptors</code></em>;</span></p></td>
+<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="type">GPtrArray</span></a> *<em class="structfield"><code><a name="GstMpegTsNITStream.descriptors"></a>descriptors</code></em>;</span></p></td>
 <td>. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> GstMpegTsDescriptor]</span>
 </td>
 </tr>
@@ -253,7 +253,7 @@ happened.</td>
 <div class="refsect2">
 <a name="GstMpegTsBAT"></a><h3>struct GstMpegTsBAT</h3>
 <pre class="programlisting">struct GstMpegTsBAT {
-  GArray     *descriptors;
+  GPtrArray     *descriptors;
 
   GPtrArray  *streams;
 };
@@ -268,7 +268,7 @@ DVB Bouquet Association Table (EN 300 468)
 </colgroup>
 <tbody>
 <tr>
-<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="type">GArray</span></a> *<em class="structfield"><code><a name="GstMpegTsBAT.descriptors"></a>descriptors</code></em>;</span></p></td>
+<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="type">GPtrArray</span></a> *<em class="structfield"><code><a name="GstMpegTsBAT.descriptors"></a>descriptors</code></em>;</span></p></td>
 <td>. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> GstMpegTsDescriptor]</span>
 </td>
 </tr>
@@ -287,7 +287,7 @@ DVB Bouquet Association Table (EN 300 468)
   guint16   transport_stream_id;
   guint16   original_network_id;
 
-  GArray   *descriptors;
+  GPtrArray   *descriptors;
 };
 </pre>
 </div>
@@ -316,7 +316,7 @@ Service Description Table (EN 300 468)
   GstMpegTsRunningStatus running_status;
   gboolean   free_CA_mode;
 
-  GArray    *descriptors;
+  GPtrArray    *descriptors;
 };
 </pre>
 </div>
@@ -377,7 +377,7 @@ Event Information Table (EN 300 468)
   GstMpegTsRunningStatus running_status;
   gboolean     free_CA_mode;
 
-  GArray      *descriptors;
+  GPtrArray      *descriptors;
 };
 </pre>
 <p>
@@ -461,7 +461,7 @@ if an error happened. Release with <a href="http://gstreamer.freedesktop.org/dat
 <pre class="programlisting">struct GstMpegTsTOT {
   GstDateTime   *utc_time;
 
-  GArray        *descriptors;
+  GPtrArray        *descriptors;
 };
 </pre>
 <p>

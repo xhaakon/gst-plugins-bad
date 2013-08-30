@@ -540,6 +540,21 @@ gst_mpegv_parse_process_sc (GstMpegvParse * mpvparse,
     else
       GST_LOG_OBJECT (mpvparse, "Couldn't parse picture at offset %d",
           mpvparse->pic_offset);
+
+    /* if terminating packet is a picture, we need to check if it has same TSN as the picture that is being
+       terminated. If it does, we need to keep those together, as these packets are two fields of the same
+       frame */
+    if (packet->type == GST_MPEG_VIDEO_PACKET_PICTURE) {
+      if (info->size - off < 2) {       /* we need at least two bytes to read the TSN */
+        ret = FALSE;
+      } else {
+        /* TSN is stored in first 10 bits */
+        int tsn = info->data[off] << 2 | (info->data[off + 1] & 0xC0) >> 6;
+
+        if (tsn == mpvparse->pichdr.tsn)        /* prevent termination if TSN is same */
+          ret = FALSE;
+      }
+    }
   }
 
   return ret;
@@ -802,17 +817,21 @@ gst_mpegv_parse_update_src_caps (GstMpegvParse * mpvparse)
         case 2:
           level = levels[0];
         case 5:
-          level = levels[2];
+          if (!level)
+            level = levels[2];
           profile = "4:2:2";
           break;
         case 10:
           level = levels[0];
         case 11:
-          level = levels[1];
+          if (!level)
+            level = levels[1];
         case 13:
-          level = levels[2];
+          if (!level)
+            level = levels[2];
         case 14:
-          level = levels[3];
+          if (!level)
+            level = levels[3];
           profile = "multiview";
           break;
         default:

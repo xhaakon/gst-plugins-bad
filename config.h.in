@@ -508,6 +508,9 @@
 /* Define to enable wayland sink (used by wayland ). */
 #undef HAVE_WAYLAND
 
+/* Define to enable WebP (used by webp ). */
+#undef HAVE_WEBP
+
 /* Define to enable wildmidi midi soft synth plugin (used by wildmidi). */
 #undef HAVE_WILDMIDI
 
