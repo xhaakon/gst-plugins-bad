@@ -1,3 +1,11 @@
+gst-plugins-bad1.0 (1.1.4-2) experimental; urgency=low
+
+  * debian/patches/02_soundtouch-int.patch:
+    + Fix compilation on armel, where soundtouch is compiled as an integer
+      version instead of floats as everywhere else.
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 02 Sep 2013 10:38:03 +0200
+
 gst-plugins-bad1.0 (1.1.4-1) experimental; urgency=low
 
   * New upstream development snapshot:
