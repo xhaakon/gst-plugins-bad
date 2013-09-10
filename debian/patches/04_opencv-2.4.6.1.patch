@@ -1,0 +1,25 @@
+From c70fceb16fa71207b02f4a70c2b2524c7ee4ffa2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <slomo@circular-chaos.org>
+Date: Tue, 10 Sep 2013 11:37:55 +0200
+Subject: [PATCH] opencv: We also work with OpenCV 2.4.6.1
+
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 580c6ef..1a77cc1 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1743,7 +1743,7 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
+   dnl a new version and the no-backward-compatibility define. (There doesn't
+   dnl seem to be a switch to suppress the warnings the cvcompat.h header
+   dnl causes.)
+-  PKG_CHECK_MODULES(OPENCV, opencv >= 2.0.0 opencv <= 2.4.5 , [
++  PKG_CHECK_MODULES(OPENCV, opencv >= 2.0.0 opencv <= 2.4.6.1 , [
+     AC_PROG_CXX
+     AC_LANG([C++])
+     OLD_CPPFLAGS=$CPPFLAGS
+-- 
+1.8.4
+

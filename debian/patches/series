@@ -1,4 +1,5 @@
 01_fix-modplug-linking.patch
 02_soundtouch-int.patch
 03_modplug-includes.patch
+04_opencv-2.4.6.1.patch
 99_ltmain_as-needed.patch

@@ -3,6 +3,8 @@ gst-plugins-bad1.0 (1.1.4-3) experimental; urgency=low
   * debian/patches/03_modplug-includes.patch:
     + Fix build with the new modplug version by including the
       modplug headers properly. Thanks to Iain Lane for the patch.
+  * debian/patches/04_opencv-2.4.6.1.patch:
+    + Fix build with OpenCV 2.4.6.1.
 
  -- Sebastian Dröge <slomo@debian.org>  Tue, 10 Sep 2013 11:12:25 +0200
 
