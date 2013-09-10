@@ -54,7 +54,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmpg123.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmxf.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstofa.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenal.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopencv.so
+#debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopencv.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenjpeg.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopus.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstpcapparse.so

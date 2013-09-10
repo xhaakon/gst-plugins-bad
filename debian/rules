@@ -194,6 +194,7 @@ DEB_CONFIGURE_EXTRA_FLAGS += \
 	--with-package-name=$(GST_PACKAGE_NAME) \
 	--with-package-origin=$(GST_PACKAGE_ORIGIN) \
 	--disable-pvr \
+	--disable-opencv
 
 # only build the docs on arches which can
 ifeq (,$(findstring $(DEB_HOST_ARCH),m68k arm))
