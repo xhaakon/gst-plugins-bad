@@ -7,6 +7,8 @@
  * Copyright (C) 2012, Collabora Ltd.
  *   Author: Sebastian Dröge <sebastian.droege@collabora.co.uk>
  *
+ * Copyright (C) 2012, Rafaël Carré <funman@videolanorg>
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation
@@ -160,13 +162,7 @@ create_sink_caps (const GstAmcCodecInfo * codec_info)
 
       if (type->n_profile_levels) {
         for (j = type->n_profile_levels - 1; j >= 0; j--) {
-          const gchar *profile, *level;
-          gint k;
-          GValue va = { 0, };
-          GValue v = { 0, };
-
-          g_value_init (&va, GST_TYPE_LIST);
-          g_value_init (&v, G_TYPE_STRING);
+          const gchar *profile;
 
           profile =
               gst_amc_mpeg4_profile_to_string (type->profile_levels[j].profile);
@@ -176,21 +172,8 @@ create_sink_caps (const GstAmcCodecInfo * codec_info)
             continue;
           }
 
-          for (k = 1; k <= type->profile_levels[j].level && k != 0; k <<= 1) {
-            level = gst_amc_mpeg4_level_to_string (k);
-            if (!level)
-              continue;
-
-            g_value_set_string (&v, level);
-            gst_value_list_append_value (&va, &v);
-            g_value_reset (&v);
-          }
-
           tmp2 = gst_structure_copy (tmp);
           gst_structure_set (tmp2, "profile", G_TYPE_STRING, profile, NULL);
-          gst_structure_set_value (tmp2, "level", &va);
-          g_value_unset (&va);
-          g_value_unset (&v);
           ret = gst_caps_merge_structure (ret, tmp2);
           have_profile_level = TRUE;
         }
@@ -216,13 +199,7 @@ create_sink_caps (const GstAmcCodecInfo * codec_info)
 
       if (type->n_profile_levels) {
         for (j = type->n_profile_levels - 1; j >= 0; j--) {
-          gint profile, level;
-          gint k;
-          GValue va = { 0, };
-          GValue v = { 0, };
-
-          g_value_init (&va, GST_TYPE_LIST);
-          g_value_init (&v, G_TYPE_UINT);
+          gint profile;
 
           profile =
               gst_amc_h263_profile_to_gst_id (type->profile_levels[j].profile);
@@ -233,20 +210,8 @@ create_sink_caps (const GstAmcCodecInfo * codec_info)
             continue;
           }
 
-          for (k = 1; k <= type->profile_levels[j].level && k != 0; k <<= 1) {
-            level = gst_amc_h263_level_to_gst_id (k);
-            if (level == -1)
-              continue;
-
-            g_value_set_uint (&v, level);
-            gst_value_list_append_value (&va, &v);
-            g_value_reset (&v);
-          }
           tmp2 = gst_structure_copy (tmp);
           gst_structure_set (tmp2, "profile", G_TYPE_UINT, profile, NULL);
-          gst_structure_set_value (tmp2, "level", &va);
-          g_value_unset (&va);
-          g_value_unset (&v);
           ret = gst_caps_merge_structure (ret, tmp2);
           have_profile_level = TRUE;
         }
@@ -273,13 +238,7 @@ create_sink_caps (const GstAmcCodecInfo * codec_info)
 
       if (type->n_profile_levels) {
         for (j = type->n_profile_levels - 1; j >= 0; j--) {
-          const gchar *profile, *alternative = NULL, *level;
-          gint k;
-          GValue va = { 0, };
-          GValue v = { 0, };
-
-          g_value_init (&va, GST_TYPE_LIST);
-          g_value_init (&v, G_TYPE_STRING);
+          const gchar *profile, *alternative = NULL;
 
           profile =
               gst_amc_avc_profile_to_string (type->profile_levels[j].profile,
@@ -291,29 +250,14 @@ create_sink_caps (const GstAmcCodecInfo * codec_info)
             continue;
           }
 
-          for (k = 1; k <= type->profile_levels[j].level && k != 0; k <<= 1) {
-            level = gst_amc_avc_level_to_string (k);
-            if (!level)
-              continue;
-
-            g_value_set_string (&v, level);
-            gst_value_list_append_value (&va, &v);
-            g_value_reset (&v);
-          }
           tmp2 = gst_structure_copy (tmp);
           gst_structure_set (tmp2, "profile", G_TYPE_STRING, profile, NULL);
-          gst_structure_set_value (tmp2, "level", &va);
-          if (!alternative)
-            g_value_unset (&va);
-          g_value_unset (&v);
           ret = gst_caps_merge_structure (ret, tmp2);
 
           if (alternative) {
             tmp2 = gst_structure_copy (tmp);
             gst_structure_set (tmp2, "profile", G_TYPE_STRING, alternative,
                 NULL);
-            gst_structure_set_value (tmp2, "level", &va);
-            g_value_unset (&va);
             ret = gst_caps_merge_structure (ret, tmp2);
           }
           have_profile_level = TRUE;
@@ -766,6 +710,30 @@ gst_amc_video_dec_set_src_caps (GstAmcVideoDec * self, GstAmcFormat * format)
   return TRUE;
 }
 
+/*
+ * The format is called QOMX_COLOR_FormatYUV420PackedSemiPlanar64x32Tile2m8ka.
+ * Which is actually NV12 (interleaved U&V).
+ */
+#define TILE_WIDTH 64
+#define TILE_HEIGHT 32
+#define TILE_SIZE (TILE_WIDTH * TILE_HEIGHT)
+#define TILE_GROUP_SIZE (4 * TILE_SIZE)
+
+/* get frame tile coordinate. XXX: nothing to be understood here, don't try. */
+static size_t
+tile_pos (size_t x, size_t y, size_t w, size_t h)
+{
+  size_t flim = x + (y & ~1) * w;
+
+  if (y & 1) {
+    flim += (x & ~3) + 2;
+  } else if ((h & 1) == 0 || y != (h - 1)) {
+    flim += (x + 2) & ~3;
+  }
+
+  return flim;
+}
+
 /* The weird handling of cropping, alignment and everything is taken from
  * platform/frameworks/media/libstagefright/colorconversion/ColorConversion.cpp
  */
@@ -975,6 +943,88 @@ gst_amc_video_dec_fill_buffer (GstAmcVideoDec * self, gint idx,
       gst_video_frame_unmap (&vframe);
       ret = TRUE;
       break;
+    }
+      /* FIXME: This should be in libgstvideo as MT12 or similar, see v4l2 */
+    case COLOR_QCOM_FormatYUV420PackedSemiPlanar64x32Tile2m8ka:{
+      GstVideoFrame vframe;
+      gint width = self->width;
+      gint height = self->height;
+      gint dest_luma_stride, dest_chroma_stride;
+      guint8 *src = buf->data + buffer_info->offset;
+      guint8 *dest_luma, *dest_chroma;
+      gint y;
+      const size_t tile_w = (width - 1) / TILE_WIDTH + 1;
+      const size_t tile_w_align = (tile_w + 1) & ~1;
+      const size_t tile_h_luma = (height - 1) / TILE_HEIGHT + 1;
+      const size_t tile_h_chroma = (height / 2 - 1) / TILE_HEIGHT + 1;
+      size_t luma_size = tile_w_align * tile_h_luma * TILE_SIZE;
+
+      gst_video_frame_map (&vframe, info, outbuf, GST_MAP_WRITE);
+      dest_luma = GST_VIDEO_FRAME_PLANE_DATA (&vframe, 0);
+      dest_chroma = GST_VIDEO_FRAME_PLANE_DATA (&vframe, 1);
+      dest_luma_stride = GST_VIDEO_FRAME_COMP_STRIDE (&vframe, 0);
+      dest_chroma_stride = GST_VIDEO_FRAME_COMP_STRIDE (&vframe, 1);
+
+      if ((luma_size % TILE_GROUP_SIZE) != 0)
+        luma_size = (((luma_size - 1) / TILE_GROUP_SIZE) + 1) * TILE_GROUP_SIZE;
+
+      for (y = 0; y < tile_h_luma; y++) {
+        size_t row_width = width;
+        gint x;
+
+        for (x = 0; x < tile_w; x++) {
+          size_t tile_width = row_width;
+          size_t tile_height = height;
+          gint luma_idx;
+          gint chroma_idx;
+          /* luma source pointer for this tile */
+          const uint8_t *src_luma = src
+              + tile_pos (x, y, tile_w_align, tile_h_luma) * TILE_SIZE;
+
+          /* chroma source pointer for this tile */
+          const uint8_t *src_chroma = src + luma_size
+              + tile_pos (x, y / 2, tile_w_align, tile_h_chroma) * TILE_SIZE;
+          if (y & 1)
+            src_chroma += TILE_SIZE / 2;
+
+          /* account for right columns */
+          if (tile_width > TILE_WIDTH)
+            tile_width = TILE_WIDTH;
+
+          /* account for bottom rows */
+          if (tile_height > TILE_HEIGHT)
+            tile_height = TILE_HEIGHT;
+
+          /* dest luma memory index for this tile */
+          luma_idx = y * TILE_HEIGHT * dest_luma_stride + x * TILE_WIDTH;
+
+          /* dest chroma memory index for this tile */
+          /* XXX: remove divisions */
+          chroma_idx =
+              y * TILE_HEIGHT / 2 * dest_chroma_stride + x * TILE_WIDTH;
+
+          tile_height /= 2;     // we copy 2 luma lines at once
+          while (tile_height--) {
+            memcpy (dest_luma + luma_idx, src_luma, tile_width);
+            src_luma += TILE_WIDTH;
+            luma_idx += dest_luma_stride;
+
+            memcpy (dest_luma + luma_idx, src_luma, tile_width);
+            src_luma += TILE_WIDTH;
+            luma_idx += dest_luma_stride;
+
+            memcpy (dest_chroma + chroma_idx, src_chroma, tile_width);
+            src_chroma += TILE_WIDTH;
+            chroma_idx += dest_chroma_stride;
+          }
+          row_width -= TILE_WIDTH;
+        }
+        height -= TILE_HEIGHT;
+      }
+      gst_video_frame_unmap (&vframe);
+      ret = TRUE;
+      break;
+
     }
     default:
       GST_ERROR_OBJECT (self, "Unsupported color format %d",

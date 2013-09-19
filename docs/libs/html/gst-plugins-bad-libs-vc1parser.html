@@ -8,7 +8,7 @@
 <link rel="up" href="codecparsers.html" title="Bitstream parsing Library">
 <link rel="prev" href="gst-plugins-bad-libs-mpeg4parser.html" title="mpeg4parser">
 <link rel="next" href="gst-plugins-bad-libs-gstmpegvideometa.html" title="gstmpegvideometa">
-<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.19 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -140,6 +140,58 @@ smpte specifications (S421m-2006.pdf).
   GST_VC1_SEQUENCE_USER    = 0x1F
 } GstVC1StartCode;
 </pre>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-VC1-END-OF-SEQ:CAPS"></a><span class="term"><code class="literal">GST_VC1_END_OF_SEQ</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-SLICE:CAPS"></a><span class="term"><code class="literal">GST_VC1_SLICE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-FIELD:CAPS"></a><span class="term"><code class="literal">GST_VC1_FIELD</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-FRAME:CAPS"></a><span class="term"><code class="literal">GST_VC1_FRAME</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-ENTRYPOINT:CAPS"></a><span class="term"><code class="literal">GST_VC1_ENTRYPOINT</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-SEQUENCE:CAPS"></a><span class="term"><code class="literal">GST_VC1_SEQUENCE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-SLICE-USER:CAPS"></a><span class="term"><code class="literal">GST_VC1_SLICE_USER</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-FIELD-USER:CAPS"></a><span class="term"><code class="literal">GST_VC1_FIELD_USER</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-FRAME-USER:CAPS"></a><span class="term"><code class="literal">GST_VC1_FRAME_USER</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-ENTRY-POINT-USER:CAPS"></a><span class="term"><code class="literal">GST_VC1_ENTRY_POINT_USER</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-SEQUENCE-USER:CAPS"></a><span class="term"><code class="literal">GST_VC1_SEQUENCE_USER</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -151,6 +203,30 @@ smpte specifications (S421m-2006.pdf).
   GST_VC1_PROFILE_ADVANCED
 } GstVC1Profile;
 </pre>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-VC1-PROFILE-SIMPLE:CAPS"></a><span class="term"><code class="literal">GST_VC1_PROFILE_SIMPLE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-PROFILE-MAIN:CAPS"></a><span class="term"><code class="literal">GST_VC1_PROFILE_MAIN</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-PROFILE-RESERVED:CAPS"></a><span class="term"><code class="literal">GST_VC1_PROFILE_RESERVED</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-PROFILE-ADVANCED:CAPS"></a><span class="term"><code class="literal">GST_VC1_PROFILE_ADVANCED</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -163,6 +239,34 @@ smpte specifications (S421m-2006.pdf).
   GST_VC1_PARSER_ERROR,
 } GstVC1ParserResult;
 </pre>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-VC1-PARSER-OK:CAPS"></a><span class="term"><code class="literal">GST_VC1_PARSER_OK</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-PARSER-BROKEN-DATA:CAPS"></a><span class="term"><code class="literal">GST_VC1_PARSER_BROKEN_DATA</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-PARSER-NO-BDU:CAPS"></a><span class="term"><code class="literal">GST_VC1_PARSER_NO_BDU</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-PARSER-NO-BDU-END:CAPS"></a><span class="term"><code class="literal">GST_VC1_PARSER_NO_BDU_END</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-PARSER-ERROR:CAPS"></a><span class="term"><code class="literal">GST_VC1_PARSER_ERROR</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -175,6 +279,34 @@ smpte specifications (S421m-2006.pdf).
   GST_VC1_PICTURE_TYPE_SKIPPED
 } GstVC1PictureType;
 </pre>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-VC1-PICTURE-TYPE-P:CAPS"></a><span class="term"><code class="literal">GST_VC1_PICTURE_TYPE_P</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-PICTURE-TYPE-B:CAPS"></a><span class="term"><code class="literal">GST_VC1_PICTURE_TYPE_B</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-PICTURE-TYPE-I:CAPS"></a><span class="term"><code class="literal">GST_VC1_PICTURE_TYPE_I</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-PICTURE-TYPE-BI:CAPS"></a><span class="term"><code class="literal">GST_VC1_PICTURE_TYPE_BI</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-PICTURE-TYPE-SKIPPED:CAPS"></a><span class="term"><code class="literal">GST_VC1_PICTURE_TYPE_SKIPPED</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -194,6 +326,50 @@ smpte specifications (S421m-2006.pdf).
     GST_VC1_LEVEL_UNKNOWN = 255  /* Unknown profile */
 } GstVC1Level;
 </pre>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-VC1-LEVEL-LOW:CAPS"></a><span class="term"><code class="literal">GST_VC1_LEVEL_LOW</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-LEVEL-MEDIUM:CAPS"></a><span class="term"><code class="literal">GST_VC1_LEVEL_MEDIUM</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-LEVEL-HIGH:CAPS"></a><span class="term"><code class="literal">GST_VC1_LEVEL_HIGH</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-LEVEL-L0:CAPS"></a><span class="term"><code class="literal">GST_VC1_LEVEL_L0</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-LEVEL-L1:CAPS"></a><span class="term"><code class="literal">GST_VC1_LEVEL_L1</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-LEVEL-L2:CAPS"></a><span class="term"><code class="literal">GST_VC1_LEVEL_L2</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-LEVEL-L3:CAPS"></a><span class="term"><code class="literal">GST_VC1_LEVEL_L3</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-LEVEL-L4:CAPS"></a><span class="term"><code class="literal">GST_VC1_LEVEL_L4</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-LEVEL-UNKNOWN:CAPS"></a><span class="term"><code class="literal">GST_VC1_LEVEL_UNKNOWN</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -205,6 +381,30 @@ smpte specifications (S421m-2006.pdf).
   GST_VC1_QUANTIZER_UNIFORM
 } GstVC1QuantizerSpec;
 </pre>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-VC1-QUANTIZER-IMPLICITLY:CAPS"></a><span class="term"><code class="literal">GST_VC1_QUANTIZER_IMPLICITLY</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-QUANTIZER-EXPLICITLY:CAPS"></a><span class="term"><code class="literal">GST_VC1_QUANTIZER_EXPLICITLY</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-QUANTIZER-NON-UNIFORM:CAPS"></a><span class="term"><code class="literal">GST_VC1_QUANTIZER_NON_UNIFORM</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-QUANTIZER-UNIFORM:CAPS"></a><span class="term"><code class="literal">GST_VC1_QUANTIZER_UNIFORM</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -216,6 +416,30 @@ smpte specifications (S421m-2006.pdf).
   GST_VC1_DQPROFILE_ALL_MBS
 } GstVC1DQProfile;
 </pre>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-VC1-DQPROFILE-FOUR-EDGES:CAPS"></a><span class="term"><code class="literal">GST_VC1_DQPROFILE_FOUR_EDGES</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-DQPROFILE-DOUBLE-EDGES:CAPS"></a><span class="term"><code class="literal">GST_VC1_DQPROFILE_DOUBLE_EDGES</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-DQPROFILE-SINGLE-EDGE:CAPS"></a><span class="term"><code class="literal">GST_VC1_DQPROFILE_SINGLE_EDGE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-DQPROFILE-ALL-MBS:CAPS"></a><span class="term"><code class="literal">GST_VC1_DQPROFILE_ALL_MBS</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -226,6 +450,26 @@ smpte specifications (S421m-2006.pdf).
   GST_VC1_CONDOVER_SELECT
 } GstVC1Condover;
 </pre>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-VC1-CONDOVER-NONE:CAPS"></a><span class="term"><code class="literal">GST_VC1_CONDOVER_NONE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-CONDOVER-ALL:CAPS"></a><span class="term"><code class="literal">GST_VC1_CONDOVER_ALL</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-CONDOVER-SELECT:CAPS"></a><span class="term"><code class="literal">GST_VC1_CONDOVER_SELECT</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -238,6 +482,34 @@ smpte specifications (S421m-2006.pdf).
   GST_VC1_MVMODE_INTENSITY_COMP
 } GstVC1MvMode;
 </pre>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-VC1-MVMODE-1MV-HPEL-BILINEAR:CAPS"></a><span class="term"><code class="literal">GST_VC1_MVMODE_1MV_HPEL_BILINEAR</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-MVMODE-1MV:CAPS"></a><span class="term"><code class="literal">GST_VC1_MVMODE_1MV</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-MVMODE-1MV-HPEL:CAPS"></a><span class="term"><code class="literal">GST_VC1_MVMODE_1MV_HPEL</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-MVMODE-MIXED-MV:CAPS"></a><span class="term"><code class="literal">GST_VC1_MVMODE_MIXED_MV</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-VC1-MVMODE-INTENSITY-COMP:CAPS"></a><span class="term"><code class="literal">GST_VC1_MVMODE_INTENSITY_COMP</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -1292,6 +1564,6 @@ if in advanced mode.
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.18</div>
+          Generated by GTK-Doc V1.19</div>
 </body>
 </html>

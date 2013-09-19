@@ -3,7 +3,7 @@
   <description>Bluez-based bluetooth support</description>
   <filename>../../sys/bluez/.libs/libgstbluez.so</filename>
   <basename>libgstbluez.so</basename>
-  <version>1.1.4</version>
+  <version>1.1.90</version>
   <license>LGPL</license>
   <source>gst-plugins-bad</source>
   <package>GStreamer Bad Plug-ins source release</package>
@@ -50,7 +50,7 @@
           <name>src</name>
           <direction>source</direction>
           <presence>always</presence>
-          <details>application/x-rtp, media=(string)audio, payload=(int)[ 96, 127 ], clock-rate=(int){ 16000, 32000, 44100, 48000 }, encoding-name=(string)SBC</details>
+          <details>application/x-rtp, media=(string)audio, payload=(int)[ 96, 127 ], clock-rate=(int){ 16000, 32000, 44100, 48000 }, encoding-name=(string)SBC; application/x-rtp, media=(string)audio, payload=(int)[ 96, 127 ], clock-rate=(int){ 8000, 11025, 12000, 16000, 22050, 2400, 32000, 44100, 48000, 64000, 88200, 96000 }, encoding-name=(string)MP4A-LATM</details>
         </caps>
       </pads>
     </element>
