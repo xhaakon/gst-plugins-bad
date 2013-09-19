@@ -1,3 +1,12 @@
+gst-plugins-bad1.0 (1.1.90-1) experimental; urgency=low
+
+  * New upstream release candidate:
+    + debian/rules,
+      debian/build-deps.in:
+      - Build depend on GStreamer and gst-plugins-base >= 1.1.90.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 19 Sep 2013 12:53:58 +0200
+
 gst-plugins-bad1.0 (1.1.4-3) experimental; urgency=low
 
   * debian/patches/03_modplug-includes.patch:
