@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Ole André Vadla Ravnås <oravnas@cisco.com>
+ * Copyright (C) 2010 Ole André Vadla Ravnås <oleavr@soundrop.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -13,21 +13,14 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef __GST_CORE_MEDIA_CTX_H__
 #define __GST_CORE_MEDIA_CTX_H__
 
-#include "cvapi.h"
-#include "cmapi.h"
 #include "vtapi.h"
-
-#include "mioapi.h"
-
-#include "mtapi.h"
-#include "celapi.h"
 
 #include <glib.h>
 
@@ -56,16 +49,7 @@ struct _GstCoreMediaCtx
   GObject parent;
 
   /* Common */
-  GstCVApi *cv;
-  GstCMApi *cm;
   GstVTApi *vt;
-
-  /* OS X */
-  GstMIOApi *mio;
-
-  /* iPhone */
-  GstMTApi *mt;
-  GstCelApi *cel;
 };
 
 struct _GstCoreMediaCtxClass
@@ -75,14 +59,7 @@ struct _GstCoreMediaCtxClass
 
 enum _GstCoreMediaApi
 {
-  GST_API_CORE_VIDEO    = (1 << 0),
-  GST_API_CORE_MEDIA    = (1 << 1),
-  GST_API_VIDEO_TOOLBOX = (1 << 2),
-
-  GST_API_MIO           = (1 << 3),
-
-  GST_API_MEDIA_TOOLBOX = (1 << 4),
-  GST_API_CELESTIAL     = (1 << 5)
+  GST_API_VIDEO_TOOLBOX = (1 << 0),
 };
 
 GType gst_core_media_ctx_get_type (void);

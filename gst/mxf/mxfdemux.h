@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef __MXF_DEMUX_H__
@@ -93,8 +93,8 @@ struct _GstMXFDemuxPad
   guint32 track_id;
   gboolean need_segment;
 
-  GstClockTime last_stop;
-  gdouble last_stop_accumulated_error;
+  GstClockTime position;
+  gdouble position_accumulated_error;
   GstFlowReturn last_flow;
   gboolean eos, discont;
 
@@ -126,6 +126,8 @@ struct _GstMXFDemux
   GPtrArray *src;
 
   /* < private > */
+  gboolean have_group_id;
+  guint group_id;
 
   GstAdapter *adapter;
 
@@ -154,7 +156,7 @@ struct _GstMXFDemux
   GArray *random_index_pack;
 
   /* Metadata */
-  GStaticRWLock metadata_lock;
+  GRWLock metadata_lock;
   gboolean update_metadata;
   gboolean pull_footer_metadata;
 
@@ -165,6 +167,8 @@ struct _GstMXFDemux
   MXFUMID current_package_uid;
   MXFMetadataGenericPackage *current_package;
   gchar *current_package_string;
+
+  GstTagList *tags;
 
   /* Properties */
   gchar *requested_package_string;

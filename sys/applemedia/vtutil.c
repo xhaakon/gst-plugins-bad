@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Ole André Vadla Ravnås <oravnas@cisco.com>
+ * Copyright (C) 2010 Ole André Vadla Ravnås <oleavr@soundrop.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #include "vtutil.h"
@@ -58,4 +58,41 @@ gst_vtutil_dict_set_i32 (CFMutableDictionaryRef dict, CFStringRef key,
   number = CFNumberCreate (NULL, kCFNumberSInt32Type, &value);
   CFDictionarySetValue (dict, key, number);
   CFRelease (number);
+}
+
+void
+gst_vtutil_dict_set_string (CFMutableDictionaryRef dict, CFStringRef key,
+    const gchar * value)
+{
+  CFStringRef string;
+
+  string = CFStringCreateWithCString (NULL, value, kCFStringEncodingASCII);
+  CFDictionarySetValue (dict, key, string);
+  CFRelease (string);
+}
+
+void
+gst_vtutil_dict_set_boolean (CFMutableDictionaryRef dict, CFStringRef key,
+    gboolean value)
+{
+  CFDictionarySetValue (dict, key, value ? kCFBooleanTrue: kCFBooleanFalse);
+}
+
+void
+gst_vtutil_dict_set_data (CFMutableDictionaryRef dict, CFStringRef key,
+    guint8 * value, guint64 length)
+{
+  CFDataRef data;
+
+  data = CFDataCreate (NULL, value, length);
+  CFDictionarySetValue (dict, key, data);
+  CFRelease (data);
+}
+
+void
+gst_vtutil_dict_set_object (CFMutableDictionaryRef dict, CFStringRef key,
+    CFTypeRef *value)
+{
+  CFDictionarySetValue (dict, key, value);
+  CFRelease (value);
 }

@@ -3,7 +3,7 @@
   <description>videoparsers</description>
   <filename>../../gst/videoparsers/.libs/libgstvideoparsersbad.so</filename>
   <basename>libgstvideoparsersbad.so</basename>
-  <version>1.0.10</version>
+  <version>1.1.90</version>
   <license>LGPL</license>
   <source>gst-plugins-bad</source>
   <package>GStreamer Bad Plug-ins source release</package>
@@ -68,7 +68,7 @@
           <name>src</name>
           <direction>source</direction>
           <presence>always</presence>
-          <details>video/x-h264, parsed=(boolean)true, stream-format=(string){ avc, byte-stream }, alignment=(string){ au, nal }</details>
+          <details>video/x-h264, parsed=(boolean)true, stream-format=(string){ avc, avc3, byte-stream }, alignment=(string){ au, nal }</details>
         </caps>
       </pads>
     </element>
@@ -111,6 +111,48 @@
           <direction>source</direction>
           <presence>always</presence>
           <details>video/mpeg, mpegversion=(int)[ 1, 2 ], parsed=(boolean)true, systemstream=(boolean)false</details>
+        </caps>
+      </pads>
+    </element>
+    <element>
+      <name>pngparse</name>
+      <longname>PNG parser</longname>
+      <class>Codec/Parser/Video/Image</class>
+      <description>Parses PNG files</description>
+      <author>Olivier Crete &lt;olivier.crete@collabora.com&gt;</author>
+      <pads>
+        <caps>
+          <name>sink</name>
+          <direction>sink</direction>
+          <presence>always</presence>
+          <details>image/png</details>
+        </caps>
+        <caps>
+          <name>src</name>
+          <direction>source</direction>
+          <presence>always</presence>
+          <details>image/png, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], parsed=(boolean)true</details>
+        </caps>
+      </pads>
+    </element>
+    <element>
+      <name>vc1parse</name>
+      <longname>VC1 parser</longname>
+      <class>Codec/Parser/Converter/Video</class>
+      <description>Parses VC1 streams</description>
+      <author>Sebastian Dröge &lt;sebastian.droege@collabora.co.uk&gt;</author>
+      <pads>
+        <caps>
+          <name>sink</name>
+          <direction>sink</direction>
+          <presence>always</presence>
+          <details>video/x-wmv, wmvversion=(int)3, format=(string){ WVC1, WMV3 }</details>
+        </caps>
+        <caps>
+          <name>src</name>
+          <direction>source</direction>
+          <presence>always</presence>
+          <details>video/x-wmv, wmvversion=(int)3, format=(string){ WVC1, WMV3 }, stream-format=(string){ bdu, bdu-frame, sequence-layer-bdu, sequence-layer-bdu-frame, sequence-layer-raw-frame, sequence-layer-frame-layer, asf, frame-layer }, header-format=(string){ none, asf, sequence-layer }</details>
         </caps>
       </pads>
     </element>

@@ -16,8 +16,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 
@@ -29,7 +29,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
 
 #include "gstuvch264_src.h"
@@ -41,9 +41,11 @@
 #include <string.h>
 
 #include "gstuvch264_src.h"
-#include "gstuvch264-marshal.h"
 #include <gudev/gudev.h>
 #include <libusb.h>
+#ifndef LIBUSB_CLASS_VIDEO
+#define LIBUSB_CLASS_VIDEO 0x0e
+#endif
 
 typedef struct
 {
@@ -151,36 +153,14 @@ static guint _signals[LAST_SIGNAL];
 GST_DEBUG_CATEGORY (uvc_h264_src_debug);
 #define GST_CAT_DEFAULT uvc_h264_src_debug
 
-GST_BOILERPLATE (GstUvcH264Src, gst_uvc_h264_src,
-    GstBaseCameraSrc, GST_TYPE_BASE_CAMERA_SRC);
+#define gst_uvc_h264_src_parent_class parent_class
+G_DEFINE_TYPE (GstUvcH264Src, gst_uvc_h264_src, GST_TYPE_BASE_CAMERA_SRC);
 
-#define GST_UVC_H264_SRC_VF_CAPS_STR                                    \
-  GST_VIDEO_CAPS_RGB ";"                                                \
-  GST_VIDEO_CAPS_RGB";"							\
-  GST_VIDEO_CAPS_BGR";"							\
-  GST_VIDEO_CAPS_RGBx";"						\
-  GST_VIDEO_CAPS_xRGB";"						\
-  GST_VIDEO_CAPS_BGRx";"						\
-  GST_VIDEO_CAPS_xBGR";"						\
-  GST_VIDEO_CAPS_RGBA";"						\
-  GST_VIDEO_CAPS_ARGB";"						\
-  GST_VIDEO_CAPS_BGRA";"						\
-  GST_VIDEO_CAPS_ABGR";"						\
-  GST_VIDEO_CAPS_RGB_16";"						\
-  GST_VIDEO_CAPS_RGB_15";"						\
-  "video/x-raw-rgb, bpp = (int)8, depth = (int)8, "                     \
-      "width = "GST_VIDEO_SIZE_RANGE" , "		                \
-      "height = " GST_VIDEO_SIZE_RANGE ", "                             \
-      "framerate = "GST_VIDEO_FPS_RANGE ";"                             \
-  GST_VIDEO_CAPS_GRAY8";"						\
-  GST_VIDEO_CAPS_GRAY16("BIG_ENDIAN")";"				\
-  GST_VIDEO_CAPS_GRAY16("LITTLE_ENDIAN")";"                             \
-  GST_VIDEO_CAPS_YUV ("{ I420 , NV12 , NV21 , YV12 , YUY2 ,"            \
-      " Y42B , Y444 , YUV9 , YVU9 , Y41B , Y800 , Y8 , GREY ,"          \
-      " Y16 , UYVY , YVYU , IYU1 , v308 , AYUV, A420}") ";"             \
-  "image/jpeg, "                                                        \
-  "width = " GST_VIDEO_SIZE_RANGE ", "                                  \
-  "height = " GST_VIDEO_SIZE_RANGE ", "                                 \
+#define GST_UVC_H264_SRC_VF_CAPS_STR \
+  GST_VIDEO_CAPS_MAKE (GST_VIDEO_FORMATS_ALL) ";" \
+  "image/jpeg,"                                   \
+  "width = " GST_VIDEO_SIZE_RANGE ","             \
+  "height = " GST_VIDEO_SIZE_RANGE ","            \
   "framerate = " GST_VIDEO_FPS_RANGE
 
 #define GST_UVC_H264_SRC_VID_CAPS_STR                                   \
@@ -217,7 +197,8 @@ static void gst_uvc_h264_src_set_property (GObject * object,
     guint prop_id, const GValue * value, GParamSpec * pspec);
 static void gst_uvc_h264_src_get_property (GObject * object,
     guint prop_id, GValue * value, GParamSpec * pspec);
-static gboolean gst_uvc_h264_src_event (GstPad * pad, GstEvent * event);
+static gboolean gst_uvc_h264_src_event (GstPad * pad, GstObject * parent,
+    GstEvent * event);
 static gboolean gst_uvc_h264_src_send_event (GstElement * element,
     GstEvent * event);
 static gboolean gst_uvc_h264_src_construct_pipeline (GstBaseCameraSrc *
@@ -228,17 +209,18 @@ static gboolean gst_uvc_h264_src_start_capture (GstBaseCameraSrc * camerasrc);
 static void gst_uvc_h264_src_stop_capture (GstBaseCameraSrc * camerasrc);
 static GstStateChangeReturn gst_uvc_h264_src_change_state (GstElement * element,
     GstStateChange trans);
-static gboolean gst_uvc_h264_src_buffer_probe (GstPad * pad,
-    GstBuffer * buffer, gpointer user_data);
-static gboolean gst_uvc_h264_src_event_probe (GstPad * pad,
-    GstEvent * event, gpointer user_data);
+static GstPadProbeReturn gst_uvc_h264_src_buffer_probe (GstPad * pad,
+    GstPadProbeInfo * info, gpointer user_data);
+static GstPadProbeReturn gst_uvc_h264_src_event_probe (GstPad * pad,
+    GstPadProbeInfo * info, gpointer user_data);
 static void gst_uvc_h264_src_pad_linking_cb (GstPad * pad,
     GstPad * peer, gpointer user_data);
-static GstCaps *gst_uvc_h264_src_getcaps (GstPad * pad);
+static gboolean gst_uvc_h264_src_query (GstPad * pad, GstObject * parent,
+    GstQuery * query);
 
 
-static void v4l2src_prepare_format (GstElement * v4l2src, gint fd, guint fourcc,
-    guint width, guint height, gpointer user_data);
+static void v4l2src_prepare_format (GstElement * v4l2src, gint fd,
+    GstCaps * caps, gpointer user_data);
 static void fill_probe_commit (GstUvcH264Src * self,
     uvcx_video_config_probe_commit_t * probe, guint32 frame_interval,
     guint32 width, guint32 height, guint32 profile,
@@ -265,41 +247,13 @@ static gboolean gst_uvc_h264_src_get_int_setting (GstUvcH264Src * self,
     gchar * property, gint * min, gint * def, gint * max);
 
 static void
-gst_uvc_h264_src_base_init (gpointer g_class)
-{
-  GstElementClass *gstelement_class = GST_ELEMENT_CLASS (g_class);
-  GstPadTemplate *pt;
-
-  GST_DEBUG_CATEGORY_INIT (uvc_h264_src_debug, "uvch264_src",
-      0, "UVC H264 Compliant camera bin source");
-
-  gst_element_class_set_static_metadata (gstelement_class,
-      "UVC H264 Source",
-      "Source/Video",
-      "UVC H264 Encoding camera source",
-      "Youness Alaoui <youness.alaoui@collabora.co.uk>");
-
-  /* Don't use gst_element_class_add_static_pad_template in order to keep
-   * the plugin compatible with gst 0.10.35 */
-  pt = gst_static_pad_template_get (&vidsrc_template);
-  gst_element_class_add_pad_template (gstelement_class, pt);
-  gst_object_unref (pt);
-
-  pt = gst_static_pad_template_get (&imgsrc_template);
-  gst_element_class_add_pad_template (gstelement_class, pt);
-  gst_object_unref (pt);
-
-  pt = gst_static_pad_template_get (&vfsrc_template);
-  gst_element_class_add_pad_template (gstelement_class, pt);
-  gst_object_unref (pt);
-}
-
-static void
 gst_uvc_h264_src_class_init (GstUvcH264SrcClass * klass)
 {
   GObjectClass *gobject_class;
   GstElementClass *gstelement_class;
   GstBaseCameraSrcClass *gstbasecamerasrc_class;
+
+  parent_class = g_type_class_peek_parent (klass);
 
   gobject_class = G_OBJECT_CLASS (klass);
   gstelement_class = GST_ELEMENT_CLASS (klass);
@@ -317,6 +271,24 @@ gst_uvc_h264_src_class_init (GstUvcH264SrcClass * klass)
   gstbasecamerasrc_class->set_mode = gst_uvc_h264_src_set_mode;
   gstbasecamerasrc_class->start_capture = gst_uvc_h264_src_start_capture;
   gstbasecamerasrc_class->stop_capture = gst_uvc_h264_src_stop_capture;
+
+  GST_DEBUG_CATEGORY_INIT (uvc_h264_src_debug, "uvch264src",
+      0, "UVC H264 Compliant camera bin source");
+
+  gst_element_class_set_static_metadata (gstelement_class,
+      "UVC H264 Source",
+      "Source/Video",
+      "UVC H264 Encoding camera source",
+      "Youness Alaoui <youness.alaoui@collabora.co.uk>");
+
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&vidsrc_template));
+
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&imgsrc_template));
+
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&vfsrc_template));
 
   /* Properties */
   g_object_class_install_property (gobject_class, PROP_COLORSPACE_NAME,
@@ -516,17 +488,16 @@ gst_uvc_h264_src_class_init (GstUvcH264SrcClass * klass)
       G_CALLBACK (gst_uvc_h264_src_get_int_setting), NULL, NULL, NULL,
       G_TYPE_BOOLEAN, 4, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_POINTER,
       G_TYPE_POINTER, 0);
-
 }
 
 static void
-gst_uvc_h264_src_init (GstUvcH264Src * self, GstUvcH264SrcClass * klass)
+gst_uvc_h264_src_init (GstUvcH264Src * self)
 {
   self->vfsrc =
       gst_ghost_pad_new_no_target (GST_BASE_CAMERA_SRC_VIEWFINDER_PAD_NAME,
       GST_PAD_SRC);
-  gst_pad_set_getcaps_function (self->vfsrc,
-      GST_DEBUG_FUNCPTR (gst_uvc_h264_src_getcaps));
+  gst_pad_set_query_function (self->vfsrc,
+      GST_DEBUG_FUNCPTR (gst_uvc_h264_src_query));
   gst_element_add_pad (GST_ELEMENT (self), self->vfsrc);
 
   self->imgsrc =
@@ -537,15 +508,15 @@ gst_uvc_h264_src_init (GstUvcH264Src * self, GstUvcH264SrcClass * klass)
   self->vidsrc =
       gst_ghost_pad_new_no_target (GST_BASE_CAMERA_SRC_VIDEO_PAD_NAME,
       GST_PAD_SRC);
-  gst_pad_set_getcaps_function (self->vidsrc,
-      GST_DEBUG_FUNCPTR (gst_uvc_h264_src_getcaps));
+  gst_pad_set_query_function (self->vidsrc,
+      GST_DEBUG_FUNCPTR (gst_uvc_h264_src_query));
   gst_element_add_pad (GST_ELEMENT (self), self->vidsrc);
-  gst_pad_add_buffer_probe (self->vidsrc,
-      (GCallback) gst_uvc_h264_src_buffer_probe, self);
-  gst_pad_add_event_probe (self->vfsrc,
-      (GCallback) gst_uvc_h264_src_event_probe, self);
-  gst_pad_add_event_probe (self->vidsrc,
-      (GCallback) gst_uvc_h264_src_event_probe, self);
+  gst_pad_add_probe (self->vidsrc, GST_PAD_PROBE_TYPE_BUFFER,
+      gst_uvc_h264_src_buffer_probe, self, NULL);
+  gst_pad_add_probe (self->vfsrc, GST_PAD_PROBE_TYPE_EVENT_UPSTREAM,
+      gst_uvc_h264_src_event_probe, self, NULL);
+  gst_pad_add_probe (self->vidsrc, GST_PAD_PROBE_TYPE_EVENT_UPSTREAM,
+      gst_uvc_h264_src_event_probe, self, NULL);
 
   self->srcpad_event_func = GST_PAD_EVENTFUNC (self->vfsrc);
 
@@ -562,8 +533,6 @@ gst_uvc_h264_src_init (GstUvcH264Src * self, GstUvcH264SrcClass * klass)
   g_signal_connect (self->vfsrc, "unlinked",
       (GCallback) gst_uvc_h264_src_pad_linking_cb, self);
 
-  self->vid_newseg = FALSE;
-  self->vf_newseg = FALSE;
   self->v4l2_fd = -1;
   gst_base_camera_src_set_mode (GST_BASE_CAMERA_SRC (self), MODE_VIDEO);
 
@@ -1533,25 +1502,17 @@ gst_uvc_h264_src_get_int_setting (GstUvcH264Src * self, gchar * property,
   return ret;
 }
 
-static gboolean
-gst_uvc_h264_src_event_probe (GstPad * pad, GstEvent * event,
+static GstPadProbeReturn
+gst_uvc_h264_src_event_probe (GstPad * pad, GstPadProbeInfo * info,
     gpointer user_data)
 {
   GstUvcH264Src *self = GST_UVC_H264_SRC (user_data);
-  gboolean ret = TRUE;
+  GstPadProbeReturn ret = GST_PAD_PROBE_OK;
+  GstEvent *event = info->data;
 
   switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_EOS:
-      ret = !self->reconfiguring;
-      break;
-    case GST_EVENT_NEWSEGMENT:
-      if (pad == self->vidsrc) {
-        ret = !self->vid_newseg;
-        self->vid_newseg = TRUE;
-      } else if (pad == self->vfsrc) {
-        ret = !self->vf_newseg;
-        self->vf_newseg = TRUE;
-      }
+      ret = self->reconfiguring ? GST_PAD_PROBE_DROP : GST_PAD_PROBE_OK;
       break;
     default:
       break;
@@ -1560,11 +1521,12 @@ gst_uvc_h264_src_event_probe (GstPad * pad, GstEvent * event,
   return ret;
 }
 
-static gboolean
-gst_uvc_h264_src_buffer_probe (GstPad * pad, GstBuffer * buffer,
+static GstPadProbeReturn
+gst_uvc_h264_src_buffer_probe (GstPad * pad, GstPadProbeInfo * info,
     gpointer user_data)
 {
   GstUvcH264Src *self = GST_UVC_H264_SRC (user_data);
+  GstBuffer *buffer = info->data;
 
   /* TODO: Check the NALU type and make sure it is a keyframe */
   if (self->key_unit_event) {
@@ -1726,17 +1688,6 @@ gst_uvc_h264_src_parse_event (GstUvcH264Src * self, GstPad * pad,
           }
         }
       }
-      if (s && gst_structure_has_name (s, "renegotiate")) {
-        GST_DEBUG_OBJECT (self, "Received renegotiate on %s",
-            GST_PAD_NAME (pad));
-        /* TODO: Do not reconstruct pipeline twice if we receive
-           the event on both pads */
-        if (GST_STATE (self) >= GST_STATE_READY) {
-          /* TODO: diff the caps */
-          gst_uvc_h264_src_construct_pipeline (GST_BASE_CAMERA_SRC (self));
-        }
-        return TRUE;
-      }
       break;
     default:
       break;
@@ -1757,38 +1708,29 @@ gst_uvc_h264_src_send_event (GstElement * element, GstEvent * event)
 }
 
 static gboolean
-gst_uvc_h264_src_event (GstPad * pad, GstEvent * event)
+gst_uvc_h264_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
 {
   GstUvcH264Src *self = GST_UVC_H264_SRC (GST_PAD_PARENT (pad));
 
   switch (GST_EVENT_TYPE (event)) {
-    case GST_EVENT_NEWSEGMENT:
-      if (!self->vid_newseg && pad == self->vidsrc) {
-        gboolean update;
-        gdouble rate, applied_rate;
-        GstFormat format;
-        gint64 start, stop, position;
+    case GST_EVENT_SEGMENT:
+      if (pad == self->vidsrc) {
+        const GstSegment *s;
 
-        gst_event_parse_new_segment_full (event, &update, &rate,
-            &applied_rate, &format, &start, &stop, &position);
-        gst_segment_set_newsegment (&self->segment, update, rate, format,
-            start, stop, position);
+        gst_event_parse_segment (event, &s);
+        gst_segment_copy_into (s, &self->segment);
       }
       break;
     case GST_EVENT_FLUSH_STOP:
-      if (pad == self->vidsrc) {
+      if (pad == self->vidsrc)
         gst_segment_init (&self->segment, GST_FORMAT_UNDEFINED);
-        self->vid_newseg = FALSE;
-      }
-      if (pad == self->vfsrc)
-        self->vf_newseg = FALSE;
       break;
     default:
       if (gst_uvc_h264_src_parse_event (self, pad, event))
         return TRUE;
       break;
   }
-  return self->srcpad_event_func (pad, event);
+  return self->srcpad_event_func (pad, parent, event);
 }
 
 static guint8
@@ -1867,6 +1809,7 @@ xu_get_id (GstUvcH264Src * self)
 
                   GST_DEBUG_OBJECT (self, "Found H264 XU unit : %d", unit_id);
 
+                  libusb_free_config_descriptor (config);
                   libusb_unref_device (device);
                   return unit_id;
                 }
@@ -1874,6 +1817,7 @@ xu_get_id (GstUvcH264Src * self)
               }
             }
           }
+          libusb_free_config_descriptor (config);
         }
       }
     }
@@ -2091,13 +2035,10 @@ configure_h264 (GstUvcH264Src * self, gint fd)
 }
 
 static void
-v4l2src_prepare_format (GstElement * v4l2src, gint fd, guint fourcc,
-    guint width, guint height, gpointer user_data)
+v4l2src_prepare_format (GstElement * v4l2src, gint fd, GstCaps * caps,
+    gpointer user_data)
 {
   GstUvcH264Src *self = GST_UVC_H264_SRC (user_data);
-
-  GST_DEBUG_OBJECT (self, "v4l2src prepare-format with FCC %" GST_FOURCC_FORMAT,
-      GST_FOURCC_ARGS (fourcc));
 
   if (self->main_format == UVC_H264_SRC_FORMAT_H264) {
     /* TODO: update static controls and g_object_notify those that changed */
@@ -2185,68 +2126,98 @@ _transform_caps (GstUvcH264Src * self, GstCaps * caps, const gchar * name)
 {
   GstElement *el = gst_element_factory_make (name, NULL);
   GstElement *cf = gst_element_factory_make ("capsfilter", NULL);
+  GstElement *fs = gst_element_factory_make ("fakesink", NULL);
   GstPad *sink;
+  GstCaps *out_caps = NULL;
 
-  if (!el || !cf || !gst_bin_add (GST_BIN (self), el)) {
+  if (!el || !cf || !fs) {
     if (el)
       gst_object_unref (el);
     if (cf)
       gst_object_unref (cf);
+    if (fs)
+      gst_object_unref (fs);
+    goto done;
+  }
+
+  gst_element_set_locked_state (el, TRUE);
+  gst_element_set_locked_state (cf, TRUE);
+  gst_element_set_locked_state (fs, TRUE);
+
+  if (!gst_bin_add (GST_BIN (self), el)) {
+    gst_object_unref (el);
+    gst_object_unref (cf);
+    gst_object_unref (fs);
     goto done;
   }
   if (!gst_bin_add (GST_BIN (self), cf)) {
     gst_object_unref (cf);
+    gst_object_unref (fs);
     gst_bin_remove (GST_BIN (self), el);
     goto done;
   }
+  if (!gst_bin_add (GST_BIN (self), fs)) {
+    gst_object_unref (fs);
+    gst_bin_remove (GST_BIN (self), el);
+    gst_bin_remove (GST_BIN (self), cf);
+    goto done;
+  }
+
+  g_object_set (cf, "caps", caps, NULL);
+
+  if (!gst_element_link (cf, fs))
+    goto error_remove;
   if (!gst_element_link (el, cf))
     goto error_remove;
 
   sink = gst_element_get_static_pad (el, "sink");
   if (!sink)
     goto error_remove;
-  g_object_set (cf, "caps", caps, NULL);
+  GST_DEBUG_OBJECT (self, "Transforming: %" GST_PTR_FORMAT, caps);
 
-  caps = gst_pad_get_caps (sink);
+  caps = gst_pad_query_caps (sink, NULL);
   gst_object_unref (sink);
+
+  GST_DEBUG_OBJECT (self, "Result: %" GST_PTR_FORMAT, out_caps);
 
 error_remove:
   gst_bin_remove (GST_BIN (self), cf);
   gst_bin_remove (GST_BIN (self), el);
+  gst_bin_remove (GST_BIN (self), fs);
 
 done:
-  return caps;
+  if (out_caps == NULL)
+    out_caps = gst_caps_copy (caps);
+
+  return out_caps;
 }
 
 static GstCaps *
 gst_uvc_h264_src_transform_caps (GstUvcH264Src * self, GstCaps * caps)
 {
-  GstCaps *h264 = gst_caps_new_simple ("video/x-h264", NULL);
-  GstCaps *jpg = gst_caps_new_simple ("image/jpeg", NULL);
+  GstCaps *h264 = gst_caps_new_empty_simple ("video/x-h264");
+  GstCaps *jpg = gst_caps_new_empty_simple ("image/jpeg");
   GstCaps *h264_caps = gst_caps_intersect (h264, caps);
   GstCaps *jpg_caps = gst_caps_intersect (jpg, caps);
 
   /* TODO: Keep caps order after transformation */
   caps = _transform_caps (self, caps, self->colorspace_name);
+  caps = gst_caps_make_writable (caps);
 
   if (!gst_caps_is_empty (h264_caps)) {
-    GstCaps *temp = gst_caps_union (caps, h264_caps);
-    gst_caps_unref (caps);
-    caps = temp;
-  }
-  if (!gst_caps_is_empty (jpg_caps)) {
-    GstCaps *temp = gst_caps_union (caps, jpg_caps);
-    gst_caps_unref (caps);
-    caps = temp;
+    gst_caps_append (caps, h264_caps);
+  } else {
+    gst_caps_unref (h264_caps);
   }
 
-  if (h264_caps)
-    gst_caps_unref (h264_caps);
-  if (jpg_caps)
+  if (!gst_caps_is_empty (jpg_caps)) {
+    gst_caps_append (caps, jpg_caps);
+  } else {
     gst_caps_unref (jpg_caps);
+  }
+
   gst_caps_unref (h264);
   gst_caps_unref (jpg);
-
 
   return caps;
 }
@@ -2269,7 +2240,6 @@ gst_uvc_h264_src_fixate_caps (GstUvcH264Src * self, GstPad * v4l_pad,
       GST_CAPS_INTERSECT_FIRST);
   GST_DEBUG_OBJECT (self, "intersect: %" GST_PTR_FORMAT, tcaps);
   icaps = gst_caps_normalize (tcaps);
-  gst_caps_unref (tcaps);
 
   /* Prefer the first caps we are compatible with that the peer proposed */
   for (i = 0; i < gst_caps_get_size (icaps); i++) {
@@ -2322,14 +2292,14 @@ gst_uvc_h264_src_fixate_caps (GstUvcH264Src * self, GstPad * v4l_pad,
       guint32 interval;
 
       if (_extract_caps_info (s, &width, &height, &interval)) {
-        if (gst_structure_has_name (s, "video/x-raw-yuv")) {
-          guint32 fcc = 0;
+        if (gst_structure_has_name (s, "video/x-raw")) {
           guint8 mux = 0;
+          const gchar *format = gst_structure_get_string (s, "format");
 
-          if (gst_structure_get_fourcc (s, "format", &fcc)) {
-            if (fcc == GST_MAKE_FOURCC ('Y', 'U', 'Y', '2'))
+          if ((format = gst_structure_get_string (s, "format"))) {
+            if (g_strcmp0 (format, "YUY2") == 0)
               mux = 4;
-            else if (fcc == GST_MAKE_FOURCC ('N', 'V', '1', '2'))
+            else if (g_strcmp0 (format, "NV12") == 0)
               mux = 8;
           }
           if (mux != 0) {
@@ -2380,11 +2350,10 @@ gst_uvc_h264_src_fixate_caps (GstUvcH264Src * self, GstPad * v4l_pad,
 
   if (caps) {
     caps = gst_caps_make_writable (caps);
-    gst_caps_truncate (caps);
 
     /* now fixate */
     if (!gst_caps_is_empty (caps)) {
-      gst_pad_fixate_caps (v4l_pad, caps);
+      caps = gst_caps_fixate (caps);
       GST_DEBUG_OBJECT (self, "fixated to: %" GST_PTR_FORMAT, caps);
     }
 
@@ -2438,16 +2407,19 @@ gst_uvc_h264_src_destroy_pipeline (GstUvcH264Src * self, gboolean v4l2src)
   iter = gst_bin_iterate_elements (GST_BIN (self));
   done = FALSE;
   while (!done) {
-    GstElement *item = NULL;
+    GValue data = { 0, };
 
-    switch (gst_iterator_next (iter, (gpointer *) & item)) {
+    switch (gst_iterator_next (iter, &data)) {
       case GST_ITERATOR_OK:
-        if (item != self->v4l2_src) {
-          gst_bin_remove (GST_BIN (self), item);
-          gst_element_set_state (item, GST_STATE_NULL);
+      {
+        GstElement *child = g_value_get_object (&data);
+        if (child != self->v4l2_src) {
+          gst_bin_remove (GST_BIN (self), child);
+          gst_element_set_state (child, GST_STATE_NULL);
         }
-        gst_object_unref (item);
+        g_value_reset (&data);
         break;
+      }
       case GST_ITERATOR_RESYNC:
         gst_iterator_resync (iter);
         break;
@@ -2572,8 +2544,10 @@ gst_uvc_h264_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
   gst_ghost_pad_set_target (GST_GHOST_PAD (self->vidsrc), NULL);
   gst_ghost_pad_set_target (GST_GHOST_PAD (self->vfsrc), NULL);
 
-  vf_caps = gst_pad_peer_get_caps (self->vfsrc);
-  vid_caps = gst_pad_peer_get_caps (self->vidsrc);
+  if (gst_pad_is_linked (self->vfsrc))
+    vf_caps = gst_pad_peer_query_caps (self->vfsrc, NULL);
+  if (gst_pad_is_linked (self->vidsrc))
+    vid_caps = gst_pad_peer_query_caps (self->vidsrc, NULL);
 
   GST_DEBUG_OBJECT (self, "vfsrc caps : %" GST_PTR_FORMAT, vf_caps);
   GST_DEBUG_OBJECT (self, "vidsrc caps : %" GST_PTR_FORMAT, vid_caps);
@@ -2585,7 +2559,7 @@ gst_uvc_h264_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
   }
 
   v4l_pad = gst_element_get_static_pad (self->v4l2_src, "src");
-  v4l_caps = gst_pad_get_caps (v4l_pad);
+  v4l_caps = gst_pad_query_caps (v4l_pad, NULL);
   GST_DEBUG_OBJECT (self, "v4l2src caps : %" GST_PTR_FORMAT, v4l_caps);
   if (vid_caps) {
     GstCaps *trans_caps = gst_uvc_h264_src_transform_caps (self, vid_caps);
@@ -2764,7 +2738,7 @@ gst_uvc_h264_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
       break;
     case H264_JPG:
       GST_DEBUG_OBJECT (self, "H264+JPG");
-      self->mjpg_demux = gst_element_factory_make ("uvch264_mjpgdemux", NULL);
+      self->mjpg_demux = gst_element_factory_make ("uvch264mjpgdemux", NULL);
       if (!self->mjpg_demux || !gst_bin_add (GST_BIN (self), self->mjpg_demux))
         goto error_remove;
       gst_object_ref (self->mjpg_demux);
@@ -2778,7 +2752,7 @@ gst_uvc_h264_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
       break;
     case H264_RAW:
       GST_DEBUG_OBJECT (self, "H264+Raw");
-      self->mjpg_demux = gst_element_factory_make ("uvch264_mjpgdemux", NULL);
+      self->mjpg_demux = gst_element_factory_make ("uvch264mjpgdemux", NULL);
       self->vf_colorspace = gst_element_factory_make (self->colorspace_name,
           NULL);
       if (!self->mjpg_demux || !self->vf_colorspace)
@@ -2805,7 +2779,7 @@ gst_uvc_h264_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
       break;
     case H264_JPG2RAW:
       GST_DEBUG_OBJECT (self, "H264+Raw(jpegdec)");
-      self->mjpg_demux = gst_element_factory_make ("uvch264_mjpgdemux", NULL);
+      self->mjpg_demux = gst_element_factory_make ("uvch264mjpgdemux", NULL);
       self->jpeg_dec = gst_element_factory_make (self->jpeg_decoder_name, NULL);
       self->vf_colorspace = gst_element_factory_make (self->colorspace_name,
           NULL);
@@ -2890,8 +2864,8 @@ gst_uvc_h264_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
       }
       if (!gst_element_link (self->v4l2_src, tee))
         goto error_remove_all;
-      vf_pad = gst_element_get_request_pad (tee, "src%d");
-      vid_pad = gst_element_get_request_pad (tee, "src%d");
+      vf_pad = gst_element_get_request_pad (tee, "src_%u");
+      vid_pad = gst_element_get_request_pad (tee, "src_%u");
     }
       break;
   }
@@ -2932,16 +2906,18 @@ gst_uvc_h264_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
   iter = gst_bin_iterate_elements (GST_BIN (self));
   iter_done = FALSE;
   while (!iter_done) {
-    GstElement *item = NULL;
+    GstElement *child = NULL;
+    GValue data = { 0, };
 
-    switch (gst_iterator_next (iter, (gpointer *) & item)) {
+    switch (gst_iterator_next (iter, &data)) {
       case GST_ITERATOR_OK:
-        if (!gst_element_sync_state_with_parent (item)) {
-          gst_object_unref (item);
+        child = g_value_get_object (&data);
+        if (!gst_element_sync_state_with_parent (child)) {
+          g_value_reset (&data);
           gst_iterator_free (iter);
           goto error_remove_all;
         }
-        gst_object_unref (item);
+        g_value_reset (&data);
         break;
       case GST_ITERATOR_RESYNC:
         gst_iterator_resync (iter);
@@ -3003,9 +2979,9 @@ error:
 }
 
 static GstCaps *
-gst_uvc_h264_src_getcaps (GstPad * pad)
+gst_uvc_h264_src_getcaps (GstPad * pad, GstObject * parent, GstQuery * query)
 {
-  GstUvcH264Src *self = GST_UVC_H264_SRC (GST_OBJECT_PARENT (pad));
+  GstUvcH264Src *self = GST_UVC_H264_SRC (parent);
   GstCaps *template = NULL;
   GstCaps *result = NULL;
 
@@ -3017,9 +2993,14 @@ gst_uvc_h264_src_getcaps (GstPad * pad)
     template = gst_caps_new_empty ();
 
   if (self->v4l2_src) {
+    GstCaps *filter;
     GstPad *v4l_pad = gst_element_get_static_pad (self->v4l2_src, "src");
-    GstCaps *v4l_caps = gst_pad_get_caps (v4l_pad);
+    GstCaps *v4l_caps = gst_pad_query_caps (v4l_pad, NULL);
     GstCaps *new_caps = gst_uvc_h264_src_transform_caps (self, v4l_caps);
+
+    gst_query_parse_caps (query, &filter);
+    v4l_caps = gst_pad_query_caps (v4l_pad, filter);
+    new_caps = gst_uvc_h264_src_transform_caps (self, v4l_caps);
 
     result = gst_caps_intersect (new_caps, template);
     gst_object_unref (v4l_pad);
@@ -3032,6 +3013,24 @@ gst_uvc_h264_src_getcaps (GstPad * pad)
 
   return result;
 }
+
+static gboolean
+gst_uvc_h264_src_query (GstPad * pad, GstObject * parent, GstQuery * query)
+{
+  gboolean ret = FALSE;
+
+  switch (GST_QUERY_TYPE (query)) {
+    case GST_QUERY_CAPS:
+      gst_query_set_caps_result (query,
+          gst_uvc_h264_src_getcaps (pad, parent, query));
+      ret = TRUE;
+    default:
+      ret = gst_pad_query_default (pad, parent, query);
+      break;
+  }
+  return ret;
+}
+
 
 static gboolean
 gst_uvc_h264_src_set_mode (GstBaseCameraSrc * bcamsrc, GstCameraBinMode mode)
@@ -3124,10 +3123,6 @@ gst_uvc_h264_src_change_state (GstElement * element, GstStateChange trans)
     goto end;
 
   switch (trans) {
-    case GST_STATE_CHANGE_PAUSED_TO_READY:
-      self->vid_newseg = FALSE;
-      self->vf_newseg = FALSE;
-      break;
     case GST_STATE_CHANGE_READY_TO_NULL:
       gst_uvc_h264_src_destroy_pipeline (self, TRUE);
       break;

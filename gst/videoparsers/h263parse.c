@@ -16,8 +16,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -61,6 +61,7 @@ gst_h263_parse_get_params (H263Params * params, GstBuffer * buffer,
     {1408, 1152}
   };
 
+#ifndef GST_DISABLE_GST_DEBUG
   static const gchar *source_format_name[] = {
     "Forbidden",
     "sub-QCIF",
@@ -71,6 +72,7 @@ gst_h263_parse_get_params (H263Params * params, GstBuffer * buffer,
     "Reserved",
     "Extended PType"
   };
+#endif
 
   GstBitReader br;
   GstMapInfo map;
@@ -280,7 +282,7 @@ gst_h263_parse_get_params (H263Params * params, GstBuffer * buffer,
       }
       temp8 = cpfmt >> 19;
       params->width = (((cpfmt >> 10) & 0x1f) + 1) * 4;
-      params->height = (cpfmt & 0x1f) * 4;
+      params->height = ((cpfmt & 0x1f) + 1) * 4;
 
       if (temp8 == 0xf) {
         guint32 epar = 0;
@@ -667,4 +669,11 @@ gst_h263_parse_get_framerate (const H263Params * params, gint * num,
 {
   *num = params->pcfnum;
   *denom = params->pcfdenom;
+}
+
+void
+gst_h263_parse_get_par (const H263Params * params, gint * num, gint * denom)
+{
+  *num = params->parnum;
+  *denom = params->pardenom;
 }

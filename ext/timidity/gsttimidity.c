@@ -15,8 +15,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 /**
@@ -279,11 +279,25 @@ gst_timidity_src_query (GstPad * pad, GstQuery * query)
       gst_query_set_formats (query, 3,
           GST_FORMAT_TIME, GST_FORMAT_BYTES, GST_FORMAT_DEFAULT);
       break;
-    case GST_QUERY_SEGMENT:
-      gst_query_set_segment (query, timidity->o_segment->rate,
-          timidity->o_segment->format, timidity->o_segment->start,
-          timidity->o_segment->stop);
+    case GST_QUERY_SEGMENT:{
+      GstFormat format;
+      gint64 start, stop;
+
+      format = timidity->o_segment->format;
+
+      start =
+          gst_segment_to_stream_time (timidity->o_segment, format,
+          timidity->o_segment->start);
+      if ((stop = timidity->o_segment->stop) == -1)
+        stop = timidity->o_segment->duration;
+      else
+        stop = gst_segment_to_stream_time (timidity->o_segment, format, stop);
+
+      gst_query_set_segment (query, timidity->o_segment->rate, format, start,
+          stop);
+      res = TRUE;
       break;
+    }
     case GST_QUERY_SEEKING:
       gst_query_set_seeking (query, timidity->o_segment->format,
           TRUE, 0, timidity->o_len);

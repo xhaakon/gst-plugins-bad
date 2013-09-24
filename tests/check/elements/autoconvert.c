@@ -15,8 +15,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -100,12 +100,12 @@ GST_START_TEST (test_autoconvert_simple)
 
   /* Setting original caps */
   caps = gst_caps_from_string ("test/caps,type=(int)1");
-  fail_unless (gst_pad_set_caps (test_src_pad, caps));
+  gst_check_setup_events (test_src_pad, autoconvert, caps, GST_FORMAT_BYTES);
   gst_caps_unref (caps);
 
   /* Push 10 items */
   for (i = 0; i < 10; i++) {
-    GST_LOG ("Pushing test buffer %d, caps 1");
+    GST_LOG ("Pushing test buffer %d, caps 1", i);
     fail_unless (gst_pad_push (test_src_pad, gst_buffer_new_and_alloc (4096))
         == GST_FLOW_OK);
   }
@@ -117,7 +117,7 @@ GST_START_TEST (test_autoconvert_simple)
 
   /* Push 10 more items */
   for (i = 0; i < 10; i++) {
-    GST_LOG ("Pushing test buffer %d, caps 2");
+    GST_LOG ("Pushing test buffer %d, caps 2", i);
     fail_unless (gst_pad_push (test_src_pad, gst_buffer_new_and_alloc (4096))
         == GST_FLOW_OK);
   }

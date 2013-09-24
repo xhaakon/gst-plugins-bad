@@ -221,9 +221,7 @@ static void
 gst_inter_video_src_get_times (GstBaseSrc * src, GstBuffer * buffer,
     GstClockTime * start, GstClockTime * end)
 {
-  GstInterVideoSrc *intervideosrc = GST_INTER_VIDEO_SRC (src);
-
-  GST_DEBUG_OBJECT (intervideosrc, "get_times");
+  GST_DEBUG_OBJECT (src, "get_times");
 
   /* for live sources, sync on the timestamp of the buffer */
   if (gst_base_src_is_live (src)) {
@@ -256,7 +254,7 @@ gst_inter_video_src_create (GstBaseSrc * src, guint64 offset, guint size,
 
   buffer = NULL;
 
-  g_mutex_lock (intervideosrc->surface->mutex);
+  g_mutex_lock (&intervideosrc->surface->mutex);
   if (intervideosrc->surface->video_buffer) {
     buffer = gst_buffer_ref (intervideosrc->surface->video_buffer);
     intervideosrc->surface->video_buffer_count++;
@@ -265,7 +263,7 @@ gst_inter_video_src_create (GstBaseSrc * src, guint64 offset, guint size,
       intervideosrc->surface->video_buffer = NULL;
     }
   }
-  g_mutex_unlock (intervideosrc->surface->mutex);
+  g_mutex_unlock (&intervideosrc->surface->mutex);
 
   if (buffer == NULL) {
     GstMapInfo map;
@@ -313,10 +311,9 @@ gst_inter_video_src_create (GstBaseSrc * src, guint64 offset, guint size,
 static GstCaps *
 gst_inter_video_src_fixate (GstBaseSrc * src, GstCaps * caps)
 {
-  GstInterVideoSrc *intervideosrc = GST_INTER_VIDEO_SRC (src);
   GstStructure *structure;
 
-  GST_DEBUG_OBJECT (intervideosrc, "fixate");
+  GST_DEBUG_OBJECT (src, "fixate");
 
   caps = gst_caps_make_writable (caps);
 

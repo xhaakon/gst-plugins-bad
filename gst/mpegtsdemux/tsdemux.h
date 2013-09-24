@@ -19,8 +19,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 
@@ -53,9 +53,13 @@ struct _GstTSDemux
 {
   MpegTSBase parent;
 
+  gboolean have_group_id;
+  guint group_id;
+
   /* the following vars must be protected with the OBJECT_LOCK as they can be
    * accessed from the application thread and the streaming thread */
-  guint program_number;		/* Required program number (ignore:-1) */
+  gint requested_program_number; /* Required program number (ignore:-1) */
+  guint program_number;
   gboolean emit_statistics;
 
   /*< private >*/
@@ -72,6 +76,9 @@ struct _GstTSDemux
 
   /* Full stream duration */
   GstClockTime duration;
+
+  /* Pending seek rate (default 1.0) */
+  gdouble rate;
 };
 
 struct _GstTSDemuxClass

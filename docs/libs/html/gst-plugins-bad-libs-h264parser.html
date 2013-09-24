@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>h264parser</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="codecparsers.html" title="Bitstream parsing Library">
 <link rel="prev" href="codecparsers.html" title="Bitstream parsing Library">
 <link rel="next" href="gst-plugins-bad-libs-mpegvideoparser.html" title="mpegvideoparser">
-<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.19 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -111,7 +111,7 @@ struct              <a class="link" href="gst-plugins-bad-libs-h264parser.html#G
 It offers you bitstream parsing in AVC mode or not. To identify Nals in a bitstream and
 parse its headers, you should call:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
 <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-identify-nalu" title="gst_h264_parser_identify_nalu ()"><span class="type">gst_h264_parser_identify_nalu</span></a> to identify the following nalu in not AVC bitstreams
   </li>
@@ -125,7 +125,7 @@ parse its headers, you should call:
 Then, depending on the <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnitType" title="enum GstH264NalUnitType"><span class="type">GstH264NalUnitType</span></a> of the newly parsed <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a>, you should
 call the differents functions to parse the structure:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
      From <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE:CAPS"><span class="type">GST_H264_NAL_SLICE</span></a> to <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE-IDR:CAPS"><span class="type">GST_H264_NAL_SLICE_IDR</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-slice-hdr" title="gst_h264_parser_parse_slice_hdr ()"><span class="type">gst_h264_parser_parse_slice_hdr</span></a>
 </li>
@@ -155,7 +155,7 @@ Part 10 specifications, you can download them from:
 </p>
 <p>
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
     ITU-T H.264: http://www.itu.int/rec/T-REC-H.264
   </li>
@@ -231,8 +231,11 @@ Part 10 specifications, you can download them from:
 <p>
 Indicates the type of H264 Nal Units
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><a name="GST-H264-NAL-UNKNOWN:CAPS"></a><span class="term"><code class="literal">GST_H264_NAL_UNKNOWN</code></span></p></td>
@@ -317,8 +320,11 @@ Indicates the type of H264 Nal Units
 <p>
 The result of parsing H264 data.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><a name="GST-H264-PARSER-OK:CAPS"></a><span class="term"><code class="literal">GST_H264_PARSER_OK</code></span></p></td>
@@ -365,8 +371,11 @@ The result of parsing H264 data.
 <p>
 The type of SEI message.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><a name="GST-H264-SEI-BUF-PERIOD:CAPS"></a><span class="term"><code class="literal">GST_H264_SEI_BUF_PERIOD</code></span></p></td>
@@ -400,8 +409,11 @@ The type of SEI message.
 <p>
 SEI pic_struct type
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><a name="GST-H264-SEI-PIC-STRUCT-FRAME:CAPS"></a><span class="term"><code class="literal">GST_H264_SEI_PIC_STRUCT_FRAME</code></span></p></td>
@@ -472,6 +484,54 @@ SEI pic_struct type
 <p>
 Type of Picture slice
 </p>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-H264-P-SLICE:CAPS"></a><span class="term"><code class="literal">GST_H264_P_SLICE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-H264-B-SLICE:CAPS"></a><span class="term"><code class="literal">GST_H264_B_SLICE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-H264-I-SLICE:CAPS"></a><span class="term"><code class="literal">GST_H264_I_SLICE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-H264-SP-SLICE:CAPS"></a><span class="term"><code class="literal">GST_H264_SP_SLICE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-H264-SI-SLICE:CAPS"></a><span class="term"><code class="literal">GST_H264_SI_SLICE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-H264-S-P-SLICE:CAPS"></a><span class="term"><code class="literal">GST_H264_S_P_SLICE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-H264-S-B-SLICE:CAPS"></a><span class="term"><code class="literal">GST_H264_S_B_SLICE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-H264-S-I-SLICE:CAPS"></a><span class="term"><code class="literal">GST_H264_S_I_SLICE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-H264-S-SP-SLICE:CAPS"></a><span class="term"><code class="literal">GST_H264_S_SP_SLICE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-H264-S-SI-SLICE:CAPS"></a><span class="term"><code class="literal">GST_H264_S_SI_SLICE</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -503,8 +563,11 @@ H264 NAL Parser (opaque structure).
 <p>
 Structure defining the Nal unit headers
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><span class="type">guint16</span> <em class="structfield"><code><a name="GstH264NalUnit.ref-idc"></a>ref_idc</code></em>;</span></p></td>
@@ -603,12 +666,14 @@ already been parsed</td>
 
   guint8 vui_parameters_present_flag;
   /* if vui_parameters_present_flag */
- GstH264VUIParams vui_parameters;
+  GstH264VUIParams vui_parameters;
 
   /* calculated values */
   guint8 chroma_array_type;
   guint32 max_frame_num;
   gint width, height;
+  gint crop_rect_width, crop_rect_height;
+  gint crop_rect_x, crop_rect_y;
   gint fps_num, fps_den;
   gboolean valid;
 };
@@ -616,8 +681,11 @@ already been parsed</td>
 <p>
 H264 Sequence Parameter Set (SPS)
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> <em class="structfield"><code><a name="GstH264SPS.id"></a>id</code></em>;</span></p></td>
@@ -784,6 +852,22 @@ H264 Sequence Parameter Set (SPS)
 <td></td>
 </tr>
 <tr>
+<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> <em class="structfield"><code><a name="GstH264SPS.crop-rect-width"></a>crop_rect_width</code></em>;</span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> <em class="structfield"><code><a name="GstH264SPS.crop-rect-height"></a>crop_rect_height</code></em>;</span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> <em class="structfield"><code><a name="GstH264SPS.crop-rect-x"></a>crop_rect_x</code></em>;</span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> <em class="structfield"><code><a name="GstH264SPS.crop-rect-y"></a>crop_rect_y</code></em>;</span></p></td>
+<td></td>
+</tr>
+<tr>
 <td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> <em class="structfield"><code><a name="GstH264SPS.fps-num"></a>fps_num</code></em>;</span></p></td>
 <td></td>
 </tr>
@@ -871,8 +955,11 @@ H264 Picture Parameter Set
 <p>
 Defines the HRD parameters
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264HRDParams.cpb-cnt-minus1"></a>cpb_cnt_minus1</code></em>;</span></p></td>
@@ -986,8 +1073,11 @@ dpb_output_delay syntax element</td>
 <p>
 The structure representing the VUI parameters.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.aspect-ratio-info-present-flag"></a>aspect_ratio_info_present_flag</code></em>;</span></p></td>
@@ -1369,8 +1459,11 @@ units of frame buffers.</td>
 <p>
 Parses <em class="parameter"><code>data</code></em> and fills <em class="parameter"><code>nalu</code></em> from the next nalu data from <em class="parameter"><code>data</code></em>
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>nalparser</code></em> :</span></p></td>
@@ -1415,8 +1508,11 @@ Parses <em class="parameter"><code>data</code></em> and fills <em class="paramet
 <p>
 Parses <em class="parameter"><code>data</code></em> and sets <em class="parameter"><code>nalu</code></em>.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>nalparser</code></em> :</span></p></td>
@@ -1463,8 +1559,11 @@ This function should be called in the case one doesn't need to
 parse a specific structure. It is necessary to do so to make
 sure <em class="parameter"><code>nalparser</code></em> is up to date.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>nalparser</code></em> :</span></p></td>
@@ -1494,8 +1593,11 @@ sure <em class="parameter"><code>nalparser</code></em> is up to date.
 <p>
 Parses <em class="parameter"><code>data</code></em>, and fills the <em class="parameter"><code>slice</code></em> structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>nalparser</code></em> :</span></p></td>
@@ -1536,8 +1638,11 @@ Parses <em class="parameter"><code>data</code></em>, and fills the <em class="pa
 <p>
 Parses <em class="parameter"><code>data</code></em>, and fills the <em class="parameter"><code>sps</code></em> structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>nalparser</code></em> :</span></p></td>
@@ -1573,8 +1678,11 @@ Parses <em class="parameter"><code>data</code></em>, and fills the <em class="pa
 <p>
 Parses <em class="parameter"><code>data</code></em>, and fills the <em class="parameter"><code>pps</code></em> structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>nalparser</code></em> :</span></p></td>
@@ -1606,8 +1714,11 @@ Parses <em class="parameter"><code>data</code></em>, and fills the <em class="pa
 <p>
 Parses <em class="parameter"><code>data</code></em>, and fills the <em class="parameter"><code>sei</code></em> structures.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>nalparser</code></em> :</span></p></td>
@@ -1638,8 +1749,11 @@ Parses <em class="parameter"><code>data</code></em>, and fills the <em class="pa
 Creates a new <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a>. It should be freed with
 gst_h264_nal_parser_free after use.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody><tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
 <td>a new <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a>
@@ -1654,8 +1768,11 @@ gst_h264_nal_parser_free after use.
 <p>
 Frees <em class="parameter"><code>nalparser</code></em> and sets it to <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody><tr>
 <td><p><span class="term"><em class="parameter"><code>nalparser</code></em> :</span></p></td>
 <td>the <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a> to free</td>
@@ -1671,8 +1788,11 @@ Frees <em class="parameter"><code>nalparser</code></em> and sets it to <a href="
 <p>
 Parses <em class="parameter"><code>data</code></em>, and fills the <em class="parameter"><code>sps</code></em> structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>nalu</code></em> :</span></p></td>
@@ -1703,8 +1823,11 @@ Parses <em class="parameter"><code>data</code></em>, and fills the <em class="pa
 <p>
 Parses <em class="parameter"><code>data</code></em>, and fills the <em class="parameter"><code>pps</code></em> structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>nalparser</code></em> :</span></p></td>
@@ -1731,6 +1854,6 @@ Parses <em class="parameter"><code>data</code></em>, and fills the <em class="pa
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.18</div>
+          Generated by GTK-Doc V1.19</div>
 </body>
 </html>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Ole André Vadla Ravnås <oravnas@cisco.com>
+ * Copyright (C) 2010 Ole André Vadla Ravnås <oleavr@soundrop.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -41,15 +41,7 @@ struct _GstApiProvider
     G_STRUCT_OFFSET (GstCoreMediaCtx, a_n) }
 
 static const GstApiProvider api_provider[] = {
-  API_PROVIDER (CORE_VIDEO, cv),
-  API_PROVIDER (CORE_MEDIA, cm),
   API_PROVIDER (VIDEO_TOOLBOX, vt),
-#ifdef HAVE_IOS
-  API_PROVIDER (MEDIA_TOOLBOX, mt),
-  API_PROVIDER (CELESTIAL, cel)
-#else
-  API_PROVIDER (MIO, mio),
-#endif
 };
 
 G_DEFINE_TYPE (GstCoreMediaCtx, gst_core_media_ctx, G_TYPE_OBJECT);

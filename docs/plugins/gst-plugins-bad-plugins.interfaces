@@ -1,9 +1,11 @@
 ADPCMEnc GstPreset
 DvbBaseBin GstChildProxy GstURIHandler
+GstA2dpSink GstChildProxy
 GstAmrWbEnc GstPreset
 GstApExSink GstImplementsInterface GstMixer
 GstAsfMux GstTagSetter
 GstAudioEncoder GstPreset
+GstAudioMixer GstChildProxy
 GstAutoConvert GstChildProxy
 GstAutoVideoConvert GstChildProxy
 GstBaseCameraSrc GstChildProxy
@@ -14,13 +16,16 @@ GstCameraBin GstChildProxy GstImplementsInterface GstColorBalance GstTagSetter
 GstCameraBin GstChildProxy GstTagSetter
 GstCameraBin2 GstChildProxy GstTagSetter
 GstCeltEnc GstPreset GstTagSetter
-GstCeltEnc GstTagSetter GstPreset
+GstDaalaEnc GstPreset
 GstDataURISrc GstURIHandler
 GstDfbVideoSink GstImplementsInterface GstNavigation GstColorBalance
+GstDfbVideoSink GstNavigation GstColorBalance
 GstDiracEnc GstPreset
+GstEglGlesSink GstVideoOverlay
 GstFPSDisplaySink GstChildProxy
 GstFaac GstPreset
 GstFaceOverlay GstChildProxy
+GstFreeverb GstPreset
 GstGSMEnc GstPreset
 GstGSettingsAudioSink GstChildProxy
 GstGSettingsAudioSrc GstChildProxy
@@ -28,6 +33,8 @@ GstGSettingsSwitchSink GstChildProxy
 GstGSettingsSwitchSrc GstChildProxy
 GstGSettingsVideoSink GstChildProxy
 GstGSettingsVideoSrc GstChildProxy
+GstHanddetect GstNavigation
+GstHlsSink GstChildProxy
 GstId3BaseMux GstTagSetter
 GstId3Mux GstTagSetter
 GstJifMux GstTagSetter GstTagXmpWriter
@@ -44,9 +51,11 @@ GstRTMPSink GstURIHandler
 GstRTMPSrc GstURIHandler
 GstSDLVideoSink GstImplementsInterface GstXOverlay GstNavigation
 GstSDPDemux GstChildProxy
+GstSbcEnc GstPreset
 GstSchroEnc GstPreset
 GstSirenEnc GstPreset
 GstTagMux GstTagSetter
+GstUvcH264Src GstChildProxy
 GstVCDSrc GstURIHandler
 GstVP8Enc GstPreset GstTagSetter
 GstVP8Enc GstTagSetter GstPreset
@@ -56,5 +65,10 @@ GstVoAacEnc GstPreset
 GstVoAmrWbEnc GstPreset
 GstWrapperCameraBinSrc GstChildProxy
 GstXvidEnc GstPreset
+MXFDMS1ClipFramework MXFDescriptiveMetadataFrameworkInterface
+MXFDMS1Framework MXFDescriptiveMetadataFrameworkInterface
+MXFDMS1ProductionClipFramework MXFDescriptiveMetadataFrameworkInterface
+MXFDMS1ProductionFramework MXFDescriptiveMetadataFrameworkInterface
+MXFDMS1SceneFramework MXFDescriptiveMetadataFrameworkInterface
 RsnDvdBin GstChildProxy GstURIHandler
 VdpSink GstImplementsInterface GstNavigation GstXOverlay

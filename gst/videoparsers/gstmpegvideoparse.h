@@ -18,8 +18,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef __GST_MPEGVIDEO_PARSE_H__
@@ -65,8 +65,11 @@ struct _GstMpegvParse {
   gint seq_offset;
   gint seq_size;
   gint pic_offset;
+  guint slice_count;
+  guint slice_offset;
   gboolean update_caps;
   gboolean send_codec_tag;
+  gboolean send_mpeg_meta;
 
   GstBuffer *config;
   guint8 profile;
@@ -75,6 +78,14 @@ struct _GstMpegvParse {
   GstMpegVideoSequenceExt sequenceext;
   GstMpegVideoSequenceDisplayExt sequencedispext;
   GstMpegVideoPictureHdr pichdr;
+  GstMpegVideoPictureExt picext;
+  GstMpegVideoQuantMatrixExt quantmatrext;
+
+  gboolean seqhdr_updated;
+  gboolean seqext_updated;
+  gboolean seqdispext_updated;
+  gboolean picext_updated;
+  gboolean quantmatrext_updated;
 
   /* properties */
   gboolean drop;

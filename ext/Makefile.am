@@ -34,22 +34,10 @@ else
 CDAUDIO_DIR=
 endif
 
-if USE_CELT
-CELT_DIR=celt
-else
-CELT_DIR=
-endif
-
 if USE_CHROMAPRINT
 CHROMAPRINT_DIR=chromaprint
 else
 CHROMAPRINT_DIR=
-endif
-
-if USE_COG
-COG_DIR=cog
-else
-COG_DIR=
 endif
 
 if USE_CURL
@@ -58,16 +46,16 @@ else
 CURL_DIR=
 endif
 
+if USE_DASH
+DASH_DIR=dash
+else
+DASH_DIR=
+endif
+
 if USE_DC1394
 DC1394_DIR=dc1394
 else
 DC1394_DIR=
-endif
-
-if USE_DIRAC
-DIRAC_DIR=dirac
-else
-DIRAC_DIR=
 endif
 
 if USE_DIRECTFB
@@ -80,6 +68,12 @@ if USE_WAYLAND
 WAYLAND_DIR=wayland
 else
 WAYLAND_DIR=
+endif
+
+if USE_DAALA
+DAALA_DIR=daala
+else
+DAALA_DIR=
 endif
 
 if USE_DTS
@@ -134,18 +128,6 @@ if USE_GSM
 GSM_DIR=gsm
 else
 GSM_DIR=
-endif
-
-if USE_JASPER
-JASPER_DIR = jasper
-else
-JASPER_DIR =
-endif
-
-if USE_OPENJPEG
-OPENJPEG_DIR = openjpeg
-else
-OPENJPEG_DIR =
 endif
 
 if USE_KATE
@@ -214,12 +196,6 @@ else
 MUSEPACK_DIR=
 endif
 
-if USE_MUSICBRAINZ
-MUSICBRAINZ_DIR=musicbrainz
-else
-MUSICBRAINZ_DIR=
-endif
-
 if USE_MYTHTV
 MYTHTV_DIR=mythtv
 else
@@ -256,6 +232,12 @@ else
 OPENCV_DIR=
 endif
 
+if USE_OPENJPEG
+OPENJPEG_DIR = openjpeg
+else
+OPENJPEG_DIR =
+endif
+
 if USE_OPUS
 OPUS_DIR=opus
 else
@@ -286,6 +268,12 @@ if USE_FLUIDSYNTH
 FLUIDSYNTH_DIR=fluidsynth
 endif
 
+if USE_SBC
+SBC_DIR=sbc
+else
+SBC_DIR=
+endif
+
 if USE_SCHRO
 SCHRO_DIR=schroedinger
 else
@@ -296,6 +284,12 @@ if USE_SDL
 SDL_DIR=sdl
 else
 SDL_DIR=
+endif
+
+if USE_SMOOTHSTREAMING
+SMOOTHSTREAMING_DIR = smoothstreaming
+else
+SMOOTHSTREAMING_DIR =
 endif
 
 # if USE_SMOOTHWAVE
@@ -334,16 +328,16 @@ else
 SPC_DIR=
 endif
 
+if USE_SRTP
+SRTP_DIR=srtp
+else
+SRTP_DIR=
+endif
+
 if USE_GME
 GME_DIR=gme
 else
 GME_DIR=
-endif
-
-if USE_SWFDEC
-#SWFDEC_DIR=swfdec
-else
-SWFDEC_DIR=
 endif
 
 if USE_TELETEXTDEC
@@ -376,6 +370,17 @@ else
 RTMP_DIR =
 endif
 
+if USE_HLS
+HLS_DIR = hls
+else
+HLS_DIR =
+endif
+
+if USE_WEBP
+WEBP_DIR=webp
+else
+WEBP_DIR=
+endif
 
 SUBDIRS=\
 	$(VOAACENC_DIR) \
@@ -385,14 +390,13 @@ SUBDIRS=\
 	$(AUDIOFILE_DIR) \
 	$(BZ2_DIR) \
 	$(CDAUDIO_DIR) \
-	$(CELT_DIR) \
 	$(CHROMAPRINT_DIR) \
-	$(COG_DIR) \
 	$(CURL_DIR) \
+	$(DASH_DIR) \
 	$(DC1394_DIR) \
-	$(DIRAC_DIR) \
 	$(DIRECTFB_DIR) \
 	$(WAYLAND_DIR) \
+	$(DAALA_DIR) \
 	$(DTS_DIR) \
 	$(RESINDVD_DIR) \
 	$(EGLGLES_DIR) \
@@ -403,8 +407,6 @@ SUBDIRS=\
 	$(GSETTINGS_DIR) \
 	$(GSM_DIR) \
 	$(G729_DIR) \
-	$(JASPER_DIR) \
-	$(OPENJPEG_DIR) \
 	$(KATE_DIR) \
 	$(LADSPA_DIR) \
 	$(LV2_DIR) \
@@ -416,17 +418,19 @@ SUBDIRS=\
 	$(MIMIC_DIR) \
 	$(MPLEX_DIR) \
 	$(MUSEPACK_DIR) \
-	$(MUSICBRAINZ_DIR) \
 	$(MYTHTV_DIR) \
 	$(NAS_DIR) \
 	$(NEON_DIR) \
 	$(OFA_DIR) \
 	$(OPENAL_DIR) \
 	$(OPENCV_DIR) \
+	$(OPENJPEG_DIR) \
 	$(OPUS_DIR) \
 	$(RSVG_DIR) \
+	$(SBC_DIR) \
 	$(SCHRO_DIR) \
 	$(SDL_DIR) \
+	$(SMOOTHSTREAMING_DIR) \
 	$(SMOOTHWAVE_DIR) \
 	$(SNDFILE_DIR) \
 	$(SNDIO_DIR) \
@@ -434,24 +438,24 @@ SUBDIRS=\
 	$(SPANDSP_DIR) \
 	$(GME_DIR) \
 	$(SPC_DIR) \
-	$(SWFDEC_DIR) \
+	$(SRTP_DIR) \
 	$(TELETEXTDEC_DIR) \
 	$(TIMIDITY_DIR) \
 	$(XVID_DIR) \
 	$(ZBAR_DIR) \
-	$(RTMP_DIR)
+	$(RTMP_DIR) \
+	$(HLS_DIR) \
+	$(WEBP_DIR)
 
 DIST_SUBDIRS = \
 	assrender \
 	apexsink \
 	bz2 \
 	cdaudio \
-	celt \
 	chromaprint \
-	cog \
 	curl \
+	dash \
 	dc1394 \
-	dirac \
 	directfb \
 	wayland \
 	faac \
@@ -460,12 +464,12 @@ DIST_SUBDIRS = \
 	fluidsynth \
 	gsettings \
 	gsm \
+	hls \
 	ladspa \
-	jasper \
-	openjpeg \
 	kate \
 	libmms \
 	lv2 \
+	daala \
 	dts \
 	eglgles \
 	modplug \
@@ -474,31 +478,34 @@ DIST_SUBDIRS = \
 	mpg123 \
 	mplex \
 	musepack \
-	musicbrainz \
 	mythtv \
 	nas \
 	neon \
 	ofa \
 	openal \
 	opencv \
+	openjpeg \
 	opus \
 	rsvg \
 	resindvd \
+	sbc \
 	schroedinger \
 	sdl \
+	smoothstreaming \
 	sndfile \
 	sndio \
 	soundtouch \
 	spandsp \
 	spc \
+	srtp \
 	gme \
-	swfdec \
 	teletextdec \
 	timidity \
 	voaacenc \
 	voamrwbenc \
 	xvid \
 	zbar \
-	rtmp
+	rtmp \
+	webp
 
 include $(top_srcdir)/common/parallel-subdirs.mak

@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>mpeg2enc</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-modplug.html" title="modplug">
 <link rel="next" href="gst-plugins-bad-plugins-mplex.html" title="mplex">
-<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.19 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -24,8 +24,6 @@
 <a href="#gst-plugins-bad-plugins-mpeg2enc.synopsis" class="shortcut">Top</a>
                    | 
                   <a href="#gst-plugins-bad-plugins-mpeg2enc.description" class="shortcut">Description</a>
-                   | 
-                  <a href="#gst-plugins-bad-plugins-mpeg2enc.object-hierarchy" class="shortcut">Object Hierarchy</a>
                    | 
                   <a href="#gst-plugins-bad-plugins-mpeg2enc.implemented-interfaces" class="shortcut">Implemented Interfaces</a>
                    | 
@@ -43,17 +41,7 @@
 </tr></table></div>
 <div class="refsynopsisdiv">
 <a name="gst-plugins-bad-plugins-mpeg2enc.synopsis"></a><h2>Synopsis</h2>
-<a name="GstMpeg2enc"></a><pre class="synopsis">                    <a class="link" href="gst-plugins-bad-plugins-mpeg2enc.html#GstMpeg2enc-struct" title="GstMpeg2enc">GstMpeg2enc</a>;
-</pre>
-</div>
-<div class="refsect1">
-<a name="gst-plugins-bad-plugins-mpeg2enc.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="synopsis">
-  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
-   +----<a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-         +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
-               +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
-                     +----GstMpeg2enc
+<pre class="synopsis">                    <a class="link" href="gst-plugins-bad-plugins-mpeg2enc.html#GstMpeg2enc" title="GstMpeg2enc">GstMpeg2enc</a>;
 </pre>
 </div>
 <div class="refsect1">
@@ -106,9 +94,12 @@ GstMpeg2enc implements
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp12447136"></a><h3>Element Information</h3>
-<div class="variablelist"><table border="0">
+<a name="id-1.2.44.6.2.1"></a><h3>Element Information</h3>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term">plugin</span></p></td>
@@ -130,9 +121,12 @@ Ronald Bultje &lt;rbultje@ronald.bitfreak.net&gt;</td>
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp12454544"></a><h3>Element Pads</h3>
-<div class="variablelist"><table border="0">
+<a name="id-1.2.44.6.2.2"></a><h3>Element Pads</h3>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term">name</span></p></td>
@@ -152,8 +146,11 @@ Ronald Bultje &lt;rbultje@ronald.bitfreak.net&gt;</td>
 </tr>
 </tbody>
 </table></div>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term">name</span></p></td>
@@ -181,8 +178,38 @@ Ronald Bultje &lt;rbultje@ronald.bitfreak.net&gt;</td>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-mpeg2enc.details"></a><h2>Details</h2>
 <div class="refsect2">
-<a name="GstMpeg2enc-struct"></a><h3>GstMpeg2enc</h3>
-<pre class="programlisting">typedef struct _GstMpeg2enc GstMpeg2enc;</pre>
+<a name="GstMpeg2enc"></a><h3>GstMpeg2enc</h3>
+<pre class="programlisting">typedef struct {
+  GstElement parent;
+
+  /* pads */
+  GstPad *sinkpad, *srcpad;
+
+  /* video info for in caps */
+  GstVideoInfo vinfo;
+
+  /* options wrapper */
+  GstMpeg2EncOptions *options;
+
+  /* general encoding object (contains rest) */
+  GstMpeg2Encoder *encoder;
+
+  /* lock for syncing with encoding task */
+  GMutex tlock;
+  /* with TLOCK */
+  /* signals counterpart thread that something changed;
+   * buffer ready for task or buffer has been processed */
+  GCond cond;
+  /* seen eos */
+  gboolean eos;
+  /* flowreturn obtained by encoding task */
+  GstFlowReturn srcresult;
+  /* buffer for encoding task */
+  GstBuffer *buffer;
+  /* timestamps for output */
+  GQueue *time;
+} GstMpeg2enc;
+</pre>
 <p>
 </p>
 </div>
@@ -447,6 +474,6 @@ Ronald Bultje &lt;rbultje@ronald.bitfreak.net&gt;</td>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.18</div>
+          Generated by GTK-Doc V1.19</div>
 </body>
 </html>

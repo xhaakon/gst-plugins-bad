@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef _GST_DECKLINK_SRC_H_
@@ -43,6 +43,11 @@ struct _GstDecklinkSrc
 
   GstPad *audiosrcpad;
   GstPad *videosrcpad;
+
+  gboolean  pending_eos;    /* ATOMIC */
+
+  gboolean  have_events;    /* ATOMIC */
+  GList    *pending_events; /* OBJECT_LOCK */
 
   IDeckLink *decklink;
   IDeckLinkInput *input;

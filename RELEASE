@@ -1,5 +1,5 @@
 
-Release notes for GStreamer Bad Plugins 1.0.10
+Release notes for GStreamer Bad Plugins 1.1.90
 
 
 The GStreamer team is proud to announce a new bug-fix release
@@ -60,20 +60,15 @@ contains a set of codecs plugins based on libav (formerly gst-ffmpeg)
 
   
 
-Features of this release
-    
-      * build: fix bz2 configure check on Windows
-      * interaudiosrc: make silence memory actually contain silence
-      * neonhttpsrc: allow building with neon-0.30
-      * rtpvp8depay: mark key frames and delta frames properly
-      * pcapparse: fix double unref causing criticals and/or crashes
-      * mpegvideoparse: fix level detection
-
 Bugs fixed in this release
      
-      * 465924 : bzip2 not built while it is present and usuable
-      * 705957 : pcapparse: crash due to bad unref
-      * 706369 : videoparser/mpegvideoparse: bad switch statements
+      * 569015 : Generated win32 config.h file in git
+      * 680526 : tsdemux: crashes when seeking in HLS
+      * 703520 : dfbvideosink: port to 1.0
+      * 706957 : avdtpsrc: Support for AAC
+      * 707074 : examples: port directfb test
+      * 707317 : mpegdemux: doesn't send events to pads that are not linked
+      * 708106 : mpegtspacketizer: Incorrect condition checking
 
 ==== Download ====
 
@@ -110,10 +105,21 @@ subscribe to the gstreamer-devel list.
         
 Contributors to this release
     
-      * Alexandre Rostovtsev
+      * Alex Ashley
+      * Andoni Morales Alastruey
+      * Bernhard Miller
       * Edward Hervey
-      * Matthieu Bouron
+      * Iain Lane
+      * Jorge Luis Zapata
+      * Josep Torra
+      * Julien Isorce
+      * Kazunori Kobayashi
+      * Kerrick Staley
+      * Matej Knopp
+      * Olivier Crête
       * Sebastian Dröge
+      * Sudip Jain
+      * Thiago Santos
       * Tim-Philipp Müller
-      * Zaheer Abbas Merali
+      * Wim Taymans
  

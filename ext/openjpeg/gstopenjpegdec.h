@@ -24,7 +24,6 @@
 
 #include <gst/gst.h>
 #include <gst/video/video.h>
-#include <gst/video/gstvideodecoder.h>
 
 #include <openjpeg.h>
 

@@ -15,8 +15,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  *
  */
 /**
@@ -164,7 +164,10 @@ gst_siren_dec_handle_frame (GstAudioDecoder * bdec, GstBuffer * buf)
   GstBuffer *out_buf;
   guint8 *in_data, *out_data;
   guint i, size, num_frames;
-  gint out_size, in_size;
+  gint out_size;
+#ifndef GST_DISABLE_GST_DEBUG
+  gint in_size;
+#endif
   gint decode_ret;
   GstMapInfo inmap, outmap;
 
@@ -181,7 +184,9 @@ gst_siren_dec_handle_frame (GstAudioDecoder * bdec, GstBuffer * buf)
   num_frames = size / 40;
 
   /* this is the input/output size */
+#ifndef GST_DISABLE_GST_DEBUG
   in_size = num_frames * 40;
+#endif
   out_size = num_frames * 640;
 
   GST_LOG_OBJECT (dec, "we have %u frames, %u in, %u out", num_frames, in_size,

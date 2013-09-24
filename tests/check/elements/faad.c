@@ -16,8 +16,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #include <unistd.h>
@@ -97,7 +97,8 @@ do_test (GstBuffer * inbuffer, GstCaps * caps)
   GST_BUFFER_TIMESTAMP (inbuffer) = 0;
   ASSERT_BUFFER_REFCOUNT (inbuffer, "inbuffer", 1);
 
-  gst_pad_set_caps (mysrcpad, caps);
+  gst_check_setup_events (mysrcpad, faad, caps, GST_FORMAT_TIME);
+
   /* need to push twice to get faad output */
   gst_buffer_ref (inbuffer);
   fail_unless (gst_pad_push (mysrcpad, inbuffer) == GST_FLOW_OK);
