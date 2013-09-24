@@ -34,7 +34,7 @@ libglib2.0-dev (>= 2.32)
 libgme-dev
 libgnutls-dev (>= 2.11.3)
 libgsm1-dev
-libgstreamer-plugins-base@GST_ABI@-dev (>= 1.1.90)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 1.2.0)
 libgtk2.0-dev (>= 2.14.0)
 libiptcdata0-dev (>= 1.0.2)
 libjasper-dev
