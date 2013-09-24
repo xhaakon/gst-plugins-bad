@@ -25,6 +25,8 @@
                    | 
                   <a href="#gst-plugins-bad-plugins-cvsmooth.description" class="shortcut">Description</a>
                    | 
+                  <a href="#gst-plugins-bad-plugins-cvsmooth.object-hierarchy" class="shortcut">Object Hierarchy</a>
+                   | 
                   <a href="#gst-plugins-bad-plugins-cvsmooth.properties" class="shortcut">Properties</a>
 </td></tr>
 </table>
@@ -39,7 +41,20 @@
 </tr></table></div>
 <div class="refsynopsisdiv">
 <a name="gst-plugins-bad-plugins-cvsmooth.synopsis"></a><h2>Synopsis</h2>
-<pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth" title="struct GstCvSmooth">GstCvSmooth</a>;
+<a name="GstCvSmooth"></a><pre class="synopsis">struct              <a class="link" href="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth-struct" title="struct GstCvSmooth">GstCvSmooth</a>;
+</pre>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-cvsmooth.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+   +----<a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+         +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
+               +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
+                     +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html">GstBaseTransform</a>
+                           +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideofilter.html#GstVideoFilter">GstVideoFilter</a>
+                                 +----GstOpencvVideoFilter
+                                       +----GstCvSmooth
 </pre>
 </div>
 <div class="refsect1">
@@ -57,7 +72,7 @@
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.15.5.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.15.6.2.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -83,7 +98,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.15.5.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.15.6.2.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -156,18 +171,8 @@
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-cvsmooth.details"></a><h2>Details</h2>
 <div class="refsect2">
-<a name="GstCvSmooth"></a><h3>struct GstCvSmooth</h3>
-<pre class="programlisting">struct GstCvSmooth {
-  GstOpencvVideoFilter element;
-
-  gint type;
-
-  gint param1;
-  gint param2;
-  gdouble param3;
-  gdouble param4;
-};
-</pre>
+<a name="GstCvSmooth-struct"></a><h3>struct GstCvSmooth</h3>
+<pre class="programlisting">struct GstCvSmooth;</pre>
 <p>
 </p>
 </div>
