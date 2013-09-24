@@ -15,8 +15,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 /**
  * SECTION:gstvc1parser
@@ -647,7 +647,7 @@ parse_vopdquant (GstBitReader * br, GstVC1FrameHdr * framehdr, guint8 dquant)
       switch (vopdquant->dqprofile) {
         case GST_VC1_DQPROFILE_SINGLE_EDGE:
         case GST_VC1_DQPROFILE_DOUBLE_EDGES:
-          READ_UINT8 (br, vopdquant->dqsbedge, 2);
+          READ_UINT8 (br, vopdquant->dqbedge, 2);
           break;
 
         case GST_VC1_DQPROFILE_ALL_MBS:
@@ -1674,8 +1674,7 @@ gst_vc1_identify_next_bdu (const guint8 * data, gsize size, GstVC1BDU * bdu)
   g_return_val_if_fail (bdu != NULL, GST_VC1_PARSER_ERROR);
 
   if (size < 4) {
-    GST_DEBUG ("Can't parse, buffer has too small size %" G_GSSIZE_FORMAT,
-        size);
+    GST_DEBUG ("Can't parse, buffer has too small size %" G_GSIZE_FORMAT, size);
     return GST_VC1_PARSER_ERROR;
   }
 
@@ -1718,7 +1717,7 @@ gst_vc1_identify_next_bdu (const guint8 * data, gsize size, GstVC1BDU * bdu)
  * gst_vc1_parse_sequence_layer:
  * @data: The data to parse
  * @size: the size of @data
- * @structa: The #GstVC1SeqLayer to set.
+ * @seqlayer: The #GstVC1SeqLayer to set.
  *
  * Parses @data, and fills @seqlayer fields.
  *
@@ -1792,7 +1791,7 @@ gst_vc1_parse_sequence_header_struct_a (const guint8 * data,
  * gst_vc1_parse_sequence_header_struct_b:
  * @data: The data to parse
  * @size: the size of @data
- * @structa: The #GstVC1SeqStructB to set.
+ * @structb: The #GstVC1SeqStructB to set.
  *
  * Parses @data, and fills @structb fields.
  *
@@ -2053,8 +2052,51 @@ gst_vc1_parse_field_header (const guint8 * data, gsize size,
 }
 
 /**
+ * gst_vc1_parse_slice_header:
+ * @data: The data to parse
+ * @size: The size of @data
+ * @slicehdr: The #GstVC1SliceHdr to fill
+ * @seqhdr: The #GstVC1SeqHdr that was previously parsed
+ *
+ * Parses @data, and fills @slicehdr fields.
+ *
+ * Returns: a #GstVC1ParserResult
+ *
+ * Since: 1.2
+ */
+GstVC1ParserResult
+gst_vc1_parse_slice_header (const guint8 * data, gsize size,
+    GstVC1SliceHdr * slicehdr, GstVC1SeqHdr * seqhdr)
+{
+  GstBitReader br;
+  GstVC1FrameHdr framehdr;
+  GstVC1ParserResult result;
+  guint8 pic_header_flag;
+
+  GST_DEBUG ("Parsing slice header");
+
+  if (seqhdr->profile != GST_VC1_PROFILE_ADVANCED)
+    return GST_VC1_PARSER_BROKEN_DATA;
+
+  gst_bit_reader_init (&br, data, size);
+
+  READ_UINT16 (&br, slicehdr->slice_addr, 9);
+  READ_UINT8 (&br, pic_header_flag, 1);
+  if (pic_header_flag)
+    result = parse_frame_header_advanced (&br, &framehdr, seqhdr, NULL, FALSE);
+  else
+    result = GST_VC1_PARSER_OK;
+
+  slicehdr->header_size = gst_bit_reader_get_pos (&br);
+  return result;
+
+failed:
+  GST_WARNING ("Failed to parse slice header");
+  return GST_VC1_PARSER_ERROR;
+}
+
+/**
  * gst_vc1_bitplanes_new:
- * @seqhdr: The #GstVC1SeqHdr from which to set @bitplanes
  *
  * Creates a new #GstVC1BitPlanes. It should be freed with
  * gst_vc1_bitplanes_free() after use.

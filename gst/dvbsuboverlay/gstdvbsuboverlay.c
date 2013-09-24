@@ -14,8 +14,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 /**
@@ -66,17 +66,19 @@ enum
 #define DEFAULT_MAX_PAGE_TIMEOUT (0)
 #define DEFAULT_FORCE_END (FALSE)
 
+#define VIDEO_FORMATS GST_VIDEO_OVERLAY_COMPOSITION_BLEND_FORMATS
+
 static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE ("I420"))
+    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE (VIDEO_FORMATS))
     );
 
 static GstStaticPadTemplate video_sink_factory =
 GST_STATIC_PAD_TEMPLATE ("video_sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE ("I420"))
+    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE (VIDEO_FORMATS))
     );
 
 static GstStaticPadTemplate text_sink_factory =
@@ -225,6 +227,8 @@ gst_dvbsub_overlay_init (GstDVBSubOverlay * render)
       GST_DEBUG_FUNCPTR (gst_dvbsub_overlay_query_video));
   gst_pad_set_query_function (render->srcpad,
       GST_DEBUG_FUNCPTR (gst_dvbsub_overlay_query_src));
+
+  GST_PAD_SET_PROXY_ALLOCATION (render->video_sinkpad);
 
   gst_element_add_pad (GST_ELEMENT (render), render->srcpad);
   gst_element_add_pad (GST_ELEMENT (render), render->video_sinkpad);

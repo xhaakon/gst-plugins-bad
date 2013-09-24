@@ -279,6 +279,20 @@ fieldanalysis_orc_same_parity_sad_planar_yuv (guint32 * ORC_RESTRICT a1,
     if (!p_inited) {
       OrcProgram *p;
 
+#if 1
+      static const orc_uint8 bc[] = {
+        1, 9, 44, 102, 105, 101, 108, 100, 97, 110, 97, 108, 121, 115, 105, 115,
+        95, 111, 114, 99, 95, 115, 97, 109, 101, 95, 112, 97, 114, 105, 116,
+            121,
+        95, 115, 97, 100, 95, 112, 108, 97, 110, 97, 114, 95, 121, 117, 118, 12,
+        1, 1, 12, 1, 1, 13, 4, 16, 4, 20, 2, 20, 2, 20, 4, 20,
+        4, 150, 32, 4, 150, 33, 5, 98, 32, 32, 33, 69, 32, 32, 154, 34,
+        32, 111, 35, 34, 24, 106, 34, 34, 35, 181, 12, 34, 2, 0,
+      };
+      p = orc_program_new_from_static_bytecode (bc);
+      orc_program_set_backup_function (p,
+          _backup_fieldanalysis_orc_same_parity_sad_planar_yuv);
+#else
       p = orc_program_new ();
       orc_program_set_name (p, "fieldanalysis_orc_same_parity_sad_planar_yuv");
       orc_program_set_backup_function (p,
@@ -308,6 +322,7 @@ fieldanalysis_orc_same_parity_sad_planar_yuv (guint32 * ORC_RESTRICT a1,
           ORC_VAR_D1);
       orc_program_append_2 (p, "accl", 0, ORC_VAR_A1, ORC_VAR_T3, ORC_VAR_D1,
           ORC_VAR_D1);
+#endif
 
       orc_program_compile (p);
       c = orc_program_take_code (p);
@@ -447,6 +462,21 @@ fieldanalysis_orc_same_parity_ssd_planar_yuv (guint32 * ORC_RESTRICT a1,
     if (!p_inited) {
       OrcProgram *p;
 
+#if 1
+      static const orc_uint8 bc[] = {
+        1, 9, 44, 102, 105, 101, 108, 100, 97, 110, 97, 108, 121, 115, 105, 115,
+        95, 111, 114, 99, 95, 115, 97, 109, 101, 95, 112, 97, 114, 105, 116,
+            121,
+        95, 115, 115, 100, 95, 112, 108, 97, 110, 97, 114, 95, 121, 117, 118,
+            12,
+        1, 1, 12, 1, 1, 13, 4, 16, 4, 20, 2, 20, 2, 20, 4, 20,
+        4, 150, 32, 4, 150, 33, 5, 98, 32, 32, 33, 176, 34, 32, 32, 111,
+        35, 34, 24, 106, 34, 34, 35, 181, 12, 34, 2, 0,
+      };
+      p = orc_program_new_from_static_bytecode (bc);
+      orc_program_set_backup_function (p,
+          _backup_fieldanalysis_orc_same_parity_ssd_planar_yuv);
+#else
       p = orc_program_new ();
       orc_program_set_name (p, "fieldanalysis_orc_same_parity_ssd_planar_yuv");
       orc_program_set_backup_function (p,
@@ -474,6 +504,7 @@ fieldanalysis_orc_same_parity_ssd_planar_yuv (guint32 * ORC_RESTRICT a1,
           ORC_VAR_D1);
       orc_program_append_2 (p, "accl", 0, ORC_VAR_A1, ORC_VAR_T3, ORC_VAR_D1,
           ORC_VAR_D1);
+#endif
 
       orc_program_compile (p);
       c = orc_program_take_code (p);
@@ -723,6 +754,24 @@ fieldanalysis_orc_same_parity_3_tap_planar_yuv (guint32 * ORC_RESTRICT a1,
     if (!p_inited) {
       OrcProgram *p;
 
+#if 1
+      static const orc_uint8 bc[] = {
+        1, 9, 46, 102, 105, 101, 108, 100, 97, 110, 97, 108, 121, 115, 105, 115,
+        95, 111, 114, 99, 95, 115, 97, 109, 101, 95, 112, 97, 114, 105, 116,
+            121,
+        95, 51, 95, 116, 97, 112, 95, 112, 108, 97, 110, 97, 114, 95, 121, 117,
+        118, 12, 1, 1, 12, 1, 1, 12, 1, 1, 12, 1, 1, 12, 1, 1,
+        12, 1, 1, 13, 4, 14, 4, 2, 0, 0, 0, 16, 4, 20, 2, 20,
+        2, 20, 2, 20, 2, 20, 2, 20, 2, 20, 4, 20, 4, 150, 32, 4,
+        150, 33, 5, 150, 34, 6, 150, 35, 7, 150, 36, 8, 150, 37, 9, 93,
+        33, 33, 16, 93, 36, 36, 16, 70, 32, 32, 33, 70, 32, 32, 34, 70,
+        35, 35, 36, 70, 35, 35, 37, 98, 32, 32, 35, 69, 32, 32, 154, 38,
+        32, 111, 39, 38, 24, 106, 38, 38, 39, 181, 12, 38, 2, 0,
+      };
+      p = orc_program_new_from_static_bytecode (bc);
+      orc_program_set_backup_function (p,
+          _backup_fieldanalysis_orc_same_parity_3_tap_planar_yuv);
+#else
       p = orc_program_new ();
       orc_program_set_name (p,
           "fieldanalysis_orc_same_parity_3_tap_planar_yuv");
@@ -782,6 +831,7 @@ fieldanalysis_orc_same_parity_3_tap_planar_yuv (guint32 * ORC_RESTRICT a1,
           ORC_VAR_D1);
       orc_program_append_2 (p, "accl", 0, ORC_VAR_A1, ORC_VAR_T7, ORC_VAR_D1,
           ORC_VAR_D1);
+#endif
 
       orc_program_compile (p);
       c = orc_program_take_code (p);
@@ -829,8 +879,16 @@ fieldanalysis_orc_opposite_parity_5_tap_planar_yuv (guint32 * ORC_RESTRICT a1,
   orc_int8 var41;
   orc_int8 var42;
   orc_int8 var43;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__)
+  volatile orc_union16 var44;
+#else
   orc_union16 var44;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__)
+  volatile orc_union16 var45;
+#else
   orc_union16 var45;
+#endif
   orc_union32 var46;
   orc_union16 var47;
   orc_union16 var48;
@@ -930,8 +988,16 @@ _backup_fieldanalysis_orc_opposite_parity_5_tap_planar_yuv (OrcExecutor *
   orc_int8 var41;
   orc_int8 var42;
   orc_int8 var43;
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__)
+  volatile orc_union16 var44;
+#else
   orc_union16 var44;
+#endif
+#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__)
+  volatile orc_union16 var45;
+#else
   orc_union16 var45;
+#endif
   orc_union32 var46;
   orc_union16 var47;
   orc_union16 var48;
@@ -1029,6 +1095,25 @@ fieldanalysis_orc_opposite_parity_5_tap_planar_yuv (guint32 * ORC_RESTRICT a1,
     if (!p_inited) {
       OrcProgram *p;
 
+#if 1
+      static const orc_uint8 bc[] = {
+        1, 9, 50, 102, 105, 101, 108, 100, 97, 110, 97, 108, 121, 115, 105, 115,
+        95, 111, 114, 99, 95, 111, 112, 112, 111, 115, 105, 116, 101, 95, 112,
+            97,
+        114, 105, 116, 121, 95, 53, 95, 116, 97, 112, 95, 112, 108, 97, 110, 97,
+        114, 95, 121, 117, 118, 12, 1, 1, 12, 1, 1, 12, 1, 1, 12, 1,
+        1, 12, 1, 1, 13, 4, 14, 4, 2, 0, 0, 0, 14, 4, 3, 0,
+        0, 0, 16, 4, 20, 2, 20, 2, 20, 2, 20, 2, 20, 2, 20, 4,
+        20, 4, 150, 32, 4, 150, 33, 5, 150, 34, 6, 150, 35, 7, 150, 36,
+        8, 93, 34, 34, 16, 89, 33, 33, 17, 89, 35, 35, 17, 98, 32, 32,
+        33, 70, 32, 32, 34, 98, 32, 32, 35, 70, 32, 32, 36, 69, 32, 32,
+        154, 37, 32, 111, 38, 37, 24, 106, 37, 37, 38, 181, 12, 37, 2, 0,
+
+      };
+      p = orc_program_new_from_static_bytecode (bc);
+      orc_program_set_backup_function (p,
+          _backup_fieldanalysis_orc_opposite_parity_5_tap_planar_yuv);
+#else
       p = orc_program_new ();
       orc_program_set_name (p,
           "fieldanalysis_orc_opposite_parity_5_tap_planar_yuv");
@@ -1085,6 +1170,7 @@ fieldanalysis_orc_opposite_parity_5_tap_planar_yuv (guint32 * ORC_RESTRICT a1,
           ORC_VAR_D1);
       orc_program_append_2 (p, "accl", 0, ORC_VAR_A1, ORC_VAR_T6, ORC_VAR_D1,
           ORC_VAR_D1);
+#endif
 
       orc_program_compile (p);
       c = orc_program_take_code (p);

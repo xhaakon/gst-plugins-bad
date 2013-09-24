@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 /*
  * Unless otherwise indicated, Source Code is licensed under MIT license.
@@ -702,6 +702,11 @@ mpegpsdemux_prepare_srcpad (MpegPsMux * mux)
   GValue val = { 0, };
   GList *headers, *l;
   GstCaps *caps;
+  gchar s_id[32];
+
+  /* stream-start (FIXME: create id based on input ids) */
+  g_snprintf (s_id, sizeof (s_id), "mpegpsmux-%08x", g_random_int ());
+  gst_pad_push_event (mux->srcpad, gst_event_new_stream_start (s_id));
 
   caps = gst_caps_new_simple ("video/mpeg",
       "mpegversion", G_TYPE_INT, 2, "systemstream", G_TYPE_BOOLEAN, TRUE, NULL);

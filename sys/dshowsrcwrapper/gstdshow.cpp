@@ -15,8 +15,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #include "gstdshow.h"
@@ -405,6 +405,9 @@ gst_dshow_guid_to_gst_video_format (AM_MEDIA_TYPE *mediatype)
   if (gst_dshow_check_mediatype (mediatype, MEDIASUBTYPE_YUY2, FORMAT_VideoInfo))
     return GST_VIDEO_FORMAT_YUY2;
 
+  if (gst_dshow_check_mediatype (mediatype, MEDIASUBTYPE_UYVY, FORMAT_VideoInfo))
+    return GST_VIDEO_FORMAT_UYVY;
+
   return GST_VIDEO_FORMAT_UNKNOWN;
 }
 
@@ -428,6 +431,9 @@ gst_dshow_new_video_caps (GstVideoFormat video_format, const gchar * name,
 	  break;
     case GST_VIDEO_FORMAT_YUY2:
       video_caps = gst_caps_from_string (GST_VIDEO_CAPS_YUV ("YUY2"));
+      break;
+    case GST_VIDEO_FORMAT_UYVY:
+      video_caps = gst_caps_from_string (GST_VIDEO_CAPS_YUV ("UYVY"));
       break;
     default:
       break;
@@ -489,4 +495,22 @@ gst_dshow_new_video_caps (GstVideoFormat video_format, const gchar * name,
          GST_TYPE_FRACTION_RANGE, min_fr, 1, max_fr, 1, NULL);
 
   return video_caps;
+}
+
+bool gst_dshow_configure_latency (IPin *pCapturePin, guint bufSizeMS)
+{
+  HRESULT hr;
+  ALLOCATOR_PROPERTIES alloc_prop;
+  IAMBufferNegotiation * pNeg = NULL;
+  hr = pCapturePin->QueryInterface(IID_IAMBufferNegotiation, (void **)&pNeg);
+
+  if(!SUCCEEDED (hr))
+    return FALSE;
+
+  alloc_prop.cbAlign = -1;  // -1 means no preference.
+  alloc_prop.cbBuffer = bufSizeMS;
+  alloc_prop.cbPrefix = -1;
+  alloc_prop.cBuffers = -1;
+  hr = pNeg->SuggestAllocatorProperties (&alloc_prop);
+  return SUCCEEDED (hr);
 }

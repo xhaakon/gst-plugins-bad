@@ -14,8 +14,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -27,6 +27,8 @@
 #include "gstdiracparse.h"
 #include "gstmpegvideoparse.h"
 #include "gstmpeg4videoparse.h"
+#include "gstpngparse.h"
+#include "gstvc1parse.h"
 
 static gboolean
 plugin_init (GstPlugin * plugin)
@@ -43,6 +45,10 @@ plugin_init (GstPlugin * plugin)
       GST_RANK_PRIMARY + 1, GST_TYPE_MPEGVIDEO_PARSE);
   ret |= gst_element_register (plugin, "mpeg4videoparse",
       GST_RANK_PRIMARY + 1, GST_TYPE_MPEG4VIDEO_PARSE);
+  ret |= gst_element_register (plugin, "pngparse",
+      GST_RANK_PRIMARY, GST_TYPE_PNG_PARSE);
+  ret |= gst_element_register (plugin, "vc1parse",
+      GST_RANK_NONE, GST_TYPE_VC1_PARSE);
 
   return ret;
 }

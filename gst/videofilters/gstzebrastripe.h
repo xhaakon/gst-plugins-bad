@@ -13,15 +13,15 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef _GST_ZEBRA_STRIPE_H_
 #define _GST_ZEBRA_STRIPE_H_
 
-#include "gstvideofilter2.h"
 #include <gst/video/video.h>
+#include <gst/video/gstvideofilter.h>
 
 G_BEGIN_DECLS
 
@@ -36,7 +36,7 @@ typedef struct _GstZebraStripeClass GstZebraStripeClass;
 
 struct _GstZebraStripe
 {
-  GstVideoFilter2 video_filter2;
+  GstVideoFilter base_zebrastripe;
 
   /* properties */
   int threshold;
@@ -44,12 +44,11 @@ struct _GstZebraStripe
   /* state */
   int t;
   int y_threshold;
-
 };
 
 struct _GstZebraStripeClass
 {
-  GstVideoFilter2Class video_filter2_class;
+  GstVideoFilterClass base_zebrastripe_class;
 };
 
 GType gst_zebra_stripe_get_type (void);

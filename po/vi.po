@@ -1,15 +1,15 @@
 # Vietnamese translation for GST Plugins Bad.
-# Copyright © 2012 Free Software Foundation, Inc.
+# Copyright © 2013 Free Software Foundation, Inc.
 # This file is distributed under the same license as the gst-plugins-bad package.
 # Clytie Siddall <clytie@riverland.net.au>, 2007-2010.
-# Trần Ngọc Quân <vnwildman@gmail.com>, 2012.
+# Trần Ngọc Quân <vnwildman@gmail.com>, 2012-2013.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad-1.0.3\n"
+"Project-Id-Version: gst-plugins-bad-1.1.4\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2013-08-28 19:31+0100\n"
-"PO-Revision-Date: 2012-12-02 08:03+0700\n"
+"POT-Creation-Date: 2013-09-19 10:36+0200\n"
+"PO-Revision-Date: 2013-09-16 14:18+0700\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: Vietnamese <translation-team-vi@lists.sourceforge.net>\n"
 "Language: vi\n"
@@ -20,6 +20,8 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: LocFactoryEditor 1.8\n"
 "X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Language: Vietnamese\n"
+"X-Poedit-Country: VIET NAM\n"
 
 msgid "Could not read title information for DVD."
 msgstr "Không thể đọc thông tin tựa đề của đĩa DVD."
@@ -29,7 +31,7 @@ msgid "Failed to open DVD device '%s'."
 msgstr "Gặp lỗi khi mở thiết bị đĩa DVD “%s”."
 
 msgid "Failed to set PGC based seeking."
-msgstr "Không đặt được chức năng di chuyển vị trí đọc dựa vào PGC."
+msgstr "Gặp lỗi khi đặt chức năng di chuyển vị trí đọc dựa vào PGC."
 
 msgid ""
 "Could not read DVD. This may be because the DVD is encrypted and a DVD "
@@ -40,6 +42,18 @@ msgstr ""
 
 msgid "Could not read DVD."
 msgstr "Không thể đọc DVD."
+
+msgid "This file contains no playable streams."
+msgstr "Tập tin này không chứa luồng dữ liệu có thể phát."
+
+msgid "Couldn't get the Manifest's URI"
+msgstr "Không thể lấy URI của Manifest"
+
+msgid "Failed to get fragment URL."
+msgstr "Gặp lỗi khi lấy URL phân mảnh."
+
+msgid "Couldn't download fragments"
+msgstr "Không thể tải về các phân mảnh"
 
 msgid "No file name specified for writing."
 msgstr "Chưa chỉ định tên tập tin để ghi vào."
@@ -55,8 +69,40 @@ msgstr "Lỗi luồng dữ liệu nội bộ."
 msgid "Could not write to file \"%s\"."
 msgstr "Không thể ghi vào tập tin “%s”."
 
+msgid "Could not establish connection to sndio"
+msgstr "Không thể thiết lập kết nối tới sndio"
+
+msgid "Failed to query sndio capabilities"
+msgstr "Gặp lỗi khi truy vấn khả năng của sndio"
+
+msgid "Could not configure sndio"
+msgstr "Không thể cấu hình sndio"
+
+msgid "Could not start sndio"
+msgstr "Không thể khởi chạy sndio"
+
 msgid "Internal data flow error."
 msgstr "Lỗi tràn luồng dữ liệu nội bộ."
+
+msgid "Generated file has a larger preroll time than its streams duration"
+msgstr ""
+"Tập tin đã tạo có thời gian cuộn trước lớn hơn thời lượng của dòng dữ liệu"
+
+#, c-format
+msgid "Missing element '%s' - check your GStreamer installation."
+msgstr "Thiếu phần tử “%s” — hãy kiểm tra lại cài đặt GStreamer."
+
+msgid "File location is set to NULL, please set it to a valid filename"
+msgstr ""
+"Vị trí tập tin được đặt thành “NULL”. xin hãy đặt một tên tập tin hợp lệ"
+
+msgid "Subpicture format was not configured before data flow"
+msgstr "Định dạng ảnh phụ chưa được cấu hình trước khi dữ liệu truyền đến"
+
+#, c-format
+msgid "Given file name \"%s\" can't be converted to local file name encoding."
+msgstr ""
+"Tên tập tin đã cho “%s” không thể chuyển đổi bảng mã tên tập tin nội bộ."
 
 #, c-format
 msgid "Device \"%s\" does not exist."
@@ -73,6 +119,20 @@ msgstr "Không thể lấy các cài đặt từ thiết bị giao diện “%s�
 #, c-format
 msgid "Could not open file \"%s\" for reading."
 msgstr "Không thể mở tập tin “%s” để đọc."
+
+msgid "Couldn't find DVB channel configuration file"
+msgstr "Không thể tìm thấy tập tin cấu hình kênh DVB"
+
+#, c-format
+msgid "Couldn't load DVB channel configuration file: %s"
+msgstr "Không thể tải tập tin cấu hình kênh DVB: %s"
+
+msgid "DVB channel configuration file doesn't contain any channels"
+msgstr "Tập tin cấu hình kênh DVB chẳng chứa kênh nào cả"
+
+#, c-format
+msgid "Couldn't find details for DVB channel %s"
+msgstr "Không thể tìm thấy chi tiết cho kênh DVB %s"
 
 #~ msgid "Could not open audio device for mixer control handling."
 #~ msgstr "Không thể mở thiết bị âm thanh để quản lý điều khiển máy hoà tiếng."

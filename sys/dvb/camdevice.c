@@ -17,8 +17,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #include <glib.h>
@@ -217,7 +217,7 @@ cam_device_ready (CamDevice * device)
 
 void
 cam_device_set_pmt (CamDevice * device,
-    GstStructure * pmt, CamConditionalAccessPmtFlag flag)
+    GstMpegTsPMT * pmt, CamConditionalAccessPmtFlag flag)
 {
   g_return_if_fail (device != NULL);
   g_return_if_fail (device->state == CAM_DEVICE_STATE_OPEN);

@@ -15,8 +15,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -305,7 +305,7 @@ gst_mms_create (GstPushSrc * psrc, GstBuffer ** buf)
   guint8 *data;
   guint blocksize;
   gint result;
-  mms_off_t offset;
+  goffset offset;
 
   *buf = NULL;
 
@@ -339,7 +339,7 @@ gst_mms_create (GstPushSrc * psrc, GstBuffer ** buf)
   *buf = gst_buffer_new_wrapped (data, result);
   GST_BUFFER_OFFSET (*buf) = offset;
 
-  GST_LOG_OBJECT (mmssrc, "Returning buffer with offset %" G_GINT64_FORMAT
+  GST_LOG_OBJECT (mmssrc, "Returning buffer with offset %" G_GOFFSET_FORMAT
       " and size %u", offset, result);
 
   return GST_FLOW_OK;

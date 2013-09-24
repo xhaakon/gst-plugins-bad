@@ -32,8 +32,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  *
  * GPL:
  *
@@ -49,7 +49,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * MIT:
  *
@@ -183,7 +183,7 @@ guint 		tsmux_get_pat_interval          (TsMux *mux);
 guint16		tsmux_get_new_pid 		(TsMux *mux);
 
 /* pid/program management */
-TsMuxProgram *	tsmux_program_new 		(TsMux *mux);
+TsMuxProgram *	tsmux_program_new 		(TsMux *mux, gint prog_id);
 void 		tsmux_program_free 		(TsMuxProgram *program);
 void 		tsmux_set_pmt_interval          (TsMuxProgram *program, guint interval);
 guint 		tsmux_get_pmt_interval   	(TsMuxProgram *program);

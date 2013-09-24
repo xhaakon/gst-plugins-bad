@@ -17,13 +17,12 @@
 
   <chapter>
     <title>gst-plugins-bad Elements</title>
+    <xi:include href="xml/element-accurip.xml" />
     <xi:include href="xml/element-assrender.xml" />
     <xi:include href="xml/element-autoconvert.xml" />
     <xi:include href="xml/element-bulge.xml" />
     <xi:include href="xml/element-burn.xml" />
     <xi:include href="xml/element-camerabin.xml" />
-    <xi:include href="xml/element-celtdec.xml" />
-    <xi:include href="xml/element-celtenc.xml" />
     <xi:include href="xml/element-chromium.xml" />
     <xi:include href="xml/element-circle.xml" />
     <xi:include href="xml/element-coloreffects.xml" />
@@ -39,7 +38,6 @@
     <xi:include href="xml/element-dilate.xml" />
     <xi:include href="xml/element-dodge.xml" />
     <xi:include href="xml/element-dtmfdetect.xml" />
-    <xi:include href="xml/element-dtmfsrc.xml" />
     <xi:include href="xml/element-dtsdec.xml" />
     <xi:include href="xml/element-dvbsrc.xml" />
     <xi:include href="xml/element-dvdspu.xml" />
@@ -75,11 +73,6 @@
     <xi:include href="xml/element-rfbsrc.xml" />
     <xi:include href="xml/element-rtmpsink.xml" />
     <xi:include href="xml/element-rtmpsrc.xml" />
-    <xi:include href="xml/element-rtpmux.xml" />
-    <xi:include href="xml/element-rtpdtmfsrc.xml" />
-    <xi:include href="xml/element-rtpdtmfmux.xml" />
-    <xi:include href="xml/element-rtpmux.xml" />
-    <xi:include href="xml/element-scaletempo.xml" />
     <xi:include href="xml/element-shmsink.xml" />
     <xi:include href="xml/element-shmsrc.xml" />
     <xi:include href="xml/element-sdpdemux.xml" />
@@ -111,13 +104,10 @@
     <xi:include href="xml/plugin-bayer.xml" />
     <xi:include href="xml/plugin-bz2.xml" />
     <xi:include href="xml/plugin-camerabin.xml" />
-    <xi:include href="xml/plugin-celt.xml" />
     <xi:include href="xml/plugin-coloreffects.xml" />
     <xi:include href="xml/plugin-curl.xml" />
     <xi:include href="xml/plugin-dataurisrc.xml" />
     <xi:include href="xml/plugin-debugutilsbad.xml" />
-    <xi:include href="xml/plugin-dirac.xml" />
-    <xi:include href="xml/plugin-dtmf.xml" />
     <xi:include href="xml/plugin-dtsdec.xml" />
     <xi:include href="xml/plugin-dvb.xml" />
     <xi:include href="xml/plugin-dvdspu.xml" />
@@ -144,8 +134,6 @@
     <xi:include href="xml/plugin-rawparse.xml" />
     <xi:include href="xml/plugin-rfbsrc.xml" />
     <xi:include href="xml/plugin-rtmp.xml" />
-    <xi:include href="xml/plugin-rtpmux.xml" />
-    <xi:include href="xml/plugin-scaletempo.xml" />
     <xi:include href="xml/plugin-sdp.xml" />
     <xi:include href="xml/plugin-shm.xml" />
     <xi:include href="xml/plugin-soundtouch.xml" />

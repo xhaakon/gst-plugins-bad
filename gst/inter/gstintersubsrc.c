@@ -192,9 +192,7 @@ static void
 gst_inter_sub_src_get_times (GstBaseSrc * src, GstBuffer * buffer,
     GstClockTime * start, GstClockTime * end)
 {
-  GstInterSubSrc *intersubsrc = GST_INTER_SUB_SRC (src);
-
-  GST_DEBUG_OBJECT (intersubsrc, "get_times");
+  GST_DEBUG_OBJECT (src, "get_times");
 
   /* for live sources, sync on the timestamp of the buffer */
   if (gst_base_src_is_live (src)) {
@@ -227,7 +225,7 @@ gst_inter_sub_src_create (GstBaseSrc * src, guint64 offset, guint size,
 
   buffer = NULL;
 
-  g_mutex_lock (intersubsrc->surface->mutex);
+  g_mutex_lock (&intersubsrc->surface->mutex);
   if (intersubsrc->surface->sub_buffer) {
     buffer = gst_buffer_ref (intersubsrc->surface->sub_buffer);
     //intersubsrc->surface->sub_buffer_count++;
@@ -236,7 +234,7 @@ gst_inter_sub_src_create (GstBaseSrc * src, guint64 offset, guint size,
     intersubsrc->surface->sub_buffer = NULL;
     //}
   }
-  g_mutex_unlock (intersubsrc->surface->mutex);
+  g_mutex_unlock (&intersubsrc->surface->mutex);
 
   if (buffer == NULL) {
     GstMapInfo map;

@@ -21,8 +21,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -180,9 +180,9 @@ static void
 gst_h263_parse_set_src_caps (GstH263Parse * h263parse,
     const H263Params * params)
 {
-  GstStructure *st;
+  GstStructure *st = NULL;
   GstCaps *caps, *sink_caps;
-  gint fr_num, fr_denom;
+  gint fr_num, fr_denom, par_num, par_denom;
 
   g_assert (h263parse->state == PASSTHROUGH || h263parse->state == GOT_HEADER);
 
@@ -210,6 +210,18 @@ gst_h263_parse_set_src_caps (GstH263Parse * h263parse,
   if (params->width && params->height)
     gst_caps_set_simple (caps, "width", G_TYPE_INT, params->width,
         "height", G_TYPE_INT, params->height, NULL);
+
+  if (st != NULL
+      && gst_structure_get_fraction (st, "pixel-aspect-ratio", &par_num,
+          &par_denom)) {
+    /* Got it in caps - nothing more to do */
+    GST_DEBUG_OBJECT (h263parse, "sink caps override PAR");
+  } else {
+    /* Caps didn't have the framerate - get it from params */
+    gst_h263_parse_get_par (params, &par_num, &par_denom);
+  }
+  gst_caps_set_simple (caps, "pixel-aspect-ratio", GST_TYPE_FRACTION,
+      par_num, par_denom, NULL);
 
   if (h263parse->state == GOT_HEADER) {
     gst_caps_set_simple (caps,

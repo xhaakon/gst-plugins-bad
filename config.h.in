@@ -97,23 +97,14 @@
 /* Define to enable AVC Video Services (used by avcsrc). */
 #undef HAVE_AVC
 
+/* Define to enable Bluez (used by bluez). */
+#undef HAVE_BLUEZ
+
 /* Define to enable bz2 library (used by bz2). */
 #undef HAVE_BZ2
 
 /* Define to enable cdaudio (used by cdaudio). */
 #undef HAVE_CDAUDIO
-
-/* Define to enable celt (used by celt). */
-#undef HAVE_CELT
-
-/* Define if libcelt 0.11 is installed */
-#undef HAVE_CELT_0_11
-
-/* Define if libcelt 0.7 is installed */
-#undef HAVE_CELT_0_7
-
-/* Define if libcelt 0.8 is installed */
-#undef HAVE_CELT_0_8
 
 /* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
    CoreFoundation framework. */
@@ -125,9 +116,6 @@
 
 /* Define to enable chromaprint (used by chromaprint). */
 #undef HAVE_CHROMAPRINT
-
-/* Define to enable Cog plugin (used by cog). */
-#undef HAVE_COG
 
 /* Define if the target CPU is an Alpha */
 #undef HAVE_CPU_ALPHA
@@ -174,6 +162,12 @@
 /* Define to enable Curl plugin (used by curl). */
 #undef HAVE_CURL
 
+/* Define to enable daala (used by daala). */
+#undef HAVE_DAALA
+
+/* Define to enable DASH plug-in (used by dash). */
+#undef HAVE_DASH
+
 /* Define to enable libdc1394 (used by dc1394). */
 #undef HAVE_DC1394
 
@@ -183,9 +177,6 @@
 
 /* Define to enable decklink (used by decklink). */
 #undef HAVE_DECKLINK
-
-/* Define to enable dirac (used by dirac). */
-#undef HAVE_DIRAC
 
 /* Define to enable Direct3D plug-in (used by direct3dsink). */
 #undef HAVE_DIRECT3D
@@ -271,6 +262,9 @@
 /* Define to 1 if you have the <highgui.h> header file. */
 #undef HAVE_HIGHGUI_H
 
+/* Define to enable http live streaming plugin (used by hls). */
+#undef HAVE_HLS
+
 /* Define if you have the iconv() function and it works. */
 #undef HAVE_ICONV
 
@@ -279,9 +273,6 @@
 
 /* Define if building for Apple iOS */
 #undef HAVE_IOS
-
-/* Define to enable jasper (used by jasperdec jasperenc). */
-#undef HAVE_JASPER
 
 /* Define to enable Kate (used by kate). */
 #undef HAVE_KATE
@@ -316,6 +307,9 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
+/* Define to enable Multi Format Codec (used by mfc). */
+#undef HAVE_MFC
+
 /* Define to enable libmimic library (used by mimic). */
 #undef HAVE_MIMIC
 
@@ -339,9 +333,6 @@
 
 /* Define to enable musepackdec (used by musepack). */
 #undef HAVE_MUSEPACK
-
-/* Define to enable musicbrainz tag generation (used by musicbrainz). */
-#undef HAVE_MUSICBRAINZ
 
 /* Define to enable MythTV client plugins (used by mythtvsrc). */
 #undef HAVE_MYTHTV
@@ -409,11 +400,14 @@
 /* Define to enable rsvg decoder (used by rsvg). */
 #undef HAVE_RSVG
 
-/* Have RSVG 2.35.0 or newer */
-#undef HAVE_RSVG_2_35_0
+/* Have RSVG 2.36.2 or newer */
+#undef HAVE_RSVG_2_36_2
 
 /* Define to enable rtmp library (used by rtmp). */
 #undef HAVE_RTMP
+
+/* Define to enable SBC bluetooth audio codec (used by sbc). */
+#undef HAVE_SBC
 
 /* Define to enable Schroedinger video codec (used by schro). */
 #undef HAVE_SCHRO
@@ -423,6 +417,9 @@
 
 /* Define to enable POSIX shared memory source and sink (used by shm). */
 #undef HAVE_SHM
+
+/* Define to enable Smooth Streaming plug-in (used by smoothstreaming). */
+#undef HAVE_SMOOTHSTREAMING
 
 /* Define to enable sndfile plug-in (used by sfsrc sfsink). */
 #undef HAVE_SNDFILE
@@ -442,6 +439,9 @@
 /* Define to enable spc decoder (used by spc). */
 #undef HAVE_SPC
 
+/* Define to enable srtp library (used by srtp). */
+#undef HAVE_SRTP
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -453,9 +453,6 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
-
-/* Define to enable swfdec plug-in (used by swfdec). */
-#undef HAVE_SWFDEC
 
 /* Define to 1 if you have the <sys/param.h> header file. */
 #undef HAVE_SYS_PARAM_H
@@ -505,8 +502,14 @@
 /* Define to enable vo-amrwbenc library (used by vo-amrwbenc). */
 #undef HAVE_VOAMRWBENC
 
+/* Define to enable WASAPI plug-in (used by wasapi). */
+#undef HAVE_WASAPI
+
 /* Define to enable wayland sink (used by wayland ). */
 #undef HAVE_WAYLAND
+
+/* Define to enable WebP (used by webp ). */
+#undef HAVE_WEBP
 
 /* Define to enable wildmidi midi soft synth plugin (used by wildmidi). */
 #undef HAVE_WILDMIDI
@@ -559,9 +562,6 @@
 
 /* Define if the old MusePack API is used */
 #undef MPC_IS_OLD_API
-
-/* Define to 1 if your C compiler doesn't accept -c and -o together. */
-#undef NO_MINUS_C_MINUS_O
 
 /* opencv install prefix */
 #undef OPENCV_PREFIX

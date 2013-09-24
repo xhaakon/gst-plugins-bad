@@ -39,8 +39,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef __GST_KATE_DEC_H__
@@ -73,6 +73,8 @@ struct _GstKateDec
   GstPad *srcpad;
 
   GstCaps *src_caps;
+
+  GstKateFormat output_format;
 
   gboolean remove_markup;
 };

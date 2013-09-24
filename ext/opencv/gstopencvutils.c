@@ -15,8 +15,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -45,9 +45,9 @@ gst_opencv_get_ipl_depth_and_channels (GstStructure * structure,
   info = gst_video_format_get_info (format);
 
   if (GST_VIDEO_FORMAT_INFO_IS_RGB (info))
-    *channels=3;
+    *channels = 3;
   else if (GST_VIDEO_FORMAT_INFO_IS_GRAY (info))
-    *channels=1;
+    *channels = 1;
   else {
     g_set_error (err, GST_CORE_ERROR, GST_CORE_ERROR_NEGOTIATION,
         "Unsupported structure %s", gst_structure_get_name (structure));
@@ -113,7 +113,7 @@ gst_opencv_parse_iplimage_params_from_caps (GstCaps * caps, gint * width,
     *channels = 1;
   else {
     g_set_error (err, GST_CORE_ERROR, GST_CORE_ERROR_NEGOTIATION,
-        "Unsupported caps %s", gst_caps_to_string(caps));
+        "Unsupported caps %s", gst_caps_to_string (caps));
     return FALSE;
   }
 

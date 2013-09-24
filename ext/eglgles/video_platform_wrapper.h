@@ -38,8 +38,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 /**
@@ -47,8 +47,8 @@
  * tweaking and isolation from the main routines
  */
 
-#ifndef __GST_ANDROID_VIDEO_PLATFORM_WRAPPER__
-#define __GST_ANDROID_VIDEO_PLATFORM_WRAPPER__
+#ifndef __GST_VIDEO_PLATFORM_WRAPPER__
+#define __GST_VIDEO_PLATFORM_WRAPPER__
 
 #include <gst/gst.h>
 #include <EGL/egl.h>
@@ -57,6 +57,5 @@ gboolean platform_wrapper_init (void);
 EGLNativeWindowType platform_create_native_window (gint width, gint height, gpointer * window_data);
 gboolean platform_destroy_native_window (EGLNativeDisplayType display,
     EGLNativeWindowType w, gpointer * window_data);
-
 
 #endif

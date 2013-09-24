@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Ole André Vadla Ravnås <oravnas@cisco.com>
+ * Copyright (C) 2009 Ole André Vadla Ravnås <oleavr@soundrop.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -13,13 +13,13 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #include "qtkitvideosrc.h"
 
-#import "bufferfactory.h"
+#import "corevideobuffer.h"
 
 #import <QTKit/QTKit.h>
 
@@ -90,7 +90,6 @@ G_DEFINE_TYPE (GstQTKitVideoSrc, gst_qtkit_video_src, GST_TYPE_PUSH_SRC);
 
   int deviceIndex;
 
-  GstAMBufferFactory *bufferFactory;
   QTCaptureSession *session;
   QTCaptureDeviceInput *input;
   QTCaptureDecompressedVideoOutput *output;
@@ -159,17 +158,8 @@ G_DEFINE_TYPE (GstQTKitVideoSrc, gst_qtkit_video_src, GST_TYPE_PUSH_SRC);
 
 - (BOOL)openDevice
 {
-  GError *gerror;
   NSString *mediaType = QTMediaTypeVideo;
   NSError *error = nil;
-
-  bufferFactory = [[GstAMBufferFactory alloc] initWithError:&gerror];
-  if (bufferFactory == nil) {
-    GST_ELEMENT_ERROR (element, RESOURCE, FAILED, ("API error"),
-        ("%s", gerror->message));
-    g_clear_error (&gerror);
-    goto openFailed;
-  }
 
   if (deviceIndex == -1) {
     device = [QTCaptureDevice defaultInputDeviceWithMediaType:mediaType];
@@ -206,9 +196,6 @@ openFailed:
     [device release];
     device = nil;
 
-    [bufferFactory release];
-    bufferFactory = nil;
-
     return NO;
   }
 }
@@ -228,9 +215,6 @@ openFailed:
 
   [device release];
   device = nil;
-
-  [bufferFactory release];
-  bufferFactory = nil;
 }
 
 - (BOOL)setCaps:(GstCaps *)caps
@@ -450,7 +434,7 @@ openFailed:
   [queueLock unlockWithCondition:
       ([queue count] == 0) ? NO_FRAMES : HAS_FRAME_OR_STOP_REQUEST];
 
-  *buf = [bufferFactory createGstBufferForCoreVideoBuffer:frame];
+  *buf = gst_core_video_buffer_new ((CVBufferRef)frame, NULL);
   CVBufferRelease (frame);
 
   [self timestampBuffer:*buf];
@@ -532,7 +516,7 @@ gst_qtkit_video_src_class_init (GstQTKitVideoSrcClass * klass)
   gst_element_class_set_metadata (gstelement_class,
       "Video Source (QTKit)", "Source/Video",
       "Reads frames from a Mac OS X QTKit device",
-      "Ole André Vadla Ravnås <oravnas@cisco.com>");
+      "Ole André Vadla Ravnås <oleavr@soundrop.com>");
 
   gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&src_template));

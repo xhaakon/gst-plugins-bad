@@ -6,17 +6,17 @@ TEST_FILES_DIRECTORY = $(top_srcdir)/tests/files
 GST_TOOLS_DIR = $(top_builddir)/tools
 
 REGISTRY_ENVIRONMENT = \
-	GST_REGISTRY=$(CHECK_REGISTRY)
+	GST_REGISTRY_1_0=$(CHECK_REGISTRY)
 
 # GST_PLUGINS_XYZ_DIR is only set in an uninstalled setup
 TESTS_ENVIRONMENT = \
 	$(REGISTRY_ENVIRONMENT)                                 \
-	GST_PLUGIN_SYSTEM_PATH=					\
-	GST_PLUGIN_PATH=$(top_builddir)/gst:$(top_builddir)/sys:$(top_builddir)/ext:$(GST_PLUGINS_FFMPEG_DIR):$(GST_PLUGINS_UGLY_DIR):$(GST_PLUGINS_GOOD_DIR):$(GST_PLUGINS_BASE_DIR):$(GST_PLUGINS_DIR) \
-	GST_PLUGIN_LOADING_WHITELIST="gstreamer@$(GST_PLUGINS_DIR):gst-plugins-base@$(GSTPB_PLUGINS_DIR):gst-plugins-good:gst-plugins-ugly:gst-ffmpeg:gst-plugins-bad@$(top_builddir)" \
-	GST_STATE_IGNORE_ELEMENTS="apexsink camerabin cdaudio dc1394src \
+	GST_PLUGIN_SYSTEM_PATH_1_0=				\
+	GST_PLUGIN_PATH_1_0=$(top_builddir)/gst:$(top_builddir)/sys:$(top_builddir)/ext:$(GST_PLUGINS_LIBAV_DIR):$(GST_PLUGINS_UGLY_DIR):$(GST_PLUGINS_GOOD_DIR):$(GST_PLUGINS_BASE_DIR):$(GST_PLUGINS_DIR) \
+	GST_PLUGIN_LOADING_WHITELIST="gstreamer@$(GST_PLUGINS_DIR):gst-plugins-base@$(GSTPB_PLUGINS_DIR):gst-plugins-good:gst-plugins-ugly:gst-libav:gst-plugins-bad@$(top_builddir)" \
+	GST_STATE_IGNORE_ELEMENTS="apexsink avdtpsrc camerabin cdaudio dc1394src \
 	    dccpclientsrc dccpclientsink dccpserversrc dccpserversink decklinksrc \
-	    decklinksink dvbsrc dvbbasebin dfbvideosink festival gsettingsvideosrc \
+	    decklinksink dvbsrc dvbbasebin dfbvideosink festival fluidsynth gsettingsvideosrc \
 	    gsettingsvideosink gsettingsaudiosrc gsettingsaudiosink linsyssdisrc linsyssdisink nassink \
 	    rsndvdbin sdlaudiosink sdlvideosink vcdsrc rfbsrc vdpauyuvvideo vdpauvideoyuv \
 	    vdpaumpegdec vdpaumpeg4dec vdpauh264dec vdpauvideopostprocess vdpausink neonhttpsrc"
@@ -31,7 +31,8 @@ CLEANFILES = core.* test-registry.*
 
 SUPPRESSIONS = $(top_srcdir)/common/gst.supp $(srcdir)/gst-plugins-bad.supp
 
-clean-local: clean-local-check clean-local-orc
+clean-local: clean-local-check
+distclean-local: distclean-local-orc
 
 if USE_ASSRENDER
 check_assrender = elements/assrender
@@ -67,12 +68,6 @@ if USE_EXIF
 check_jifmux = elements/jifmux
 else
 check_jifmux =
-endif
-
-if USE_COG
-check_logoinsert = elements/logoinsert
-else
-check_logoinsert =
 endif
 
 if USE_MPEG2ENC
@@ -130,7 +125,7 @@ check_mimic=
 endif
 
 if HAVE_ORC
-check_orc = orc/cog orc/bayer
+check_orc = orc/bayer
 else
 check_orc =
 endif
@@ -168,7 +163,11 @@ uvch264_dist_data = elements/uvch264demux_data/valid_h264_jpg.mjpg \
 			elements/uvch264demux_data/valid_h264_yuy2.h264 \
 			elements/uvch264demux_data/valid_h264_yuy2.yuy2
 
-
+if USE_SHM
+check_shm=elements/shm
+else
+check_shm=
+endif
 
 VALGRIND_TO_FIX = \
 	elements/mpeg2enc \
@@ -202,6 +201,8 @@ check_PROGRAMS = \
 	$(check_kate)  \
 	$(check_opus)  \
 	$(check_curl) \
+	$(check_shm) \
+	elements/aiffparse \
 	elements/autoconvert \
 	elements/autovideoconvert \
 	elements/asfmux \
@@ -212,7 +213,6 @@ check_PROGRAMS = \
 	elements/gdpdepay \
 	$(check_jifmux) \
 	elements/jpegparse \
-	$(check_logoinsert) \
 	elements/h263parse \
 	elements/h264parse \
 	elements/mpegtsmux \
@@ -224,7 +224,6 @@ check_PROGRAMS = \
 	elements/id3mux \
 	pipelines/mxf \
 	$(check_mimic) \
-	elements/rtpmux \
 	libs/mpegvideoparser \
 	libs/h264parser \
 	$(check_uvch264) \
@@ -233,6 +232,7 @@ check_PROGRAMS = \
 	elements/viewfinderbin \
 	$(check_zbar) \
 	$(check_orc) \
+	libs/insertbin \
 	$(EXPERIMENTAL_CHECKS)
 
 noinst_HEADERS = elements/mxfdemux.h
@@ -318,11 +318,9 @@ elements_voaacenc_LDADD = \
 	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
 	-lgstaudio-@GST_API_VERSION@
 
-elements_baseaudiovisualizer_SOURCES = elements/baseaudiovisualizer.c \
-	$(top_srcdir)/gst/audiovisualizers/gstaudiovisualizer.c \
-	$(top_srcdir)/gst/audiovisualizers/gstaudiovisualizer.h
+elements_baseaudiovisualizer_SOURCES = elements/baseaudiovisualizer.c
 elements_baseaudiovisualizer_CFLAGS = $(GST_PLUGINS_BAD_CFLAGS) \
-	-I$(top_srcdir)/gst/audiovisualizers $(GST_PLUGINS_BASE_CFLAGS) \
+	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_BASE_CFLAGS) $(GST_CONTROLLER_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
 elements_baseaudiovisualizer_LDADD = \
 	$(GST_PLUGINS_BASE_LIBS) -lgstaudio-@GST_API_VERSION@  \
@@ -335,8 +333,8 @@ elements_camerabin_CFLAGS = \
 elements_camerabin_LDADD = \
         $(top_builddir)/gst-libs/gst/interfaces/libgstphotography-@GST_API_VERSION@.la \
         $(top_builddir)/gst-libs/gst/basecamerabinsrc/libgstbasecamerabinsrc-@GST_API_VERSION@.la \
-        -lgstpbutils-$(GST_API_VERSION) \
-        $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+        $(GST_PLUGINS_BASE_LIBS) -lgstpbutils-$(GST_API_VERSION) \
+        $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
 elements_camerabin_SOURCES = elements/camerabin.c
 
 elements_jifmux_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(EXIF_CFLAGS) $(AM_CFLAGS)
@@ -348,9 +346,6 @@ elements_timidity_LDADD = $(GST_BASE_LIBS) $(LDADD)
 
 elements_kate_CFLAGS = $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 elements_kate_LDADD = $(GST_BASE_LIBS) $(LDADD)
-
-elements_rtpmux_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
-elements_rtpmux_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgstrtp-$(GST_API_VERSION) $(GST_BASE_LIBS) $(LDADD)
 
 elements_assrender_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 elements_assrender_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) -lgstapp-$(GST_API_VERSION) $(GST_BASE_LIBS) $(LDADD)
@@ -369,21 +364,22 @@ elements_uvch264demux_CFLAGS = -DUVCH264DEMUX_DATADIR="$(srcdir)/elements/uvch26
 pipelines_streamheader_CFLAGS = $(GIO_CFLAGS) $(AM_CFLAGS)
 pipelines_streamheader_LDADD = $(GIO_LIBS) $(LDADD)
 
+libs_insertbin_LDADD = \
+	$(GST_PLUGINS_BAD_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
+	$(top_builddir)/gst-libs/gst/insertbin/libgstinsertbin-@GST_API_VERSION@.la
+libs_insertbin_CFLAGS = \
+	$(GST_PLUGINS_BAD_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+
+
 EXTRA_DIST = gst-plugins-bad.supp $(uvch264_dist_data)
 
 orc_bayer_CFLAGS = $(ORC_CFLAGS)
 orc_bayer_LDADD = $(ORC_LIBS) -lorc-test-0.4
-orc_cog_CFLAGS = $(ORC_CFLAGS)
-orc_cog_LDADD = $(ORC_LIBS) -lorc-test-0.4
-
-orc/cog.c: $(top_srcdir)/ext/cog/gstcogorc.orc
-	$(MKDIR_P) orc
-	$(ORCC) --test -o $@ $<
 
 orc/bayer.c: $(top_srcdir)/gst/bayer/gstbayerorc.orc
 	$(MKDIR_P) orc
 	$(ORCC) --test -o $@ $<
 
-clean-local-orc:
+distclean-local-orc:
 	rm -rf orc
 

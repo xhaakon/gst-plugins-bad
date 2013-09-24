@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Ole André Vadla Ravnås <oravnas@cisco.com>
+ * Copyright (C) 2009 Ole André Vadla Ravnås <oleavr@soundrop.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef __GST_CORE_MEDIA_BUFFER_H__
@@ -22,18 +22,18 @@
 
 #include <gst/gst.h>
 
-#include "coremediactx.h"
+#include "CoreMedia/CoreMedia.h"
 
 G_BEGIN_DECLS
+
 #define GST_CORE_MEDIA_META_API_TYPE (gst_core_media_meta_api_get_type())
 #define gst_buffer_get_core_media_meta(b) \
-  ((GstCoreVideoMeta*)gst_buffer_get_meta((b),GST_CORE_MEDIA_META_API_TYPE))
+  ((GstCoreMediaMeta*)gst_buffer_get_meta((b),GST_CORE_MEDIA_META_API_TYPE))
 
 typedef struct _GstCoreMediaMeta
 {
   GstMeta meta;
 
-  GstCoreMediaCtx * ctx;
   CMSampleBufferRef sample_buf;
   CVImageBufferRef image_buf;
   CVPixelBufferRef pixel_buf;
@@ -41,8 +41,7 @@ typedef struct _GstCoreMediaMeta
 } GstCoreMediaMeta;
 
 
-GstBuffer * gst_core_media_buffer_new      (GstCoreMediaCtx * ctx,
-                                            CMSampleBufferRef sample_buf);
+GstBuffer * gst_core_media_buffer_new      (CMSampleBufferRef sample_buf);
 CVPixelBufferRef gst_core_media_buffer_get_pixel_buffer
                                            (GstBuffer * buf);
 GType gst_core_media_meta_api_get_type (void);

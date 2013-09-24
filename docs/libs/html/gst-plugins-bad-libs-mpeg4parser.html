@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>mpeg4parser</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="codecparsers.html" title="Bitstream parsing Library">
 <link rel="prev" href="gst-plugins-bad-libs-mpegvideoparser.html" title="mpegvideoparser">
 <link rel="next" href="gst-plugins-bad-libs-vc1parser.html" title="vc1parser">
-<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.19 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -137,6 +137,110 @@ specifications: ISO-IEC-14496-2_2004_MPEG4_VISUAL.pdf
 Defines the different startcodes present in the bitstream as
 defined in: Table 6-3 — Start code values
 </p>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-MPEG4-VIDEO-OBJ-FIRST:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_VIDEO_OBJ_FIRST</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-VIDEO-OBJ-LAST:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_VIDEO_OBJ_LAST</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-VIDEO-LAYER-FIRST:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_VIDEO_LAYER_FIRST</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-VIDEO-LAYER-LAST:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_VIDEO_LAYER_LAST</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-VISUAL-OBJ-SEQ-START:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_VISUAL_OBJ_SEQ_START</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-VISUAL-OBJ-SEQ-END:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_VISUAL_OBJ_SEQ_END</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-USER-DATA:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_USER_DATA</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-GROUP-OF-VOP:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_GROUP_OF_VOP</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-VIDEO-SESSION-ERR:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_VIDEO_SESSION_ERR</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-VISUAL-OBJ:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_VISUAL_OBJ</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-VIDEO-OBJ-PLANE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_VIDEO_OBJ_PLANE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-FBA:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_FBA</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-FBA-PLAN:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_FBA_PLAN</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-MESH:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_MESH</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-MESH-PLAN:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_MESH_PLAN</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-STILL-TEXTURE-OBJ:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_STILL_TEXTURE_OBJ</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-TEXTURE-SPATIAL:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_TEXTURE_SPATIAL</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-TEXTURE-SNR-LAYER:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_TEXTURE_SNR_LAYER</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-TEXTURE-TILE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_TEXTURE_TILE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-SHAPE-LAYER:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_SHAPE_LAYER</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-STUFFING:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_STUFFING</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-SYSTEM-FIRST:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_SYSTEM_FIRST</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-SYSTEM-LAST:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_SYSTEM_LAST</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-RESYNC:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_RESYNC</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -154,6 +258,34 @@ defined in: Table 6-3 — Start code values
 Defines the different visual object types as
 defined in: Table 6-5 -- Meaning of visual object type
 </p>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-MPEG4-VIDEO-ID:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_VIDEO_ID</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-STILL-TEXTURE-ID:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_STILL_TEXTURE_ID</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-STILL-MESH-ID:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_STILL_MESH_ID</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-STILL-FBA-ID:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_STILL_FBA_ID</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-STILL-3D-MESH-ID:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_STILL_3D_MESH_ID</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -171,8 +303,11 @@ defined in: Table 6-5 -- Meaning of visual object type
 Defines the different pixel aspect ratios as
 defined in: Table 6-12 -- Meaning of pixel aspect ratio
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><a name="GST-MPEG4-SQUARE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_SQUARE</code></span></p></td>
@@ -221,8 +356,11 @@ defined in: Table 6-12 -- Meaning of pixel aspect ratio
 <p>
 Result type of any parsing function.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><a name="GST-MPEG4-PARSER-OK:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PARSER_OK</code></span></p></td>
@@ -265,8 +403,11 @@ Result type of any parsing function.
 The vop coding types as defined in:
 Table 6-20 -- Meaning of vop_coding_type
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><a name="GST-MPEG4-I-VOP:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_I_VOP</code></span></p></td>
@@ -303,6 +444,16 @@ Table 6-20 -- Meaning of vop_coding_type
 The chroma format in use as
 defined in: Table 6-13 -- Meaning of chroma_format
 </p>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody><tr>
+<td><p><a name="GST-MPEG4-CHROMA-4-2-0:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_CHROMA_4_2_0</code></span></p></td>
+<td></td>
+</tr></tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -318,6 +469,30 @@ defined in: Table 6-13 -- Meaning of chroma_format
 The different video object layer shapes as defined in:
 Table 6-16 — Video Object Layer shape type
 </p>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-MPEG4-RECTANGULAR:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_RECTANGULAR</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-BINARY:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_BINARY</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-BINARY-ONLY:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_BINARY_ONLY</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-GRAYSCALE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_GRAYSCALE</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -333,6 +508,26 @@ Indicates the usage of static sprite coding
 or global motion compensation (GMC) as defined in:
 Table V2 - 2 -- Meaning of sprite_enable codewords
 </p>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-MPEG4-SPRITE-UNUSED:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_SPRITE_UNUSED</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-SPRITE-STATIC:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_SPRITE_STATIC</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-SPRITE-GMG:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_SPRITE_GMG</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -368,6 +563,94 @@ Different defined profiles as defined in:
 It is computed using:
 Table G.1 — FLC table for profile_and_level_indication
 </p>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-CORE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_CORE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-MAIN:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_MAIN</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-N-BIT:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_N_BIT</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-SIMPLE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_SIMPLE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-HYBRID:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_HYBRID</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-RESERVED:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_RESERVED</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-SIMPLE-FBA:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_SIMPLE_FBA</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-CORE-STUDIO:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_CORE_STUDIO</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-SIMPLE-STUDIO:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_SIMPLE_STUDIO</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-CORE-SCALABLE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_CORE_SCALABLE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-ADVANCED-CORE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_ADVANCED_CORE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-ADVANCED-SIMPLE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_ADVANCED_SIMPLE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-SIMPLE-SCALABLE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_SIMPLE_SCALABLE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-SCALABLE-TEXTURE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_SCALABLE_TEXTURE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-SIMPLE-FACE-ANIMATION:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_SIMPLE_FACE_ANIMATION</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-BASIC-ANIMATED-TEXTURE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_BASIC_ANIMATED_TEXTURE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-ADVANCED-REALTIME-SIMPLE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_ADVANCED_REALTIME_SIMPLE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-ADVANCED-SCALABLE-TEXTURE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_ADVANCED_SCALABLE_TEXTURE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-FINE-GRANULARITY-SCALABLE:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_FINE_GRANULARITY_SCALABLE</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-PROFILE-ADVANCED-CODING-EFFICIENCY:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_PROFILE_ADVANCED_CODING_EFFICIENCY</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -391,6 +674,46 @@ Different levels as defined in:
 It is computed using:
 Table G.1 — FLC table for profile_and_level_indication
 </p>
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><a name="GST-MPEG4-LEVEL0:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_LEVEL0</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-LEVEL1:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_LEVEL1</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-LEVEL2:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_LEVEL2</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-LEVEL3:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_LEVEL3</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-LEVEL3b"></a><span class="term"><code class="literal">GST_MPEG4_LEVEL3b</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-LEVEL4:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_LEVEL4</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-LEVEL5:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_LEVEL5</code></span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-LEVEL-RESERVED:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_LEVEL_RESERVED</code></span></p></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -421,6 +744,10 @@ The visual object sequence structure as defined in:
   GstMpeg4VisualObjectType type;
 };
 </pre>
+<p>
+The visual object structure as defined in:
+6.2.2 Visual Object Sequence and Visual Object
+</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -683,8 +1010,11 @@ The Video object plane structure as defined in:
 <p>
 A structure that contains the type of a packet, its offset and its size
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term">const <span class="type">guint8</span> *<em class="structfield"><code><a name="GstMpeg4Packet.data"></a>data</code></em>;</span></p></td>
@@ -726,8 +1056,11 @@ including the <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpe
 The video packet header structure as defined in:
 6.2.5.2 Video Plane with Short Header
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpeg4VideoPacketHdr.header-extension-code"></a>header_extension_code</code></em>;</span></p></td>
@@ -761,8 +1094,11 @@ The video packet header structure as defined in:
 Parses <em class="parameter"><code>data</code></em> and fills <em class="parameter"><code>packet</code></em> with the information of the next packet
 found.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>packet</code></em> :</span></p></td>
@@ -810,8 +1146,11 @@ not need to detect the resync codes.</td>
 Parses <em class="parameter"><code>data</code></em> containing the video object plane packet, and fills the <em class="parameter"><code>vol</code></em>
 structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>vop</code></em> :</span></p></td>
@@ -852,8 +1191,11 @@ structure.
 Parses <em class="parameter"><code>data</code></em> containing the group of video object plane packet, and fills
 the <em class="parameter"><code>gov</code></em> structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>gov</code></em> :</span></p></td>
@@ -886,8 +1228,11 @@ the <em class="parameter"><code>gov</code></em> structure.
 Parses <em class="parameter"><code>data</code></em> containing the video object layer packet, and fills
 the <em class="parameter"><code>vol</code></em> structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>vol</code></em> :</span></p></td>
@@ -925,8 +1270,11 @@ the <em class="parameter"><code>vol</code></em> structure.
 Parses <em class="parameter"><code>data</code></em> containing the visual object packet, and fills
 the <em class="parameter"><code>vo</code></em> structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>vo</code></em> :</span></p></td>
@@ -965,8 +1313,11 @@ but not the start code prefix</td>
 Parses <em class="parameter"><code>data</code></em> containing the visual object sequence packet, and fills
 the <em class="parameter"><code>vos</code></em> structure.
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>vos</code></em> :</span></p></td>
@@ -1002,8 +1353,11 @@ but not the start code prefix</td>
 Parsers <em class="parameter"><code>data</code></em> containing the video packet header
 and fills the <em class="parameter"><code>videopackethdr</code></em> structure
 </p>
-<div class="variablelist"><table border="0">
+<div class="variablelist"><table border="0" class="variablelist">
+<colgroup>
 <col align="left" valign="top">
+<col>
+</colgroup>
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>videopackethdr</code></em> :</span></p></td>
@@ -1039,6 +1393,6 @@ with the informations found during the parsing</td>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.18</div>
+          Generated by GTK-Doc V1.19</div>
 </body>
 </html>

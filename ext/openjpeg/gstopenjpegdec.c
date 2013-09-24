@@ -24,8 +24,6 @@
 #endif
 
 #include "gstopenjpegdec.h"
-#include <gst/video/gstvideometa.h>
-#include <gst/video/gstvideopool.h>
 
 GST_DEBUG_CATEGORY_STATIC (gst_openjpeg_dec_debug);
 #define GST_CAT_DEFAULT gst_openjpeg_dec_debug
@@ -34,8 +32,6 @@ static gboolean gst_openjpeg_dec_start (GstVideoDecoder * decoder);
 static gboolean gst_openjpeg_dec_stop (GstVideoDecoder * decoder);
 static gboolean gst_openjpeg_dec_set_format (GstVideoDecoder * decoder,
     GstVideoCodecState * state);
-static gboolean gst_openjpeg_dec_reset (GstVideoDecoder * decoder,
-    gboolean hard);
 static GstFlowReturn gst_openjpeg_dec_handle_frame (GstVideoDecoder * decoder,
     GstVideoCodecFrame * frame);
 static gboolean gst_openjpeg_dec_decide_allocation (GstVideoDecoder * decoder,
@@ -43,10 +39,10 @@ static gboolean gst_openjpeg_dec_decide_allocation (GstVideoDecoder * decoder,
 
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
 #define GRAY16 "GRAY16_LE"
-#define YUV10 "422_10LE, I420_10LE"
+#define YUV10 "Y444_10LE, I422_10LE, I420_10LE"
 #else
 #define GRAY16 "GRAY16_BE"
-#define YUV10 "I422_10BE, I420_10BE"
+#define YUV10 "Y444_10BE, I422_10BE, I420_10BE"
 #endif
 
 static GstStaticPadTemplate gst_openjpeg_dec_sink_template =
@@ -93,7 +89,6 @@ gst_openjpeg_dec_class_init (GstOpenJPEGDecClass * klass)
 
   video_decoder_class->start = GST_DEBUG_FUNCPTR (gst_openjpeg_dec_start);
   video_decoder_class->stop = GST_DEBUG_FUNCPTR (gst_openjpeg_dec_stop);
-  video_decoder_class->reset = GST_DEBUG_FUNCPTR (gst_openjpeg_dec_reset);
   video_decoder_class->set_format =
       GST_DEBUG_FUNCPTR (gst_openjpeg_dec_set_format);
   video_decoder_class->handle_frame =
@@ -188,21 +183,6 @@ gst_openjpeg_dec_set_format (GstVideoDecoder * decoder,
   if (self->input_state)
     gst_video_codec_state_unref (self->input_state);
   self->input_state = gst_video_codec_state_ref (state);
-
-  return TRUE;
-}
-
-static gboolean
-gst_openjpeg_dec_reset (GstVideoDecoder * decoder, gboolean hard)
-{
-  GstOpenJPEGDec *self = GST_OPENJPEG_DEC (decoder);
-
-  GST_DEBUG_OBJECT (self, "Resetting");
-
-  if (self->output_state) {
-    gst_video_codec_state_unref (self->output_state);
-    self->output_state = NULL;
-  }
 
   return TRUE;
 }
@@ -806,7 +786,14 @@ gst_openjpeg_dec_negotiate (GstOpenJPEGDec * self, opj_image_t * image)
         } else if (get_highest_prec (image) <= 16) {
           if (image->comps[0].prec == 10 &&
               image->comps[1].prec == 10 && image->comps[2].prec == 10) {
-            if (image->comps[1].dx == 2 && image->comps[1].dy == 1) {
+            if (image->comps[1].dx == 1 && image->comps[1].dy == 1) {
+              self->fill_frame = fill_frame_planar16_3;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+              format = GST_VIDEO_FORMAT_Y444_10LE;
+#else
+              format = GST_VIDEO_FORMAT_Y444_10BE;
+#endif
+            } else if (image->comps[1].dx == 2 && image->comps[1].dy == 1) {
               self->fill_frame = fill_frame_planar16_3;
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
               format = GST_VIDEO_FORMAT_I422_10LE;
