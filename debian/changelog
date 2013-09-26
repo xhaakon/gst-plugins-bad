@@ -1,3 +1,12 @@
+gst-plugins-bad1.0 (1.2.0-2) unstable; urgency=low
+
+  * debian/patches/0001-bluez-Fix-compilation-on-big-endian-systems.patch:
+    + Fix compilation on big endian systems.
+  * debian/build-deps.in:
+    + Tighten build dependency on libopenal-dev to >= 1:1.14 (Closes: #724669).
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 26 Sep 2013 15:02:54 +0200
+
 gst-plugins-bad1.0 (1.2.0-1) unstable; urgency=low
 
   * New upstream stable release:
