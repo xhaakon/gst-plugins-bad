@@ -1,3 +1,12 @@
+gst-plugins-bad1.0 (1.2.0-3) unstable; urgency=low
+
+  * debian/rules,
+    debian/build-deps.in,
+    debian/gstreamer-plugins-bad.install:
+    + Only enable bluez plugin on Linux, it's not available elsewhere.
+
+ -- Sebastian Dröge <slomo@debian.org>  Fri, 27 Sep 2013 13:52:58 +0200
+
 gst-plugins-bad1.0 (1.2.0-2) unstable; urgency=low
 
   * debian/patches/0001-bluez-Fix-compilation-on-big-endian-systems.patch:

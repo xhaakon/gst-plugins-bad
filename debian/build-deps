@@ -15,7 +15,6 @@ gstreamer@GST_ABI@-plugins-base-doc
 gtk-doc-tools (>= 1.12)
 ladspa-sdk
 libass-dev (>= 0.9.4)
-libbluetooth-dev (<< 5)
 libbz2-dev
 libcairo2-dev
 libchromaprint-dev

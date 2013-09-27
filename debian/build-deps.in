@@ -68,7 +68,6 @@ libsrtp0-dev
 libopencv-dev (>= 2.0.0)
 libopenjpeg-dev
 libsbc-dev (>= 1.1)
-libbluetooth-dev (<< 5)
 libgnutls-dev (>= 2.11.3)
 libchromaprint-dev
 libwebp-dev (>= 0.2.1)
