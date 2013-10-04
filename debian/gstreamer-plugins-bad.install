@@ -64,7 +64,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstremovesilence.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrfbsrc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrsvg.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrtmp.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsbc.so
+@sbc@
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstschro.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsdpelem.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsegmentclip.so
