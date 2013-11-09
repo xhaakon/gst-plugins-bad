@@ -81,12 +81,12 @@ build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
 @HAVE_IOS_TRUE@am__append_1 = -fobjc-abi-version=2 -fobjc-legacy-dispatch
-@HAVE_IOS_TRUE@am__append_2 = \
-@HAVE_IOS_TRUE@	celvideosrc.c				\
-@HAVE_IOS_TRUE@	mtapi.c					\
-@HAVE_IOS_TRUE@	celapi.c
 
-@HAVE_IOS_FALSE@am__append_3 = \
+#libgstapplemedia_nonpublic_la_SOURCES +=			\
+#	celvideosrc.c				\
+#	mtapi.c					\
+#	celapi.c
+@HAVE_IOS_FALSE@am__append_2 = \
 @HAVE_IOS_FALSE@	mioapi.c
 
 subdir = sys/applemedia-nonpublic
@@ -164,16 +164,11 @@ am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstapplemedia_nonpublic_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__libgstapplemedia_nonpublic_la_SOURCES_DIST = plugin.m \
 	bufferfactory.m corevideobuffer.c coremediabuffer.c cvapi.c \
-	cmapi.c coremediactx.c dynapi.c celvideosrc.c mtapi.c celapi.c \
-	mioapi.c
-@HAVE_IOS_TRUE@am__objects_1 =  \
-@HAVE_IOS_TRUE@	libgstapplemedia_nonpublic_la-celvideosrc.lo \
-@HAVE_IOS_TRUE@	libgstapplemedia_nonpublic_la-mtapi.lo \
-@HAVE_IOS_TRUE@	libgstapplemedia_nonpublic_la-celapi.lo
-@HAVE_IOS_FALSE@am__objects_2 =  \
+	cmapi.c coremediactx.c dynapi.c mioapi.c
+@HAVE_IOS_FALSE@am__objects_1 =  \
 @HAVE_IOS_FALSE@	libgstapplemedia_nonpublic_la-mioapi.lo
 am_libgstapplemedia_nonpublic_la_OBJECTS =  \
 	libgstapplemedia_nonpublic_la-plugin.lo \
@@ -183,8 +178,7 @@ am_libgstapplemedia_nonpublic_la_OBJECTS =  \
 	libgstapplemedia_nonpublic_la-cvapi.lo \
 	libgstapplemedia_nonpublic_la-cmapi.lo \
 	libgstapplemedia_nonpublic_la-coremediactx.lo \
-	libgstapplemedia_nonpublic_la-dynapi.lo $(am__objects_1) \
-	$(am__objects_2)
+	libgstapplemedia_nonpublic_la-dynapi.lo $(am__objects_1)
 libgstapplemedia_nonpublic_la_OBJECTS =  \
 	$(am_libgstapplemedia_nonpublic_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -733,7 +727,7 @@ top_srcdir = @top_srcdir@
 plugin_LTLIBRARIES = libgstapplemedia_nonpublic.la
 libgstapplemedia_nonpublic_la_SOURCES = plugin.m bufferfactory.m \
 	corevideobuffer.c coremediabuffer.c cvapi.c cmapi.c \
-	coremediactx.c dynapi.c $(am__append_2) $(am__append_3)
+	coremediactx.c dynapi.c $(am__append_2)
 libgstapplemedia_nonpublic_la_CPPFLAGS = \
 	-Dgst_dyn_api_get_type=gst_dyn_api_priv_get_type			\
 	-Dgst_dyn_api_debug=gst_dyn_api_priv_debug				\
@@ -756,7 +750,8 @@ libgstapplemedia_nonpublic_la_OBJCFLAGS = $(GST_OBJCFLAGS) \
 libgstapplemedia_nonpublic_la_LIBADD = \
 	$(GST_BASE_LIBS)			\
 	$(GST_PLUGINS_BASE_LIBS)		\
-	-lgstvideo-$(GST_API_VERSION)
+	-lgstvideo-$(GST_API_VERSION)		\
+	$(GMODULE_NO_EXPORT_LIBS)
 
 libgstapplemedia_nonpublic_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 libgstapplemedia_nonpublic_la_LDFLAGS = \
@@ -863,8 +858,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_nonpublic_la-bufferfactory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_nonpublic_la-celapi.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_nonpublic_la-celvideosrc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_nonpublic_la-cmapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_nonpublic_la-coremediabuffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_nonpublic_la-coremediactx.Plo@am__quote@
@@ -872,7 +865,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_nonpublic_la-cvapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_nonpublic_la-dynapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_nonpublic_la-mioapi.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_nonpublic_la-mtapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_nonpublic_la-plugin.Plo@am__quote@
 
 .c.o:
@@ -940,27 +932,6 @@ libgstapplemedia_nonpublic_la-dynapi.lo: dynapi.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='dynapi.c' object='libgstapplemedia_nonpublic_la-dynapi.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstapplemedia_nonpublic_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_nonpublic_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_nonpublic_la_CFLAGS) $(CFLAGS) -c -o libgstapplemedia_nonpublic_la-dynapi.lo `test -f 'dynapi.c' || echo '$(srcdir)/'`dynapi.c
-
-libgstapplemedia_nonpublic_la-celvideosrc.lo: celvideosrc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstapplemedia_nonpublic_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_nonpublic_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_nonpublic_la_CFLAGS) $(CFLAGS) -MT libgstapplemedia_nonpublic_la-celvideosrc.lo -MD -MP -MF $(DEPDIR)/libgstapplemedia_nonpublic_la-celvideosrc.Tpo -c -o libgstapplemedia_nonpublic_la-celvideosrc.lo `test -f 'celvideosrc.c' || echo '$(srcdir)/'`celvideosrc.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstapplemedia_nonpublic_la-celvideosrc.Tpo $(DEPDIR)/libgstapplemedia_nonpublic_la-celvideosrc.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='celvideosrc.c' object='libgstapplemedia_nonpublic_la-celvideosrc.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstapplemedia_nonpublic_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_nonpublic_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_nonpublic_la_CFLAGS) $(CFLAGS) -c -o libgstapplemedia_nonpublic_la-celvideosrc.lo `test -f 'celvideosrc.c' || echo '$(srcdir)/'`celvideosrc.c
-
-libgstapplemedia_nonpublic_la-mtapi.lo: mtapi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstapplemedia_nonpublic_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_nonpublic_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_nonpublic_la_CFLAGS) $(CFLAGS) -MT libgstapplemedia_nonpublic_la-mtapi.lo -MD -MP -MF $(DEPDIR)/libgstapplemedia_nonpublic_la-mtapi.Tpo -c -o libgstapplemedia_nonpublic_la-mtapi.lo `test -f 'mtapi.c' || echo '$(srcdir)/'`mtapi.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstapplemedia_nonpublic_la-mtapi.Tpo $(DEPDIR)/libgstapplemedia_nonpublic_la-mtapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mtapi.c' object='libgstapplemedia_nonpublic_la-mtapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstapplemedia_nonpublic_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_nonpublic_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_nonpublic_la_CFLAGS) $(CFLAGS) -c -o libgstapplemedia_nonpublic_la-mtapi.lo `test -f 'mtapi.c' || echo '$(srcdir)/'`mtapi.c
-
-libgstapplemedia_nonpublic_la-celapi.lo: celapi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstapplemedia_nonpublic_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_nonpublic_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_nonpublic_la_CFLAGS) $(CFLAGS) -MT libgstapplemedia_nonpublic_la-celapi.lo -MD -MP -MF $(DEPDIR)/libgstapplemedia_nonpublic_la-celapi.Tpo -c -o libgstapplemedia_nonpublic_la-celapi.lo `test -f 'celapi.c' || echo '$(srcdir)/'`celapi.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstapplemedia_nonpublic_la-celapi.Tpo $(DEPDIR)/libgstapplemedia_nonpublic_la-celapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='celapi.c' object='libgstapplemedia_nonpublic_la-celapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstapplemedia_nonpublic_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_nonpublic_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_nonpublic_la_CFLAGS) $(CFLAGS) -c -o libgstapplemedia_nonpublic_la-celapi.lo `test -f 'celapi.c' || echo '$(srcdir)/'`celapi.c
 
 libgstapplemedia_nonpublic_la-mioapi.lo: mioapi.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstapplemedia_nonpublic_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_nonpublic_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_nonpublic_la_CFLAGS) $(CFLAGS) -MT libgstapplemedia_nonpublic_la-mioapi.lo -MD -MP -MF $(DEPDIR)/libgstapplemedia_nonpublic_la-mioapi.Tpo -c -o libgstapplemedia_nonpublic_la-mioapi.lo `test -f 'mioapi.c' || echo '$(srcdir)/'`mioapi.c

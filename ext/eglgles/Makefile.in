@@ -156,8 +156,7 @@ LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgsteglglessink_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(top_builddir)/gst-libs/gst/egl/libgstegl-$(GST_API_VERSION).la
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) $(GST_EGL_LIBS)
 am__libgsteglglessink_la_SOURCES_DIST = gsteglglessink.c \
 	gstegladaptation.c gstegladaptation_egl.c \
 	video_platform_wrapper.c gstegladaptation_eagl.m
@@ -715,6 +714,7 @@ top_srcdir = @top_srcdir@
 plugin_LTLIBRARIES = libgsteglglessink.la
 @HAVE_IOS_FALSE@DISTRO_SRC = gstegladaptation_egl.c video_platform_wrapper.c
 @HAVE_IOS_TRUE@DISTRO_SRC = gstegladaptation_eagl.m
+@HAVE_IOS_FALSE@GST_EGL_LIBS = $(top_builddir)/gst-libs/gst/egl/libgstegl-$(GST_API_VERSION).la
 libgsteglglessink_la_SOURCES = gsteglglessink.c gstegladaptation.c $(DISTRO_SRC)
 libgsteglglessink_la_CFLAGS = $(GST_PLUGINS_BAD_CFLAGS) \
 			      $(GST_PLUGINS_BASE_CFLAGS) \
@@ -732,11 +732,10 @@ libgsteglglessink_la_OBJCFLAGS = $(GST_PLUGINS_BAD_OBJCFLAGS) \
 
 libgsteglglessink_la_LIBADD = $(GST_LIBS) $(GST_BASE_LIBS) \
 	$(GST_PLUGINS_BASE_LIBS) $(EGL_LIBS) $(EGLGLES_LIBS) \
-	-lgstvideo-$(GST_API_VERSION) \
-	$(top_builddir)/gst-libs/gst/egl/libgstegl-$(GST_API_VERSION).la
+	-lgstvideo-$(GST_API_VERSION) $(GST_EGL_LIBS)
 
 @HAVE_IOS_FALSE@libgsteglglessink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-@HAVE_IOS_TRUE@libgsteglglessink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) -Wl,-framework,OpenGLES -Wl,-framework,QuartzCore -Wl,-framework,IOKit -Wl,-framework,UIKit -Wl,-framework,CoreGraphics -Wl,-framework,CoreFoundation -Wl,-framework,Foundation -W
+@HAVE_IOS_TRUE@libgsteglglessink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) -Wl,-framework,OpenGLES -Wl,-framework,QuartzCore -Wl,-framework,UIKit -Wl,-framework,CoreGraphics -Wl,-framework,CoreFoundation -Wl,-framework,Foundation -W
 libgsteglglessink_la_LIBTOOLFLAGS = --tag=CC $(GST_PLUGIN_LIBTOOLFLAGS)
 noinst_HEADERS = gsteglglessink.h gstegladaptation.h video_platform_wrapper.h
 EXTRA_DIST = gsteglglessink.c gstegladaptation.c gstegladaptation_egl.c video_platform_wrapper.c gstegladaptation_eagl.m $(noinst_HEADERS)

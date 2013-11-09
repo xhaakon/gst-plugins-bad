@@ -316,7 +316,7 @@ see also: <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#
 <pre class="programlisting">struct GstMpegTsNIT {
   gboolean   actual_network;
 
-  GPtrArray    *descriptors;
+  GPtrArray  *descriptors;
 
   GPtrArray *streams;
 };
@@ -419,26 +419,12 @@ happened.</td>
 };
 </pre>
 <p>
+<em class="parameter"><code>descriptors</code></em>: (element-type GstMpegTsDescriptor):
+<em class="parameter"><code>streams</code></em>: (element-type GstMpegTsBATStream):
+</p>
+<p>
 DVB Bouquet Association Table (EN 300 468)
 </p>
-<div class="variablelist"><table border="0" class="variablelist">
-<colgroup>
-<col align="left" valign="top">
-<col>
-</colgroup>
-<tbody>
-<tr>
-<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="type">GPtrArray</span></a> *<em class="structfield"><code><a name="GstMpegTsBAT.descriptors"></a>descriptors</code></em>;</span></p></td>
-<td>. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> GstMpegTsDescriptor]</span>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="type">GPtrArray</span></a> *<em class="structfield"><code><a name="GstMpegTsBAT.streams"></a>streams</code></em>;</span></p></td>
-<td>. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> GstMpegTsBATStream]</span>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -462,6 +448,9 @@ DVB Bouquet Association Table (EN 300 468)
 };
 </pre>
 <p>
+<em class="parameter"><code>services</code></em>: (element-type GstMpegTsSDTService): List of services
+</p>
+<p>
 Service Description Table (EN 300 468)
 </p>
 </div>
@@ -479,6 +468,9 @@ Service Description Table (EN 300 468)
   GPtrArray    *descriptors;
 };
 </pre>
+<p>
+<em class="parameter"><code>descriptors</code></em>: (element-type GstMpegTsDescriptor): List of descriptors
+</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -522,6 +514,9 @@ happened.</td>
 };
 </pre>
 <p>
+<em class="parameter"><code>events</code></em>: (element-type GstMpegTsEITEvent): List of events
+</p>
+<p>
 Event Information Table (EN 300 468)
 </p>
 </div>
@@ -540,6 +535,9 @@ Event Information Table (EN 300 468)
   GPtrArray      *descriptors;
 };
 </pre>
+<p>
+<em class="parameter"><code>descriptors</code></em>: (element-type GstMpegTsDescriptor): List of descriptors
+</p>
 <p>
 Event from a <em class="parameter"><code>GstMpegTsEIT</code></em>
 </p>
@@ -656,6 +654,9 @@ if an error happened. Release with <a href="http://gstreamer.freedesktop.org/dat
   GPtrArray        *descriptors;
 };
 </pre>
+<p>
+<em class="parameter"><code>descriptors</code></em>: (element-type GstMpegTsDescriptor): List of descriptors
+</p>
 <p>
 Time Offset Table (EN 300 468)
 </p>

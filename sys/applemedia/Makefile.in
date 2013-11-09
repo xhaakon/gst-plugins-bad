@@ -82,13 +82,14 @@ host_triplet = @host@
 target_triplet = @target@
 @HAVE_IOS_TRUE@am__append_1 = -fobjc-abi-version=2 -fobjc-legacy-dispatch
 @HAVE_IOS_TRUE@am__append_2 = \
-@HAVE_IOS_TRUE@	avfvideosrc.m
+@HAVE_IOS_TRUE@	iosassetsrc.m
 
+#	avfvideosrc.m
 @HAVE_IOS_TRUE@am__append_3 = \
-@HAVE_IOS_TRUE@	-Wl,-framework -Wl,CoreMedia		\
 @HAVE_IOS_TRUE@	-Wl,-framework -Wl,Foundation		\
-@HAVE_IOS_TRUE@	-Wl,-framework -Wl,AVFoundation
+@HAVE_IOS_TRUE@	-Wl,-framework -Wl,AssetsLibrary
 
+#	-Wl,-framework -Wl,AVFoundation
 @HAVE_IOS_FALSE@am__append_4 = \
 @HAVE_IOS_FALSE@	qtkitvideosrc.m				\
 @HAVE_IOS_FALSE@	vtenc.c 				\
@@ -173,11 +174,11 @@ am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstapplemedia_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__libgstapplemedia_la_SOURCES_DIST = plugin.m vtutil.c \
 	corevideobuffer.c coremediabuffer.c coremediactx.c vtapi.c \
-	atdec.c dynapi.c avfvideosrc.m qtkitvideosrc.m vtenc.c vtdec.c
-@HAVE_IOS_TRUE@am__objects_1 = libgstapplemedia_la-avfvideosrc.lo
+	atdec.c dynapi.c iosassetsrc.m qtkitvideosrc.m vtenc.c vtdec.c
+@HAVE_IOS_TRUE@am__objects_1 = libgstapplemedia_la-iosassetsrc.lo
 @HAVE_IOS_FALSE@am__objects_2 = libgstapplemedia_la-qtkitvideosrc.lo \
 @HAVE_IOS_FALSE@	libgstapplemedia_la-vtenc.lo \
 @HAVE_IOS_FALSE@	libgstapplemedia_la-vtdec.lo
@@ -759,7 +760,8 @@ libgstapplemedia_la_LIBADD = \
 	$(GST_BASE_LIBS)			\
 	$(GST_PLUGINS_BASE_LIBS)		\
 	-lgstvideo-$(GST_API_VERSION) 		\
-	-lgstaudio-$(GST_API_VERSION)
+	-lgstaudio-$(GST_API_VERSION)		\
+	$(GMODULE_NO_EXPORT_LIBS)
 
 libgstapplemedia_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 libgstapplemedia_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) \
@@ -781,7 +783,8 @@ noinst_HEADERS = \
 	vtapi.h					\
 	atdec.h 				\
 	dynapi.h				\
-	dynapi-internal.h
+	dynapi-internal.h                       \
+	iosassetsrc.h
 
 all: all-am
 
@@ -863,11 +866,11 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-atdec.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-avfvideosrc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-coremediabuffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-coremediactx.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-corevideobuffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-dynapi.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-iosassetsrc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-plugin.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-qtkitvideosrc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-vtapi.Plo@am__quote@
@@ -993,12 +996,12 @@ libgstapplemedia_la-plugin.lo: plugin.m
 @AMDEP_TRUE@@am__fastdepOBJC_FALSE@	DEPDIR=$(DEPDIR) $(OBJCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepOBJC_FALSE@	$(AM_V_OBJC@am__nodep@)$(LIBTOOL) $(AM_V_lt) $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_OBJCFLAGS) $(OBJCFLAGS) -c -o libgstapplemedia_la-plugin.lo `test -f 'plugin.m' || echo '$(srcdir)/'`plugin.m
 
-libgstapplemedia_la-avfvideosrc.lo: avfvideosrc.m
-@am__fastdepOBJC_TRUE@	$(AM_V_OBJC)$(LIBTOOL) $(AM_V_lt) $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_OBJCFLAGS) $(OBJCFLAGS) -MT libgstapplemedia_la-avfvideosrc.lo -MD -MP -MF $(DEPDIR)/libgstapplemedia_la-avfvideosrc.Tpo -c -o libgstapplemedia_la-avfvideosrc.lo `test -f 'avfvideosrc.m' || echo '$(srcdir)/'`avfvideosrc.m
-@am__fastdepOBJC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstapplemedia_la-avfvideosrc.Tpo $(DEPDIR)/libgstapplemedia_la-avfvideosrc.Plo
-@AMDEP_TRUE@@am__fastdepOBJC_FALSE@	$(AM_V_OBJC)source='avfvideosrc.m' object='libgstapplemedia_la-avfvideosrc.lo' libtool=yes @AMDEPBACKSLASH@
+libgstapplemedia_la-iosassetsrc.lo: iosassetsrc.m
+@am__fastdepOBJC_TRUE@	$(AM_V_OBJC)$(LIBTOOL) $(AM_V_lt) $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_OBJCFLAGS) $(OBJCFLAGS) -MT libgstapplemedia_la-iosassetsrc.lo -MD -MP -MF $(DEPDIR)/libgstapplemedia_la-iosassetsrc.Tpo -c -o libgstapplemedia_la-iosassetsrc.lo `test -f 'iosassetsrc.m' || echo '$(srcdir)/'`iosassetsrc.m
+@am__fastdepOBJC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstapplemedia_la-iosassetsrc.Tpo $(DEPDIR)/libgstapplemedia_la-iosassetsrc.Plo
+@AMDEP_TRUE@@am__fastdepOBJC_FALSE@	$(AM_V_OBJC)source='iosassetsrc.m' object='libgstapplemedia_la-iosassetsrc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepOBJC_FALSE@	DEPDIR=$(DEPDIR) $(OBJCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepOBJC_FALSE@	$(AM_V_OBJC@am__nodep@)$(LIBTOOL) $(AM_V_lt) $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_OBJCFLAGS) $(OBJCFLAGS) -c -o libgstapplemedia_la-avfvideosrc.lo `test -f 'avfvideosrc.m' || echo '$(srcdir)/'`avfvideosrc.m
+@am__fastdepOBJC_FALSE@	$(AM_V_OBJC@am__nodep@)$(LIBTOOL) $(AM_V_lt) $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_OBJCFLAGS) $(OBJCFLAGS) -c -o libgstapplemedia_la-iosassetsrc.lo `test -f 'iosassetsrc.m' || echo '$(srcdir)/'`iosassetsrc.m
 
 libgstapplemedia_la-qtkitvideosrc.lo: qtkitvideosrc.m
 @am__fastdepOBJC_TRUE@	$(AM_V_OBJC)$(LIBTOOL) $(AM_V_lt) $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_OBJCFLAGS) $(OBJCFLAGS) -MT libgstapplemedia_la-qtkitvideosrc.lo -MD -MP -MF $(DEPDIR)/libgstapplemedia_la-qtkitvideosrc.Tpo -c -o libgstapplemedia_la-qtkitvideosrc.lo `test -f 'qtkitvideosrc.m' || echo '$(srcdir)/'`qtkitvideosrc.m
