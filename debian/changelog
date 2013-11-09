@@ -6,9 +6,11 @@ gst-plugins-bad1.0 (1.2.1-1) unstable; urgency=low
   * Turn versioned Conflicts into Breaks to simplify lockstep upgrades.
 
   [ Sebastian Dröge ]
-  * New upstream bugfix release.
+  * New upstream bugfix release:
+    + debian/patches/0001-bluez-Fix-compilation-on-big-endian-systems.patch:
+      - Dropped, merged upstream.
 
- -- Fabian Greffrath <fabian+debian@greffrath.com>  Thu, 24 Oct 2013 09:50:13 +0200
+ -- Sebastian Dröge <slomo@debian.org>  Sat, 09 Nov 2013 17:10:09 +0100
 
 gst-plugins-bad1.0 (1.2.0-4) unstable; urgency=low
 

@@ -1,3 +1,2 @@
 01_fix-modplug-linking.patch
 99_ltmain_as-needed.patch
-0001-bluez-Fix-compilation-on-big-endian-systems.patch
