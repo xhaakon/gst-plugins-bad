@@ -90,7 +90,9 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/gstreamer-insertbin.pc.in \
 	$(srcdir)/gstreamer-insertbin-uninstalled.pc.in \
 	$(srcdir)/gstreamer-egl.pc.in \
-	$(srcdir)/gstreamer-egl-uninstalled.pc.in
+	$(srcdir)/gstreamer-egl-uninstalled.pc.in \
+	$(srcdir)/gstreamer-mpegts.pc.in \
+	$(srcdir)/gstreamer-mpegts-uninstalled.pc.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/as-auto-alt.m4 \
@@ -134,7 +136,8 @@ CONFIG_CLEAN_FILES = gstreamer-plugins-bad.pc \
 	gstreamer-plugins-bad-uninstalled.pc gstreamer-codecparsers.pc \
 	gstreamer-codecparsers-uninstalled.pc gstreamer-insertbin.pc \
 	gstreamer-insertbin-uninstalled.pc gstreamer-egl.pc \
-	gstreamer-egl-uninstalled.pc
+	gstreamer-egl-uninstalled.pc gstreamer-mpegts.pc \
+	gstreamer-mpegts-uninstalled.pc
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -644,11 +647,13 @@ top_srcdir = @top_srcdir@
 ### all of the standard pc files we need to generate
 pcverfiles = gstreamer-plugins-bad-@GST_API_VERSION@.pc \
 	gstreamer-codecparsers-@GST_API_VERSION@.pc \
-	gstreamer-insertbin-@GST_API_VERSION@.pc $(am__append_1)
+	gstreamer-insertbin-@GST_API_VERSION@.pc \
+	gstreamer-mpegts-@GST_API_VERSION@.pc $(am__append_1)
 pcverfiles_uninstalled =  \
 	gstreamer-plugins-bad-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-codecparsers-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-insertbin-@GST_API_VERSION@-uninstalled.pc \
+	gstreamer-mpegts-@GST_API_VERSION@-uninstalled.pc \
 	$(am__append_2)
 cp_verbose = $(cp_verbose_$(V))
 cp_verbose_ = $(cp_verbose_$(AM_DEFAULT_VERBOSITY))
@@ -660,7 +665,8 @@ pcinfiles = \
            gstreamer-plugins-bad.pc.in gstreamer-plugins-bad-uninstalled.pc.in \
            gstreamer-codecparsers.pc.in gstreamer-codecparsers-uninstalled.pc.in \
            gstreamer-insertbin.pc.in gstreamer-insertbin-uninstalled.pc.in \
-           gstreamer-egl.pc.in gstreamer-egl-uninstalled.pc.in
+           gstreamer-egl.pc.in gstreamer-egl-uninstalled.pc.in \
+           gstreamer-mpegts.pc.in gstreamer-mpegts-uninstalled.pc.in
 
 DISTCLEANFILES = $(pcinfiles:.in=)
 EXTRA_DIST = $(pcinfiles)
@@ -712,6 +718,10 @@ gstreamer-insertbin-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstr
 gstreamer-egl.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-egl.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-egl-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-egl-uninstalled.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+gstreamer-mpegts.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-mpegts.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+gstreamer-mpegts-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-mpegts-uninstalled.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:
