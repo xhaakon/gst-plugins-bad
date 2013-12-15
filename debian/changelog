@@ -1,3 +1,11 @@
+gst-plugins-bad1.0 (1.2.1-2) unstable; urgency=medium
+
+  * debian/rules,
+    debian/gstreamer-plugins-bad.install:
+    + Enable the OpenCV plugin again, now that all the linking errors are gone.
+
+ -- Sebastian Dröge <slomo@debian.org>  Sun, 15 Dec 2013 15:11:34 +0100
+
 gst-plugins-bad1.0 (1.2.1-1) unstable; urgency=low
 
   [ Fabian Greffrath ]
