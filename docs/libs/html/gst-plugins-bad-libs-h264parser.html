@@ -94,7 +94,7 @@ struct              <a class="link" href="gst-plugins-bad-libs-h264parser.html#G
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264PPS" title="struct GstH264PPS"><span class="type">GstH264PPS</span></a> *pps</code></em>);
 <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="returnvalue">GstH264ParserResult</span></a> <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-sei" title="gst_h264_parser_parse_sei ()">gst_h264_parser_parse_sei</a>           (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a> *nalparser</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> *nalu</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264SEIMessage" title="struct GstH264SEIMessage"><span class="type">GstH264SEIMessage</span></a> *sei</code></em>);
+                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="type">GArray</span></a> **messages</code></em>);
 <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="returnvalue">GstH264NalParser</span></a> *  <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-nal-parser-new" title="gst_h264_nal_parser_new ()">gst_h264_nal_parser_new</a>             (<em class="parameter"><code><span class="type">void</span></code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-nal-parser-free" title="gst_h264_nal_parser_free ()">gst_h264_nal_parser_free</a>            (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a> *nalparser</code></em>);
 <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="returnvalue">GstH264ParserResult</span></a> <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parse-sps" title="gst_h264_parse_sps ()">gst_h264_parse_sps</a>                  (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> *nalu</code></em>,
@@ -1710,9 +1710,9 @@ Parses <em class="parameter"><code>data</code></em>, and fills the <em class="pa
 <a name="gst-h264-parser-parse-sei"></a><h3>gst_h264_parser_parse_sei ()</h3>
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="returnvalue">GstH264ParserResult</span></a> gst_h264_parser_parse_sei           (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a> *nalparser</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> *nalu</code></em>,
-                                                         <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264SEIMessage" title="struct GstH264SEIMessage"><span class="type">GstH264SEIMessage</span></a> *sei</code></em>);</pre>
+                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="type">GArray</span></a> **messages</code></em>);</pre>
 <p>
-Parses <em class="parameter"><code>data</code></em>, and fills the <em class="parameter"><code>sei</code></em> structures.
+Parses <em class="parameter"><code>data</code></em>, create and fills the <em class="parameter"><code>messages</code></em> array.
 </p>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
@@ -1730,8 +1730,8 @@ Parses <em class="parameter"><code>data</code></em>, and fills the <em class="pa
 <td>The <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SEI:CAPS"><span class="type">GST_H264_NAL_SEI</span></a> <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> to parse</td>
 </tr>
 <tr>
-<td><p><span class="term"><em class="parameter"><code>sei</code></em> :</span></p></td>
-<td>The <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264SEIMessage" title="struct GstH264SEIMessage"><span class="type">GstH264SEIMessage</span></a> to fill.</td>
+<td><p><span class="term"><em class="parameter"><code>messages</code></em> :</span></p></td>
+<td>The GArray of <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264SEIMessage" title="struct GstH264SEIMessage"><span class="type">GstH264SEIMessage</span></a> to fill. The caller must free it when done.</td>
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
