@@ -7,9 +7,9 @@ gst-plugins-bad1.0 (1.2.3-1) unstable; urgency=medium
 
   [ Sebastian Dröge ]
   * New upstream bugfix release.
-  * debian/build-deps.in:
-    + Build-depend on libopencv-ocl2.4 until the dependencies of
-      libopencv-dev are fixed once again.
+  * debian/patches/02_opencv-linking.patch:
+    + Fix linking of opencv plugin by working around yet again broken
+      opencv pkg-config file.
 
  -- Sebastian Dröge <slomo@debian.org>  Sun, 09 Feb 2014 11:37:09 +0100
 

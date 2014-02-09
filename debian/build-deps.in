@@ -66,7 +66,6 @@ libxml2-dev (>= 2.4)
 libfluidsynth-dev (>= 1.0)
 libsrtp0-dev
 libopencv-dev (>= 2.0.0)
-libopencv-ocl2.4
 libopenjpeg-dev
 libgnutls-dev (>= 2.11.3)
 libchromaprint-dev
