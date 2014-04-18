@@ -51,6 +51,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmpegtsdemux.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmpegpsmux.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmpegtsmux.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmpg123.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmplex.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmxf.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstofa.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenal.so

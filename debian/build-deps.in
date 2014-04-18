@@ -70,3 +70,4 @@ libopenjpeg-dev
 libgnutls-dev (>= 2.11.3)
 libchromaprint-dev
 libwebp-dev (>= 0.2.1)
+libmjpegtools-dev
