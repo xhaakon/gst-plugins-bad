@@ -1,8 +1,9 @@
-gst-plugins-bad1.0 (1.2.3-2) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.2.4-1) unstable; urgency=medium
 
   * debian/build-deps.in,
     debian/gstreamer-plugins-bad.install:
     + Enable mplex plugin (Closes: #726064).
+  * New upstream bugfix release.
 
  -- Sebastian Dröge <slomo@debian.org>  Fri, 18 Apr 2014 15:39:35 +0200
 
