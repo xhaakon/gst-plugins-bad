@@ -1,3 +1,24 @@
+gst-plugins-bad1.0 (1.3.1-1) experimental; urgency=medium
+
+  * New upstream development release:
+    + debian/rules,
+      debian/build-deps.in:
+      - Build-depend on GStreamer core and base >= 1.3.1.
+      - Build-depend on libopenexr.
+      - Build-depend on libssh2-1-dev.
+      - Build-depend on nettle-dev.
+      - Build-depend on libgl1-mesa-dev and libglu1-mesa-dev.
+      - Drop build-dependency on liblv2-dev, it was not used
+        at all (Closes: #740831).
+    + debian/libgstreamer-plugins-bad.install,
+      debian/gstreamer-plugins-bad.install:
+      - Drop the removed eglglessink plugin and libgstegl library.
+      - Add the new opengl plugin and libgstgl library.
+      - Add new audiomixer, ivfparse, jp2kdecimator, openexr,
+        sndfile, stereo, videosignal and vmnc plugins.
+
+ -- Sebastian Dröge <slomo@debian.org>  Sat, 03 May 2014 19:26:42 +0200
+
 gst-plugins-bad1.0 (1.2.4-1) unstable; urgency=medium
 
   * debian/build-deps.in,

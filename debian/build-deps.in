@@ -1,6 +1,6 @@
 @GST_LIB_DEV_DEP@
 @GST_EXTRA_BUILD_DEPENDS@
-libgstreamer-plugins-base@GST_ABI@-dev (>= 1.2.0)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 1.3.1)
 autotools-dev
 dh-autoreconf
 automake (>= 1.11)
@@ -29,7 +29,7 @@ libexif-dev (>= 0.6.16)
 libexempi-dev
 libiptcdata0-dev (>= 1.0.2)
 libwildmidi-dev (>= 0.2.3)
-gstreamer@GST_ABI@-plugins-base (>= 1.0.0)
+gstreamer@GST_ABI@-plugins-base (>= 1.3.1)
 libofa0-dev (>= 0.9.3)
 libdvdnav-dev (>= 4.1.2) [!hurd-any]
 libssl-dev
@@ -45,7 +45,6 @@ libgme-dev
 librsvg2-dev (>= 2.36)
 libcairo2-dev
 libpng-dev
-libslv2-dev (>= 0.6.6)
 flite-dev
 gstreamer@GST_ABI@-doc
 gstreamer@GST_ABI@-plugins-base-doc
@@ -60,8 +59,10 @@ libzvbi-dev
 libspandsp-dev
 libopus-dev (>= 0.9.4)
 libmpg123-dev (>= 1.13)
+libgl1-mesa-dev
 libegl1-mesa-dev
 libgles2-mesa-dev
+libglu1-mesa-dev
 libxml2-dev (>= 2.4)
 libfluidsynth-dev (>= 1.0)
 libsrtp0-dev
@@ -71,3 +72,6 @@ libgnutls-dev (>= 2.11.3)
 libchromaprint-dev
 libwebp-dev (>= 0.2.1)
 libmjpegtools-dev
+libssh2-1-dev (>= 1.4.3)
+libopenexr-dev
+nettle-dev
