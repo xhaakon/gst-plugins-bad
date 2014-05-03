@@ -28,6 +28,8 @@
 #include <gst/mpegts/gstmpegtssection.h>
 #include <gst/mpegts/gstmpegtsdescriptor.h>
 
+G_BEGIN_DECLS
+
 /**
  * GstMpegTsSectionDVBTableID:
  *
@@ -143,17 +145,17 @@ struct _GstMpegTsNITStream
 /**
  * GstMpegTsNIT:
  * @actual_network: Whether this NIT corresponds to the actual stream
+ * @network_id: ID of the network that this NIT describes
  * @descriptors: (element-type GstMpegTsDescriptor): the global descriptors
  * @streams: (element-type GstMpegTsNITStream): the streams
  *
  * Network Information Table (ISO/IEC 13818-1 / EN 300 468)
  *
- * The network_id is contained in the subtable_extension field of the
- * container #GstMpegTsSection.
  */
 struct _GstMpegTsNIT
 {
   gboolean   actual_network;
+  guint16    network_id;
 
   GPtrArray  *descriptors;
 
@@ -164,6 +166,11 @@ GType gst_mpegts_nit_get_type (void);
 GType gst_mpegts_nit_stream_get_type (void);
 
 const GstMpegTsNIT *gst_mpegts_section_get_nit (GstMpegTsSection *section);
+GstMpegTsSection *gst_mpegts_section_from_nit (GstMpegTsNIT *nit);
+
+GstMpegTsNIT *gst_mpegts_nit_new (void);
+GstMpegTsNITStream *gst_mpegts_nit_stream_new (void);
+
 
 /* BAT */
 
@@ -183,7 +190,6 @@ struct _GstMpegTsBATStream
 
 /**
  * GstMpegTsBAT:
- *
  * @descriptors: (element-type GstMpegTsDescriptor):
  * @streams: (element-type GstMpegTsBATStream):
  *
@@ -210,7 +216,11 @@ typedef struct _GstMpegTsSDT GstMpegTsSDT;
 
 /**
  * GstMpegTsSDTService:
- *
+ * @service_id: The program number this table belongs to
+ * @EIT_schedule_flag: EIT schedule information is present in this transport stream
+ * @EIT_present_following_flag: EIT present/following information is present in this transport stream
+ * @running_status: Status of this service
+ * @free_CA_mode: True if one or more streams is controlled by a CA system
  * @descriptors: (element-type GstMpegTsDescriptor): List of descriptors
  *
  */
@@ -228,7 +238,9 @@ struct _GstMpegTsSDTService
 
 /**
  * GstMpegTsSDT:
- *
+ * @original_network_id: Network ID of the originating delivery system
+ * @actual_ts: True if the table describes this transport stream
+ * @transport_stream_id: ID of this transport stream
  * @services: (element-type GstMpegTsSDTService): List of services
  *
  * Service Description Table (EN 300 468)
@@ -238,6 +250,7 @@ struct _GstMpegTsSDT
 {
   guint16    original_network_id;
   gboolean   actual_ts;
+  guint16    transport_stream_id;
 
   GPtrArray *services;
 };
@@ -246,6 +259,11 @@ GType gst_mpegts_sdt_get_type (void);
 GType gst_mpegts_sdt_service_get_type (void);
 
 const GstMpegTsSDT *gst_mpegts_section_get_sdt (GstMpegTsSection *section);
+
+GstMpegTsSection *gst_mpegts_section_from_sdt (GstMpegTsSDT * sdt);
+
+GstMpegTsSDT *gst_mpegts_sdt_new (void);
+GstMpegTsSDTService *gst_mpegts_sdt_service_new (void);
 
 /* EIT */
 
@@ -257,7 +275,6 @@ typedef struct _GstMpegTsEIT GstMpegTsEIT;
 
 /**
  * GstMpegTsEITEvent:
- *
  * @descriptors: (element-type GstMpegTsDescriptor): List of descriptors
  *
  * Event from a @GstMpegTsEIT
@@ -277,7 +294,6 @@ struct _GstMpegTsEITEvent
 
 /**
  * GstMpegTsEIT:
- *
  * @events: (element-type GstMpegTsEITEvent): List of events
  *
  * Event Information Table (EN 300 468)
@@ -310,7 +326,6 @@ typedef struct _GstMpegTsTOT GstMpegTsTOT;
 #define GST_TYPE_MPEGTS_TOT (gst_mpegts_tot_get_type())
 /**
  * GstMpegTsTOT:
- *
  * @descriptors: (element-type GstMpegTsDescriptor): List of descriptors
  *
  * Time Offset Table (EN 300 468)
@@ -325,5 +340,7 @@ struct _GstMpegTsTOT
 
 GType gst_mpegts_tot_get_type (void);
 const GstMpegTsTOT *gst_mpegts_section_get_tot (GstMpegTsSection *section);
+
+G_END_DECLS
 
 #endif				/* GST_MPEGTS_SECTION_H */

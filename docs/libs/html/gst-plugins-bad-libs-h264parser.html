@@ -159,6 +159,38 @@ bitstream parsing.</p>
 <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parse-pps" title="gst_h264_parse_pps ()">gst_h264_parse_pps</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-video-quant-matrix-8x8-get-zigzag-from-raster" title="gst_h264_video_quant_matrix_8x8_get_zigzag_from_raster ()">gst_h264_video_quant_matrix_8x8_get_zigzag_from_raster</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-video-quant-matrix-8x8-get-raster-from-zigzag" title="gst_h264_video_quant_matrix_8x8_get_raster_from_zigzag ()">gst_h264_video_quant_matrix_8x8_get_raster_from_zigzag</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-video-quant-matrix-4x4-get-zigzag-from-raster" title="gst_h264_video_quant_matrix_4x4_get_zigzag_from_raster ()">gst_h264_video_quant_matrix_4x4_get_zigzag_from_raster</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-video-quant-matrix-4x4-get-raster-from-zigzag" title="gst_h264_video_quant_matrix_4x4_get_raster_from_zigzag ()">gst_h264_video_quant_matrix_4x4_get_raster_from_zigzag</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -814,6 +846,100 @@ gst_h264_parse_pps (<em class="parameter"><code><a class="link" href="gst-plugin
 <p></p>
 </div>
 </div>
+<hr>
+<div class="refsect2">
+<a name="gst-h264-video-quant-matrix-8x8-get-zigzag-from-raster"></a><h3>gst_h264_video_quant_matrix_8x8_get_zigzag_from_raster ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gst_h264_video_quant_matrix_8x8_get_zigzag_from_raster
+                               (<em class="parameter"><code><span class="type">guint8</span> out_quant[64]</code></em>,
+                                <em class="parameter"><code>const <span class="type">guint8</span> quant[64]</code></em>);</pre>
+<p>Converts quantization matrix <em class="parameter"><code>quant</code></em>
+ from raster scan order to
+zigzag scan order and store the resulting factors into <em class="parameter"><code>out_quant</code></em>
+.</p>
+<p>Note: it is an error to pass the same table in both <em class="parameter"><code>quant</code></em>
+ and
+<em class="parameter"><code>out_quant</code></em>
+ arguments.</p>
+<div class="refsect3">
+<a name="id-1.2.4.3.8.18.6"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>out_quant</p></td>
+<td class="parameter_description"><p> The resulting quantization matrix. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>quant</p></td>
+<td class="parameter_description"><p>The source quantization matrix</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p class="since">Since 1.4</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-h264-video-quant-matrix-8x8-get-raster-from-zigzag"></a><h3>gst_h264_video_quant_matrix_8x8_get_raster_from_zigzag ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gst_h264_video_quant_matrix_8x8_get_raster_from_zigzag
+                               (<em class="parameter"><code><span class="type">guint8</span> out_quant[64]</code></em>,
+                                <em class="parameter"><code>const <span class="type">guint8</span> quant[64]</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-h264-video-quant-matrix-4x4-get-zigzag-from-raster"></a><h3>gst_h264_video_quant_matrix_4x4_get_zigzag_from_raster ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gst_h264_video_quant_matrix_4x4_get_zigzag_from_raster
+                               (<em class="parameter"><code><span class="type">guint8</span> out_quant[16]</code></em>,
+                                <em class="parameter"><code>const <span class="type">guint8</span> quant[16]</code></em>);</pre>
+<p>Converts quantization matrix <em class="parameter"><code>quant</code></em>
+ from raster scan order to
+zigzag scan order and store the resulting factors into <em class="parameter"><code>out_quant</code></em>
+.</p>
+<p>Note: it is an error to pass the same table in both <em class="parameter"><code>quant</code></em>
+ and
+<em class="parameter"><code>out_quant</code></em>
+ arguments.</p>
+<div class="refsect3">
+<a name="id-1.2.4.3.8.20.6"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>out_quant</p></td>
+<td class="parameter_description"><p> The resulting quantization matrix. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>quant</p></td>
+<td class="parameter_description"><p>The source quantization matrix</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p class="since">Since 1.4</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-h264-video-quant-matrix-4x4-get-raster-from-zigzag"></a><h3>gst_h264_video_quant_matrix_4x4_get_raster_from_zigzag ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gst_h264_video_quant_matrix_4x4_get_raster_from_zigzag
+                               (<em class="parameter"><code><span class="type">guint8</span> out_quant[16]</code></em>,
+                                <em class="parameter"><code>const <span class="type">guint8</span> quant[16]</code></em>);</pre>
+</div>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-h264parser.other_details"></a><h2>Types and Values</h2>
@@ -929,6 +1055,41 @@ gst_h264_parse_pps (<em class="parameter"><code><a class="link" href="gst-plugin
 <td class="enum_member_name"><p><a name="GST-H264-NAL-FILLER-DATA:CAPS"></a>GST_H264_NAL_FILLER_DATA</p></td>
 <td class="enum_member_description">
 <p>Filler data nal lunit</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="GST-H264-NAL-SPS-EXT:CAPS"></a>GST_H264_NAL_SPS_EXT</p></td>
+<td class="enum_member_description">
+<p>Sequence parameter set (SPS) extension NAL unit</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="GST-H264-NAL-PREFIX-UNIT:CAPS"></a>GST_H264_NAL_PREFIX_UNIT</p></td>
+<td class="enum_member_description">
+<p>Prefix NAL unit</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="GST-H264-NAL-SUBSET-SPS:CAPS"></a>GST_H264_NAL_SUBSET_SPS</p></td>
+<td class="enum_member_description">
+<p>Subset sequence parameter set (SPS) NAL unit</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="GST-H264-NAL-SLICE-AUX:CAPS"></a>GST_H264_NAL_SLICE_AUX</p></td>
+<td class="enum_member_description">
+<p>Auxiliary coded picture without partitioning NAL unit</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="GST-H264-NAL-SLICE-EXT:CAPS"></a>GST_H264_NAL_SLICE_EXT</p></td>
+<td class="enum_member_description">
+<p>Coded slice extension NAL unit</p>
 </td>
 <td class="enum_member_annotations"> </td>
 </tr>

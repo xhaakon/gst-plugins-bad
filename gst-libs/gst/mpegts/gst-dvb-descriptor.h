@@ -34,6 +34,8 @@
 
 #include <gst/gst.h>
 
+G_BEGIN_DECLS
+
 /**
  * GstMpegTsDVBDescriptorType:
  *
@@ -114,12 +116,50 @@ typedef enum {
   GST_MTS_DESC_DVB_EXTENSION                    = 0x7F,
 } GstMpegTsDVBDescriptorType;
 
+/**
+ * GstMpegTsDVBExtendedDescriptorType:
+ *
+ * The type of #GstMpegTsDescriptor
+ *
+ * These values correspond to the registered extended descriptor
+ * type from the various DVB specifications.
+ *
+ * Consult the relevant specifications for more details.
+ */
+typedef enum {
+  /* 00 - 0x7F DVB extended tags ETSI EN 300 468
+   * (Specification for Service Information (SI) in DVB systems)
+   */
+  GST_MTS_DESC_EXT_DVB_IMAGE_ICON               = 0x00,
+  /* TS/TR 102 825 */
+  GST_MTS_DESC_EXT_DVB_CPCM_DELIVERY_SIGNALLING = 0x01,
+  GST_MTS_DESC_EXT_DVB_CP                       = 0x02,
+  GST_MTS_DESC_EXT_DVB_CP_IDENTIFIER            = 0x03,
+  GST_MTS_DESC_EXT_DVB_T2_DELIVERY_SYSTEM       = 0x04,
+  GST_MTS_DESC_EXT_DVB_SH_DELIVERY_SYSTEM       = 0x05,
+  GST_MTS_DESC_EXT_DVB_SUPPLEMENTARY_AUDIO      = 0x06,
+  GST_MTS_DESC_EXT_DVB_NETWORK_CHANGE_NOTIFY    = 0x07,
+  GST_MTS_DESC_EXT_DVB_MESSAGE                  = 0x08,
+  GST_MTS_DESC_EXT_DVB_TARGET_REGION            = 0x09,
+  GST_MTS_DESC_EXT_DVB_TARGET_REGION_NAME       = 0x0A,
+  GST_MTS_DESC_EXT_DVB_SERVICE_RELOCATED        = 0x0B,
+  GST_MTS_DESC_EXT_DVB_XAIT_PID                 = 0x0C,
+  GST_MTS_DESC_EXT_DVB_C2_DELIVERY_SYSTEM       = 0x0D,
+  GST_MTS_DESC_EXT_DVB_DTS_HD_AUDIO_STREAM      = 0x0E,
+  GST_MTS_DESC_EXT_DVB_DTS_NEUTRAL              = 0x0F,
+  GST_MTS_DESC_EXT_DVB_VIDEO_DEPTH_RANGE        = 0x10,
+  GST_MTS_DESC_EXT_DVB_T2MI                     = 0x11,
+  GST_MTS_DESC_EXT_DVB_URI_LINKAGE              = 0x13,
+} GstMpegTsDVBExtendedDescriptorType;
+
 /* GST_MTS_DESC_DVB_CAROUSEL_IDENTIFIER (0x13) */
 /* FIXME : Implement */
 
 /* GST_MTS_DESC_DVB_NETWORK_NAME (0x40) */
 gboolean gst_mpegts_descriptor_parse_dvb_network_name (const GstMpegTsDescriptor *descriptor,
 						       gchar **name);
+
+GstMpegTsDescriptor *gst_mpegts_descriptor_from_dvb_network_name (const gchar * name);
 
 /* GST_MTS_DESC_DVB_SATELLITE_DELIVERY_SYSTEM (0x43) */
 typedef struct _GstMpegTsSatelliteDeliverySystemDescriptor GstMpegTsSatelliteDeliverySystemDescriptor;
@@ -286,6 +326,106 @@ gboolean gst_mpegts_descriptor_parse_dvb_service (const GstMpegTsDescriptor *des
 						  gchar **service_name,
 						  gchar **provider_name);
 
+GstMpegTsDescriptor *gst_mpegts_descriptor_from_dvb_service (GstMpegTsDVBServiceType service_type,
+							     const gchar * service_name,
+							     const gchar * service_provider);
+
+/* GST_MTS_DESC_DVB_LINKAGE (0x4A) */
+/**
+ * GstMpegTsDVBLinkageType:
+ *
+ * Linkage Type (EN 300 468 v.1.13.1)
+ */
+typedef enum {
+  /* 0x00, 0x0F-0x7F reserved for future use */
+  GST_MPEGTS_DVB_LINKAGE_RESERVED_00               = 0x00,
+  GST_MPEGTS_DVB_LINKAGE_INFORMATION               = 0x01,
+  GST_MPEGTS_DVB_LINKAGE_EPG                       = 0x02,
+  GST_MPEGTS_DVB_LINKAGE_CA_REPLACEMENT            = 0x03,
+  GST_MPEGTS_DVB_LINKAGE_TS_CONTAINING_COMPLETE_SI = 0x04,
+  GST_MPEGTS_DVB_LINKAGE_SERVICE_REPLACEMENT       = 0x05,
+  GST_MPEGTS_DVB_LINKAGE_DATA_BROADCAST            = 0x06,
+  GST_MPEGTS_DVB_LINKAGE_RCS_MAP                   = 0x07,
+  GST_MPEGTS_DVB_LINKAGE_MOBILE_HAND_OVER          = 0x08,
+  GST_MPEGTS_DVB_LINKAGE_SYSTEM_SOFTWARE_UPDATE    = 0x09,
+  GST_MPEGTS_DVB_LINKAGE_TS_CONTAINING_SSU         = 0x0A,
+  GST_MPEGTS_DVB_LINKAGE_IP_MAC_NOTIFICATION       = 0x0B,
+  GST_MPEGTS_DVB_LINKAGE_TS_CONTAINING_INT         = 0x0C,
+  GST_MPEGTS_DVB_LINKAGE_EVENT                     = 0x0D,
+  GST_MPEGTS_DVB_LINKAGE_EXTENDED_EVENT            = 0x0E,
+} GstMpegTsDVBLinkageType;
+
+typedef enum {
+  GST_MPEGTS_DVB_LINKAGE_HAND_OVER_RESERVED        = 0x00,
+  GST_MPEGTS_DVB_LINKAGE_HAND_OVER_IDENTICAL       = 0x01,
+  GST_MPEGTS_DVB_LINKAGE_HAND_OVER_LOCAL_VARIATION = 0x02,
+  GST_MPEGTS_DVB_LINKAGE_HAND_OVER_ASSOCIATED      = 0x03,
+} GstMpegTsDVBLinkageHandOverType;
+
+typedef struct _GstMpegTsDVBLinkageMobileHandOver GstMpegTsDVBLinkageMobileHandOver;
+typedef struct _GstMpegTsDVBLinkageEvent GstMpegTsDVBLinkageEvent;
+typedef struct _GstMpegTsDVBLinkageExtendedEvent GstMpegTsDVBLinkageExtendedEvent;
+typedef struct _GstMpegTsDVBLinkageDescriptor GstMpegTsDVBLinkageDescriptor;
+
+struct _GstMpegTsDVBLinkageMobileHandOver
+{
+  GstMpegTsDVBLinkageHandOverType hand_over_type;
+  /* 0 = NIT, 1 = SDT */
+  gboolean                        origin_type;
+  guint16                         network_id;
+  guint16                         initial_service_id;
+};
+
+struct _GstMpegTsDVBLinkageEvent
+{
+  guint16  target_event_id;
+  gboolean target_listed;
+  gboolean event_simulcast;
+};
+
+struct _GstMpegTsDVBLinkageExtendedEvent
+{
+  guint16        target_event_id;
+  gboolean       target_listed;
+  gboolean       event_simulcast;
+  /* FIXME: */
+  guint8         link_type;
+  /* FIXME: */
+  guint8         target_id_type;
+  gboolean       original_network_id_flag;
+  gboolean       service_id_flag;
+  /* if (target_id_type == 3) */
+  guint16        user_defined_id;
+  /* else */
+  guint16        target_transport_stream_id;
+  guint16        target_original_network_id;
+  guint16        target_service_id;
+};
+
+/**
+ * GstMpegTsDVBLinkageDescriptor:
+ * @transport_stream_id: the transport id
+ * @original_network_id: the original network id
+ * @service_id: the service id
+ * @linkage_type: the type which %linkage_data has
+ * @linkage_data: the linkage structure depending from %linkage_type
+ * @private_data_length: the length for %private_data_bytes
+ * @private_data_bytes: additional data bytes
+ */
+struct _GstMpegTsDVBLinkageDescriptor
+{
+  guint16                           transport_stream_id;
+  guint16                           original_network_id;
+  guint16                           service_id;
+  GstMpegTsDVBLinkageType           linkage_type;
+  gpointer                          linkage_data;
+  guint8                            private_data_length;
+  guint8                            *private_data_bytes;
+};
+
+gboolean gst_mpegts_descriptor_parse_dvb_linkage (const GstMpegTsDescriptor * descriptor,
+                                                  GstMpegTsDVBLinkageDescriptor * res);
+
 /* GST_MTS_DESC_DVB_SHORT_EVENT (0x4D) */
 gboolean gst_mpegts_descriptor_parse_dvb_short_event (const GstMpegTsDescriptor *descriptor,
 						       gchar **language_code,
@@ -303,13 +443,24 @@ struct _GstMpegTsExtendedEventItem
   gchar *item;
 };
 
+/**
+ * GstMpegTsExtendedEventDescriptor:
+ * @desctiptor_number:
+ * @last_descriptor_number:
+ * @language_code:
+ * @nb_items:
+ * @items: (element-type GstMpegTsExtendedEventItem): the #GstMpegTsExtendedEventItem
+ * @text:
+ *
+ * Extended Event Descriptor (EN 300 468 v.1.13.1)
+ */
 struct _GstMpegTsExtendedEventDescriptor
 {
   guint8 descriptor_number;
   guint8 last_descriptor_number;
   gchar  language_code[3];
   guint8 nb_items;
-  GstMpegTsExtendedEventItem items[128];
+  GPtrArray *items;
   gchar *text;
 };
 
@@ -335,19 +486,270 @@ gboolean gst_mpegts_descriptor_parse_dvb_component (const GstMpegTsDescriptor *d
 gboolean gst_mpegts_descriptor_parse_dvb_stream_identifier (const GstMpegTsDescriptor *descriptor,
 							    guint8 *component_tag);
 
+/* GST_MTS_DESC_DVB_CA_IDENTIFIER (0x53) */
+gboolean gst_mpegts_descriptor_parse_dvb_ca_identifier (const GstMpegTsDescriptor * descriptor,
+                                                        GArray ** list);
+
+/* GST_MTS_DESC_DVB_CONTENT (0x54) */
+typedef struct _GstMpegTsContent GstMpegTsContent;
+struct _GstMpegTsContent
+{
+  guint8 content_nibble_1;
+  guint8 content_nibble_2;
+  guint8 user_byte;
+};
+
+gboolean gst_mpegts_descriptor_parse_dvb_content (const GstMpegTsDescriptor *
+	descriptor, GPtrArray ** content);
+
+/* GST_MTS_DESC_DVB_PARENTAL_RATING (0x55) */
+typedef struct _GstMpegTsDVBParentalRatingItem GstMpegTsDVBParentalRatingItem;
+
+/**
+ * GstMpegTsDVBParentalRating:
+ * @country_code: This 24-bit field identifies a country using the 3-character
+ * code as specified in ISO 3166
+ * @rating: the rating age
+ */
+struct _GstMpegTsDVBParentalRatingItem
+{
+  gchar  country_code[3];
+  guint8 rating;
+};
+
+gboolean gst_mpegts_descriptor_parse_dvb_parental_rating (const GstMpegTsDescriptor
+        * descriptor, GPtrArray ** rating);
+
+/* GST_MTS_DESC_DVB_TELETEXT (0x56) */
+/**
+ * GstMpegTsDVBTeletextType:
+ *
+ * The type of teletext page.
+ *
+ * As specified in Table 100 of ETSI EN 300 468 v1.13.1
+ */
+typedef enum {
+	INITIAL_PAGE = 0x01,
+	SUBTITLE_PAGE,
+	ADDITIONAL_INFO_PAGE,
+	PROGRAMME_SCHEDULE_PAGE,
+	HEARING_IMPAIRED_PAGE
+} GstMpegTsDVBTeletextType;
+
+gboolean gst_mpegts_descriptor_parse_dvb_teletext_idx (const GstMpegTsDescriptor *
+    descriptor, guint idx, gchar (*language_code)[4],
+    GstMpegTsDVBTeletextType * teletext_type, guint8 * magazine_number,
+    guint8 * page_number);
+
+guint gst_mpegts_descriptor_parse_dvb_teletext_nb (const GstMpegTsDescriptor *
+    descriptor);
+
+/* GST_MTS_DESC_DVB_SUBTITLING (0x59) */
+gboolean gst_mpegts_descriptor_parse_dvb_subtitling_idx (const GstMpegTsDescriptor *descriptor,
+							 guint idx, gchar (*lang)[4],
+							 guint8 *type, guint16 *composition_page_id,
+							 guint16 *ancillary_page_id);
+guint gst_mpegts_descriptor_parse_dvb_subtitling_nb (const GstMpegTsDescriptor *descriptor);
+
+GstMpegTsDescriptor * gst_mpegts_descriptor_from_dvb_subtitling (const gchar *lang,
+    guint8 type, guint16 composition, guint16 ancillary);
+
+
+
 /* GST_MTS_DESC_DVB_TERRESTRIAL_DELIVERY_SYSTEM (0x5A) */
-/* FIXME : Implement */
+typedef struct _GstMpegTsTerrestrialDeliverySystemDescriptor GstMpegTsTerrestrialDeliverySystemDescriptor;
+
+typedef enum {
+  GST_MPEGTS_TRANSMISSION_MODE_2K = 0,
+  GST_MPEGTS_TRANSMISSION_MODE_8K,
+  GST_MPEGTS_TRANSMISSION_MODE_AUTO,
+  GST_MPEGTS_TRANSMISSION_MODE_4K,
+  GST_MPEGTS_TRANSMISSION_MODE_1K,
+  GST_MPEGTS_TRANSMISSION_MODE_16K,
+  GST_MPEGTS_TRANSMISSION_MODE_32K,
+  GST_MPEGTS_TRANSMISSION_MODE_C1,
+  GST_MPEGTS_TRANSMISSION_MODE_C3780
+} GstMpegTsTerrestrialTransmissionMode;
+
+typedef enum {
+  GST_MPEGTS_GUARD_INTERVAL_1_32 = 0,
+  GST_MPEGTS_GUARD_INTERVAL_1_16,
+  GST_MPEGTS_GUARD_INTERVAL_1_8,
+  GST_MPEGTS_GUARD_INTERVAL_1_4,
+  GST_MPEGTS_GUARD_INTERVAL_AUTO,
+  GST_MPEGTS_GUARD_INTERVAL_1_128,
+  GST_MPEGTS_GUARD_INTERVAL_19_128,
+  GST_MPEGTS_GUARD_INTERVAL_19_256,
+  GST_MPEGTS_GUARD_INTERVAL_PN420,
+  GST_MPEGTS_GUARD_INTERVAL_PN595,
+  GST_MPEGTS_GUARD_INTERVAL_PN945
+} GstMpegTsTerrestrialGuardInterval;
+
+typedef enum {
+  GST_MPEGTS_HIERARCHY_NONE = 0,
+  GST_MPEGTS_HIERARCHY_1,
+  GST_MPEGTS_HIERARCHY_2,
+  GST_MPEGTS_HIERARCHY_4,
+  GST_MPEGTS_HIERARCHY_AUTO
+} GstMpegTsTerrestrialHierarchy;
+
+/**
+ * GstMpegTsTerrestrialDeliverySystemDescriptor:
+ * @frequency: the frequency in Hz (Hertz)
+ * @bandwidth: the bandwidth in Hz (Hertz)
+ * @priority: %TRUE High Priority %FALSE Low Priority
+ * @time_slicing: %TRUE no time slicing %FALSE time slicing
+ * @mpe_fec: %TRUE no mpe-fec is used %FALSE mpe-fec is use
+ * @constellation: the constallation
+ * @hierarchy: the hierarchy
+ * @code_rate_hp:
+ * @code_rate_lp:
+ * @guard_interval:
+ * @transmission_mode:
+ * @other_frequency: %TRUE more frequency are use, else not
+ *
+ * Terrestrial Delivery System Descriptor (EN 300 468 v.1.13.1)
+ */
+
+struct _GstMpegTsTerrestrialDeliverySystemDescriptor
+{
+  guint32				frequency;
+  guint32				bandwidth;
+  gboolean				priority;
+  gboolean				time_slicing;
+  gboolean				mpe_fec;
+  GstMpegTsModulationType		constellation;
+  GstMpegTsTerrestrialHierarchy		hierarchy;
+  GstMpegTsDVBCodeRate			code_rate_hp;
+  GstMpegTsDVBCodeRate			code_rate_lp;
+  GstMpegTsTerrestrialGuardInterval	guard_interval;
+  GstMpegTsTerrestrialTransmissionMode	transmission_mode;
+  gboolean				other_frequency;
+};
+
+gboolean gst_mpegts_descriptor_parse_terrestrial_delivery_system (const GstMpegTsDescriptor
+              *descriptor, GstMpegTsTerrestrialDeliverySystemDescriptor * res);
+
+/* GST_MTS_DESC_DVB_PRIVATE_DATA_SPECIFIER (0x5F) */
+gboolean gst_mpegts_descriptor_parse_dvb_private_data_specifier (const GstMpegTsDescriptor
+              * descriptor, guint32 * private_data_specifier, guint8 ** private_data,
+              guint8 * length);
 
 /* GST_MTS_DESC_DVB_FREQUENCY_LIST (0x62) */
-/* FIXME : Implement */
+gboolean gst_mpegts_descriptor_parse_dvb_frequency_list (const GstMpegTsDescriptor
+    * descriptor, gboolean * offset, GArray ** list);
 
 /* GST_MTS_DESC_DVB_DATA_BROADCAST (0x64) */
-/* FIXME: Implement */
+typedef struct _GstMpegTsDataBroadcastDescriptor GstMpegTsDataBroadcastDescriptor;
+
+/**
+ * GstMpegTsDataBroadcastDescriptor:
+ * @data_broadcast_id: the data broadcast id
+ * @component_tag: the component tag
+ * @selector_bytes: the selector byte field
+ * @language_code: language of @text
+ * @text: description of data broadcast
+ */
+struct _GstMpegTsDataBroadcastDescriptor
+{
+  guint16     data_broadcast_id;
+  guint8      component_tag;
+  guint8      *selector_bytes;
+  gchar       language_code[3];
+  gchar       *text;
+};
+
+gboolean gst_mpegts_descriptor_parse_dvb_data_broadcast (const GstMpegTsDescriptor
+              *descriptor, GstMpegTsDataBroadcastDescriptor * res);
+
+/* GST_MTS_DESC_DVB_SCRAMBLING (0x65) */
+typedef enum
+{
+  GST_MPEGTS_DVB_SCRAMBLING_MODE_RESERVED              = 0x00,
+  GST_MPEGTS_DVB_SCRAMBLING_MODE_CSA1                  = 0x01,
+  GST_MPEGTS_DVB_SCRAMBLING_MODE_CSA2                  = 0x02,
+  GST_MPEGTS_DVB_SCRAMBLING_MODE_CSA3_STANDARD         = 0x03,
+  GST_MPEGTS_DVB_SCRAMBLING_MODE_CSA3_MINIMAL_ENHANCED = 0x04,
+  GST_MPEGTS_DVB_SCRAMBLING_MODE_CSA3_FULL_ENHANCED    = 0x05,
+  /* 0x06 - 0x0f reserved for future use */
+  GST_MPEGTS_DVB_SCRAMBLING_MODE_CISSA                 = 0x10,
+  /* 0x11 - 0x1f reserved for future DVB-CISSA versions */
+  GST_MPEGTS_DVB_SCRAMBLING_MODE_ATIS_0                = 0x70,
+  GST_MPEGTS_DVB_SCRAMBLING_MODE_ATIS_F                = 0x7f,
+} GstMpegTsDVBScramblingModeType;
+
+gboolean gst_mpegts_descriptor_parse_dvb_scrambling (const GstMpegTsDescriptor * descriptor,
+       GstMpegTsDVBScramblingModeType * scrambling_mode);
 
 /* GST_MTS_DESC_DVB_DATA_BROADCAST_ID (0x66) */
-/* FIXME : Implement */
+gboolean gst_mpegts_descriptor_parse_dvb_data_broadcast_id (const GstMpegTsDescriptor
+       * descriptor, guint16 * data_broadcast_id, guint8 ** id_selector_bytes, guint8 * len);
 
 /* GST_MTS_DESC_DVB_AC3 (0x6a) */
 /* FIXME : Implement */
+
+/* GST_MTS_DESC_EXT_DVB_T2_DELIVERY_SYSTEM (0x7F && 0x04) */
+typedef struct _GstMpegTsT2DeliverySystemCellExtension GstMpegTsT2DeliverySystemCellExtension;
+
+/**
+ * GstMpegTsT2DeliverySystemCellExtension:
+ * @cell_id_extension: id of the sub cell
+ * @transposer_frequency: centre frequency of the sub cell in Hz
+ */
+struct _GstMpegTsT2DeliverySystemCellExtension
+{
+  guint8  cell_id_extension;
+  guint32 transposer_frequency;
+};
+
+typedef struct _GstMpegTsT2DeliverySystemCell GstMpegTsT2DeliverySystemCell;
+
+/**
+ * GstMpegTsT2DeliverySystemCell:
+ * @cell_id: id of the cell
+ * @centre_frequencies: centre frequencies in Hz
+ * @sub_cells: (element-type GstMpegTsT2DeliverySystemCellExtension):
+ */
+struct _GstMpegTsT2DeliverySystemCell
+{
+  guint16      cell_id;
+  GArray       *centre_frequencies;
+  GPtrArray    *sub_cells;
+};
+
+typedef struct _GstMpegTsT2DeliverySystemDescriptor GstMpegTsT2DeliverySystemDescriptor;
+
+/**
+ * GstMpegTsT2DeliverySystemDescriptor:
+ * @plp_id:
+ * @t2_system_id:
+ * @siso_miso:
+ * @bandwidth:
+ * @guard_interval:
+ * @transmission_mode:
+ * @other_frequency:
+ * @tfs:
+ * @cells: (element-type GstMpegTsT2DeliverySystemCell):
+ *
+ * describe DVB-T2 transmissions according to EN 302 755
+ */
+struct _GstMpegTsT2DeliverySystemDescriptor
+{
+  guint8                                plp_id;
+  guint16                               t2_system_id;
+  /* FIXME: */
+  guint8                                siso_miso;
+  guint32                               bandwidth;
+  GstMpegTsTerrestrialGuardInterval     guard_interval;
+  GstMpegTsTerrestrialTransmissionMode  transmission_mode;
+  gboolean                              other_frequency;
+  gboolean                              tfs;
+  GPtrArray                             *cells;
+};
+
+gboolean gst_mpegts_descriptor_parse_dvb_t2_delivery_system (const GstMpegTsDescriptor
+              *descriptor, GstMpegTsT2DeliverySystemDescriptor * res);
+
+G_END_DECLS
 
 #endif				/* GST_MPEGTS_DESCRIPTOR_H */

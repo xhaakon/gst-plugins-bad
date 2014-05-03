@@ -36,6 +36,79 @@
  * </refsect2>
  */
 
+/* 
+ * History of DVB_API_VERSION 5 minor changes
+ *
+ * API Addition/changes in reverse order (most recent addition first)
+ *
+ * Minor 10 (statistics properties)
+ *   DTV_STAT_*
+ *   FE_SCALE_* 
+ *
+ * Minor 9
+ *   DTV_LNA
+ *   LNA_AUTO
+ *
+ * Minor 8
+ *   FE_CAN_MULTISTREAM
+ *   DTV_ISDBS_TS_ID_LEGACY (was DVB_ISDBS_TS_ID)
+ *   DTV_DVBT2_PLP_ID_LEGACY (was DVB_DVBT2_PLP_ID)
+ *   NO_STREAM_ID_FILTER
+ *   INTERLEAVING_AUTO
+ *
+ * Minor 7 (DTMB Support)
+ *   FEC_2_5
+ *   QAM_4_NR
+ *   TRANSMISSION_MODE_C1 / _C3780
+ *   GUARD_INTERVAL_PN420 / _PN595 / _PN945
+ *   INTERLEAVING_NONE / _240 / _720
+ *   DTV_INTERLEAVING
+ *   SYS_DTMB (Renamed from SYS_DMBTH but has safety #define)
+ *
+ * Minor 6 (ATSC-MH)
+ *   DTV_ATSCMH_* (for those not defined in later versions)
+ *
+ * Somewhere in between 5 and 6:
+ *   SYS_DVBC_ANNEX_A / _C (Safety #define for _AC => A)
+ * 
+ * Minor 5 (Note : minimum version we support according to configure.ac)
+ *   DTV_ENUM_DELSYS
+ *
+ * Minor 4
+ *   SYS_TURBO
+ *
+ * Minor 3 (DVB-T2)
+ *   TRANSMISSION_MODE_1K / _16K / _32K
+ *   BANDWIDTH_5_MHZ / _10_MHZ / _1_712_MHZ
+ *   GUARD_INTERVAL_1_128 / _19_128 / _19_256
+ *   DTV_DVBT2_PLP_ID (/!\ renamed in minor 8 !)
+ *   SYS_DVBT2
+ *
+ * Minor 2
+ *   FE_CAN_TURBO_FEC
+ *   DTV_ISDBS_TS_ID (/!\ renamed in minor 8 !)
+ *
+ * Minor 1 (ISDB-T and ISDB-Tsb)
+ *   TRANSMISSION_MODE_4K
+ *   DTV_ISDBT_* (for those not defined in later version)
+ *
+ * Minor 0 : initial version
+ */
+
+/* We know we have at least DVB_API_VERSION >= 5 */
+#define HAVE_V5_MINOR(minor) ((DVB_API_VERSION > 5) || \
+			      (DVB_API_VERSION_MINOR >= (minor)))
+
+/* NO_STREAM_ID_FILTER introduced in minor 8 */
+#ifndef NO_STREAM_ID_FILTER
+#define NO_STREAM_ID_FILTER    (~0U)
+#endif
+
+/* DTV_STREAM_ID introduced in minor 8 (redefine) */
+#ifndef DTV_STREAM_ID
+#define DTV_STREAM_ID DTV_ISDBS_TS_ID
+#endif
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -91,7 +164,12 @@ enum
   ARG_DVBSRC_INVERSION,
   ARG_DVBSRC_STATS_REPORTING_INTERVAL,
   ARG_DVBSRC_TIMEOUT,
-  ARG_DVBSRC_DVB_BUFFER_SIZE
+  ARG_DVBSRC_DVB_BUFFER_SIZE,
+  ARG_DVBSRC_DELSYS,
+  ARG_DVBSRC_PILOT,
+  ARG_DVBSRC_ROLLOFF,
+  ARG_DVBSRC_STREAM_ID,
+  ARG_DVBSRC_BANDWIDTH_HZ
 };
 
 #define DEFAULT_ADAPTER 0
@@ -101,7 +179,8 @@ enum
 #define DEFAULT_POLARITY "H"
 #define DEFAULT_PIDS "8192"
 #define DEFAULT_SYMBOL_RATE 0
-#define DEFAULT_BANDWIDTH BANDWIDTH_7_MHZ
+#define DEFAULT_BANDWIDTH_HZ 8000000
+#define DEFAULT_BANDWIDTH BANDWIDTH_8_MHZ
 #define DEFAULT_CODE_RATE_HP FEC_AUTO
 #define DEFAULT_CODE_RATE_LP FEC_1_2
 #define DEFAULT_GUARD GUARD_INTERVAL_1_16
@@ -113,6 +192,10 @@ enum
 #define DEFAULT_TIMEOUT 1000000 /* 1 second */
 #define DEFAULT_DVB_BUFFER_SIZE (10*188*1024)   /* Default is the same as the kernel default */
 #define DEFAULT_BUFFER_SIZE 8192        /* not a property */
+#define DEFAULT_DELSYS SYS_UNDEFINED
+#define DEFAULT_PILOT PILOT_AUTO
+#define DEFAULT_ROLLOFF ROLLOFF_AUTO
+#define DEFAULT_STREAM_ID NO_STREAM_ID_FILTER
 
 static void gst_dvbsrc_output_frontend_stats (GstDvbSrc * src);
 
@@ -268,6 +351,81 @@ gst_dvbsrc_inversion_get_type (void)
   return dvbsrc_inversion_type;
 }
 
+#define GST_TYPE_DVBSRC_DELSYS (gst_dvbsrc_delsys_get_type ())
+static GType
+gst_dvbsrc_delsys_get_type (void)
+{
+  static GType dvbsrc_delsys_type = 0;
+  static GEnumValue delsys_types[] = {
+    {SYS_UNDEFINED, "UNDEFINED", "undefined"},
+    {SYS_DVBC_ANNEX_A, "DVB-C-A", "dvb-c-a"},
+    {SYS_DVBC_ANNEX_B, "DVB-C-B", "dvb-c-b"},
+    {SYS_DVBT, "DVB-T", "dvb-t"},
+    {SYS_DSS, "DSS", "dss"},
+    {SYS_DVBS, "DVB-S", "dvb-s"},
+    {SYS_DVBS2, "DVB-S2", "dvb-s2"},
+    {SYS_DVBH, "DVB-H", "dvb-h"},
+    {SYS_ISDBT, "ISDB-T", "isdb-t"},
+    {SYS_ISDBS, "ISDB-S", "isdb-s"},
+    {SYS_ISDBC, "ISDB-C", "isdb-c"},
+    {SYS_ATSC, "ATSC", "atsc"},
+    {SYS_ATSCMH, "ATSC-MH", "atsc-mh"},
+#if HAVE_V5_MINOR(7)
+    {SYS_DTMB, "DTMB", "dtmb"},
+#endif
+    {SYS_CMMB, "CMMB", "cmmb"},
+    {SYS_DAB, "DAB", "dab"},
+    {SYS_DVBT2, "DVB-T2", "dvb-t2"},
+    {SYS_TURBO, "TURBO", "turbo"},
+    {SYS_DVBC_ANNEX_C, "DVB-C-C", "dvb-c-c"},
+    {0, NULL, NULL},
+  };
+
+  if (!dvbsrc_delsys_type) {
+    dvbsrc_delsys_type =
+        g_enum_register_static ("GstDvbSrcDelsys", delsys_types);
+  }
+  return dvbsrc_delsys_type;
+}
+
+#define GST_TYPE_DVBSRC_PILOT (gst_dvbsrc_pilot_get_type ())
+static GType
+gst_dvbsrc_pilot_get_type (void)
+{
+  static GType dvbsrc_pilot_type = 0;
+  static GEnumValue pilot_types[] = {
+    {PILOT_ON, "ON", "on"},
+    {PILOT_OFF, "OFF", "off"},
+    {PILOT_AUTO, "AUTO", "auto"},
+    {0, NULL, NULL},
+  };
+
+  if (!dvbsrc_pilot_type) {
+    dvbsrc_pilot_type = g_enum_register_static ("GstDvbSrcPilot", pilot_types);
+  }
+  return dvbsrc_pilot_type;
+}
+
+#define GST_TYPE_DVBSRC_ROLLOFF (gst_dvbsrc_rolloff_get_type ())
+static GType
+gst_dvbsrc_rolloff_get_type (void)
+{
+  static GType dvbsrc_rolloff_type = 0;
+  static GEnumValue rolloff_types[] = {
+    {ROLLOFF_35, "35", "35"},
+    {ROLLOFF_20, "20", "20"},
+    {ROLLOFF_25, "25", "25"},
+    {ROLLOFF_AUTO, "auto", "auto"},
+    {0, NULL, NULL},
+  };
+
+  if (!dvbsrc_rolloff_type) {
+    dvbsrc_rolloff_type =
+        g_enum_register_static ("GstDvbSrcRolloff", rolloff_types);
+  }
+  return dvbsrc_rolloff_type;
+}
+
 static void gst_dvbsrc_finalize (GObject * object);
 static void gst_dvbsrc_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
@@ -365,8 +523,9 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
           0, G_MAXUINT, DEFAULT_FREQUENCY, G_PARAM_READWRITE));
 
   g_object_class_install_property (gobject_class, ARG_DVBSRC_POLARITY,
-      g_param_spec_string ("polarity", "polarity", "Polarity [vhHV] (DVB-S)",
-          DEFAULT_POLARITY, G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+      g_param_spec_string ("polarity", "polarity",
+          "Polarity [vhHV] (DVB-S, DVB-S2)", DEFAULT_POLARITY,
+          G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
   g_object_class_install_property (gobject_class, ARG_DVBSRC_PIDS,
       g_param_spec_string ("pids", "pids",
@@ -376,7 +535,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class, ARG_DVBSRC_SYM_RATE,
       g_param_spec_uint ("symbol-rate",
           "symbol rate",
-          "Symbol Rate (DVB-S, DVB-C)",
+          "Symbol Rate (DVB-S, DVB-S2, DVB-C)",
           0, G_MAXUINT, DEFAULT_SYMBOL_RATE, G_PARAM_READWRITE));
 
   g_object_class_install_property (gobject_class, ARG_DVBSRC_TUNE,
@@ -386,21 +545,26 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class, ARG_DVBSRC_DISEQC_SRC,
       g_param_spec_int ("diseqc-source",
           "diseqc source",
-          "DISEqC selected source (-1 disabled) (DVB-S)",
+          "DISEqC selected source (-1 disabled) (DVB-S, DVB-S2)",
           -1, 7, DEFAULT_DISEQC_SRC, G_PARAM_READWRITE));
 
   /* DVB-T, additional properties */
 
-  g_object_class_install_property (gobject_class, ARG_DVBSRC_BANDWIDTH,
-      g_param_spec_enum ("bandwidth",
-          "bandwidth",
-          "Bandwidth (DVB-T)", GST_TYPE_DVBSRC_BANDWIDTH, DEFAULT_BANDWIDTH,
-          G_PARAM_READWRITE));
+  g_object_class_install_property (gobject_class, ARG_DVBSRC_BANDWIDTH_HZ,
+      g_param_spec_uint ("bandwidth-hz", "bandwidth-hz",
+          "Bandwidth in Hz (DVB-T)",
+          0, G_MAXUINT, DEFAULT_BANDWIDTH_HZ, G_PARAM_READWRITE));
 
+  g_object_class_install_property (gobject_class, ARG_DVBSRC_BANDWIDTH,
+      g_param_spec_enum ("bandwidth", "bandwidth",
+          "Bandwidth (DVB-T) deprecated",
+          GST_TYPE_DVBSRC_BANDWIDTH, DEFAULT_BANDWIDTH, G_PARAM_READWRITE));
+
+  /* FIXME: DVB-C, DVB-S, DVB-S2 named it as innerFEC */
   g_object_class_install_property (gobject_class, ARG_DVBSRC_CODE_RATE_HP,
       g_param_spec_enum ("code-rate-hp",
           "code-rate-hp",
-          "High Priority Code Rate (DVB-T, DVB-S and DVB-C)",
+          "High Priority Code Rate (DVB-T, DVB-S, DVB-S2 and DVB-C)",
           GST_TYPE_DVBSRC_CODE_RATE, DEFAULT_CODE_RATE_HP, G_PARAM_READWRITE));
 
   g_object_class_install_property (gobject_class, ARG_DVBSRC_CODE_RATE_LP,
@@ -456,6 +620,23 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
           "dvb-buffer-size",
           "The kernel buffer size used by the DVB api",
           0, G_MAXUINT, DEFAULT_DVB_BUFFER_SIZE, G_PARAM_READWRITE));
+
+  g_object_class_install_property (gobject_class, ARG_DVBSRC_DELSYS,
+      g_param_spec_enum ("delsys", "delsys", "Delivery System",
+          GST_TYPE_DVBSRC_DELSYS, DEFAULT_DELSYS, G_PARAM_READWRITE));
+
+  g_object_class_install_property (gobject_class, ARG_DVBSRC_PILOT,
+      g_param_spec_enum ("pilot", "pilot", "Pilot (DVB-S2)",
+          GST_TYPE_DVBSRC_PILOT, DEFAULT_PILOT, G_PARAM_READWRITE));
+
+  g_object_class_install_property (gobject_class, ARG_DVBSRC_ROLLOFF,
+      g_param_spec_enum ("rolloff", "rolloff", "Rolloff (DVB-S2)",
+          GST_TYPE_DVBSRC_ROLLOFF, DEFAULT_ROLLOFF, G_PARAM_READWRITE));
+
+  g_object_class_install_property (gobject_class, ARG_DVBSRC_STREAM_ID,
+      g_param_spec_int ("stream-id", "stream-id",
+          "Stream ID (-1 disabled, DVB-T2 and DVB-S2 max 255, ISDB max 65535)",
+          -1, 65535, DEFAULT_STREAM_ID, G_PARAM_READWRITE));
 }
 
 /* initialize the new element
@@ -501,11 +682,61 @@ gst_dvbsrc_init (GstDvbSrc * object)
   object->hierarchy_information = DEFAULT_HIERARCHY;
   object->inversion = DEFAULT_INVERSION;
   object->stats_interval = DEFAULT_STATS_REPORTING_INTERVAL;
+  object->delsys = DEFAULT_DELSYS;
+  object->pilot = DEFAULT_PILOT;
+  object->rolloff = DEFAULT_ROLLOFF;
+  object->stream_id = DEFAULT_STREAM_ID;
 
   g_mutex_init (&object->tune_mutex);
   object->timeout = DEFAULT_TIMEOUT;
 }
 
+static void
+gst_dvbsrc_set_pids (GstDvbSrc * dvbsrc, const gchar * pid_string)
+{
+  if (!strcmp (pid_string, "8192")) {
+    /* get the whole ts */
+    int pid_count = 1;
+    dvbsrc->pids[0] = 8192;
+    while (pid_count < MAX_FILTERS) {
+      dvbsrc->pids[pid_count++] = G_MAXUINT16;
+    }
+  } else {
+    int pid = 0;
+    int pid_count;
+    gchar **pids;
+    char **tmp;
+
+    tmp = pids = g_strsplit (pid_string, ":", MAX_FILTERS);
+
+    /* always add the PAT and CAT pids */
+    dvbsrc->pids[0] = 0;
+    dvbsrc->pids[1] = 1;
+
+    pid_count = 2;
+    while (*pids != NULL && pid_count < MAX_FILTERS) {
+      pid = strtol (*pids, NULL, 0);
+      if (pid > 1 && pid <= 8192) {
+        GST_INFO_OBJECT (dvbsrc, "\tParsed Pid: %d", pid);
+        dvbsrc->pids[pid_count] = pid;
+        pid_count++;
+      }
+      pids++;
+    }
+    while (pid_count < MAX_FILTERS) {
+      dvbsrc->pids[pid_count++] = G_MAXUINT16;
+    }
+
+    g_strfreev (tmp);
+  }
+  /* if we are in playing or paused, then set filters now */
+  GST_INFO_OBJECT (dvbsrc, "checking if playing for setting pes filters");
+  if (GST_ELEMENT (dvbsrc)->current_state == GST_STATE_PLAYING ||
+      GST_ELEMENT (dvbsrc)->current_state == GST_STATE_PAUSED) {
+    GST_INFO_OBJECT (dvbsrc, "Setting pes filters now");
+    gst_dvbsrc_set_pes_filters (dvbsrc);
+  }
+}
 
 static void
 gst_dvbsrc_set_property (GObject * _object, guint prop_id,
@@ -550,64 +781,39 @@ gst_dvbsrc_set_property (GObject * _object, guint prop_id,
     }
     case ARG_DVBSRC_PIDS:
     {
-      gchar *pid_string;
+      const gchar *pid_string;
 
-      pid_string = g_value_dup_string (value);
+      pid_string = g_value_get_string (value);
       GST_INFO_OBJECT (object, "Set Property: ARG_DVBSRC_PIDS %s", pid_string);
-      if (!strcmp (pid_string, "8192")) {
-        /* get the whole ts */
-        int pid_count = 1;
-        object->pids[0] = 8192;
-        while (pid_count < MAX_FILTERS) {
-          object->pids[pid_count++] = G_MAXUINT16;
-        }
-      } else {
-        int pid = 0;
-        int pid_count;
-        gchar **pids;
-        char **tmp;
-
-        tmp = pids = g_strsplit (pid_string, ":", MAX_FILTERS);
-        if (pid_string)
-          g_free (pid_string);
-
-        /* always add the PAT and CAT pids */
-        object->pids[0] = 0;
-        object->pids[1] = 1;
-
-        pid_count = 2;
-        while (*pids != NULL && pid_count < MAX_FILTERS) {
-          pid = strtol (*pids, NULL, 0);
-          if (pid > 1 && pid <= 8192) {
-            GST_INFO_OBJECT (object, "\tParsed Pid: %d", pid);
-            object->pids[pid_count] = pid;
-            pid_count++;
-          }
-          pids++;
-        }
-        while (pid_count < MAX_FILTERS) {
-          object->pids[pid_count++] = G_MAXUINT16;
-        }
-
-        g_strfreev (tmp);
-      }
-      /* if we are in playing or paused, then set filters now */
-      GST_INFO_OBJECT (object, "checking if playing for setting pes filters");
-      if (GST_ELEMENT (object)->current_state == GST_STATE_PLAYING ||
-          GST_ELEMENT (object)->current_state == GST_STATE_PAUSED) {
-        GST_INFO_OBJECT (object, "Setting pes filters now");
-        gst_dvbsrc_set_pes_filters (object);
-      }
-    }
+      if (pid_string)
+        gst_dvbsrc_set_pids (object, pid_string);
       break;
+    }
     case ARG_DVBSRC_SYM_RATE:
       object->sym_rate = g_value_get_uint (value);
       GST_INFO_OBJECT (object, "Set Property: ARG_DVBSRC_SYM_RATE to value %d",
           object->sym_rate);
       break;
 
+    case ARG_DVBSRC_BANDWIDTH_HZ:
+      object->bandwidth = g_value_get_uint (value);
+      break;
     case ARG_DVBSRC_BANDWIDTH:
-      object->bandwidth = g_value_get_enum (value);
+      switch (g_value_get_enum (value)) {
+        case BANDWIDTH_8_MHZ:
+          object->bandwidth = 8000000;
+          break;
+        case BANDWIDTH_7_MHZ:
+          object->bandwidth = 7000000;
+          break;
+        case BANDWIDTH_6_MHZ:
+          object->bandwidth = 6000000;
+          break;
+        default:
+          /* we don't know which bandwidth are set */
+          object->bandwidth = 0;
+          break;
+      }
       break;
     case ARG_DVBSRC_CODE_RATE_HP:
       object->code_rate_hp = g_value_get_enum (value);
@@ -651,6 +857,18 @@ gst_dvbsrc_set_property (GObject * _object, guint prop_id,
     case ARG_DVBSRC_DVB_BUFFER_SIZE:
       object->dvb_buffer_size = g_value_get_uint (value);
       break;
+    case ARG_DVBSRC_DELSYS:
+      object->delsys = g_value_get_enum (value);
+      break;
+    case ARG_DVBSRC_PILOT:
+      object->pilot = g_value_get_enum (value);
+      break;
+    case ARG_DVBSRC_ROLLOFF:
+      object->rolloff = g_value_get_enum (value);
+      break;
+    case ARG_DVBSRC_STREAM_ID:
+      object->stream_id = g_value_get_int (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
   }
@@ -687,9 +905,25 @@ gst_dvbsrc_get_property (GObject * _object, guint prop_id,
     case ARG_DVBSRC_DISEQC_SRC:
       g_value_set_int (value, object->diseqc_src);
       break;
-    case ARG_DVBSRC_BANDWIDTH:
-      g_value_set_enum (value, object->bandwidth);
+    case ARG_DVBSRC_BANDWIDTH_HZ:
+      g_value_set_uint (value, object->bandwidth);
       break;
+    case ARG_DVBSRC_BANDWIDTH:{
+      int tmp;
+      if (object->bandwidth == 0)
+        tmp = BANDWIDTH_AUTO;
+      else if (object->bandwidth <= 6000000)
+        tmp = BANDWIDTH_6_MHZ;
+      else if (object->bandwidth <= 7000000)
+        tmp = BANDWIDTH_7_MHZ;
+      else if (object->bandwidth <= 8000000)
+        tmp = BANDWIDTH_8_MHZ;
+      else
+        tmp = BANDWIDTH_AUTO;
+
+      g_value_set_enum (value, tmp);
+      break;
+    }
     case ARG_DVBSRC_CODE_RATE_HP:
       g_value_set_enum (value, object->code_rate_hp);
       break;
@@ -720,6 +954,18 @@ gst_dvbsrc_get_property (GObject * _object, guint prop_id,
     case ARG_DVBSRC_DVB_BUFFER_SIZE:
       g_value_set_uint (value, object->dvb_buffer_size);
       break;
+    case ARG_DVBSRC_DELSYS:
+      g_value_set_enum (value, object->delsys);
+      break;
+    case ARG_DVBSRC_PILOT:
+      g_value_set_enum (value, object->pilot);
+      break;
+    case ARG_DVBSRC_ROLLOFF:
+      g_value_set_enum (value, object->rolloff);
+      break;
+    case ARG_DVBSRC_STREAM_ID:
+      g_value_set_int (value, object->stream_id);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
   }
@@ -739,10 +985,24 @@ gst_dvbsrc_close_devices (GstDvbSrc * object)
 }
 
 static gboolean
+gst_dvbsrc_check_delsys (struct dtv_property *prop, guchar delsys)
+{
+  int i;
+
+  for (i = 0; i < prop->u.buffer.len; i++) {
+    if (prop->u.buffer.data[i] == delsys)
+      return TRUE;
+  }
+
+  return FALSE;
+}
+
+static gboolean
 gst_dvbsrc_open_frontend (GstDvbSrc * object, gboolean writable)
 {
   struct dvb_frontend_info fe_info;
-  const char *adapter_desc = NULL;
+  struct dtv_properties props;
+  struct dtv_property dvb_prop[1];
   gchar *frontend_dev;
   GstStructure *adapter_structure;
   char *adapter_name = NULL;
@@ -766,7 +1026,6 @@ gst_dvbsrc_open_frontend (GstDvbSrc * object, gboolean writable)
         break;
     }
 
-    close (object->fd_frontend);
     g_free (frontend_dev);
     return FALSE;
   }
@@ -783,54 +1042,106 @@ gst_dvbsrc_open_frontend (GstDvbSrc * object, gboolean writable)
     return FALSE;
   }
 
+  GST_DEBUG_OBJECT (object, "check delivery systems");
+
+  dvb_prop[0].cmd = DTV_ENUM_DELSYS;
+  props.num = 1;
+  props.props = dvb_prop;
+
+  if (ioctl (object->fd_frontend, FE_GET_PROPERTY, &props) < 0) {
+    GST_ELEMENT_ERROR (object, RESOURCE, SETTINGS,
+        (_("Cannot enumerate delivery systems from frontend device \"%s\"."),
+            frontend_dev), GST_ERROR_SYSTEM);
+
+    close (object->fd_frontend);
+    g_free (frontend_dev);
+    return FALSE;
+  }
+
   GST_DEBUG_OBJECT (object, "Got information about adapter : %s", fe_info.name);
 
   adapter_name = g_strdup (fe_info.name);
 
-  object->adapter_type = fe_info.type;
-  switch (object->adapter_type) {
-    case FE_QPSK:
-      adapter_desc = "DVB-S";
-      adapter_structure = gst_structure_new ("dvb-adapter",
-          "type", G_TYPE_STRING, adapter_desc,
-          "name", G_TYPE_STRING, adapter_name,
-          "auto-fec", G_TYPE_BOOLEAN, fe_info.caps & FE_CAN_FEC_AUTO, NULL);
-      break;
-    case FE_QAM:
-      adapter_desc = "DVB-C";
-      adapter_structure = gst_structure_new ("dvb-adapter",
-          "type", G_TYPE_STRING, adapter_desc,
-          "name", G_TYPE_STRING, adapter_name,
-          "auto-inversion", G_TYPE_BOOLEAN,
-          fe_info.caps & FE_CAN_INVERSION_AUTO, "auto-qam", G_TYPE_BOOLEAN,
-          fe_info.caps & FE_CAN_QAM_AUTO, "auto-fec", G_TYPE_BOOLEAN,
-          fe_info.caps & FE_CAN_FEC_AUTO, NULL);
-      break;
-    case FE_OFDM:
-      adapter_desc = "DVB-T";
-      adapter_structure = gst_structure_new ("dvb-adapter",
-          "type", G_TYPE_STRING, adapter_desc,
-          "name", G_TYPE_STRING, adapter_name,
-          "auto-inversion", G_TYPE_BOOLEAN,
-          fe_info.caps & FE_CAN_INVERSION_AUTO, "auto-qam", G_TYPE_BOOLEAN,
-          fe_info.caps & FE_CAN_QAM_AUTO, "auto-transmission-mode",
-          G_TYPE_BOOLEAN, fe_info.caps & FE_CAN_TRANSMISSION_MODE_AUTO,
-          "auto-guard-interval", G_TYPE_BOOLEAN,
-          fe_info.caps & FE_CAN_GUARD_INTERVAL_AUTO, "auto-hierarchy",
-          G_TYPE_BOOLEAN, fe_info.caps % FE_CAN_HIERARCHY_AUTO, "auto-fec",
-          G_TYPE_BOOLEAN, fe_info.caps & FE_CAN_FEC_AUTO, NULL);
-      break;
-    case FE_ATSC:
-      adapter_desc = "ATSC";
-      adapter_structure = gst_structure_new ("dvb-adapter",
-          "type", G_TYPE_STRING, adapter_desc,
-          "name", G_TYPE_STRING, adapter_name, NULL);
-      break;
-    default:
-      g_error ("Unknown frontend type: %d", object->adapter_type);
-      adapter_structure = gst_structure_new ("dvb-adapter",
-          "type", G_TYPE_STRING, "unknown", NULL);
-  }
+  adapter_structure = gst_structure_new ("dvb-adapter",
+      "name", G_TYPE_STRING, adapter_name,
+      /* Capability supported auto params */
+      "auto-inversion", G_TYPE_BOOLEAN, fe_info.caps & FE_CAN_INVERSION_AUTO,
+      "auto-qam", G_TYPE_BOOLEAN, fe_info.caps & FE_CAN_QAM_AUTO,
+      "auto-transmission-mode", G_TYPE_BOOLEAN,
+      fe_info.caps & FE_CAN_TRANSMISSION_MODE_AUTO, "auto-guard-interval",
+      G_TYPE_BOOLEAN, fe_info.caps & FE_CAN_GUARD_INTERVAL_AUTO,
+      "auto-hierarchy", G_TYPE_BOOLEAN, fe_info.caps % FE_CAN_HIERARCHY_AUTO,
+      "auto-fec", G_TYPE_BOOLEAN, fe_info.caps & FE_CAN_FEC_AUTO, NULL);
+
+  /* Capability delivery systems */
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBC_ANNEX_A))
+    gst_structure_set (adapter_structure, "dvb-c-a", G_TYPE_STRING,
+        "DVB-C ANNEX A", NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBC_ANNEX_B))
+    gst_structure_set (adapter_structure, "dvb-c-b", G_TYPE_STRING,
+        "DVB-C ANNEX C", NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBT))
+    gst_structure_set (adapter_structure, "dvb-t", G_TYPE_STRING, "DVB-T",
+        NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DSS))
+    gst_structure_set (adapter_structure, "dss", G_TYPE_STRING, "DSS", NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBS))
+    gst_structure_set (adapter_structure, "dvb-s", G_TYPE_STRING, "DVB-S",
+        NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBS2))
+    gst_structure_set (adapter_structure, "dvb-s2", G_TYPE_STRING, "DVB-S2",
+        NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBH))
+    gst_structure_set (adapter_structure, "dvb-h", G_TYPE_STRING, "DVB-H",
+        NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_ISDBT))
+    gst_structure_set (adapter_structure, "isdb-t", G_TYPE_STRING, "ISDB-T",
+        NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_ISDBS))
+    gst_structure_set (adapter_structure, "isdb-s", G_TYPE_STRING, "ISDB-S",
+        NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_ISDBC))
+    gst_structure_set (adapter_structure, "isdb-c", G_TYPE_STRING, "ISDB-C",
+        NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_ATSC))
+    gst_structure_set (adapter_structure, "atsc", G_TYPE_STRING, "ATSC", NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_ATSCMH))
+    gst_structure_set (adapter_structure, "atsc-mh", G_TYPE_STRING, "ATSC-MH",
+        NULL);
+
+#if HAVE_V5_MINOR(7)
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DTMB))
+    gst_structure_set (adapter_structure, "dtmb", G_TYPE_STRING, "DTMB", NULL);
+#endif
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_CMMB))
+    gst_structure_set (adapter_structure, "cmmb", G_TYPE_STRING, "CMMB", NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DAB))
+    gst_structure_set (adapter_structure, "dab", G_TYPE_STRING, "DAB", NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBT2))
+    gst_structure_set (adapter_structure, "dvb-t2", G_TYPE_STRING, "DVB-T2",
+        NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_TURBO))
+    gst_structure_set (adapter_structure, "turbo", G_TYPE_STRING, "TURBO",
+        NULL);
+
+  if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBC_ANNEX_C))
+    gst_structure_set (adapter_structure, "dvb-c-c", G_TYPE_STRING,
+        "DVB-C ANNEX C", NULL);
 
   GST_INFO_OBJECT (object, "DVB card: %s ", adapter_name);
   gst_element_post_message (GST_ELEMENT_CAST (object), gst_message_new_element
@@ -1142,11 +1453,14 @@ gst_dvbsrc_output_frontend_stats (GstDvbSrc * src)
   GstStructure *structure;
   int fe_fd = src->fd_frontend;
 
-  ioctl (fe_fd, FE_READ_STATUS, &status);
-  ioctl (fe_fd, FE_READ_SIGNAL_STRENGTH, &_signal);
-  ioctl (fe_fd, FE_READ_SNR, &snr);
-  ioctl (fe_fd, FE_READ_BER, &ber);
-  ioctl (fe_fd, FE_READ_UNCORRECTED_BLOCKS, &uncorrected_blocks);
+  if (ioctl (fe_fd, FE_READ_STATUS, &status) ||
+      ioctl (fe_fd, FE_READ_SIGNAL_STRENGTH, &_signal) ||
+      ioctl (fe_fd, FE_READ_SNR, &snr) ||
+      ioctl (fe_fd, FE_READ_BER, &ber) ||
+      ioctl (fe_fd, FE_READ_UNCORRECTED_BLOCKS, &uncorrected_blocks)) {
+    GST_WARNING_OBJECT (src, "Failed to get statistics from the device");
+    return;
+  }
 
   structure = gst_structure_new ("dvb-frontend-stats", "status", G_TYPE_INT,
       status, "signal", G_TYPE_INT, _signal, "snr", G_TYPE_INT, snr,
@@ -1282,10 +1596,8 @@ gst_dvbsrc_tune (GstDvbSrc * object)
   int n;
   int i;
   int j;
-  unsigned int del_sys = SYS_UNDEFINED;
   unsigned int freq = object->freq;
   unsigned int sym_rate = object->sym_rate * 1000;
-  unsigned int bandwidth;
   int inversion = object->inversion;
 
   /* found in mail archive on linuxtv.org
@@ -1306,6 +1618,21 @@ gst_dvbsrc_tune (GstDvbSrc * object)
   GST_DEBUG_OBJECT (object, "api version %d.%d", DVB_API_VERSION,
       DVB_API_VERSION_MINOR);
 
+  GST_DEBUG_OBJECT (object, "check delivery systems");
+
+  dvb_prop[0].cmd = DTV_ENUM_DELSYS;
+  props.num = 1;
+  props.props = dvb_prop;
+
+  if (ioctl (object->fd_frontend, FE_GET_PROPERTY, &props) < 0) {
+    g_warning ("Error enumarating delsys: %s", strerror (errno));
+
+    return FALSE;
+  }
+
+  if (!gst_dvbsrc_check_delsys (&dvb_prop[0], object->delsys))
+    return FALSE;
+
   gst_dvbsrc_unset_pes_filters (object);
   for (j = 0; j < 5; j++) {
     memset (dvb_prop, 0, sizeof (dvb_prop));
@@ -1317,8 +1644,10 @@ gst_dvbsrc_tune (GstDvbSrc * object)
     }
     /* First three entries are reserved */
     n = 3;
-    switch (object->adapter_type) {
-      case FE_QPSK:
+    switch (object->delsys) {
+      case SYS_DVBS:
+      case SYS_DVBS2:
+      case SYS_TURBO:
         object->tone = SEC_TONE_OFF;
         if (freq > 2200000) {
           // this must be an absolute frequency
@@ -1333,11 +1662,9 @@ gst_dvbsrc_tune (GstDvbSrc * object)
         inversion = INVERSION_AUTO;
         set_prop (dvb_prop, &n, DTV_SYMBOL_RATE, sym_rate);
         set_prop (dvb_prop, &n, DTV_INNER_FEC, object->code_rate_hp);
-        /* TODO add dvbs2 */
-        del_sys = SYS_DVBS;
 
         GST_INFO_OBJECT (object,
-            "tuning DVB-S to L-Band:%u, Pol:%d, srate=%u, 22kHz=%s",
+            "Tuning DVB-S/DVB-S2/Turbo to L-Band:%u, Pol:%d, srate=%u, 22kHz=%s",
             freq, object->pol, sym_rate,
             object->tone == SEC_TONE_ON ? "on" : "off");
 
@@ -1360,31 +1687,18 @@ gst_dvbsrc_tune (GstDvbSrc * object)
           //object->send_diseqc = FALSE;
         }
 
+        if ((object->delsys == SYS_DVBS2) || (object->delsys == SYS_TURBO))
+          set_prop (dvb_prop, &n, DTV_MODULATION, object->modulation);
+
+        if (object->delsys == SYS_DVBS2) {
+          set_prop (dvb_prop, &n, DTV_PILOT, object->pilot);
+          set_prop (dvb_prop, &n, DTV_ROLLOFF, object->rolloff);
+          set_prop (dvb_prop, &n, DTV_STREAM_ID, object->stream_id);
+        }
         break;
-      case FE_OFDM:
-        del_sys = SYS_DVBT;
-        bandwidth = 0;
-        if (object->bandwidth != BANDWIDTH_AUTO) {
-          /* Presumably not specifying bandwidth with s2api is equivalent
-           * to BANDWIDTH_AUTO.
-           */
-          switch (object->bandwidth) {
-            case BANDWIDTH_8_MHZ:
-              bandwidth = 8000000;
-              break;
-            case BANDWIDTH_7_MHZ:
-              bandwidth = 7000000;
-              break;
-            case BANDWIDTH_6_MHZ:
-              bandwidth = 6000000;
-              break;
-            default:
-              break;
-          }
-        }
-        if (bandwidth) {
-          set_prop (dvb_prop, &n, DTV_BANDWIDTH_HZ, bandwidth);
-        }
+      case SYS_DVBT:
+      case SYS_DVBT2:
+        set_prop (dvb_prop, &n, DTV_BANDWIDTH_HZ, object->bandwidth);
         set_prop (dvb_prop, &n, DTV_CODE_RATE_HP, object->code_rate_hp);
         set_prop (dvb_prop, &n, DTV_CODE_RATE_LP, object->code_rate_lp);
         set_prop (dvb_prop, &n, DTV_MODULATION, object->modulation);
@@ -1392,26 +1706,32 @@ gst_dvbsrc_tune (GstDvbSrc * object)
             object->transmission_mode);
         set_prop (dvb_prop, &n, DTV_GUARD_INTERVAL, object->guard_interval);
         set_prop (dvb_prop, &n, DTV_HIERARCHY, object->hierarchy_information);
+        if (object->delsys == SYS_DVBT2) {
+          set_prop (dvb_prop, &n, DTV_STREAM_ID, object->stream_id);
+        }
 
-        GST_INFO_OBJECT (object, "tuning DVB-T to %d Hz", freq);
+        GST_INFO_OBJECT (object, "Tuning DVB-T/DVB_T2 to %d Hz", freq);
         break;
-      case FE_QAM:
-        GST_INFO_OBJECT (object, "Tuning DVB-C to %d, srate=%d", freq,
-            sym_rate);
+      case SYS_DVBC_ANNEX_A:
+      case SYS_DVBC_ANNEX_B:
+      case SYS_DVBC_ANNEX_C:
+        GST_INFO_OBJECT (object, "Tuning DVB-C/ClearCable to %d, srate=%d",
+            freq, sym_rate);
 
-        del_sys = SYS_DVBC_ANNEX_AC;
-        set_prop (dvb_prop, &n, DTV_INNER_FEC, object->code_rate_hp);
         set_prop (dvb_prop, &n, DTV_MODULATION, object->modulation);
-        set_prop (dvb_prop, &n, DTV_SYMBOL_RATE, sym_rate);
+        if (object->delsys != SYS_DVBC_ANNEX_B) {
+          set_prop (dvb_prop, &n, DTV_INNER_FEC, object->code_rate_hp);
+          set_prop (dvb_prop, &n, DTV_SYMBOL_RATE, sym_rate);
+        }
         break;
-      case FE_ATSC:
+      case SYS_ATSC:
         GST_INFO_OBJECT (object, "Tuning ATSC to %d", freq);
-        del_sys = SYS_ATSC;
+
         set_prop (dvb_prop, &n, DTV_MODULATION, object->modulation);
         break;
       default:
-        g_error ("Unknown frontend type: %d", object->adapter_type);
-
+        g_error ("Unknown frontend type: %d", object->delsys);
+        return FALSE;
     }
     g_usleep (100000);
     /* now tune the frontend */
@@ -1420,7 +1740,7 @@ gst_dvbsrc_tune (GstDvbSrc * object)
     props.props = dvb_prop;
     /* set first three entries */
     n = 0;
-    set_prop (dvb_prop, &n, DTV_DELIVERY_SYSTEM, del_sys);
+    set_prop (dvb_prop, &n, DTV_DELIVERY_SYSTEM, object->delsys);
     set_prop (dvb_prop, &n, DTV_FREQUENCY, freq);
     set_prop (dvb_prop, &n, DTV_INVERSION, inversion);
 

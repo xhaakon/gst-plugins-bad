@@ -227,7 +227,7 @@ packet_iterator_next_rpcl (PacketIterator * it)
               || (it->cur_y == it->ty0
                   && ((it->try0 * it->two_nl_r) %
                       (it->two_ppy * it->two_nl_r) != 0)))
-          && ((it->cur_x % (it->xr * it->two_ppy * it->two_nl_r) == 0)
+          && ((it->cur_x % (it->xr * it->two_ppx * it->two_nl_r) == 0)
               || (it->cur_x == it->tx0
                   && ((it->trx0 * it->two_nl_r) %
                       (it->two_ppx * it->two_nl_r) != 0)))) {
@@ -297,7 +297,7 @@ packet_iterator_next_pcrl (PacketIterator * it)
               || (it->cur_y == it->ty0
                   && ((it->try0 * it->two_nl_r) %
                       (it->two_ppy * it->two_nl_r) != 0)))
-          && ((it->cur_x % (it->xr * it->two_ppy * it->two_nl_r) == 0)
+          && ((it->cur_x % (it->xr * it->two_ppx * it->two_nl_r) == 0)
               || (it->cur_x == it->tx0
                   && ((it->trx0 * it->two_nl_r) %
                       (it->two_ppx * it->two_nl_r) != 0)))) {
@@ -370,7 +370,7 @@ packet_iterator_next_cprl (PacketIterator * it)
               || (it->cur_y == it->ty0
                   && ((it->try0 * it->two_nl_r) %
                       (it->two_ppy * it->two_nl_r) != 0)))
-          && ((it->cur_x % (it->xr * it->two_ppy * it->two_nl_r) == 0)
+          && ((it->cur_x % (it->xr * it->two_ppx * it->two_nl_r) == 0)
               || (it->cur_x == it->tx0
                   && ((it->trx0 * it->two_nl_r) %
                       (it->two_ppx * it->two_nl_r) != 0)))) {
@@ -933,7 +933,7 @@ parse_packet (GstJP2kDecimator * self, GstByteReader * reader,
 
     if (marker != MARKER_SOP) {
       GST_ERROR_OBJECT (self, "No SOP marker");
-      ret = GST_FLOW_UNEXPECTED;
+      ret = GST_FLOW_EOS;
       goto done;
     }
 
@@ -1452,7 +1452,7 @@ parse_main_header (GstJP2kDecimator * self, GstByteReader * reader,
       break;
     } else if (marker == MARKER_EOC) {
       GST_WARNING_OBJECT (self, "EOC marker before SOT");
-      ret = GST_FLOW_UNEXPECTED;
+      ret = GST_FLOW_EOS;
       goto done;
     }
 

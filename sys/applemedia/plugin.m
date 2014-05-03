@@ -21,20 +21,29 @@
 # include <config.h>
 #endif
 
+#include <Foundation/Foundation.h>
 #ifdef HAVE_IOS
-#include "avfvideosrc.h"
 #include "iosassetsrc.h"
 #else
 #include "qtkitvideosrc.h"
-#include <Foundation/Foundation.h>
 #endif
+#ifdef HAVE_AVFOUNDATION
+#include "avfvideosrc.h"
+#include "avfassetsrc.h"
+#endif
+#ifndef HAVE_IOS
+#define AV_RANK GST_RANK_SECONDARY
 #include "vth264decbin.h"
 #include "vth264encbin.h"
-#include "vtenc.h"
 #include "vtdec.h"
+#else
+#define AV_RANK GST_RANK_PRIMARY
+#endif
 #include "atdec.h"
 
 #ifndef HAVE_IOS
+void gst_vtenc_register_elements (GstPlugin * plugin);
+
 static void
 enable_mt_mode (void)
 {
@@ -53,15 +62,18 @@ plugin_init (GstPlugin * plugin)
 #ifdef HAVE_IOS
   res &= gst_element_register (plugin, "iosassetsrc", GST_RANK_SECONDARY,
       GST_TYPE_IOS_ASSET_SRC);
-#if 0
-  res = gst_element_register (plugin, "avfvideosrc", GST_RANK_NONE,
-      GST_TYPE_AVF_VIDEO_SRC);
-#endif
 #else
   enable_mt_mode ();
 
-  res = gst_element_register (plugin, "qtkitvideosrc", GST_RANK_PRIMARY,
+  res = gst_element_register (plugin, "qtkitvideosrc", GST_RANK_SECONDARY,
       GST_TYPE_QTKIT_VIDEO_SRC);
+#endif
+
+#ifdef HAVE_AVFOUNDATION
+  res &= gst_element_register (plugin, "avfvideosrc", AV_RANK,
+      GST_TYPE_AVF_VIDEO_SRC);
+  res &= gst_element_register (plugin, "avfassetsrc", AV_RANK,
+      GST_TYPE_AVF_ASSET_SRC);
 #endif
 
 #if 0
@@ -73,8 +85,8 @@ plugin_init (GstPlugin * plugin)
   res &= gst_element_register (plugin, "atdec", GST_RANK_PRIMARY, GST_TYPE_ATDEC);
 
 #ifndef HAVE_IOS
+  res &= gst_element_register (plugin, "vtdec", GST_RANK_PRIMARY, GST_TYPE_VTDEC);
   gst_vtenc_register_elements (plugin);
-  gst_vtdec_register_elements (plugin);
 #endif
 
   return res;

@@ -185,6 +185,9 @@ struct _MpegTSBaseClass {
   /* seek is called to wait for seeking */
   GstFlowReturn (*seek) (MpegTSBase * base, GstEvent * event);
 
+  /* Drain all currently pending data */
+  GstFlowReturn (*drain) (MpegTSBase * base);
+
   /* flush all streams
    * The hard inicator is used to flush completelly on FLUSH_STOP events
    * or partially in pull mode seeks of tsdemux */
@@ -210,8 +213,8 @@ G_GNUC_INTERNAL GType mpegts_base_get_type(void);
 G_GNUC_INTERNAL MpegTSBaseProgram *mpegts_base_get_program (MpegTSBase * base, gint program_number);
 G_GNUC_INTERNAL MpegTSBaseProgram *mpegts_base_add_program (MpegTSBase * base, gint program_number, guint16 pmt_pid);
 
-G_GNUC_INTERNAL const guint8 *mpegts_get_descriptor_from_stream (MpegTSBaseStream * stream, guint8 tag);
-G_GNUC_INTERNAL const guint8 *mpegts_get_descriptor_from_program (MpegTSBaseProgram * program, guint8 tag);
+G_GNUC_INTERNAL const GstMpegTsDescriptor *mpegts_get_descriptor_from_stream (MpegTSBaseStream * stream, guint8 tag);
+G_GNUC_INTERNAL const GstMpegTsDescriptor *mpegts_get_descriptor_from_program (MpegTSBaseProgram * program, guint8 tag);
 
 G_GNUC_INTERNAL gboolean
 mpegts_base_handle_seek_event(MpegTSBase * base, GstPad * pad, GstEvent * event);

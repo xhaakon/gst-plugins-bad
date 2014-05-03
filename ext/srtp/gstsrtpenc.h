@@ -82,12 +82,7 @@ struct _GstSrtpEnc
   gboolean first_session;
   gboolean key_changed;
 
-  gboolean hard_limit_reached;
-  gboolean soft_limit_reached;
-
-  GHashTable *ssrcs_set;
-
-  GType key_type;
+  guint replay_window_size;
 };
 
 struct _GstSrtpEncClass

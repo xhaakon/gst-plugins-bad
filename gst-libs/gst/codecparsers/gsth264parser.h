@@ -101,6 +101,11 @@ typedef enum {
  * @GST_H264_NAL_SEQ_END: End of sequence nal unit
  * @GST_H264_NAL_STREAM_END: End of stream nal unit
  * @GST_H264_NAL_FILLER_DATA: Filler data nal lunit
+ * @GST_H264_NAL_SPS_EXT: Sequence parameter set (SPS) extension NAL unit
+ * @GST_H264_NAL_PREFIX_UNIT: Prefix NAL unit
+ * @GST_H264_NAL_SUBSET_SPS: Subset sequence parameter set (SPS) NAL unit
+ * @GST_H264_NAL_SLICE_AUX: Auxiliary coded picture without partitioning NAL unit
+ * @GST_H264_NAL_SLICE_EXT: Coded slice extension NAL unit
  *
  * Indicates the type of H264 Nal Units
  */
@@ -118,7 +123,12 @@ typedef enum
   GST_H264_NAL_AU_DELIMITER = 9,
   GST_H264_NAL_SEQ_END      = 10,
   GST_H264_NAL_STREAM_END   = 11,
-  GST_H264_NAL_FILLER_DATA  = 12
+  GST_H264_NAL_FILLER_DATA  = 12,
+  GST_H264_NAL_SPS_EXT      = 13,
+  GST_H264_NAL_PREFIX_UNIT  = 14,
+  GST_H264_NAL_SUBSET_SPS   = 15,
+  GST_H264_NAL_SLICE_AUX    = 19,
+  GST_H264_NAL_SLICE_EXT    = 20
 } GstH264NalUnitType;
 
 /**
@@ -759,5 +769,18 @@ GstH264ParserResult gst_h264_parse_sps                (GstH264NalUnit *nalu,
 GstH264ParserResult gst_h264_parse_pps                (GstH264NalParser *nalparser,
                                                        GstH264NalUnit *nalu, GstH264PPS *pps);
 
+void    gst_h264_video_quant_matrix_8x8_get_zigzag_from_raster (guint8 out_quant[64],
+                                                                const guint8 quant[64]);
+
+void    gst_h264_video_quant_matrix_8x8_get_raster_from_zigzag (guint8 out_quant[64],
+                                                                const guint8 quant[64]);
+
+void    gst_h264_video_quant_matrix_4x4_get_zigzag_from_raster (guint8 out_quant[16],
+                                                                const guint8 quant[16]);
+
+void    gst_h264_video_quant_matrix_4x4_get_raster_from_zigzag (guint8 out_quant[16],
+                                                                const guint8 quant[16]);
+
 G_END_DECLS
+
 #endif

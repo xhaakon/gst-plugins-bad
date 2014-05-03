@@ -34,6 +34,8 @@
 
 #include <gst/gst.h>
 
+G_BEGIN_DECLS
+
 /*
  * descriptor_tag TS  PS                      Identification
  *        0       n/a n/a Reserved
@@ -252,13 +254,19 @@ struct _GstMpegTsDescriptor
   guint8 tag;
   guint8 tag_extension;
   guint8 length;
-  const guint8 *data;
+  guint8 *data;
 };
 
 GPtrArray *gst_mpegts_parse_descriptors (guint8 * buffer, gsize buf_len);
 
 const GstMpegTsDescriptor * gst_mpegts_find_descriptor (GPtrArray *descriptors,
 							guint8 tag);
+
+/* GST_MTS_DESC_REGISTRATION (0x05) */
+
+GstMpegTsDescriptor *gst_mpegts_descriptor_from_registration (
+    const gchar *format_identifier,
+    guint8 *additional_info, gsize additional_info_length);
 
 /* GST_MTS_DESC_ISO_639_LANGUAGE (0x0A) */
 /**
@@ -275,9 +283,6 @@ typedef enum {
   GST_MPEGTS_AUDIO_TYPE_VISUAL_IMPAIRED_COMMENTARY
 } GstMpegTsIso639AudioType;
 
-/* FIXME: Make two methods. One for getting the number of languages,
- * and the other for getting the (allocated, null-terminated) language 
- * and audio type */
 typedef struct _GstMpegTsISO639LanguageDescriptor GstMpegTsISO639LanguageDescriptor;
 struct _GstMpegTsISO639LanguageDescriptor
 {
@@ -288,6 +293,10 @@ struct _GstMpegTsISO639LanguageDescriptor
 
 gboolean gst_mpegts_descriptor_parse_iso_639_language (const GstMpegTsDescriptor *descriptor,
 						       GstMpegTsISO639LanguageDescriptor *res);
+gboolean gst_mpegts_descriptor_parse_iso_639_language_idx (const GstMpegTsDescriptor *descriptor,
+                                                           guint idx, gchar (*lang)[4],
+                                                           GstMpegTsIso639AudioType *audio_type);
+guint gst_mpegts_descriptor_parse_iso_639_language_nb (const GstMpegTsDescriptor *descriptor);
 
 
 
@@ -313,5 +322,10 @@ struct _GstMpegTsLogicalChannelDescriptor
 gboolean
 gst_mpegts_descriptor_parse_logical_channel (const GstMpegTsDescriptor *descriptor,
 					     GstMpegTsLogicalChannelDescriptor *res);
+
+GstMpegTsDescriptor *
+gst_mpegts_descriptor_from_custom (guint8 tag, const guint8 *data, gsize length);
+
+G_END_DECLS
 
 #endif				/* GST_MPEGTS_DESCRIPTOR_H */

@@ -6,7 +6,7 @@
 
 Summary: GStreamer streaming media framework "bad" plug-ins
 Name: %{gstreamer}-plugins-bad
-Version: 1.2.4
+Version: 1.3.1
 Release: 1.gst
 # The freeze and nfs plugins are LGPLv2 (only)
 License: LGPLv2+ and LGPLv2
@@ -274,19 +274,15 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 %{_libdir}/gstreamer-%{majorminor}/libgstrsvg.so
 %{_libdir}/gstreamer-%{majorminor}/libgstschro.so
 %{_libdir}/gstreamer-%{majorminor}/libgstfrei0r.so
+%{_libdir}/gstreamer-%{majorminor}/libgstaudiomixer.so
+%{_libdir}/gstreamer-%{majorminor}/libgstopencv.so
+%{_datadir}/gst-plugins-bad/1.0/opencv_haarcascades/fist.xml
+%{_datadir}/gst-plugins-bad/1.0/opencv_haarcascades/palm.xml
 
-%{_libdir}/libgstbasecamerabinsrc-1.0.so
-%{_libdir}/libgstbasecamerabinsrc-1.0.so.0
-%{_libdir}/libgstbasecamerabinsrc-1.0.so.0.102.0
-%{_libdir}/libgstegl-1.0.so
-%{_libdir}/libgstegl-1.0.so.0
-%{_libdir}/libgstegl-1.0.so.0.102.0
-%{_libdir}/libgstmpegts-1.0.so
-%{_libdir}/libgstmpegts-1.0.so.0
-%{_libdir}/libgstmpegts-1.0.so.0.102.0
-%{_libdir}/libgsturidownloader-1.0.so
-%{_libdir}/libgsturidownloader-1.0.so.0
-%{_libdir}/libgsturidownloader-1.0.so.0.102.0
+%{_libdir}/libgstbasecamerabinsrc-*
+%{_libdir}/libgstegl-*
+%{_libdir}/libgstmpegts-*
+%{_libdir}/libgsturidownloader*
 
 
 #debugging plugin
@@ -325,6 +321,7 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 %{_includedir}/gstreamer-%{majorminor}/gst/mpegts/gst-atsc-section.h
 %{_includedir}/gstreamer-%{majorminor}/gst/mpegts/gst-dvb-descriptor.h
 %{_includedir}/gstreamer-%{majorminor}/gst/mpegts/gst-dvb-section.h
+%{_includedir}/gstreamer-%{majorminor}/gst/mpegts/gst-scte-section.h
 %{_includedir}/gstreamer-%{majorminor}/gst/mpegts/gstmpegtsdescriptor.h
 %{_includedir}/gstreamer-%{majorminor}/gst/mpegts/gstmpegtssection.h
 %{_includedir}/gstreamer-%{majorminor}/gst/mpegts/mpegts.h

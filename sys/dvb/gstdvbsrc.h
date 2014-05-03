@@ -44,7 +44,7 @@ struct _GstDvbSrc
   GMutex tune_mutex;
   gboolean need_tune;
 
-  int adapter_type;
+  guchar delsys;
 
   int adapter_number;           /* the device directory with the sub-devices */
   int frontend_number;
@@ -62,7 +62,7 @@ struct _GstDvbSrc
   int diseqc_src;
   gboolean send_diseqc;
 
-  int bandwidth;
+  guint bandwidth;
   int code_rate_hp;
   int code_rate_lp;
   int modulation;
@@ -70,6 +70,9 @@ struct _GstDvbSrc
   int transmission_mode;
   int hierarchy_information;
   int inversion;
+  int pilot;
+  int rolloff;
+  int stream_id;
   guint64 timeout;
 
   GstDvbSrcPol pol;

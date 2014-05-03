@@ -70,7 +70,12 @@ enum
   PROP_HIERARCHY,
   PROP_INVERSION,
   PROP_PROGRAM_NUMBERS,
-  PROP_STATS_REPORTING_INTERVAL
+  PROP_STATS_REPORTING_INTERVAL,
+  PROP_DELSYS,
+  PROP_PILOT,
+  PROP_ROLLOFF,
+  PROP_STREAM_ID,
+  PROP_BANDWIDTH_HZ
       /* FILL ME */
 };
 
@@ -130,6 +135,21 @@ G_DEFINE_TYPE_EXTENDED (DvbBaseBin, dvb_base_bin, GST_TYPE_BIN,
     G_IMPLEMENT_INTERFACE (GST_TYPE_URI_HANDLER,
         dvb_base_bin_uri_handler_init));
 
+
+static void
+dvb_base_bin_ref_stream (DvbBaseBinStream * stream)
+{
+  g_return_if_fail (stream != NULL);
+  stream->usecount++;
+}
+
+static void
+dvb_base_bin_unref_stream (DvbBaseBinStream * stream)
+{
+  g_return_if_fail (stream != NULL);
+  g_return_if_fail (stream->usecount > 0);
+  stream->usecount--;
+}
 
 static DvbBaseBinStream *
 dvb_base_bin_add_stream (DvbBaseBin * dvbbasebin, guint16 pid)
@@ -214,6 +234,11 @@ dvb_base_bin_class_init (DvbBaseBinClass * klass)
     {PROP_HIERARCHY, "hierarchy"},
     {PROP_INVERSION, "inversion"},
     {PROP_STATS_REPORTING_INTERVAL, "stats-reporting-interval"},
+    {PROP_DELSYS, "delsys"},
+    {PROP_PILOT, "pilot"},
+    {PROP_ROLLOFF, "rolloff"},
+    {PROP_STREAM_ID, "stream-id"},
+    {PROP_BANDWIDTH_HZ, "bandwidth-hz"},
     {0, NULL}
   };
 
@@ -356,7 +381,7 @@ dvb_base_bin_init (DvbBaseBin * dvbbasebin)
   i = 0;
   while (initial_pids[i] >= 0) {
     stream = dvb_base_bin_add_stream (dvbbasebin, (guint16) initial_pids[i]);
-    ++stream->usecount;
+    dvb_base_bin_ref_stream (stream);
     i++;
   }
   dvb_base_bin_rebuild_filter (dvbbasebin);
@@ -453,6 +478,11 @@ dvb_base_bin_set_property (GObject * object, guint prop_id,
     case PROP_HIERARCHY:
     case PROP_INVERSION:
     case PROP_STATS_REPORTING_INTERVAL:
+    case PROP_DELSYS:
+    case PROP_PILOT:
+    case PROP_ROLLOFF:
+    case PROP_STREAM_ID:
+    case PROP_BANDWIDTH_HZ:
       /* FIXME: check if we can tune (state < PLAYING || program-numbers == "") */
       g_object_set_property (G_OBJECT (dvbbasebin->dvbsrc), pspec->name, value);
       break;
@@ -486,6 +516,11 @@ dvb_base_bin_get_property (GObject * object, guint prop_id,
     case PROP_HIERARCHY:
     case PROP_INVERSION:
     case PROP_STATS_REPORTING_INTERVAL:
+    case PROP_DELSYS:
+    case PROP_PILOT:
+    case PROP_ROLLOFF:
+    case PROP_STREAM_ID:
+    case PROP_BANDWIDTH_HZ:
       g_object_get_property (G_OBJECT (dvbbasebin->dvbsrc), pspec->name, value);
       break;
     case PROP_PROGRAM_NUMBERS:
@@ -629,8 +664,6 @@ foreach_stream_build_filter (gpointer key, gpointer value, gpointer user_data)
   DvbBaseBinStream *stream = (DvbBaseBinStream *) value;
   gchar *tmp, *pid;
 
-  g_assert (stream->usecount >= 0);
-
   GST_DEBUG ("stream %d usecount %d", stream->pid, stream->usecount);
 
   if (stream->usecount > 0) {
@@ -679,7 +712,7 @@ dvb_base_bin_remove_pmt_streams (DvbBaseBin * dvbbasebin,
       continue;
     }
 
-    --stream->usecount;
+    dvb_base_bin_unref_stream (stream);
   }
 }
 
@@ -698,7 +731,7 @@ dvb_base_bin_add_pmt_streams (DvbBaseBin * dvbbasebin, const GstMpegTsPMT * pmt)
     stream = dvb_base_bin_get_stream (dvbbasebin, pmtstream->pid);
     if (stream == NULL)
       stream = dvb_base_bin_add_stream (dvbbasebin, pmtstream->pid);
-    ++stream->usecount;
+    dvb_base_bin_ref_stream (stream);
   }
 }
 
@@ -720,7 +753,7 @@ dvb_base_bin_activate_program (DvbBaseBin * dvbbasebin,
     stream = dvb_base_bin_get_stream (dvbbasebin, program->pmt_pid);
     if (stream == NULL)
       stream = dvb_base_bin_add_stream (dvbbasebin, program->pmt_pid);
-    stream->usecount += 1;
+    dvb_base_bin_ref_stream (stream);
     program->pmt_active = TRUE;
   }
 
@@ -729,13 +762,15 @@ dvb_base_bin_activate_program (DvbBaseBin * dvbbasebin,
 
     old_pcr_pid = program->pcr_pid;
     program->pcr_pid = program->pmt->pcr_pid;
-    if (old_pcr_pid != G_MAXUINT16 && old_pcr_pid != program->pcr_pid)
-      dvb_base_bin_get_stream (dvbbasebin, old_pcr_pid)->usecount--;
+    if (old_pcr_pid != G_MAXUINT16 && old_pcr_pid != program->pcr_pid) {
+      dvb_base_bin_unref_stream (dvb_base_bin_get_stream (dvbbasebin,
+              old_pcr_pid));
+    }
 
     stream = dvb_base_bin_get_stream (dvbbasebin, program->pcr_pid);
     if (stream == NULL)
       stream = dvb_base_bin_add_stream (dvbbasebin, program->pcr_pid);
-    stream->usecount += 1;
+    dvb_base_bin_ref_stream (stream);
 
     dvb_base_bin_add_pmt_streams (dvbbasebin, program->pmt);
     dvbbasebin->pmtlist =
@@ -754,12 +789,14 @@ dvb_base_bin_deactivate_program (DvbBaseBin * dvbbasebin,
   DvbBaseBinStream *stream;
 
   stream = dvb_base_bin_get_stream (dvbbasebin, program->pmt_pid);
-  if (stream != NULL)
-    stream->usecount -= 1;
+  if (stream != NULL) {
+    dvb_base_bin_unref_stream (stream);
+  }
 
   stream = dvb_base_bin_get_stream (dvbbasebin, program->pcr_pid);
-  if (stream != NULL)
-    stream->usecount -= 1;
+  if (stream != NULL) {
+    dvb_base_bin_unref_stream (stream);
+  }
 
   if (program->pmt) {
     dvb_base_bin_remove_pmt_streams (dvbbasebin, program->pmt);
@@ -831,14 +868,16 @@ dvb_base_bin_pat_info_cb (DvbBaseBin * dvbbasebin, GstMpegTsSection * section)
 
     if (program->selected) {
       /* PAT update */
-      if (old_pmt_pid != G_MAXUINT16 && old_pmt_pid != program->pmt_pid)
-        dvb_base_bin_get_stream (dvbbasebin, old_pmt_pid)->usecount -= 1;
+      if (old_pmt_pid != G_MAXUINT16 && old_pmt_pid != program->pmt_pid) {
+        dvb_base_bin_unref_stream (dvb_base_bin_get_stream (dvbbasebin,
+                old_pmt_pid));
+      }
 
       stream = dvb_base_bin_get_stream (dvbbasebin, program->pmt_pid);
       if (stream == NULL)
         stream = dvb_base_bin_add_stream (dvbbasebin, program->pmt_pid);
 
-      stream->usecount += 1;
+      dvb_base_bin_ref_stream (stream);
 
       rebuild_filter = TRUE;
     }

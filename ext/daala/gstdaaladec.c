@@ -37,8 +37,6 @@
  * ]| This example pipeline will decode an ogg stream and decodes the daala video. Refer to
  * the daalaenc example to create the ogg file.
  * </refsect2>
- *
- * Last reviewed on 2006-03-01 (0.10.4)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -132,6 +130,7 @@ gst_daala_dec_init (GstDaalaDec * dec)
   /* input is packetized,
    * but is not marked that way so data gets parsed and keyframes marked */
   gst_video_decoder_set_packetized (GST_VIDEO_DECODER (dec), FALSE);
+  gst_video_decoder_set_needs_format (GST_VIDEO_DECODER (dec), TRUE);
 }
 
 static void
