@@ -27,6 +27,8 @@
 #include <gst/gst.h>
 #include <gst/mpegts/gstmpegtsdescriptor.h>
 
+G_BEGIN_DECLS
+
 typedef struct _GstMpegTsSection GstMpegTsSection;
 
 #define GST_TYPE_MPEGTS_SECTION (gst_mpegts_section_get_type())
@@ -49,6 +51,7 @@ GType gst_mpegts_section_get_type (void);
  * @GST_MPEGTS_SECTION_SDT: Service Description Table (EN 300 468)
  * @GST_MPEGTS_SECTION_TDT: Time and Date Table (EN 300 468)
  * @GST_MPEGTS_SECTION_TOT: Time Offset Table (EN 300 468)
+ * @GST_MPEGTS_SECTION_ATSC_TVCT: ATSC Terrestrial Virtual Channel Table (A65)
  *
  * Types of #GstMpegTsSection that the library handles.
  */
@@ -63,7 +66,8 @@ typedef enum {
   GST_MPEGTS_SECTION_BAT, 
   GST_MPEGTS_SECTION_SDT, 
   GST_MPEGTS_SECTION_TDT, 
-  GST_MPEGTS_SECTION_TOT
+  GST_MPEGTS_SECTION_TOT,
+  GST_MPEGTS_SECTION_ATSC_TVCT
 } GstMpegTsSectionType;
 
 /**
@@ -73,7 +77,8 @@ typedef enum {
  *
  * These are the registered ITU H.222.0 | ISO/IEC 13818-1 table_id variants.
  *
- * see also #GstMpegTsSectionATSCTableID and #GstMpegTsSectionDVBTableID.
+ * see also #GstMpegTsSectionATSCTableID, #GstMpegTsSectionDVBTableID, and
+ * #GstMpegTsSectionSCTETableID
  */
 typedef enum {
   /* ITU H.222.0 / IEC 13818-1 */
@@ -100,6 +105,8 @@ typedef enum {
   GST_MTS_TABLE_ID_UNSET = 0xFF
   
 } GstMpegTsSectionTableID;
+
+typedef gboolean (*GstMpegTsPacketizeFunc) (GstMpegTsSection *section);
 
 /**
  * GstMpegTsSection:
@@ -153,8 +160,10 @@ struct _GstMpegTsSection
    * FIXME : Maybe make public later on when allowing creation of
    * sections to that people can create private short sections ? */
   gboolean      short_section;
+  GstMpegTsPacketizeFunc packetizer;
 };
 
+GBytes *gst_mpegts_section_get_data (GstMpegTsSection *section);
 
 /* PAT */
 #define GST_TYPE_MPEGTS_PAT_PROGRAM (gst_mpegts_pat_program_get_type())
@@ -175,6 +184,11 @@ struct _GstMpegTsPatProgram
 
 GPtrArray *gst_mpegts_section_get_pat (GstMpegTsSection *section);
 GType gst_mpegts_pat_program_get_type (void);
+
+GPtrArray *gst_mpegts_pat_new (void);
+GstMpegTsPatProgram *gst_mpegts_pat_program_new (void);
+GstMpegTsSection *gst_mpegts_section_from_pat (GPtrArray * programs,
+    guint16 ts_id);
 
 /* CAT */
 
@@ -296,6 +310,7 @@ typedef enum {
   GST_MPEG_TS_STREAM_TYPE_VIDEO_JP2K                   = 0x21,
   GST_MPEG_TS_STREAM_TYPE_VIDEO_MPEG2_STEREO_ADDITIONAL_VIEW = 0x22,
   GST_MPEG_TS_STREAM_TYPE_VIDEO_H264_STEREO_ADDITIONAL_VIEW  = 0x23,
+  GST_MPEG_TS_STREAM_TYPE_VIDEO_HEVC                   = 0x24,
   /* 0x24 - 0x7e : Rec. ITU-T H.222.0 | ISO/IEC 13818-1 Reserved */
   GST_MPEG_TS_STREAM_TYPE_IPMP_STREAM                  = 0x7f
   /* 0x80 - 0xff : User Private (or defined in other specs) */
@@ -332,6 +347,7 @@ struct _GstMpegTsPMTStream
 struct _GstMpegTsPMT
 {
   guint16    pcr_pid;
+  guint16    program_number;
 
   GPtrArray    *descriptors;
   GPtrArray *streams;
@@ -340,7 +356,10 @@ struct _GstMpegTsPMT
 GType gst_mpegts_pmt_get_type (void);
 GType gst_mpegts_pmt_stream_get_type (void);
 
+GstMpegTsPMT *gst_mpegts_pmt_new (void);
+GstMpegTsPMTStream *gst_mpegts_pmt_stream_new (void);
 const GstMpegTsPMT *gst_mpegts_section_get_pmt (GstMpegTsSection *section);
+GstMpegTsSection *gst_mpegts_section_from_pmt (GstMpegTsPMT *pmt, guint16 pid);
 
 /* TSDT */
 
@@ -353,11 +372,17 @@ GPtrArray *gst_mpegts_section_get_tsdt (GstMpegTsSection *section);
 #define gst_mpegts_section_unref(section) (gst_mini_object_unref (GST_MINI_OBJECT_CAST (section)))
 
 GstMessage *gst_message_new_mpegts_section (GstObject *parent, GstMpegTsSection *section);
+gboolean gst_mpegts_section_send_event (GstMpegTsSection * section, GstElement * element);
+GstMpegTsSection *gst_event_parse_mpegts_section (GstEvent * event);
 
 GstMpegTsSection *gst_message_parse_mpegts_section (GstMessage *message);
 
 GstMpegTsSection *gst_mpegts_section_new (guint16 pid,
 					   guint8 * data,
 					   gsize data_size);
+
+guint8 *gst_mpegts_section_packetize (GstMpegTsSection * section, gsize * output_size);
+
+G_END_DECLS
 
 #endif				/* GST_MPEGTS_SECTION_H */

@@ -780,10 +780,10 @@ gst_vtenc_encode_frame (GstVTEnc * self, GstBuffer * buf)
 
     {
       const size_t num_planes = GST_VIDEO_FRAME_N_PLANES (&frame->videoframe);
-      void *plane_base_addresses[num_planes];
-      size_t plane_widths[num_planes];
-      size_t plane_heights[num_planes];
-      size_t plane_bytes_per_row[num_planes];
+      void *plane_base_addresses[GST_VIDEO_MAX_PLANES];
+      size_t plane_widths[GST_VIDEO_MAX_PLANES];
+      size_t plane_heights[GST_VIDEO_MAX_PLANES];
+      size_t plane_bytes_per_row[GST_VIDEO_MAX_PLANES];
       OSType pixel_format_type;
       size_t i;
 
@@ -819,7 +819,7 @@ gst_vtenc_encode_frame (GstVTEnc * self, GstBuffer * buf)
           plane_widths,
           plane_heights,
           plane_bytes_per_row,
-          (CVPixelBufferReleaseBytesCallback) gst_vtenc_frame_free, frame,
+          (CVPixelBufferReleasePlanarBytesCallback) gst_vtenc_frame_free, frame,
           NULL, &pbuf);
       if (cv_ret != kCVReturnSuccess) {
         gst_vtenc_frame_free (frame);
@@ -903,7 +903,9 @@ gst_vtenc_enqueue_buffer (void *data, int a2, int a3, int a4,
   }
   self->expect_keyframe = FALSE;
 
-  buf = gst_core_media_buffer_new (sbuf);
+  /* We are dealing with block buffers here, so we don't need
+   * to enable the use of the video meta API on the core media buffer */
+  buf = gst_core_media_buffer_new (sbuf, FALSE);
   gst_buffer_copy_into (buf, self->cur_inbuf, GST_BUFFER_COPY_TIMESTAMPS,
       0, -1);
   if (is_keyframe) {

@@ -84,6 +84,7 @@
 #  include "config.h"
 #endif
 
+#include "nalutils.h"
 #include "gsth264parser.h"
 
 #include <gst/base/gstbytereader.h>
@@ -170,289 +171,6 @@ static PAR aspect_ratios[17] = {
   {2, 1}
 };
 
-/* Compute Ceil(Log2(v)) */
-/* Derived from branchless code for integer log2(v) from:
-   <http://graphics.stanford.edu/~seander/bithacks.html#IntegerLog> */
-static guint
-ceil_log2 (guint32 v)
-{
-  guint r, shift;
-
-  v--;
-  r = (v > 0xFFFF) << 4;
-  v >>= r;
-  shift = (v > 0xFF) << 3;
-  v >>= shift;
-  r |= shift;
-  shift = (v > 0xF) << 2;
-  v >>= shift;
-  r |= shift;
-  shift = (v > 0x3) << 1;
-  v >>= shift;
-  r |= shift;
-  r |= (v >> 1);
-  return r + 1;
-}
-
-/****** Nal parser ******/
-
-typedef struct
-{
-  const guint8 *data;
-  guint size;
-
-  guint n_epb;                  /* Number of emulation prevention bytes */
-  guint byte;                   /* Byte position */
-  guint bits_in_cache;          /* bitpos in the cache of next bit */
-  guint8 first_byte;
-  guint64 cache;                /* cached bytes */
-} NalReader;
-
-static void
-nal_reader_init (NalReader * nr, const guint8 * data, guint size)
-{
-  nr->data = data;
-  nr->size = size;
-  nr->n_epb = 0;
-
-  nr->byte = 0;
-  nr->bits_in_cache = 0;
-  /* fill with something other than 0 to detect emulation prevention bytes */
-  nr->first_byte = 0xff;
-  nr->cache = 0xff;
-}
-
-static inline gboolean
-nal_reader_read (NalReader * nr, guint nbits)
-{
-  if (G_UNLIKELY (nr->byte * 8 + (nbits - nr->bits_in_cache) > nr->size * 8)) {
-    GST_DEBUG ("Can not read %u bits, bits in cache %u, Byte * 8 %u, size in "
-        "bits %u", nbits, nr->bits_in_cache, nr->byte * 8, nr->size * 8);
-    return FALSE;
-  }
-
-  while (nr->bits_in_cache < nbits) {
-    guint8 byte;
-    gboolean check_three_byte;
-
-    check_three_byte = TRUE;
-  next_byte:
-    if (G_UNLIKELY (nr->byte >= nr->size))
-      return FALSE;
-
-    byte = nr->data[nr->byte++];
-
-    /* check if the byte is a emulation_prevention_three_byte */
-    if (check_three_byte && byte == 0x03 && nr->first_byte == 0x00 &&
-        ((nr->cache & 0xff) == 0)) {
-      /* next byte goes unconditionally to the cache, even if it's 0x03 */
-      check_three_byte = FALSE;
-      nr->n_epb++;
-      goto next_byte;
-    }
-    nr->cache = (nr->cache << 8) | nr->first_byte;
-    nr->first_byte = byte;
-    nr->bits_in_cache += 8;
-  }
-
-  return TRUE;
-}
-
-static inline gboolean
-nal_reader_skip (NalReader * nr, guint nbits)
-{
-  if (G_UNLIKELY (!nal_reader_read (nr, nbits)))
-    return FALSE;
-
-  nr->bits_in_cache -= nbits;
-
-  return TRUE;
-}
-
-static inline gboolean
-nal_reader_skip_to_byte (NalReader * nr)
-{
-  if (nr->bits_in_cache == 0) {
-    if (G_LIKELY ((nr->size - nr->byte) > 0))
-      nr->byte++;
-    else
-      return FALSE;
-  }
-
-  nr->bits_in_cache = 0;
-
-  return TRUE;
-}
-
-static inline guint
-nal_reader_get_pos (const NalReader * nr)
-{
-  return nr->byte * 8 - nr->bits_in_cache;
-}
-
-static inline guint
-nal_reader_get_remaining (const NalReader * nr)
-{
-  return (nr->size - nr->byte) * 8 + nr->bits_in_cache;
-}
-
-static inline guint
-nal_reader_get_epb_count (const NalReader * nr)
-{
-  return nr->n_epb;
-}
-
-#define GST_NAL_READER_READ_BITS(bits) \
-static gboolean \
-nal_reader_get_bits_uint##bits (NalReader *nr, guint##bits *val, guint nbits) \
-{ \
-  guint shift; \
-  \
-  if (!nal_reader_read (nr, nbits)) \
-    return FALSE; \
-  \
-  /* bring the required bits down and truncate */ \
-  shift = nr->bits_in_cache - nbits; \
-  *val = nr->first_byte >> shift; \
-  \
-  *val |= nr->cache << (8 - shift); \
-  /* mask out required bits */ \
-  if (nbits < bits) \
-    *val &= ((guint##bits)1 << nbits) - 1; \
-  \
-  nr->bits_in_cache = shift; \
-  \
-  return TRUE; \
-} \
-
-GST_NAL_READER_READ_BITS (8);
-GST_NAL_READER_READ_BITS (16);
-GST_NAL_READER_READ_BITS (32);
-
-#define GST_NAL_READER_PEAK_BITS(bits) \
-static gboolean \
-nal_reader_peek_bits_uint##bits (const NalReader *nr, guint##bits *val, guint nbits) \
-{ \
-  NalReader tmp; \
-  \
-  tmp = *nr; \
-  return nal_reader_get_bits_uint##bits (&tmp, val, nbits); \
-}
-
-GST_NAL_READER_PEAK_BITS (8);
-
-static gboolean
-nal_reader_get_ue (NalReader * nr, guint32 * val)
-{
-  guint i = 0;
-  guint8 bit;
-  guint32 value;
-
-  if (G_UNLIKELY (!nal_reader_get_bits_uint8 (nr, &bit, 1))) {
-
-    return FALSE;
-  }
-
-  while (bit == 0) {
-    i++;
-    if G_UNLIKELY
-      ((!nal_reader_get_bits_uint8 (nr, &bit, 1)))
-          return FALSE;
-  }
-
-  if (G_UNLIKELY (i > 32))
-    return FALSE;
-
-  if (G_UNLIKELY (!nal_reader_get_bits_uint32 (nr, &value, i)))
-    return FALSE;
-
-  *val = (1 << i) - 1 + value;
-
-  return TRUE;
-}
-
-static inline gboolean
-nal_reader_get_se (NalReader * nr, gint32 * val)
-{
-  guint32 value;
-
-  if (G_UNLIKELY (!nal_reader_get_ue (nr, &value)))
-    return FALSE;
-
-  if (value % 2)
-    *val = (value / 2) + 1;
-  else
-    *val = -(value / 2);
-
-  return TRUE;
-}
-
-#define CHECK_ALLOWED(val, min, max) { \
-  if (val < min || val > max) { \
-    GST_WARNING ("value not in allowed range. value: %d, range %d-%d", \
-                     val, min, max); \
-    goto error; \
-  } \
-}
-
-#define READ_UINT8(nr, val, nbits) { \
-  if (!nal_reader_get_bits_uint8 (nr, &val, nbits)) { \
-    GST_WARNING ("failed to read uint8, nbits: %d", nbits); \
-    goto error; \
-  } \
-}
-
-#define READ_UINT16(nr, val, nbits) { \
-  if (!nal_reader_get_bits_uint16 (nr, &val, nbits)) { \
-  GST_WARNING ("failed to read uint16, nbits: %d", nbits); \
-    goto error; \
-  } \
-}
-
-#define READ_UINT32(nr, val, nbits) { \
-  if (!nal_reader_get_bits_uint32 (nr, &val, nbits)) { \
-  GST_WARNING ("failed to read uint32, nbits: %d", nbits); \
-    goto error; \
-  } \
-}
-
-#define READ_UINT64(nr, val, nbits) { \
-  if (!nal_reader_get_bits_uint64 (nr, &val, nbits)) { \
-    GST_WARNING ("failed to read uint32, nbits: %d", nbits); \
-    goto error; \
-  } \
-}
-
-#define READ_UE(nr, val) { \
-  if (!nal_reader_get_ue (nr, &val)) { \
-    GST_WARNING ("failed to read UE"); \
-    goto error; \
-  } \
-}
-
-#define READ_UE_ALLOWED(nr, val, min, max) { \
-  guint32 tmp; \
-  READ_UE (nr, tmp); \
-  CHECK_ALLOWED (tmp, min, max); \
-  val = tmp; \
-}
-
-#define READ_SE(nr, val) { \
-  if (!nal_reader_get_se (nr, &val)) { \
-    GST_WARNING ("failed to read SE"); \
-    goto error; \
-  } \
-}
-
-#define READ_SE_ALLOWED(nr, val, min, max) { \
-  gint32 tmp; \
-  READ_SE (nr, tmp); \
-  CHECK_ALLOWED (tmp, min, max); \
-  val = tmp; \
-}
-
-/***********  end of nal parser ***************/
-
 /*****  Utils ****/
 #define EXTENDED_SAR 255
 
@@ -482,66 +200,19 @@ gst_h264_parser_get_pps (GstH264NalParser * nalparser, guint8 pps_id)
   return NULL;
 }
 
-static inline void
-set_nalu_datas (GstH264NalUnit * nalu)
+static gboolean
+gst_h264_parse_nalu_header (GstH264NalUnit * nalu)
 {
   guint8 *data = nalu->data + nalu->offset;
+
+  if (nalu->size < 1)
+    return FALSE;
 
   nalu->type = (data[0] & 0x1f);
   nalu->ref_idc = (data[0] & 0x60) >> 5;
   nalu->idr_pic_flag = (nalu->type == 5 ? 1 : 0);
 
   GST_DEBUG ("Nal type %u, ref_idc %u", nalu->type, nalu->ref_idc);
-}
-
-static inline gint
-scan_for_start_codes (const guint8 * data, guint size)
-{
-  GstByteReader br;
-  gst_byte_reader_init (&br, data, size);
-
-  /* NALU not empty, so we can at least expect 1 (even 2) bytes following sc */
-  return gst_byte_reader_masked_scan_uint32 (&br, 0xffffff00, 0x00000100,
-      0, size);
-}
-
-static gboolean
-gst_h264_parser_byte_aligned (NalReader * nr)
-{
-  if (nr->bits_in_cache != 0)
-    return FALSE;
-  return TRUE;
-}
-
-static gboolean
-gst_h264_parser_more_data (NalReader * nr)
-{
-  guint remaining;
-
-  remaining = nal_reader_get_remaining (nr);
-  if (remaining == 0)
-    return FALSE;
-
-  if (remaining <= 8) {
-    guint8 rbsp_stop_one_bit;
-
-    if (!nal_reader_peek_bits_uint8 (nr, &rbsp_stop_one_bit, 1))
-      return FALSE;
-
-    if (rbsp_stop_one_bit == 1) {
-      guint8 zero_bits;
-
-      if (remaining == 1)
-        return FALSE;
-
-      if (!nal_reader_peek_bits_uint8 (nr, &zero_bits, remaining))
-        return FALSE;
-
-      if ((zero_bits - (1 << (remaining - 1))) == 0)
-        return FALSE;
-    }
-  }
-
   return TRUE;
 }
 
@@ -693,6 +364,14 @@ gst_h264_parser_parse_scaling_list (NalReader * nr,
 {
   guint i;
 
+  static const guint8 *default_lists[12] = {
+    default_4x4_intra, default_4x4_intra, default_4x4_intra,
+    default_4x4_inter, default_4x4_inter, default_4x4_inter,
+    default_8x8_intra, default_8x8_inter,
+    default_8x8_intra, default_8x8_inter,
+    default_8x8_intra, default_8x8_inter
+  };
+
   GST_DEBUG ("parsing scaling lists");
 
   for (i = 0; i < 12; i++) {
@@ -704,18 +383,15 @@ gst_h264_parser_parse_scaling_list (NalReader * nr,
       READ_UINT8 (nr, scaling_list_present_flag, 1);
       if (scaling_list_present_flag) {
         guint8 *scaling_list;
-        const guint8 *scan;
         guint size;
         guint j;
         guint8 last_scale, next_scale;
 
         if (i < 6) {
           scaling_list = scaling_lists_4x4[i];
-          scan = zigzag_4x4;
           size = 16;
         } else {
           scaling_list = scaling_lists_8x8[i - 6];
-          scan = zigzag_8x8;
           size = 64;
         }
 
@@ -729,10 +405,11 @@ gst_h264_parser_parse_scaling_list (NalReader * nr,
             next_scale = (last_scale + delta_scale) & 0xff;
           }
           if (j == 0 && next_scale == 0) {
-            use_default = TRUE;
+            /* Use default scaling lists (7.4.2.1.1.1) */
+            memcpy (scaling_list, default_lists[i], size);
             break;
           }
-          last_scale = scaling_list[scan[j]] =
+          last_scale = scaling_list[j] =
               (next_scale == 0) ? last_scale : next_scale;
         }
       } else
@@ -1023,25 +700,29 @@ gst_h264_parser_parse_buffering_period (GstH264NalParser * nalparser,
 
     if (vui->nal_hrd_parameters_present_flag) {
       GstH264HRDParams *hrd = &vui->nal_hrd_parameters;
+      const guint8 nbits = hrd->initial_cpb_removal_delay_length_minus1 + 1;
       guint8 sched_sel_idx;
 
       for (sched_sel_idx = 0; sched_sel_idx <= hrd->cpb_cnt_minus1;
           sched_sel_idx++) {
-        READ_UINT8 (nr, per->nal_initial_cpb_removal_delay[sched_sel_idx], 5);
+        READ_UINT8 (nr, per->nal_initial_cpb_removal_delay[sched_sel_idx],
+            nbits);
         READ_UINT8 (nr,
-            per->nal_initial_cpb_removal_delay_offset[sched_sel_idx], 5);
+            per->nal_initial_cpb_removal_delay_offset[sched_sel_idx], nbits);
       }
     }
 
     if (vui->vcl_hrd_parameters_present_flag) {
       GstH264HRDParams *hrd = &vui->vcl_hrd_parameters;
+      const guint8 nbits = hrd->initial_cpb_removal_delay_length_minus1 + 1;
       guint8 sched_sel_idx;
 
       for (sched_sel_idx = 0; sched_sel_idx <= hrd->cpb_cnt_minus1;
           sched_sel_idx++) {
-        READ_UINT8 (nr, per->vcl_initial_cpb_removal_delay[sched_sel_idx], 5);
+        READ_UINT8 (nr, per->vcl_initial_cpb_removal_delay[sched_sel_idx],
+            nbits);
         READ_UINT8 (nr,
-            per->vcl_initial_cpb_removal_delay_offset[sched_sel_idx], 5);
+            per->vcl_initial_cpb_removal_delay_offset[sched_sel_idx], nbits);
       }
     }
   }
@@ -1177,9 +858,7 @@ gst_h264_parser_parse_sei_message (GstH264NalParser * nalparser,
 {
   guint32 payloadSize;
   guint8 payload_type_byte, payload_size_byte;
-#ifndef GST_DISABLE_GST_DEBUG
   guint remaining, payload_size;
-#endif
   GstH264ParserResult res;
 
   GST_DEBUG ("parsing \"Sei message\"");
@@ -1197,38 +876,47 @@ gst_h264_parser_parse_sei_message (GstH264NalParser * nalparser,
   }
   while (payload_size_byte == 0xff);
 
-#ifndef GST_DISABLE_GST_DEBUG
   remaining = nal_reader_get_remaining (nr);
   payload_size = payloadSize * 8 < remaining ? payloadSize * 8 : remaining;
 
   GST_DEBUG ("SEI message received: payloadType  %u, payloadSize = %u bits",
       sei->payloadType, payload_size);
-#endif
 
-  if (sei->payloadType == GST_H264_SEI_BUF_PERIOD) {
-    /* size not set; might depend on emulation_prevention_three_byte */
-    res = gst_h264_parser_parse_buffering_period (nalparser,
-        &sei->payload.buffering_period, nr);
-  } else if (sei->payloadType == GST_H264_SEI_PIC_TIMING) {
-    /* size not set; might depend on emulation_prevention_three_byte */
-    res = gst_h264_parser_parse_pic_timing (nalparser,
-        &sei->payload.pic_timing, nr);
-  } else {
-    /* Just consume payloadSize */
-    guint32 i;
-    for (i = 0; i < payloadSize; i++)
-      nal_reader_skip_to_byte (nr);
-    res = GST_H264_PARSER_OK;
+  switch (sei->payloadType) {
+    case GST_H264_SEI_BUF_PERIOD:
+      /* size not set; might depend on emulation_prevention_three_byte */
+      res = gst_h264_parser_parse_buffering_period (nalparser,
+          &sei->payload.buffering_period, nr);
+      break;
+    case GST_H264_SEI_PIC_TIMING:
+      /* size not set; might depend on emulation_prevention_three_byte */
+      res = gst_h264_parser_parse_pic_timing (nalparser,
+          &sei->payload.pic_timing, nr);
+      break;
+    default:{
+      /* Just consume payloadSize bytes, which does not account for
+         emulation prevention bytes */
+      guint nbits = payload_size % 8;
+      while (payload_size > 0) {
+        nal_reader_skip (nr, nbits);
+        payload_size -= nbits;
+        nbits = 8;
+      }
+      res = GST_H264_PARSER_OK;
+      break;
+    }
   }
 
-  /* Check for message that doesn't end at byte boundary */
-  if (!gst_h264_parser_byte_aligned (nr)) {
+  /* When SEI message doesn't end at byte boundary,
+   * check remaining bits fit the specification.
+   */
+  if (!nal_reader_is_byte_aligned (nr)) {
     guint8 bit_equal_to_one;
     READ_UINT8 (nr, bit_equal_to_one, 1);
     if (!bit_equal_to_one)
       GST_WARNING ("Bit non equal to one.");
 
-    while (!gst_h264_parser_byte_aligned (nr)) {
+    while (!nal_reader_is_byte_aligned (nr)) {
       guint8 bit_equal_to_zero;
       READ_UINT8 (nr, bit_equal_to_zero, 1);
       if (bit_equal_to_zero)
@@ -1321,17 +1009,26 @@ gst_h264_parser_identify_nalu_unchecked (GstH264NalParser * nalparser,
     return GST_H264_PARSER_ERROR;
   }
 
-  nalu->valid = TRUE;
   nalu->sc_offset = offset + off1;
 
-  /* sc might have 2 or 3 0-bytes */
-  if (nalu->sc_offset > 0 && data[nalu->sc_offset - 1] == 00)
-    nalu->sc_offset--;
 
   nalu->offset = offset + off1 + 3;
   nalu->data = (guint8 *) data;
+  nalu->size = size - nalu->offset;
 
-  set_nalu_datas (nalu);
+  if (!gst_h264_parse_nalu_header (nalu)) {
+    GST_WARNING ("error parsing \"NAL unit header\"");
+    nalu->size = 0;
+    return GST_H264_PARSER_BROKEN_DATA;
+  }
+
+  nalu->valid = TRUE;
+
+  /* sc might have 2 or 3 0-bytes */
+  if (nalu->sc_offset > 0 && data[nalu->sc_offset - 1] == 00
+      && (nalu->type == GST_H264_NAL_SPS || nalu->type == GST_H264_NAL_PPS
+          || nalu->type == GST_H264_NAL_AU_DELIMITER))
+    nalu->sc_offset--;
 
   if (nalu->type == GST_H264_NAL_SEQ_END ||
       nalu->type == GST_H264_NAL_STREAM_END) {
@@ -1339,8 +1036,6 @@ gst_h264_parser_identify_nalu_unchecked (GstH264NalParser * nalparser,
     nalu->size = 0;
     return GST_H264_PARSER_OK;
   }
-
-  nalu->size = size - nalu->offset;
 
   return GST_H264_PARSER_OK;
 }
@@ -1437,10 +1132,11 @@ gst_h264_parser_identify_nalu_avc (GstH264NalParser * nalparser,
 
   nalu->data = (guint8 *) data;
 
-  set_nalu_datas (nalu);
-
-  if (nalu->size < 2)
+  if (!gst_h264_parse_nalu_header (nalu)) {
+    GST_WARNING ("error parsing \"NAL unit header\"");
+    nalu->size = 0;
     return GST_H264_PARSER_BROKEN_DATA;
+  }
 
   nalu->valid = TRUE;
 
@@ -1504,29 +1200,15 @@ gst_h264_parser_parse_sps (GstH264NalParser * nalparser, GstH264NalUnit * nalu,
   return res;
 }
 
-/**
- * gst_h264_parse_sps:
- * @nalu: The #GST_H264_NAL_SPS #GstH264NalUnit to parse
- * @sps: The #GstH264SPS to fill.
- * @parse_vui_params: Whether to parse the vui_params or not
- *
- * Parses @data, and fills the @sps structure.
- *
- * Returns: a #GstH264ParserResult
- */
-GstH264ParserResult
-gst_h264_parse_sps (GstH264NalUnit * nalu, GstH264SPS * sps,
+/* Parse seq_parameter_set_data() */
+static gboolean
+gst_h264_parse_sps_data (NalReader * nr, GstH264SPS * sps,
     gboolean parse_vui_params)
 {
-  NalReader nr;
   gint width, height;
   guint subwc[] = { 1, 2, 2, 1 };
   guint subhc[] = { 1, 2, 1, 1 };
   GstH264VUIParams *vui = NULL;
-
-  INITIALIZE_DEBUG_CATEGORY;
-  GST_DEBUG ("parsing SPS");
-  nal_reader_init (&nr, nalu->data + nalu->offset + 1, nalu->size - 1);
 
   /* set default values for fields that might not be present in the bitstream
      and have valid defaults */
@@ -1544,38 +1226,38 @@ gst_h264_parse_sps (GstH264NalUnit * nalu, GstH264SPS * sps,
   sps->frame_crop_bottom_offset = 0;
   sps->delta_pic_order_always_zero_flag = 0;
 
-  READ_UINT8 (&nr, sps->profile_idc, 8);
-  READ_UINT8 (&nr, sps->constraint_set0_flag, 1);
-  READ_UINT8 (&nr, sps->constraint_set1_flag, 1);
-  READ_UINT8 (&nr, sps->constraint_set2_flag, 1);
-  READ_UINT8 (&nr, sps->constraint_set3_flag, 1);
+  READ_UINT8 (nr, sps->profile_idc, 8);
+  READ_UINT8 (nr, sps->constraint_set0_flag, 1);
+  READ_UINT8 (nr, sps->constraint_set1_flag, 1);
+  READ_UINT8 (nr, sps->constraint_set2_flag, 1);
+  READ_UINT8 (nr, sps->constraint_set3_flag, 1);
 
   /* skip reserved_zero_4bits */
-  if (!nal_reader_skip (&nr, 4))
+  if (!nal_reader_skip (nr, 4))
     goto error;
 
-  READ_UINT8 (&nr, sps->level_idc, 8);
+  READ_UINT8 (nr, sps->level_idc, 8);
 
-  READ_UE_ALLOWED (&nr, sps->id, 0, GST_H264_MAX_SPS_COUNT - 1);
+  READ_UE_ALLOWED (nr, sps->id, 0, GST_H264_MAX_SPS_COUNT - 1);
 
   if (sps->profile_idc == 100 || sps->profile_idc == 110 ||
       sps->profile_idc == 122 || sps->profile_idc == 244 ||
       sps->profile_idc == 44 || sps->profile_idc == 83 ||
       sps->profile_idc == 86) {
-    READ_UE_ALLOWED (&nr, sps->chroma_format_idc, 0, 3);
+    READ_UE_ALLOWED (nr, sps->chroma_format_idc, 0, 3);
     if (sps->chroma_format_idc == 3)
-      READ_UINT8 (&nr, sps->separate_colour_plane_flag, 1);
+      READ_UINT8 (nr, sps->separate_colour_plane_flag, 1);
 
-    READ_UE_ALLOWED (&nr, sps->bit_depth_luma_minus8, 0, 6);
-    READ_UE_ALLOWED (&nr, sps->bit_depth_chroma_minus8, 0, 6);
-    READ_UINT8 (&nr, sps->qpprime_y_zero_transform_bypass_flag, 1);
+    READ_UE_ALLOWED (nr, sps->bit_depth_luma_minus8, 0, 6);
+    READ_UE_ALLOWED (nr, sps->bit_depth_chroma_minus8, 0, 6);
+    READ_UINT8 (nr, sps->qpprime_y_zero_transform_bypass_flag, 1);
 
-    READ_UINT8 (&nr, sps->scaling_matrix_present_flag, 1);
+    READ_UINT8 (nr, sps->scaling_matrix_present_flag, 1);
     if (sps->scaling_matrix_present_flag) {
       guint8 n_lists;
 
       n_lists = (sps->chroma_format_idc != 3) ? 8 : 12;
-      if (!gst_h264_parser_parse_scaling_list (&nr,
+      if (!gst_h264_parser_parse_scaling_list (nr,
               sps->scaling_lists_4x4, sps->scaling_lists_8x8,
               default_4x4_inter, default_4x4_intra,
               default_8x8_inter, default_8x8_intra, n_lists))
@@ -1583,46 +1265,46 @@ gst_h264_parse_sps (GstH264NalUnit * nalu, GstH264SPS * sps,
     }
   }
 
-  READ_UE_ALLOWED (&nr, sps->log2_max_frame_num_minus4, 0, 12);
+  READ_UE_ALLOWED (nr, sps->log2_max_frame_num_minus4, 0, 12);
 
   sps->max_frame_num = 1 << (sps->log2_max_frame_num_minus4 + 4);
 
-  READ_UE_ALLOWED (&nr, sps->pic_order_cnt_type, 0, 2);
+  READ_UE_ALLOWED (nr, sps->pic_order_cnt_type, 0, 2);
   if (sps->pic_order_cnt_type == 0) {
-    READ_UE_ALLOWED (&nr, sps->log2_max_pic_order_cnt_lsb_minus4, 0, 12);
+    READ_UE_ALLOWED (nr, sps->log2_max_pic_order_cnt_lsb_minus4, 0, 12);
   } else if (sps->pic_order_cnt_type == 1) {
     guint i;
 
-    READ_UINT8 (&nr, sps->delta_pic_order_always_zero_flag, 1);
-    READ_SE (&nr, sps->offset_for_non_ref_pic);
-    READ_SE (&nr, sps->offset_for_top_to_bottom_field);
-    READ_UE_ALLOWED (&nr, sps->num_ref_frames_in_pic_order_cnt_cycle, 0, 255);
+    READ_UINT8 (nr, sps->delta_pic_order_always_zero_flag, 1);
+    READ_SE (nr, sps->offset_for_non_ref_pic);
+    READ_SE (nr, sps->offset_for_top_to_bottom_field);
+    READ_UE_ALLOWED (nr, sps->num_ref_frames_in_pic_order_cnt_cycle, 0, 255);
 
     for (i = 0; i < sps->num_ref_frames_in_pic_order_cnt_cycle; i++)
-      READ_SE (&nr, sps->offset_for_ref_frame[i]);
+      READ_SE (nr, sps->offset_for_ref_frame[i]);
   }
 
-  READ_UE (&nr, sps->num_ref_frames);
-  READ_UINT8 (&nr, sps->gaps_in_frame_num_value_allowed_flag, 1);
-  READ_UE (&nr, sps->pic_width_in_mbs_minus1);
-  READ_UE (&nr, sps->pic_height_in_map_units_minus1);
-  READ_UINT8 (&nr, sps->frame_mbs_only_flag, 1);
+  READ_UE (nr, sps->num_ref_frames);
+  READ_UINT8 (nr, sps->gaps_in_frame_num_value_allowed_flag, 1);
+  READ_UE (nr, sps->pic_width_in_mbs_minus1);
+  READ_UE (nr, sps->pic_height_in_map_units_minus1);
+  READ_UINT8 (nr, sps->frame_mbs_only_flag, 1);
 
   if (!sps->frame_mbs_only_flag)
-    READ_UINT8 (&nr, sps->mb_adaptive_frame_field_flag, 1);
+    READ_UINT8 (nr, sps->mb_adaptive_frame_field_flag, 1);
 
-  READ_UINT8 (&nr, sps->direct_8x8_inference_flag, 1);
-  READ_UINT8 (&nr, sps->frame_cropping_flag, 1);
+  READ_UINT8 (nr, sps->direct_8x8_inference_flag, 1);
+  READ_UINT8 (nr, sps->frame_cropping_flag, 1);
   if (sps->frame_cropping_flag) {
-    READ_UE (&nr, sps->frame_crop_left_offset);
-    READ_UE (&nr, sps->frame_crop_right_offset);
-    READ_UE (&nr, sps->frame_crop_top_offset);
-    READ_UE (&nr, sps->frame_crop_bottom_offset);
+    READ_UE (nr, sps->frame_crop_left_offset);
+    READ_UE (nr, sps->frame_crop_right_offset);
+    READ_UE (nr, sps->frame_crop_top_offset);
+    READ_UE (nr, sps->frame_crop_bottom_offset);
   }
 
-  READ_UINT8 (&nr, sps->vui_parameters_present_flag, 1);
+  READ_UINT8 (nr, sps->vui_parameters_present_flag, 1);
   if (sps->vui_parameters_present_flag && parse_vui_params) {
-    if (!gst_h264_parse_vui_parameters (sps, &nr))
+    if (!gst_h264_parse_vui_parameters (sps, nr))
       goto error;
     vui = &sps->vui_parameters;
   }
@@ -1675,8 +1357,7 @@ gst_h264_parse_sps (GstH264NalUnit * nalu, GstH264SPS * sps,
         vui->fixed_frame_rate_flag, sps->frame_mbs_only_flag,
         vui->pic_struct_present_flag);
 
-    if (parse_vui_params && vui->fixed_frame_rate_flag &&
-        sps->frame_mbs_only_flag && !vui->pic_struct_present_flag) {
+    if (parse_vui_params && vui->fixed_frame_rate_flag) {
       sps->fps_num = vui->time_scale;
       sps->fps_den = vui->num_units_in_tick;
       /* picture is a frame = 2 fields */
@@ -1686,6 +1367,35 @@ gst_h264_parse_sps (GstH264NalUnit * nalu, GstH264SPS * sps,
   } else {
     GST_LOG ("No VUI, unknown framerate");
   }
+  return TRUE;
+
+error:
+  return FALSE;
+}
+
+/**
+ * gst_h264_parse_sps:
+ * @nalu: The #GST_H264_NAL_SPS #GstH264NalUnit to parse
+ * @sps: The #GstH264SPS to fill.
+ * @parse_vui_params: Whether to parse the vui_params or not
+ *
+ * Parses @data, and fills the @sps structure.
+ *
+ * Returns: a #GstH264ParserResult
+ */
+GstH264ParserResult
+gst_h264_parse_sps (GstH264NalUnit * nalu, GstH264SPS * sps,
+    gboolean parse_vui_params)
+{
+  NalReader nr;
+
+  INITIALIZE_DEBUG_CATEGORY;
+  GST_DEBUG ("parsing SPS");
+
+  nal_reader_init (&nr, nalu->data + nalu->offset + 1, nalu->size - 1);
+
+  if (!gst_h264_parse_sps_data (&nr, sps, parse_vui_params))
+    goto error;
 
   sps->valid = TRUE;
 
@@ -1756,7 +1466,7 @@ gst_h264_parse_pps (GstH264NalParser * nalparser, GstH264NalUnit * nalu,
     } else if (pps->slice_group_map_type == 2) {
       gint i;
 
-      for (i = 0; i <= pps->num_slice_groups_minus1; i++) {
+      for (i = 0; i < pps->num_slice_groups_minus1; i++) {
         READ_UE (&nr, pps->top_left[i]);
         READ_UE (&nr, pps->bottom_right[i]);
       }
@@ -1789,7 +1499,7 @@ gst_h264_parse_pps (GstH264NalParser * nalparser, GstH264NalUnit * nalu,
   READ_UINT8 (&nr, pps->constrained_intra_pred_flag, 1);
   READ_UINT8 (&nr, pps->redundant_pic_cnt_present_flag, 1);
 
-  if (!gst_h264_parser_more_data (&nr))
+  if (!nal_reader_has_more_data (&nr))
     goto done;
 
   READ_UINT8 (&nr, pps->transform_8x8_mode_flag, 1);
@@ -1938,7 +1648,7 @@ gst_h264_parser_parse_slice_hdr (GstH264NalParser * nalparser,
   else
     slice->max_pic_num = 2 * sps->max_frame_num;
 
-  if (nalu->type == 5)
+  if (nalu->idr_pic_flag)
     READ_UE_ALLOWED (&nr, slice->idr_pic_id, 0, G_MAXUINT16);
 
   if (sps->pic_order_cnt_type == 0) {
@@ -2061,7 +1771,107 @@ gst_h264_parser_parse_sei (GstH264NalParser * nalparser, GstH264NalUnit * nalu,
       g_array_append_val (*messages, sei);
     else
       break;
-  } while (gst_h264_parser_more_data (&nr));
+  } while (nal_reader_has_more_data (&nr));
 
   return res;
+}
+
+/**
+ * gst_h264_video_quant_matrix_8x8_get_zigzag_from_raster:
+ * @out_quant: (out): The resulting quantization matrix
+ * @quant: The source quantization matrix
+ *
+ * Converts quantization matrix @quant from raster scan order to
+ * zigzag scan order and store the resulting factors into @out_quant.
+ *
+ * Note: it is an error to pass the same table in both @quant and
+ * @out_quant arguments.
+ *
+ * Since: 1.4
+ */
+void
+gst_h264_video_quant_matrix_8x8_get_zigzag_from_raster (guint8 out_quant[64],
+    const guint8 quant[64])
+{
+  guint i;
+
+  g_return_if_fail (out_quant != quant);
+
+  for (i = 0; i < 64; i++)
+    out_quant[i] = quant[zigzag_8x8[i]];
+}
+
+/**
+ * gst_h264_quant_matrix_8x8_get_raster_from_zigzag:
+ * @out_quant: (out): The resulting quantization matrix
+ * @quant: The source quantization matrix
+ *
+ * Converts quantization matrix @quant from zigzag scan order to
+ * raster scan order and store the resulting factors into @out_quant.
+ *
+ * Note: it is an error to pass the same table in both @quant and
+ * @out_quant arguments.
+ *
+ * Since: 1.4
+ */
+void
+gst_h264_video_quant_matrix_8x8_get_raster_from_zigzag (guint8 out_quant[64],
+    const guint8 quant[64])
+{
+  guint i;
+
+  g_return_if_fail (out_quant != quant);
+
+  for (i = 0; i < 64; i++)
+    out_quant[zigzag_8x8[i]] = quant[i];
+}
+
+/**
+ * gst_h264_video_quant_matrix_4x4_get_zigzag_from_raster:
+ * @out_quant: (out): The resulting quantization matrix
+ * @quant: The source quantization matrix
+ *
+ * Converts quantization matrix @quant from raster scan order to
+ * zigzag scan order and store the resulting factors into @out_quant.
+ *
+ * Note: it is an error to pass the same table in both @quant and
+ * @out_quant arguments.
+ *
+ * Since: 1.4
+ */
+void
+gst_h264_video_quant_matrix_4x4_get_zigzag_from_raster (guint8 out_quant[16],
+    const guint8 quant[16])
+{
+  guint i;
+
+  g_return_if_fail (out_quant != quant);
+
+  for (i = 0; i < 16; i++)
+    out_quant[i] = quant[zigzag_4x4[i]];
+}
+
+/**
+ * gst_h264_quant_matrix_4x4_get_raster_from_zigzag:
+ * @out_quant: (out): The resulting quantization matrix
+ * @quant: The source quantization matrix
+ *
+ * Converts quantization matrix @quant from zigzag scan order to
+ * raster scan order and store the resulting factors into @out_quant.
+ *
+ * Note: it is an error to pass the same table in both @quant and
+ * @out_quant arguments.
+ *
+ * Since: 1.4
+ */
+void
+gst_h264_video_quant_matrix_4x4_get_raster_from_zigzag (guint8 out_quant[16],
+    const guint8 quant[16])
+{
+  guint i;
+
+  g_return_if_fail (out_quant != quant);
+
+  for (i = 0; i < 16; i++)
+    out_quant[zigzag_4x4[i]] = quant[i];
 }

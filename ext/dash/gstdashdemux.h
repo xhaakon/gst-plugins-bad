@@ -57,41 +57,28 @@ struct _GstDashDemuxStream
 {
   GstPad *pad;
 
+  GstDashDemux *demux;
+
   gint index;
+  GstActiveStream *active_stream;
 
   GstCaps *input_caps;
 
-  /*
-   * Need to store the status for the download and
-   * stream tasks separately as they are working at
-   * different points of the stream timeline.
-   * The download task is ahead of the stream.
-   *
-   * The download_end_of_period is set when a stream
-   * has already downloaded all fragments for the current
-   * period.
-   *
-   * The stream_end_of_period is set when a stream
-   * has pushed all fragments for the current period
-   */
-  gboolean download_end_of_period;
-  gboolean stream_end_of_period;
+  GstFlowReturn last_ret;
+  GstClockTime position;
+  gboolean restart_download;
+
+  GstEvent *pending_segment;
 
   gboolean stream_eos;
   gboolean need_header;
 
-  /* tracks if a stream has enqueued data
-   * after a pad switch.
-   * This is required to prevent pads being
-   * added to the demuxer and having no data
-   * pushed to it before another pad switch
-   * as this might make downstream elements
-   * unhappy and error out if they get
-   * an EOS without receiving any input
-   */
-  gboolean has_data_queued;
-
-  GstDataQueue *queue;
+  /* Download task */
+  GMutex download_mutex;
+  GCond download_cond;
+  GstTask *download_task;
+  GRecMutex download_task_lock;
+  GstUriDownloader *downloader;
 
   GstDownloadRate dnl_rate;
 };
@@ -111,15 +98,15 @@ struct _GstDashDemux
 
   GSList *streams;
   GSList *next_periods;
-  GMutex streams_lock;
 
   GstSegment segment;
-  gboolean need_segment;
   GstClockTime timestamp_offset;
 
   GstBuffer *manifest;
   GstUriDownloader *downloader;
   GstMpdClient *client;         /* MPD client */
+  GMutex client_lock;
+
   gboolean end_of_period;
   gboolean end_of_manifest;
 
@@ -128,15 +115,6 @@ struct _GstDashDemux
   gfloat bandwidth_usage;       /* Percentage of the available bandwidth to use       */
   guint64 max_bitrate;          /* max of bitrate supported by target decoder         */
 
-  /* Streaming task */
-  GstTask *stream_task;
-  GRecMutex stream_task_lock;
-
-  /* Download task */
-  GstTask *download_task;
-  GRecMutex download_task_lock;
-  GMutex download_mutex;
-  GCond download_cond;
   gboolean cancelled;
 
   /* Manifest update */

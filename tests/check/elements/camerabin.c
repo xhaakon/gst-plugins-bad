@@ -360,6 +360,13 @@ check_preview_image (GstElement * camera, const gchar * filename, gint index)
             preview_caps));
   }
   g_free (prev_filename);
+
+  /* clean up preview info for next capture */
+  g_free (preview_filename);
+  preview_filename = NULL;
+  if (preview_sample)
+    gst_sample_unref (preview_sample);
+  preview_sample = NULL;
 }
 
 static void
@@ -777,7 +784,8 @@ GST_START_TEST (test_multiple_image_captures)
 
     msg = wait_for_element_message (camera, "image-done", GST_CLOCK_TIME_NONE);
     fail_unless (msg != NULL);
-    gst_message_unref (msg);
+    if (msg)
+      gst_message_unref (msg);
 
     check_preview_image (camera, image_filename, i);
   }

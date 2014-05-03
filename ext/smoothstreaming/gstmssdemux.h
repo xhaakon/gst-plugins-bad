@@ -62,19 +62,21 @@ struct _GstMssDemuxStream {
   GstMssStream *manifest_stream;
 
   GstUriDownloader *downloader;
-  GstDataQueue *dataqueue;
 
   GstEvent *pending_newsegment;
 
   GstClockTime next_timestamp;
+  GstSegment segment;
 
   /* Downloading task */
   GstTask *download_task;
   GRecMutex download_lock;
 
+  GstFlowReturn last_ret;
   gboolean eos;
   gboolean have_data;
   gboolean cancelled;
+  gboolean restart_download;
 
   GstDownloadRate download_rate;
 
@@ -96,17 +98,11 @@ struct _GstMssDemux {
   gchar *base_url;
   gchar *manifest_uri;
 
-  GstSegment segment;
-
   GSList *streams;
   guint n_videos;
   guint n_audios;
 
   gboolean update_bitrates;
-
-  /* Streaming task */
-  GstTask *stream_task;
-  GRecMutex stream_lock;
 
   /* properties */
   guint64 connection_speed; /* in bps */

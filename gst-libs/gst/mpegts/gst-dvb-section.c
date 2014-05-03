@@ -246,7 +246,7 @@ gst_mpegts_section_get_eit (GstMpegTsSection * section)
   g_return_val_if_fail (section->cached_parsed || section->data, NULL);
 
   if (!section->cached_parsed)
-    section->cached_parsed = __common_desc_checks (section, 18, _parse_eit,
+    section->cached_parsed = __common_section_checks (section, 18, _parse_eit,
         (GDestroyNotify) _gst_mpegts_eit_free);
 
   return (const GstMpegTsEIT *) section->cached_parsed;
@@ -420,7 +420,7 @@ gst_mpegts_section_get_bat (GstMpegTsSection * section)
 
   if (!section->cached_parsed)
     section->cached_parsed =
-        __common_desc_checks (section, 16, _parse_bat,
+        __common_section_checks (section, 16, _parse_bat,
         (GDestroyNotify) _gst_mpegts_bat_free);
 
   return (const GstMpegTsBAT *) section->cached_parsed;
@@ -489,7 +489,8 @@ _parse_nit (GstMpegTsSection * section)
   data = section->data;
   end = data + section->section_length;
 
-  /* Skip already parsed data */
+  /* Set network id, and skip the rest of what is already parsed */
+  nit->network_id = section->subtable_extension;
   data += 8;
 
   nit->actual_network = section->table_id == 0x40;
@@ -598,12 +599,177 @@ gst_mpegts_section_get_nit (GstMpegTsSection * section)
 
   if (!section->cached_parsed)
     section->cached_parsed =
-        __common_desc_checks (section, 16, _parse_nit,
+        __common_section_checks (section, 16, _parse_nit,
         (GDestroyNotify) _gst_mpegts_nit_free);
 
   return (const GstMpegTsNIT *) section->cached_parsed;
 }
 
+/**
+ * gst_mpegts_nit_new:
+ *
+ * Allocates and initializes a #GstMpegTsNIT.
+ *
+ * Returns: (transfer full): A newly allocated #GstMpegTsNIT
+ */
+GstMpegTsNIT *
+gst_mpegts_nit_new (void)
+{
+  GstMpegTsNIT *nit;
+
+  nit = g_slice_new0 (GstMpegTsNIT);
+
+  nit->descriptors =
+      g_ptr_array_new_with_free_func ((GDestroyNotify) _free_descriptor);
+  nit->streams = g_ptr_array_new_with_free_func ((GDestroyNotify)
+      _gst_mpegts_nit_stream_free);
+
+  return nit;
+}
+
+/**
+ * gst_mpegts_nit_stream_new:
+ *
+ * Allocates and initializes a #GstMpegTsNITStream
+ *
+ * Returns: (transfer full): A newly allocated #GstMpegTsNITStream
+ */
+GstMpegTsNITStream *
+gst_mpegts_nit_stream_new (void)
+{
+  GstMpegTsNITStream *stream;
+
+  stream = g_slice_new0 (GstMpegTsNITStream);
+
+  stream->descriptors = g_ptr_array_new_with_free_func (
+      (GDestroyNotify) _free_descriptor);
+
+  return stream;
+}
+
+static gboolean
+_packetize_nit (GstMpegTsSection * section)
+{
+  gsize length, network_length, loop_length;
+  const GstMpegTsNIT *nit;
+  GstMpegTsNITStream *stream;
+  GstMpegTsDescriptor *descriptor;
+  guint i, j;
+  guint8 *data, *pos;
+
+  nit = gst_mpegts_section_get_nit (section);
+
+  if (nit == NULL)
+    return FALSE;
+
+  /* 8 byte common section fields
+     2 byte network_descriptors_length
+     2 byte transport_stream_loop_length
+     4 byte CRC */
+  length = 16;
+
+  /* Find length of network descriptors */
+  network_length = 0;
+  if (nit->descriptors) {
+    for (i = 0; i < nit->descriptors->len; i++) {
+      descriptor = g_ptr_array_index (nit->descriptors, i);
+      network_length += descriptor->length + 2;
+    }
+  }
+
+  /* Find length of loop */
+  loop_length = 0;
+  if (nit->streams) {
+    for (i = 0; i < nit->streams->len; i++) {
+      stream = g_ptr_array_index (nit->streams, i);
+      loop_length += 6;
+      if (stream->descriptors) {
+        for (j = 0; j < stream->descriptors->len; j++) {
+          descriptor = g_ptr_array_index (stream->descriptors, j);
+          loop_length += descriptor->length + 2;
+        }
+      }
+    }
+  }
+
+  length += network_length + loop_length;
+
+  /* Max length of NIT section is 1024 bytes */
+  g_return_val_if_fail (length <= 1024, FALSE);
+
+  _packetize_common_section (section, length);
+
+  data = section->data + 8;
+  /* reserved                         - 4  bit
+     network_descriptors_length       - 12 bit uimsbf */
+  GST_WRITE_UINT16_BE (data, network_length | 0xF000);
+  data += 2;
+
+  _packetize_descriptor_array (nit->descriptors, &data);
+
+  /* reserved                         - 4  bit
+     transport_stream_loop_length     - 12 bit uimsbf */
+  GST_WRITE_UINT16_BE (data, loop_length | 0xF000);
+  data += 2;
+
+  if (nit->streams) {
+    for (i = 0; i < nit->streams->len; i++) {
+      stream = g_ptr_array_index (nit->streams, i);
+      /* transport_stream_id          - 16 bit uimsbf */
+      GST_WRITE_UINT16_BE (data, stream->transport_stream_id);
+      data += 2;
+
+      /* original_network_id          - 16 bit uimsbf */
+      GST_WRITE_UINT16_BE (data, stream->original_network_id);
+      data += 2;
+
+      /* reserved                     -  4 bit
+         transport_descriptors_length - 12 bit uimsbf
+
+         Set length to zero, and update in loop */
+      pos = data;
+      *data++ = 0xF0;
+      *data++ = 0x00;
+
+      _packetize_descriptor_array (stream->descriptors, &data);
+
+      /* Go back and update the descriptor length */
+      GST_WRITE_UINT16_BE (pos, (data - pos - 2) | 0xF000);
+    }
+  }
+
+  return TRUE;
+}
+
+/**
+ * gst_mpegts_section_from_nit:
+ * @nit: (transfer full): a #GstMpegTsNIT to create the #GstMpegTsSection from
+ *
+ * Ownership of @nit is taken. The data in @nit is managed by the #GstMpegTsSection
+ *
+ * Returns: (transfer full): the #GstMpegTsSection
+ */
+GstMpegTsSection *
+gst_mpegts_section_from_nit (GstMpegTsNIT * nit)
+{
+  GstMpegTsSection *section;
+
+  g_return_val_if_fail (nit != NULL, NULL);
+
+  if (nit->actual_network)
+    section = _gst_mpegts_section_init (0x10,
+        GST_MTS_TABLE_ID_NETWORK_INFORMATION_ACTUAL_NETWORK);
+  else
+    section = _gst_mpegts_section_init (0x10,
+        GST_MTS_TABLE_ID_NETWORK_INFORMATION_OTHER_NETWORK);
+
+  section->subtable_extension = nit->network_id;
+  section->cached_parsed = (gpointer) nit;
+  section->packetizer = _packetize_nit;
+  section->destroy_parsed = (GDestroyNotify) _gst_mpegts_nit_free;
+
+  return section;
+}
 
 /* Service Description Table (SDT) */
 
@@ -666,6 +832,8 @@ _parse_sdt (GstMpegTsSection * section)
   data = section->data;
   end = data + section->section_length;
 
+  sdt->transport_stream_id = section->subtable_extension;
+
   /* Skip common fields */
   data += 8;
 
@@ -689,7 +857,7 @@ _parse_sdt (GstMpegTsSection * section)
 
     entry_begin = data;
 
-    if (sdt_info_length + 5 < 4) {
+    if (sdt_info_length - 4 < 5) {
       /* each entry must be at least 5 bytes (+4 bytes for the CRC) */
       GST_WARNING ("PID %d invalid SDT entry size %d",
           section->pid, sdt_info_length);
@@ -758,10 +926,169 @@ gst_mpegts_section_get_sdt (GstMpegTsSection * section)
 
   if (!section->cached_parsed)
     section->cached_parsed =
-        __common_desc_checks (section, 15, _parse_sdt,
+        __common_section_checks (section, 15, _parse_sdt,
         (GDestroyNotify) _gst_mpegts_sdt_free);
 
   return (const GstMpegTsSDT *) section->cached_parsed;
+}
+
+/**
+ * gst_mpegts_sdt_new:
+ *
+ * Allocates and initializes a #GstMpegTsSDT.
+ *
+ * Returns: (transfer full): A newly allocated #GstMpegTsSDT
+ */
+GstMpegTsSDT *
+gst_mpegts_sdt_new (void)
+{
+  GstMpegTsSDT *sdt;
+
+  sdt = g_slice_new0 (GstMpegTsSDT);
+
+  sdt->services = g_ptr_array_new_with_free_func ((GDestroyNotify)
+      _gst_mpegts_sdt_service_free);
+
+  return sdt;
+}
+
+/**
+ * gst_mpegts_sdt_service_new:
+ *
+ * Allocates and initializes a #GstMpegTsSDTService.
+ *
+ * Returns: (transfer full): A newly allocated #GstMpegTsSDTService
+ */
+GstMpegTsSDTService *
+gst_mpegts_sdt_service_new (void)
+{
+  GstMpegTsSDTService *service;
+
+  service = g_slice_new0 (GstMpegTsSDTService);
+
+  service->descriptors = g_ptr_array_new_with_free_func ((GDestroyNotify)
+      _free_descriptor);
+
+  return service;
+}
+
+static gboolean
+_packetize_sdt (GstMpegTsSection * section)
+{
+  gsize length, service_length;
+  const GstMpegTsSDT *sdt;
+  GstMpegTsSDTService *service;
+  GstMpegTsDescriptor *descriptor;
+  guint i, j;
+  guint8 *data, *pos;
+
+  sdt = gst_mpegts_section_get_sdt (section);
+
+  if (sdt == NULL)
+    return FALSE;
+
+  /* 8 byte common section fields
+     2 byte original_network_id
+     1 byte reserved
+     4 byte CRC */
+  length = 15;
+
+  /* Find length of services */
+  service_length = 0;
+  if (sdt->services) {
+    for (i = 0; i < sdt->services->len; i++) {
+      service = g_ptr_array_index (sdt->services, i);
+      service_length += 5;
+      if (service->descriptors) {
+        for (j = 0; j < service->descriptors->len; j++) {
+          descriptor = g_ptr_array_index (service->descriptors, j);
+          service_length += descriptor->length + 2;
+        }
+      }
+    }
+  }
+
+  length += service_length;
+
+  /* Max length if SDT section is 1024 bytes */
+  g_return_val_if_fail (length <= 1024, FALSE);
+
+  _packetize_common_section (section, length);
+
+  data = section->data + 8;
+  /* original_network_id            - 16 bit uimsbf */
+  GST_WRITE_UINT16_BE (data, sdt->original_network_id);
+  data += 2;
+  /* reserved                       -  8 bit */
+  *data++ = 0xFF;
+
+  if (sdt->services) {
+    for (i = 0; i < sdt->services->len; i++) {
+      service = g_ptr_array_index (sdt->services, i);
+      /* service_id                 - 16 bit uimsbf */
+      GST_WRITE_UINT16_BE (data, service->service_id);
+      data += 2;
+
+      /* reserved                   -  6 bit
+         EIT_schedule_flag          -  1 bit
+         EIT_present_following_flag -  1 bit */
+      *data = 0xFC;
+      if (service->EIT_schedule_flag)
+        *data |= 0x02;
+      if (service->EIT_present_following_flag)
+        *data |= 0x01;
+      data++;
+
+      /* running_status             -  3 bit uimsbf
+         free_CA_mode               -  1 bit
+         descriptors_loop_length    - 12 bit uimsbf */
+      /* Set length to zero for now */
+      pos = data;
+      *data++ = 0x00;
+      *data++ = 0x00;
+
+      _packetize_descriptor_array (service->descriptors, &data);
+
+      /* Go back and update the descriptor length */
+      GST_WRITE_UINT16_BE (pos, data - pos - 2);
+
+      *pos |= service->running_status << 5;
+      if (service->free_CA_mode)
+        *pos |= 0x10;
+    }
+  }
+
+  return TRUE;
+}
+
+/**
+ * gst_mpegts_section_from_sdt:
+ * @sdt: (transfer full): a #GstMpegTsSDT to create the #GstMpegTsSection from
+ *
+ * Ownership of @sdt is taken. The data in @sdt is managed by the #GstMpegTsSection
+ *
+ * Returns: (transfer full): the #GstMpegTsSection
+ */
+GstMpegTsSection *
+gst_mpegts_section_from_sdt (GstMpegTsSDT * sdt)
+{
+  GstMpegTsSection *section;
+
+  g_return_val_if_fail (sdt != NULL, NULL);
+
+  if (sdt->actual_ts)
+    section = _gst_mpegts_section_init (0x11,
+        GST_MTS_TABLE_ID_SERVICE_DESCRIPTION_ACTUAL_TS);
+  else
+    section = _gst_mpegts_section_init (0x11,
+        GST_MTS_TABLE_ID_SERVICE_DESCRIPTION_OTHER_TS);
+
+  section->subtable_extension = sdt->transport_stream_id;
+  section->cached_parsed = (gpointer) sdt;
+  section->packetizer = _packetize_sdt;
+  section->destroy_parsed = (GDestroyNotify) _gst_mpegts_sdt_free;
+
+  return section;
 }
 
 /* Time and Date Table (TDT) */
@@ -788,7 +1115,7 @@ gst_mpegts_section_get_tdt (GstMpegTsSection * section)
 
   if (!section->cached_parsed)
     section->cached_parsed =
-        __common_desc_checks (section, 8, _parse_tdt,
+        __common_section_checks (section, 8, _parse_tdt,
         (GDestroyNotify) gst_date_time_unref);
 
   if (section->cached_parsed)
@@ -862,7 +1189,7 @@ gst_mpegts_section_get_tot (GstMpegTsSection * section)
 
   if (!section->cached_parsed)
     section->cached_parsed =
-        __common_desc_checks (section, 14, _parse_tot,
+        __common_section_checks (section, 14, _parse_tot,
         (GDestroyNotify) _gst_mpegts_tot_free);
 
   return (const GstMpegTsTOT *) section->cached_parsed;

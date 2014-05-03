@@ -53,16 +53,14 @@
  *
  * The Manifest is parsed and the streams are exposed, 1 pad for each, with
  * a initially selected QualityLevel. Each stream starts its own GstTaks that
- * is responsible for downloading fragments and storing in its own GstDataQueue.
- *
- * The mssdemux starts another GstTask, this one iterates through the streams
- * and selects the fragment with the smaller timestamp to push and repeats this.
+ * is responsible for downloading fragments and pushing them downstream.
  *
  * When a new connection-speed is set, mssdemux evaluates the available
  * QualityLevels and might decide to switch to another one. In this case it
- * exposes new pads for each stream, pushes EOS to the old ones and removes
- * them. This should make decodebin2 pad switching mechanism act and the
- * switch would be smooth for the final user.
+ * pushes a new GstCaps event indicating the new caps on the pads.
+ *
+ * All operations that intend to update the GstTasks state should be protected
+ * with the GST_OBJECT_LOCK.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -133,11 +131,15 @@ static gboolean gst_mss_demux_src_query (GstPad * pad, GstObject * parent,
     GstQuery * query);
 
 static void gst_mss_demux_download_loop (GstMssDemuxStream * stream);
-static void gst_mss_demux_stream_loop (GstMssDemux * mssdemux);
-static void gst_mss_demux_stream_store_object (GstMssDemuxStream * stream,
-    GstMiniObject * obj);
+static GstFlowReturn gst_mss_demux_stream_push (GstMssDemuxStream * stream,
+    GstBuffer * buffer);
+static GstFlowReturn gst_mss_demux_stream_push_event (GstMssDemuxStream *
+    stream, GstEvent * event);
+static GstFlowReturn gst_mss_demux_combine_flows (GstMssDemux * mssdemux);
 
 static gboolean gst_mss_demux_process_manifest (GstMssDemux * mssdemux);
+static void
+gst_mss_demux_stop_tasks (GstMssDemux * mssdemux, gboolean immediate);
 
 static void
 gst_mss_demux_class_init (GstMssDemuxClass * klass)
@@ -155,7 +157,7 @@ gst_mss_demux_class_init (GstMssDemuxClass * klass)
   gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&gst_mss_demux_audiosrc_template));
   gst_element_class_set_static_metadata (gstelement_class,
-      "Smooth Streaming demuxer", "Demuxer",
+      "Smooth Streaming demuxer", "Codec/Demuxer/Adaptive",
       "Parse and demultiplex a Smooth Streaming manifest into audio and video "
       "streams", "Thiago Santos <thiago.sousa.santos@collabora.com>");
 
@@ -199,29 +201,11 @@ gst_mss_demux_init (GstMssDemux * mssdemux)
       GST_DEBUG_FUNCPTR (gst_mss_demux_event));
   gst_element_add_pad (GST_ELEMENT_CAST (mssdemux), mssdemux->sinkpad);
 
-  g_rec_mutex_init (&mssdemux->stream_lock);
-  mssdemux->stream_task =
-      gst_task_new ((GstTaskFunction) gst_mss_demux_stream_loop, mssdemux,
-      NULL);
-  gst_task_set_lock (mssdemux->stream_task, &mssdemux->stream_lock);
-
   mssdemux->data_queue_max_size = DEFAULT_MAX_QUEUE_SIZE_BUFFERS;
   mssdemux->bitrate_limit = DEFAULT_BITRATE_LIMIT;
 
   mssdemux->have_group_id = FALSE;
   mssdemux->group_id = G_MAXUINT;
-}
-
-static gboolean
-_data_queue_check_full (GstDataQueue * queue, guint visible, guint bytes,
-    guint64 time, gpointer checkdata)
-{
-  GstMssDemuxStream *stream = checkdata;
-  GstMssDemux *mssdemux = stream->parent;
-
-  if (mssdemux->data_queue_max_size == 0)
-    return FALSE;               /* never full */
-  return visible >= mssdemux->data_queue_max_size;
 }
 
 static GstMssDemuxStream *
@@ -232,8 +216,6 @@ gst_mss_demux_stream_new (GstMssDemux * mssdemux,
 
   stream = g_new0 (GstMssDemuxStream, 1);
   stream->downloader = gst_uri_downloader_new ();
-  stream->dataqueue =
-      gst_data_queue_new (_data_queue_check_full, NULL, NULL, stream);
 
   /* Downloading task */
   g_rec_mutex_init (&stream->download_lock);
@@ -249,6 +231,8 @@ gst_mss_demux_stream_new (GstMssDemux * mssdemux,
   gst_download_rate_set_max_length (&stream->download_rate,
       DOWNLOAD_RATE_MAX_HISTORY_LENGTH);
 
+  gst_segment_init (&stream->segment, GST_FORMAT_TIME);
+
   return stream;
 }
 
@@ -261,8 +245,6 @@ gst_mss_demux_stream_free (GstMssDemuxStream * stream)
           GST_DEBUG_PAD_NAME (stream->pad));
       gst_uri_downloader_cancel (stream->downloader);
       gst_task_stop (stream->download_task);
-      g_rec_mutex_lock (&stream->download_lock);
-      g_rec_mutex_unlock (&stream->download_lock);
       GST_LOG_OBJECT (stream->parent, "Waiting for task to finish");
       gst_task_join (stream->download_task);
       GST_LOG_OBJECT (stream->parent, "Finished");
@@ -282,10 +264,6 @@ gst_mss_demux_stream_free (GstMssDemuxStream * stream)
     g_object_unref (stream->downloader);
     stream->downloader = NULL;
   }
-  if (stream->dataqueue) {
-    g_object_unref (stream->dataqueue);
-    stream->dataqueue = NULL;
-  }
   if (stream->pad) {
     gst_object_unref (stream->pad);
     stream->pad = NULL;
@@ -300,20 +278,7 @@ gst_mss_demux_reset (GstMssDemux * mssdemux)
 {
   GSList *iter;
 
-  for (iter = mssdemux->streams; iter; iter = g_slist_next (iter)) {
-    GstMssDemuxStream *stream = iter->data;
-    if (stream->downloader)
-      gst_uri_downloader_cancel (stream->downloader);
-
-    gst_data_queue_set_flushing (stream->dataqueue, TRUE);
-  }
-
-  if (GST_TASK_STATE (mssdemux->stream_task) != GST_TASK_STOPPED) {
-    gst_task_stop (mssdemux->stream_task);
-    g_rec_mutex_lock (&mssdemux->stream_lock);
-    g_rec_mutex_unlock (&mssdemux->stream_lock);
-    gst_task_join (mssdemux->stream_task);
-  }
+  gst_mss_demux_stop_tasks (mssdemux, TRUE);
 
   if (mssdemux->manifest_buffer) {
     gst_buffer_unref (mssdemux->manifest_buffer);
@@ -350,12 +315,6 @@ gst_mss_demux_dispose (GObject * object)
   GstMssDemux *mssdemux = GST_MSS_DEMUX_CAST (object);
 
   gst_mss_demux_reset (mssdemux);
-
-  if (mssdemux->stream_task) {
-    gst_object_unref (mssdemux->stream_task);
-    g_rec_mutex_clear (&mssdemux->stream_lock);
-    mssdemux->stream_task = NULL;
-  }
 
   G_OBJECT_CLASS (parent_class)->dispose (object);
 }
@@ -427,15 +386,6 @@ gst_mss_demux_change_state (GstElement * element, GstStateChange transition)
 
   result = GST_ELEMENT_CLASS (parent_class)->change_state (element, transition);
 
-  switch (transition) {
-    case GST_STATE_CHANGE_READY_TO_PAUSED:{
-      gst_segment_init (&mssdemux->segment, GST_FORMAT_TIME);
-      break;
-    }
-    default:
-      break;
-  }
-
   return result;
 }
 
@@ -465,8 +415,6 @@ gst_mss_demux_start (GstMssDemux * mssdemux)
     GstMssDemuxStream *stream = iter->data;
     gst_task_start (stream->download_task);
   }
-
-  gst_task_start (mssdemux->stream_task);
 }
 
 static gboolean
@@ -524,25 +472,23 @@ gst_mss_demux_stop_tasks (GstMssDemux * mssdemux, gboolean immediate)
 {
   GSList *iter;
 
+  GST_OBJECT_LOCK (mssdemux);
   for (iter = mssdemux->streams; iter; iter = g_slist_next (iter)) {
     GstMssDemuxStream *stream = iter->data;
 
-    gst_data_queue_set_flushing (stream->dataqueue, TRUE);
-
+    gst_task_stop (stream->download_task);
     stream->cancelled = TRUE;
     if (immediate)
       gst_uri_downloader_cancel (stream->downloader);
-    gst_task_pause (stream->download_task);
   }
-  gst_task_pause (mssdemux->stream_task);
+  GST_OBJECT_UNLOCK (mssdemux);
 
   for (iter = mssdemux->streams; iter; iter = g_slist_next (iter)) {
     GstMssDemuxStream *stream = iter->data;
-    g_rec_mutex_lock (&stream->download_lock);
-    stream->cancelled = FALSE;
+
+    gst_task_join (stream->download_task);
     stream->download_error_count = 0;
   }
-  g_rec_mutex_lock (&mssdemux->stream_lock);
 }
 
 static void
@@ -552,16 +498,9 @@ gst_mss_demux_restart_tasks (GstMssDemux * mssdemux)
   for (iter = mssdemux->streams; iter; iter = g_slist_next (iter)) {
     GstMssDemuxStream *stream = iter->data;
     gst_uri_downloader_reset (stream->downloader);
-    g_rec_mutex_unlock (&stream->download_lock);
-  }
-  g_rec_mutex_unlock (&mssdemux->stream_lock);
-  for (iter = mssdemux->streams; iter; iter = g_slist_next (iter)) {
-    GstMssDemuxStream *stream = iter->data;
-
-    gst_data_queue_set_flushing (stream->dataqueue, FALSE);
+    stream->cancelled = FALSE;
     gst_task_start (stream->download_task);
   }
-  gst_task_start (mssdemux->stream_task);
 }
 
 static gboolean
@@ -610,19 +549,23 @@ gst_mss_demux_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
         goto not_supported;
       }
 
-      gst_segment_do_seek (&mssdemux->segment, rate, format, flags,
-          start_type, start, stop_type, stop, &update);
-
-      newsegment = gst_event_new_segment (&mssdemux->segment);
-      gst_event_set_seqnum (newsegment, gst_event_get_seqnum (event));
       for (iter = mssdemux->streams; iter; iter = g_slist_next (iter)) {
         GstMssDemuxStream *stream = iter->data;
 
         stream->eos = FALSE;
-        gst_data_queue_flush (stream->dataqueue);
-        gst_event_replace (&stream->pending_newsegment, newsegment);
+        if (flags & GST_SEEK_FLAG_FLUSH) {
+          stream->last_ret = GST_FLOW_OK;
+        }
+
+        gst_segment_do_seek (&stream->segment, rate, format, flags,
+            start_type, start, stop_type, stop, &update);
+
+        newsegment = gst_event_new_segment (&stream->segment);
+        gst_event_set_seqnum (newsegment, gst_event_get_seqnum (event));
+        if (stream->pending_newsegment)
+          gst_event_unref (stream->pending_newsegment);
+        stream->pending_newsegment = newsegment;
       }
-      gst_event_unref (newsegment);
 
       if (flags & GST_SEEK_FLAG_FLUSH) {
         GstEvent *flush = gst_event_new_flush_stop (TRUE);
@@ -637,6 +580,27 @@ gst_mss_demux_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
       gst_event_unref (event);
       return TRUE;
     }
+    case GST_EVENT_RECONFIGURE:{
+      GSList *iter;
+
+      for (iter = mssdemux->streams; iter; iter = g_slist_next (iter)) {
+        GstMssDemuxStream *stream = iter->data;
+
+        if (stream->pad == pad) {
+          GST_OBJECT_LOCK (mssdemux);
+
+          if (stream->last_ret == GST_FLOW_NOT_LINKED) {
+            GST_DEBUG_OBJECT (stream->pad, "Received reconfigure");
+            stream->restart_download = TRUE;
+            gst_task_start (stream->download_task);
+          }
+          GST_OBJECT_UNLOCK (mssdemux);
+          gst_event_unref (event);
+          return TRUE;
+        }
+      }
+    }
+      break;
     default:
       break;
   }
@@ -692,7 +656,9 @@ gst_mss_demux_src_query (GstPad * pad, GstObject * parent, GstQuery * query)
       GstFormat fmt;
       gint64 stop = -1;
 
-      if (mssdemux->manifest && gst_mss_manifest_is_live (mssdemux->manifest)) {
+      if (!mssdemux->manifest) {
+        return FALSE;           /* no seeking without manifest */
+      } else if (gst_mss_manifest_is_live (mssdemux->manifest)) {
         return FALSE;           /* no live seeking */
       }
 
@@ -824,6 +790,7 @@ gst_mss_demux_expose_stream (GstMssDemux * mssdemux, GstMssDemuxStream * stream)
 
   if (media_caps) {
     gchar *name = gst_pad_get_name (pad);
+    const gchar *lang;
     GstEvent *event;
     gchar *stream_id;
     gst_pad_set_active (pad, TRUE);
@@ -857,11 +824,20 @@ gst_mss_demux_expose_stream (GstMssDemux * mssdemux, GstMssDemuxStream * stream)
     gst_pad_set_caps (pad, caps);
     stream->caps = caps;
 
+    lang = gst_mss_stream_get_lang (stream->manifest_stream);
+    if (lang != NULL) {
+      GstTagList *tags;
+
+      tags = gst_tag_list_new (GST_TAG_LANGUAGE_CODE, lang, NULL);
+      gst_pad_push_event (stream->pad, gst_event_new_tag (tags));
+    }
+
+    gst_pad_push_event (stream->pad, gst_event_new_segment (&stream->segment));
+
     GST_INFO_OBJECT (mssdemux, "Adding srcpad %s:%s with caps %" GST_PTR_FORMAT,
         GST_DEBUG_PAD_NAME (pad), caps);
     gst_object_ref (pad);
 
-    stream->pending_newsegment = gst_event_new_segment (&mssdemux->segment);
     gst_element_add_pad (GST_ELEMENT_CAST (mssdemux), pad);
   } else {
     GST_WARNING_OBJECT (mssdemux,
@@ -963,7 +939,8 @@ gst_mss_demux_reload_manifest (GstMssDemux * mssdemux)
   downloader = gst_uri_downloader_new ();
 
   manifest_data =
-      gst_uri_downloader_fetch_uri (downloader, mssdemux->manifest_uri);
+      gst_uri_downloader_fetch_uri (downloader, mssdemux->manifest_uri, NULL,
+      TRUE, TRUE, NULL);
   manifest_buffer = gst_fragment_get_buffer (manifest_data);
   g_object_unref (manifest_data);
 
@@ -974,9 +951,10 @@ gst_mss_demux_reload_manifest (GstMssDemux * mssdemux)
   g_object_unref (downloader);
 }
 
-static void
+static GstEvent *
 gst_mss_demux_reconfigure_stream (GstMssDemuxStream * stream)
 {
+  GstEvent *capsevent = NULL;
   GstMssDemux *mssdemux = stream->parent;
   guint64 new_bitrate;
 
@@ -987,83 +965,53 @@ gst_mss_demux_reconfigure_stream (GstMssDemuxStream * stream)
     new_bitrate = MIN (mssdemux->connection_speed, new_bitrate);
   }
 
-  GST_DEBUG_OBJECT (mssdemux,
-      "Current stream %s download bitrate %" G_GUINT64_FORMAT,
-      GST_PAD_NAME (stream->pad), new_bitrate);
+  GST_DEBUG_OBJECT (stream->pad,
+      "Current stream download bitrate %" G_GUINT64_FORMAT, new_bitrate);
 
   if (gst_mss_stream_select_bitrate (stream->manifest_stream, new_bitrate)) {
-    GstEvent *capsevent;
     GstCaps *caps;
     caps = gst_mss_stream_get_caps (stream->manifest_stream);
 
+    GST_DEBUG_OBJECT (stream->pad,
+        "Starting streams reconfiguration due to bitrate changes");
     if (stream->caps)
       gst_caps_unref (stream->caps);
     stream->caps = create_mss_caps (stream, caps);
     gst_caps_unref (caps);
 
-    GST_DEBUG_OBJECT (mssdemux,
-        "Stream %s changed bitrate to %" G_GUINT64_FORMAT " caps: %"
-        GST_PTR_FORMAT, GST_PAD_NAME (stream->pad),
+    GST_DEBUG_OBJECT (stream->pad,
+        "Stream changed bitrate to %" G_GUINT64_FORMAT " caps: %"
+        GST_PTR_FORMAT,
         gst_mss_stream_get_current_bitrate (stream->manifest_stream), caps);
 
     capsevent = gst_event_new_caps (stream->caps);
-    gst_mss_demux_stream_store_object (stream,
-        GST_MINI_OBJECT_CAST (capsevent));
+    GST_DEBUG_OBJECT (stream->pad, "Finished streams reconfiguration");
   }
-}
-
-static void
-_free_data_queue_item (gpointer obj)
-{
-  GstDataQueueItem *item = obj;
-
-  gst_mini_object_unref (item->object);
-  g_slice_free (GstDataQueueItem, item);
-}
-
-static void
-gst_mss_demux_stream_store_object (GstMssDemuxStream * stream,
-    GstMiniObject * obj)
-{
-  GstDataQueueItem *item;
-  gboolean ret = FALSE;
-
-  item = g_slice_new (GstDataQueueItem);
-  item->object = (GstMiniObject *) obj;
-
-  item->duration = 0;           /* we don't care */
-  item->size = 0;
-  item->visible = TRUE;
-
-  item->destroy = (GDestroyNotify) _free_data_queue_item;
-
-  if (G_LIKELY (GST_IS_BUFFER (obj))) {
-    ret = gst_data_queue_push (stream->dataqueue, item);
-  } else {
-    ret = gst_data_queue_push_force (stream->dataqueue, item);
-  }
-
-  if (!ret) {
-    GST_DEBUG_OBJECT (stream->parent, "Failed to store object %p", obj);
-    item->destroy (item);
-  }
+  return capsevent;
 }
 
 static GstFlowReturn
 gst_mss_demux_stream_download_fragment (GstMssDemuxStream * stream,
-    gboolean * buffer_downloaded)
+    GstBuffer ** _buffer)
 {
   GstMssDemux *mssdemux = stream->parent;
   gchar *path;
   gchar *url;
   GstFragment *fragment;
-  GstBuffer *_buffer;
+  GstBuffer *buffer;
   GstFlowReturn ret = GST_FLOW_OK;
   guint64 before_download, after_download;
 
+  /* special case for not-linked streams */
+  if (stream->last_ret == GST_FLOW_NOT_LINKED) {
+    GST_DEBUG_OBJECT (stream->pad, "Skipping download for not-linked stream %p",
+        stream);
+    return GST_FLOW_NOT_LINKED;
+  }
+
   before_download = g_get_real_time ();
 
-  GST_DEBUG_OBJECT (mssdemux, "Getting url for stream %p", stream);
+  GST_DEBUG_OBJECT (stream->pad, "Getting url for stream");
   ret = gst_mss_stream_get_fragment_url (stream->manifest_stream, &path);
   switch (ret) {
     case GST_FLOW_OK:
@@ -1088,7 +1036,9 @@ gst_mss_demux_stream_download_fragment (GstMssDemuxStream * stream,
 
   GST_DEBUG_OBJECT (mssdemux, "Got url '%s' for stream %p", url, stream);
 
-  fragment = gst_uri_downloader_fetch_uri (stream->downloader, url);
+  fragment =
+      gst_uri_downloader_fetch_uri (stream->downloader, url,
+      mssdemux->manifest_uri, FALSE, FALSE, NULL);
   g_free (path);
   g_free (url);
 
@@ -1103,22 +1053,19 @@ gst_mss_demux_stream_download_fragment (GstMssDemuxStream * stream,
     return GST_FLOW_ERROR;
   }
 
-  _buffer = gst_fragment_get_buffer (fragment);
-  _buffer = gst_buffer_make_writable (_buffer);
-  GST_BUFFER_TIMESTAMP (_buffer) =
+  buffer = gst_fragment_get_buffer (fragment);
+  *_buffer = buffer = gst_buffer_make_writable (buffer);
+  GST_BUFFER_TIMESTAMP (buffer) =
       gst_mss_stream_get_fragment_gst_timestamp (stream->manifest_stream);
-  GST_BUFFER_DURATION (_buffer) =
+  GST_BUFFER_DURATION (buffer) =
       gst_mss_stream_get_fragment_gst_duration (stream->manifest_stream);
 
   g_object_unref (fragment);
 
-  if (buffer_downloaded)
-    *buffer_downloaded = _buffer != NULL;
-
   after_download = g_get_real_time ();
-  if (_buffer) {
+  {
 #ifndef GST_DISABLE_GST_DEBUG
-    guint64 bitrate = (8 * gst_buffer_get_size (_buffer) * 1000000LLU) /
+    guint64 bitrate = (8 * gst_buffer_get_size (buffer) * 1000000LLU) /
         (after_download - before_download);
 #endif
 
@@ -1126,16 +1073,8 @@ gst_mss_demux_stream_download_fragment (GstMssDemuxStream * stream,
         "Measured download bitrate: %s %" G_GUINT64_FORMAT " bps",
         GST_PAD_NAME (stream->pad), bitrate);
     gst_download_rate_add_rate (&stream->download_rate,
-        gst_buffer_get_size (_buffer),
+        gst_buffer_get_size (buffer),
         1000 * (after_download - before_download));
-
-    GST_DEBUG_OBJECT (mssdemux,
-        "Storing buffer for stream %p - %s. Timestamp: %" GST_TIME_FORMAT
-        " Duration: %" GST_TIME_FORMAT,
-        stream, GST_PAD_NAME (stream->pad),
-        GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (_buffer)),
-        GST_TIME_ARGS (GST_BUFFER_DURATION (_buffer)));
-    gst_mss_demux_stream_store_object (stream, GST_MINI_OBJECT_CAST (_buffer));
   }
 
   return ret;
@@ -1160,231 +1099,221 @@ static void
 gst_mss_demux_download_loop (GstMssDemuxStream * stream)
 {
   GstMssDemux *mssdemux = stream->parent;
-  gboolean buffer_downloaded = FALSE;
   GstFlowReturn ret;
+  GstBuffer *buffer = NULL;
+  gboolean buffer_downloaded = FALSE;
+  GstEvent *gap = NULL;
+  GstEvent *capsevent = NULL;
 
-  GST_LOG_OBJECT (mssdemux, "download loop start %p", stream);
+  GST_LOG_OBJECT (stream->pad, "download loop start");
 
   GST_OBJECT_LOCK (mssdemux);
-  GST_DEBUG_OBJECT (mssdemux,
-      "Starting streams reconfiguration due to bitrate changes");
-  gst_mss_demux_reconfigure_stream (stream);
-  GST_DEBUG_OBJECT (mssdemux, "Finished streams reconfiguration");
+  if (G_UNLIKELY (stream->restart_download)) {
+    GstClockTime cur, ts;
+    gint64 pos;
+
+    GST_DEBUG_OBJECT (stream->pad,
+        "Activating stream due to reconfigure event");
+
+    cur = GST_CLOCK_TIME_IS_VALID (stream->next_timestamp) ?
+        stream->next_timestamp : 0;
+
+    if (gst_pad_peer_query_position (stream->pad, GST_FORMAT_TIME, &pos)) {
+      ts = (GstClockTime) pos;
+      GST_DEBUG_OBJECT (mssdemux, "Downstream position: %"
+          GST_TIME_FORMAT, GST_TIME_ARGS (ts));
+    } else {
+      GST_DEBUG_OBJECT (mssdemux, "Downstream position query failed, "
+          "failling back to segment position");
+      ts = stream->segment.position;
+    }
+
+    /* we might have already pushed this data */
+    ts = MAX (ts, stream->next_timestamp);
+
+    GST_DEBUG_OBJECT (stream->pad, "Restarting stream at "
+        "position %" GST_TIME_FORMAT, GST_TIME_ARGS (ts));
+
+    if (GST_CLOCK_TIME_IS_VALID (ts)) {
+      gst_mss_stream_seek (stream->manifest_stream, ts);
+
+      if (cur < ts) {
+        gap = gst_event_new_gap (cur, ts - cur);
+      }
+    }
+
+    stream->restart_download = FALSE;
+    stream->last_ret = GST_FLOW_OK;
+  }
+  capsevent = gst_mss_demux_reconfigure_stream (stream);
   GST_OBJECT_UNLOCK (mssdemux);
 
-  ret = gst_mss_demux_stream_download_fragment (stream, &buffer_downloaded);
+  if (G_UNLIKELY (gap != NULL))
+    gst_pad_push_event (stream->pad, gap);
+  if (G_UNLIKELY (capsevent != NULL))
+    gst_pad_push_event (stream->pad, capsevent);
 
-  if (stream->cancelled)
+  ret = gst_mss_demux_stream_download_fragment (stream, &buffer);
+  buffer_downloaded = buffer != NULL;
+
+  GST_OBJECT_LOCK (mssdemux);
+  if (stream->cancelled) {
+    if (buffer)
+      gst_buffer_unref (buffer);
+    GST_OBJECT_UNLOCK (mssdemux);
     goto cancelled;
+  }
+  GST_OBJECT_UNLOCK (mssdemux);
+
+  if (buffer) {
+    ret = gst_mss_demux_stream_push (stream, buffer);
+  }
+
+  GST_OBJECT_LOCK (mssdemux);
+  stream->last_ret = ret;
+
+  if (stream->cancelled) {
+    GST_OBJECT_UNLOCK (mssdemux);
+    goto cancelled;
+  }
 
   switch (ret) {
     case GST_FLOW_OK:
       break;                    /* all is good, let's go */
+
     case GST_FLOW_EOS:
-      goto eos;
-    case GST_FLOW_ERROR:
-      goto error;
+      GST_DEBUG_OBJECT (stream->pad, "EOS, stopping download loop");
+      /* we push the EOS after releasing the object lock */
+      gst_task_pause (stream->download_task);
+      break;
+
+    case GST_FLOW_NOT_LINKED:
+      gst_task_pause (stream->download_task);
+      if (gst_mss_demux_combine_flows (mssdemux) == GST_FLOW_NOT_LINKED) {
+        GST_ELEMENT_ERROR (mssdemux, STREAM, FAILED,
+            (_("Internal data stream error.")),
+            ("stream stopped, reason %s",
+                gst_flow_get_name (GST_FLOW_NOT_LINKED)));
+      }
+      break;
+
+    case GST_FLOW_FLUSHING:{
+      GSList *iter;
+
+      for (iter = mssdemux->streams; iter; iter = g_slist_next (iter)) {
+        GstMssDemuxStream *other;
+
+        other = iter->data;
+        gst_task_pause (other->download_task);
+      }
+    }
+      break;
+
     default:
+      if (ret <= GST_FLOW_ERROR) {
+        if (buffer_downloaded) {
+          GST_ERROR_OBJECT (mssdemux, "Error while pushing fragment");
+        } else {
+          GST_WARNING_OBJECT (mssdemux, "Error while downloading fragment");
+          if (++stream->download_error_count >=
+              DOWNLOAD_RATE_MAX_HISTORY_LENGTH) {
+            GST_ELEMENT_ERROR (mssdemux, RESOURCE, NOT_FOUND,
+                (_("Couldn't download fragments")),
+                ("fragment downloading has failed too much consecutive times"));
+          }
+        }
+      }
       break;
   }
+  GST_OBJECT_UNLOCK (mssdemux);
 
-  stream->download_error_count = 0;
+  if (G_UNLIKELY (ret == GST_FLOW_EOS)) {
+    gst_mss_demux_stream_push_event (stream, gst_event_new_eos ());
+  }
 
   if (buffer_downloaded) {
+    stream->download_error_count = 0;
     gst_mss_stream_advance_fragment (stream->manifest_stream);
   }
 
-  GST_LOG_OBJECT (mssdemux, "download loop end %p", stream);
+  GST_LOG_OBJECT (stream->pad, "download loop end");
   return;
 
-eos:
-  {
-    GST_DEBUG_OBJECT (mssdemux, "Storing EOS for pad %s:%s",
-        GST_DEBUG_PAD_NAME (stream->pad));
-    gst_mss_demux_stream_store_object (stream,
-        GST_MINI_OBJECT_CAST (gst_event_new_eos ()));
-    gst_task_pause (stream->download_task);
-    return;
-  }
-error:
-  {
-    GST_WARNING_OBJECT (mssdemux, "Error while pushing fragment");
-    if (++stream->download_error_count >= DOWNLOAD_RATE_MAX_HISTORY_LENGTH) {
-      GST_ELEMENT_ERROR (mssdemux, RESOURCE, NOT_FOUND,
-          (_("Couldn't download fragments")),
-          ("fragment downloading has failed too much consecutive times"));
-    }
-    return;
-  }
 cancelled:
   {
-    GST_DEBUG_OBJECT (mssdemux, "Stream %p has been cancelled", stream);
-    gst_task_pause (stream->download_task);
+    GST_DEBUG_OBJECT (stream->pad, "Stream has been cancelled");
     return;
   }
 }
 
 static GstFlowReturn
-gst_mss_demux_select_latest_stream (GstMssDemux * mssdemux,
-    GstMssDemuxStream ** stream)
+gst_mss_demux_combine_flows (GstMssDemux * mssdemux)
 {
-  GstFlowReturn ret = GST_FLOW_OK;
-  GstMssDemuxStream *current = NULL;
-  GstClockTime cur_time = GST_CLOCK_TIME_NONE;
+  gboolean all_notlinked = TRUE;
   GSList *iter;
 
-  if (!mssdemux->streams)
-    return GST_FLOW_ERROR;
-
   for (iter = mssdemux->streams; iter; iter = g_slist_next (iter)) {
-    GstClockTime time;
-    GstMssDemuxStream *other;
-    GstDataQueueItem *item;
+    GstMssDemuxStream *stream = iter->data;
 
-    other = iter->data;
-    if (other->eos) {
-      continue;
-    }
+    if (stream->last_ret != GST_FLOW_NOT_LINKED)
+      all_notlinked = FALSE;
 
-    if (!gst_data_queue_peek (other->dataqueue, &item)) {
-      /* flushing */
-      return GST_FLOW_FLUSHING;
-    }
-
-    if (GST_IS_EVENT (item->object)) {
-      /* events have higher priority */
-      current = other;
-      break;
-    }
-    time = GST_BUFFER_TIMESTAMP (GST_BUFFER_CAST (item->object));
-    if (time < cur_time) {
-      cur_time = time;
-      current = other;
-    }
+    if (stream->last_ret <= GST_FLOW_NOT_NEGOTIATED
+        || stream->last_ret == GST_FLOW_FLUSHING)
+      return stream->last_ret;
   }
-
-  *stream = current;
-  if (current == NULL)
-    ret = GST_FLOW_EOS;
-  return ret;
+  if (all_notlinked)
+    return GST_FLOW_NOT_LINKED;
+  return GST_FLOW_OK;
 }
 
-static void
-gst_mss_demux_stream_loop (GstMssDemux * mssdemux)
+static gboolean
+gst_mss_demux_stream_push (GstMssDemuxStream * stream, GstBuffer * buf)
 {
-  GstMssDemuxStream *stream = NULL;
   GstFlowReturn ret;
-  GstMiniObject *object = NULL;
-  GstDataQueueItem *item = NULL;
-
-  GST_LOG_OBJECT (mssdemux, "Starting stream loop");
-
-  ret = gst_mss_demux_select_latest_stream (mssdemux, &stream);
-
-  if (stream)
-    GST_DEBUG_OBJECT (mssdemux,
-        "Stream loop selected %p stream of pad %s. %d - %s", stream,
-        GST_PAD_NAME (stream->pad), ret, gst_flow_get_name (ret));
-  else
-    GST_DEBUG_OBJECT (mssdemux, "No streams selected -> %d - %s", ret,
-        gst_flow_get_name (ret));
-
-  switch (ret) {
-    case GST_FLOW_OK:
-      break;
-    case GST_FLOW_ERROR:
-      goto error;
-    case GST_FLOW_EOS:
-      goto eos;
-    case GST_FLOW_FLUSHING:
-      GST_DEBUG_OBJECT (mssdemux, "Wrong state, stopping task");
-      goto stop;
-    default:
-      g_assert_not_reached ();
-  }
-
-  GST_LOG_OBJECT (mssdemux, "popping next item from queue for stream %p %s",
-      stream, GST_PAD_NAME (stream->pad));
-  if (gst_data_queue_pop (stream->dataqueue, &item)) {
-    if (item->object)
-      object = gst_mini_object_ref (item->object);
-    item->destroy (item);
-  } else {
-    GST_DEBUG_OBJECT (mssdemux,
-        "Failed to get object from dataqueue on stream %p %s", stream,
-        GST_PAD_NAME (stream->pad));
-    goto stop;
-  }
 
   if (G_UNLIKELY (stream->pending_newsegment)) {
     gst_pad_push_event (stream->pad, stream->pending_newsegment);
     stream->pending_newsegment = NULL;
   }
 
-  if (G_LIKELY (GST_IS_BUFFER (object))) {
-    if (GST_BUFFER_TIMESTAMP (object) != stream->next_timestamp) {
-      GST_DEBUG_OBJECT (mssdemux, "Marking buffer %p as discont buffer:%"
-          GST_TIME_FORMAT " != expected:%" GST_TIME_FORMAT, object,
-          GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (object)),
-          GST_TIME_ARGS (stream->next_timestamp));
-      GST_BUFFER_FLAG_SET (object, GST_BUFFER_FLAG_DISCONT);
-    }
-
-    GST_DEBUG_OBJECT (mssdemux,
-        "Pushing buffer %p %" GST_TIME_FORMAT ", duration %" GST_TIME_FORMAT
-        " discont:%d on pad %s", object,
-        GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (object)),
-        GST_TIME_ARGS (GST_BUFFER_DURATION (object)),
-        GST_BUFFER_FLAG_IS_SET (object, GST_BUFFER_FLAG_DISCONT),
-        GST_PAD_NAME (stream->pad));
-
-    stream->next_timestamp =
-        GST_BUFFER_TIMESTAMP (object) + GST_BUFFER_DURATION (object);
-
-    stream->have_data = TRUE;
-    ret = gst_pad_push (stream->pad, GST_BUFFER_CAST (object));
-  } else if (GST_IS_EVENT (object)) {
-    if (GST_EVENT_TYPE (object) == GST_EVENT_EOS) {
-      stream->eos = TRUE;
-    }
-    GST_DEBUG_OBJECT (mssdemux, "Pushing event %p on pad %s", object,
-        GST_PAD_NAME (stream->pad));
-    gst_pad_push_event (stream->pad, GST_EVENT_CAST (object));
-  } else {
-    g_return_if_reached ();
+  if (GST_BUFFER_TIMESTAMP (buf) != stream->next_timestamp) {
+    GST_DEBUG_OBJECT (stream->pad, "Marking buffer %p as discont buffer:%"
+        GST_TIME_FORMAT " != expected:%" GST_TIME_FORMAT, buf,
+        GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (buf)),
+        GST_TIME_ARGS (stream->next_timestamp));
+    GST_BUFFER_FLAG_SET (buf, GST_BUFFER_FLAG_DISCONT);
   }
 
-  switch (ret) {
-    case GST_FLOW_EOS:
-      goto eos;                 /* EOS ? */
-    case GST_FLOW_ERROR:
-      goto error;
-    case GST_FLOW_NOT_LINKED:
-      break;                    /* TODO what to do here? pause the task or just keep pushing? */
-    case GST_FLOW_OK:
-    default:
-      break;
-  }
+  GST_DEBUG_OBJECT (stream->pad,
+      "Pushing buffer %p %" GST_TIME_FORMAT ", duration %" GST_TIME_FORMAT
+      " discont:%d", buf,
+      GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (buf)),
+      GST_TIME_ARGS (GST_BUFFER_DURATION (buf)),
+      GST_BUFFER_FLAG_IS_SET (buf, GST_BUFFER_FLAG_DISCONT));
 
-  GST_LOG_OBJECT (mssdemux, "Stream loop end");
-  return;
+  stream->next_timestamp =
+      GST_BUFFER_TIMESTAMP (buf) + GST_BUFFER_DURATION (buf);
 
-eos:
-  {
-    GST_DEBUG_OBJECT (mssdemux, "EOS on all pads");
-    gst_task_pause (mssdemux->stream_task);
-    return;
+  stream->have_data = TRUE;
+  stream->segment.position = GST_BUFFER_TIMESTAMP (buf);
+
+  ret = gst_pad_push (stream->pad, GST_BUFFER_CAST (buf));
+  GST_DEBUG_OBJECT (stream->pad, "Pushed. result: %d (%s)",
+      ret, gst_flow_get_name (ret));
+
+  return ret;
+}
+
+static gboolean
+gst_mss_demux_stream_push_event (GstMssDemuxStream * stream, GstEvent * event)
+{
+  gboolean ret;
+
+  if (GST_EVENT_TYPE (event) == GST_EVENT_EOS) {
+    stream->eos = TRUE;
   }
-error:
-  {
-    GST_WARNING_OBJECT (mssdemux, "Error while pushing fragment");
-    gst_task_pause (mssdemux->stream_task);
-    return;
-  }
-stop:
-  {
-    GST_DEBUG_OBJECT (mssdemux, "Pausing streaming task");
-    gst_task_pause (mssdemux->stream_task);
-    return;
-  }
+  GST_DEBUG_OBJECT (stream->pad, "Pushing event %" GST_PTR_FORMAT, event);
+  ret = gst_pad_push_event (stream->pad, event);
+  return ret;
 }

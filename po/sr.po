@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad-1.1.4\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2014-04-18 12:17+0200\n"
+"POT-Creation-Date: 2014-05-03 18:12+0200\n"
 "PO-Revision-Date: 2013-10-04 11:47+0200\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
@@ -48,8 +48,15 @@ msgstr "Не могу да добавим путању Манифеста"
 msgid "Failed to get fragment URL."
 msgstr "Нисам успео да добијем адресу одломка."
 
+msgid "Internal data stream error."
+msgstr "Унутрашња грешка тока података."
+
 msgid "Couldn't download fragments"
 msgstr "Не могу да преузмем одломке"
+
+#, fuzzy
+msgid "Could not open sndfile stream for reading."
+msgstr "Не могу да отворим датотеку „%s“ за читање."
 
 msgid "No file name specified for writing."
 msgstr "Није наведен назив датотеке за упис."
@@ -57,9 +64,6 @@ msgstr "Није наведен назив датотеке за упис."
 #, c-format
 msgid "Could not open file \"%s\" for writing."
 msgstr "Не могу да отворим датотеку „%s“ за упис."
-
-msgid "Internal data stream error."
-msgstr "Унутрашња грешка тока података."
 
 #, c-format
 msgid "Could not write to file \"%s\"."
@@ -110,6 +114,10 @@ msgstr "Не могу да отворим управљачки уређај „%
 
 #, c-format
 msgid "Could not get settings from frontend device \"%s\"."
+msgstr "Не могу да добавим подешавања са управљачког уређаја „%s“."
+
+#, fuzzy, c-format
+msgid "Cannot enumerate delivery systems from frontend device \"%s\"."
 msgstr "Не могу да добавим подешавања са управљачког уређаја „%s“."
 
 #, c-format

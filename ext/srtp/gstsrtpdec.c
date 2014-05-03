@@ -65,13 +65,13 @@
  * mecanisms available are :
  *
  * Encryption
- * - AES_128_ICM (default, maximum security)
- * - STRONGHOLD_CIPHER (same as AES_128_ICM)
+ * - AES_ICM 256 bits (maximum security)
+ * - AES_ICM 128 bits (default)
  * - NULL
  *
  * Authentication
- * - HMAC_SHA1 (default, maximum protection)
- * - STRONGHOLD_AUTH (same as HMAC_SHA1)
+ * - HMAC_SHA1 80 bits (default, maximum protection)
+ * - HMAC_SHA1 32 bits
  * - NULL
  *
  * Note that for SRTP protection, authentication is mandatory (non-null)
@@ -410,8 +410,8 @@ get_stream_from_caps (GstSrtpDec * filter, GstCaps * caps, guint32 ssrc)
       rtcp_cipher);
   stream->rtcp_auth = enum_value_from_nick (GST_TYPE_SRTP_AUTH_TYPE, rtcp_auth);
 
-  if (stream->rtp_cipher == -1 || stream->rtp_auth == -1 ||
-      stream->rtcp_cipher == -1 || stream->rtcp_auth == -1) {
+  if ((gint) stream->rtp_cipher == -1 || (gint) stream->rtp_auth == -1 ||
+      (gint) stream->rtcp_cipher == -1 || (gint) stream->rtcp_auth == -1) {
     GST_WARNING_OBJECT (filter, "Invalid caps for stream,"
         " unknown cipher or auth type");
     goto error;
@@ -425,7 +425,7 @@ get_stream_from_caps (GstSrtpDec * filter, GstCaps * caps, guint32 ssrc)
   }
 
   if (gst_structure_get (s, "srtp-key", GST_TYPE_BUFFER, &buf, NULL) || !buf) {
-    GST_DEBUG ("Got key [%p]", buf);
+    GST_DEBUG_OBJECT (filter, "Got key [%p] for SSRC %u", buf, ssrc);
     stream->key = buf;
   } else if (STREAM_HAS_CRYPTO (stream)) {
     goto error;
@@ -511,25 +511,33 @@ init_session_stream (GstSrtpDec * filter, guint32 ssrc,
  */
 static GstSrtpDecSsrcStream *
 validate_buffer (GstSrtpDec * filter, GstBuffer * buf, guint32 * ssrc,
-    gboolean is_rtcp)
+    gboolean * is_rtcp)
 {
   GstSrtpDecSsrcStream *stream = NULL;
 
-  if (!is_rtcp) {
+  if (!(*is_rtcp)) {
     GstRTPBuffer rtpbuf = GST_RTP_BUFFER_INIT;
 
-    if (!gst_rtp_buffer_map (buf, GST_MAP_READ, &rtpbuf)) {
-      GST_WARNING_OBJECT (filter, "Invalid SRTP packet");
-      return NULL;
+    if (gst_rtp_buffer_map (buf, GST_MAP_READ, &rtpbuf)) {
+      if (gst_rtp_buffer_get_payload_type (&rtpbuf) < 64
+          || gst_rtp_buffer_get_payload_type (&rtpbuf) > 80) {
+        *ssrc = gst_rtp_buffer_get_ssrc (&rtpbuf);
+
+        gst_rtp_buffer_unmap (&rtpbuf);
+        goto have_ssrc;
+      }
+      gst_rtp_buffer_unmap (&rtpbuf);
     }
+  }
 
-    *ssrc = gst_rtp_buffer_get_ssrc (&rtpbuf);
-
-    gst_rtp_buffer_unmap (&rtpbuf);
-  } else if (!rtcp_buffer_get_ssrc (buf, ssrc)) {
+  if (rtcp_buffer_get_ssrc (buf, ssrc)) {
+    *is_rtcp = TRUE;
+  } else {
     GST_WARNING_OBJECT (filter, "No SSRC found in buffer");
     return NULL;
   }
+
+have_ssrc:
 
   stream = find_stream_by_ssrc (filter, *ssrc);
 
@@ -677,31 +685,50 @@ gst_srtp_dec_sink_setcaps (GstPad * pad, GstObject * parent,
 }
 
 static gboolean
-gst_srtp_dec_sink_event (GstPad * pad, GstObject * parent,
-    GstEvent * event, gboolean is_rtcp)
+gst_srtp_dec_sink_event_rtp (GstPad * pad, GstObject * parent, GstEvent * event)
 {
   GstCaps *caps;
+  GstSrtpDec *filter = GST_SRTP_DEC (parent);
 
   switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_CAPS:
       gst_event_parse_caps (event, &caps);
-      return gst_srtp_dec_sink_setcaps (pad, parent, caps, is_rtcp);
+      return gst_srtp_dec_sink_setcaps (pad, parent, caps, FALSE);
+    case GST_EVENT_SEGMENT:
+      filter->rtp_has_segment = TRUE;
+      break;
+    case GST_EVENT_FLUSH_STOP:
+      filter->rtp_has_segment = FALSE;
+      break;
     default:
-      return gst_pad_event_default (pad, parent, event);
+      break;
   }
-}
 
-static gboolean
-gst_srtp_dec_sink_event_rtp (GstPad * pad, GstObject * parent, GstEvent * event)
-{
-  return gst_srtp_dec_sink_event (pad, parent, event, FALSE);
+  return gst_pad_event_default (pad, parent, event);
 }
 
 static gboolean
 gst_srtp_dec_sink_event_rtcp (GstPad * pad, GstObject * parent,
     GstEvent * event)
 {
-  return gst_srtp_dec_sink_event (pad, parent, event, TRUE);
+  GstCaps *caps;
+  GstSrtpDec *filter = GST_SRTP_DEC (parent);
+
+  switch (GST_EVENT_TYPE (event)) {
+    case GST_EVENT_CAPS:
+      gst_event_parse_caps (event, &caps);
+      return gst_srtp_dec_sink_setcaps (pad, parent, caps, TRUE);
+    case GST_EVENT_SEGMENT:
+      filter->rtcp_has_segment = TRUE;
+      break;
+    case GST_EVENT_FLUSH_STOP:
+      filter->rtcp_has_segment = FALSE;
+      break;
+    default:
+      break;
+  }
+
+  return gst_pad_event_default (pad, parent, event);
 }
 
 static gboolean
@@ -835,6 +862,71 @@ gst_srtp_dec_iterate_internal_links_rtcp (GstPad * pad, GstObject * parent)
   return gst_srtp_dec_iterate_internal_links (pad, parent, TRUE);
 }
 
+static void
+gst_srtp_dec_push_early_events (GstSrtpDec * filter, GstPad * pad,
+    GstPad * otherpad, gboolean is_rtcp)
+{
+  GstEvent *otherev, *ev;
+
+  ev = gst_pad_get_sticky_event (pad, GST_EVENT_STREAM_START, 0);
+  if (ev) {
+    gst_event_unref (ev);
+  } else {
+    gchar *new_stream_id;
+
+    otherev = gst_pad_get_sticky_event (otherpad, GST_EVENT_STREAM_START, 0);
+
+    if (otherev) {
+      const gchar *other_stream_id;
+
+      gst_event_parse_stream_start (otherev, &other_stream_id);
+
+      new_stream_id = g_strdup_printf ("%s/%s", other_stream_id,
+          is_rtcp ? "rtcp" : "rtp");
+      gst_event_unref (otherev);
+    } else {
+      new_stream_id = gst_pad_create_stream_id (pad, GST_ELEMENT (filter),
+          is_rtcp ? "rtcp" : "rtp");
+    }
+
+    ev = gst_event_new_stream_start (new_stream_id);
+    g_free (new_stream_id);
+
+    gst_pad_push_event (pad, ev);
+  }
+
+  ev = gst_pad_get_sticky_event (pad, GST_EVENT_CAPS, 0);
+  if (ev) {
+    gst_event_unref (ev);
+  } else {
+    GstCaps *caps;
+
+    if (is_rtcp)
+      caps = gst_caps_new_empty_simple ("application/x-rtcp");
+    else
+      caps = gst_caps_new_empty_simple ("application/x-rtp");
+
+    gst_pad_set_caps (pad, caps);
+    gst_caps_unref (caps);
+  }
+
+  ev = gst_pad_get_sticky_event (pad, GST_EVENT_SEGMENT, 0);
+  if (ev) {
+    gst_event_unref (ev);
+  } else {
+    ev = gst_pad_get_sticky_event (otherpad, GST_EVENT_SEGMENT, 0);
+
+    if (ev)
+      gst_pad_push_event (pad, ev);
+  }
+
+  if (is_rtcp)
+    filter->rtcp_has_segment = TRUE;
+  else
+    filter->rtp_has_segment = TRUE;
+
+}
+
 static GstFlowReturn
 gst_srtp_dec_chain (GstPad * pad, GstObject * parent, GstBuffer * buf,
     gboolean is_rtcp)
@@ -852,7 +944,7 @@ gst_srtp_dec_chain (GstPad * pad, GstObject * parent, GstBuffer * buf,
 
   /* Check if this stream exists, if not create a new stream */
 
-  if (!(stream = validate_buffer (filter, buf, &ssrc, is_rtcp))) {
+  if (!(stream = validate_buffer (filter, buf, &ssrc, &is_rtcp))) {
     GST_OBJECT_UNLOCK (filter);
     GST_WARNING_OBJECT (filter, "Invalid buffer, dropping");
     goto drop_buffer;
@@ -896,7 +988,7 @@ unprotect:
         GST_OBJECT_LOCK (filter);
 
         /* Update stream */
-        if ((stream = find_stream_by_ssrc (filter, ssrc))) {
+        if (find_stream_by_ssrc (filter, ssrc)) {
           GST_OBJECT_UNLOCK (filter);
           if (request_key_with_signal (filter, ssrc, SIGNAL_HARD_LIMIT)) {
             GST_OBJECT_LOCK (filter);
@@ -932,9 +1024,18 @@ unprotect:
 
 push_out:
   /* Push buffer to source pad */
-  otherpad = (GstPad *) gst_pad_get_element_private (pad);
+  if (is_rtcp) {
+    otherpad = filter->rtcp_srcpad;
+    if (!filter->rtcp_has_segment)
+      gst_srtp_dec_push_early_events (filter, filter->rtcp_srcpad,
+          filter->rtp_srcpad, TRUE);
+  } else {
+    otherpad = filter->rtp_srcpad;
+    if (!filter->rtp_has_segment)
+      gst_srtp_dec_push_early_events (filter, filter->rtp_srcpad,
+          filter->rtcp_srcpad, FALSE);
+  }
   ret = gst_pad_push (otherpad, buf);
-
 
   return ret;
 
@@ -971,6 +1072,8 @@ gst_srtp_dec_change_state (GstElement * element, GstStateChange transition)
     case GST_STATE_CHANGE_READY_TO_PAUSED:
       filter->streams = g_hash_table_new_full (g_direct_hash, g_direct_equal,
           NULL, (GDestroyNotify) clear_stream);
+      filter->rtp_has_segment = FALSE;
+      filter->rtcp_has_segment = FALSE;
       break;
     case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
       break;
@@ -988,10 +1091,10 @@ gst_srtp_dec_change_state (GstElement * element, GstStateChange transition)
       break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:
       gst_srtp_dec_clear_streams (filter);
-      break;
-    case GST_STATE_CHANGE_READY_TO_NULL:
       g_hash_table_unref (filter->streams);
       filter->streams = NULL;
+      break;
+    case GST_STATE_CHANGE_READY_TO_NULL:
       break;
     default:
       break;

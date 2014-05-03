@@ -56,9 +56,8 @@ struct _GstH264Parse
   /* stream */
   gint width, height;
   gint fps_num, fps_den;
-  gint aspect_ratio_idc;
-  gint sar_width, sar_height;
   gint upstream_par_n, upstream_par_d;
+  gint parsed_par_n, parsed_par_d;
   /* current codec_data in output caps, if any */
   GstBuffer *codec_data;
   /* input codec_data, if any */
@@ -79,6 +78,8 @@ struct _GstH264Parse
   gboolean have_sps;
   gboolean have_pps;
 
+  gboolean sent_codec_tag;
+
   /* collected SPS and PPS NALUs */
   GstBuffer *sps_nals[GST_H264_MAX_SPS_COUNT];
   GstBuffer *pps_nals[GST_H264_MAX_PPS_COUNT];
@@ -95,6 +96,8 @@ struct _GstH264Parse
   /* dts at start of last buffering period */
   GstClockTime ts_trn_nb;
   gboolean do_ts;
+
+  gboolean discont;
 
   /* frame parsing */
   /*guint last_nal_pos;*/
