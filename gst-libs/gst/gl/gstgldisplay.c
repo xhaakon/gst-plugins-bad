@@ -55,7 +55,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_gl_display_debug);
   GST_DEBUG_CATEGORY_INIT (gst_gl_display_debug, "gldisplay", 0, "opengl display"); \
   GST_DEBUG_CATEGORY_GET (gst_context, "GST_CONTEXT");
 
-G_DEFINE_TYPE_WITH_CODE (GstGLDisplay, gst_gl_display, G_TYPE_OBJECT,
+G_DEFINE_TYPE_WITH_CODE (GstGLDisplay, gst_gl_display, GST_TYPE_OBJECT,
     DEBUG_INIT);
 
 #define GST_GL_DISPLAY_GET_PRIVATE(o) \
@@ -84,7 +84,6 @@ gst_gl_display_init (GstGLDisplay * display)
 {
   display->priv = GST_GL_DISPLAY_GET_PRIVATE (display);
 
-  display->gl_api = GST_GL_API_ANY;
   display->type = GST_GL_DISPLAY_TYPE_ANY;
 
   GST_TRACE ("init %p", display);
@@ -99,13 +98,6 @@ gst_gl_display_init (GstGLDisplay * display)
 static void
 gst_gl_display_finalize (GObject * object)
 {
-  GstGLDisplay *display = GST_GL_DISPLAY (object);
-
-  if (display->context) {
-    gst_object_unref (display->context);
-    display->context = NULL;
-  }
-
   GST_TRACE ("finalize %p", object);
 
   G_OBJECT_CLASS (gst_gl_display_parent_class)->finalize (object);
@@ -120,7 +112,7 @@ GstGLDisplay *
 gst_gl_display_new (void)
 {
   GstGLDisplay *display = NULL;
-  const gchar *user_choice;
+  const gchar *user_choice, *platform_choice;
   static volatile gsize _init = 0;
 
   if (g_once_init_enter (&_init)) {
@@ -130,33 +122,33 @@ gst_gl_display_new (void)
   }
 
   user_choice = g_getenv ("GST_GL_WINDOW");
-  GST_INFO ("creating a window, user choice:%s", user_choice);
+  platform_choice = g_getenv ("GST_GL_PLATFORM");
+  GST_INFO ("creating a display, user choice:%s (platform: %s)",
+      GST_STR_NULL (user_choice), GST_STR_NULL (platform_choice));
 
+#if GST_GL_HAVE_WINDOW_COCOA
+  if (!display && (!user_choice || g_strstr_len (user_choice, 5, "cocoa")))
+    display = g_object_new (GST_TYPE_GL_DISPLAY, NULL);
+#endif
 #if GST_GL_HAVE_WINDOW_X11
   if (!display && (!user_choice || g_strstr_len (user_choice, 3, "x11")))
     display = GST_GL_DISPLAY (gst_gl_display_x11_new (NULL));
 #endif
 #if GST_GL_HAVE_PLATFORM_EGL
-  if (!display && (!user_choice || g_strstr_len (user_choice, 3, "egl")))
+  if (!display && (!platform_choice
+          || g_strstr_len (platform_choice, 3, "egl")))
     display = GST_GL_DISPLAY (gst_gl_display_egl_new ());
 #endif
   if (!display) {
     /* subclass returned a NULL window */
-    GST_WARNING ("Could not create display. user specified %s, creating dummy",
-        user_choice ? user_choice : "(null)");
+    GST_WARNING ("Could not create display. user specified %s "
+        "(platform: %s), creating dummy",
+        GST_STR_NULL (user_choice), GST_STR_NULL (platform_choice));
 
     return g_object_new (GST_TYPE_GL_DISPLAY, NULL);
   }
 
   return display;
-}
-
-GstGLAPI
-gst_gl_display_get_gl_api (GstGLDisplay * display)
-{
-  g_return_val_if_fail (GST_IS_GL_DISPLAY (display), GST_GL_API_NONE);
-
-  return display->gl_api;
 }
 
 guintptr
@@ -175,6 +167,20 @@ static guintptr
 gst_gl_display_default_get_handle (GstGLDisplay * display)
 {
   return 0;
+}
+
+/**
+ * gst_gl_display_get_handle_type:
+ * @display: a #GstGLDisplay
+ *
+ * Returns: the #GstGLDisplayType of @display
+ */
+GstGLDisplayType
+gst_gl_display_get_handle_type (GstGLDisplay * display)
+{
+  g_return_val_if_fail (GST_IS_GL_DISPLAY (display), GST_GL_DISPLAY_TYPE_NONE);
+
+  return display->type;
 }
 
 /**

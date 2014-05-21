@@ -1213,16 +1213,12 @@ gst_mpdparser_parse_seg_base_type_ext (GstSegmentBaseType ** pointer,
     if (cur_node->type == XML_ELEMENT_NODE) {
       if (xmlStrcmp (cur_node->name, (xmlChar *) "Initialization") == 0 ||
           xmlStrcmp (cur_node->name, (xmlChar *) "Initialisation") == 0) {
-        if (seg_base_type->Initialization) {
-          gst_mpdparser_free_url_type_node (seg_base_type->Initialization);
-        }
+        /* parse will free the previous pointer to create a new one */
         gst_mpdparser_parse_url_type_node (&seg_base_type->Initialization,
             cur_node);
       } else if (xmlStrcmp (cur_node->name,
               (xmlChar *) "RepresentationIndex") == 0) {
-        if (seg_base_type->RepresentationIndex) {
-          gst_mpdparser_free_url_type_node (seg_base_type->RepresentationIndex);
-        }
+        /* parse will free the previous pointer to create a new one */
         gst_mpdparser_parse_url_type_node (&seg_base_type->RepresentationIndex,
             cur_node);
       }
@@ -1361,18 +1357,12 @@ gst_mpdparser_parse_mult_seg_base_type_ext (GstMultSegmentBaseType ** pointer,
   for (cur_node = a_node->children; cur_node; cur_node = cur_node->next) {
     if (cur_node->type == XML_ELEMENT_NODE) {
       if (xmlStrcmp (cur_node->name, (xmlChar *) "SegmentTimeline") == 0) {
-        if (mult_seg_base_type->SegmentTimeline) {
-          gst_mpdparser_free_segment_timeline_node
-              (mult_seg_base_type->SegmentTimeline);
-        }
+        /* parse frees the segmenttimeline if any */
         gst_mpdparser_parse_segment_timeline_node
             (&mult_seg_base_type->SegmentTimeline, cur_node);
       } else if (xmlStrcmp (cur_node->name,
               (xmlChar *) "BitstreamSwitching") == 0) {
-        if (mult_seg_base_type->BitstreamSwitching) {
-          gst_mpdparser_free_url_type_node
-              (mult_seg_base_type->BitstreamSwitching);
-        }
+        /* parse frees the old url before setting the new one */
         gst_mpdparser_parse_url_type_node
             (&mult_seg_base_type->BitstreamSwitching, cur_node);
       }
@@ -3370,6 +3360,7 @@ gst_mpd_client_setup_streaming (GstMpdClient * client,
 
   if (!representation) {
     GST_WARNING ("No valid representation in the MPD file, aborting...");
+    g_slice_free (GstActiveStream, stream);
     return FALSE;
   }
   stream->mimeType =
@@ -3486,11 +3477,16 @@ gst_mpd_client_get_segment_index_at_time (GstMpdClient * client,
     return -1;
 
   if (stream_period && stream_period->period) {
-    /* intentionally not unreffing avail_start */
-    avail_start = gst_mpd_client_add_time_difference (avail_start,
+    GstDateTime *t;
+
+    t = gst_mpd_client_add_time_difference (avail_start,
         stream_period->period->start * 1000);
+    gst_date_time_unref (avail_start);
+    avail_start = t;
   }
   diff = gst_mpd_client_calculate_time_difference (avail_start, time);
+  gst_date_time_unref (avail_start);
+
   if (diff < 0)
     return -2;
   if (diff > gst_mpd_client_get_media_presentation_duration (client))

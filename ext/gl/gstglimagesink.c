@@ -151,7 +151,9 @@ static GstStaticPadTemplate gst_glimage_sink_template =
     GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (
+    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE_WITH_FEATURES
+        (GST_CAPS_FEATURE_MEMORY_GL_MEMORY,
+            "RGBA") "; "
 #if GST_GL_HAVE_PLATFORM_EGL
         GST_VIDEO_CAPS_MAKE_WITH_FEATURES
         (GST_CAPS_FEATURE_MEMORY_EGL_IMAGE, "RGBA") "; "
@@ -386,6 +388,8 @@ _ensure_gl_setup (GstGLImageSink * gl_sink)
     GstGLWindow *window;
 
     gl_sink->context = gst_gl_context_new (gl_sink->display);
+    if (!gl_sink->context)
+      goto context_creation_error;
 
     window = gst_gl_context_get_window (gl_sink->context);
 
@@ -418,6 +422,13 @@ _ensure_gl_setup (GstGLImageSink * gl_sink)
   }
 
   return TRUE;
+
+context_creation_error:
+  {
+    GST_ELEMENT_ERROR (gl_sink, RESOURCE, NOT_FOUND,
+        ("Failed to create GL context"), (NULL));
+    return FALSE;
+  }
 
 context_error:
   {
@@ -687,7 +698,11 @@ gst_glimage_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
     gst_object_unref (oldpool);
   }
 
+  if (glimage_sink->upload)
+    gst_object_unref (glimage_sink->upload);
   glimage_sink->upload = gst_object_ref (GST_GL_BUFFER_POOL (newpool)->upload);
+
+  gst_gl_upload_set_format (glimage_sink->upload, &vinfo);
 
   return TRUE;
 }
@@ -918,9 +933,12 @@ gst_glimage_sink_propose_allocation (GstBaseSink * bsink, GstQuery * query)
   gst_object_unref (allocator);
 
 #if GST_GL_HAVE_PLATFORM_EGL
-  allocator = gst_allocator_find (GST_EGL_IMAGE_MEMORY_TYPE);
-  gst_query_add_allocation_param (query, allocator, &params);
-  gst_object_unref (allocator);
+  if (gst_gl_context_check_feature (glimage_sink->context,
+          "EGL_KHR_image_base")) {
+    allocator = gst_allocator_find (GST_EGL_IMAGE_MEMORY_TYPE);
+    gst_query_add_allocation_param (query, allocator, &params);
+    gst_object_unref (allocator);
+  }
 #endif
 
   return TRUE;

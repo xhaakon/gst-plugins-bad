@@ -159,8 +159,7 @@ libgstdashdemux_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/uridownloader/lib
 	$(am__DEPENDENCIES_1)
 am_libgstdashdemux_la_OBJECTS = libgstdashdemux_la-gstmpdparser.lo \
 	libgstdashdemux_la-gstdashdemux.lo \
-	libgstdashdemux_la-gstplugin.lo \
-	libgstdashdemux_la-gstdownloadrate.lo
+	libgstdashdemux_la-gstplugin.lo
 libgstdashdemux_la_OBJECTS = $(am_libgstdashdemux_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -729,15 +728,13 @@ plugin_LTLIBRARIES = libgstdashdemux.la
 libgstdashdemux_la_SOURCES = \
 	gstmpdparser.c				\
 	gstdashdemux.c				\
-	gstplugin.c				\
-	gstdownloadrate.c
+	gstplugin.c
 
 
 # headers we need but don't want installed
 noinst_HEADERS = \
         gstmpdparser.h	\
 	gstdashdemux.h	\
-	gstdownloadrate.h \
 	gstdash_debug.h
 
 
@@ -829,7 +826,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstdashdemux_la-gstdashdemux.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstdashdemux_la-gstdownloadrate.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstdashdemux_la-gstmpdparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstdashdemux_la-gstplugin.Plo@am__quote@
 
@@ -877,13 +873,6 @@ libgstdashdemux_la-gstplugin.lo: gstplugin.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstplugin.c' object='libgstdashdemux_la-gstplugin.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstdashdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstdashdemux_la_CFLAGS) $(CFLAGS) -c -o libgstdashdemux_la-gstplugin.lo `test -f 'gstplugin.c' || echo '$(srcdir)/'`gstplugin.c
-
-libgstdashdemux_la-gstdownloadrate.lo: gstdownloadrate.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstdashdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstdashdemux_la_CFLAGS) $(CFLAGS) -MT libgstdashdemux_la-gstdownloadrate.lo -MD -MP -MF $(DEPDIR)/libgstdashdemux_la-gstdownloadrate.Tpo -c -o libgstdashdemux_la-gstdownloadrate.lo `test -f 'gstdownloadrate.c' || echo '$(srcdir)/'`gstdownloadrate.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstdashdemux_la-gstdownloadrate.Tpo $(DEPDIR)/libgstdashdemux_la-gstdownloadrate.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstdownloadrate.c' object='libgstdashdemux_la-gstdownloadrate.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstdashdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstdashdemux_la_CFLAGS) $(CFLAGS) -c -o libgstdashdemux_la-gstdownloadrate.lo `test -f 'gstdownloadrate.c' || echo '$(srcdir)/'`gstdownloadrate.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

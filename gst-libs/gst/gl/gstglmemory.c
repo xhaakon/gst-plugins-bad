@@ -208,7 +208,7 @@ gst_gl_texture_type_from_format (GstVideoFormat v_format, guint plane)
       break;
     case GST_VIDEO_FORMAT_YUY2:
     case GST_VIDEO_FORMAT_UYVY:
-      return GST_VIDEO_GL_TEXTURE_TYPE_RGBA;
+      return GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE_ALPHA;
       break;
     case GST_VIDEO_FORMAT_NV12:
     case GST_VIDEO_FORMAT_NV21:
@@ -233,11 +233,6 @@ gst_gl_texture_type_from_format (GstVideoFormat v_format, guint plane)
 static inline guint
 _get_plane_width (GstVideoInfo * info, guint plane)
 {
-  if (GST_VIDEO_INFO_FORMAT (info) == GST_VIDEO_FORMAT_YUY2
-      || GST_VIDEO_INFO_FORMAT (info) == GST_VIDEO_FORMAT_UYVY) {
-    return GST_VIDEO_INFO_COMP_WIDTH (info, 1);
-  }
-
   if (GST_VIDEO_INFO_IS_YUV (info))
     /* For now component width and plane width are the same and the
      * plane-component mapping matches
@@ -400,6 +395,7 @@ _calculate_unpack_length (GstGLMemory * gl_mem)
           gl_mem->unpack_length = j;
           gl_mem->tex_scaling[0] =
               (gfloat) (gl_mem->width * n_gl_bytes) / (gfloat) gl_mem->stride;
+          gl_mem->width = gl_mem->stride / n_gl_bytes;
           break;
         }
         j >>= 1;
@@ -511,9 +507,12 @@ _gl_mem_new (GstAllocator * allocator, GstMemory * parent,
 {
   GstGLMemory *mem;
   GenTexture data = { 0, };
+  mem = g_slice_new0 (GstGLMemory);
+  _gl_mem_init (mem, allocator, parent, context, tex_type, width, height,
+      stride, user_data, notify);
 
-  data.width = width;
-  data.height = height;
+  data.width = mem->width;
+  data.height = mem->height;
   data.gl_format = _gst_gl_format_from_gl_texture_type (tex_type);
   data.gl_type = GL_UNSIGNED_BYTE;
   if (tex_type == GST_VIDEO_GL_TEXTURE_TYPE_RGB16)
@@ -527,10 +526,6 @@ _gl_mem_new (GstAllocator * allocator, GstMemory * parent,
   }
 
   GST_CAT_TRACE (GST_CAT_GL_MEMORY, "created texture %u", data.result);
-
-  mem = g_slice_new0 (GstGLMemory);
-  _gl_mem_init (mem, allocator, parent, context, tex_type, width, height,
-      stride, user_data, notify);
 
   mem->tex_id = data.result;
 
@@ -673,8 +668,8 @@ _gl_mem_copy_thread (GstGLContext * context, gpointer data)
   gl->FramebufferTexture2D (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
       GL_TEXTURE_2D, src->tex_id, 0);
 
-  if (!gst_gl_context_check_framebuffer_status (src->context))
-    goto fbo_error;
+//  if (!gst_gl_context_check_framebuffer_status (src->context))
+//    goto fbo_error;
 
   gl->BindTexture (GL_TEXTURE_2D, tex_id);
   if (copy_params->respecify) {

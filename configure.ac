@@ -3,7 +3,7 @@ AC_PREREQ([2.68])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.3.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.3.2],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -48,11 +48,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 301, 0, 301)
+AS_LIBTOOL(GST, 302, 0, 302)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.3.1
-GSTPB_REQ=1.3.1
+GST_REQ=1.3.2
+GSTPB_REQ=1.3.2
 
 dnl *** autotools stuff ****
 
@@ -812,6 +812,51 @@ else
   fi
 fi
 
+dnl check if we can include both GL and GLES2 at the same time
+if test "x$HAVE_GL" = "xyes" -a "x$HAVE_GLES2" = "xyes"; then
+  GL_INCLUDES="
+#ifndef GL_GLEXT_PROTOTYPES
+#define GL_GLEXT_PROTOTYPES 1
+#endif
+# ifdef __APPLE__
+#  include <OpenGLES/ES2/gl.h>
+#  include <OpenGLES/ES2/glext.h>
+# else
+#  include <GLES2/gl2.h>
+#  include <GLES2/gl2ext.h>
+# endif
+# if __APPLE__
+#  include <OpenGL/OpenGL.h>
+#  include <OpenGL/gl.h>
+#  include <OpenGL/glu.h>
+# else
+#  include <GL/gl.h>
+#  include <GL/glu.h>
+#  if __WIN32__ || _WIN32
+#   include <GL/glext.h>
+#  endif
+# endif
+"
+  AC_MSG_CHECKING([whether it is possible to include both GL and GLES2 headers])
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[$GL_INCLUDES]], [[
+    #if !defined(GL_FALSE)
+    #error Failed to include GL headers
+    #endif
+    ]])],[ AC_MSG_RESULT(yes)
+    ],[AC_MSG_RESULT(no)
+    if test "x$NEED_GLES2" = "xyes"; then
+      if test "x$NEED_OPENGL" = "xyes"; then
+        AC_MSG_ERROR([Cannot seem to include both GL and GLES2 headers. Try disabling one API])
+      fi
+      AC_MSG_WARN([Disabling Desktop GL support])
+      HAVE_OPENGL=no
+    else
+      AC_MSG_WARN([Disabling GL|ES 2.0 support])
+      HAVE_GLES2=no
+    fi
+  ])
+fi
+
 #dnl Check for OpenGL, GLU
 echo host is $host
 case $host in
@@ -1225,8 +1270,16 @@ dnl Check for some types that are not always present
 GL_INCLUDES=""
 if test "x$USE_GLES2" = "xyes"; then
   GL_INCLUDES="$GL_INCLUDES
-# include <GLES2/gl2.h>
-# include <GLES2/gl2ext.h>
+#ifndef GL_GLEXT_PROTOTYPES
+#define GL_GLEXT_PROTOTYPES 1
+#endif
+# ifdef __APPLE__
+#  include <OpenGLES/ES2/gl.h>
+#  include <OpenGLES/ES2/glext.h>
+# else
+#  include <GLES2/gl2.h>
+#  include <GLES2/gl2ext.h>
+# endif
 "
 fi
 
@@ -1235,9 +1288,10 @@ if test "x$USE_OPENGL" = "xyes"; then
 # if __APPLE__
 #  include <OpenGL/OpenGL.h>
 #  include <OpenGL/gl.h>
+#  include <OpenGL/glu.h>
 # else
-#  include <GL/glu.h>
 #  include <GL/gl.h>
+#  include <GL/glu.h>
 #  if __WIN32__ || _WIN32
 #   include <GL/glext.h>
 #  endif

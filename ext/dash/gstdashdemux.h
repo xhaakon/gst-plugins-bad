@@ -34,7 +34,6 @@
 #include <gst/base/gstadapter.h>
 #include <gst/base/gstdataqueue.h>
 #include "gstmpdparser.h"
-#include "gstdownloadrate.h"
 #include <gst/uridownloader/gsturidownloader.h>
 
 G_BEGIN_DECLS
@@ -48,6 +47,8 @@ G_BEGIN_DECLS
         (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_DASH_DEMUX))
 #define GST_IS_DASH_DEMUX_CLASS(klass) \
         (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_DASH_DEMUX))
+#define GST_DASH_DEMUX_CAST(obj) \
+	((GstDashDemux *)obj)
 
 typedef struct _GstDashDemuxStream GstDashDemuxStream;
 typedef struct _GstDashDemux GstDashDemux;
@@ -78,9 +79,18 @@ struct _GstDashDemuxStream
   GCond download_cond;
   GstTask *download_task;
   GRecMutex download_task_lock;
-  GstUriDownloader *downloader;
 
-  GstDownloadRate dnl_rate;
+  /* download tooling */
+  GstElement *src;
+  GstPad *src_srcpad;
+  GMutex fragment_download_lock;
+  GCond fragment_download_cond;
+  GstMediaFragmentInfo current_fragment;
+  gboolean starting_fragment;
+  gint64 download_start_time;
+  gint64 download_total_time;
+  gint64 download_total_bytes;
+  gint current_download_rate;
 };
 
 /**
@@ -90,7 +100,7 @@ struct _GstDashDemuxStream
  */
 struct _GstDashDemux
 {
-  GstElement parent;
+  GstBin parent;
   GstPad *sinkpad;
 
   gboolean have_group_id;
@@ -123,7 +133,7 @@ struct _GstDashDemux
 
 struct _GstDashDemuxClass
 {
-  GstElementClass parent_class;
+  GstBinClass parent_class;
 };
 
 GType gst_dash_demux_get_type (void);

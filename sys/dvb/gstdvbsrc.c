@@ -1308,7 +1308,6 @@ gst_dvbsrc_create (GstPushSrc * element, GstBuffer ** buf)
   object = GST_DVBSRC (element);
   GST_LOG ("fd_dvr: %d", object->fd_dvr);
 
-  //g_object_get(G_OBJECT(object), "blocksize", &buffer_size, NULL);
   buffer_size = DEFAULT_BUFFER_SIZE;
 
   /* device can not be tuned during read */
@@ -1625,7 +1624,8 @@ gst_dvbsrc_tune (GstDvbSrc * object)
   props.props = dvb_prop;
 
   if (ioctl (object->fd_frontend, FE_GET_PROPERTY, &props) < 0) {
-    g_warning ("Error enumarating delsys: %s", strerror (errno));
+    GST_WARNING_OBJECT (object, "Error enumerating delsys: %s",
+        g_strerror (errno));
 
     return FALSE;
   }
@@ -1640,7 +1640,8 @@ gst_dvbsrc_tune (GstDvbSrc * object)
     props.num = 1;
     props.props = dvb_prop;
     if (ioctl (object->fd_frontend, FE_SET_PROPERTY, &props) < 0) {
-      g_warning ("Error resetting tuner: %s", strerror (errno));
+      GST_WARNING_OBJECT (object, "Error resetting tuner: %s",
+          g_strerror (errno));
     }
     /* First three entries are reserved */
     n = 3;
@@ -1650,7 +1651,7 @@ gst_dvbsrc_tune (GstDvbSrc * object)
       case SYS_TURBO:
         object->tone = SEC_TONE_OFF;
         if (freq > 2200000) {
-          // this must be an absolute frequency
+          /* this must be an absolute frequency */
           if (freq < SLOF) {
             freq -= LOF1;
           } else {
@@ -1676,15 +1677,15 @@ gst_dvbsrc_tune (GstDvbSrc * object)
         if (object->diseqc_src == -1 || object->send_diseqc == FALSE) {
           set_prop (dvb_prop, &n, DTV_VOLTAGE, voltage);
 
-          // DTV_TONE not yet implemented
-          // set_prop (fe_props_array, &n, DTV_TONE, object->tone)
+          /* DTV_TONE not yet implemented
+           * set_prop (fe_props_array, &n, DTV_TONE, object->tone) */
         } else {
           GST_DEBUG_OBJECT (object, "Sending DISEqC");
           diseqc (object->fd_frontend, object->diseqc_src, voltage,
               object->tone);
           /* Once diseqc source is set, do not set it again until
-           * app decides to change it */
-          //object->send_diseqc = FALSE;
+           * app decides to change it
+           * object->send_diseqc = FALSE; */
         }
 
         if ((object->delsys == SYS_DVBS2) || (object->delsys == SYS_TURBO))
@@ -1730,7 +1731,7 @@ gst_dvbsrc_tune (GstDvbSrc * object)
         set_prop (dvb_prop, &n, DTV_MODULATION, object->modulation);
         break;
       default:
-        g_error ("Unknown frontend type: %d", object->delsys);
+        GST_ERROR_OBJECT (object, "Unknown frontend type %u", object->delsys);
         return FALSE;
     }
     g_usleep (100000);
@@ -1746,7 +1747,8 @@ gst_dvbsrc_tune (GstDvbSrc * object)
 
     GST_DEBUG_OBJECT (object, "Setting %d properties", props.num);
     if (ioctl (object->fd_frontend, FE_SET_PROPERTY, &props) < 0) {
-      g_warning ("Error tuning channel: %s", strerror (errno));
+      GST_WARNING_OBJECT (object, "Error tuning channel: %s",
+          g_strerror (errno));
     }
     for (i = 0; i < 50; i++) {
       g_usleep (100000);
@@ -1805,8 +1807,9 @@ gst_dvbsrc_set_pes_filters (GstDvbSrc * object)
 
     close (*fd);
     if ((*fd = open (demux_dev, O_RDWR)) < 0) {
-      g_error ("Error opening demuxer: %s (%s)", strerror (errno), demux_dev);
-      g_free (demux_dev);
+      GST_ERROR_OBJECT (object, "Error opening demuxer: %s (%s)",
+          g_strerror (errno), demux_dev);
+      continue;
     }
     g_return_if_fail (*fd != -1);
 
@@ -1821,7 +1824,7 @@ gst_dvbsrc_set_pes_filters (GstDvbSrc * object)
 
     if (ioctl (*fd, DMX_SET_PES_FILTER, &pes_filter) < 0)
       GST_WARNING_OBJECT (object, "Error setting PES filter on %s: %s",
-          demux_dev, strerror (errno));
+          demux_dev, g_strerror (errno));
   }
 
   g_free (demux_dev);

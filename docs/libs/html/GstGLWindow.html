@@ -229,7 +229,9 @@
 <div class="refsect1">
 <a name="GstGLWindow.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="screen">    <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
-    <span class="lineart">╰──</span> GstGLWindow
+    <span class="lineart">╰──</span> <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
+            <span class="lineart">╰──</span> GstGLWindow
 </pre>
 </div>
 <div class="refsect1">
@@ -816,7 +818,7 @@ provided api.</p>
 <div class="refsect2">
 <a name="GstGLWindowClass"></a><h3>GstGLWindowClass</h3>
 <pre class="programlisting">typedef struct {
-  GObjectClass parent_class;
+  GstObjectClass parent_class;
 
   guintptr (*get_display)        (GstGLWindow *window);
   void     (*set_window_handle)  (GstGLWindow *window, guintptr id);
@@ -842,7 +844,7 @@ provided api.</p>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObjectClass"><span class="type">GObjectClass</span></a> <em class="structfield"><code><a name="GstGLWindowClass.parent-class"></a>parent_class</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html#GstObjectClass"><span class="type">GstObjectClass</span></a> <em class="structfield"><code><a name="GstGLWindowClass.parent-class"></a>parent_class</code></em>;</p></td>
 <td class="struct_member_description"><p>Parent class</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>

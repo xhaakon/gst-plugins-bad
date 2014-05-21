@@ -72,7 +72,7 @@
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 
 #define gst_gl_window_parent_class parent_class
-G_DEFINE_ABSTRACT_TYPE (GstGLWindow, gst_gl_window, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE (GstGLWindow, gst_gl_window, GST_TYPE_OBJECT);
 
 #define GST_GL_WINDOW_GET_PRIVATE(o) \
   (G_TYPE_INSTANCE_GET_PRIVATE((o), GST_GL_TYPE_WINDOW, GstGLWindowPrivate))
@@ -182,7 +182,7 @@ gst_gl_window_new (GstGLDisplay * display)
     window = GST_GL_WINDOW (gst_gl_window_android_egl_new ());
 #endif
 #if GST_GL_HAVE_WINDOW_EAGL
-  if (!window && (!user_choice || g_strstr_len (user_choice, 7, "eagl")))
+  if (!window && (!user_choice || g_strstr_len (user_choice, 4, "eagl")))
     window = GST_GL_WINDOW (gst_gl_window_eagl_new ());
 #endif
   if (!window) {

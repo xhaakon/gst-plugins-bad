@@ -68,7 +68,7 @@ typedef enum
  */
 struct _GstGLContext {
   /*< private >*/
-  GObject parent;
+  GstObject parent;
 
   GstGLWindow  *window;
 
@@ -91,7 +91,7 @@ struct _GstGLContext {
  * @swap_buffers: swap the default framebuffer's front/back buffers
  */
 struct _GstGLContextClass {
-  GObjectClass parent_class;
+  GstObjectClass parent_class;
 
   guintptr      (*get_gl_context)     (GstGLContext *context);
   GstGLAPI      (*get_gl_api)         (GstGLContext *context);
@@ -103,6 +103,7 @@ struct _GstGLContextClass {
                                        GstGLContext *other_context, GError ** error);
   void          (*destroy_context)    (GstGLContext *context);
   void          (*swap_buffers)       (GstGLContext *context);
+  gboolean      (*check_feature)      (GstGLContext *context, const gchar *feature);
 
   /*< private >*/
   gpointer _reserved[GST_PADDING];
@@ -132,6 +133,7 @@ gboolean      gst_gl_context_set_window (GstGLContext *context, GstGLWindow *win
 GstGLWindow * gst_gl_context_get_window (GstGLContext *context);
 
 void          gst_gl_context_get_gl_version (GstGLContext *context, gint *maj, gint *min);
+gboolean      gst_gl_context_check_feature (GstGLContext *context, const gchar *feature);
 
 /* FIXME: remove */
 void gst_gl_context_thread_add (GstGLContext * context,
