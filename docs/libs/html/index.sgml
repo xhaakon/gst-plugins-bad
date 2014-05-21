@@ -413,8 +413,6 @@
 <ANCHOR id="GstGLColorConvert.description" href="gst-plugins-bad-libs-1.0/GstGLColorConvert.html#GstGLColorConvert.description">
 <ANCHOR id="GstGLColorConvert.functions_details" href="gst-plugins-bad-libs-1.0/GstGLColorConvert.html#GstGLColorConvert.functions_details">
 <ANCHOR id="gst-gl-color-convert-new" href="gst-plugins-bad-libs-1.0/GstGLColorConvert.html#gst-gl-color-convert-new">
-<ANCHOR id="gst-gl-color-convert-init-format" href="gst-plugins-bad-libs-1.0/GstGLColorConvert.html#gst-gl-color-convert-init-format">
-<ANCHOR id="gst-gl-color-convert-set-texture-scaling" href="gst-plugins-bad-libs-1.0/GstGLColorConvert.html#gst-gl-color-convert-set-texture-scaling">
 <ANCHOR id="gst-gl-color-convert-perform" href="gst-plugins-bad-libs-1.0/GstGLColorConvert.html#gst-gl-color-convert-perform">
 <ANCHOR id="GstGLColorConvert.other_details" href="gst-plugins-bad-libs-1.0/GstGLColorConvert.html#GstGLColorConvert.other_details">
 <ANCHOR id="GST-GL-COLOR-CONVERT-FORMATS:CAPS" href="gst-plugins-bad-libs-1.0/GstGLColorConvert.html#GST-GL-COLOR-CONVERT-FORMATS:CAPS">
@@ -442,6 +440,7 @@
 <ANCHOR id="gst-gl-context-get-display" href="gst-plugins-bad-libs-1.0/GstGLContext.html#gst-gl-context-get-display">
 <ANCHOR id="gst-gl-context-get-gl-api" href="gst-plugins-bad-libs-1.0/GstGLContext.html#gst-gl-context-get-gl-api">
 <ANCHOR id="gst-gl-context-get-gl-context" href="gst-plugins-bad-libs-1.0/GstGLContext.html#gst-gl-context-get-gl-context">
+<ANCHOR id="gst-gl-context-check-feature" href="gst-plugins-bad-libs-1.0/GstGLContext.html#gst-gl-context-check-feature">
 <ANCHOR id="GstGLContext.other_details" href="gst-plugins-bad-libs-1.0/GstGLContext.html#GstGLContext.other_details">
 <ANCHOR id="GstGLContextError" href="gst-plugins-bad-libs-1.0/GstGLContext.html#GstGLContextError">
 <ANCHOR id="GstGLContext-struct" href="gst-plugins-bad-libs-1.0/GstGLContext.html#GstGLContext-struct">
@@ -489,9 +488,11 @@
 <ANCHOR id="GstGLDisplay.description" href="gst-plugins-bad-libs-1.0/GstGLDisplay.html#GstGLDisplay.description">
 <ANCHOR id="GstGLDisplay.functions_details" href="gst-plugins-bad-libs-1.0/GstGLDisplay.html#GstGLDisplay.functions_details">
 <ANCHOR id="gst-gl-display-new" href="gst-plugins-bad-libs-1.0/GstGLDisplay.html#gst-gl-display-new">
+<ANCHOR id="gst-gl-display-get-handle-type" href="gst-plugins-bad-libs-1.0/GstGLDisplay.html#gst-gl-display-get-handle-type">
 <ANCHOR id="gst-context-get-gl-display" href="gst-plugins-bad-libs-1.0/GstGLDisplay.html#gst-context-get-gl-display">
 <ANCHOR id="gst-context-set-gl-display" href="gst-plugins-bad-libs-1.0/GstGLDisplay.html#gst-context-set-gl-display">
 <ANCHOR id="GstGLDisplay.other_details" href="gst-plugins-bad-libs-1.0/GstGLDisplay.html#GstGLDisplay.other_details">
+<ANCHOR id="GstGLDisplayType" href="gst-plugins-bad-libs-1.0/GstGLDisplay.html#GstGLDisplayType">
 <ANCHOR id="GstGLDisplay-struct" href="gst-plugins-bad-libs-1.0/GstGLDisplay.html#GstGLDisplay-struct">
 <ANCHOR id="GstGLDisplay.see-also" href="gst-plugins-bad-libs-1.0/GstGLDisplay.html#GstGLDisplay.see-also">
 <ANCHOR id="GstGLDownload" href="gst-plugins-bad-libs-1.0/GstGLDownload.html">
@@ -501,9 +502,8 @@
 <ANCHOR id="GstGLDownload.description" href="gst-plugins-bad-libs-1.0/GstGLDownload.html#GstGLDownload.description">
 <ANCHOR id="GstGLDownload.functions_details" href="gst-plugins-bad-libs-1.0/GstGLDownload.html#GstGLDownload.functions_details">
 <ANCHOR id="gst-gl-download-new" href="gst-plugins-bad-libs-1.0/GstGLDownload.html#gst-gl-download-new">
-<ANCHOR id="gst-gl-download-init-format" href="gst-plugins-bad-libs-1.0/GstGLDownload.html#gst-gl-download-init-format">
+<ANCHOR id="gst-gl-download-set-format" href="gst-plugins-bad-libs-1.0/GstGLDownload.html#gst-gl-download-set-format">
 <ANCHOR id="gst-gl-download-perform-with-data" href="gst-plugins-bad-libs-1.0/GstGLDownload.html#gst-gl-download-perform-with-data">
-<ANCHOR id="gst-gl-download-perform-with-memory" href="gst-plugins-bad-libs-1.0/GstGLDownload.html#gst-gl-download-perform-with-memory">
 <ANCHOR id="GstGLDownload.other_details" href="gst-plugins-bad-libs-1.0/GstGLDownload.html#GstGLDownload.other_details">
 <ANCHOR id="GstGLDownload-struct" href="gst-plugins-bad-libs-1.0/GstGLDownload.html#GstGLDownload-struct">
 <ANCHOR id="GstGLDownload.see-also" href="gst-plugins-bad-libs-1.0/GstGLDownload.html#GstGLDownload.see-also">
@@ -638,7 +638,8 @@
 <ANCHOR id="GstGLUpload.description" href="gst-plugins-bad-libs-1.0/GstGLUpload.html#GstGLUpload.description">
 <ANCHOR id="GstGLUpload.functions_details" href="gst-plugins-bad-libs-1.0/GstGLUpload.html#GstGLUpload.functions_details">
 <ANCHOR id="gst-gl-upload-new" href="gst-plugins-bad-libs-1.0/GstGLUpload.html#gst-gl-upload-new">
-<ANCHOR id="gst-gl-upload-init-format" href="gst-plugins-bad-libs-1.0/GstGLUpload.html#gst-gl-upload-init-format">
+<ANCHOR id="gst-gl-upload-set-format" href="gst-plugins-bad-libs-1.0/GstGLUpload.html#gst-gl-upload-set-format">
+<ANCHOR id="gst-gl-upload-get-format" href="gst-plugins-bad-libs-1.0/GstGLUpload.html#gst-gl-upload-get-format">
 <ANCHOR id="gst-gl-upload-add-video-gl-texture-upload-meta" href="gst-plugins-bad-libs-1.0/GstGLUpload.html#gst-gl-upload-add-video-gl-texture-upload-meta">
 <ANCHOR id="gst-gl-upload-perform-with-data" href="gst-plugins-bad-libs-1.0/GstGLUpload.html#gst-gl-upload-perform-with-data">
 <ANCHOR id="gst-gl-upload-perform-with-gl-texture-upload-meta" href="gst-plugins-bad-libs-1.0/GstGLUpload.html#gst-gl-upload-perform-with-gl-texture-upload-meta">

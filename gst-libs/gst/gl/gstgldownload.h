@@ -44,7 +44,7 @@ GType gst_gl_download_get_type (void);
 struct _GstGLDownload
 {
   /* <private> */
-  GObject          parent;
+  GstObject        parent;
 
   GMutex           lock;
 
@@ -54,12 +54,11 @@ struct _GstGLDownload
   /* output data */
   GstVideoInfo     info;
 
-  gpointer         data[GST_VIDEO_MAX_PLANES];
   gboolean         initted;
 
   /* used for the conversion */
-  GLuint           in_texture;
-  GstGLMemory *    out_texture[GST_VIDEO_MAX_PLANES];
+  GstGLMemory *    in_tex[GST_VIDEO_MAX_PLANES];
+  GstGLMemory *    out_tex[GST_VIDEO_MAX_PLANES];
 
   GstGLDownloadPrivate *priv;
 
@@ -74,15 +73,13 @@ struct _GstGLDownload
 struct _GstGLDownloadClass
 {
   /* <private> */
-  GObjectClass object_class;
+  GstObjectClass object_class;
 };
 
 GstGLDownload * gst_gl_download_new          (GstGLContext * context);
 
-gboolean gst_gl_download_init_format                (GstGLDownload * download, GstVideoFormat v_format,
-                                                     guint out_width, guint out_height);
+void gst_gl_download_set_format                (GstGLDownload * download, GstVideoInfo * out_info);
 
-gboolean gst_gl_download_perform_with_memory        (GstGLDownload * download, GstGLMemory * gl_mem);
 gboolean gst_gl_download_perform_with_data          (GstGLDownload * download, GLuint texture_id,
                                                      gpointer data[GST_VIDEO_MAX_PLANES]);
 

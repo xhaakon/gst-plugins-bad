@@ -65,12 +65,6 @@
 #include "eagl/gstglcontext_eagl.h"
 #endif
 
-#define USING_OPENGL(display) (display->gl_api & GST_GL_API_OPENGL)
-#define USING_OPENGL3(display) (display->gl_api & GST_GL_API_OPENGL3)
-#define USING_GLES(display) (display->gl_api & GST_GL_API_GLES)
-#define USING_GLES2(display) (display->gl_api & GST_GL_API_GLES2)
-#define USING_GLES3(display) (display->gl_api & GST_GL_API_GLES3)
-
 static GModule *module_self;
 
 #if GST_GL_HAVE_OPENGL
@@ -128,7 +122,7 @@ load_gles2_module (gpointer user_data)
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 
 #define gst_gl_context_parent_class parent_class
-G_DEFINE_ABSTRACT_TYPE (GstGLContext, gst_gl_context, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE (GstGLContext, gst_gl_context, GST_TYPE_OBJECT);
 
 #define GST_GL_CONTEXT_GET_PRIVATE(o) \
   (G_TYPE_INSTANCE_GET_PRIVATE((o), GST_GL_TYPE_CONTEXT, GstGLContextPrivate))
@@ -726,10 +720,9 @@ gst_gl_context_create_thread (GstGLContext * context)
 {
   GstGLContextClass *context_class;
   GstGLWindowClass *window_class;
-  GstGLDisplay *display;
   GstGLFuncs *gl;
   gboolean ret = FALSE;
-  GstGLAPI compiled_api, user_api;
+  GstGLAPI compiled_api, user_api, gl_api;
   gchar *api_string;
   gchar *compiled_api_s;
   gchar *user_api_string;
@@ -748,11 +741,12 @@ gst_gl_context_create_thread (GstGLContext * context)
   window_class = GST_GL_WINDOW_GET_CLASS (context->window);
 
   if (window_class->open) {
-    if (!window_class->open (context->window, error))
+    if (!window_class->open (context->window, error)) {
+      g_assert (error == NULL || *error != NULL);
       goto failure;
+    }
   }
 
-  display = context->priv->display;
   gl = context->gl_vtable;
   compiled_api = _compiled_api ();
 
@@ -801,14 +795,13 @@ gst_gl_context_create_thread (GstGLContext * context)
     goto failure;
   }
 
-  display->gl_api = gst_gl_context_get_gl_api (context);
-  g_assert (display->gl_api != GST_GL_API_NONE
-      && display->gl_api != GST_GL_API_ANY);
+  gl_api = gst_gl_context_get_gl_api (context);
+  g_assert (gl_api != GST_GL_API_NONE && gl_api != GST_GL_API_ANY);
 
-  api_string = gst_gl_api_to_string (display->gl_api);
+  api_string = gst_gl_api_to_string (gl_api);
   GST_INFO ("available GL APIs: %s", api_string);
 
-  if (((compiled_api & display->gl_api) & user_api) == GST_GL_API_NONE) {
+  if (((compiled_api & gl_api) & user_api) == GST_GL_API_NONE) {
     g_set_error (error, GST_GL_CONTEXT_ERROR, GST_GL_CONTEXT_ERROR_WRONG_API,
         "failed to create context, context "
         "could not provide correct api. user (%s), compiled (%s), context (%s)",
@@ -835,16 +828,18 @@ gst_gl_context_create_thread (GstGLContext * context)
   }
 
   /* gl api specific code */
-  if (!ret && USING_OPENGL (display))
+  if (!ret && gl_api & GST_GL_API_OPENGL)
     ret = _create_context_opengl (context, &context->priv->gl_major,
         &context->priv->gl_minor, error);
-  if (!ret && USING_GLES2 (display))
+  if (!ret && gl_api & GST_GL_API_GLES2)
     ret =
         _create_context_gles2 (context, &context->priv->gl_major,
         &context->priv->gl_minor, error);
 
-  if (!ret)
+  if (!ret) {
+    g_assert (error == NULL || *error != NULL);
     goto failure;
+  }
 
   /* GL core contexts and GLES3 */
   if (gl->GetIntegerv && gl->GetStringi && context->priv->gl_major >= 3)
@@ -1035,6 +1030,31 @@ gst_gl_context_get_gl_version (GstGLContext * context, gint * maj, gint * min)
 
   if (min)
     *min = context->priv->gl_minor;
+}
+
+/**
+ * gst_gl_context_check_feature:
+ * @context: a #GstGLContext
+ * @feature: a platform specific feature
+ *
+ * Some features require that the context be created before it is possible to
+ * determine their existence and so will fail if that is not the case.
+ *
+ * Returns: Whether @feature is supported by @context
+ */
+gboolean
+gst_gl_context_check_feature (GstGLContext * context, const gchar * feature)
+{
+  GstGLContextClass *context_class;
+
+  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), FALSE);
+  g_return_val_if_fail (feature != NULL, FALSE);
+
+  context_class = GST_GL_CONTEXT_GET_CLASS (context);
+  if (!context_class->check_feature)
+    return FALSE;
+
+  return context_class->check_feature (context, feature);
 }
 
 static GstGLAPI

@@ -335,8 +335,6 @@
     <keyword type="struct" name="struct GstGLBufferPool" link="GstGLBufferPool.html#GstGLBufferPool-struct"/>
     <keyword type="struct" name="struct GstGLBufferPoolClass" link="GstGLBufferPool.html#GstGLBufferPoolClass"/>
     <keyword type="function" name="gst_gl_color_convert_new ()" link="GstGLColorConvert.html#gst-gl-color-convert-new"/>
-    <keyword type="function" name="gst_gl_color_convert_init_format ()" link="GstGLColorConvert.html#gst-gl-color-convert-init-format"/>
-    <keyword type="function" name="gst_gl_color_convert_set_texture_scaling ()" link="GstGLColorConvert.html#gst-gl-color-convert-set-texture-scaling"/>
     <keyword type="function" name="gst_gl_color_convert_perform ()" link="GstGLColorConvert.html#gst-gl-color-convert-perform"/>
     <keyword type="macro" name="GST_GL_COLOR_CONVERT_FORMATS" link="GstGLColorConvert.html#GST-GL-COLOR-CONVERT-FORMATS:CAPS"/>
     <keyword type="macro" name="GST_GL_COLOR_CONVERT_VIDEO_CAPS" link="GstGLColorConvert.html#GST-GL-COLOR-CONVERT-VIDEO-CAPS"/>
@@ -356,6 +354,7 @@
     <keyword type="function" name="gst_gl_context_get_display ()" link="GstGLContext.html#gst-gl-context-get-display"/>
     <keyword type="function" name="gst_gl_context_get_gl_api ()" link="GstGLContext.html#gst-gl-context-get-gl-api"/>
     <keyword type="function" name="gst_gl_context_get_gl_context ()" link="GstGLContext.html#gst-gl-context-get-gl-context"/>
+    <keyword type="function" name="gst_gl_context_check_feature ()" link="GstGLContext.html#gst-gl-context-check-feature"/>
     <keyword type="enum" name="enum GstGLContextError" link="GstGLContext.html#GstGLContextError"/>
     <keyword type="struct" name="GstGLContext" link="GstGLContext.html#GstGLContext-struct"/>
     <keyword type="function" name="gst_gl_context_cocoa_new ()" link="gst-plugins-bad-libs-GstGLContextCocoa.html#gst-gl-context-cocoa-new"/>
@@ -367,13 +366,14 @@
     <keyword type="function" name="gst_gl_context_wgl_new ()" link="gst-plugins-bad-libs-GstGLContextWGL.html#gst-gl-context-wgl-new"/>
     <keyword type="struct" name="struct GstGLContextWGL" link="gst-plugins-bad-libs-GstGLContextWGL.html#GstGLContextWGL"/>
     <keyword type="function" name="gst_gl_display_new ()" link="GstGLDisplay.html#gst-gl-display-new"/>
+    <keyword type="function" name="gst_gl_display_get_handle_type ()" link="GstGLDisplay.html#gst-gl-display-get-handle-type"/>
     <keyword type="function" name="gst_context_get_gl_display ()" link="GstGLDisplay.html#gst-context-get-gl-display"/>
     <keyword type="function" name="gst_context_set_gl_display ()" link="GstGLDisplay.html#gst-context-set-gl-display"/>
+    <keyword type="enum" name="enum GstGLDisplayType" link="GstGLDisplay.html#GstGLDisplayType"/>
     <keyword type="struct" name="GstGLDisplay" link="GstGLDisplay.html#GstGLDisplay-struct"/>
     <keyword type="function" name="gst_gl_download_new ()" link="GstGLDownload.html#gst-gl-download-new"/>
-    <keyword type="function" name="gst_gl_download_init_format ()" link="GstGLDownload.html#gst-gl-download-init-format"/>
+    <keyword type="function" name="gst_gl_download_set_format ()" link="GstGLDownload.html#gst-gl-download-set-format"/>
     <keyword type="function" name="gst_gl_download_perform_with_data ()" link="GstGLDownload.html#gst-gl-download-perform-with-data"/>
-    <keyword type="function" name="gst_gl_download_perform_with_memory ()" link="GstGLDownload.html#gst-gl-download-perform-with-memory"/>
     <keyword type="struct" name="GstGLDownload" link="GstGLDownload.html#GstGLDownload-struct"/>
     <keyword type="function" name="gst_gl_filter_draw_texture ()" link="GstGLFilter.html#gst-gl-filter-draw-texture"/>
     <keyword type="function" name="gst_gl_filter_render_to_target ()" link="GstGLFilter.html#gst-gl-filter-render-to-target"/>
@@ -462,7 +462,8 @@
     <keyword type="property" name="The “fragment-src” property" link="gst-plugins-bad-libs-gstglshader.html#GstGLShader--fragment-src"/>
     <keyword type="property" name="The “vertex-src” property" link="gst-plugins-bad-libs-gstglshader.html#GstGLShader--vertex-src"/>
     <keyword type="function" name="gst_gl_upload_new ()" link="GstGLUpload.html#gst-gl-upload-new"/>
-    <keyword type="function" name="gst_gl_upload_init_format ()" link="GstGLUpload.html#gst-gl-upload-init-format"/>
+    <keyword type="function" name="gst_gl_upload_set_format ()" link="GstGLUpload.html#gst-gl-upload-set-format"/>
+    <keyword type="function" name="gst_gl_upload_get_format ()" link="GstGLUpload.html#gst-gl-upload-get-format"/>
     <keyword type="function" name="gst_gl_upload_add_video_gl_texture_upload_meta ()" link="GstGLUpload.html#gst-gl-upload-add-video-gl-texture-upload-meta"/>
     <keyword type="function" name="gst_gl_upload_perform_with_data ()" link="GstGLUpload.html#gst-gl-upload-perform-with-data"/>
     <keyword type="function" name="gst_gl_upload_perform_with_gl_texture_upload_meta ()" link="GstGLUpload.html#gst-gl-upload-perform-with-gl-texture-upload-meta"/>

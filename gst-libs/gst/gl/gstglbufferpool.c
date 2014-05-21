@@ -175,16 +175,9 @@ gst_gl_buffer_pool_start (GstBufferPool * pool)
   GstGLBufferPool *glpool = GST_GL_BUFFER_POOL_CAST (pool);
   GstGLBufferPoolPrivate *priv = glpool->priv;
 
-  if (!gst_gl_upload_init_format (glpool->upload, &priv->info))
-    goto upload_error;
+  gst_gl_upload_set_format (glpool->upload, &priv->info);
 
   return GST_BUFFER_POOL_CLASS (parent_class)->start (pool);
-
-upload_error:
-  {
-    GST_WARNING_OBJECT (glpool, "Failed to initialize upload");
-    return FALSE;
-  }
 }
 
 /* This function handles GstBuffer creation */

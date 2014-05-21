@@ -304,6 +304,10 @@ get_zoom, user_function in gstphotography
 </dt>
 <dd></dd>
 <dt>
+<a class="link" href="GstGLDisplay.html#GstGLDisplayType" title="enum GstGLDisplayType">GstGLDisplayType</a>, enum in <a class="link" href="GstGLDisplay.html" title="GstGLDisplay">GstGLDisplay</a>
+</dt>
+<dd></dd>
+<dt>
 <a class="link" href="GstGLDownload.html#GstGLDownload-struct" title="GstGLDownload">GstGLDownload</a>, struct in <a class="link" href="GstGLDownload.html" title="GstGLDownload">GstGLDownload</a>
 </dt>
 <dd></dd>
@@ -484,10 +488,6 @@ get_zoom, user_function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a class="link" href="GstGLColorConvert.html#gst-gl-color-convert-init-format" title="gst_gl_color_convert_init_format ()">gst_gl_color_convert_init_format</a>, function in <a class="link" href="GstGLColorConvert.html" title="GstGLColorConvert">GstGLColorConvert</a>
-</dt>
-<dd></dd>
-<dt>
 <a class="link" href="GstGLColorConvert.html#gst-gl-color-convert-new" title="gst_gl_color_convert_new ()">gst_gl_color_convert_new</a>, function in <a class="link" href="GstGLColorConvert.html" title="GstGLColorConvert">GstGLColorConvert</a>
 </dt>
 <dd></dd>
@@ -496,15 +496,15 @@ get_zoom, user_function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a class="link" href="GstGLColorConvert.html#gst-gl-color-convert-set-texture-scaling" title="gst_gl_color_convert_set_texture_scaling ()">gst_gl_color_convert_set_texture_scaling</a>, function in <a class="link" href="GstGLColorConvert.html" title="GstGLColorConvert">GstGLColorConvert</a>
-</dt>
-<dd></dd>
-<dt>
 <a class="link" href="GstGLColorConvert.html#GST-GL-COLOR-CONVERT-VIDEO-CAPS" title="GST_GL_COLOR_CONVERT_VIDEO_CAPS">GST_GL_COLOR_CONVERT_VIDEO_CAPS</a>, macro in <a class="link" href="GstGLColorConvert.html" title="GstGLColorConvert">GstGLColorConvert</a>
 </dt>
 <dd></dd>
 <dt>
 <a class="link" href="GstGLContext.html#gst-gl-context-activate" title="gst_gl_context_activate ()">gst_gl_context_activate</a>, function in <a class="link" href="GstGLContext.html" title="GstGLContext">GstGLContext</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="GstGLContext.html#gst-gl-context-check-feature" title="gst_gl_context_check_feature ()">gst_gl_context_check_feature</a>, function in <a class="link" href="GstGLContext.html" title="GstGLContext">GstGLContext</a>
 </dt>
 <dd></dd>
 <dt>
@@ -620,11 +620,11 @@ get_zoom, user_function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a class="link" href="GstGLDisplay.html#gst-gl-display-new" title="gst_gl_display_new ()">gst_gl_display_new</a>, function in <a class="link" href="GstGLDisplay.html" title="GstGLDisplay">GstGLDisplay</a>
+<a class="link" href="GstGLDisplay.html#gst-gl-display-get-handle-type" title="gst_gl_display_get_handle_type ()">gst_gl_display_get_handle_type</a>, function in <a class="link" href="GstGLDisplay.html" title="GstGLDisplay">GstGLDisplay</a>
 </dt>
 <dd></dd>
 <dt>
-<a class="link" href="GstGLDownload.html#gst-gl-download-init-format" title="gst_gl_download_init_format ()">gst_gl_download_init_format</a>, function in <a class="link" href="GstGLDownload.html" title="GstGLDownload">GstGLDownload</a>
+<a class="link" href="GstGLDisplay.html#gst-gl-display-new" title="gst_gl_display_new ()">gst_gl_display_new</a>, function in <a class="link" href="GstGLDisplay.html" title="GstGLDisplay">GstGLDisplay</a>
 </dt>
 <dd></dd>
 <dt>
@@ -636,7 +636,7 @@ get_zoom, user_function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a class="link" href="GstGLDownload.html#gst-gl-download-perform-with-memory" title="gst_gl_download_perform_with_memory ()">gst_gl_download_perform_with_memory</a>, function in <a class="link" href="GstGLDownload.html" title="GstGLDownload">GstGLDownload</a>
+<a class="link" href="GstGLDownload.html#gst-gl-download-set-format" title="gst_gl_download_set_format ()">gst_gl_download_set_format</a>, function in <a class="link" href="GstGLDownload.html" title="GstGLDownload">GstGLDownload</a>
 </dt>
 <dd></dd>
 <dt>
@@ -896,7 +896,7 @@ get_zoom, user_function in gstphotography
 </dt>
 <dd></dd>
 <dt>
-<a class="link" href="GstGLUpload.html#gst-gl-upload-init-format" title="gst_gl_upload_init_format ()">gst_gl_upload_init_format</a>, function in <a class="link" href="GstGLUpload.html" title="GstGLUpload">GstGLUpload</a>
+<a class="link" href="GstGLUpload.html#gst-gl-upload-get-format" title="gst_gl_upload_get_format ()">gst_gl_upload_get_format</a>, function in <a class="link" href="GstGLUpload.html" title="GstGLUpload">GstGLUpload</a>
 </dt>
 <dd></dd>
 <dt>
@@ -917,6 +917,10 @@ get_zoom, user_function in gstphotography
 <dd></dd>
 <dt>
 <a class="link" href="GstGLUpload.html#gst-gl-upload-release-buffer" title="gst_gl_upload_release_buffer ()">gst_gl_upload_release_buffer</a>, function in <a class="link" href="GstGLUpload.html" title="GstGLUpload">GstGLUpload</a>
+</dt>
+<dd></dd>
+<dt>
+<a class="link" href="GstGLUpload.html#gst-gl-upload-set-format" title="gst_gl_upload_set_format ()">gst_gl_upload_set_format</a>, function in <a class="link" href="GstGLUpload.html" title="GstGLUpload">GstGLUpload</a>
 </dt>
 <dd></dd>
 <dt>

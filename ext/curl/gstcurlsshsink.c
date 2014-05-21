@@ -48,8 +48,6 @@
 
 /* Default values */
 #define GST_CAT_DEFAULT    gst_curl_ssh_sink_debug
-#define DEFAULT_INSECURE   TRUE
-
 
 /* Plugin specific settings */
 
@@ -63,6 +61,7 @@ enum
   PROP_SSH_PRIV_KEYFILE,
   PROP_SSH_KEY_PASSPHRASE,
   PROP_SSH_KNOWNHOSTS,
+  PROP_SSH_HOST_PUBLIC_KEY_MD5,
   PROP_SSH_ACCEPT_UNKNOWNHOST
 };
 
@@ -159,6 +158,13 @@ gst_curl_ssh_sink_class_init (GstCurlSshSinkClass * klass)
           "The complete path & filename of the SSH 'known_hosts' file",
           NULL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property (gobject_class, PROP_SSH_HOST_PUBLIC_KEY_MD5,
+      g_param_spec_string ("ssh-host-pubkey-md5",
+          "MD5 checksum of the remote host's public key",
+          "MD5 checksum (32 hexadecimal digits, case-insensitive) of the "
+          "remote host's public key",
+          NULL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
   g_object_class_install_property (gobject_class, PROP_SSH_ACCEPT_UNKNOWNHOST,
       g_param_spec_boolean ("ssh-accept-unknownhost",
           "SSH accept unknown host",
@@ -174,6 +180,7 @@ gst_curl_ssh_sink_init (GstCurlSshSink * sink)
   sink->ssh_priv_keyfile = NULL;
   sink->ssh_key_passphrase = NULL;
   sink->ssh_knownhosts = NULL;
+  sink->ssh_host_public_key_md5 = NULL;
   sink->ssh_accept_unknownhost = FALSE;
 }
 
@@ -188,6 +195,7 @@ gst_curl_ssh_sink_finalize (GObject * gobject)
   g_free (this->ssh_priv_keyfile);
   g_free (this->ssh_key_passphrase);
   g_free (this->ssh_knownhosts);
+  g_free (this->ssh_host_public_key_md5);
 
   G_OBJECT_CLASS (parent_class)->finalize (gobject);
 }
@@ -242,6 +250,13 @@ gst_curl_ssh_sink_set_property (GObject * object, guint prop_id,
       GST_DEBUG_OBJECT (sink, "ssh_knownhosts set to %s", sink->ssh_knownhosts);
       break;
 
+    case PROP_SSH_HOST_PUBLIC_KEY_MD5:
+      g_free (sink->ssh_host_public_key_md5);
+      sink->ssh_host_public_key_md5 = g_value_dup_string (value);
+      GST_DEBUG_OBJECT (sink, "ssh_host_public_key_md5 set to %s",
+          sink->ssh_host_public_key_md5);
+      break;
+
     case PROP_SSH_ACCEPT_UNKNOWNHOST:
       sink->ssh_accept_unknownhost = g_value_get_boolean (value);
       GST_DEBUG_OBJECT (sink, "ssh_accept_unknownhost set to %d",
@@ -285,6 +300,10 @@ gst_curl_ssh_sink_get_property (GObject * object, guint prop_id,
       g_value_set_string (value, sink->ssh_knownhosts);
       break;
 
+    case PROP_SSH_HOST_PUBLIC_KEY_MD5:
+      g_value_set_string (value, sink->ssh_host_public_key_md5);
+      break;
+
     case PROP_SSH_ACCEPT_UNKNOWNHOST:
       g_value_set_boolean (value, sink->ssh_accept_unknownhost);
       break;
@@ -299,14 +318,14 @@ static gboolean
 gst_curl_ssh_sink_set_options_unlocked (GstCurlBaseSink * bcsink)
 {
   GstCurlSshSink *sink = GST_CURL_SSH_SINK (bcsink);
-  gint curl_err = CURLE_OK;
+  CURLcode curl_err = CURLE_OK;
 
   /* set SSH specific options here */
   if (sink->ssh_pub_keyfile) {
     if ((curl_err = curl_easy_setopt (bcsink->curl, CURLOPT_SSH_PUBLIC_KEYFILE,
                 sink->ssh_pub_keyfile)) != CURLE_OK) {
-      GST_ERROR_OBJECT (sink, "curl error: %d setting public key file: %s.",
-          curl_err, sink->ssh_pub_keyfile);
+      bcsink->error = g_strdup_printf ("failed to set public key file: %s",
+          curl_easy_strerror (curl_err));
       return FALSE;
     }
   }
@@ -314,8 +333,8 @@ gst_curl_ssh_sink_set_options_unlocked (GstCurlBaseSink * bcsink)
   if (sink->ssh_priv_keyfile) {
     if ((curl_err = curl_easy_setopt (bcsink->curl, CURLOPT_SSH_PRIVATE_KEYFILE,
                 sink->ssh_priv_keyfile)) != CURLE_OK) {
-      GST_ERROR_OBJECT (sink, "curl error: %d setting private key file: %s.",
-          curl_err, sink->ssh_priv_keyfile);
+      bcsink->error = g_strdup_printf ("failed to set private key file: %s",
+          curl_easy_strerror (curl_err));
       return FALSE;
     }
   }
@@ -323,8 +342,27 @@ gst_curl_ssh_sink_set_options_unlocked (GstCurlBaseSink * bcsink)
   if (sink->ssh_knownhosts) {
     if ((curl_err = curl_easy_setopt (bcsink->curl, CURLOPT_SSH_KNOWNHOSTS,
                 sink->ssh_knownhosts)) != CURLE_OK) {
-      GST_ERROR_OBJECT (sink, "curl error: %d setting known_hosts file: %s.",
-          curl_err, sink->ssh_knownhosts);
+      bcsink->error = g_strdup_printf ("failed to set known_hosts file: %s",
+          curl_easy_strerror (curl_err));
+      return FALSE;
+    }
+  }
+
+  if (sink->ssh_host_public_key_md5) {
+    /* libcurl is freaking tricky. If the input string is not exactly 32
+     * hexdigits long it silently ignores CURLOPT_SSH_HOST_PUBLIC_KEY_MD5 and
+     * performs the transfer without authenticating the server! */
+    if (strlen (sink->ssh_host_public_key_md5) != 32) {
+      bcsink->error = g_strdup ("MD5-hash string has invalid length, "
+          "must be exactly 32 hexdigits!");
+      return FALSE;
+    }
+
+    if ((curl_err =
+            curl_easy_setopt (bcsink->curl, CURLOPT_SSH_HOST_PUBLIC_KEY_MD5,
+                sink->ssh_host_public_key_md5)) != CURLE_OK) {
+      bcsink->error = g_strdup_printf ("failed to set remote host's public "
+          "key MD5: %s", curl_easy_strerror (curl_err));
       return FALSE;
     }
   }
@@ -337,8 +375,8 @@ gst_curl_ssh_sink_set_options_unlocked (GstCurlBaseSink * bcsink)
     /* set the SSH_AUTH_TYPE */
     if ((curl_err = curl_easy_setopt (bcsink->curl, CURLOPT_SSH_AUTH_TYPES,
                 sink->ssh_auth_type)) != CURLE_OK) {
-      GST_ERROR_OBJECT (sink, "curl error: %d setting auth type: %d.", curl_err,
-          sink->ssh_auth_type);
+      bcsink->error = g_strdup_printf ("failed to set authentication type: %s",
+          curl_easy_strerror (curl_err));
       return FALSE;
     }
 
@@ -347,9 +385,8 @@ gst_curl_ssh_sink_set_options_unlocked (GstCurlBaseSink * bcsink)
       if (sink->ssh_key_passphrase) {
         if ((curl_err = curl_easy_setopt (bcsink->curl, CURLOPT_KEYPASSWD,
                     sink->ssh_key_passphrase)) != CURLE_OK) {
-          GST_ERROR_OBJECT (sink,
-              "curl error: %d setting private key passphrase: %s.", curl_err,
-              sink->ssh_key_passphrase);
+          bcsink->error = g_strdup_printf ("failed to set private key "
+              "passphrase: %s", curl_easy_strerror (curl_err));
           return FALSE;
         }
       } else {
@@ -362,8 +399,8 @@ gst_curl_ssh_sink_set_options_unlocked (GstCurlBaseSink * bcsink)
     }
 
   } else {
-    GST_ERROR_OBJECT (sink, "Error: unsupported authentication type: %d.",
-        sink->ssh_auth_type);
+    bcsink->error = g_strdup_printf ("Error: unsupported authentication type: "
+        "%d.", sink->ssh_auth_type);
     return FALSE;
   }
 
@@ -372,8 +409,8 @@ gst_curl_ssh_sink_set_options_unlocked (GstCurlBaseSink * bcsink)
    * is also set! */
   if ((curl_err = curl_easy_setopt (bcsink->curl, CURLOPT_SSH_KEYFUNCTION,
               curl_ssh_sink_sshkey_cb)) != CURLE_OK) {
-    GST_ERROR_OBJECT (sink, "curl error: %d setting CURLOPT_SSH_KEYFUNCTION.",
-        curl_err);
+    bcsink->error = g_strdup_printf ("failed to set SSH_KEYFUNCTION callback: "
+        "%s", curl_easy_strerror (curl_err));
     return FALSE;
   } else {
     /* SSH_KEYFUNCTION callback successfully installed so go on and
@@ -381,8 +418,9 @@ gst_curl_ssh_sink_set_options_unlocked (GstCurlBaseSink * bcsink)
     if ((curl_err =
             curl_easy_setopt (bcsink->curl, CURLOPT_SSH_KEYDATA,
                 sink)) != CURLE_OK) {
-      GST_ERROR_OBJECT (sink, "curl error: %d setting CURLOPT_SSH_KEYDATA.",
-          curl_err);
+      bcsink->error = g_strdup_printf ("failed to set CURLOPT_SSH_KEYDATA: %s",
+          curl_easy_strerror (curl_err));
+      return FALSE;
     }
   }
 
@@ -445,8 +483,8 @@ curl_ssh_sink_sshkey_cb (CURL * easy_handle,    /* easy handle */
 
     default:
       /* something went wrong, we got some bogus key match result */
-      GST_ERROR_OBJECT (sink,
-          "libcurl internal error encountered during known_host matching");
+      GST_CURL_BASE_SINK (sink)->error =
+          g_strdup ("libcurl internal error during known_host matching");
       break;
   }
 
