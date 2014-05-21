@@ -72,6 +72,5 @@ libgnutls-dev (>= 2.11.3)
 libchromaprint-dev
 libwebp-dev (>= 0.2.1)
 libmjpegtools-dev
-libssh2-1-dev (>= 1.4.3)
 libopenexr-dev
 nettle-dev
