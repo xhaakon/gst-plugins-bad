@@ -376,19 +376,19 @@ gst_motion_cells_init (GstMotioncells * filter)
   filter->diff_timestamp = -1;
   gettimeofday (&filter->tv, NULL);
   filter->starttime = 1000 * filter->tv.tv_sec;
-  filter->previous_motion = false;
-  filter->changed_datafile = false;
-  filter->postallmotion = false;
-  filter->usealpha = true;
-  filter->firstdatafile = false;
-  filter->firstgridx = true;
-  filter->firstgridy = true;
-  filter->changed_gridx = false;
-  filter->changed_gridy = false;
-  filter->firstframe = true;
-  filter->changed_startime = false;
-  filter->sent_init_error_msg = false;
-  filter->sent_save_error_msg = false;
+  filter->previous_motion = FALSE;
+  filter->changed_datafile = FALSE;
+  filter->postallmotion = FALSE;
+  filter->usealpha = TRUE;
+  filter->firstdatafile = FALSE;
+  filter->firstgridx = TRUE;
+  filter->firstgridy = TRUE;
+  filter->changed_gridx = FALSE;
+  filter->changed_gridy = FALSE;
+  filter->firstframe = TRUE;
+  filter->changed_startime = FALSE;
+  filter->sent_init_error_msg = FALSE;
+  filter->sent_save_error_msg = FALSE;
   filter->thickness = THICKNESS_DEF;
 
   filter->datafileidx = 0;
@@ -417,14 +417,14 @@ gst_motion_cells_set_property (GObject * object, guint prop_id,
     case PROP_GRID_X:
       filter->gridx = g_value_get_int (value);
       if (filter->prevgridx != filter->gridx && !filter->firstframe) {
-        filter->changed_gridx = true;
+        filter->changed_gridx = TRUE;
       }
       filter->prevgridx = filter->gridx;
       break;
     case PROP_GRID_Y:
       filter->gridy = g_value_get_int (value);
       if (filter->prevgridy != filter->gridy && !filter->firstframe) {
-        filter->changed_gridy = true;
+        filter->changed_gridy = TRUE;
       }
       filter->prevgridy = filter->gridy;
       break;
@@ -457,7 +457,7 @@ gst_motion_cells_set_property (GObject * object, guint prop_id,
       break;
     case PROP_DATE:
       if (!filter->firstframe) {
-        filter->changed_startime = true;
+        filter->changed_startime = TRUE;
       }
       filter->starttime = g_value_get_long (value);
       break;
@@ -966,7 +966,7 @@ gst_motion_cells_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
           motioncellscolor, motioncells_count, motioncellsidx, starttime,
           datafile, changed_datafile, thickness, filter->id);
 
-      if ((success == 1) && (filter->sent_init_error_msg == false)) {
+      if ((success == 1) && (filter->sent_init_error_msg == FALSE)) {
         char *initfailedreason;
         int initerrorcode;
         GstStructure *s;
@@ -979,7 +979,7 @@ gst_motion_cells_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
         gst_element_post_message (GST_ELEMENT (filter), m);
         filter->sent_init_error_msg = TRUE;
       }
-      if ((success == -1) && (filter->sent_save_error_msg == false)) {
+      if ((success == -1) && (filter->sent_save_error_msg == FALSE)) {
         char *savefailedreason;
         int saveerrorcode;
         GstStructure *s;
@@ -992,7 +992,8 @@ gst_motion_cells_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
         gst_element_post_message (GST_ELEMENT (filter), m);
         filter->sent_save_error_msg = TRUE;
       }
-      if (success == -2) {      //frame dropped
+      if (success == -2) {
+        GST_LOG_OBJECT (filter, "frame dropped");
         gst_buffer_unmap (buf, &info);
         filter->prev_buff_timestamp = filter->cur_buff_timestamp;
         //free
@@ -1019,11 +1020,12 @@ gst_motion_cells_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
         detectedmotioncells = getMotionCellsIdx (filter->id);
         if (detectedmotioncells) {
           filter->consecutive_motion++;
-          if ((filter->previous_motion == false)
+          if ((filter->previous_motion == FALSE)
               && (filter->consecutive_motion >= minimum_motion_frames)) {
             GstStructure *s;
             GstMessage *m;
-            filter->previous_motion = true;
+            GST_DEBUG_OBJECT (filter, "motion started, post msg on the bus");
+            filter->previous_motion = TRUE;
             filter->motion_begin_timestamp = GST_BUFFER_TIMESTAMP (buf);
             s = gst_structure_new ("motion", "motion_cells_indices",
                 G_TYPE_STRING, detectedmotioncells, "motion_begin",
@@ -1033,6 +1035,7 @@ gst_motion_cells_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
           } else if (filter->postallmotion) {
             GstStructure *s;
             GstMessage *m;
+            GST_DEBUG_OBJECT (filter, "motion, post msg on the bus");
             filter->motion_timestamp = GST_BUFFER_TIMESTAMP (buf);
             s = gst_structure_new ("motion", "motion_cells_indices",
                 G_TYPE_STRING, detectedmotioncells, "motion", G_TYPE_UINT64,
@@ -1054,11 +1057,11 @@ gst_motion_cells_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
                         filter->last_motion_timestamp) / 1000000000l) >=
                 filter->gap)
             && (filter->last_motion_timestamp > 0)) {
-          GST_DEBUG ("POST MOTION FINISHED MSG\n");
           if (filter->previous_motion) {
             GstStructure *s;
             GstMessage *m;
-            filter->previous_motion = false;
+            GST_DEBUG_OBJECT (filter, "motion finished, post msg on the bus");
+            filter->previous_motion = FALSE;
             s = gst_structure_new ("motion", "motion_finished", G_TYPE_UINT64,
                 filter->last_motion_timestamp, NULL);
             m = gst_message_new_element (GST_OBJECT (filter), s);
@@ -1071,7 +1074,7 @@ gst_motion_cells_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
         if ((last_buf_timestamp -
                 (filter->last_motion_timestamp / 1000000000l)) >=
             filter->postnomotion) {
-          GST_DEBUG ("POST NO MOTION MSG\n");
+          GST_DEBUG_OBJECT (filter, "post no motion msg on the bus");
           if ((last_buf_timestamp -
                   (filter->last_nomotion_notified / 1000000000l)) >=
               filter->postnomotion) {

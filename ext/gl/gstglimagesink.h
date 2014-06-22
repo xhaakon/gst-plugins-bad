@@ -67,10 +67,6 @@ struct _GstGLImageSink
     GstGLUpload *upload;
     guint      next_tex;
 
-    CRCB clientReshapeCallback;
-    CDCB clientDrawCallback;
-    gpointer client_data;
-
     volatile gint to_quit;
     gboolean keep_aspect_ratio;
     gint par_n, par_d;
@@ -79,6 +75,7 @@ struct _GstGLImageSink
 
     /* avoid replacing the stored_buffer while drawing */
     GMutex drawing_lock;
+    GstBuffer *stored_buffer;
     GLuint redisplay_texture;
 
 #if GST_GL_HAVE_GLES2

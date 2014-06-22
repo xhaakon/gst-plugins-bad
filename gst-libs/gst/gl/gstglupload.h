@@ -31,7 +31,7 @@ G_BEGIN_DECLS
 GType gst_gl_upload_get_type (void);
 #define GST_TYPE_GL_UPLOAD (gst_gl_upload_get_type())
 #define GST_GL_UPLOAD(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_GL_UPLOAD,GstGLUpload))
-#define GST_GL_UPLOAD_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_GL_DISPLAY,GstGLUploadClass))
+#define GST_GL_UPLOAD_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_GL_UPLOAD,GstGLUploadClass))
 #define GST_IS_GL_UPLOAD(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_GL_UPLOAD))
 #define GST_IS_GL_UPLOAD_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_GL_UPLOAD))
 #define GST_GL_UPLOAD_CAST(obj) ((GstGLUpload*)(obj))
@@ -45,8 +45,6 @@ struct _GstGLUpload
 {
   /* <private> */
   GstObject        parent;
-
-  GMutex           lock;
 
   GstGLContext    *context;
   GstGLColorConvert *convert;
@@ -80,11 +78,9 @@ GstGLUpload * gst_gl_upload_new            (GstGLContext * context);
 void           gst_gl_upload_set_format    (GstGLUpload * upload, GstVideoInfo * in_info);
 GstVideoInfo * gst_gl_upload_get_format    (GstGLUpload * upload);
 
-gboolean gst_gl_upload_add_video_gl_texture_upload_meta (GstGLUpload * upload, GstBuffer * buffer);
-
 gboolean gst_gl_upload_perform_with_buffer (GstGLUpload * upload, GstBuffer * buffer, guint * tex_id);
 void gst_gl_upload_release_buffer (GstGLUpload * upload);
-gboolean gst_gl_upload_perform_with_data          (GstGLUpload * upload, GLuint texture_id,
+gboolean gst_gl_upload_perform_with_data          (GstGLUpload * upload, GLuint * texture_id,
                                                    gpointer data[GST_VIDEO_MAX_PLANES]);
 
 gboolean gst_gl_upload_perform_with_gl_texture_upload_meta (GstGLUpload *upload, GstVideoGLTextureUploadMeta *meta, guint texture_id[4]);

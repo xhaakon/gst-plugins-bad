@@ -44,7 +44,6 @@
  *   handled in mpegtsbase:
  *   * GST_MTS_DESC_DVB_DATA_BROADCAST_ID
  *   * GST_MTS_DESC_DVB_CAROUSEL_IDENTIFIER
- *   * GST_MTS_DESC_DVB_FREQUENCY_LIST
  */
 
 #define BCD_UN(a) ((a) & 0x0f)
@@ -110,6 +109,79 @@ gst_mpegts_descriptor_from_dvb_network_name (const gchar * name)
   g_free (converted_name);
 
   return descriptor;
+}
+
+/* GST_MTS_DESC_DVB_SERVICE_LIST (0x41) */
+static void
+_gst_mpegts_dvb_service_list_item_free (GstMpegTsDVBServiceListItem * item)
+{
+  g_slice_free (GstMpegTsDVBServiceListItem, item);
+}
+
+/**
+ * gst_mpegts_descriptor_parse_dvb_service_list:
+ * @descriptor: a %GST_MTS_DESC_DVB_SERVICE_LIST #GstMpegTsDescriptor
+ * @list: (out) (transfer full) (element-type GstMpegTsDVBServiceListItem):
+ * the list of services
+ *
+ * Parses out a list of services from the @descriptor:
+ *
+ * Returns: %TRUE if the parsing happened correctly, else %FALSE.
+ */
+gboolean
+gst_mpegts_descriptor_parse_dvb_service_list (const GstMpegTsDescriptor *
+    descriptor, GPtrArray ** list)
+{
+  guint8 *data, i;
+
+  g_return_val_if_fail (descriptor != NULL && list != NULL, FALSE);
+  /* a entry has 3 bytes, 2 for service id, 1 for service type */
+  __common_desc_checks (descriptor, GST_MTS_DESC_DVB_SERVICE_LIST, 3, FALSE);
+
+  data = (guint8 *) descriptor->data + 2;
+
+  *list = g_ptr_array_new_with_free_func ((GDestroyNotify)
+      _gst_mpegts_dvb_service_list_item_free);
+
+  for (i = 0; i < descriptor->length - 2; i += 3) {
+    GstMpegTsDVBServiceListItem *item =
+        g_slice_new0 (GstMpegTsDVBServiceListItem);
+
+    g_ptr_array_add (*list, item);
+    item->service_id = GST_READ_UINT16_BE (data);
+    data += 2;
+
+    item->type = *data;
+    data += 1;
+  }
+
+  return TRUE;
+}
+
+/* GST_MTS_DESC_DVB_STUFFING (0x42) */
+/**
+ * gst_mpegts_descriptor_parse_dvb_stuffing:
+ * @descriptor: a %GST_MTS_DESC_DVB_STUFFING #GstMpegTsDescriptor
+ * @stuffing_bytes: (out): the stuffing bytes
+ *
+ * Parses out the stuffing bytes from the @descriptor.
+ *
+ * Returns: %TRUE if the parsing happened correctly, else %FALSE.
+ */
+gboolean
+gst_mpegts_descriptor_parse_dvb_stuffing (const GstMpegTsDescriptor *
+    descriptor, guint8 ** stuffing_bytes)
+{
+  guint8 *data;
+
+  g_return_val_if_fail (descriptor != NULL && stuffing_bytes != NULL, FALSE);
+  __common_desc_checks (descriptor, GST_MTS_DESC_DVB_STUFFING, 0, FALSE);
+
+  data = (guint8 *) descriptor->data + 2;
+
+  *stuffing_bytes = g_memdup (data, descriptor->length);
+
+  return TRUE;
 }
 
 /* GST_MTS_DESC_DVB_SATELLITE_DELIVERY_SYSTEM (0x43) */
@@ -316,6 +388,32 @@ gst_mpegts_descriptor_parse_cable_delivery_system (const GstMpegTsDescriptor *
   return TRUE;
 }
 
+/* GST_MTS_DESC_DVB_BOUQUET_NAME (0x47) */
+/**
+ * gst_mpegts_descriptor_parse_dvb_bouquet_name:
+ * @bouquet_name: (out) (transfer full) (allow-none): the bouquet name
+ *
+ * Extracts the bouquet name from @descriptor.
+ *
+ * Returns: %TRUE if parsing succeeded, else %FALSE.
+ */
+gboolean
+gst_mpegts_descriptor_parse_dvb_bouquet_name (const GstMpegTsDescriptor *
+    descriptor, gchar ** bouquet_name)
+{
+  guint8 *data;
+
+  g_return_val_if_fail (descriptor != NULL && bouquet_name != NULL, FALSE);
+  __common_desc_checks (descriptor, GST_MTS_DESC_DVB_BOUQUET_NAME, 1, FALSE);
+
+  data = (guint8 *) descriptor->data + 2;
+
+  *bouquet_name =
+      get_encoding_and_convert ((const gchar *) data, descriptor->length);
+
+  return TRUE;
+}
+
 /* GST_MTS_DESC_DVB_SERVICE (0x48) */
 /**
  * gst_mpegts_descriptor_parse_dvb_service:
@@ -474,8 +572,8 @@ gst_mpegts_descriptor_parse_dvb_linkage (const GstMpegTsDescriptor * descriptor,
       hand_over = g_slice_new0 (GstMpegTsDVBLinkageMobileHandOver);
       res->linkage_data = (gpointer) hand_over;
 
-      hand_over->origin_type = (*data >> 7) & 0x01;
-      hand_over->hand_over_type = *data & 0x0f;
+      hand_over->origin_type = (*data) & 0x01;
+      hand_over->hand_over_type = (*data >> 4) & 0x0f;
       data += 1;
 
       if (hand_over->hand_over_type ==
@@ -825,10 +923,9 @@ gboolean
 gst_mpegts_descriptor_parse_dvb_extended_event (const GstMpegTsDescriptor
     * descriptor, GstMpegTsExtendedEventDescriptor * res)
 {
-  guint8 *data, *desc_data;
+  guint8 *data, *pdata;
   guint8 tmp, len_item;
   GstMpegTsExtendedEventItem *item;
-  guint i;
 
   g_return_val_if_fail (descriptor != NULL && res != NULL, FALSE);
   /* Need at least 6 bytes (1 for desc number, 3 for language code, 2 for the loop length) */
@@ -842,37 +939,36 @@ gst_mpegts_descriptor_parse_dvb_extended_event (const GstMpegTsDescriptor
 
   data += 1;
 
-  memcpy (data, res->language_code, 3);
+  memcpy (res->language_code, data, 3);
+  res->language_code[3] = 0;
 
   data += 3;
 
   len_item = *data;
+  if (len_item > descriptor->length - 5)
+    return FALSE;
 
   data += 1;
 
-  res->nb_items = 0;
   res->items = g_ptr_array_new_with_free_func ((GDestroyNotify)
       _gst_mpegts_extended_event_item_free);
 
-  for (i = 0; i < len_item;) {
-    desc_data = data;
+  pdata = data + len_item;
+  while (data < pdata) {
     item = g_slice_new0 (GstMpegTsExtendedEventItem);
     item->item_description =
-        get_encoding_and_convert ((const gchar *) desc_data + 1, *desc_data);
+        get_encoding_and_convert ((const gchar *) data + 1, *data);
 
-    desc_data += *desc_data + 1;
-    i += *desc_data + 1;
+    data += *data + 1;
 
-    item->item =
-        get_encoding_and_convert ((const gchar *) desc_data + 1, *desc_data);
+    item->item = get_encoding_and_convert ((const gchar *) data + 1, *data);
 
-    desc_data += *desc_data + 1;
-    i += *desc_data + 1;
+    data += *data + 1;
 
     g_ptr_array_add (res->items, item);
-    res->nb_items += 1;
   }
-  data += len_item;
+  if (pdata != data)
+    return FALSE;
   res->text = get_encoding_and_convert ((const gchar *) data + 1, *data);
 
   return TRUE;
@@ -911,7 +1007,8 @@ gst_mpegts_descriptor_parse_dvb_component (const GstMpegTsDescriptor
   res->component_tag = *data;
   data += 1;
 
-  memcpy (data, res->language_code, 3);
+  memcpy (res->language_code, data, 3);
+  res->language_code[3] = 0;
   data += 3;
 
   len = descriptor->length - 6;
@@ -1068,7 +1165,8 @@ gst_mpegts_descriptor_parse_dvb_parental_rating (const GstMpegTsDescriptor
         g_slice_new0 (GstMpegTsDVBParentalRatingItem);
     g_ptr_array_add (*rating, item);
 
-    memcpy (data, item->country_code, 3);
+    memcpy (item->country_code, data, 3);
+    item->country_code[3] = 0;
     data += 3;
 
     if (g_strcmp0 (item->country_code, "BRA") == 0) {
@@ -1282,14 +1380,238 @@ gst_mpegts_descriptor_parse_terrestrial_delivery_system (const
   return TRUE;
 }
 
+/* GST_MTS_DESC_DVB_MULTILINGUAL_NETWORK_NAME (0x5B) */
+static void
+    _gst_mpegts_dvb_multilingual_network_name_item_free
+    (GstMpegTsDvbMultilingualNetworkNameItem * item)
+{
+  g_slice_free (GstMpegTsDvbMultilingualNetworkNameItem, item);
+}
+
+/**
+ * gst_mpegts_descriptor_parse_dvb_multilingual_network_name:
+ * @descriptor: a %GST_MTS_DESC_DVB_MULTILINGUAL_NETWORK_NAME
+ * #GstMpegTsDescriptor
+ * @network_name_items: (out) (element-type GstMpegTsDvbMultilingualNetworkNameItem):
+ * a #GstMpegTsDvbMultilingualNetworkNameItem
+ *
+ * Parses out the multilingual network name from the @descriptor.
+ *
+ * Returns: %TRUE if the parsing happened correctly, else %FALSE.
+ */
+gboolean
+gst_mpegts_descriptor_parse_dvb_multilingual_network_name (const
+    GstMpegTsDescriptor * descriptor, GPtrArray ** network_name_items)
+{
+  guint8 *data, i, len;
+  GstMpegTsDvbMultilingualNetworkNameItem *item;
+
+  g_return_val_if_fail (descriptor != NULL && network_name_items != NULL,
+      FALSE);
+  __common_desc_checks (descriptor, GST_MTS_DESC_DVB_MULTILINGUAL_NETWORK_NAME,
+      5, FALSE);
+
+  data = (guint8 *) descriptor->data + 2;
+
+  *network_name_items = g_ptr_array_new_with_free_func ((GDestroyNotify)
+      _gst_mpegts_dvb_multilingual_network_name_item_free);
+
+  for (i = 0; i < descriptor->length - 3;) {
+    item = g_slice_new0 (GstMpegTsDvbMultilingualNetworkNameItem);
+    g_ptr_array_add (*network_name_items, item);
+    memcpy (item->language_code, data, 3);
+    data += 3;
+    i += 3;
+
+    len = *data;
+    item->network_name =
+        get_encoding_and_convert ((const gchar *) data + 1, len);
+    data += len + 1;
+    i += len + 1;
+  }
+
+  return TRUE;
+}
+
+/* GST_MTS_DESC_DVB_MULTILINGUAL_BOUQUET_NAME (0x5C) */
+static void
+    _gst_mpegts_dvb_multilingual_bouquet_name_item_free
+    (GstMpegTsDvbMultilingualBouquetNameItem * item)
+{
+  g_slice_free (GstMpegTsDvbMultilingualBouquetNameItem, item);
+}
+
+/**
+ * gst_mpegts_descriptor_parse_dvb_multilingual_bouquet_name:
+ * @descriptor: a %GST_MTS_DESC_DVB_MULTILINGUAL_BOUQUET_NAME
+ * #GstMpegTsDescriptor
+ * @bouquet_name_items: (out) (element-type GstMpegTsDvbMultilingualBouquetNameItem):
+ * a #GstMpegTsDvbMultilingualBouquetNameItem
+ *
+ * Parses out the multilingual bouquet name from the @descriptor.
+ *
+ * Returns: %TRUE if the parsing happened correctly, else %FALSE.
+ */
+gboolean
+gst_mpegts_descriptor_parse_dvb_multilingual_bouquet_name (const
+    GstMpegTsDescriptor * descriptor, GPtrArray ** bouquet_name_items)
+{
+  guint8 *data, i, len;
+  GstMpegTsDvbMultilingualBouquetNameItem *item;
+
+  g_return_val_if_fail (descriptor != NULL && bouquet_name_items != NULL,
+      FALSE);
+  __common_desc_checks (descriptor, GST_MTS_DESC_DVB_MULTILINGUAL_BOUQUET_NAME,
+      5, FALSE);
+
+  data = (guint8 *) descriptor->data + 2;
+
+  *bouquet_name_items = g_ptr_array_new_with_free_func ((GDestroyNotify)
+      _gst_mpegts_dvb_multilingual_bouquet_name_item_free);
+
+  for (i = 0; i < descriptor->length - 3;) {
+    item = g_slice_new0 (GstMpegTsDvbMultilingualBouquetNameItem);
+    g_ptr_array_add (*bouquet_name_items, item);
+    memcpy (item->language_code, data, 3);
+    data += 3;
+    i += 3;
+
+    len = *data;
+    item->bouquet_name =
+        get_encoding_and_convert ((const gchar *) data + 1, len);
+    data += len + 1;
+    i += len + 1;
+  }
+
+  return TRUE;
+}
+
+/* GST_MTS_DESC_DVB_MULTILINGUAL_SERVICE_NAME (0x5D) */
+static void
+    _gst_mpegts_dvb_multilingual_service_name_item_free
+    (GstMpegTsDvbMultilingualServiceNameItem * item)
+{
+  g_slice_free (GstMpegTsDvbMultilingualServiceNameItem, item);
+}
+
+/**
+ * gst_mpegts_descriptor_parse_dvb_multilingual_service_name:
+ * @descriptor: a %GST_MTS_DESC_DVB_MULTILINGUAL_SERVICE_NAME
+ * #GstMpegTsDescriptor
+ * @service_name_items: (out) (element-type GstMpegTsDvbMultilingualServiceNameItem):
+ * a #GstMpegTsDvbMultilingualServiceNameItem
+ *
+ * Parses out the multilingual service name from the @descriptor.
+ *
+ * Returns: %TRUE if the parsing happened correctly, else %FALSE.
+ */
+gboolean
+gst_mpegts_descriptor_parse_dvb_multilingual_service_name (const
+    GstMpegTsDescriptor * descriptor, GPtrArray ** service_name_items)
+{
+  guint8 *data, i, len;
+  GstMpegTsDvbMultilingualServiceNameItem *item;
+
+  g_return_val_if_fail (descriptor != NULL && service_name_items != NULL,
+      FALSE);
+  __common_desc_checks (descriptor, GST_MTS_DESC_DVB_MULTILINGUAL_SERVICE_NAME,
+      7, FALSE);
+
+  data = (guint8 *) descriptor->data + 2;
+
+  *service_name_items = g_ptr_array_new_with_free_func ((GDestroyNotify)
+      _gst_mpegts_dvb_multilingual_service_name_item_free);
+
+  for (i = 0; i < descriptor->length - 3;) {
+    item = g_slice_new0 (GstMpegTsDvbMultilingualServiceNameItem);
+    g_ptr_array_add (*service_name_items, item);
+    memcpy (item->language_code, data, 3);
+    data += 3;
+    i += 3;
+
+    len = *data;
+    item->provider_name =
+        get_encoding_and_convert ((const gchar *) data + 1, len);
+    data += len + 1;
+    i += len + 1;
+
+    len = *data;
+    item->service_name =
+        get_encoding_and_convert ((const gchar *) data + 1, len);
+    data += len + 1;
+    i += len + 1;
+  }
+
+  return TRUE;
+}
+
+/* GST_MTS_DESC_DVB_MULTILINGUAL_COMPONENT (0x5E) */
+static void
+    _gst_mpegts_dvb_multilingual_component_item_free
+    (GstMpegTsDvbMultilingualComponentItem * item)
+{
+  g_slice_free (GstMpegTsDvbMultilingualComponentItem, item);
+}
+
+/**
+ * gst_mpegts_descriptor_parse_dvb_multilingual_component:
+ * @descriptor: a %GST_MTS_DESC_DVB_MULTILINGUAL_COMPONENT
+ * #GstMpegTsDescriptor
+ * @component_tag: the component tag
+ * @component_description_items: (out) (element-type GstMpegTsDvbMultilingualComponentItem):
+ * a #GstMpegTsDvbMultilingualComponentItem
+ *
+ * Parses out the multilingual component from the @descriptor.
+ *
+ * Returns: %TRUE if the parsing happened correctly, else %FALSE.
+ */
+gboolean
+gst_mpegts_descriptor_parse_dvb_multilingual_component (const
+    GstMpegTsDescriptor * descriptor, guint8 * component_tag,
+    GPtrArray ** component_description_items)
+{
+  guint8 *data, i, len;
+  GstMpegTsDvbMultilingualComponentItem *item;
+
+  g_return_val_if_fail (descriptor != NULL
+      && component_description_items != NULL && component_tag != NULL, FALSE);
+  __common_desc_checks (descriptor, GST_MTS_DESC_DVB_MULTILINGUAL_COMPONENT, 6,
+      FALSE);
+
+  data = (guint8 *) descriptor->data + 2;
+
+  *component_tag = *data;
+  data += 1;
+
+  *component_description_items =
+      g_ptr_array_new_with_free_func ((GDestroyNotify)
+      _gst_mpegts_dvb_multilingual_component_item_free);
+
+  for (i = 0; i < descriptor->length - 3;) {
+    item = g_slice_new0 (GstMpegTsDvbMultilingualComponentItem);
+    g_ptr_array_add (*component_description_items, item);
+    memcpy (item->language_code, data, 3);
+    data += 3;
+    i += 3;
+
+    len = *data;
+    item->description =
+        get_encoding_and_convert ((const gchar *) data + 1, len);
+    data += len + 1;
+    i += len + 1;
+  }
+
+  return TRUE;
+}
+
 /* GST_MTS_DESC_DVB_PRIVATE_DATA_SPECIFIER (0x5F) */
 /**
  * gst_mpegts_descriptor_parse_dvb_private_data_specifier:
  * @descriptor: a %GST_MTS_DESC_DVB_PRIVATE_DATA_SPECIFIER #GstMpegTsDescriptor
  * @private_data_specifier: (out): the private data specifier id
  * registered by http://www.dvbservices.com/
- * @private_data: (out): additional data or NULL
- * @length: (out): length of %private_data
+ * @private_data: (out) (allow-none): additional data or NULL
+ * @length: (out) (allow-none): length of %private_data
  *
  * Parses out the private data specifier from the @descriptor.
  *
@@ -1311,10 +1633,11 @@ gst_mpegts_descriptor_parse_dvb_private_data_specifier (const
 
   *private_data_specifier = GST_READ_UINT32_BE (data);
 
-  *length = descriptor->length - 4;
+  if (length && private_data) {
+    *length = descriptor->length - 4;
 
-  *private_data = g_memdup (data + 4, *length);
-
+    *private_data = g_memdup (data + 4, *length);
+  }
   return TRUE;
 }
 
@@ -1323,7 +1646,8 @@ gst_mpegts_descriptor_parse_dvb_private_data_specifier (const
  * gst_mpegts_descriptor_parse_dvb_frequency_list:
  * @descriptor: a %GST_MTS_DESC_DVB_FREQUENCY_LIST #GstMpegTsDescriptor
  * @offset: (out): %FALSE in Hz, %TRUE in kHz
- * @list: (out): a list of all frequencies in Hz/kHz depending from %offset
+ * @list: (out) (element-type guint32): a list of all frequencies in Hz/kHz
+ * depending on %offset
  *
  * Parses out a list of frequencies from the @descriptor.
  *
@@ -1414,7 +1738,7 @@ gst_mpegts_descriptor_parse_dvb_data_broadcast (const GstMpegTsDescriptor
   res->selector_bytes = g_memdup (data, len);
   data += len;
 
-  memcpy (data, res->language_code, 3);
+  memcpy (res->language_code, data, 3);
   data += 3;
 
   res->text = get_encoding_and_convert ((const gchar *) data + 1, *data);

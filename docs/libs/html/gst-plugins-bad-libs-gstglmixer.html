@@ -102,10 +102,6 @@
 </tr>
 <tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-libs-gstglmixer.html#GstGLMixerCollect" title="struct GstGLMixerCollect">GstGLMixerCollect</a></td>
-</tr>
-<tr>
-<td class="datatype_keyword">struct</td>
 <td class="function_name"><a class="link" href="gst-plugins-bad-libs-gstglmixer.html#GstGLMixer-struct" title="struct GstGLMixer">GstGLMixer</a></td>
 </tr>
 <tr>
@@ -125,9 +121,13 @@
     <span class="lineart">╰──</span> <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
         <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
             <span class="lineart">├──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
-            <span class="lineart">│</span>   <span class="lineart">╰──</span> GstGLMixer
+            <span class="lineart">│</span>   <span class="lineart">╰──</span> <a class="link" href="GstAggregator.html" title="GstAggregator">GstAggregator</a>
+            <span class="lineart">│</span>       <span class="lineart">╰──</span> <a class="link" href="GstVideoAggregator.html" title="GstVideoAggregator">GstVideoAggregator</a>
+            <span class="lineart">│</span>           <span class="lineart">╰──</span> GstGLMixer
             <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstPad.html">GstPad</a>
-                <span class="lineart">╰──</span> GstGLMixerPad
+                <span class="lineart">╰──</span> <a class="link" href="GstAggregatorPad.html" title="GstAggregatorPad">GstAggregatorPad</a>
+                    <span class="lineart">╰──</span> <a class="link" href="GstVideoAggregatorPad.html" title="GstVideoAggregatorPad">GstVideoAggregatorPad</a>
+                        <span class="lineart">╰──</span> GstGLMixerPad
 </pre>
 </div>
 <div class="refsect1">
@@ -187,23 +187,7 @@ gst_gl_mixer_process_textures (<em class="parameter"><code><a class="link" href=
 <div class="refsect2">
 <a name="GstGLMixerPadClass"></a><h3>struct GstGLMixerPadClass</h3>
 <pre class="programlisting">struct GstGLMixerPadClass {
-  GstPadClass parent_class;
-};
-</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GstGLMixerCollect"></a><h3>struct GstGLMixerCollect</h3>
-<pre class="programlisting">struct GstGLMixerCollect {
-  GstCollectData collect;       /* we extend the CollectData */
-
-  GstBuffer *queued;
-
-  GstBuffer *buffer;            /* the queued buffer for this pad */
-  GstClockTime start_time;
-  GstClockTime end_time;
-
-  GstGLMixerPad *mixpad;
+  GstVideoAggregatorPadClass parent_class;
 };
 </pre>
 </div>
@@ -216,7 +200,7 @@ gst_gl_mixer_process_textures (<em class="parameter"><code><a class="link" href=
 <div class="refsect2">
 <a name="GstGLMixerClass"></a><h3>struct GstGLMixerClass</h3>
 <pre class="programlisting">struct GstGLMixerClass {
-  GstElementClass parent_class;
+  GstVideoAggregatorClass parent_class;
 
   GstGLMixerSetCaps set_caps;
   GstGLMixerReset reset;

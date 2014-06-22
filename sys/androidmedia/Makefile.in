@@ -159,7 +159,8 @@ libgstandroidmedia_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 am_libgstandroidmedia_la_OBJECTS = libgstandroidmedia_la-gstamc.lo \
 	libgstandroidmedia_la-gstamcaudiodec.lo \
-	libgstandroidmedia_la-gstamcvideodec.lo
+	libgstandroidmedia_la-gstamcvideodec.lo \
+	libgstandroidmedia_la-gstamcvideoenc.lo
 libgstandroidmedia_la_OBJECTS = $(am_libgstandroidmedia_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -347,6 +348,8 @@ GMSGFMT_015 = @GMSGFMT_015@
 GMYTH_CFLAGS = @GMYTH_CFLAGS@
 GMYTH_LIBS = @GMYTH_LIBS@
 GNUSTEP_CONFIG = @GNUSTEP_CONFIG@
+GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
+GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
 GSETTINGS_CFLAGS = @GSETTINGS_CFLAGS@
 GSETTINGS_DISABLE_SCHEMAS_COMPILE = @GSETTINGS_DISABLE_SCHEMAS_COMPILE@
@@ -433,6 +436,7 @@ HAVE_FLITE = @HAVE_FLITE@
 HAVE_GL = @HAVE_GL@
 HAVE_GLES2 = @HAVE_GLES2@
 HAVE_GLU = @HAVE_GLU@
+HAVE_GRAPHENE = @HAVE_GRAPHENE@
 HAVE_GSM = @HAVE_GSM@
 HAVE_GTK3 = @HAVE_GTK3@
 HAVE_JPEG = @HAVE_JPEG@
@@ -724,17 +728,20 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstandroidmedia.la
 libgstandroidmedia_la_SOURCES = \
 	gstamc.c \
 	gstamcaudiodec.c \
-	gstamcvideodec.c
+	gstamcvideodec.c \
+	gstamcvideoenc.c
 
 noinst_HEADERS = \
 	gstamc.h \
 	gstamc-constants.h \
 	gstamcaudiodec.h \
-	gstamcvideodec.h
+	gstamcvideodec.h \
+	gstamcvideoenc.h
 
 libgstandroidmedia_la_CFLAGS = \
 	$(GST_PLUGINS_BASE_CFLAGS) \
@@ -835,6 +842,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamcaudiodec.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamcvideodec.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamcvideoenc.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -880,6 +888,13 @@ libgstandroidmedia_la-gstamcvideodec.lo: gstamcvideodec.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstamcvideodec.c' object='libgstandroidmedia_la-gstamcvideodec.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstamcvideodec.lo `test -f 'gstamcvideodec.c' || echo '$(srcdir)/'`gstamcvideodec.c
+
+libgstandroidmedia_la-gstamcvideoenc.lo: gstamcvideoenc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstamcvideoenc.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstamcvideoenc.Tpo -c -o libgstandroidmedia_la-gstamcvideoenc.lo `test -f 'gstamcvideoenc.c' || echo '$(srcdir)/'`gstamcvideoenc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gstamcvideoenc.Tpo $(DEPDIR)/libgstandroidmedia_la-gstamcvideoenc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstamcvideoenc.c' object='libgstandroidmedia_la-gstamcvideoenc.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstamcvideoenc.lo `test -f 'gstamcvideoenc.c' || echo '$(srcdir)/'`gstamcvideoenc.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -38,9 +38,7 @@ struct _GstGLFilterApp
 {
     GstGLFilter filter;
 
-    CRCB clientReshapeCallback;
-    GLCB clientDrawCallback;
-    gpointer client_data;
+    gboolean default_draw;
 };
 
 struct _GstGLFilterAppClass

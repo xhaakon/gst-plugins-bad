@@ -52,6 +52,11 @@ GType gst_mpegts_section_get_type (void);
  * @GST_MPEGTS_SECTION_TDT: Time and Date Table (EN 300 468)
  * @GST_MPEGTS_SECTION_TOT: Time Offset Table (EN 300 468)
  * @GST_MPEGTS_SECTION_ATSC_TVCT: ATSC Terrestrial Virtual Channel Table (A65)
+ * @GST_MPEGTS_SECTION_ATSC_CVCT: ATSC Cable Virtual Channel Table (A65)
+ * @GST_MPEGTS_SECTION_ATSC_MGT: ATSC Master Guide Table (A65)
+ * @GST_MPEGTS_SECTION_ATSC_ETT: ATSC Extended Text Table (A65)
+ * @GST_MPEGTS_SECTION_ATSC_EIT: ATSC Event Information Table (A65)
+ * @GST_MPEGTS_SECTION_ATSC_STT: ATSC System Time Table (A65)
  *
  * Types of #GstMpegTsSection that the library handles.
  */
@@ -67,7 +72,12 @@ typedef enum {
   GST_MPEGTS_SECTION_SDT, 
   GST_MPEGTS_SECTION_TDT, 
   GST_MPEGTS_SECTION_TOT,
-  GST_MPEGTS_SECTION_ATSC_TVCT
+  GST_MPEGTS_SECTION_ATSC_TVCT,
+  GST_MPEGTS_SECTION_ATSC_CVCT,
+  GST_MPEGTS_SECTION_ATSC_MGT,
+  GST_MPEGTS_SECTION_ATSC_ETT,
+  GST_MPEGTS_SECTION_ATSC_EIT,
+  GST_MPEGTS_SECTION_ATSC_STT
 } GstMpegTsSectionType;
 
 /**

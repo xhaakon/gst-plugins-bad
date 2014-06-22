@@ -161,6 +161,11 @@ gboolean gst_mpegts_descriptor_parse_dvb_network_name (const GstMpegTsDescriptor
 
 GstMpegTsDescriptor *gst_mpegts_descriptor_from_dvb_network_name (const gchar * name);
 
+/* GST_MTS_DESC_DVB_STUFFING (0x42) */
+gboolean gst_mpegts_descriptor_parse_dvb_stuffing (const GstMpegTsDescriptor * descriptor,
+                                                   guint8 ** stuffing_bytes);
+
+
 /* GST_MTS_DESC_DVB_SATELLITE_DELIVERY_SYSTEM (0x43) */
 typedef struct _GstMpegTsSatelliteDeliverySystemDescriptor GstMpegTsSatelliteDeliverySystemDescriptor;
 
@@ -278,6 +283,10 @@ struct _GstMpegTsCableDeliverySystemDescriptor
 gboolean gst_mpegts_descriptor_parse_cable_delivery_system (const GstMpegTsDescriptor *descriptor,
 							    GstMpegTsCableDeliverySystemDescriptor *res);
 
+/* GST_MTS_DESC_DVB_BOUQUET_NAME (0x47) */
+gboolean gst_mpegts_descriptor_parse_dvb_bouquet_name (const GstMpegTsDescriptor * descriptor,
+                                                       gchar ** bouquet_name);
+
 /* GST_MTS_DESC_DVB_SERVICE (0x48) */
 /**
  * GstMpegTsDVBServiceType:
@@ -329,6 +338,23 @@ gboolean gst_mpegts_descriptor_parse_dvb_service (const GstMpegTsDescriptor *des
 GstMpegTsDescriptor *gst_mpegts_descriptor_from_dvb_service (GstMpegTsDVBServiceType service_type,
 							     const gchar * service_name,
 							     const gchar * service_provider);
+
+/* GST_MTS_DESC_DVB_SERVICE_LIST (0x41) */
+typedef struct _GstMpegTsDVBServiceListItem GstMpegTsDVBServiceListItem;
+
+/**
+ * GstMpegTsDVBServiceListItem:
+ * @service_id: the id of a service
+ * @type: the type of a service
+ */
+struct _GstMpegTsDVBServiceListItem
+{
+  guint16                 service_id;
+  GstMpegTsDVBServiceType type;
+};
+
+gboolean gst_mpegts_descriptor_parse_dvb_service_list (const GstMpegTsDescriptor * descriptor,
+    GPtrArray ** list);
 
 /* GST_MTS_DESC_DVB_LINKAGE (0x4A) */
 /**
@@ -447,8 +473,7 @@ struct _GstMpegTsExtendedEventItem
  * GstMpegTsExtendedEventDescriptor:
  * @desctiptor_number:
  * @last_descriptor_number:
- * @language_code:
- * @nb_items:
+ * @language_code: NULL terminated language code.
  * @items: (element-type GstMpegTsExtendedEventItem): the #GstMpegTsExtendedEventItem
  * @text:
  *
@@ -458,8 +483,7 @@ struct _GstMpegTsExtendedEventDescriptor
 {
   guint8 descriptor_number;
   guint8 last_descriptor_number;
-  gchar  language_code[3];
-  guint8 nb_items;
+  gchar  language_code[4];
   GPtrArray *items;
   gchar *text;
 };
@@ -468,6 +492,17 @@ gboolean gst_mpegts_descriptor_parse_dvb_extended_event (const GstMpegTsDescript
 							  GstMpegTsExtendedEventDescriptor *res);
 
 /* GST_MTS_DESC_DVB_COMPONENT (0x50) */
+typedef enum {
+  GST_MPEGTS_STREAM_CONTENT_MPEG2_VIDEO          = 0x01,
+  GST_MPEGTS_STREAM_CONTENT_MPEG1_LAYER2_AUDIO   = 0x02,
+  GST_MPEGTS_STREAM_CONTENT_TELETEXT_OR_SUBTITLE = 0x03,
+  GST_MPEGTS_STREAM_CONTENT_AC_3                 = 0x04,
+  GST_MPEGTS_STREAM_CONTENT_AVC                  = 0x05,
+  GST_MPEGTS_STREAM_CONTENT_AAC                  = 0x06,
+  GST_MPEGTS_STREAM_CONTENT_DTS                  = 0x07,
+  GST_MPEGTS_STREAM_CONTENT_SRM_CPCM             = 0x08
+} GstMpegTsComponentStreamContent;
+
 typedef struct _GstMpegTsComponentDescriptor GstMpegTsComponentDescriptor;
 struct _GstMpegTsComponentDescriptor
 {
@@ -475,7 +510,7 @@ struct _GstMpegTsComponentDescriptor
   guint8 component_type;
   guint8 component_tag;
   /* FIXME : Make it a separate (allocated, null-terminated) return value  */
-  gchar  language_code[3];
+  gchar  language_code[4];
   gchar *text;
 };
 
@@ -491,6 +526,20 @@ gboolean gst_mpegts_descriptor_parse_dvb_ca_identifier (const GstMpegTsDescripto
                                                         GArray ** list);
 
 /* GST_MTS_DESC_DVB_CONTENT (0x54) */
+typedef enum {
+  GST_MPEGTS_CONTENT_MOVIE_DRAMA                = 0x01,
+  GST_MPEGTS_CONTENT_NEWS_CURRENT_AFFAIRS       = 0x02,
+  GST_MPEGTS_CONTENT_SHOW_GAME_SHOW             = 0x03,
+  GST_MPEGTS_CONTENT_SPORTS                     = 0x04,
+  GST_MPEGTS_CONTENT_CHILDREN_YOUTH_PROGRAM     = 0x05,
+  GST_MPEGTS_CONTENT_MUSIC_BALLET_DANCE         = 0x06,
+  GST_MPEGTS_CONTENT_ARTS_CULTURE               = 0x07,
+  GST_MPEGTS_CONTENT_SOCIAL_POLITICAL_ECONOMICS = 0x08,
+  GST_MPEGTS_CONTENT_EDUCATION_SCIENCE_FACTUAL  = 0x09,
+  GST_MPEGTS_CONTENT_LEISURE_HOBBIES            = 0x0A,
+  GST_MPEGTS_CONTENT_SPECIAL_CHARACTERISTICS    = 0x0B
+} GstMpegTsContentNibbleHi;
+
 typedef struct _GstMpegTsContent GstMpegTsContent;
 struct _GstMpegTsContent
 {
@@ -513,7 +562,7 @@ typedef struct _GstMpegTsDVBParentalRatingItem GstMpegTsDVBParentalRatingItem;
  */
 struct _GstMpegTsDVBParentalRatingItem
 {
-  gchar  country_code[3];
+  gchar  country_code[4];
   guint8 rating;
 };
 
@@ -630,6 +679,82 @@ struct _GstMpegTsTerrestrialDeliverySystemDescriptor
 gboolean gst_mpegts_descriptor_parse_terrestrial_delivery_system (const GstMpegTsDescriptor
               *descriptor, GstMpegTsTerrestrialDeliverySystemDescriptor * res);
 
+/* GST_MTS_DESC_DVB_MULTILINGUAL_NETWORK_NAME (0x5B) */
+typedef struct _GstMpegTsDvbMultilingualNetworkNameItem GstMpegTsDvbMultilingualNetworkNameItem;
+
+/**
+ * GstMpegTsDvbMultilingualNetworkNameItem:
+ * @language_code: the ISO 639 language code
+ * @network_name: the network name
+ *
+ * a multilingual network name entry
+ */
+struct _GstMpegTsDvbMultilingualNetworkNameItem
+{
+  gchar language_code[4];
+  gchar *network_name;
+};
+
+gboolean gst_mpegts_descriptor_parse_dvb_multilingual_network_name (const GstMpegTsDescriptor
+              *descriptor, GPtrArray ** network_name_items);
+
+/* GST_MTS_DESC_DVB_MULTILINGUAL_BOUQUET_NAME (0x5C) */
+typedef struct _GstMpegTsDvbMultilingualBouquetNameItem GstMpegTsDvbMultilingualBouquetNameItem;
+
+/**
+ * GstMpegTsDvbMultilingualBouquetNameItem:
+ * @language_code: the ISO 639 language code
+ * @bouquet_name: the bouquet name
+ *
+ * a multilingual bouquet name entry
+ */
+struct _GstMpegTsDvbMultilingualBouquetNameItem
+{
+  gchar language_code[4];
+  gchar *bouquet_name;
+};
+
+gboolean gst_mpegts_descriptor_parse_dvb_multilingual_bouquet_name (const GstMpegTsDescriptor
+              *descriptor, GPtrArray ** bouquet_name_items);
+
+/* GST_MTS_DESC_DVB_MULTILINGUAL_SERVICE_NAME (0x5D) */
+typedef struct _GstMpegTsDvbMultilingualServiceNameItem GstMpegTsDvbMultilingualServiceNameItem;
+
+/**
+ * GstMpegTsDvbMultilingualServiceNameItem:
+ * @language_code: the ISO 639 language code
+ * @provider_name: the provider name
+ * @service_name: the service name
+ *
+ * a multilingual service name entry
+ */
+struct _GstMpegTsDvbMultilingualServiceNameItem
+{
+  gchar language_code[4];
+  gchar *provider_name;
+  gchar *service_name;
+};
+
+gboolean gst_mpegts_descriptor_parse_dvb_multilingual_service_name (const GstMpegTsDescriptor
+              *descriptor, GPtrArray ** service_name_items);
+
+/* GST_MTS_DESC_DVB_MULTILINGUAL_COMPONENT (0x5E) */
+typedef struct _GstMpegTsDvbMultilingualComponentItem GstMpegTsDvbMultilingualComponentItem;
+
+/**
+ * GstMpegTsDvbMultilingualComponentItem:
+ * @language_code: the ISO 639 language code
+ * @description: the component description
+ */
+struct _GstMpegTsDvbMultilingualComponentItem
+{
+  gchar language_code[4];
+  gchar *description;
+};
+
+gboolean gst_mpegts_descriptor_parse_dvb_multilingual_component (const GstMpegTsDescriptor
+              *descriptor, guint8 * component_tag, GPtrArray ** component_description_items);
+
 /* GST_MTS_DESC_DVB_PRIVATE_DATA_SPECIFIER (0x5F) */
 gboolean gst_mpegts_descriptor_parse_dvb_private_data_specifier (const GstMpegTsDescriptor
               * descriptor, guint32 * private_data_specifier, guint8 ** private_data,
@@ -655,7 +780,7 @@ struct _GstMpegTsDataBroadcastDescriptor
   guint16     data_broadcast_id;
   guint8      component_tag;
   guint8      *selector_bytes;
-  gchar       language_code[3];
+  gchar       language_code[4];
   gchar       *text;
 };
 

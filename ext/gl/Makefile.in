@@ -89,6 +89,10 @@ target_triplet = @target@
 @HAVE_JPEG_TRUE@@HAVE_PNG_TRUE@@USE_OPENGL_TRUE@	gstgloverlay.c \
 @HAVE_JPEG_TRUE@@HAVE_PNG_TRUE@@USE_OPENGL_TRUE@	gstgloverlay.h
 
+@HAVE_GRAPHENE_TRUE@am__append_3 = \
+@HAVE_GRAPHENE_TRUE@	gstgltransformation.c \
+@HAVE_GRAPHENE_TRUE@	gstgltransformation.h
+
 subdir = ext/gl
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
@@ -164,9 +168,11 @@ am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstopengl_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la \
+	$(top_builddir)/gst-libs/gst/video/libgstbadvideo-$(GST_API_VERSION).la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am__libgstopengl_la_SOURCES_DIST = gstopengl.c gstglimagesink.c \
 	gstglimagesink.h gstglfiltercube.c gstglfiltercube.h \
 	gstgleffects.c gstgleffects.h effects/gstgleffectssources.c \
@@ -189,7 +195,8 @@ am__libgstopengl_la_SOURCES_DIST = gstopengl.c gstglimagesink.c \
 	effects/gstgleffectrgbtocurve.c effects/gstgleffectsin.c \
 	effects/gstgleffectglow.c effects/gstgleffectxray.c \
 	gstglbumper.c gstglbumper.h gstgldifferencematte.c \
-	gstgldifferencematte.h gstgloverlay.c gstgloverlay.h
+	gstgldifferencematte.h gstgloverlay.c gstgloverlay.h \
+	gstgltransformation.c gstgltransformation.h
 am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_PNG_TRUE@@USE_OPENGL_TRUE@am__objects_1 = libgstopengl_la-gstglbumper.lo \
 @HAVE_PNG_TRUE@@USE_OPENGL_TRUE@	libgstopengl_la-gstgldifferencematte.lo
@@ -218,6 +225,8 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @USE_OPENGL_TRUE@	effects/libgstopengl_la-gstgleffectglow.lo \
 @USE_OPENGL_TRUE@	effects/libgstopengl_la-gstgleffectxray.lo \
 @USE_OPENGL_TRUE@	$(am__objects_1) $(am__objects_2)
+@HAVE_GRAPHENE_TRUE@am__objects_4 =  \
+@HAVE_GRAPHENE_TRUE@	libgstopengl_la-gstgltransformation.lo
 am_libgstopengl_la_OBJECTS = libgstopengl_la-gstopengl.lo \
 	libgstopengl_la-gstglimagesink.lo \
 	libgstopengl_la-gstglfiltercube.lo \
@@ -226,7 +235,8 @@ am_libgstopengl_la_OBJECTS = libgstopengl_la-gstopengl.lo \
 	effects/libgstopengl_la-gstgleffectidentity.lo \
 	effects/libgstopengl_la-gstgleffectmirror.lo \
 	effects/libgstopengl_la-gstgleffectsqueeze.lo \
-	libgstopengl_la-gstglcolorscale.lo $(am__objects_3)
+	libgstopengl_la-gstglcolorscale.lo $(am__objects_3) \
+	$(am__objects_4)
 libgstopengl_la_OBJECTS = $(am_libgstopengl_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -413,6 +423,8 @@ GMSGFMT_015 = @GMSGFMT_015@
 GMYTH_CFLAGS = @GMYTH_CFLAGS@
 GMYTH_LIBS = @GMYTH_LIBS@
 GNUSTEP_CONFIG = @GNUSTEP_CONFIG@
+GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
+GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
 GSETTINGS_CFLAGS = @GSETTINGS_CFLAGS@
 GSETTINGS_DISABLE_SCHEMAS_COMPILE = @GSETTINGS_DISABLE_SCHEMAS_COMPILE@
@@ -499,6 +511,7 @@ HAVE_FLITE = @HAVE_FLITE@
 HAVE_GL = @HAVE_GL@
 HAVE_GLES2 = @HAVE_GLES2@
 HAVE_GLU = @HAVE_GLU@
+HAVE_GRAPHENE = @HAVE_GRAPHENE@
 HAVE_GSM = @HAVE_GSM@
 HAVE_GTK3 = @HAVE_GTK3@
 HAVE_JPEG = @HAVE_JPEG@
@@ -790,6 +803,7 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstopengl.la
 AM_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS)
 AM_LIBS = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS)
@@ -821,23 +835,13 @@ AM_LIBS = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS)
 @USE_OPENGL_TRUE@	effects/gstgleffectglow.c \
 @USE_OPENGL_TRUE@	effects/gstgleffectxray.c $(am__append_1) \
 @USE_OPENGL_TRUE@	$(am__append_2)
-libgstopengl_la_SOURCES = \
-	gstopengl.c \
-	gstglimagesink.c \
-	gstglimagesink.h \
-	gstglfiltercube.c \
-	gstglfiltercube.h \
-	gstgleffects.c \
-	gstgleffects.h \
-	effects/gstgleffectssources.c \
-	effects/gstgleffectssources.h \
-	effects/gstgleffectidentity.c \
-	effects/gstgleffectmirror.c \
-	effects/gstgleffectsqueeze.c \
-	gstglcolorscale.c \
-	gstglcolorscale.h \
-	$(OPENGL_SOURCES)
-
+libgstopengl_la_SOURCES = gstopengl.c gstglimagesink.c \
+	gstglimagesink.h gstglfiltercube.c gstglfiltercube.h \
+	gstgleffects.c gstgleffects.h effects/gstgleffectssources.c \
+	effects/gstgleffectssources.h effects/gstgleffectidentity.c \
+	effects/gstgleffectmirror.c effects/gstgleffectsqueeze.c \
+	gstglcolorscale.c gstglcolorscale.h $(OPENGL_SOURCES) \
+	$(am__append_3)
 
 # check order of CFLAGS and LIBS, shouldn't the order be the other way around
 # (like in AM_CFLAGS)?
@@ -848,17 +852,20 @@ libgstopengl_la_CFLAGS = \
 	$(GST_BASE_CFLAGS) \
 	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GL_CFLAGS) \
-	$(LIBPNG_CFLAGS)
+	$(LIBPNG_CFLAGS) \
+	$(GRAPHENE_CFLAGS)
 
 libgstopengl_la_LIBADD = \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la \
+	$(top_builddir)/gst-libs/gst/video/libgstbadvideo-$(GST_API_VERSION).la \
 	$(GST_BASE_LIBS) \
 	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
 	-lgstpbutils-$(GST_API_VERSION) \
 	$(GL_LIBS) \
 	$(LIBPNG_LIBS) \
-        $(JPEG_LIBS) \
-	$(LIBM)
+	$(JPEG_LIBS) \
+	$(LIBM) \
+	$(GRAPHENE_LIBS)
 
 libgstopengl_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstopengl_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
@@ -997,6 +1004,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopengl_la-gstglmosaic.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopengl_la-gstgloverlay.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopengl_la-gstgltestsrc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopengl_la-gstgltransformation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopengl_la-gstglvideomixer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopengl_la-gstopengl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@effects/$(DEPDIR)/libgstopengl_la-gstgleffectbulge.Plo@am__quote@
@@ -1283,6 +1291,13 @@ libgstopengl_la-gstgloverlay.lo: gstgloverlay.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgloverlay.c' object='libgstopengl_la-gstgloverlay.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstgloverlay.lo `test -f 'gstgloverlay.c' || echo '$(srcdir)/'`gstgloverlay.c
+
+libgstopengl_la-gstgltransformation.lo: gstgltransformation.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT libgstopengl_la-gstgltransformation.lo -MD -MP -MF $(DEPDIR)/libgstopengl_la-gstgltransformation.Tpo -c -o libgstopengl_la-gstgltransformation.lo `test -f 'gstgltransformation.c' || echo '$(srcdir)/'`gstgltransformation.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopengl_la-gstgltransformation.Tpo $(DEPDIR)/libgstopengl_la-gstgltransformation.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgltransformation.c' object='libgstopengl_la-gstgltransformation.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstgltransformation.lo `test -f 'gstgltransformation.c' || echo '$(srcdir)/'`gstgltransformation.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -37,13 +37,14 @@
  * A #GstGLDownload can be created with gst_gl_download_new()
  */
 
-#define USING_OPENGL(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_OPENGL)
-#define USING_OPENGL3(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_OPENGL3)
-#define USING_GLES(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_GLES)
-#define USING_GLES2(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_GLES2)
-#define USING_GLES3(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_GLES3)
+#define USING_OPENGL(context) (gst_gl_context_check_gl_version (context, GST_GL_API_OPENGL, 1, 0))
+#define USING_OPENGL3(context) (gst_gl_context_check_gl_version (context, GST_GL_API_OPENGL3, 3, 1))
+#define USING_GLES(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES, 1, 0))
+#define USING_GLES2(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES2, 2, 0))
+#define USING_GLES3(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES2, 3, 0))
 
-static void _do_download (GstGLContext * context, GstGLDownload * download);
+static gboolean _do_download (GstGLDownload * download, guint texture_id,
+    gpointer data[GST_VIDEO_MAX_PLANES]);
 static gboolean _init_download (GstGLDownload * download);
 static gboolean _gst_gl_download_perform_with_data_unlocked (GstGLDownload *
     download, GLuint texture_id, gpointer data[GST_VIDEO_MAX_PLANES]);
@@ -59,7 +60,7 @@ struct _GstGLDownloadPrivate
   const gchar *ARGB;
   const gchar *vert_shader;
 
-  gboolean result;
+  GstGLMemory *in_tex[GST_VIDEO_MAX_PLANES];
 };
 
 GST_DEBUG_CATEGORY_STATIC (gst_gl_download_debug);
@@ -88,8 +89,6 @@ gst_gl_download_init (GstGLDownload * download)
 {
 
   download->priv = GST_GL_DOWNLOAD_GET_PRIVATE (download);
-
-  g_mutex_init (&download->lock);
 
   gst_video_info_init (&download->info);
 }
@@ -132,8 +131,6 @@ gst_gl_download_finalize (GObject * object)
     download->context = NULL;
   }
 
-  g_mutex_clear (&download->lock);
-
   G_OBJECT_CLASS (gst_gl_download_parent_class)->finalize (object);
 }
 
@@ -143,16 +140,9 @@ gst_gl_download_reset (GstGLDownload * download)
   guint i;
 
   for (i = 0; i < GST_VIDEO_MAX_PLANES; i++) {
-    if (download->out_tex[i]) {
-      gst_memory_unref ((GstMemory *) download->out_tex[i]);
-      download->out_tex[i] = NULL;
-    }
-  }
-
-  for (i = 0; i < GST_VIDEO_MAX_PLANES; i++) {
-    if (download->in_tex[i]) {
-      gst_memory_unref ((GstMemory *) download->in_tex[i]);
-      download->in_tex[i] = NULL;
+    if (download->priv->in_tex[i]) {
+      gst_memory_unref ((GstMemory *) download->priv->in_tex[i]);
+      download->priv->in_tex[i] = NULL;
     }
   }
 }
@@ -175,10 +165,10 @@ gst_gl_download_set_format (GstGLDownload * download, GstVideoInfo * out_info)
   g_return_if_fail (GST_VIDEO_INFO_FORMAT (out_info) !=
       GST_VIDEO_FORMAT_ENCODED);
 
-  g_mutex_lock (&download->lock);
+  GST_OBJECT_LOCK (download);
 
   if (gst_video_info_is_equal (&download->info, out_info)) {
-    g_mutex_unlock (&download->lock);
+    GST_OBJECT_UNLOCK (download);
     return;
   }
 
@@ -186,7 +176,7 @@ gst_gl_download_set_format (GstGLDownload * download, GstVideoInfo * out_info)
   download->initted = FALSE;
   download->info = *out_info;
 
-  g_mutex_unlock (&download->lock);
+  GST_OBJECT_UNLOCK (download);
 }
 
 /**
@@ -208,12 +198,10 @@ gst_gl_download_perform_with_data (GstGLDownload * download, GLuint texture_id,
 
   g_return_val_if_fail (download != NULL, FALSE);
 
-  g_mutex_lock (&download->lock);
-
+  GST_OBJECT_LOCK (download);
   ret =
       _gst_gl_download_perform_with_data_unlocked (download, texture_id, data);
-
-  g_mutex_unlock (&download->lock);
+  GST_OBJECT_UNLOCK (download);
 
   return ret;
 }
@@ -222,7 +210,6 @@ static gboolean
 _gst_gl_download_perform_with_data_unlocked (GstGLDownload * download,
     GLuint texture_id, gpointer data[GST_VIDEO_MAX_PLANES])
 {
-  gpointer temp_data;
   guint i;
 
   g_return_val_if_fail (download != NULL, FALSE);
@@ -236,34 +223,15 @@ _gst_gl_download_perform_with_data_unlocked (GstGLDownload * download,
     g_return_val_if_fail (data[i] != NULL, FALSE);
   }
 
-  if (!download->in_tex[0])
-    download->in_tex[0] = gst_gl_memory_wrapped_texture (download->context,
-        texture_id, GST_VIDEO_GL_TEXTURE_TYPE_RGBA,
-        GST_VIDEO_INFO_WIDTH (&download->info),
+  if (!download->priv->in_tex[0])
+    download->priv->in_tex[0] =
+        gst_gl_memory_wrapped_texture (download->context, texture_id,
+        GST_VIDEO_GL_TEXTURE_TYPE_RGBA, GST_VIDEO_INFO_WIDTH (&download->info),
         GST_VIDEO_INFO_HEIGHT (&download->info), NULL, NULL);
 
-  download->in_tex[0]->tex_id = texture_id;
+  download->priv->in_tex[0]->tex_id = texture_id;
 
-  if (!download->out_tex[0]) {
-    gst_gl_memory_setup_wrapped (download->context, &download->info,
-        data, download->out_tex);
-  }
-
-  for (i = 0; i < GST_VIDEO_INFO_N_PLANES (&download->info); i++) {
-    download->out_tex[i]->data = data[i];
-  }
-
-  if (GST_VIDEO_INFO_FORMAT (&download->info) == GST_VIDEO_FORMAT_YV12) {
-    /* YV12 same as I420 except planes 1+2 swapped */
-    temp_data = download->out_tex[1]->data;
-    download->out_tex[1]->data = download->out_tex[2]->data;
-    download->out_tex[2]->data = temp_data;
-  }
-
-  gst_gl_context_thread_add (download->context,
-      (GstGLContextThreadFunc) _do_download, download);
-
-  return download->priv->result;
+  return _do_download (download, texture_id, data);
 }
 
 static gboolean
@@ -301,33 +269,50 @@ _init_download (GstGLDownload * download)
   return TRUE;
 }
 
-static void
-_do_download (GstGLContext * context, GstGLDownload * download)
+static gboolean
+_do_download (GstGLDownload * download, guint texture_id,
+    gpointer data[GST_VIDEO_MAX_PLANES])
 {
   guint out_width, out_height;
+  GstBuffer *inbuf, *outbuf;
   GstMapInfo map_info;
+  gboolean ret = TRUE;
   gint i;
 
   out_width = GST_VIDEO_INFO_WIDTH (&download->info);
   out_height = GST_VIDEO_INFO_HEIGHT (&download->info);
 
   if (!download->initted) {
-    if (!(download->priv->result = _init_download (download)))
-      return;
+    if (!_init_download (download))
+      return FALSE;
   }
 
   GST_TRACE ("doing download of texture:%u (%ux%u)",
-      download->in_tex[0]->tex_id, out_width, out_height);
+      download->priv->in_tex[0]->tex_id, out_width, out_height);
 
-  download->priv->result =
-      gst_gl_color_convert_perform (download->convert, download->in_tex,
-      download->out_tex);
-  if (!download->priv->result)
-    return;
+  inbuf = gst_buffer_new ();
+  gst_buffer_append_memory (inbuf,
+      gst_memory_ref ((GstMemory *) download->priv->in_tex[0]));
+
+  outbuf = gst_gl_color_convert_perform (download->convert, inbuf);
+  if (!outbuf)
+    return FALSE;
 
   for (i = 0; i < GST_VIDEO_INFO_N_PLANES (&download->info); i++) {
-    gst_memory_map ((GstMemory *) download->out_tex[i], &map_info,
-        GST_MAP_READ);
-    gst_memory_unmap ((GstMemory *) download->out_tex[i], &map_info);
+    GstMemory *out_mem = gst_buffer_peek_memory (outbuf, i);
+    gpointer temp_data = ((GstGLMemory *) out_mem)->data;
+    ((GstGLMemory *) out_mem)->data = data[i];
+
+    if (!gst_memory_map (out_mem, &map_info, GST_MAP_READ)) {
+      GST_ERROR_OBJECT (download, "Failed to map memory");
+      ret = FALSE;
+    }
+    gst_memory_unmap (out_mem, &map_info);
+    ((GstGLMemory *) out_mem)->data = temp_data;
   }
+
+  gst_buffer_unref (inbuf);
+  gst_buffer_unref (outbuf);
+
+  return ret;
 }

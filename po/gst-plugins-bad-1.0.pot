@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.3.2\n"
+"Project-Id-Version: gst-plugins-bad 1.3.3\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2014-05-21 12:31+0200\n"
+"POT-Creation-Date: 2014-06-22 17:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,25 +39,25 @@ msgstr ""
 msgid "Could not read DVD."
 msgstr ""
 
-#: ext/smoothstreaming/gstmssdemux.c:802 ext/smoothstreaming/gstmssdemux.c:986
+#: ext/smoothstreaming/gstmssdemux.c:802 ext/smoothstreaming/gstmssdemux.c:995
 msgid "This file contains no playable streams."
 msgstr ""
 
-#: ext/smoothstreaming/gstmssdemux.c:952
+#: ext/smoothstreaming/gstmssdemux.c:961
 msgid "Couldn't get the Manifest's URI"
 msgstr ""
 
-#: ext/smoothstreaming/gstmssdemux.c:1405
+#: ext/smoothstreaming/gstmssdemux.c:1437
 msgid "Failed to get fragment URL."
 msgstr ""
 
-#: ext/smoothstreaming/gstmssdemux.c:1500 ext/sndfile/gstsfsink.c:439
-#: gst/mpegtsdemux/mpegtsbase.c:1334 gst/mpegtsdemux/mpegtsbase.c:1338
+#: ext/smoothstreaming/gstmssdemux.c:1532 ext/sndfile/gstsfsink.c:439
+#: gst/mpegtsdemux/mpegtsbase.c:1366 gst/mpegtsdemux/mpegtsbase.c:1370
 #: gst/nuvdemux/gstnuvdemux.c:737
 msgid "Internal data stream error."
 msgstr ""
 
-#: ext/smoothstreaming/gstmssdemux.c:1546
+#: ext/smoothstreaming/gstmssdemux.c:1578
 msgid "Couldn't download fragments"
 msgstr ""
 
@@ -97,7 +97,7 @@ msgstr ""
 msgid "Could not start sndio"
 msgstr ""
 
-#: gst/aiff/aiffparse.c:1457
+#: gst/aiff/aiffparse.c:1463
 msgid "Internal data flow error."
 msgstr ""
 
@@ -105,7 +105,7 @@ msgstr ""
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 
-#: gst/camerabin2/camerabingeneral.c:166 gst/camerabin2/gstcamerabin2.c:1865
+#: gst/camerabin2/camerabingeneral.c:166 gst/camerabin2/gstcamerabin2.c:1874
 #: gst/camerabin2/gstviewfinderbin.c:271
 #, c-format
 msgid "Missing element '%s' - check your GStreamer installation."
@@ -124,45 +124,45 @@ msgstr ""
 msgid "Given file name \"%s\" can't be converted to local file name encoding."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1020 sys/dvb/gstdvbsrc.c:1168
+#: sys/dvb/gstdvbsrc.c:1115 sys/dvb/gstdvbsrc.c:1301
 #, c-format
 msgid "Device \"%s\" does not exist."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1024
+#: sys/dvb/gstdvbsrc.c:1119
 #, c-format
 msgid "Could not open frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1037
+#: sys/dvb/gstdvbsrc.c:1132
 #, c-format
 msgid "Could not get settings from frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1053
+#: sys/dvb/gstdvbsrc.c:1148
 #, c-format
 msgid "Cannot enumerate delivery systems from frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1172
+#: sys/dvb/gstdvbsrc.c:1305
 #, c-format
 msgid "Could not open file \"%s\" for reading."
 msgstr ""
 
-#: sys/dvb/parsechannels.c:157
+#: sys/dvb/parsechannels.c:159
 msgid "Couldn't find DVB channel configuration file"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:160
+#: sys/dvb/parsechannels.c:162
 #, c-format
 msgid "Couldn't load DVB channel configuration file: %s"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:169
+#: sys/dvb/parsechannels.c:171
 msgid "DVB channel configuration file doesn't contain any channels"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:437
+#: sys/dvb/parsechannels.c:447
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr ""

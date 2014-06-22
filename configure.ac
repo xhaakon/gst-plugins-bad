@@ -3,7 +3,7 @@ AC_PREREQ([2.68])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.3.2],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.3.3],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -48,11 +48,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 302, 0, 302)
+AS_LIBTOOL(GST, 303, 0, 303)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.3.2
-GSTPB_REQ=1.3.2
+GST_REQ=1.3.3
+GSTPB_REQ=1.3.3
 
 dnl *** autotools stuff ****
 
@@ -284,6 +284,18 @@ if test "x$BUILD_EXAMPLES" = "xyes"; then
 fi
 AM_CONDITIONAL(HAVE_XCOMPOSITE, test "x$HAVE_XCOMPOSITE" = "xyes")
 
+dnl graphene-1.0 is optional and used in gltransformation
+HAVE_GRAPHENE=NO
+PKG_CHECK_MODULES(GRAPHENE, graphene-1.0, HAVE_GRAPHENE=yes, HAVE_GRAPHENE=no)
+if test "x$HAVE_GRAPHENE" = "xyes"; then
+  AC_DEFINE(HAVE_GRAPHENE, [1] , [Use graphene])
+fi
+AC_SUBST(HAVE_GRAPHENE)
+AC_SUBST(GRAPHENE_LIBS)
+AC_SUBST(GRAPHENE_CFLAGS)
+AM_CONDITIONAL(HAVE_GRAPHENE, test "x$HAVE_GRAPHENE" = "xyes")
+
+
 dnl sdl is optional and used in examples
 HAVE_SDL=NO
 if test "x$BUILD_EXAMPLES" = "xyes"; then
@@ -418,6 +430,7 @@ AG_GST_CHECK_PLUGIN(aiff)
 AG_GST_CHECK_PLUGIN(asfmux)
 AG_GST_CHECK_PLUGIN(audiofxbad)
 AG_GST_CHECK_PLUGIN(audiomixer)
+AG_GST_CHECK_PLUGIN(compositor)
 AG_GST_CHECK_PLUGIN(audiovisualizers)
 AG_GST_CHECK_PLUGIN(autoconvert)
 AG_GST_CHECK_PLUGIN(bayer)
@@ -1174,7 +1187,7 @@ dnl PLATFORM's
 GST_GL_HAVE_PLATFORM_EGL=0
 GST_GL_HAVE_PLATFORM_GLX=0
 GST_GL_HAVE_PLATFORM_WGL=0
-GST_GL_HAVE_PLATFORM_COCOA=0
+GST_GL_HAVE_PLATFORM_CGL=0
 GST_GL_HAVE_PLATFORM_EAGL=0
 
 if test "x$USE_EGL" = "xyes"; then
@@ -1190,8 +1203,8 @@ if test "x$USE_WGL" = "xyes"; then
   GST_GL_HAVE_PLATFORM_WGL=1
 fi
 if test "x$USE_COCOA" = "xyes"; then
-  GL_PLATFORMS="cocoa $GL_PLATFORMS"
-  GST_GL_HAVE_PLATFORM_COCOA=1
+  GL_PLATFORMS="cgl $GL_PLATFORMS"
+  GST_GL_HAVE_PLATFORM_CGL=1
 fi
 if test "x$USE_EAGL" = "xyes"; then
   GL_PLATFORMS="eagl $GL_PLATFORMS"
@@ -1202,7 +1215,7 @@ GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
 #define GST_GL_HAVE_PLATFORM_EGL $GST_GL_HAVE_PLATFORM_EGL
 #define GST_GL_HAVE_PLATFORM_GLX $GST_GL_HAVE_PLATFORM_GLX
 #define GST_GL_HAVE_PLATFORM_WGL $GST_GL_HAVE_PLATFORM_WGL
-#define GST_GL_HAVE_PLATFORM_COCOA $GST_GL_HAVE_PLATFORM_COCOA
+#define GST_GL_HAVE_PLATFORM_CGL $GST_GL_HAVE_PLATFORM_CGL
 #define GST_GL_HAVE_PLATFORM_EAGL $GST_GL_HAVE_PLATFORM_EAGL
 "
 
@@ -1966,10 +1979,12 @@ AG_GST_CHECK_FEATURE(DIRECTFB, [directfb], dfbvideosink , [
 dnl **** Wayland ****
 translit(dnm, m, l) AM_CONDITIONAL(USE_WAYLAND, true)
 AG_GST_CHECK_FEATURE(WAYLAND, [wayland sink], wayland , [
-  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.0.0, [
+  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.4.0 wayland-scanner, [
     HAVE_WAYLAND="yes" ], [ HAVE_WAYLAND="no"
   ])
 ])
+
+AC_PATH_PROG([wayland_scanner], [wayland-scanner])
 
 dnl **** WebP ****
 translit(dnm, m, l) AM_CONDITIONAL(USE_WEBP, true)
@@ -2487,7 +2502,7 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
   dnl a new version and the no-backward-compatibility define. (There doesn't
   dnl seem to be a switch to suppress the warnings the cvcompat.h header
   dnl causes.)
-  PKG_CHECK_MODULES(OPENCV, opencv >= 2.0.0 opencv <= 2.4.8 , [
+  PKG_CHECK_MODULES(OPENCV, opencv >= 2.0.0 opencv < 2.5.0 , [
     AC_PROG_CXX
     AC_LANG([C++])
     OLD_CPPFLAGS=$CPPFLAGS
@@ -3188,6 +3203,7 @@ gst/videosignal/Makefile
 gst/vmnc/Makefile
 gst/y4m/Makefile
 gst/yadif/Makefile
+gst/compositor/Makefile
 gst-libs/Makefile
 gst-libs/gst/Makefile
 gst-libs/gst/basecamerabinsrc/Makefile
@@ -3206,6 +3222,9 @@ gst-libs/gst/interfaces/Makefile
 gst-libs/gst/codecparsers/Makefile
 gst-libs/gst/mpegts/Makefile
 gst-libs/gst/uridownloader/Makefile
+gst-libs/gst/wayland/Makefile
+gst-libs/gst/base/Makefile
+gst-libs/gst/video/Makefile
 sys/Makefile
 sys/dshowdecwrapper/Makefile
 sys/acmenc/Makefile
@@ -3342,6 +3361,12 @@ pkgconfig/gstreamer-gl.pc
 pkgconfig/gstreamer-gl-uninstalled.pc
 pkgconfig/gstreamer-mpegts.pc
 pkgconfig/gstreamer-mpegts-uninstalled.pc
+pkgconfig/gstreamer-wayland.pc
+pkgconfig/gstreamer-wayland-uninstalled.pc
+pkgconfig/gstreamer-bad-base.pc
+pkgconfig/gstreamer-bad-base-uninstalled.pc
+pkgconfig/gstreamer-bad-video.pc
+pkgconfig/gstreamer-bad-video-uninstalled.pc
 tools/Makefile
 m4/Makefile
 )

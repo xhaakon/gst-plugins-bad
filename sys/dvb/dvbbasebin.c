@@ -49,6 +49,9 @@ GST_STATIC_PAD_TEMPLATE ("program_%u", GST_PAD_SRC,
 enum
 {
   /* FILL ME */
+  SIGNAL_TUNING_START,
+  SIGNAL_TUNING_DONE,
+  SIGNAL_TUNING_FAIL,
   LAST_SIGNAL
 };
 
@@ -71,6 +74,7 @@ enum
   PROP_INVERSION,
   PROP_PROGRAM_NUMBERS,
   PROP_STATS_REPORTING_INTERVAL,
+  PROP_TUNING_TIMEOUT,
   PROP_DELSYS,
   PROP_PILOT,
   PROP_ROLLOFF,
@@ -128,6 +132,11 @@ static void dvb_base_bin_uri_handler_init (gpointer g_iface,
     gpointer iface_data);
 
 static void dvb_base_bin_program_destroy (gpointer data);
+
+/* Proxy callbacks for dvbsrc signals */
+static void tuning_start_signal_cb (GObject * object, DvbBaseBin * dvbbasebin);
+static void tuning_done_signal_cb (GObject * object, DvbBaseBin * dvbbasebin);
+static void tuning_fail_signal_cb (GObject * object, DvbBaseBin * dvbbasebin);
 
 #define dvb_base_bin_parent_class parent_class
 G_DEFINE_TYPE_EXTENDED (DvbBaseBin, dvb_base_bin, GST_TYPE_BIN,
@@ -200,9 +209,27 @@ dvb_base_bin_get_program (DvbBaseBin * dvbbasebin, gint program_number)
       GINT_TO_POINTER (program_number));
 }
 
-/*
-static guint signals [LAST_SIGNAL] = { 0 };
-*/
+
+static guint dvb_base_bin_signals[LAST_SIGNAL] = { 0 };
+
+static void
+tuning_start_signal_cb (GObject * object, DvbBaseBin * dvbbasebin)
+{
+  g_signal_emit (dvbbasebin, dvb_base_bin_signals[SIGNAL_TUNING_START], 0);
+}
+
+static void
+tuning_done_signal_cb (GObject * object, DvbBaseBin * dvbbasebin)
+{
+  g_signal_emit (dvbbasebin, dvb_base_bin_signals[SIGNAL_TUNING_DONE], 0);
+}
+
+static void
+tuning_fail_signal_cb (GObject * object, DvbBaseBin * dvbbasebin)
+{
+  g_signal_emit (dvbbasebin, dvb_base_bin_signals[SIGNAL_TUNING_FAIL], 0);
+}
+
 
 static void
 dvb_base_bin_class_init (DvbBaseBinClass * klass)
@@ -234,6 +261,7 @@ dvb_base_bin_class_init (DvbBaseBinClass * klass)
     {PROP_HIERARCHY, "hierarchy"},
     {PROP_INVERSION, "inversion"},
     {PROP_STATS_REPORTING_INTERVAL, "stats-reporting-interval"},
+    {PROP_TUNING_TIMEOUT, "tuning-timeout"},
     {PROP_DELSYS, "delsys"},
     {PROP_PILOT, "pilot"},
     {PROP_ROLLOFF, "rolloff"},
@@ -294,6 +322,13 @@ dvb_base_bin_class_init (DvbBaseBinClass * klass)
             g_param_spec_get_nick (pspec), g_param_spec_get_blurb (pspec),
             src_pspec->minimum, src_pspec->maximum, src_pspec->default_value,
             pspec->flags);
+      } else if (param_type == G_TYPE_PARAM_UINT64) {
+        GParamSpecUInt64 *src_pspec = G_PARAM_SPEC_UINT64 (pspec);
+
+        our_pspec = g_param_spec_uint64 (g_param_spec_get_name (pspec),
+            g_param_spec_get_nick (pspec), g_param_spec_get_blurb (pspec),
+            src_pspec->minimum, src_pspec->maximum, src_pspec->default_value,
+            pspec->flags);
       } else if (param_type == G_TYPE_PARAM_STRING) {
         GParamSpecString *src_pspec = G_PARAM_SPEC_STRING (pspec);
 
@@ -325,6 +360,35 @@ dvb_base_bin_class_init (DvbBaseBinClass * klass)
       g_param_spec_string ("program-numbers",
           "Program Numbers",
           "Colon separated list of programs", "", G_PARAM_READWRITE));
+  /**
+   * DvbBaseBin::tuning-start:
+   * @dvbbasebin: the element on which the signal is emitted
+   *
+   * Signal emited when the element first attempts to tune the
+   * frontend tunner to a given frequency.
+   */
+  dvb_base_bin_signals[SIGNAL_TUNING_START] =
+      g_signal_new ("tuning-start", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL, G_TYPE_NONE, 0);
+  /**
+   * DvbBaseBin::tuning-done:
+   * @dvbbasebin: the element on which the signal is emitted
+   *
+   * Signal emited when the tunner has successfully got a lock on a signal.
+   */
+  dvb_base_bin_signals[SIGNAL_TUNING_DONE] =
+      g_signal_new ("tuning-done", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL, G_TYPE_NONE, 0);
+  /**
+   * DvbBaseBin::tuning-fail:
+   * @dvbbasebin: the element on which the signal is emitted
+   *
+   * Signal emited when the tunner failed to get a lock on the
+   * signal.
+   */
+  dvb_base_bin_signals[SIGNAL_TUNING_FAIL] =
+      g_signal_new ("tuning-fail", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL, G_TYPE_NONE, 0);
 
 }
 
@@ -361,9 +425,21 @@ dvb_base_bin_init (DvbBaseBin * dvbbasebin)
   gst_element_link_many (dvbbasebin->dvbsrc,
       dvbbasebin->buffer_queue, dvbbasebin->tsparse, NULL);
 
+  /* Proxy dvbsrc signals */
+  g_signal_connect (dvbbasebin->dvbsrc, "tuning-start",
+      G_CALLBACK (tuning_start_signal_cb), dvbbasebin);
+  g_signal_connect (dvbbasebin->dvbsrc, "tuning-done",
+      G_CALLBACK (tuning_done_signal_cb), dvbbasebin);
+  g_signal_connect (dvbbasebin->dvbsrc, "tuning-fail",
+      G_CALLBACK (tuning_fail_signal_cb), dvbbasebin);
+
   /* Expose tsparse source pad */
-  pad = gst_element_get_static_pad (dvbbasebin->tsparse, "src");
-  ghost = gst_ghost_pad_new ("src", pad);
+  if (dvbbasebin->tsparse != NULL) {
+    pad = gst_element_get_static_pad (dvbbasebin->tsparse, "src");
+    ghost = gst_ghost_pad_new ("src", pad);
+  } else {
+    ghost = gst_ghost_pad_new_no_target ("src", GST_PAD_SRC);
+  }
   gst_element_add_pad (GST_ELEMENT (dvbbasebin), ghost);
 
   dvbbasebin->programs = g_hash_table_new_full (g_direct_hash, g_direct_equal,
@@ -402,7 +478,8 @@ dvb_base_bin_dispose (GObject * object)
     /* remove mpegtsparse BEFORE dvbsrc, since the mpegtsparse::pad-removed
      * signal handler uses dvbsrc */
     dvb_base_bin_reset (dvbbasebin);
-    gst_bin_remove (GST_BIN (dvbbasebin), dvbbasebin->tsparse);
+    if (dvbbasebin->tsparse != NULL)
+      gst_bin_remove (GST_BIN (dvbbasebin), dvbbasebin->tsparse);
     gst_bin_remove (GST_BIN (dvbbasebin), dvbbasebin->dvbsrc);
     gst_bin_remove (GST_BIN (dvbbasebin), dvbbasebin->buffer_queue);
     dvbbasebin->disposed = TRUE;
@@ -478,6 +555,7 @@ dvb_base_bin_set_property (GObject * object, guint prop_id,
     case PROP_HIERARCHY:
     case PROP_INVERSION:
     case PROP_STATS_REPORTING_INTERVAL:
+    case PROP_TUNING_TIMEOUT:
     case PROP_DELSYS:
     case PROP_PILOT:
     case PROP_ROLLOFF:
@@ -516,6 +594,7 @@ dvb_base_bin_get_property (GObject * object, guint prop_id,
     case PROP_HIERARCHY:
     case PROP_INVERSION:
     case PROP_STATS_REPORTING_INTERVAL:
+    case PROP_TUNING_TIMEOUT:
     case PROP_DELSYS:
     case PROP_PILOT:
     case PROP_ROLLOFF:
@@ -535,16 +614,20 @@ static GstPad *
 dvb_base_bin_request_new_pad (GstElement * element,
     GstPadTemplate * templ, const gchar * name, const GstCaps * caps)
 {
+  DvbBaseBin *dvbbasebin = GST_DVB_BASE_BIN (element);
   GstPad *pad;
   GstPad *ghost;
   gchar *pad_name;
 
-  GST_DEBUG ("New pad requested %s", name);
+  GST_DEBUG_OBJECT (dvbbasebin, "New pad requested %s", GST_STR_NULL (name));
+
+  if (dvbbasebin->tsparse == NULL)
+    return NULL;
 
   if (name == NULL)
     name = GST_PAD_TEMPLATE_NAME_TEMPLATE (templ);
 
-  pad = gst_element_get_request_pad (GST_DVB_BASE_BIN (element)->tsparse, name);
+  pad = gst_element_get_request_pad (dvbbasebin->tsparse, name);
   if (pad == NULL)
     return NULL;
 
@@ -634,6 +717,19 @@ dvb_base_bin_change_state (GstElement * element, GstStateChange transition)
   GstStateChangeReturn ret;
 
   dvbbasebin = GST_DVB_BASE_BIN (element);
+
+  switch (transition) {
+    case GST_STATE_CHANGE_NULL_TO_READY:
+      if (dvbbasebin->tsparse == NULL) {
+        GST_ELEMENT_ERROR (dvbbasebin, CORE, MISSING_PLUGIN, (NULL),
+            ("No 'tsparse' element, check your GStreamer installation."));
+        return GST_STATE_CHANGE_FAILURE;
+      }
+      break;
+    default:
+      break;
+  }
+
   ret = GST_ELEMENT_CLASS (parent_class)->change_state (element, transition);
 
   switch (transition) {
@@ -817,7 +913,7 @@ dvb_base_bin_handle_message (GstBin * bin, GstMessage * message)
   dvbbasebin = GST_DVB_BASE_BIN (bin);
 
   /* note: message->src might be a GstPad, so use element cast w/o typecheck */
-  if (GST_ELEMENT_CAST (message->src) == GST_ELEMENT (dvbbasebin->tsparse)) {
+  if (GST_ELEMENT_CAST (message->src) == dvbbasebin->tsparse) {
     GstMpegTsSection *section = gst_message_parse_mpegts_section (message);
 
     if (section) {

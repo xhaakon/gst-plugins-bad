@@ -42,11 +42,11 @@
  * Data is uploaded or downloaded from the GPU as is necessary.
  */
 
-#define USING_OPENGL(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_OPENGL)
-#define USING_OPENGL3(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_OPENGL3)
-#define USING_GLES(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_GLES)
-#define USING_GLES2(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_GLES2)
-#define USING_GLES3(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_GLES3)
+#define USING_OPENGL(context) (gst_gl_context_check_gl_version (context, GST_GL_API_OPENGL, 1, 0))
+#define USING_OPENGL3(context) (gst_gl_context_check_gl_version (context, GST_GL_API_OPENGL3, 3, 1))
+#define USING_GLES(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES, 1, 0))
+#define USING_GLES2(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES2, 2, 0))
+#define USING_GLES3(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES2, 3, 0))
 
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_GL_MEMORY);
 #define GST_CAT_DEFUALT GST_CAT_GL_MEMORY
@@ -60,6 +60,12 @@ static GstAllocator *_gl_allocator;
 #ifndef GL_RG
 #define GL_RG 0x8227
 #endif
+#ifndef GL_R8
+#define GL_R8 0x8229
+#endif
+#ifndef GL_RG8
+#define GL_RG8 0x822B
+#endif
 #ifndef GL_PIXEL_PACK_BUFFER
 #define GL_PIXEL_PACK_BUFFER 0x88EB
 #endif
@@ -68,6 +74,9 @@ static GstAllocator *_gl_allocator;
 #endif
 #ifndef GL_STREAM_COPY
 #define GL_STREAM_COPY 0x88E2
+#endif
+#ifndef GL_UNPACK_ROW_LENGTH
+#define GL_UNPACK_ROW_LENGTH 0x0CF2
 #endif
 
 typedef struct
@@ -181,8 +190,14 @@ _gl_texture_type_n_bytes (GstVideoGLTextureType tex_format)
 }
 
 GstVideoGLTextureType
-gst_gl_texture_type_from_format (GstVideoFormat v_format, guint plane)
+gst_gl_texture_type_from_format (GstGLContext * context,
+    GstVideoFormat v_format, guint plane)
 {
+  gboolean texture_rg =
+      gst_gl_context_check_feature (context, "GL_EXT_texture_rg")
+      || gst_gl_context_check_feature (context, "GL_ARB_texture_rg");
+  guint n_plane_components;
+
   switch (v_format) {
     case GST_VIDEO_FORMAT_RGBx:
     case GST_VIDEO_FORMAT_BGRx:
@@ -193,41 +208,109 @@ gst_gl_texture_type_from_format (GstVideoFormat v_format, guint plane)
     case GST_VIDEO_FORMAT_ARGB:
     case GST_VIDEO_FORMAT_ABGR:
     case GST_VIDEO_FORMAT_AYUV:
-      return GST_VIDEO_GL_TEXTURE_TYPE_RGBA;
+      n_plane_components = 4;
       break;
     case GST_VIDEO_FORMAT_RGB:
     case GST_VIDEO_FORMAT_BGR:
-      return GST_VIDEO_GL_TEXTURE_TYPE_RGB;
-      break;
-    case GST_VIDEO_FORMAT_GRAY8:
-      return GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE;
+      n_plane_components = 3;
       break;
     case GST_VIDEO_FORMAT_GRAY16_BE:
     case GST_VIDEO_FORMAT_GRAY16_LE:
-      return GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE_ALPHA;
-      break;
     case GST_VIDEO_FORMAT_YUY2:
     case GST_VIDEO_FORMAT_UYVY:
-      return GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE_ALPHA;
+      n_plane_components = 2;
       break;
     case GST_VIDEO_FORMAT_NV12:
     case GST_VIDEO_FORMAT_NV21:
-      if (plane == 0)
-        return GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE;
-      return GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE_ALPHA;
+      n_plane_components = plane == 0 ? 1 : 2;
       break;
+    case GST_VIDEO_FORMAT_GRAY8:
     case GST_VIDEO_FORMAT_Y444:
     case GST_VIDEO_FORMAT_Y42B:
     case GST_VIDEO_FORMAT_Y41B:
     case GST_VIDEO_FORMAT_I420:
     case GST_VIDEO_FORMAT_YV12:
-      return GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE;
+      n_plane_components = 1;
+      break;
+    default:
+      n_plane_components = 4;
+      g_assert_not_reached ();
+      break;
+  }
+
+  switch (n_plane_components) {
+    case 4:
+      return GST_VIDEO_GL_TEXTURE_TYPE_RGBA;
+      break;
+    case 3:
+      return GST_VIDEO_GL_TEXTURE_TYPE_RGB;
+      break;
+    case 2:
+      return texture_rg ? GST_VIDEO_GL_TEXTURE_TYPE_RG :
+          GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE_ALPHA;
+      break;
+    case 1:
+      return texture_rg ? GST_VIDEO_GL_TEXTURE_TYPE_R :
+          GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE;
       break;
     default:
       g_assert_not_reached ();
       break;
   }
+
   return GST_VIDEO_GL_TEXTURE_TYPE_RGBA;
+}
+
+static inline GLenum
+_sized_gl_format_from_gl_format_type (GLenum format, GLenum type)
+{
+  switch (format) {
+    case GL_RGBA:
+      switch (type) {
+        case GL_UNSIGNED_BYTE:
+          return GL_RGBA8;
+          break;
+      }
+      break;
+    case GL_RGB:
+      switch (type) {
+        case GL_UNSIGNED_BYTE:
+          return GL_RGB8;
+          break;
+        case GL_UNSIGNED_SHORT_5_6_5:
+          return GL_RGB;
+          break;
+      }
+      break;
+    case GL_RG:
+      switch (type) {
+        case GL_UNSIGNED_BYTE:
+          return GL_RG8;
+          break;
+      }
+      break;
+    case GL_RED:
+      switch (type) {
+        case GL_UNSIGNED_BYTE:
+          return GL_R8;
+          break;
+      }
+      break;
+    case GL_LUMINANCE:
+      return GL_LUMINANCE;
+      break;
+    case GL_LUMINANCE_ALPHA:
+      return GL_LUMINANCE_ALPHA;
+      break;
+    case GL_ALPHA:
+      return GL_ALPHA;
+      break;
+    default:
+      break;
+  }
+
+  g_assert_not_reached ();
+  return 0;
 }
 
 static inline guint
@@ -266,14 +349,18 @@ static void
 _generate_texture (GstGLContext * context, GenTexture * data)
 {
   const GstGLFuncs *gl = context->gl_vtable;
+  GLenum internal_format;
 
   GST_CAT_TRACE (GST_CAT_GL_MEMORY,
       "Generating texture format:%u type:%u dimensions:%ux%u", data->gl_format,
       data->gl_type, data->width, data->height);
 
+  internal_format =
+      _sized_gl_format_from_gl_format_type (data->gl_format, data->gl_type);
+
   gl->GenTextures (1, &data->result);
   gl->BindTexture (GL_TEXTURE_2D, data->result);
-  gl->TexImage2D (GL_TEXTURE_2D, 0, data->gl_format, data->width,
+  gl->TexImage2D (GL_TEXTURE_2D, 0, internal_format, data->width,
       data->height, 0, data->gl_format, data->gl_type, NULL);
 
   gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -302,16 +389,11 @@ _upload_memory (GstGLContext * context, GstGLMemory * gl_mem)
 
   gl_format = _gst_gl_format_from_gl_texture_type (gl_mem->tex_type);
 
-#if GST_GL_HAVE_OPENGL || GST_GL_HAVE_GLES3
   if (USING_OPENGL (context) || USING_GLES3 (context)) {
     gl->PixelStorei (GL_UNPACK_ROW_LENGTH, gl_mem->unpack_length);
-  }
-#endif
-#if GST_GL_HAVE_GLES2
-  if (USING_GLES2 (context)) {
+  } else if (USING_GLES2 (context)) {
     gl->PixelStorei (GL_UNPACK_ALIGNMENT, gl_mem->unpack_length);
   }
-#endif
 
   GST_CAT_LOG (GST_CAT_GL_MEMORY, "upload for texture id:%u, %ux%u",
       gl_mem->tex_id, gl_mem->width, gl_mem->height);
@@ -321,16 +403,12 @@ _upload_memory (GstGLContext * context, GstGLMemory * gl_mem)
       gl_format, gl_type, gl_mem->data);
 
   /* Reset to default values */
-#if GST_GL_HAVE_OPENGL || GST_GL_HAVE_GLES3
   if (USING_OPENGL (context) || USING_GLES3 (context)) {
     gl->PixelStorei (GL_UNPACK_ROW_LENGTH, 0);
-  }
-#endif
-#if GST_GL_HAVE_GLES2
-  if (USING_GLES2 (context)) {
+  } else if (USING_GLES2 (context)) {
     gl->PixelStorei (GL_UNPACK_ALIGNMENT, 4);
   }
-#endif
+
   gl->BindTexture (GL_TEXTURE_2D, 0);
 
   GST_GL_MEMORY_FLAG_UNSET (gl_mem, GST_GL_MEMORY_FLAG_NEED_UPLOAD);
@@ -351,13 +429,10 @@ _calculate_unpack_length (GstGLMemory * gl_mem)
         gl_mem->tex_type);
     return;
   }
-#if GST_GL_HAVE_OPENGL || GST_GL_HAVE_GLES3
+
   if (USING_OPENGL (gl_mem->context) || USING_GLES3 (gl_mem->context)) {
     gl_mem->unpack_length = gl_mem->stride / n_gl_bytes;
-  }
-#endif
-#if GST_GL_HAVE_GLES2
-  if (USING_GLES2 (gl_mem->context)) {
+  } else if (USING_GLES2 (gl_mem->context)) {
     guint j = 8;
 
     while (j >= n_gl_bytes) {
@@ -409,7 +484,6 @@ _calculate_unpack_length (GstGLMemory * gl_mem)
       }
     }
   }
-#endif
 }
 
 static void
@@ -479,7 +553,7 @@ _gl_mem_init (GstGLMemory * mem, GstAllocator * allocator, GstMemory * parent,
 {
   gsize maxsize;
 
-  maxsize = _gl_texture_type_n_bytes (tex_type) * stride * height;
+  maxsize = stride * height;
 
   gst_memory_init (GST_MEMORY_CAST (mem), GST_MEMORY_FLAG_NO_SHARE,
       allocator, parent, maxsize, 0, 0, maxsize);
@@ -676,6 +750,14 @@ _gl_mem_copy_thread (GstGLContext * context, gpointer data)
     if (!gl->GenBuffers) {
       gst_gl_context_set_error (context, "Cannot reinterpret texture contents "
           "without buffer objects");
+      gl->BindTexture (GL_TEXTURE_2D, 0);
+      goto fbo_error;
+    }
+
+    if (gst_gl_context_get_gl_api (context) & GST_GL_API_GLES2
+        && (in_gl_format != GL_RGBA || in_gl_type != GL_UNSIGNED_BYTE)) {
+      gst_gl_context_set_error (context, "Cannot copy non RGBA/UNSIGNED_BYTE "
+          "textures on GLES2");
       gl->BindTexture (GL_TEXTURE_2D, 0);
       goto fbo_error;
     }
@@ -1041,7 +1123,8 @@ gst_gl_memory_setup_buffer (GstGLContext * context, GstVideoInfo * info,
 
   for (i = 0; i < n_mem; i++) {
     tex_type =
-        gst_gl_texture_type_from_format (GST_VIDEO_INFO_FORMAT (info), i);
+        gst_gl_texture_type_from_format (context, GST_VIDEO_INFO_FORMAT (info),
+        i);
     gl_mem[i] =
         (GstGLMemory *) gst_gl_memory_alloc (context, tex_type,
         _get_plane_width (info, i), _get_plane_height (info, i),
@@ -1079,7 +1162,8 @@ gst_gl_memory_setup_wrapped (GstGLContext * context, GstVideoInfo * info,
 
   for (i = 0; i < GST_VIDEO_INFO_N_PLANES (info); i++) {
     tex_type =
-        gst_gl_texture_type_from_format (GST_VIDEO_INFO_FORMAT (info), i);
+        gst_gl_texture_type_from_format (context, GST_VIDEO_INFO_FORMAT (info),
+        i);
 
     textures[i] = (GstGLMemory *) gst_gl_memory_wrapped (context, tex_type,
         _get_plane_width (info, i), _get_plane_height (info, i),

@@ -101,19 +101,19 @@ GST_DEBUG_CATEGORY (gst_debug_glimage_sink);
 #define GST_GLIMAGE_SINK_UNLOCK(glsink) \
   (g_mutex_unlock(&GST_GLIMAGE_SINK_GET_LOCK (glsink)))
 
-#define USING_OPENGL(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_OPENGL)
-#define USING_OPENGL3(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_OPENGL3)
-#define USING_GLES(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_GLES)
-#define USING_GLES2(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_GLES2)
-#define USING_GLES3(context) (gst_gl_context_get_gl_api (context) & GST_GL_API_GLES3)
+#define USING_OPENGL(context) (gst_gl_context_check_gl_version (context, GST_GL_API_OPENGL, 1, 0))
+#define USING_OPENGL3(context) (gst_gl_context_check_gl_version (context, GST_GL_API_OPENGL3, 3, 1))
+#define USING_GLES(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES, 1, 0))
+#define USING_GLES2(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES2, 2, 0))
+#define USING_GLES3(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES2, 3, 0))
 
 #if GST_GL_HAVE_GLES2
 static void gst_glimage_sink_thread_init_redisplay (GstGLImageSink * gl_sink);
 #endif
 static void gst_glimage_sink_on_close (GstGLImageSink * gl_sink);
-static void gst_glimage_sink_on_resize (const GstGLImageSink * gl_sink,
+static void gst_glimage_sink_on_resize (GstGLImageSink * gl_sink,
     gint width, gint height);
-static void gst_glimage_sink_on_draw (const GstGLImageSink * gl_sink);
+static void gst_glimage_sink_on_draw (GstGLImageSink * gl_sink);
 static gboolean gst_glimage_sink_redisplay (GstGLImageSink * gl_sink);
 
 static void gst_glimage_sink_finalize (GObject * object);
@@ -136,7 +136,7 @@ static void gst_glimage_sink_get_times (GstBaseSink * bsink, GstBuffer * buf,
 static gboolean gst_glimage_sink_set_caps (GstBaseSink * bsink, GstCaps * caps);
 static GstFlowReturn gst_glimage_sink_prepare (GstBaseSink * bsink,
     GstBuffer * buf);
-static GstFlowReturn gst_glimage_sink_render (GstBaseSink * bsink,
+static GstFlowReturn gst_glimage_sink_show_frame (GstVideoSink * bsink,
     GstBuffer * buf);
 static gboolean gst_glimage_sink_propose_allocation (GstBaseSink * bsink,
     GstQuery * query);
@@ -167,13 +167,20 @@ enum
 {
   ARG_0,
   ARG_DISPLAY,
-  PROP_CLIENT_RESHAPE_CALLBACK,
-  PROP_CLIENT_DRAW_CALLBACK,
-  PROP_CLIENT_DATA,
   PROP_FORCE_ASPECT_RATIO,
   PROP_PIXEL_ASPECT_RATIO,
   PROP_OTHER_CONTEXT
 };
+
+enum
+{
+  SIGNAL_0,
+  CLIENT_DRAW_SIGNAL,
+  CLIENT_RESHAPE_SIGNAL,
+  LAST_SIGNAL
+};
+
+static guint gst_glimage_sink_signals[LAST_SIGNAL] = { 0 };
 
 #define gst_glimage_sink_parent_class parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGLImageSink, gst_glimage_sink,
@@ -188,11 +195,13 @@ gst_glimage_sink_class_init (GstGLImageSinkClass * klass)
   GObjectClass *gobject_class;
   GstElementClass *gstelement_class;
   GstBaseSinkClass *gstbasesink_class;
+  GstVideoSinkClass *gstvideosink_class;
   GstElementClass *element_class;
 
   gobject_class = (GObjectClass *) klass;
   gstelement_class = (GstElementClass *) klass;
   gstbasesink_class = (GstBaseSinkClass *) klass;
+  gstvideosink_class = (GstVideoSinkClass *) klass;
   element_class = GST_ELEMENT_CLASS (klass);
 
   gobject_class->set_property = gst_glimage_sink_set_property;
@@ -201,22 +210,6 @@ gst_glimage_sink_class_init (GstGLImageSinkClass * klass)
   g_object_class_install_property (gobject_class, ARG_DISPLAY,
       g_param_spec_string ("display", "Display", "Display name",
           NULL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_CLIENT_RESHAPE_CALLBACK,
-      g_param_spec_pointer ("client-reshape-callback",
-          "Client reshape callback",
-          "Define a custom reshape callback in a client code",
-          G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_CLIENT_DRAW_CALLBACK,
-      g_param_spec_pointer ("client-draw-callback", "Client draw callback",
-          "Define a custom draw callback in a client code",
-          G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_CLIENT_DATA,
-      g_param_spec_pointer ("client-data", "Client data",
-          "Pass data to the draw and reshape callbacks",
-          G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_FORCE_ASPECT_RATIO,
       g_param_spec_boolean ("force-aspect-ratio",
@@ -239,6 +232,42 @@ gst_glimage_sink_class_init (GstGLImageSinkClass * klass)
       "Sink/Video", "A videosink based on OpenGL",
       "Julien Isorce <julien.isorce@gmail.com>");
 
+  /**
+   * GstGLImageSink::client-draw:
+   * @object: the #GstGLImageSink
+   * @texture: the #guint id of the texture.
+   * @width: the #guint width of the texture.
+   * @height: the #guint height of the texture.
+   *
+   * Will be emitted before actually drawing the texture.  The client should
+   * redraw the surface/contents with the @texture, @width and @height and
+   * and return %TRUE.
+   *
+   * Returns: whether the texture was redrawn by the signal.  If not, a
+   *          default redraw will occur.
+   */
+  gst_glimage_sink_signals[CLIENT_DRAW_SIGNAL] =
+      g_signal_new ("client-draw", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST, 0, NULL, NULL, g_cclosure_marshal_generic,
+      G_TYPE_BOOLEAN, 3, G_TYPE_UINT, G_TYPE_UINT, G_TYPE_UINT);
+
+  /**
+   * GstGLImageSink::client-reshape:
+   * @object: the #GstGLImageSink
+   * @width: the #guint width of the texture.
+   * @height: the #guint height of the texture.
+   *
+   * The client should resize the surface/window/viewport with the @width and
+   * @height and return %TRUE.
+   *
+   * Returns: whether the content area was resized by the signal.  If not, a
+   *          default viewport resize will occur.
+   */
+  gst_glimage_sink_signals[CLIENT_RESHAPE_SIGNAL] =
+      g_signal_new ("client-reshape", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST, 0, NULL, NULL, g_cclosure_marshal_generic,
+      G_TYPE_BOOLEAN, 2, G_TYPE_UINT, G_TYPE_UINT);
+
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&gst_glimage_sink_template));
 
@@ -249,11 +278,12 @@ gst_glimage_sink_class_init (GstGLImageSinkClass * klass)
   gstbasesink_class->query = GST_DEBUG_FUNCPTR (gst_glimage_sink_query);
   gstbasesink_class->set_caps = gst_glimage_sink_set_caps;
   gstbasesink_class->get_times = gst_glimage_sink_get_times;
-  gstbasesink_class->preroll = gst_glimage_sink_render;
-  gstbasesink_class->render = gst_glimage_sink_render;
   gstbasesink_class->prepare = gst_glimage_sink_prepare;
   gstbasesink_class->propose_allocation = gst_glimage_sink_propose_allocation;
   gstbasesink_class->stop = gst_glimage_sink_stop;
+
+  gstvideosink_class->show_frame =
+      GST_DEBUG_FUNCPTR (gst_glimage_sink_show_frame);
 }
 
 static void
@@ -263,13 +293,11 @@ gst_glimage_sink_init (GstGLImageSink * glimage_sink)
   glimage_sink->window_id = 0;
   glimage_sink->new_window_id = 0;
   glimage_sink->display = NULL;
-  glimage_sink->clientReshapeCallback = NULL;
-  glimage_sink->clientDrawCallback = NULL;
-  glimage_sink->client_data = NULL;
-  glimage_sink->keep_aspect_ratio = TRUE;
-  glimage_sink->par_n = 1;
+  glimage_sink->keep_aspect_ratio = FALSE;
+  glimage_sink->par_n = 0;
   glimage_sink->par_d = 1;
   glimage_sink->pool = NULL;
+  glimage_sink->stored_buffer = NULL;
   glimage_sink->redisplay_texture = 0;
 
   g_mutex_init (&glimage_sink->drawing_lock);
@@ -290,21 +318,6 @@ gst_glimage_sink_set_property (GObject * object, guint prop_id,
     {
       g_free (glimage_sink->display_name);
       glimage_sink->display_name = g_strdup (g_value_get_string (value));
-      break;
-    }
-    case PROP_CLIENT_RESHAPE_CALLBACK:
-    {
-      glimage_sink->clientReshapeCallback = g_value_get_pointer (value);
-      break;
-    }
-    case PROP_CLIENT_DRAW_CALLBACK:
-    {
-      glimage_sink->clientDrawCallback = g_value_get_pointer (value);
-      break;
-    }
-    case PROP_CLIENT_DATA:
-    {
-      glimage_sink->client_data = g_value_get_pointer (value);
       break;
     }
     case PROP_FORCE_ASPECT_RATIO:
@@ -503,7 +516,9 @@ gst_glimage_sink_change_state (GstElement * element, GstStateChange transition)
   GstGLImageSink *glimage_sink;
   GstStateChangeReturn ret = GST_STATE_CHANGE_SUCCESS;
 
-  GST_DEBUG ("change state");
+  GST_DEBUG ("changing state: %s => %s",
+      gst_element_state_get_name (GST_STATE_TRANSITION_CURRENT (transition)),
+      gst_element_state_get_name (GST_STATE_TRANSITION_NEXT (transition)));
 
   glimage_sink = GST_GLIMAGE_SINK (element);
 
@@ -537,6 +552,10 @@ gst_glimage_sink_change_state (GstElement * element, GstStateChange transition)
        */
       GST_GLIMAGE_SINK_LOCK (glimage_sink);
       glimage_sink->redisplay_texture = 0;
+      if (glimage_sink->stored_buffer) {
+        gst_buffer_unref (glimage_sink->stored_buffer);
+        glimage_sink->stored_buffer = NULL;
+      }
       GST_GLIMAGE_SINK_UNLOCK (glimage_sink);
 
       if (glimage_sink->upload) {
@@ -700,7 +719,7 @@ gst_glimage_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
 
   if (glimage_sink->upload)
     gst_object_unref (glimage_sink->upload);
-  glimage_sink->upload = gst_object_ref (GST_GL_BUFFER_POOL (newpool)->upload);
+  glimage_sink->upload = gst_gl_upload_new (glimage_sink->context);
 
   gst_gl_upload_set_format (glimage_sink->upload, &vinfo);
 
@@ -748,13 +767,14 @@ upload_failed:
 }
 
 static GstFlowReturn
-gst_glimage_sink_render (GstBaseSink * bsink, GstBuffer * buf)
+gst_glimage_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
 {
   GstGLImageSink *glimage_sink;
+  GstBuffer *stored_buffer;
 
   GST_TRACE ("rendering buffer:%p", buf);
 
-  glimage_sink = GST_GLIMAGE_SINK (bsink);
+  glimage_sink = GST_GLIMAGE_SINK (vsink);
 
   GST_TRACE ("redisplay texture:%u of size:%ux%u, window size:%ux%u",
       glimage_sink->next_tex, GST_VIDEO_INFO_WIDTH (&glimage_sink->info),
@@ -765,7 +785,11 @@ gst_glimage_sink_render (GstBaseSink * bsink, GstBuffer * buf)
   /* Avoid to release the texture while drawing */
   GST_GLIMAGE_SINK_LOCK (glimage_sink);
   glimage_sink->redisplay_texture = glimage_sink->next_tex;
+  stored_buffer = glimage_sink->stored_buffer;
+  glimage_sink->stored_buffer = gst_buffer_ref (buf);
   GST_GLIMAGE_SINK_UNLOCK (glimage_sink);
+  if (stored_buffer)
+    gst_buffer_unref (stored_buffer);
 
   /* Ask the underlying window to redraw its content */
   if (!gst_glimage_sink_redisplay (glimage_sink))
@@ -976,22 +1000,22 @@ gst_glimage_sink_thread_init_redisplay (GstGLImageSink * gl_sink)
 #endif
 
 static void
-gst_glimage_sink_on_resize (const GstGLImageSink * gl_sink, gint width,
-    gint height)
+gst_glimage_sink_on_resize (GstGLImageSink * gl_sink, gint width, gint height)
 {
   /* Here gl_sink members (ex:gl_sink->info) have a life time of set_caps.
    * It means that they cannot not change between two set_caps
    */
   const GstGLFuncs *gl = gl_sink->context->gl_vtable;
+  gboolean do_reshape;
 
   GST_TRACE ("GL Window resized to %ux%u", width, height);
 
   /* check if a client reshape callback is registered */
-  if (gl_sink->clientReshapeCallback)
-    gl_sink->clientReshapeCallback (width, height, gl_sink->client_data);
+  g_signal_emit (gl_sink, gst_glimage_sink_signals[CLIENT_RESHAPE_SIGNAL], 0,
+      width, height, &do_reshape);
 
   /* default reshape */
-  else {
+  if (!do_reshape) {
     if (gl_sink->keep_aspect_ratio) {
       GstVideoRectangle src, dst, result;
 
@@ -1023,7 +1047,7 @@ gst_glimage_sink_on_resize (const GstGLImageSink * gl_sink, gint width,
 
 
 static void
-gst_glimage_sink_on_draw (const GstGLImageSink * gl_sink)
+gst_glimage_sink_on_draw (GstGLImageSink * gl_sink)
 {
   /* Here gl_sink members (ex:gl_sink->info) have a life time of set_caps.
    * It means that they cannot not change between two set_caps as well as
@@ -1033,6 +1057,7 @@ gst_glimage_sink_on_draw (const GstGLImageSink * gl_sink)
 
   const GstGLFuncs *gl = NULL;
   GstGLWindow *window = NULL;
+  gboolean do_redisplay;
 
   g_return_if_fail (GST_IS_GLIMAGE_SINK (gl_sink));
 
@@ -1062,22 +1087,11 @@ gst_glimage_sink_on_draw (const GstGLImageSink * gl_sink)
 
   gl->BindTexture (GL_TEXTURE_2D, 0);
 
-  /* check if a client draw callback is registered */
-  if (gl_sink->clientDrawCallback) {
+  g_signal_emit (gl_sink, gst_glimage_sink_signals[CLIENT_DRAW_SIGNAL], 0,
+      gl_sink->redisplay_texture, GST_VIDEO_INFO_WIDTH (&gl_sink->info),
+      GST_VIDEO_INFO_HEIGHT (&gl_sink->info), &do_redisplay);
 
-    gboolean doRedisplay =
-        gl_sink->clientDrawCallback (gl_sink->redisplay_texture,
-        GST_VIDEO_INFO_WIDTH (&gl_sink->info),
-        GST_VIDEO_INFO_HEIGHT (&gl_sink->info),
-        gl_sink->client_data);
-
-    if (doRedisplay)
-      gst_gl_window_draw_unlocked (window,
-          GST_VIDEO_INFO_WIDTH (&gl_sink->info),
-          GST_VIDEO_INFO_HEIGHT (&gl_sink->info));
-  }
-  /* default opengl scene */
-  else {
+  if (!do_redisplay) {
 #if GST_GL_HAVE_OPENGL
     if (USING_OPENGL (gl_sink->context)) {
       GLfloat verts[8] = { 1.0f, 1.0f,
@@ -1150,8 +1164,8 @@ gst_glimage_sink_on_draw (const GstGLImageSink * gl_sink)
       gl->DrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
     }
 #endif
-  }                             /* end default opengl scene */
-
+  }
+  /* end default opengl scene */
   window->is_drawing = FALSE;
   gst_object_unref (window);
 

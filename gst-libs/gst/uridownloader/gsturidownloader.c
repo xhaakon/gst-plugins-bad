@@ -195,12 +195,20 @@ gst_uri_downloader_bus_handler (GstBus * bus,
   if (GST_MESSAGE_TYPE (message) == GST_MESSAGE_ERROR) {
     GError *err = NULL;
     gchar *dbg_info = NULL;
+    gchar *new_error = NULL;
 
     gst_message_parse_error (message, &err, &dbg_info);
     GST_WARNING_OBJECT (downloader,
         "Received error: %s from %s, the download will be cancelled",
         err->message, GST_OBJECT_NAME (message->src));
     GST_DEBUG ("Debugging info: %s\n", (dbg_info) ? dbg_info : "none");
+
+    if (dbg_info)
+      new_error = g_strdup_printf ("%s: %s\n", err->message, dbg_info);
+    if (new_error) {
+      g_free (err->message);
+      err->message = new_error;
+    }
 
     if (!downloader->priv->err)
       downloader->priv->err = err;
@@ -545,10 +553,22 @@ quit:
 
       /* set the element state to NULL */
       GST_OBJECT_UNLOCK (downloader);
-      if (download == NULL)
+      if (download == NULL) {
         gst_element_set_state (urisrc, GST_STATE_NULL);
-      else
+      } else {
+        GstQuery *query;
+
+        /* Download successfull, let's query the URI */
+        query = gst_query_new_uri ();
+        if (gst_element_query (urisrc, query)) {
+          gst_query_parse_uri (query, &download->uri);
+          gst_query_parse_uri_redirection (query, &download->redirect_uri);
+          gst_query_parse_uri_redirection_permanent (query,
+              &download->redirect_permanent);
+        }
+        gst_query_unref (query);
         gst_element_set_state (urisrc, GST_STATE_READY);
+      }
       GST_OBJECT_LOCK (downloader);
       gst_element_set_bus (urisrc, NULL);
 

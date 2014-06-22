@@ -55,42 +55,18 @@ typedef gboolean (*GstGLMixerProcessTextures) (GstGLMixer *mix,
 
 struct _GstGLMixer
 {
-  GstElement element;
+  GstVideoAggregator vaggregator;
 
   GstGLMixerPrivate *priv;
 
-  /* pad */
-  GstPad *srcpad;
-
   /* Lock to prevent the state to change while blending */
   GMutex lock;
-  /* Sink pads using Collect Pads from core's base library */
-  GstCollectPads *collect;
-
-  /* sinkpads, a GSList of GstGLMixerPads */
-  GSList *sinkpads;
-  gint numpads;
-  /* Next available sinkpad index */
-  gint next_sinkpad;
 
   GPtrArray *array_buffers;
   GPtrArray *frames;
 
-  GstVideoInfo out_info;
   GLuint out_tex_id;
   GstGLDownload *download;
-
-  gboolean newseg_pending;
-  gboolean flush_stop_pending;
-
-  GstSegment segment;
-  GstClockTime ts_offset;
-  guint64 nframes;
-
-  /* sink event handling */
-  gdouble proportion;
-  GstClockTime earliest_time;
-  guint64 qos_processed, qos_dropped;
 
   GstGLDisplay *display;
   GstGLContext *context;
@@ -100,7 +76,7 @@ struct _GstGLMixer
 
 struct _GstGLMixerClass
 {
-  GstElementClass parent_class;
+  GstVideoAggregatorClass parent_class;
 
   GstGLMixerSetCaps set_caps;
   GstGLMixerReset reset;
