@@ -1,4 +1,6 @@
 debian/tmp/usr/lib/*/libgstphotography-@GST_ABI@.so.*
+debian/tmp/usr/lib/*/libgstbadbase-@GST_ABI@.so.*
+debian/tmp/usr/lib/*/libgstbadvideo-@GST_ABI@.so.*
 debian/tmp/usr/lib/*/libgstbasecamerabinsrc-@GST_ABI@.so.*
 debian/tmp/usr/lib/*/libgstgl-@GST_ABI@.so.*
 debian/tmp/usr/lib/*/libgstinsertbin-@GST_ABI@.so.*
