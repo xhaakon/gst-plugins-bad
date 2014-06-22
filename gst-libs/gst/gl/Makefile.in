@@ -173,12 +173,13 @@ am__installdirs = "$(DESTDIR)$(libdir)" \
 	"$(DESTDIR)$(libgstgl_@GST_API_VERSION@includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstgl_@GST_API_VERSION@_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+libgstgl_@GST_API_VERSION@_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/base/libgstbadbase-$(GST_API_VERSION).la \
+	$(top_builddir)/gst-libs/gst/video/libgstbadvideo-$(GST_API_VERSION).la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) $(am__append_2) \
-	$(am__append_4) $(am__append_6) $(am__append_8) \
-	$(am__append_10) $(am__append_12) $(am__append_14) \
-	$(am__append_16)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__append_2) $(am__append_4) \
+	$(am__append_6) $(am__append_8) $(am__append_10) \
+	$(am__append_12) $(am__append_14) $(am__append_16)
 am_libgstgl_@GST_API_VERSION@_la_OBJECTS =  \
 	libgstgl_@GST_API_VERSION@_la-gstgldisplay.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglcontext.lo \
@@ -191,6 +192,7 @@ am_libgstgl_@GST_API_VERSION@_la_OBJECTS =  \
 	libgstgl_@GST_API_VERSION@_la-gstglcolorconvert.lo \
 	libgstgl_@GST_API_VERSION@_la-gstgldownload.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglupload.lo \
+	libgstgl_@GST_API_VERSION@_la-gstgluploadmeta.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglwindow.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglapi.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglfeature.lo \
@@ -427,6 +429,8 @@ GMSGFMT_015 = @GMSGFMT_015@
 GMYTH_CFLAGS = @GMYTH_CFLAGS@
 GMYTH_LIBS = @GMYTH_LIBS@
 GNUSTEP_CONFIG = @GNUSTEP_CONFIG@
+GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
+GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
 GSETTINGS_CFLAGS = @GSETTINGS_CFLAGS@
 GSETTINGS_DISABLE_SCHEMAS_COMPILE = @GSETTINGS_DISABLE_SCHEMAS_COMPILE@
@@ -513,6 +517,7 @@ HAVE_FLITE = @HAVE_FLITE@
 HAVE_GL = @HAVE_GL@
 HAVE_GLES2 = @HAVE_GLES2@
 HAVE_GLU = @HAVE_GLU@
+HAVE_GRAPHENE = @HAVE_GRAPHENE@
 HAVE_GSM = @HAVE_GSM@
 HAVE_GTK3 = @HAVE_GTK3@
 HAVE_JPEG = @HAVE_JPEG@
@@ -804,6 +809,7 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+wayland_scanner = @wayland_scanner@
 lib_LTLIBRARIES = libgstgl-@GST_API_VERSION@.la
 SUBDIRS = glprototypes $(am__append_1) $(am__append_3) $(am__append_5) \
 	$(am__append_7) $(am__append_9) $(am__append_11) \
@@ -823,6 +829,7 @@ libgstgl_@GST_API_VERSION@_la_SOURCES = \
         gstglcolorconvert.c \
         gstgldownload.c \
         gstglupload.c \
+        gstgluploadmeta.c \
         gstglwindow.c \
         gstglapi.c \
         gstglfeature.c \
@@ -836,7 +843,6 @@ libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gstglcontext.h \
 	gstglmemory.h \
 	gstglbufferpool.h \
-	gstgles2.h \
 	gstglfilter.h \
 	gstglmixer.h \
 	gstglmixerpad.h \
@@ -844,6 +850,7 @@ libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gstglshader.h \
 	gstglcolorconvert.h \
 	gstgldownload.h \
+	gstgluploadmeta.h \
 	gstglupload.h \
 	gstglapi.h \
 	gstglfeature.h \
@@ -852,12 +859,13 @@ libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gstgl_fwd.h \
 	gl.h
 
-libgstgl_@GST_API_VERSION@_la_LIBADD = $(GMODULE_NO_EXPORT_LIBS) \
-	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
-	$(GST_BASE_LIBS) $(GST_LIBS) $(GL_LIBS) $(am__append_2) \
-	$(am__append_4) $(am__append_6) $(am__append_8) \
-	$(am__append_10) $(am__append_12) $(am__append_14) \
-	$(am__append_16)
+libgstgl_@GST_API_VERSION@_la_LIBADD = $(top_builddir)/gst-libs/gst/base/libgstbadbase-$(GST_API_VERSION).la \
+	$(top_builddir)/gst-libs/gst/video/libgstbadvideo-$(GST_API_VERSION).la \
+	$(GMODULE_NO_EXPORT_LIBS) $(GST_PLUGINS_BASE_LIBS) \
+	-lgstvideo-$(GST_API_VERSION) $(GST_BASE_LIBS) $(GST_LIBS) \
+	$(GL_LIBS) $(am__append_2) $(am__append_4) $(am__append_6) \
+	$(am__append_8) $(am__append_10) $(am__append_12) \
+	$(am__append_14) $(am__append_16)
 nodist_libgstgl_@GST_API_VERSION@include_HEADERS = \
 	$(built_header_configure)
 
@@ -971,6 +979,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglshader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglshadervariables.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglupload.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstgluploadmeta.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglutils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglwindow.Plo@am__quote@
 
@@ -1074,6 +1083,13 @@ libgstgl_@GST_API_VERSION@_la-gstglupload.lo: gstglupload.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglupload.c' object='libgstgl_@GST_API_VERSION@_la-gstglupload.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstgl_@GST_API_VERSION@_la-gstglupload.lo `test -f 'gstglupload.c' || echo '$(srcdir)/'`gstglupload.c
+
+libgstgl_@GST_API_VERSION@_la-gstgluploadmeta.lo: gstgluploadmeta.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstgl_@GST_API_VERSION@_la-gstgluploadmeta.lo -MD -MP -MF $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstgluploadmeta.Tpo -c -o libgstgl_@GST_API_VERSION@_la-gstgluploadmeta.lo `test -f 'gstgluploadmeta.c' || echo '$(srcdir)/'`gstgluploadmeta.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstgluploadmeta.Tpo $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstgluploadmeta.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgluploadmeta.c' object='libgstgl_@GST_API_VERSION@_la-gstgluploadmeta.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstgl_@GST_API_VERSION@_la-gstgluploadmeta.lo `test -f 'gstgluploadmeta.c' || echo '$(srcdir)/'`gstgluploadmeta.c
 
 libgstgl_@GST_API_VERSION@_la-gstglwindow.lo: gstglwindow.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstgl_@GST_API_VERSION@_la-gstglwindow.lo -MD -MP -MF $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglwindow.Tpo -c -o libgstgl_@GST_API_VERSION@_la-gstglwindow.lo `test -f 'gstglwindow.c' || echo '$(srcdir)/'`gstglwindow.c

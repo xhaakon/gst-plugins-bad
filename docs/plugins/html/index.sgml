@@ -102,6 +102,16 @@
 <ANCHOR id="GstColorEffects-struct" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-coloreffects.html#GstColorEffects-struct">
 <ANCHOR id="gst-plugins-bad-plugins-coloreffects.property-details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-coloreffects.html#gst-plugins-bad-plugins-coloreffects.property-details">
 <ANCHOR id="GstColorEffects--preset" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-coloreffects.html#GstColorEffects--preset">
+<ANCHOR id="gst-plugins-bad-plugins-compositor" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-compositor.html">
+<ANCHOR id="gst-plugins-bad-plugins-compositor.properties" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-compositor.html#gst-plugins-bad-plugins-compositor.properties">
+<ANCHOR id="GstCompositor" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-compositor.html#GstCompositor">
+<ANCHOR id="GstCompositorPad" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-compositor.html#GstCompositorPad">
+<ANCHOR id="gst-plugins-bad-plugins-compositor.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-compositor.html#gst-plugins-bad-plugins-compositor.object-hierarchy">
+<ANCHOR id="gst-plugins-bad-plugins-compositor.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-compositor.html#gst-plugins-bad-plugins-compositor.description">
+<ANCHOR id="gst-plugins-bad-plugins-compositor.functions_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-compositor.html#gst-plugins-bad-plugins-compositor.functions_details">
+<ANCHOR id="gst-plugins-bad-plugins-compositor.other_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-compositor.html#gst-plugins-bad-plugins-compositor.other_details">
+<ANCHOR id="gst-plugins-bad-plugins-compositor.property-details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-compositor.html#gst-plugins-bad-plugins-compositor.property-details">
+<ANCHOR id="GstCompositor--background" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-compositor.html#GstCompositor--background">
 <ANCHOR id="gst-plugins-bad-plugins-cvdilate" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-cvdilate.html">
 <ANCHOR id="GstCvDilate" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-cvdilate.html#GstCvDilate">
 <ANCHOR id="gst-plugins-bad-plugins-cvdilate.other" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-cvdilate.html#gst-plugins-bad-plugins-cvdilate.other">
@@ -232,6 +242,7 @@
 <ANCHOR id="GstDtsDec--drc" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dtsdec.html#GstDtsDec--drc">
 <ANCHOR id="gst-plugins-bad-plugins-dvbsrc" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html">
 <ANCHOR id="gst-plugins-bad-plugins-dvbsrc.properties" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html#gst-plugins-bad-plugins-dvbsrc.properties">
+<ANCHOR id="gst-plugins-bad-plugins-dvbsrc.signals" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html#gst-plugins-bad-plugins-dvbsrc.signals">
 <ANCHOR id="GstDvbSrc" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc">
 <ANCHOR id="gst-plugins-bad-plugins-dvbsrc.other" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html#gst-plugins-bad-plugins-dvbsrc.other">
 <ANCHOR id="gst-plugins-bad-plugins-dvbsrc.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html#gst-plugins-bad-plugins-dvbsrc.object-hierarchy">
@@ -269,6 +280,11 @@
 <ANCHOR id="GstDvbSrc--pilot" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc--pilot">
 <ANCHOR id="GstDvbSrc--rolloff" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc--rolloff">
 <ANCHOR id="GstDvbSrc--stream-id" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc--stream-id">
+<ANCHOR id="GstDvbSrc--tuning-timeout" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc--tuning-timeout">
+<ANCHOR id="gst-plugins-bad-plugins-dvbsrc.signal-details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html#gst-plugins-bad-plugins-dvbsrc.signal-details">
+<ANCHOR id="GstDvbSrc-tuning-done" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc-tuning-done">
+<ANCHOR id="GstDvbSrc-tuning-fail" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc-tuning-fail">
+<ANCHOR id="GstDvbSrc-tuning-start" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc-tuning-start">
 <ANCHOR id="gst-plugins-bad-plugins-dvdspu" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvdspu.html">
 <ANCHOR id="GstDVDSpu" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvdspu.html#GstDVDSpu">
 <ANCHOR id="gst-plugins-bad-plugins-dvdspu.other" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-dvdspu.html#gst-plugins-bad-plugins-dvdspu.other">

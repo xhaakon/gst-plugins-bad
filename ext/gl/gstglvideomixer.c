@@ -72,29 +72,183 @@ static void gst_gl_video_mixer_callback (gpointer stuff);
 static const gchar *video_mixer_v_src =
     "attribute vec4 a_position;                                   \n"
     "attribute vec2 a_texCoord;                                   \n"
-    "uniform float x_scale;                                       \n"
-    "uniform float y_scale;                                       \n"
     "varying vec2 v_texCoord;                                     \n"
     "void main()                                                  \n"
     "{                                                            \n"
-    "   gl_Position = a_position * vec4(x_scale, y_scale, 1.0, 1.0);\n"
+    "   gl_Position = a_position;                                 \n"
     "   v_texCoord = a_texCoord;                                  \n" "}";
 
 /* fragment source */
 static const gchar *video_mixer_f_src =
     "uniform sampler2D texture;                     \n"
+    "uniform float alpha;\n"
     "varying vec2 v_texCoord;                            \n"
     "void main()                                         \n"
     "{                                                   \n"
     "  vec4 rgba = texture2D( texture, v_texCoord );\n"
-    "  gl_FragColor = vec4(rgba.rgb, 1.0);\n"
+    "  gl_FragColor = vec4(rgba.rgb, rgba.a * alpha);\n"
     "}                                                   \n";
+
+#define GST_TYPE_GL_VIDEO_MIXER_PAD (gst_gl_video_mixer_pad_get_type())
+#define GST_GL_VIDEO_MIXER_PAD(obj) \
+        (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_GL_VIDEO_MIXER_PAD, GstGLVideoMixerPad))
+#define GST_GL_VIDEO_MIXER_PAD_CLASS(klass) \
+        (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_GL_VIDEO_MIXER_PAD, GstGLVideoMixerPadClass))
+#define GST_IS_GL_VIDEO_MIXER_PAD(obj) \
+        (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_GL_VIDEO_MIXER_PAD))
+#define GST_IS_GL_VIDEO_MIXER_PAD_CLASS(klass) \
+        (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_GL_VIDEO_MIXER_PAD))
+
+typedef struct _GstGLVideoMixerPad GstGLVideoMixerPad;
+typedef struct _GstGLVideoMixerPadClass GstGLVideoMixerPadClass;
+typedef struct _GstGLVideoMixerCollect GstGLVideoMixerCollect;
+
+/**
+ * GstGLVideoMixerPad:
+ *
+ * The opaque #GstGLVideoMixerPad structure.
+ */
+struct _GstGLVideoMixerPad
+{
+  GstGLMixerPad parent;
+
+  /* < private > */
+  /* properties */
+  gint xpos, ypos;
+  gint width, height;
+  gdouble alpha;
+};
+
+struct _GstGLVideoMixerPadClass
+{
+  GstGLMixerPadClass parent_class;
+};
+
+GType gst_gl_video_mixer_pad_get_type (void);
+G_DEFINE_TYPE (GstGLVideoMixerPad, gst_gl_video_mixer_pad,
+    GST_TYPE_GL_MIXER_PAD);
+
+static void gst_gl_video_mixer_pad_set_property (GObject * object,
+    guint prop_id, const GValue * value, GParamSpec * pspec);
+static void gst_gl_video_mixer_pad_get_property (GObject * object,
+    guint prop_id, GValue * value, GParamSpec * pspec);
+
+#define DEFAULT_PAD_XPOS   0
+#define DEFAULT_PAD_YPOS   0
+#define DEFAULT_PAD_WIDTH  0
+#define DEFAULT_PAD_HEIGHT 0
+#define DEFAULT_PAD_ALPHA  1.0
+enum
+{
+  PROP_PAD_0,
+  PROP_PAD_XPOS,
+  PROP_PAD_YPOS,
+  PROP_PAD_WIDTH,
+  PROP_PAD_HEIGHT,
+  PROP_PAD_ALPHA
+};
+
+static void
+gst_gl_video_mixer_pad_init (GstGLVideoMixerPad * pad)
+{
+  pad->alpha = 1.0;
+}
+
+static void
+gst_gl_video_mixer_pad_class_init (GstGLVideoMixerPadClass * klass)
+{
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+
+  gobject_class->set_property = gst_gl_video_mixer_pad_set_property;
+  gobject_class->get_property = gst_gl_video_mixer_pad_get_property;
+
+  g_object_class_install_property (gobject_class, PROP_PAD_XPOS,
+      g_param_spec_int ("xpos", "X Position", "X Position of the picture",
+          G_MININT, G_MAXINT, DEFAULT_PAD_XPOS,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_PAD_YPOS,
+      g_param_spec_int ("ypos", "Y Position", "Y Position of the picture",
+          G_MININT, G_MAXINT, DEFAULT_PAD_YPOS,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_PAD_WIDTH,
+      g_param_spec_int ("width", "Width", "Width of the picture",
+          G_MININT, G_MAXINT, DEFAULT_PAD_WIDTH,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_PAD_HEIGHT,
+      g_param_spec_int ("height", "Height", "Height of the picture",
+          G_MININT, G_MAXINT, DEFAULT_PAD_HEIGHT,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_PAD_ALPHA,
+      g_param_spec_double ("alpha", "Alpha", "Alpha of the picture", 0.0, 1.0,
+          DEFAULT_PAD_ALPHA,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+}
+
+static void
+gst_gl_video_mixer_pad_get_property (GObject * object, guint prop_id,
+    GValue * value, GParamSpec * pspec)
+{
+  GstGLVideoMixerPad *pad = GST_GL_VIDEO_MIXER_PAD (object);
+
+  switch (prop_id) {
+    case PROP_PAD_XPOS:
+      g_value_set_int (value, pad->xpos);
+      break;
+    case PROP_PAD_YPOS:
+      g_value_set_int (value, pad->ypos);
+      break;
+    case PROP_PAD_WIDTH:
+      g_value_set_int (value, pad->width);
+      break;
+    case PROP_PAD_HEIGHT:
+      g_value_set_int (value, pad->height);
+      break;
+    case PROP_PAD_ALPHA:
+      g_value_set_double (value, pad->alpha);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+}
+
+static void
+gst_gl_video_mixer_pad_set_property (GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec)
+{
+  GstGLVideoMixerPad *pad = GST_GL_VIDEO_MIXER_PAD (object);
+  GstGLMixer *mix = GST_GL_MIXER (gst_pad_get_parent (GST_PAD (pad)));
+
+  switch (prop_id) {
+    case PROP_PAD_XPOS:
+      pad->xpos = g_value_get_int (value);
+      break;
+    case PROP_PAD_YPOS:
+      pad->ypos = g_value_get_int (value);
+      break;
+    case PROP_PAD_WIDTH:
+      pad->width = g_value_get_int (value);
+      break;
+    case PROP_PAD_HEIGHT:
+      pad->height = g_value_get_int (value);
+      break;
+    case PROP_PAD_ALPHA:
+      pad->alpha = g_value_get_double (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+
+  gst_object_unref (mix);
+}
 
 static void
 gst_gl_video_mixer_class_init (GstGLVideoMixerClass * klass)
 {
   GObjectClass *gobject_class;
   GstElementClass *element_class;
+  GstAggregatorClass *agg_class = (GstAggregatorClass *) klass;
 
   gobject_class = (GObjectClass *) klass;
   element_class = GST_ELEMENT_CLASS (klass);
@@ -103,13 +257,16 @@ gst_gl_video_mixer_class_init (GstGLVideoMixerClass * klass)
   gobject_class->get_property = gst_gl_video_mixer_get_property;
 
   gst_element_class_set_metadata (element_class, "OpenGL video_mixer",
-      "Filter/Effect/Video", "OpenGL video_mixer",
+      "Filter/Effect/Video/Compositor", "OpenGL video_mixer",
       "Julien Isorce <julien.isorce@gmail.com>");
 
   GST_GL_MIXER_CLASS (klass)->set_caps = gst_gl_video_mixer_init_shader;
   GST_GL_MIXER_CLASS (klass)->reset = gst_gl_video_mixer_reset;
   GST_GL_MIXER_CLASS (klass)->process_textures =
       gst_gl_video_mixer_process_textures;
+
+  agg_class->sinkpads_type = GST_TYPE_GL_VIDEO_MIXER_PAD;
+
 }
 
 static void
@@ -171,8 +328,9 @@ gst_gl_video_mixer_process_textures (GstGLMixer * mix, GPtrArray * frames,
   video_mixer->input_frames = frames;
 
   gst_gl_context_use_fbo_v2 (mix->context,
-      GST_VIDEO_INFO_WIDTH (&mix->out_info),
-      GST_VIDEO_INFO_HEIGHT (&mix->out_info), mix->fbo, mix->depthbuffer,
+      GST_VIDEO_INFO_WIDTH (&GST_VIDEO_AGGREGATOR (mix)->info),
+      GST_VIDEO_INFO_HEIGHT (&GST_VIDEO_AGGREGATOR (mix)->info),
+      mix->fbo, mix->depthbuffer,
       out_tex, gst_gl_video_mixer_callback, (gpointer) video_mixer);
 
   return TRUE;
@@ -197,8 +355,8 @@ gst_gl_video_mixer_callback (gpointer stuff)
 
   guint count = 0;
 
-  out_width = GST_VIDEO_INFO_WIDTH (&mixer->out_info);
-  out_height = GST_VIDEO_INFO_HEIGHT (&mixer->out_info);
+  out_width = GST_VIDEO_INFO_WIDTH (&GST_VIDEO_AGGREGATOR (stuff)->info);
+  out_height = GST_VIDEO_INFO_HEIGHT (&GST_VIDEO_AGGREGATOR (stuff)->info);
 
   gst_gl_context_clear_shader (mixer->context);
   gl->BindTexture (GL_TEXTURE_2D, 0);
@@ -221,6 +379,7 @@ gst_gl_video_mixer_callback (gpointer stuff)
 
   while (count < video_mixer->input_frames->len) {
     GstGLMixerFrameData *frame;
+    GstGLVideoMixerPad *pad;
     /* *INDENT-OFF* */
     gfloat v_vertices[] = {
       /* front face */
@@ -232,6 +391,7 @@ gst_gl_video_mixer_callback (gpointer stuff)
     /* *INDENT-ON* */
     guint in_tex;
     guint in_width, in_height;
+    guint pad_width, pad_height;
     gfloat w, h;
 
     frame = g_ptr_array_index (video_mixer->input_frames, count);
@@ -240,8 +400,9 @@ gst_gl_video_mixer_callback (gpointer stuff)
       count++;
       continue;
     }
-    in_width = GST_VIDEO_INFO_WIDTH (&frame->pad->in_info);
-    in_height = GST_VIDEO_INFO_HEIGHT (&frame->pad->in_info);
+    pad = (GstGLVideoMixerPad *) frame->pad;
+    in_width = GST_VIDEO_INFO_WIDTH (&GST_VIDEO_AGGREGATOR_PAD (pad)->info);
+    in_height = GST_VIDEO_INFO_HEIGHT (&GST_VIDEO_AGGREGATOR_PAD (pad)->info);
 
     if (!frame->texture || in_width <= 0 || in_height <= 0) {
       GST_DEBUG ("skipping texture:%u frame:%p width:%u height %u",
@@ -250,14 +411,25 @@ gst_gl_video_mixer_callback (gpointer stuff)
       continue;
     }
     in_tex = frame->texture;
+    pad_width = pad->width <= 0 ? in_width : pad->width;
+    pad_height = pad->height <= 0 ? in_height : pad->height;
 
-    GST_TRACE ("processing texture:%u dimensions:%ux%u", in_tex, in_width,
-        in_height);
+    w = ((gfloat) pad_width / (gfloat) out_width);
+    h = ((gfloat) pad_height / (gfloat) out_height);
 
-    w = ((gfloat) in_width / (gfloat) out_width);
-    h = ((gfloat) in_height / (gfloat) out_height);
-    GST_TRACE ("processing texture:%u dimensions:%ux%u, %fx%f", in_tex,
-        in_width, in_height, w, h);
+    /* top-left */
+    v_vertices[0] = v_vertices[15] =
+        2.0f * (gfloat) pad->xpos / (gfloat) out_width - 1.0f;
+    /* bottom-left */
+    v_vertices[1] = v_vertices[6] =
+        2.0f * (gfloat) pad->ypos / (gfloat) out_height - 1.0f;
+    /* top-right */
+    v_vertices[5] = v_vertices[10] = v_vertices[0] + 2.0f * w;
+    /* bottom-right */
+    v_vertices[11] = v_vertices[16] = v_vertices[1] + 2.0f * h;
+    GST_TRACE ("processing texture:%u dimensions:%ux%u, at %f,%f %fx%f with "
+        "alpha:%f", in_tex, in_width, in_height, v_vertices[0], v_vertices[1],
+        v_vertices[5], v_vertices[11], pad->alpha);
 
     gl->VertexAttribPointer (attr_position_loc, 3, GL_FLOAT,
         GL_FALSE, 5 * sizeof (GLfloat), &v_vertices[0]);
@@ -268,14 +440,14 @@ gst_gl_video_mixer_callback (gpointer stuff)
     gl->EnableVertexAttribArray (attr_position_loc);
     gl->EnableVertexAttribArray (attr_texture_loc);
 
-    gl->BlendFunc (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-    gl->BlendEquation (GL_FUNC_ADD);
+    gl->BlendFuncSeparate (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE,
+        GL_ZERO);
+    gl->BlendEquationSeparate (GL_FUNC_ADD, GL_FUNC_ADD);
 
     gl->ActiveTexture (GL_TEXTURE0);
     gl->BindTexture (GL_TEXTURE_2D, in_tex);
     gst_gl_shader_set_uniform_1i (video_mixer->shader, "texture", 0);
-    gst_gl_shader_set_uniform_1f (video_mixer->shader, "x_scale", w);
-    gst_gl_shader_set_uniform_1f (video_mixer->shader, "y_scale", h);
+    gst_gl_shader_set_uniform_1f (video_mixer->shader, "alpha", pad->alpha);
 
     gl->DrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
 

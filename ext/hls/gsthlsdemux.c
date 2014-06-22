@@ -44,6 +44,15 @@
 #include <gst/base/gsttypefindhelper.h>
 #include "gsthlsdemux.h"
 
+#define GST_ELEMENT_ERROR_FROM_ERROR(el, msg, err) G_STMT_START { \
+  gchar *__dbg = g_strdup_printf ("%s: %s", msg, err->message);         \
+  GST_WARNING_OBJECT (el, "error: %s", __dbg);                          \
+  gst_element_message_full (GST_ELEMENT(el), GST_MESSAGE_ERROR,         \
+    err->domain, err->code,                                             \
+    NULL, __dbg, __FILE__, GST_FUNCTION, __LINE__);                     \
+  g_clear_error (&err); \
+} G_STMT_END
+
 static GstStaticPadTemplate srctemplate = GST_STATIC_PAD_TEMPLATE ("src_%u",
     GST_PAD_SRC,
     GST_PAD_SOMETIMES,
@@ -105,7 +114,7 @@ static gboolean gst_hls_demux_update_playlist (GstHLSDemux * demux,
     gboolean update, GError ** err);
 static void gst_hls_demux_reset (GstHLSDemux * demux, gboolean dispose);
 static gboolean gst_hls_demux_set_location (GstHLSDemux * demux,
-    const gchar * uri);
+    const gchar * uri, const gchar * base_uri);
 static gchar *gst_hls_src_buf_to_utf8_playlist (GstBuffer * buf);
 
 static gboolean gst_hls_demux_change_playlist (GstHLSDemux * demux,
@@ -347,15 +356,25 @@ gst_hls_demux_handle_message (GstBin * bin, GstMessage * msg)
     case GST_MESSAGE_ERROR:{
       GError *err = NULL;
       gchar *debug = NULL;
+      gchar *new_error = NULL;
 
       gst_message_parse_error (msg, &err, &debug);
 
       GST_WARNING_OBJECT (demux, "Source posted error: %d:%d %s (%s)",
           err->domain, err->code, err->message, debug);
 
+      if (debug)
+        new_error = g_strdup_printf ("%s: %s\n", err->message, debug);
+      if (new_error) {
+        g_free (err->message);
+        err->message = new_error;
+      }
+
       /* error, but ask to retry */
       g_mutex_lock (&demux->fragment_download_lock);
       demux->last_ret = GST_FLOW_CUSTOM_ERROR;
+      g_clear_error (&demux->last_error);
+      demux->last_error = g_error_copy (err);
       g_cond_signal (&demux->fragment_download_cond);
       g_mutex_unlock (&demux->fragment_download_lock);
 
@@ -459,10 +478,8 @@ gst_hls_demux_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
         gst_uri_downloader_reset (demux->downloader);
         if (!gst_hls_demux_update_playlist (demux, FALSE, &err)) {
           g_rec_mutex_unlock (&demux->stream_lock);
-          gst_element_post_message (GST_ELEMENT_CAST (demux),
-              gst_message_new_error (GST_OBJECT_CAST (demux), err,
-                  "Could not switch playlist"));
-          g_clear_error (&err);
+          GST_ELEMENT_ERROR_FROM_ERROR (demux, "Could not switch playlist",
+              err);
           gst_event_unref (event);
           return FALSE;
         }
@@ -488,10 +505,8 @@ gst_hls_demux_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
         if (!gst_hls_demux_update_playlist (demux, FALSE, &err)) {
           g_rec_mutex_unlock (&demux->stream_lock);
 
-          gst_element_post_message (GST_ELEMENT_CAST (demux),
-              gst_message_new_error (GST_OBJECT_CAST (demux), err,
-                  "Could not switch playlist"));
-          g_clear_error (&err);
+          GST_ELEMENT_ERROR_FROM_ERROR (demux, "Could not switch playlist",
+              err);
           gst_event_unref (event);
           return FALSE;
         }
@@ -572,7 +587,6 @@ gst_hls_demux_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
   GstHLSDemux *demux;
   GstQuery *query;
   gboolean ret;
-  gchar *uri;
 
   demux = GST_HLS_DEMUX (parent);
 
@@ -592,18 +606,19 @@ gst_hls_demux_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
       ret = gst_pad_peer_query (demux->sinkpad, query);
       if (ret) {
         gboolean permanent;
+        gchar *uri, *redirect_uri;
 
-        gst_query_parse_uri_redirection (query, &uri);
+        gst_query_parse_uri (query, &uri);
+        gst_query_parse_uri_redirection (query, &redirect_uri);
         gst_query_parse_uri_redirection_permanent (query, &permanent);
 
-        /* Only use the redirect target for permanent redirects */
-        if (!permanent || uri == NULL) {
-          g_free (uri);
-          gst_query_parse_uri (query, &uri);
+        if (permanent && redirect_uri) {
+          gst_hls_demux_set_location (demux, redirect_uri, NULL);
+        } else {
+          gst_hls_demux_set_location (demux, uri, redirect_uri);
         }
-
-        gst_hls_demux_set_location (demux, uri);
         g_free (uri);
+        g_free (redirect_uri);
       }
       gst_query_unref (query);
 
@@ -790,7 +805,7 @@ _src_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
     gsize available;
 
     /* restart the decrypting lib for a new fragment */
-    if (demux->starting_fragment) {
+    if (demux->reset_crypto) {
       GstFragment *key_fragment;
       GstBuffer *key_buffer;
       GstMapInfo key_info;
@@ -827,6 +842,8 @@ _src_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
       gst_buffer_unmap (key_buffer, &key_info);
       gst_buffer_unref (key_buffer);
       g_object_unref (key_fragment);
+
+      demux->reset_crypto = FALSE;
     }
 
     gst_adapter_push (demux->adapter, buffer);
@@ -1210,10 +1227,8 @@ gst_hls_demux_stream_loop (GstHLSDemux * demux)
         GST_DEBUG_OBJECT (demux, "Retrying now");
         return;
       } else {
-        gst_element_post_message (GST_ELEMENT_CAST (demux),
-            gst_message_new_error (GST_OBJECT_CAST (demux), err,
-                "Could not fetch the next fragment"));
-        g_clear_error (&err);
+        GST_ELEMENT_ERROR_FROM_ERROR (demux,
+            "Could not fetch the next fragment", err);
         goto pause_task;
       }
     }
@@ -1291,7 +1306,7 @@ gst_hls_demux_reset (GstHLSDemux * demux, gboolean dispose)
   }
 
   if (!dispose) {
-    demux->client = gst_m3u8_client_new ("");
+    demux->client = gst_m3u8_client_new ("", NULL);
   }
 
   gst_segment_init (&demux->segment, GST_FORMAT_TIME);
@@ -1311,6 +1326,8 @@ gst_hls_demux_reset (GstHLSDemux * demux, gboolean dispose)
     gst_element_set_state (demux->src, GST_STATE_NULL);
   }
 
+  g_clear_error (&demux->last_error);
+
   if (demux->adapter)
     gst_adapter_clear (demux->adapter);
   if (demux->pending_buffer)
@@ -1324,12 +1341,14 @@ gst_hls_demux_reset (GstHLSDemux * demux, gboolean dispose)
 }
 
 static gboolean
-gst_hls_demux_set_location (GstHLSDemux * demux, const gchar * uri)
+gst_hls_demux_set_location (GstHLSDemux * demux, const gchar * uri,
+    const gchar * base_uri)
 {
   if (demux->client)
     gst_m3u8_client_free (demux->client);
-  demux->client = gst_m3u8_client_new (uri);
-  GST_INFO_OBJECT (demux, "Changed location: %s", uri);
+  demux->client = gst_m3u8_client_new (uri, base_uri);
+  GST_INFO_OBJECT (demux, "Changed location: %s (base uri: %s)", uri,
+      GST_STR_NULL (base_uri));
   return TRUE;
 }
 
@@ -1364,10 +1383,8 @@ gst_hls_demux_updates_loop (GstHLSDemux * demux)
 
     gst_m3u8_client_set_current (demux->client, child);
     if (!gst_hls_demux_update_playlist (demux, FALSE, &err)) {
-      gst_element_post_message (GST_ELEMENT_CAST (demux),
-          gst_message_new_error (GST_OBJECT_CAST (demux), err,
-              "Could not fetch the child playlist"));
-      g_error_free (err);
+      GST_ELEMENT_ERROR_FROM_ERROR (demux, "Could not fetch the child playlist",
+          err);
       goto error;
     }
   }
@@ -1421,10 +1438,7 @@ gst_hls_demux_updates_loop (GstHLSDemux * demux)
             gst_util_uint64_scale (gst_m3u8_client_get_target_duration
             (demux->client), G_USEC_PER_SEC, 2 * GST_SECOND);
       } else {
-        gst_element_post_message (GST_ELEMENT_CAST (demux),
-            gst_message_new_error (GST_OBJECT_CAST (demux), err,
-                "Could not update the playlist"));
-        g_error_free (err);
+        GST_ELEMENT_ERROR_FROM_ERROR (demux, "Could not update playlist", err);
         goto error;
       }
     } else {
@@ -1488,16 +1502,78 @@ gst_hls_demux_update_playlist (GstHLSDemux * demux, gboolean update,
   GstFragment *download;
   GstBuffer *buf;
   gchar *playlist;
-  gboolean updated = FALSE;
+  gboolean main_checked = FALSE, updated = FALSE;
+  const gchar *uri;
 
-  const gchar *uri = gst_m3u8_client_get_current_uri (demux->client);
-
+retry:
+  uri = gst_m3u8_client_get_current_uri (demux->client);
   download =
       gst_uri_downloader_fetch_uri (demux->downloader, uri,
       demux->client->main ? demux->client->main->uri : NULL, TRUE, TRUE, TRUE,
       err);
-  if (download == NULL)
-    return FALSE;
+  if (download == NULL) {
+    if (update && !main_checked
+        && gst_m3u8_client_has_variant_playlist (demux->client)
+        && demux->client->main) {
+      GError *err2 = NULL;
+      GST_INFO_OBJECT (demux,
+          "Updating playlist %s failed, attempt to refresh variant playlist %s",
+          uri, demux->client->main->uri);
+      download =
+          gst_uri_downloader_fetch_uri (demux->downloader,
+          demux->client->main->uri, NULL, TRUE, TRUE, TRUE, &err2);
+      g_clear_error (&err2);
+      if (download != NULL) {
+        gchar *base_uri;
+
+        buf = gst_fragment_get_buffer (download);
+        playlist = gst_hls_src_buf_to_utf8_playlist (buf);
+
+        if (playlist == NULL) {
+          GST_WARNING_OBJECT (demux,
+              "Failed to validate variant playlist encoding");
+          return FALSE;
+        }
+
+        if (download->redirect_permanent && download->redirect_uri) {
+          uri = download->redirect_uri;
+          base_uri = NULL;
+        } else {
+          uri = download->uri;
+          base_uri = download->redirect_uri;
+        }
+
+        if (!gst_m3u8_client_update_variant_playlist (demux->client, playlist,
+                uri, base_uri)) {
+          GST_WARNING_OBJECT (demux, "Failed to update the variant playlist");
+          return FALSE;
+        }
+
+        g_object_unref (download);
+
+        g_clear_error (err);
+        main_checked = TRUE;
+        goto retry;
+      } else {
+        return FALSE;
+      }
+    } else {
+      return FALSE;
+    }
+  }
+
+  /* Set the base URI of the playlist to the redirect target if any */
+  GST_M3U8_CLIENT_LOCK (demux->client);
+  g_free (demux->client->current->uri);
+  g_free (demux->client->current->base_uri);
+  if (download->redirect_permanent && download->redirect_uri) {
+    demux->client->current->uri = g_strdup (download->redirect_uri);
+    demux->client->current->base_uri = NULL;
+  } else {
+    demux->client->current->uri = g_strdup (download->uri);
+    demux->client->current->base_uri = g_strdup (download->redirect_uri);
+  }
+  GST_M3U8_CLIENT_UNLOCK (demux->client);
 
   buf = gst_fragment_get_buffer (download);
   playlist = gst_hls_src_buf_to_utf8_playlist (buf);
@@ -1526,8 +1602,8 @@ gst_hls_demux_update_playlist (GstHLSDemux * demux, gboolean update,
 
     GST_M3U8_CLIENT_LOCK (demux->client);
     last_sequence =
-        GST_M3U8_MEDIA_FILE (g_list_last (demux->client->current->files)->
-        data)->sequence;
+        GST_M3U8_MEDIA_FILE (g_list_last (demux->client->current->
+            files)->data)->sequence;
 
     if (demux->client->sequence >= last_sequence - 3) {
       GST_DEBUG_OBJECT (demux, "Sequence is beyond playlist. Moving back to %u",
@@ -1628,8 +1704,8 @@ retry_failover_protection:
     gst_m3u8_client_set_current (demux->client, previous_variant->data);
     /*  Try a lower bitrate (or stop if we just tried the lowest) */
     if (GST_M3U8 (previous_variant->data)->iframe && new_bandwidth ==
-        GST_M3U8 (g_list_first (demux->client->main->iframe_lists)->
-            data)->bandwidth)
+        GST_M3U8 (g_list_first (demux->client->main->iframe_lists)->data)->
+        bandwidth)
       return FALSE;
     else if (!GST_M3U8 (previous_variant->data)->iframe && new_bandwidth ==
         GST_M3U8 (g_list_first (demux->client->main->lists)->data)->bandwidth)
@@ -1915,11 +1991,13 @@ gst_hls_demux_get_next_fragment (GstHLSDemux * demux,
   demux->current_timestamp = timestamp;
   demux->current_duration = duration;
   demux->starting_fragment = TRUE;
+  demux->reset_crypto = TRUE;
   demux->current_key = key;
   demux->current_iv = iv;
 
   /* Reset last flow return */
   demux->last_ret = GST_FLOW_OK;
+  g_clear_error (&demux->last_error);
 
   if (!gst_hls_demux_update_source (demux, next_fragment_uri,
           demux->client->main ? demux->client->main->uri : NULL,
@@ -1970,9 +2048,15 @@ gst_hls_demux_get_next_fragment (GstHLSDemux * demux,
 
   if (demux->last_ret != GST_FLOW_OK) {
     gst_element_set_state (demux->src, GST_STATE_NULL);
-    if (*err == NULL)
-      *err = g_error_new (GST_RESOURCE_ERROR, GST_RESOURCE_ERROR_FAILED,
-          "Failed to download fragment");
+    if (*err == NULL) {
+      if (demux->last_error) {
+        *err = demux->last_error;
+        demux->last_error = NULL;
+      } else {
+        *err = g_error_new (GST_RESOURCE_ERROR, GST_RESOURCE_ERROR_FAILED,
+            "Failed to download fragment");
+      }
+    }
   } else {
     gst_element_set_state (demux->src, GST_STATE_READY);
     if (demux->segment.rate > 0)

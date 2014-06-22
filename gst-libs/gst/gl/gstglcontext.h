@@ -47,9 +47,11 @@ GQuark gst_gl_context_error_quark (void);
  */
 typedef void (*GstGLContextThreadFunc) (GstGLContext * context, gpointer data);
 
+#define GST_GL_CONTEXT_TYPE_CGL "gst.gl.context.CGL"
 #define GST_GL_CONTEXT_TYPE_GLX "gst.gl.context.GLX"
 #define GST_GL_CONTEXT_TYPE_EGL "gst.gl.context.EGL"
 #define GST_GL_CONTEXT_TYPE_WGL "gst.gl.context.WGL"
+#define GST_GL_CONTEXT_TYPE_EAGL "gst.gl.context.EAGL"
 
 typedef enum
 {
@@ -133,6 +135,7 @@ gboolean      gst_gl_context_set_window (GstGLContext *context, GstGLWindow *win
 GstGLWindow * gst_gl_context_get_window (GstGLContext *context);
 
 void          gst_gl_context_get_gl_version (GstGLContext *context, gint *maj, gint *min);
+gboolean      gst_gl_context_check_gl_version (GstGLContext * context, GstGLAPI api, gint maj, gint min);
 gboolean      gst_gl_context_check_feature (GstGLContext *context, const gchar *feature);
 
 /* FIXME: remove */

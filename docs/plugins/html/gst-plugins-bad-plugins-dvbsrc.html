@@ -17,7 +17,8 @@
 <a href="#" class="shortcut">Top</a><span id="nav_description"> <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-dvbsrc.description" class="shortcut">Description</a></span><span id="nav_hierarchy"> <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-dvbsrc.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties"> <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-dvbsrc.properties" class="shortcut">Properties</a></span>
+                  <a href="#gst-plugins-bad-plugins-dvbsrc.properties" class="shortcut">Properties</a></span><span id="nav_signals"> <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-dvbsrc.signals" class="shortcut">Signals</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
@@ -189,6 +190,38 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc--stream-id" title="The “stream-id” property">stream-id</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
+<tr>
+<td class="property_type"><span class="type">guint64</span></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc--tuning-timeout" title="The “tuning-timeout” property">tuning-timeout</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-dvbsrc.signals"></a><h2>Signals</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="signals_return">
+<col width="300px" class="signals_name">
+<col width="200px" class="signals_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc-tuning-done" title="The “tuning-done” signal">tuning-done</a></td>
+<td class="signal_flags">Run Last</td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc-tuning-fail" title="The “tuning-fail” signal">tuning-fail</a></td>
+<td class="signal_flags">Run Last</td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc-tuning-start" title="The “tuning-start” signal">tuning-start</a></td>
+<td class="signal_flags">Run Last</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -221,7 +254,7 @@
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.23.7.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.24.8.2.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -247,7 +280,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.23.7.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.24.8.2.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -527,6 +560,112 @@
 <p>Flags: Read / Write</p>
 <p>Allowed values: [G_MAXULONG,65535]</p>
 <p>Default value: -1</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstDvbSrc--tuning-timeout"></a><h3>The <code class="literal">“tuning-timeout”</code> property</h3>
+<pre class="programlisting">  “tuning-timeout”           <span class="type">guint64</span></pre>
+<p>Milliseconds to wait before giving up tuning/locking on a signal.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: 10000000000</p>
+</div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-dvbsrc.signal-details"></a><h2>Signal Details</h2>
+<div class="refsect2">
+<a name="GstDvbSrc-tuning-done"></a><h3>The <code class="literal">“tuning-done”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc"><span class="type">GstDvbSrc</span></a> *gstdvbsrc,
+               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>   user_data)</pre>
+<p>
+</p>
+<div class="refsect3">
+<a name="id-1.2.24.12.2.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>gstdvbsrc</p></td>
+<td class="parameter_description"><p>the object which received the signal.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Flags: Run Last</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstDvbSrc-tuning-fail"></a><h3>The <code class="literal">“tuning-fail”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc"><span class="type">GstDvbSrc</span></a> *gstdvbsrc,
+               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>   user_data)</pre>
+<p>
+</p>
+<div class="refsect3">
+<a name="id-1.2.24.12.3.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>gstdvbsrc</p></td>
+<td class="parameter_description"><p>the object which received the signal.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Flags: Run Last</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstDvbSrc-tuning-start"></a><h3>The <code class="literal">“tuning-start”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="gst-plugins-bad-plugins-dvbsrc.html#GstDvbSrc"><span class="type">GstDvbSrc</span></a> *gstdvbsrc,
+               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>   user_data)</pre>
+<p>
+</p>
+<div class="refsect3">
+<a name="id-1.2.24.12.4.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>gstdvbsrc</p></td>
+<td class="parameter_description"><p>the object which received the signal.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Flags: Run Last</p>
 </div>
 </div>
 </div>

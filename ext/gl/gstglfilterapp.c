@@ -47,11 +47,12 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 enum
 {
-  PROP_0,
-  PROP_CLIENT_RESHAPE_CALLBACK,
-  PROP_CLIENT_DRAW_CALLBACK,
-  PROP_CLIENT_DATA
+  SIGNAL_0,
+  CLIENT_DRAW_SIGNAL,
+  LAST_SIGNAL
 };
+
+static guint gst_gl_filter_app_signals[LAST_SIGNAL] = { 0 };
 
 #define DEBUG_INIT \
   GST_DEBUG_CATEGORY_INIT (gst_gl_filter_app_debug, "glfilterapp", 0, "glfilterapp element");
@@ -88,21 +89,23 @@ gst_gl_filter_app_class_init (GstGLFilterAppClass * klass)
   GST_GL_FILTER_CLASS (klass)->filter_texture =
       gst_gl_filter_app_filter_texture;
 
-  g_object_class_install_property (gobject_class, PROP_CLIENT_RESHAPE_CALLBACK,
-      g_param_spec_pointer ("client-reshape-callback",
-          "Client reshape callback",
-          "Define a custom reshape callback in a client code",
-          G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_CLIENT_DRAW_CALLBACK,
-      g_param_spec_pointer ("client-draw-callback", "Client draw callback",
-          "Define a custom draw callback in a client code",
-          G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_CLIENT_DATA,
-      g_param_spec_pointer ("client-data", "Client data",
-          "Pass data to the draw and reshape callbacks",
-          G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+  /**
+   * GstGLFilterApp::client-draw:
+   * @object: the #GstGLImageSink
+   * @texture: the #guint id of the texture.
+   * @width: the #guint width of the texture.
+   * @height: the #guint height of the texture.
+   *
+   * Will be emitted before to draw the texture.  The client should
+   * redraw the surface/contents with the @texture, @width and @height.
+   *
+   * Returns: whether the texture was redrawn by the signal.  If not, a
+   *          default redraw will occur.
+   */
+  gst_gl_filter_app_signals[CLIENT_DRAW_SIGNAL] =
+      g_signal_new ("client-draw", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST, 0, NULL, NULL, g_cclosure_marshal_generic,
+      G_TYPE_BOOLEAN, 3, G_TYPE_UINT, G_TYPE_UINT, G_TYPE_UINT);
 
   gst_element_class_set_metadata (element_class,
       "OpenGL application filter", "Filter/Effect",
@@ -113,33 +116,13 @@ gst_gl_filter_app_class_init (GstGLFilterAppClass * klass)
 static void
 gst_gl_filter_app_init (GstGLFilterApp * filter)
 {
-  filter->clientReshapeCallback = NULL;
-  filter->clientDrawCallback = NULL;
-  filter->client_data = NULL;
 }
 
 static void
 gst_gl_filter_app_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
-  GstGLFilterApp *filter = GST_GL_FILTER_APP (object);
-
   switch (prop_id) {
-    case PROP_CLIENT_RESHAPE_CALLBACK:
-    {
-      filter->clientReshapeCallback = g_value_get_pointer (value);
-      break;
-    }
-    case PROP_CLIENT_DRAW_CALLBACK:
-    {
-      filter->clientDrawCallback = g_value_get_pointer (value);
-      break;
-    }
-    case PROP_CLIENT_DATA:
-    {
-      filter->client_data = g_value_get_pointer (value);
-      break;
-    }
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -150,8 +133,6 @@ static void
 gst_gl_filter_app_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec)
 {
-  //GstGLFilterApp* filter = GST_GL_FILTER_APP (object);
-
   switch (prop_id) {
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -168,30 +149,37 @@ gst_gl_filter_app_set_caps (GstGLFilter * filter, GstCaps * incaps,
   return TRUE;
 }
 
+static void
+_emit_draw_signal (guint tex, gint width, gint height, gpointer data)
+{
+  GstGLFilterApp *app_filter = GST_GL_FILTER_APP (data);
+  gboolean drawn;
+
+  g_signal_emit (app_filter, gst_gl_filter_app_signals[CLIENT_DRAW_SIGNAL], 0,
+      tex, width, height, &drawn);
+
+  app_filter->default_draw = !drawn;
+}
+
 static gboolean
 gst_gl_filter_app_filter_texture (GstGLFilter * filter, guint in_tex,
     guint out_tex)
 {
   GstGLFilterApp *app_filter = GST_GL_FILTER_APP (filter);
 
-  if (app_filter->clientDrawCallback) {
-    //blocking call, use a FBO
-    gst_gl_context_use_fbo (filter->context,
-        GST_VIDEO_INFO_WIDTH (&filter->out_info),
-        GST_VIDEO_INFO_HEIGHT (&filter->out_info),
-        filter->fbo, filter->depthbuffer, out_tex,
-        app_filter->clientDrawCallback,
-        GST_VIDEO_INFO_WIDTH (&filter->in_info),
-        GST_VIDEO_INFO_HEIGHT (&filter->in_info),
-        in_tex, 45,
-        (gfloat) GST_VIDEO_INFO_WIDTH (&filter->out_info) /
-        (gfloat) GST_VIDEO_INFO_HEIGHT (&filter->out_info),
-        0.1, 100, GST_GL_DISPLAY_PROJECTION_PERSPECTIVE,
-        app_filter->client_data);
-  }
-  //default
-  else {
-    //blocking call, use a FBO
+  //blocking call, use a FBO
+  gst_gl_context_use_fbo (filter->context,
+      GST_VIDEO_INFO_WIDTH (&filter->out_info),
+      GST_VIDEO_INFO_HEIGHT (&filter->out_info),
+      filter->fbo, filter->depthbuffer, out_tex, (GLCB) _emit_draw_signal,
+      GST_VIDEO_INFO_WIDTH (&filter->in_info),
+      GST_VIDEO_INFO_HEIGHT (&filter->in_info),
+      in_tex, 45,
+      (gfloat) GST_VIDEO_INFO_WIDTH (&filter->out_info) /
+      (gfloat) GST_VIDEO_INFO_HEIGHT (&filter->out_info),
+      0.1, 100, GST_GL_DISPLAY_PROJECTION_PERSPECTIVE, filter);
+
+  if (app_filter->default_draw) {
     gst_gl_filter_render_to_target (filter, TRUE, in_tex, out_tex,
         gst_gl_filter_app_callback, filter);
   }

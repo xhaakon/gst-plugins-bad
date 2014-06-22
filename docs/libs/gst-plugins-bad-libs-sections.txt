@@ -40,10 +40,11 @@ gst_h264_nal_parser_new
 gst_h264_nal_parser_free
 gst_h264_parse_sps
 gst_h264_parse_pps
-gst_h264_video_quant_matrix_8x8_get_zigzag_from_raster
-gst_h264_video_quant_matrix_8x8_get_raster_from_zigzag
-gst_h264_video_quant_matrix_4x4_get_zigzag_from_raster
-gst_h264_video_quant_matrix_4x4_get_raster_from_zigzag
+gst_h264_quant_matrix_8x8_get_zigzag_from_raster
+gst_h264_quant_matrix_8x8_get_raster_from_zigzag
+gst_h264_quant_matrix_4x4_get_zigzag_from_raster
+gst_h264_quant_matrix_4x4_get_raster_from_zigzag
+gst_h264_video_calculate_framerate
 <SUBSECTION Standard>
 <SUBSECTION Private>
 </SECTION>
@@ -319,6 +320,25 @@ gst_mpegts_descriptor_parse_dvb_parental_rating
 gst_mpegts_descriptor_parse_dvb_stream_identifier
 <SUBSECTION ca_identifier>
 gst_mpegts_descriptor_parse_dvb_ca_identifier
+<SUBSECTION service_list>
+GstMpegTsDVBServiceListItem
+gst_mpegts_descriptor_parse_dvb_service_list
+<SUBSECTION stuffing>
+gst_mpegts_descriptor_parse_dvb_stuffing
+<SUBSECTION bouquet_name>
+gst_mpegts_descriptor_parse_dvb_bouquet_name
+<SUBSECTION multilingual_network_name>
+GstMpegTsDvbMultilingualNetworkNameItem
+gst_mpegts_descriptor_parse_dvb_multilingual_network_name
+<SUBSECTION multilingual_bouquet_name>
+GstMpegTsDvbMultilingualBouquetNameItem
+gst_mpegts_descriptor_parse_dvb_multilingual_bouquet_name
+<SUBSECTION multilingual_service_name>
+GstMpegTsDvbMultilingualServiceNameItem
+gst_mpegts_descriptor_parse_dvb_multilingual_service_name
+<SUBSECTION multilingual_component>
+GstMpegTsDvbMultilingualComponentItem
+gst_mpegts_descriptor_parse_dvb_multilingual_component
 <SUBSECTION Standard>
 GST_TYPE_MPEG_TSDVB_CODE_RATE
 gst_mpegts_dvb_code_rate_get_type
@@ -675,10 +695,18 @@ GstInsertBinPrivate
 <FILE>gstglapi</FILE>
 <TITLE>GstGLAPI</TITLE>
 GstGLAPI
-gst_gl_api_string
+gst_gl_api_to_string
+gst_gl_api_from_string
+GstGLPlatform
+gst_gl_platform_to_string
+gst_gl_platform_from_string
 gst_gl_check_extension
-GST_GL_CHECK_GL_VERSION
+GST_GL_API_GLES1_NAME
+GST_GL_API_GLES2_NAME
+GST_GL_API_OPENGL3_NAME
+GST_GL_API_OPENGL_NAME
 <SUBSECTION Private>
+GST_GL_CHECK_GL_VERSION
 GSTGLAPI
 GST_GL_EXT_BEGIN
 GST_GL_EXT_END
@@ -694,6 +722,7 @@ GstGLBufferPool
 GstGLBufferPoolClass
 gst_gl_buffer_pool_new
 <SUBSECTION Standard>
+gst_gl_buffer_pool_replace_last_buffer
 GstGLBufferPoolPrivate
 GST_GL_BUFFER_POOL
 GST_GL_BUFFER_POOL_CAST
@@ -710,7 +739,7 @@ GST_GL_COLOR_CONVERT_VIDEO_CAPS
 GstGLColorConvert
 GstGLColorConvertClass
 gst_gl_color_convert_new
-gst_gl_color_convert_init_format
+gst_gl_color_convert_set_format
 gst_gl_color_convert_perform
 <SUBSECTION Standard>
 GstGLColorConvertPrivate
@@ -731,6 +760,7 @@ GstGLContextError
 GstGLContextThreadFunc
 GstGLContext
 gst_gl_context_new
+gst_gl_context_new_wrapped
 gst_gl_context_create
 gst_gl_context_activate
 gst_gl_context_default_get_proc_address
@@ -741,8 +771,10 @@ gst_gl_context_thread_add
 gst_gl_context_get_display
 gst_gl_context_get_gl_api
 gst_gl_context_get_gl_context
-gst_gl_context_get_platform
+gst_gl_context_get_gl_platform
 gst_gl_context_check_feature
+gst_gl_context_check_gl_version
+gst_gl_context_get_gl_version
 <SUBSECTION Standard>
 GST_GL_CONTEXT
 GST_GL_IS_CONTEXT
@@ -826,6 +858,7 @@ gst_gl_context_wgl_get_type
 <SECTION>
 <FILE>gstgldisplay</FILE>
 <TITLE>GstGLDisplay</TITLE>
+GST_GL_DISPLAY_CONTEXT_TYPE
 GstGLDisplayType
 GstGLDisplay
 gst_gl_display_new
@@ -882,6 +915,26 @@ GST_GL_FILTER_GET_CLASS
 </SECTION>
 
 <SECTION>
+<FILE>gstglframebuffer</FILE>
+<TITLE>GstGLFramebuffer</TITLE>
+GstGLFramebuffer
+GstGLFramebufferClass
+gst_gl_framebuffer_new
+gst_gl_framebuffer_generate
+gst_gl_framebuffer_delete
+gst_gl_framebuffer_use
+gst_gl_framebuffer_use_v2
+<SUBSECTION Standard>
+GST_GL_FRAMEBUFFER
+GST_IS_GL_FRAMEBUFFER
+GST_TYPE_GL_FRAMEBUFFER
+gst_gl_framebuffer_get_type
+GST_GL_FRAMEBUFFER_CLASS
+GST_IS_GL_FRAMEBUFFER_CLASS
+GST_GL_FRAMEBUFFER_GET_CLASS
+</SECTION>
+
+<SECTION>
 <FILE>gstglmemory</FILE>
 GstGLAllocator
 GstGLAllocatorClass
@@ -901,6 +954,7 @@ gst_gl_memory_wrapped_texture
 gst_gl_memory_copy_into_texture
 gst_gl_memory_setup_buffer
 gst_gl_memory_setup_wrapped
+gst_gl_texture_type_from_format
 gst_is_gl_memory
 <SUBSECTION Standard>
 GST_GL_ALLOCATOR
@@ -911,6 +965,21 @@ gst_gl_allocator_get_type
 GST_IS_GL_ALLOCATOR
 GST_IS_GL_ALLOCATOR_CLASS
 GST_TYPE_GL_ALLOCATOR
+</SECTION>
+
+<SECTION>
+<FILE>gsteglimagememory</FILE>
+<TITLE>GstEGLImageMemory</TITLE>
+gst_egl_image_memory_init
+gst_egl_image_memory_get_display
+gst_egl_image_memory_get_image
+gst_egl_image_memory_get_orientation
+gst_egl_image_memory_set_orientation
+gst_egl_image_memory_setup_buffer
+gst_is_egl_image_memory
+GST_EGL_IMAGE_MEMORY_TYPE
+GST_CAPS_FEATURE_MEMORY_EGL_IMAGE
+<SUBSECTION Standard>
 </SECTION>
 
 <SECTION>
@@ -927,6 +996,7 @@ GstGLMixerReset
 GstGLMixerProcessTextures
 GstGLMixerFrameData
 gst_gl_mixer_process_textures
+gst_gl_mixer_set_pad_type
 <SUBSECTION Standard>
 GstGLMixerPrivate
 GST_GL_MIXER
@@ -964,6 +1034,10 @@ gst_gl_shader_set_active
 gst_gl_shader_is_compiled
 gst_gl_shader_compile
 gst_gl_shader_compile_and_check
+gst_gl_shader_compile_all_with_attribs_and_check
+gst_gl_shader_compile_with_default_f_and_check
+gst_gl_shader_compile_with_default_v_and_check
+gst_gl_shader_compile_with_default_vf_and_check
 gst_gl_shader_release
 gst_gl_shader_use
 gst_gl_shader_set_uniform_1i
@@ -1011,9 +1085,7 @@ GstGLUpload
 gst_gl_upload_new
 gst_gl_upload_set_format
 gst_gl_upload_get_format
-gst_gl_upload_add_video_gl_texture_upload_meta
 gst_gl_upload_perform_with_data
-gst_gl_upload_perform_with_memory
 gst_gl_upload_perform_with_gl_texture_upload_meta
 gst_gl_upload_perform_with_buffer
 gst_gl_upload_release_buffer
@@ -1027,6 +1099,26 @@ GST_IS_GL_UPLOAD
 GST_IS_GL_UPLOAD_CLASS
 GST_TYPE_GL_UPLOAD
 GstGLUploadPrivate
+</SECTION>
+
+<SECTION>
+<FILE>gstgluploadmeta</FILE>
+<TITLE>GstGLUploadMeta</TITLE>
+GstGLUploadMeta
+gst_gl_upload_meta_new
+gst_gl_upload_meta_set_format
+gst_gl_upload_meta_get_format
+gst_gl_upload_meta_add_to_buffer
+<SUBSECTION Standard>
+GST_GL_UPLOAD_META
+GST_GL_UPLOAD_META_CAST
+GST_GL_UPLOAD_META_CLASS
+GST_GL_UPLOAD_META_GET_CLASS
+gst_gl_upload_meta_get_type
+GST_IS_GL_UPLOAD_META
+GST_IS_GL_UPLOAD_META_CLASS
+GST_TYPE_GL_UPLOAD_META
+GstGLUploadMetaPrivate
 </SECTION>
 
 <SECTION>
@@ -1052,6 +1144,7 @@ gst_gl_context_check_framebuffer_status
 gst_gl_context_set_error
 gst_gl_context_get_error
 gst_gl_context_clear_shader
+gst_gl_generate_texture_full
 </SECTION>
 
 <SECTION>
@@ -1196,4 +1289,70 @@ GST_GL_WINDOW_X11_GET_CLASS
 gst_gl_window_x11_get_type
 GstGLWindowX11Private
 x11_event_source_new
+</SECTION>
+
+<SECTION>
+<FILE>gstaggregator</FILE>
+<TITLE>GstAggregator</TITLE>
+GstAggregator
+GstAggregatorClass
+gst_aggregator_finish_buffer
+gst_aggregator_set_src_caps
+gst_aggregator_iterate_sinkpads
+<SUBSECTION Standard>
+GST_IS_AGGREGATOR
+GST_IS_AGGREGATOR_CLASS
+GST_TYPE_AGGREGATOR
+GST_AGGREGATOR
+GST_AGGREGATOR_CLASS
+GST_AGGREGATOR_GET_CLASS
+gst_aggregator_get_type
+</SECTION>
+
+<SECTION>
+<FILE>gstaggregatorpad</FILE>
+<TITLE>GstAggregatorPad</TITLE>
+GstAggregatorPad
+GstAggregatorPadClass
+gst_aggregator_pad_steal_buffer
+gst_aggregator_pad_get_buffer
+<SUBSECTION Standard>
+GST_IS_AGGREGATOR_PAD
+GST_IS_AGGREGATOR_PAD_CLASS
+GST_TYPE_AGGREGATOR_PAD
+GST_AGGREGATOR_PAD
+GST_AGGREGATOR_PAD_CLASS
+GST_AGGREGATOR_PAD_GET_CLASS
+gst_aggregator_pad_get_type
+</SECTION>
+
+<SECTION>
+<FILE>gstvideoaggregator</FILE>
+<TITLE>GstVideoAggregator</TITLE>
+GstVideoAggregator
+GstVideoAggregatorClass
+<SUBSECTION Standard>
+GST_IS_VIDEO_AGGREGATOR
+GST_IS_VIDEO_AGGREGATOR_CLASS
+GST_TYPE_VIDEO_AGGREGATOR
+GST_VIDEO_AGGREGATOR
+GST_VIDEO_AGGREGATOR_CLASS
+GST_VIDEO_AGGREGATOR_GET_CLASS
+gst_videoaggregator_get_type
+GstVideoAggregatorPrivate
+</SECTION>
+
+<SECTION>
+<FILE>gstvideoaggregatorpad</FILE>
+<TITLE>GstVideoAggregatorPad</TITLE>
+GstVideoAggregatorPad
+GstVideoAggregatorPadClass
+<SUBSECTION Standard>
+GST_IS_VIDEO_AGGREGATOR_PAD
+GST_IS_VIDEO_AGGREGATOR_PADCLASS
+GST_TYPE_VIDEO_AGGREGATOR_PAD
+GST_VIDEO_AGGREGATOR_PAD
+GST_VIDEO_AGGREGATOR_PAD_CLASS
+GST_VIDEO_AGGREGATOR_PAD_GET_CLASS
+gst_videoaggregator_pad_get_type
 </SECTION>

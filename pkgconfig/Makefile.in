@@ -92,7 +92,13 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/gstreamer-gl.pc.in \
 	$(srcdir)/gstreamer-gl-uninstalled.pc.in \
 	$(srcdir)/gstreamer-mpegts.pc.in \
-	$(srcdir)/gstreamer-mpegts-uninstalled.pc.in
+	$(srcdir)/gstreamer-mpegts-uninstalled.pc.in \
+	$(srcdir)/gstreamer-wayland.pc.in \
+	$(srcdir)/gstreamer-wayland-uninstalled.pc.in \
+	$(srcdir)/gstreamer-bad-base.pc.in \
+	$(srcdir)/gstreamer-bad-base-uninstalled.pc.in \
+	$(srcdir)/gstreamer-bad-video.pc.in \
+	$(srcdir)/gstreamer-bad-video-uninstalled.pc.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/as-auto-alt.m4 \
@@ -137,7 +143,10 @@ CONFIG_CLEAN_FILES = gstreamer-plugins-bad.pc \
 	gstreamer-codecparsers-uninstalled.pc gstreamer-insertbin.pc \
 	gstreamer-insertbin-uninstalled.pc gstreamer-gl.pc \
 	gstreamer-gl-uninstalled.pc gstreamer-mpegts.pc \
-	gstreamer-mpegts-uninstalled.pc
+	gstreamer-mpegts-uninstalled.pc gstreamer-wayland.pc \
+	gstreamer-wayland-uninstalled.pc gstreamer-bad-base.pc \
+	gstreamer-bad-base-uninstalled.pc gstreamer-bad-video.pc \
+	gstreamer-bad-video-uninstalled.pc
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -305,6 +314,8 @@ GMSGFMT_015 = @GMSGFMT_015@
 GMYTH_CFLAGS = @GMYTH_CFLAGS@
 GMYTH_LIBS = @GMYTH_LIBS@
 GNUSTEP_CONFIG = @GNUSTEP_CONFIG@
+GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
+GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
 GSETTINGS_CFLAGS = @GSETTINGS_CFLAGS@
 GSETTINGS_DISABLE_SCHEMAS_COMPILE = @GSETTINGS_DISABLE_SCHEMAS_COMPILE@
@@ -391,6 +402,7 @@ HAVE_FLITE = @HAVE_FLITE@
 HAVE_GL = @HAVE_GL@
 HAVE_GLES2 = @HAVE_GLES2@
 HAVE_GLU = @HAVE_GLU@
+HAVE_GRAPHENE = @HAVE_GRAPHENE@
 HAVE_GSM = @HAVE_GSM@
 HAVE_GTK3 = @HAVE_GTK3@
 HAVE_JPEG = @HAVE_JPEG@
@@ -682,17 +694,20 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+wayland_scanner = @wayland_scanner@
 
 ### all of the standard pc files we need to generate
 pcverfiles = gstreamer-plugins-bad-@GST_API_VERSION@.pc \
 	gstreamer-codecparsers-@GST_API_VERSION@.pc \
 	gstreamer-insertbin-@GST_API_VERSION@.pc \
-	gstreamer-mpegts-@GST_API_VERSION@.pc $(am__append_1)
+	gstreamer-mpegts-@GST_API_VERSION@.pc \
+	gstreamer-wayland-@GST_API_VERSION@.pc $(am__append_1)
 pcverfiles_uninstalled =  \
 	gstreamer-plugins-bad-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-codecparsers-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-insertbin-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-mpegts-@GST_API_VERSION@-uninstalled.pc \
+	gstreamer-wayland-@GST_API_VERSION@-uninstalled.pc \
 	$(am__append_2)
 cp_verbose = $(cp_verbose_$(V))
 cp_verbose_ = $(cp_verbose_$(AM_DEFAULT_VERBOSITY))
@@ -705,7 +720,8 @@ pcinfiles = \
            gstreamer-codecparsers.pc.in gstreamer-codecparsers-uninstalled.pc.in \
            gstreamer-gl.pc.in gstreamer-gl-uninstalled.pc.in \
            gstreamer-insertbin.pc.in gstreamer-insertbin-uninstalled.pc.in \
-           gstreamer-mpegts.pc.in gstreamer-mpegts-uninstalled.pc.in
+           gstreamer-mpegts.pc.in gstreamer-mpegts-uninstalled.pc.in \
+           gstreamer-wayland.pc.in gstreamer-wayland-uninstalled.pc.in
 
 DISTCLEANFILES = $(pcinfiles:.in=)
 EXTRA_DIST = $(pcinfiles)
@@ -761,6 +777,18 @@ gstreamer-gl-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-g
 gstreamer-mpegts.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-mpegts.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-mpegts-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-mpegts-uninstalled.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+gstreamer-wayland.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-wayland.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+gstreamer-wayland-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-wayland-uninstalled.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+gstreamer-bad-base.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-base.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+gstreamer-bad-base-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-base-uninstalled.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+gstreamer-bad-video.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-video.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+gstreamer-bad-video-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-video-uninstalled.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:

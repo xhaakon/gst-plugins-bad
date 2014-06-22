@@ -55,7 +55,7 @@
 #if GST_GL_HAVE_PLATFORM_EGL
 #include "egl/gstglcontext_egl.h"
 #endif
-#if GST_GL_HAVE_PLATFORM_COCOA
+#if GST_GL_HAVE_PLATFORM_CGL
 #include "cocoa/gstglcontext_cocoa.h"
 #endif
 #if GST_GL_HAVE_PLATFORM_WGL
@@ -77,13 +77,14 @@ load_opengl_module (gpointer user_data)
 #ifdef GST_GL_LIBGL_MODULE_NAME
   module_opengl = g_module_open (GST_GL_LIBGL_MODULE_NAME, G_MODULE_BIND_LAZY);
 #else
-  /* This automatically handles the suffix and even .la files */
-  module_opengl = g_module_open ("libGL", G_MODULE_BIND_LAZY);
-
   /* On Linux the .so is only in -dev packages, try with a real soname
    * Proper compilers will optimize away the strcmp */
-  if (!module_opengl && strcmp (G_MODULE_SUFFIX, "so") == 0)
+  if (strcmp (G_MODULE_SUFFIX, "so") == 0)
     module_opengl = g_module_open ("libGL.so.1", G_MODULE_BIND_LAZY);
+
+  /* This automatically handles the suffix and even .la files */
+  if (!module_opengl)
+    module_opengl = g_module_open ("libGL", G_MODULE_BIND_LAZY);
 #endif
 
   return NULL;
@@ -101,13 +102,15 @@ load_gles2_module (gpointer user_data)
   module_gles2 =
       g_module_open (GST_GL_LIBGLESV2_MODULE_NAME, G_MODULE_BIND_LAZY);
 #else
-  /* This automatically handles the suffix and even .la files */
-  module_gles2 = g_module_open ("libGLESv2", G_MODULE_BIND_LAZY);
-
   /* On Linux the .so is only in -dev packages, try with a real soname
    * Proper compilers will optimize away the strcmp */
-  if (!module_gles2 && strcmp (G_MODULE_SUFFIX, "so") == 0)
+  if (strcmp (G_MODULE_SUFFIX, "so") == 0)
     module_gles2 = g_module_open ("libGLESv2.so.2", G_MODULE_BIND_LAZY);
+
+  /* This automatically handles the suffix and even .la files */
+  if (!module_gles2)
+    module_gles2 = g_module_open ("libGLESv2", G_MODULE_BIND_LAZY);
+
 #endif
 
   return NULL;
@@ -149,6 +152,8 @@ struct _GstGLContextPrivate
 
   gint gl_major;
   gint gl_minor;
+
+  gchar *gl_exts;
 };
 
 typedef struct
@@ -255,17 +260,17 @@ gst_gl_context_new (GstGLDisplay * display)
 
   user_choice = g_getenv ("GST_GL_PLATFORM");
   GST_INFO ("creating a context, user choice:%s", user_choice);
+#if GST_GL_HAVE_PLATFORM_GLX
+  if (!context && (!user_choice || g_strstr_len (user_choice, 3, "glx")))
+    context = GST_GL_CONTEXT (gst_gl_context_glx_new ());
+#endif
 #if GST_GL_HAVE_PLATFORM_EGL
   if (!context && (!user_choice || g_strstr_len (user_choice, 7, "egl")))
     context = GST_GL_CONTEXT (gst_gl_context_egl_new ());
 #endif
-#if GST_GL_HAVE_PLATFORM_COCOA
-  if (!context && (!user_choice || g_strstr_len (user_choice, 5, "cocoa")))
+#if GST_GL_HAVE_PLATFORM_CGL
+  if (!context && (!user_choice || g_strstr_len (user_choice, 5, "cgl")))
     context = GST_GL_CONTEXT (gst_gl_context_cocoa_new ());
-#endif
-#if GST_GL_HAVE_PLATFORM_GLX
-  if (!context && (!user_choice || g_strstr_len (user_choice, 3, "glx")))
-    context = GST_GL_CONTEXT (gst_gl_context_glx_new ());
 #endif
 #if GST_GL_HAVE_PLATFORM_WGL
   if (!context && (!user_choice || g_strstr_len (user_choice, 3, "wgl"))) {
@@ -372,6 +377,8 @@ gst_gl_context_finalize (GObject * object)
 
   g_cond_clear (&context->priv->destroy_cond);
   g_cond_clear (&context->priv->create_cond);
+
+  g_free (context->priv->gl_exts);
 
   G_OBJECT_CLASS (gst_gl_context_parent_class)->finalize (object);
 }
@@ -591,58 +598,24 @@ gst_gl_context_create (GstGLContext * context,
 }
 
 static gboolean
-_create_context_gles2 (GstGLContext * context, gint * gl_major, gint * gl_minor,
-    GError ** error)
-{
-  const GstGLFuncs *gl;
-  GLenum gl_err = GL_NO_ERROR;
-
-  gl = context->gl_vtable;
-
-  GST_INFO ("GL_VERSION: %s", gl->GetString (GL_VERSION));
-  GST_INFO ("GL_SHADING_LANGUAGE_VERSION: %s",
-      gl->GetString (GL_SHADING_LANGUAGE_VERSION));
-  GST_INFO ("GL_VENDOR: %s", gl->GetString (GL_VENDOR));
-  GST_INFO ("GL_RENDERER: %s", gl->GetString (GL_RENDERER));
-
-  gl_err = gl->GetError ();
-  if (gl_err != GL_NO_ERROR) {
-    g_set_error (error, GST_GL_CONTEXT_ERROR, GST_GL_CONTEXT_ERROR_FAILED,
-        "glGetString error: 0x%x", gl_err);
-    return FALSE;
-  }
-#if GST_GL_HAVE_GLES2
-  if (!GL_ES_VERSION_2_0) {
-    g_set_error (error, GST_GL_CONTEXT_ERROR, GST_GL_CONTEXT_ERROR_OLD_LIBS,
-        "OpenGL|ES >= 2.0 is required");
-    return FALSE;
-  }
-#endif
-
-  if (gl_major)
-    *gl_major = 2;
-  if (gl_minor)
-    *gl_minor = 0;
-
-  return TRUE;
-}
-
-static gboolean
-_create_context_opengl (GstGLContext * context, gint * gl_major,
+_create_context_info (GstGLContext * context, GstGLAPI gl_api, gint * gl_major,
     gint * gl_minor, GError ** error)
 {
   const GstGLFuncs *gl;
-  guint maj, min;
+  guint maj = 0, min = 0;
   GLenum gl_err = GL_NO_ERROR;
-  GString *opengl_version = NULL;
+  const gchar *opengl_version = NULL;
 
   gl = context->gl_vtable;
 
-  GST_INFO ("GL_VERSION: %s", gl->GetString (GL_VERSION));
-  GST_INFO ("GL_SHADING_LANGUAGE_VERSION: %s",
-      gl->GetString (GL_SHADING_LANGUAGE_VERSION));
-  GST_INFO ("GL_VENDOR: %s", gl->GetString (GL_VENDOR));
-  GST_INFO ("GL_RENDERER: %s", gl->GetString (GL_RENDERER));
+  GST_INFO ("GL_VERSION: %s",
+      GST_STR_NULL ((const gchar *) gl->GetString (GL_VERSION)));
+  GST_INFO ("GL_SHADING_LANGUAGE_VERSION: %s", GST_STR_NULL ((const gchar *)
+          gl->GetString (GL_SHADING_LANGUAGE_VERSION)));
+  GST_INFO ("GL_VENDOR: %s",
+      GST_STR_NULL ((const gchar *) gl->GetString (GL_VENDOR)));
+  GST_INFO ("GL_RENDERER: %s",
+      GST_STR_NULL ((const gchar *) gl->GetString (GL_RENDERER)));
 
   gl_err = gl->GetError ();
   if (gl_err != GL_NO_ERROR) {
@@ -650,19 +623,22 @@ _create_context_opengl (GstGLContext * context, gint * gl_major,
         "glGetString error: 0x%x", gl_err);
     return FALSE;
   }
-  opengl_version =
-      g_string_truncate (g_string_new ((gchar *) gl->GetString (GL_VERSION)),
-      3);
 
-  sscanf (opengl_version->str, "%d.%d", &maj, &min);
+  opengl_version = (const gchar *) gl->GetString (GL_VERSION);
+  if (opengl_version && gl_api & GST_GL_API_GLES2)
+    /* gles starts with "OpenGL ES " */
+    opengl_version = &opengl_version[10];
 
-  g_string_free (opengl_version, TRUE);
+  if (opengl_version)
+    sscanf (opengl_version, "%d.%d", &maj, &min);
 
   /* OpenGL > 1.2.0 */
-  if ((maj < 1) || (maj < 2 && maj >= 1 && min < 2)) {
-    g_set_error (error, GST_GL_CONTEXT_ERROR, GST_GL_CONTEXT_ERROR_OLD_LIBS,
-        "OpenGL >= 1.2.0 required, found %u.%u", maj, min);
-    return FALSE;
+  if (gl_api & GST_GL_API_OPENGL || gl_api & GST_GL_API_OPENGL3) {
+    if ((maj < 1) || (maj < 2 && maj >= 1 && min < 2)) {
+      g_set_error (error, GST_GL_CONTEXT_ERROR, GST_GL_CONTEXT_ERROR_OLD_LIBS,
+          "OpenGL >= 1.2.0 required, found %u.%u", maj, min);
+      return FALSE;
+    }
   }
 
   if (gl_major)
@@ -828,13 +804,8 @@ gst_gl_context_create_thread (GstGLContext * context)
   }
 
   /* gl api specific code */
-  if (!ret && gl_api & GST_GL_API_OPENGL)
-    ret = _create_context_opengl (context, &context->priv->gl_major,
-        &context->priv->gl_minor, error);
-  if (!ret && gl_api & GST_GL_API_GLES2)
-    ret =
-        _create_context_gles2 (context, &context->priv->gl_major,
-        &context->priv->gl_minor, error);
+  ret = _create_context_info (context, gl_api, &context->priv->gl_major,
+      &context->priv->gl_minor, error);
 
   if (!ret) {
     g_assert (error == NULL || *error != NULL);
@@ -849,17 +820,19 @@ gst_gl_context_create_thread (GstGLContext * context)
     GST_DEBUG_OBJECT (context, "GL_EXTENSIONS: %s", ext_g_str->str);
     _gst_gl_feature_check_ext_functions (context, context->priv->gl_major,
         context->priv->gl_minor, ext_g_str->str);
+
+    context->priv->gl_exts = g_string_free (ext_g_str, FALSE);
   } else {
     ext_const_c_str = (const gchar *) gl->GetString (GL_EXTENSIONS);
     if (!ext_const_c_str)
       ext_const_c_str = "";
+
     GST_DEBUG_OBJECT (context, "GL_EXTENSIONS: %s", ext_const_c_str);
     _gst_gl_feature_check_ext_functions (context, context->priv->gl_major,
         context->priv->gl_minor, ext_const_c_str);
-  }
 
-  if (ext_g_str)
-    g_string_free (ext_g_str, TRUE);
+    context->priv->gl_exts = g_strdup (ext_const_c_str);
+  }
 
   context->priv->alive = TRUE;
 
@@ -1033,6 +1006,37 @@ gst_gl_context_get_gl_version (GstGLContext * context, gint * maj, gint * min)
 }
 
 /**
+ * gst_gl_context_check_gl_version:
+ * @context: a #GstGLContext
+ * @api: api type required
+ * @maj: major version required
+ * @min: minor version required
+ *
+ * Returns: whether OpenGL context implements the required api and specified
+ * version.
+ */
+gboolean
+gst_gl_context_check_gl_version (GstGLContext * context, GstGLAPI api,
+    gint maj, gint min)
+{
+  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), FALSE);
+
+  if (maj > context->priv->gl_major)
+    return FALSE;
+
+  if ((gst_gl_context_get_gl_api (context) & api) == GST_GL_API_NONE)
+    return FALSE;
+
+  if (maj < context->priv->gl_major)
+    return TRUE;
+
+  if (min > context->priv->gl_minor)
+    return FALSE;
+
+  return TRUE;
+}
+
+/**
  * gst_gl_context_check_feature:
  * @context: a #GstGLContext
  * @feature: a platform specific feature
@@ -1051,6 +1055,10 @@ gst_gl_context_check_feature (GstGLContext * context, const gchar * feature)
   g_return_val_if_fail (feature != NULL, FALSE);
 
   context_class = GST_GL_CONTEXT_GET_CLASS (context);
+
+  if (g_strstr_len (feature, 3, "GL_"))
+    return gst_gl_check_extension (feature, context->priv->gl_exts);
+
   if (!context_class->check_feature)
     return FALSE;
 

@@ -155,10 +155,15 @@ am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstwaylandsink_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) \
+	$(top_builddir)/gst-libs/gst/wayland/libgstwayland-$(GST_API_VERSION).la
 am_libgstwaylandsink_la_OBJECTS =  \
 	libgstwaylandsink_la-gstwaylandsink.lo \
-	libgstwaylandsink_la-waylandpool.lo
+	libgstwaylandsink_la-waylandpool.lo \
+	libgstwaylandsink_la-wldisplay.lo \
+	libgstwaylandsink_la-wlwindow.lo \
+	libgstwaylandsink_la-wlvideoformat.lo \
+	libgstwaylandsink_la-scaler-protocol.lo
 libgstwaylandsink_la_OBJECTS = $(am_libgstwaylandsink_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -346,6 +351,8 @@ GMSGFMT_015 = @GMSGFMT_015@
 GMYTH_CFLAGS = @GMYTH_CFLAGS@
 GMYTH_LIBS = @GMYTH_LIBS@
 GNUSTEP_CONFIG = @GNUSTEP_CONFIG@
+GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
+GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
 GSETTINGS_CFLAGS = @GSETTINGS_CFLAGS@
 GSETTINGS_DISABLE_SCHEMAS_COMPILE = @GSETTINGS_DISABLE_SCHEMAS_COMPILE@
@@ -432,6 +439,7 @@ HAVE_FLITE = @HAVE_FLITE@
 HAVE_GL = @HAVE_GL@
 HAVE_GLES2 = @HAVE_GLES2@
 HAVE_GLU = @HAVE_GLU@
+HAVE_GRAPHENE = @HAVE_GRAPHENE@
 HAVE_GSM = @HAVE_GSM@
 HAVE_GTK3 = @HAVE_GTK3@
 HAVE_JPEG = @HAVE_JPEG@
@@ -723,18 +731,37 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstwaylandsink.la
-libgstwaylandsink_la_SOURCES = gstwaylandsink.c waylandpool.c
-libgstwaylandsink_la_CFLAGS = $(GST_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
-                               $(WAYLAND_CFLAGS)
+libgstwaylandsink_la_SOURCES = \
+	gstwaylandsink.c \
+	waylandpool.c \
+	wldisplay.c \
+	wlwindow.c \
+	wlvideoformat.c \
+	scaler-protocol.c
 
-libgstwaylandsink_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) \
-                               -lgstvideo-$(GST_API_VERSION) \
-                               $(WAYLAND_LIBS)
+libgstwaylandsink_la_CFLAGS = $(GST_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
+                               $(WAYLAND_CFLAGS) $(GST_PLUGINS_BAD_CFLAGS)
+
+libgstwaylandsink_la_LIBADD = \
+	$(GST_PLUGINS_BASE_LIBS) \
+	-lgstvideo-$(GST_API_VERSION) \
+	$(WAYLAND_LIBS) \
+	$(top_builddir)/gst-libs/gst/wayland/libgstwayland-$(GST_API_VERSION).la
 
 libgstwaylandsink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstwaylandsink_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
-noinst_HEADERS = gstwaylandsink.h waylandpool.h
+noinst_HEADERS = \
+	gstwaylandsink.h \
+	waylandpool.h \
+	wldisplay.h \
+	wlwindow.h \
+	wlvideoformat.h \
+	scaler-client-protocol.h
+
+EXTRA_DIST = scaler.xml
+CLEANFILES = scaler-protocol.c scaler-client-protocol.h
 all: all-am
 
 .SUFFIXES:
@@ -815,7 +842,11 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-gstwaylandsink.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-scaler-protocol.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-waylandpool.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wldisplay.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wlvideoformat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wlwindow.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -854,6 +885,34 @@ libgstwaylandsink_la-waylandpool.lo: waylandpool.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='waylandpool.c' object='libgstwaylandsink_la-waylandpool.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-waylandpool.lo `test -f 'waylandpool.c' || echo '$(srcdir)/'`waylandpool.c
+
+libgstwaylandsink_la-wldisplay.lo: wldisplay.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -MT libgstwaylandsink_la-wldisplay.lo -MD -MP -MF $(DEPDIR)/libgstwaylandsink_la-wldisplay.Tpo -c -o libgstwaylandsink_la-wldisplay.lo `test -f 'wldisplay.c' || echo '$(srcdir)/'`wldisplay.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstwaylandsink_la-wldisplay.Tpo $(DEPDIR)/libgstwaylandsink_la-wldisplay.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='wldisplay.c' object='libgstwaylandsink_la-wldisplay.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-wldisplay.lo `test -f 'wldisplay.c' || echo '$(srcdir)/'`wldisplay.c
+
+libgstwaylandsink_la-wlwindow.lo: wlwindow.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -MT libgstwaylandsink_la-wlwindow.lo -MD -MP -MF $(DEPDIR)/libgstwaylandsink_la-wlwindow.Tpo -c -o libgstwaylandsink_la-wlwindow.lo `test -f 'wlwindow.c' || echo '$(srcdir)/'`wlwindow.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstwaylandsink_la-wlwindow.Tpo $(DEPDIR)/libgstwaylandsink_la-wlwindow.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='wlwindow.c' object='libgstwaylandsink_la-wlwindow.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-wlwindow.lo `test -f 'wlwindow.c' || echo '$(srcdir)/'`wlwindow.c
+
+libgstwaylandsink_la-wlvideoformat.lo: wlvideoformat.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -MT libgstwaylandsink_la-wlvideoformat.lo -MD -MP -MF $(DEPDIR)/libgstwaylandsink_la-wlvideoformat.Tpo -c -o libgstwaylandsink_la-wlvideoformat.lo `test -f 'wlvideoformat.c' || echo '$(srcdir)/'`wlvideoformat.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstwaylandsink_la-wlvideoformat.Tpo $(DEPDIR)/libgstwaylandsink_la-wlvideoformat.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='wlvideoformat.c' object='libgstwaylandsink_la-wlvideoformat.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-wlvideoformat.lo `test -f 'wlvideoformat.c' || echo '$(srcdir)/'`wlvideoformat.c
+
+libgstwaylandsink_la-scaler-protocol.lo: scaler-protocol.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -MT libgstwaylandsink_la-scaler-protocol.lo -MD -MP -MF $(DEPDIR)/libgstwaylandsink_la-scaler-protocol.Tpo -c -o libgstwaylandsink_la-scaler-protocol.lo `test -f 'scaler-protocol.c' || echo '$(srcdir)/'`scaler-protocol.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstwaylandsink_la-scaler-protocol.Tpo $(DEPDIR)/libgstwaylandsink_la-scaler-protocol.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='scaler-protocol.c' object='libgstwaylandsink_la-scaler-protocol.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-scaler-protocol.lo `test -f 'scaler-protocol.c' || echo '$(srcdir)/'`scaler-protocol.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -972,6 +1031,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
@@ -1068,6 +1128,20 @@ uninstall-am: uninstall-pluginLTLIBRARIES
 	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
 	uninstall-pluginLTLIBRARIES
 
+
+%-protocol.c : %.xml
+	$(wayland_scanner) code < $< > $@
+
+%-client-protocol.h : %.xml
+	$(wayland_scanner) client-header < $< > $@
+
+gstwaylandsink.c: scaler-client-protocol.h
+
+waylandpool.c: scaler-client-protocol.h
+
+wldisplay.c: scaler-client-protocol.h
+
+wlwindow.c: scaler-client-protocol.h
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

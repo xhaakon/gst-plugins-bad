@@ -46,8 +46,6 @@ struct _GstGLDownload
   /* <private> */
   GstObject        parent;
 
-  GMutex           lock;
-
   GstGLContext     *context;
   GstGLColorConvert *convert;
 
@@ -55,10 +53,6 @@ struct _GstGLDownload
   GstVideoInfo     info;
 
   gboolean         initted;
-
-  /* used for the conversion */
-  GstGLMemory *    in_tex[GST_VIDEO_MAX_PLANES];
-  GstGLMemory *    out_tex[GST_VIDEO_MAX_PLANES];
 
   GstGLDownloadPrivate *priv;
 

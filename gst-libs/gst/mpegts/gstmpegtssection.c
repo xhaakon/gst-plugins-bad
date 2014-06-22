@@ -1048,7 +1048,29 @@ _identify_section (guint16 pid, guint8 table_id)
       if (pid == 0x0014)
         return GST_MPEGTS_SECTION_TOT;
       break;
+    case GST_MTS_TABLE_ID_ATSC_TERRESTRIAL_VIRTUAL_CHANNEL:
+      if (pid == 0x1ffb)
+        return GST_MPEGTS_SECTION_ATSC_TVCT;
+      break;
+    case GST_MTS_TABLE_ID_ATSC_CABLE_VIRTUAL_CHANNEL:
+      if (pid == 0x1ffb)
+        return GST_MPEGTS_SECTION_ATSC_CVCT;
+      break;
+    case GST_MTS_TABLE_ID_ATSC_MASTER_GUIDE:
+      if (pid == 0x1ffb)
+        return GST_MPEGTS_SECTION_ATSC_MGT;
+      break;
+    case GST_MTS_TABLE_ID_ATSC_EVENT_INFORMATION:
+      /* FIXME check pids reported on the MGT to confirm expectations */
+      return GST_MPEGTS_SECTION_ATSC_EIT;
+    case GST_MTS_TABLE_ID_ATSC_CHANNEL_OR_EVENT_EXTENDED_TEXT:
+      /* FIXME check pids reported on the MGT to confirm expectations */
+      return GST_MPEGTS_SECTION_ATSC_ETT;
       /* FIXME : FILL */
+    case GST_MTS_TABLE_ID_ATSC_SYSTEM_TIME:
+      if (pid == 0x1ffb)
+        return GST_MPEGTS_SECTION_ATSC_STT;
+      break;
     default:
       /* Handle ranges */
       if (table_id >= GST_MTS_TABLE_ID_EVENT_INFORMATION_ACTUAL_TS_PRESENT &&

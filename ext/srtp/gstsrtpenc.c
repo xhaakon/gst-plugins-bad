@@ -92,6 +92,13 @@
  * subsequent packet is dropped, until a new key is set and the stream
  * has been updated.
  *
+ * If a stream is to be shared between multiple clients it is also
+ * possible to request the internal SRTP rollover counter for a given
+ * SSRC. The rollover counter should be then transmitted and used by the
+ * clients to authenticate and decrypt the packets. Failing to do that
+ * the clients will start with a rollover counter of 0 which will
+ * probably be incorrect if the stream has been transmitted for a
+ * while to other clients.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -107,6 +114,8 @@
 
 #include "gstsrtp.h"
 #include "gstsrtp-enumtypes.h"
+
+#include <srtp/srtp_priv.h>
 
 GST_DEBUG_CATEGORY_STATIC (gst_srtp_enc_debug);
 #define GST_CAT_DEFAULT gst_srtp_enc_debug
@@ -125,6 +134,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_srtp_enc_debug);
 #define DEFAULT_RTCP_AUTH       DEFAULT_RTP_AUTH
 #define DEFAULT_RANDOM_KEY      FALSE
 #define DEFAULT_REPLAY_WINDOW_SIZE 128
+#define DEFAULT_ALLOW_REPEAT_TX FALSE
 
 #define HAS_CRYPTO(filter) (filter->rtp_cipher != GST_SRTP_CIPHER_NULL || \
       filter->rtcp_cipher != GST_SRTP_CIPHER_NULL ||                      \
@@ -135,6 +145,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_srtp_enc_debug);
 enum
 {
   SIGNAL_SOFT_LIMIT,
+  SIGNAL_GET_ROLLOVER_COUNTER,
   LAST_SIGNAL
 };
 
@@ -147,7 +158,8 @@ enum
   PROP_RTCP_CIPHER,
   PROP_RTCP_AUTH,
   PROP_RANDOM_KEY,
-  PROP_REPLAY_WINDOW_SIZE
+  PROP_REPLAY_WINDOW_SIZE,
+  PROP_ALLOW_REPEAT_TX
 };
 
 /* the capabilities of the inputs and outputs.
@@ -221,6 +233,28 @@ static GstPad *gst_srtp_enc_request_new_pad (GstElement * element,
 
 static void gst_srtp_enc_release_pad (GstElement * element, GstPad * pad);
 
+
+static guint32
+gst_srtp_enc_get_rollover_counter (GstSrtpEnc * filter, guint32 ssrc)
+{
+  guint32 roc = 0;
+  srtp_stream_t stream;
+
+  GST_OBJECT_LOCK (filter);
+
+  GST_DEBUG_OBJECT (filter, "retrieving SRTP Rollover Counter, ssrc: %u", ssrc);
+
+  if (filter->session) {
+    stream = srtp_get_stream (filter->session, htonl (ssrc));
+    if (stream)
+      roc = stream->rtp_rdbx.index >> 16;
+  }
+
+  GST_OBJECT_UNLOCK (filter);
+
+  return roc;
+}
+
 /* initialize the srtpenc's class
  */
 static void
@@ -289,6 +323,13 @@ gst_srtp_enc_class_init (GstSrtpEncClass * klass)
           "Size of the replay protection window",
           64, 0x8000, DEFAULT_REPLAY_WINDOW_SIZE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_ALLOW_REPEAT_TX,
+      g_param_spec_boolean ("allow-repeat-tx",
+          "Allow repeat packets transmission",
+          "Whether retransmissions of packets with the same sequence number are allowed"
+          "(Note that such repeated transmissions must have the same RTP payload, "
+          "or a severe security weakness is introduced!)",
+          DEFAULT_ALLOW_REPEAT_TX, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   /**
    * GstSrtpEnc::soft-limit:
@@ -301,6 +342,22 @@ gst_srtp_enc_class_init (GstSrtpEncClass * klass)
   gst_srtp_enc_signals[SIGNAL_SOFT_LIMIT] =
       g_signal_new ("soft-limit", G_TYPE_FROM_CLASS (klass),
       G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL, G_TYPE_NONE, 0);
+
+  /**
+   * GstSrtpEnc::get-rollover-counter:
+   * @gstsrtpenc: the element on which the signal is emitted
+   * @ssrc: The unique SSRC of the stream
+   *
+   * Request the SRTP rollover counter for the stream with @ssrc.
+   */
+  gst_srtp_enc_signals[SIGNAL_GET_ROLLOVER_COUNTER] =
+      g_signal_new ("get-rollover-counter", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION, G_STRUCT_OFFSET (GstSrtpEncClass,
+          get_rollover_counter), NULL, NULL, g_cclosure_marshal_generic,
+      G_TYPE_UINT, 1, G_TYPE_UINT);
+
+  klass->get_rollover_counter =
+      GST_DEBUG_FUNCPTR (gst_srtp_enc_get_rollover_counter);
 }
 
 
@@ -317,6 +374,7 @@ gst_srtp_enc_init (GstSrtpEnc * filter)
   filter->rtcp_cipher = DEFAULT_RTCP_CIPHER;
   filter->rtcp_auth = DEFAULT_RTCP_AUTH;
   filter->replay_window_size = DEFAULT_REPLAY_WINDOW_SIZE;
+  filter->allow_repeat_tx = DEFAULT_ALLOW_REPEAT_TX;
 }
 
 static guint
@@ -388,6 +446,7 @@ gst_srtp_enc_create_session (GstSrtpEnc * filter)
   policy.next = NULL;
 
   policy.window_size = filter->replay_window_size;
+  policy.allow_repeat_tx = filter->allow_repeat_tx;
 
   /* If it is the first stream, create the session
    * If not, add the stream to the session
@@ -604,6 +663,10 @@ gst_srtp_enc_set_property (GObject * object, guint prop_id,
       filter->replay_window_size = g_value_get_uint (value);
       break;
 
+    case PROP_ALLOW_REPEAT_TX:
+      filter->allow_repeat_tx = g_value_get_boolean (value);
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -641,6 +704,9 @@ gst_srtp_enc_get_property (GObject * object, guint prop_id,
       break;
     case PROP_REPLAY_WINDOW_SIZE:
       g_value_set_uint (value, filter->replay_window_size);
+      break;
+    case PROP_ALLOW_REPEAT_TX:
+      g_value_set_boolean (value, filter->allow_repeat_tx);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1124,6 +1190,7 @@ gst_srtp_enc_sink_event (GstPad * pad, GstObject * parent, GstEvent * event,
 
       gst_event_parse_caps (event, &caps);
       ret = gst_srtp_enc_sink_setcaps (pad, filter, caps, is_rtcp);
+      gst_event_unref (event);
       break;
     }
     default:

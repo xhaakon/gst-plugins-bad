@@ -6,8 +6,8 @@
 <meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
-<link rel="prev" href="GstGLDownload.html" title="GstGLDownload">
-<link rel="next" href="gst-plugins-bad-libs-gstglmemory.html" title="GstGLMemory">
+<link rel="prev" href="gst-plugins-bad-libs-GstEGLImageMemory.html" title="GstEGLImageMemory">
+<link rel="next" href="gst-plugins-bad-libs-GstGLFramebuffer.html" title="GstGLFramebuffer">
 <meta name="generator" content="GTK-Doc V1.20 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -21,8 +21,8 @@
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="gl.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
-<td><a accesskey="p" href="GstGLDownload.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
-<td><a accesskey="n" href="gst-plugins-bad-libs-gstglmemory.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+<td><a accesskey="p" href="gst-plugins-bad-libs-GstEGLImageMemory.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="gst-plugins-bad-libs-GstGLFramebuffer.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
 <a name="GstGLFilter"></a><div class="titlepage"></div>
@@ -138,7 +138,7 @@ gst_gl_filter_draw_texture (<em class="parameter"><code><a class="link" href="Gs
  and <em class="parameter"><code>height</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.7.12.8.2.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.13.8.2.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -190,7 +190,7 @@ only ever be <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard
  is the input texture of <em class="parameter"><code>filter</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.7.12.8.3.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.13.8.3.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -257,7 +257,7 @@ only ever be <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard
 .</p>
 <p>See also: <a class="link" href="GstGLFilter.html#gst-gl-filter-render-to-target" title="gst_gl_filter_render_to_target ()"><code class="function">gst_gl_filter_render_to_target()</code></a></p>
 <div class="refsect3">
-<a name="id-1.2.7.12.8.4.6"></a><h4>Parameters</h4>
+<a name="id-1.2.9.13.8.4.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -305,7 +305,7 @@ gst_gl_filter_filter_texture (<em class="parameter"><code><a class="link" href="
 <p>Perform automatic upload if needed, call filter_texture vfunc and then an
 automatic download if needed.</p>
 <div class="refsect3">
-<a name="id-1.2.7.12.8.5.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.13.8.5.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -332,7 +332,7 @@ automatic download if needed.</p>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.7.12.8.5.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.13.8.5.6"></a><h4>Returns</h4>
 <p> whether the transformation succeeded</p>
 <p></p>
 </div>
@@ -347,7 +347,7 @@ automatic download if needed.</p>
 from downstream and automatic upload/download for non-<a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a>
 <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="type">GstBuffer</span></a>s.</p>
 <div class="refsect3">
-<a name="id-1.2.7.12.9.2.5"></a><h4>Members</h4>
+<a name="id-1.2.9.13.9.2.5"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -379,7 +379,7 @@ from downstream and automatic upload/download for non-<a class="link" href="gst-
 };
 </pre>
 <div class="refsect3">
-<a name="id-1.2.7.12.9.3.4"></a><h4>Members</h4>
+<a name="id-1.2.9.13.9.3.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">

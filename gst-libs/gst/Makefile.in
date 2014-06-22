@@ -320,6 +320,8 @@ GMSGFMT_015 = @GMSGFMT_015@
 GMYTH_CFLAGS = @GMYTH_CFLAGS@
 GMYTH_LIBS = @GMYTH_LIBS@
 GNUSTEP_CONFIG = @GNUSTEP_CONFIG@
+GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
+GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
 GSETTINGS_CFLAGS = @GSETTINGS_CFLAGS@
 GSETTINGS_DISABLE_SCHEMAS_COMPILE = @GSETTINGS_DISABLE_SCHEMAS_COMPILE@
@@ -406,6 +408,7 @@ HAVE_FLITE = @HAVE_FLITE@
 HAVE_GL = @HAVE_GL@
 HAVE_GLES2 = @HAVE_GLES2@
 HAVE_GLU = @HAVE_GLU@
+HAVE_GRAPHENE = @HAVE_GRAPHENE@
 HAVE_GSM = @HAVE_GSM@
 HAVE_GTK3 = @HAVE_GTK3@
 HAVE_JPEG = @HAVE_JPEG@
@@ -697,14 +700,16 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+wayland_scanner = @wayland_scanner@
 @USE_GLES2_TRUE@GL_DIR = gl
 @USE_OPENGL_TRUE@GL_DIR = gl
+@USE_WAYLAND_TRUE@WAYLAND_DIR = wayland
 SUBDIRS = interfaces basecamerabinsrc codecparsers \
-	 insertbin uridownloader mpegts $(GL_DIR)
+	 insertbin uridownloader mpegts base video $(GL_DIR) $(WAYLAND_DIR)
 
 noinst_HEADERS = gst-i18n-plugin.h gettext.h glib-compat-private.h
 DIST_SUBDIRS = interfaces gl basecamerabinsrc codecparsers \
-	insertbin uridownloader mpegts
+	insertbin uridownloader mpegts wayland base video
 
 all: all-recursive
 

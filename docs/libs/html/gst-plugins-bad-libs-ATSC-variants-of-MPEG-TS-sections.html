@@ -40,7 +40,7 @@
 <col class="functions_name">
 </colgroup>
 <tbody><tr>
-<td class="function_type">const <a class="link" href="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegTsAtscTVCT" title="struct GstMpegTsAtscTVCT"><span class="returnvalue">GstMpegTsAtscTVCT</span></a> *
+<td class="function_type">const <span class="returnvalue">GstMpegTsAtscVCT</span> *
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-tvct" title="gst_mpegts_section_get_atsc_tvct ()">gst_mpegts_section_get_atsc_tvct</a> <span class="c_punctuation">()</span>
@@ -55,20 +55,10 @@
 <col width="150px" class="name">
 <col class="description">
 </colgroup>
-<tbody>
-<tr>
+<tbody><tr>
 <td class="datatype_keyword">enum</td>
 <td class="function_name"><a class="link" href="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegTsSectionATSCTableID" title="enum GstMpegTsSectionATSCTableID">GstMpegTsSectionATSCTableID</a></td>
-</tr>
-<tr>
-<td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegTsAtscTVCTSource" title="struct GstMpegTsAtscTVCTSource">GstMpegTsAtscTVCTSource</a></td>
-</tr>
-<tr>
-<td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegTsAtscTVCT" title="struct GstMpegTsAtscTVCT">GstMpegTsAtscTVCT</a></td>
-</tr>
-</tbody>
+</tr></tbody>
 </table></div>
 </div>
 <div class="refsect1">
@@ -88,9 +78,9 @@
 <a name="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.functions_details"></a><h2>Functions</h2>
 <div class="refsect2">
 <a name="gst-mpegts-section-get-atsc-tvct"></a><h3>gst_mpegts_section_get_atsc_tvct ()</h3>
-<pre class="programlisting">const <a class="link" href="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegTsAtscTVCT" title="struct GstMpegTsAtscTVCT"><span class="returnvalue">GstMpegTsAtscTVCT</span></a> *
+<pre class="programlisting">const <span class="returnvalue">GstMpegTsAtscVCT</span> *
 gst_mpegts_section_get_atsc_tvct (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection"><span class="type">GstMpegTsSection</span></a> *section</code></em>);</pre>
-<p>Returns the <a class="link" href="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegTsAtscTVCT" title="struct GstMpegTsAtscTVCT"><span class="type">GstMpegTsAtscTVCT</span></a> contained in the <em class="parameter"><code>section</code></em>
+<p>Returns the <span class="type">GstMpegTsAtscVCT</span> contained in the <em class="parameter"><code>section</code></em>
 </p>
 <div class="refsect3">
 <a name="id-1.2.5.6.8.2.5"></a><h4>Parameters</h4>
@@ -109,7 +99,7 @@ gst_mpegts_section_get_atsc_tvct (<em class="parameter"><code><a class="link" hr
 </div>
 <div class="refsect3">
 <a name="id-1.2.5.6.8.2.6"></a><h4>Returns</h4>
-<p> The <a class="link" href="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegTsAtscTVCT" title="struct GstMpegTsAtscTVCT"><span class="type">GstMpegTsAtscTVCT</span></a> contained in the section, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if an error
+<p> The <span class="type">GstMpegTsAtscVCT</span> contained in the section, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if an error
 happened.</p>
 <p></p>
 </div>
@@ -219,43 +209,6 @@ happened.</p>
 </tbody>
 </table></div>
 </div>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GstMpegTsAtscTVCTSource"></a><h3>struct GstMpegTsAtscTVCTSource</h3>
-<pre class="programlisting">struct GstMpegTsAtscTVCTSource {
-  gunichar2 *short_name;
-  guint16   major_channel_number;
-  guint16   minor_channel_number;
-  guint8    modulation_mode;
-  guint32   carrier_frequency;
-  guint16   channel_TSID;
-  guint16   program_number;
-  /* FIXME: */
-  guint8    ETM_location;
-  gboolean  access_controlled;
-  gboolean  hidden;
-  gboolean  hide_guide;
-  /* FIXME: */
-  guint8    service_type;
-  guint16   source_id;
-  GPtrArray *descriptors;
-};
-</pre>
-<p>Source from a <em class="parameter"><code>GstMpegTsAtscTVCT</code></em>
-</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GstMpegTsAtscTVCT"></a><h3>struct GstMpegTsAtscTVCT</h3>
-<pre class="programlisting">struct GstMpegTsAtscTVCT {
-  guint16   transport_stream_id;
-  guint8    protocol_version;
-  GPtrArray *sources;
-  GPtrArray *descriptors;
-};
-</pre>
-<p>Terrestrial Virtual Channel Table (A65)</p>
 </div>
 </div>
 </div>

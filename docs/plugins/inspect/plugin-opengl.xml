@@ -3,7 +3,7 @@
   <description>OpenGL plugin</description>
   <filename>../../ext/gl/.libs/libgstopengl.so</filename>
   <basename>libgstopengl.so</basename>
-  <version>1.3.2</version>
+  <version>1.3.3</version>
   <license>LGPL</license>
   <source>gst-plugins-bad</source>
   <package>GStreamer Bad Plug-ins source release</package>
@@ -284,7 +284,7 @@
       <author>Julien Isorce &lt;julien.isorce@gmail.com&gt;</author>
       <pads>
         <caps>
-          <name>sink_%d</name>
+          <name>sink_%u</name>
           <direction>sink</direction>
           <presence>request</presence>
           <details>video/x-raw(memory:GLMemory), format=(string)RGBA, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]; video/x-raw(meta:GstVideoGLTextureUploadMeta), format=(string)RGBA, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]; video/x-raw, format=(string){ RGB, RGBx, RGBA, BGR, BGRx, BGRA, xRGB, xBGR, ARGB, ABGR, Y444, I420, YV12, Y42B, Y41B, NV12, NV21, YUY2, UYVY, AYUV, GRAY8, GRAY16_LE, GRAY16_BE }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</details>
@@ -357,12 +357,12 @@
     <element>
       <name>glvideomixer</name>
       <longname>OpenGL video_mixer</longname>
-      <class>Filter/Effect/Video</class>
+      <class>Filter/Effect/Video/Compositor</class>
       <description>OpenGL video_mixer</description>
       <author>Julien Isorce &lt;julien.isorce@gmail.com&gt;</author>
       <pads>
         <caps>
-          <name>sink_%d</name>
+          <name>sink_%u</name>
           <direction>sink</direction>
           <presence>request</presence>
           <details>video/x-raw(memory:GLMemory), format=(string)RGBA, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]; video/x-raw(meta:GstVideoGLTextureUploadMeta), format=(string)RGBA, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]; video/x-raw, format=(string){ RGB, RGBx, RGBA, BGR, BGRx, BGRA, xRGB, xBGR, ARGB, ABGR, Y444, I420, YV12, Y42B, Y41B, NV12, NV21, YUY2, UYVY, AYUV, GRAY8, GRAY16_LE, GRAY16_BE }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</details>
