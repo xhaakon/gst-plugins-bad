@@ -58,6 +58,7 @@ gst_extra_build_depends += , libgudev-1.0-dev (>= 143) [linux-any]
 gst_extra_build_depends += , libusb-1.0-0-dev [linux-any]
 gst_extra_build_depends += , libbluetooth-dev (<< 5) [linux-any]
 gst_extra_build_depends += , libsbc-dev (>= 1.1) [linux-any]
+gst_extra_build_depends += , libwayland-dev (>= 1.0) [linux-any]
 
 # The plugins are basically the same.
 # Link special names to a template file.
@@ -92,6 +93,8 @@ linsys = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstlin
 uvch264 = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstuvch264.so
 bluez = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstbluez.so
 sbc = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstsbc.so
+waylandsink = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstwaylandsink.so
+wayland = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libgstwayland-$(gst_abi).so.*
 endif
 
 ifeq ($(DEB_HOST_ARCH_OS),kfreebsd)
@@ -136,6 +139,7 @@ pre-build::
 			-e 's,@uvch264@,$(uvch264),g' \
 			-e 's,@bluez@,$(bluez),g' \
 			-e 's,@sbc@,$(sbc),g' \
+			-e 's,@waylandsink@,$(waylandsink),g' \
 			-e 's/@GST_ABI@/$(gst_abi)/g' \
 			debian/gstreamer-$$p.install \
 			> debian/$(gst_pkgname)-$$p.install; \
@@ -146,7 +150,8 @@ pre-build::
 			> debian/$(gst_pkgname)-$$f; \
 	done
 
-	sed 's/@GST_ABI@/$(gst_abi)/g' debian/libgstreamer-plugins-bad.install \
+	sed -e 's/@GST_ABI@/$(gst_abi)/g' -e 's,@wayland@,$(wayland),g' \
+			debian/libgstreamer-plugins-bad.install \
 			> debian/libgstreamer-plugins-bad$(gst_deb_abi).install
 	sed 's/@GST_ABI@/$(gst_abi)/g' debian/libgstreamer-plugins-bad-dev.install \
 			> debian/libgstreamer-plugins-bad$(gst_abi)-dev.install
