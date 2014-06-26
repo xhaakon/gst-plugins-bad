@@ -1,4 +1,6 @@
-gst-plugins-bad1.0 (1.3.3-2) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.3.3-2) experimental; urgency=medium
+
+  * Team upload.
 
   * debian/gbp.conf:
     + Fix branch names for experimental.
@@ -6,7 +8,7 @@ gst-plugins-bad1.0 (1.3.3-2) UNRELEASED; urgency=medium
     debian/rules:
     + Install the wayland sink on linux.
 
- -- Emilio Pozuelo Monfort <pochu@debian.org>  Thu, 26 Jun 2014 18:00:27 +0200
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Thu, 26 Jun 2014 18:47:12 +0200
 
 gst-plugins-bad1.0 (1.3.3-1) experimental; urgency=medium
 
