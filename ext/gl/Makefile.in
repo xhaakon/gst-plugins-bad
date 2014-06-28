@@ -178,19 +178,19 @@ am__libgstopengl_la_SOURCES_DIST = gstopengl.c gstglimagesink.c \
 	gstgleffects.c gstgleffects.h effects/gstgleffectssources.c \
 	effects/gstgleffectssources.h effects/gstgleffectidentity.c \
 	effects/gstgleffectmirror.c effects/gstgleffectsqueeze.c \
-	gstglcolorscale.c gstglcolorscale.h gstglfiltershader.c \
-	gstglfiltershader.h gstglfilterblur.c gstglfilterblur.h \
-	gstglfiltersobel.c gstglfiltersobel.h gstglfilterlaplacian.c \
+	gstglcolorscale.c gstglcolorscale.h gstglvideomixer.c \
+	gstglvideomixer.h gstglfiltershader.c gstglfiltershader.h \
+	gstglfilterblur.c gstglfilterblur.h gstglfiltersobel.c \
+	gstglfiltersobel.h gstglfilterlaplacian.c \
 	gstglfilterlaplacian.h gstglfilterglass.c gstglfilterglass.h \
 	gstglfilterapp.c gstglfilterapp.h gstglfilterreflectedscreen.c \
 	gstglfilterreflectedscreen.h gstgldeinterlace.c \
 	gstgldeinterlace.h gltestsrc.c gltestsrc.h gstgltestsrc.c \
-	gstgltestsrc.h gstglmosaic.c gstglmosaic.h gstglvideomixer.c \
-	gstglvideomixer.h effects/gstgleffectscurves.h \
-	effects/gstgleffectstretch.c effects/gstgleffecttunnel.c \
-	effects/gstgleffectfisheye.c effects/gstgleffecttwirl.c \
-	effects/gstgleffectbulge.c effects/gstgleffectsquare.c \
-	effects/gstgleffectlumatocurve.c \
+	gstgltestsrc.h gstglmosaic.c gstglmosaic.h \
+	effects/gstgleffectscurves.h effects/gstgleffectstretch.c \
+	effects/gstgleffecttunnel.c effects/gstgleffectfisheye.c \
+	effects/gstgleffecttwirl.c effects/gstgleffectbulge.c \
+	effects/gstgleffectsquare.c effects/gstgleffectlumatocurve.c \
 	effects/gstgleffectlumatocurve.h \
 	effects/gstgleffectrgbtocurve.c effects/gstgleffectsin.c \
 	effects/gstgleffectglow.c effects/gstgleffectxray.c \
@@ -201,8 +201,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_PNG_TRUE@@USE_OPENGL_TRUE@am__objects_1 = libgstopengl_la-gstglbumper.lo \
 @HAVE_PNG_TRUE@@USE_OPENGL_TRUE@	libgstopengl_la-gstgldifferencematte.lo
 @HAVE_JPEG_TRUE@@HAVE_PNG_TRUE@@USE_OPENGL_TRUE@am__objects_2 = libgstopengl_la-gstgloverlay.lo
-@USE_OPENGL_TRUE@am__objects_3 = libgstopengl_la-gstglfiltershader.lo \
-@USE_OPENGL_TRUE@	libgstopengl_la-gstglfilterblur.lo \
+@USE_OPENGL_TRUE@am__objects_3 = libgstopengl_la-gstglfilterblur.lo \
 @USE_OPENGL_TRUE@	libgstopengl_la-gstglfiltersobel.lo \
 @USE_OPENGL_TRUE@	libgstopengl_la-gstglfilterlaplacian.lo \
 @USE_OPENGL_TRUE@	libgstopengl_la-gstglfilterglass.lo \
@@ -212,7 +211,6 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @USE_OPENGL_TRUE@	libgstopengl_la-gltestsrc.lo \
 @USE_OPENGL_TRUE@	libgstopengl_la-gstgltestsrc.lo \
 @USE_OPENGL_TRUE@	libgstopengl_la-gstglmosaic.lo \
-@USE_OPENGL_TRUE@	libgstopengl_la-gstglvideomixer.lo \
 @USE_OPENGL_TRUE@	effects/libgstopengl_la-gstgleffectstretch.lo \
 @USE_OPENGL_TRUE@	effects/libgstopengl_la-gstgleffecttunnel.lo \
 @USE_OPENGL_TRUE@	effects/libgstopengl_la-gstgleffectfisheye.lo \
@@ -235,7 +233,9 @@ am_libgstopengl_la_OBJECTS = libgstopengl_la-gstopengl.lo \
 	effects/libgstopengl_la-gstgleffectidentity.lo \
 	effects/libgstopengl_la-gstgleffectmirror.lo \
 	effects/libgstopengl_la-gstgleffectsqueeze.lo \
-	libgstopengl_la-gstglcolorscale.lo $(am__objects_3) \
+	libgstopengl_la-gstglcolorscale.lo \
+	libgstopengl_la-gstglvideomixer.lo \
+	libgstopengl_la-gstglfiltershader.lo $(am__objects_3) \
 	$(am__objects_4)
 libgstopengl_la_OBJECTS = $(am_libgstopengl_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -809,18 +809,16 @@ AM_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS)
 AM_LIBS = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS)
 
 # full opengl required
-@USE_OPENGL_TRUE@OPENGL_SOURCES = gstglfiltershader.c \
-@USE_OPENGL_TRUE@	gstglfiltershader.h gstglfilterblur.c \
-@USE_OPENGL_TRUE@	gstglfilterblur.h gstglfiltersobel.c \
-@USE_OPENGL_TRUE@	gstglfiltersobel.h gstglfilterlaplacian.c \
-@USE_OPENGL_TRUE@	gstglfilterlaplacian.h gstglfilterglass.c \
-@USE_OPENGL_TRUE@	gstglfilterglass.h gstglfilterapp.c \
-@USE_OPENGL_TRUE@	gstglfilterapp.h gstglfilterreflectedscreen.c \
+@USE_OPENGL_TRUE@OPENGL_SOURCES = gstglfilterblur.c gstglfilterblur.h \
+@USE_OPENGL_TRUE@	gstglfiltersobel.c gstglfiltersobel.h \
+@USE_OPENGL_TRUE@	gstglfilterlaplacian.c gstglfilterlaplacian.h \
+@USE_OPENGL_TRUE@	gstglfilterglass.c gstglfilterglass.h \
+@USE_OPENGL_TRUE@	gstglfilterapp.c gstglfilterapp.h \
+@USE_OPENGL_TRUE@	gstglfilterreflectedscreen.c \
 @USE_OPENGL_TRUE@	gstglfilterreflectedscreen.h \
 @USE_OPENGL_TRUE@	gstgldeinterlace.c gstgldeinterlace.h \
 @USE_OPENGL_TRUE@	gltestsrc.c gltestsrc.h gstgltestsrc.c \
 @USE_OPENGL_TRUE@	gstgltestsrc.h gstglmosaic.c gstglmosaic.h \
-@USE_OPENGL_TRUE@	gstglvideomixer.c gstglvideomixer.h \
 @USE_OPENGL_TRUE@	effects/gstgleffectscurves.h \
 @USE_OPENGL_TRUE@	effects/gstgleffectstretch.c \
 @USE_OPENGL_TRUE@	effects/gstgleffecttunnel.c \
@@ -840,8 +838,9 @@ libgstopengl_la_SOURCES = gstopengl.c gstglimagesink.c \
 	gstgleffects.c gstgleffects.h effects/gstgleffectssources.c \
 	effects/gstgleffectssources.h effects/gstgleffectidentity.c \
 	effects/gstgleffectmirror.c effects/gstgleffectsqueeze.c \
-	gstglcolorscale.c gstglcolorscale.h $(OPENGL_SOURCES) \
-	$(am__append_3)
+	gstglcolorscale.c gstglcolorscale.h gstglvideomixer.c \
+	gstglvideomixer.h gstglfiltershader.c gstglfiltershader.h \
+	$(OPENGL_SOURCES) $(am__append_3)
 
 # check order of CFLAGS and LIBS, shouldn't the order be the other way around
 # (like in AM_CFLAGS)?
@@ -1110,6 +1109,13 @@ libgstopengl_la-gstglcolorscale.lo: gstglcolorscale.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstglcolorscale.lo `test -f 'gstglcolorscale.c' || echo '$(srcdir)/'`gstglcolorscale.c
 
+libgstopengl_la-gstglvideomixer.lo: gstglvideomixer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT libgstopengl_la-gstglvideomixer.lo -MD -MP -MF $(DEPDIR)/libgstopengl_la-gstglvideomixer.Tpo -c -o libgstopengl_la-gstglvideomixer.lo `test -f 'gstglvideomixer.c' || echo '$(srcdir)/'`gstglvideomixer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopengl_la-gstglvideomixer.Tpo $(DEPDIR)/libgstopengl_la-gstglvideomixer.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglvideomixer.c' object='libgstopengl_la-gstglvideomixer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstglvideomixer.lo `test -f 'gstglvideomixer.c' || echo '$(srcdir)/'`gstglvideomixer.c
+
 libgstopengl_la-gstglfiltershader.lo: gstglfiltershader.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT libgstopengl_la-gstglfiltershader.lo -MD -MP -MF $(DEPDIR)/libgstopengl_la-gstglfiltershader.Tpo -c -o libgstopengl_la-gstglfiltershader.lo `test -f 'gstglfiltershader.c' || echo '$(srcdir)/'`gstglfiltershader.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopengl_la-gstglfiltershader.Tpo $(DEPDIR)/libgstopengl_la-gstglfiltershader.Plo
@@ -1186,13 +1192,6 @@ libgstopengl_la-gstglmosaic.lo: gstglmosaic.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglmosaic.c' object='libgstopengl_la-gstglmosaic.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstglmosaic.lo `test -f 'gstglmosaic.c' || echo '$(srcdir)/'`gstglmosaic.c
-
-libgstopengl_la-gstglvideomixer.lo: gstglvideomixer.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT libgstopengl_la-gstglvideomixer.lo -MD -MP -MF $(DEPDIR)/libgstopengl_la-gstglvideomixer.Tpo -c -o libgstopengl_la-gstglvideomixer.lo `test -f 'gstglvideomixer.c' || echo '$(srcdir)/'`gstglvideomixer.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopengl_la-gstglvideomixer.Tpo $(DEPDIR)/libgstopengl_la-gstglvideomixer.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglvideomixer.c' object='libgstopengl_la-gstglvideomixer.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstglvideomixer.lo `test -f 'gstglvideomixer.c' || echo '$(srcdir)/'`gstglvideomixer.c
 
 effects/libgstopengl_la-gstgleffectstretch.lo: effects/gstgleffectstretch.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT effects/libgstopengl_la-gstgleffectstretch.lo -MD -MP -MF effects/$(DEPDIR)/libgstopengl_la-gstgleffectstretch.Tpo -c -o effects/libgstopengl_la-gstgleffectstretch.lo `test -f 'effects/gstgleffectstretch.c' || echo '$(srcdir)/'`effects/gstgleffectstretch.c

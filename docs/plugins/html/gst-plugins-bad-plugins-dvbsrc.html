@@ -327,7 +327,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--bandwidth-hz"></a><h3>The <code class="literal">“bandwidth-hz”</code> property</h3>
 <pre class="programlisting">  “bandwidth-hz”             <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a></pre>
-<p>Bandwidth in Hz (DVB-T).</p>
+<p>(DVB-T) Bandwidth in Hz.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: 8000000</p>
 </div>
@@ -335,7 +335,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--bandwidth"></a><h3>The <code class="literal">“bandwidth”</code> property</h3>
 <pre class="programlisting">  “bandwidth”                <span class="type">GstDvbSrcBandwidth</span></pre>
-<p>Bandwidth (DVB-T) deprecated.</p>
+<p>(DVB-T) Bandwidth. Deprecated.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: 8</p>
 </div>
@@ -343,7 +343,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--code-rate-hp"></a><h3>The <code class="literal">“code-rate-hp”</code> property</h3>
 <pre class="programlisting">  “code-rate-hp”             <span class="type">GstDvbSrcCode_Rate</span></pre>
-<p>High Priority Code Rate (DVB-T, DVB-S, DVB-S2 and DVB-C).</p>
+<p>(DVB-T, DVB-S/S2 and DVB-C) High priority code rate.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: AUTO</p>
 </div>
@@ -351,7 +351,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--code-rate-lp"></a><h3>The <code class="literal">“code-rate-lp”</code> property</h3>
 <pre class="programlisting">  “code-rate-lp”             <span class="type">GstDvbSrcCode_Rate</span></pre>
-<p>Low Priority Code Rate (DVB-T).</p>
+<p>(DVB-T) Low priority code rate.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: 1/2</p>
 </div>
@@ -385,7 +385,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--guard"></a><h3>The <code class="literal">“guard”</code> property</h3>
 <pre class="programlisting">  “guard”                    <span class="type">GstDvbSrcGuard</span></pre>
-<p>Guard Interval (DVB-T).</p>
+<p>(DVB-T) Guard Interval.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: 16</p>
 </div>
@@ -393,7 +393,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--hierarchy"></a><h3>The <code class="literal">“hierarchy”</code> property</h3>
 <pre class="programlisting">  “hierarchy”                <span class="type">GstDvbSrcHierarchy</span></pre>
-<p>Hierarchy Information (DVB-T).</p>
+<p>(DVB-T) Hierarchy information.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: 1</p>
 </div>
@@ -401,7 +401,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--inversion"></a><h3>The <code class="literal">“inversion”</code> property</h3>
 <pre class="programlisting">  “inversion”                <span class="type">GstDvbSrcInversion</span></pre>
-<p>Inversion Information (DVB-T and DVB-C).</p>
+<p>(DVB-T and DVB-C) Inversion information.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: ON</p>
 </div>
@@ -409,7 +409,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--modulation"></a><h3>The <code class="literal">“modulation”</code> property</h3>
 <pre class="programlisting">  “modulation”               <span class="type">GstDvbSrcModulation</span></pre>
-<p>Modulation (DVB-T and DVB-C).</p>
+<p>(DVB-T and DVB-C) Modulation type.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: QAM 16</p>
 </div>
@@ -442,7 +442,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--trans-mode"></a><h3>The <code class="literal">“trans-mode”</code> property</h3>
 <pre class="programlisting">  “trans-mode”               <span class="type">GstDvbSrcTransmission_Mode</span></pre>
-<p>Transmission Mode (DVB-T).</p>
+<p>(DVB-T) Transmission mode.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: 8K</p>
 </div>
@@ -457,7 +457,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--adapter"></a><h3>The <code class="literal">“adapter”</code> property</h3>
 <pre class="programlisting">  “adapter”                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
-<p>The adapter device number (eg. 0 for adapter0).</p>
+<p>The DVB adapter device number (eg. 0 for adapter0).</p>
 <p>Flags: Read / Write</p>
 <p>Allowed values: [0,16]</p>
 <p>Default value: 0</p>
@@ -466,7 +466,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--diseqc-source"></a><h3>The <code class="literal">“diseqc-source”</code> property</h3>
 <pre class="programlisting">  “diseqc-source”            <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
-<p>DISEqC selected source (-1 disabled) (DVB-S, DVB-S2).</p>
+<p>(DVB-S/S2) Selected DiSEqC source. Only needed if you have a DiSEqC switch. Otherwise leave at -1 (disabled).</p>
 <p>Flags: Read / Write</p>
 <p>Allowed values: [G_MAXULONG,7]</p>
 <p>Default value: -1</p>
@@ -492,7 +492,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--polarity"></a><h3>The <code class="literal">“polarity”</code> property</h3>
 <pre class="programlisting">  “polarity”                 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
-<p>Polarity [vhHV] (DVB-S, DVB-S2).</p>
+<p>(DVB-S/S2) Polarity [vhHV] (eg. V for Vertical).</p>
 <p>Flags: Read / Write / Construct</p>
 <p>Default value: "H"</p>
 </div>
@@ -500,7 +500,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--symbol-rate"></a><h3>The <code class="literal">“symbol-rate”</code> property</h3>
 <pre class="programlisting">  “symbol-rate”              <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a></pre>
-<p>Symbol Rate (DVB-S, DVB-S2, DVB-C).</p>
+<p>(DVB-S/S2, DVB-C) Symbol rate in bauds.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: 0</p>
 </div>
@@ -556,7 +556,7 @@
 <div class="refsect2">
 <a name="GstDvbSrc--stream-id"></a><h3>The <code class="literal">“stream-id”</code> property</h3>
 <pre class="programlisting">  “stream-id”                <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
-<p>Stream ID (-1 disabled, DVB-T2 and DVB-S2 max 255, ISDB max 65535).</p>
+<p>(DVB-T2 and DVB-S2 max 255, ISDB max 65535) Stream ID (-1 = disabled).</p>
 <p>Flags: Read / Write</p>
 <p>Allowed values: [G_MAXULONG,65535]</p>
 <p>Default value: -1</p>

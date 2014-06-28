@@ -83,6 +83,7 @@
     <keyword type="function" name="gst_h264_nal_parser_free ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-nal-parser-free"/>
     <keyword type="function" name="gst_h264_parse_sps ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-parse-sps"/>
     <keyword type="function" name="gst_h264_parse_pps ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-parse-pps"/>
+    <keyword type="function" name="gst_h264_pps_clear ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-pps-clear" since="1.4"/>
     <keyword type="function" name="gst_h264_quant_matrix_8x8_get_zigzag_from_raster ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-quant-matrix-8x8-get-zigzag-from-raster" since="1.4"/>
     <keyword type="function" name="gst_h264_quant_matrix_8x8_get_raster_from_zigzag ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-quant-matrix-8x8-get-raster-from-zigzag" since="1.4"/>
     <keyword type="function" name="gst_h264_quant_matrix_4x4_get_zigzag_from_raster ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-quant-matrix-4x4-get-zigzag-from-raster" since="1.4"/>
@@ -223,33 +224,53 @@
     <keyword type="function" name="gst_mpegts_section_from_pmt ()" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-from-pmt"/>
     <keyword type="function" name="gst_mpegts_section_get_tsdt ()" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-get-tsdt"/>
     <keyword type="function" name="gst_mpegts_section_get_cat ()" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-get-cat"/>
-    <keyword type="struct" name="struct GstMpegTsSection" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection-struct"/>
-    <keyword type="enum" name="enum GstMpegTsSectionTableID" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSectionTableID"/>
-    <keyword type="enum" name="enum GstMpegTsSectionType" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSectionType"/>
-    <keyword type="struct" name="struct GstMpegTsPatProgram" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsPatProgram"/>
-    <keyword type="struct" name="struct GstMpegTsPMT" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsPMT"/>
-    <keyword type="struct" name="struct GstMpegTsPMTStream" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsPMTStream"/>
-    <keyword type="enum" name="enum GstMpegTsStreamType" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsStreamType"/>
+    <keyword type="struct" name="struct GstMpegtsSection" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSection-struct"/>
+    <keyword type="enum" name="enum GstMpegtsSectionTableID" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSectionTableID"/>
+    <keyword type="enum" name="enum GstMpegtsSectionType" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSectionType"/>
+    <keyword type="struct" name="struct GstMpegtsPatProgram" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsPatProgram"/>
+    <keyword type="struct" name="struct GstMpegtsPMT" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsPMT"/>
+    <keyword type="struct" name="struct GstMpegtsPMTStream" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsPMTStream"/>
+    <keyword type="enum" name="enum GstMpegtsStreamType" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsStreamType"/>
     <keyword type="function" name="gst_mpegts_find_descriptor ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-find-descriptor"/>
     <keyword type="function" name="gst_mpegts_parse_descriptors ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-parse-descriptors"/>
     <keyword type="function" name="gst_mpegts_descriptor_from_custom ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-from-custom"/>
     <keyword type="function" name="gst_mpegts_descriptor_from_registration ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-from-registration"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_iso_639_language ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-iso-639-language"/>
-    <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_stream_identifier ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-stream-identifier"/>
+    <keyword type="function" name="gst_mpegts_descriptor_parse_iso_639_language_idx ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-iso-639-language-idx"/>
+    <keyword type="function" name="gst_mpegts_descriptor_parse_iso_639_language_nb ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-iso-639-language-nb"/>
+    <keyword type="function" name="gst_mpegts_iso_639_language_descriptor_free ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-iso-639-language-descriptor-free"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_logical_channel ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-logical-channel"/>
-    <keyword type="struct" name="struct GstMpegTsDescriptor" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsDescriptor-struct"/>
-    <keyword type="enum" name="enum GstMpegTsDescriptorType" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsDescriptorType"/>
-    <keyword type="enum" name="enum GstMpegTsMiscDescriptorType" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsMiscDescriptorType"/>
-    <keyword type="struct" name="struct GstMpegTsISO639LanguageDescriptor" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsISO639LanguageDescriptor"/>
-    <keyword type="enum" name="enum GstMpegTsIso639AudioType" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsIso639AudioType"/>
-    <keyword type="struct" name="struct GstMpegTsLogicalChannel" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsLogicalChannel"/>
-    <keyword type="struct" name="struct GstMpegTsLogicalChannelDescriptor" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsLogicalChannelDescriptor"/>
+    <keyword type="struct" name="struct GstMpegtsDescriptor" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor-struct"/>
+    <keyword type="enum" name="enum GstMpegtsDescriptorType" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptorType"/>
+    <keyword type="enum" name="enum GstMpegtsMiscDescriptorType" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsMiscDescriptorType"/>
+    <keyword type="struct" name="struct GstMpegtsISO639LanguageDescriptor" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsISO639LanguageDescriptor"/>
+    <keyword type="enum" name="enum GstMpegtsIso639AudioType" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsIso639AudioType"/>
+    <keyword type="struct" name="struct GstMpegtsLogicalChannel" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsLogicalChannel"/>
+    <keyword type="struct" name="struct GstMpegtsLogicalChannelDescriptor" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsLogicalChannelDescriptor"/>
     <keyword type="function" name="gst_mpegts_section_get_atsc_tvct ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-tvct"/>
-    <keyword type="enum" name="enum GstMpegTsSectionATSCTableID" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegTsSectionATSCTableID"/>
+    <keyword type="function" name="gst_mpegts_section_get_atsc_cvct ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-cvct"/>
+    <keyword type="function" name="gst_mpegts_section_get_atsc_mgt ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-mgt"/>
+    <keyword type="function" name="gst_mpegts_atsc_string_segment_get_string ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-atsc-string-segment-get-string"/>
+    <keyword type="function" name="gst_mpegts_section_get_atsc_eit ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-eit"/>
+    <keyword type="function" name="gst_mpegts_section_get_atsc_ett ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-ett"/>
+    <keyword type="function" name="gst_mpegts_section_get_atsc_stt ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-stt"/>
+    <keyword type="function" name="gst_mpegts_atsc_stt_get_datetime_utc ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-atsc-stt-get-datetime-utc"/>
+    <keyword type="enum" name="enum GstMpegtsSectionATSCTableID" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsSectionATSCTableID"/>
+    <keyword type="struct" name="struct GstMpegtsAtscVCTSource" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource"/>
+    <keyword type="struct" name="struct GstMpegtsAtscVCT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCT"/>
+    <keyword type="enum" name="enum GstMpegtsAtscMGTTableType" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTableType"/>
+    <keyword type="struct" name="struct GstMpegtsAtscMGTTable" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable"/>
+    <keyword type="struct" name="struct GstMpegtsAtscMGT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGT"/>
+    <keyword type="struct" name="struct GstMpegtsAtscMultString" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMultString"/>
+    <keyword type="struct" name="struct GstMpegtsAtscEITEvent" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent"/>
+    <keyword type="struct" name="struct GstMpegtsAtscEIT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEIT"/>
+    <keyword type="struct" name="struct GstMpegtsAtscETT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscETT"/>
+    <keyword type="struct" name="struct GstMpegtsAtscSTT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT"/>
     <keyword type="function" name="gst_mpegts_section_get_nit ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-nit"/>
     <keyword type="function" name="gst_mpegts_nit_new ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-nit-new"/>
     <keyword type="function" name="gst_mpegts_nit_stream_new ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-nit-stream-new"/>
     <keyword type="function" name="gst_mpegts_section_from_nit ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-from-nit"/>
+    <keyword type="function" name="gst_mpegts_section_get_bat ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-bat"/>
     <keyword type="function" name="gst_mpegts_section_get_sdt ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-sdt"/>
     <keyword type="function" name="gst_mpegts_sdt_new ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-sdt-new"/>
     <keyword type="function" name="gst_mpegts_sdt_service_new ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-sdt-service-new"/>
@@ -257,18 +278,18 @@
     <keyword type="function" name="gst_mpegts_section_get_eit ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-eit"/>
     <keyword type="function" name="gst_mpegts_section_get_tdt ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-tdt"/>
     <keyword type="function" name="gst_mpegts_section_get_tot ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-tot"/>
-    <keyword type="enum" name="enum GstMpegTsSectionDVBTableID" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsSectionDVBTableID"/>
-    <keyword type="struct" name="struct GstMpegTsNIT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsNIT"/>
-    <keyword type="struct" name="struct GstMpegTsNITStream" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsNITStream"/>
-    <keyword type="struct" name="struct GstMpegTsBAT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsBAT"/>
-    <keyword type="struct" name="struct GstMpegTsBATStream" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsBATStream"/>
-    <keyword type="struct" name="struct GstMpegTsSDT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsSDT"/>
-    <keyword type="struct" name="struct GstMpegTsSDTService" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsSDTService"/>
-    <keyword type="struct" name="struct GstMpegTsEIT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsEIT"/>
-    <keyword type="struct" name="struct GstMpegTsEITEvent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsEITEvent"/>
-    <keyword type="enum" name="enum GstMpegTsRunningStatus" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsRunningStatus"/>
-    <keyword type="struct" name="struct GstMpegTsTOT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsTOT"/>
-    <keyword type="enum" name="enum GstMpegTsATSCDescriptorType" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-descriptors.html#GstMpegTsATSCDescriptorType"/>
+    <keyword type="enum" name="enum GstMpegtsSectionDVBTableID" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsSectionDVBTableID"/>
+    <keyword type="struct" name="struct GstMpegtsNIT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsNIT"/>
+    <keyword type="struct" name="struct GstMpegtsNITStream" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsNITStream"/>
+    <keyword type="struct" name="struct GstMpegtsBAT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsBAT"/>
+    <keyword type="struct" name="struct GstMpegtsBATStream" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsBATStream"/>
+    <keyword type="struct" name="struct GstMpegtsSDT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsSDT"/>
+    <keyword type="struct" name="struct GstMpegtsSDTService" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsSDTService"/>
+    <keyword type="struct" name="struct GstMpegtsEIT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsEIT"/>
+    <keyword type="struct" name="struct GstMpegtsEITEvent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsEITEvent"/>
+    <keyword type="enum" name="enum GstMpegtsRunningStatus" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsRunningStatus"/>
+    <keyword type="struct" name="struct GstMpegtsTOT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsTOT"/>
+    <keyword type="enum" name="enum GstMpegtsATSCDescriptorType" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-descriptors.html#GstMpegtsATSCDescriptorType"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_content ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-content"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_component ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-component"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_extended_event ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-extended-event"/>
@@ -283,6 +304,8 @@
     <keyword type="function" name="gst_mpegts_descriptor_from_dvb_service ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-from-dvb-service"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_teletext_idx ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-teletext-idx"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_teletext_nb ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-teletext-nb"/>
+    <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_subtitling_idx ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-subtitling-idx"/>
+    <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_subtitling_nb ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-subtitling-nb"/>
     <keyword type="function" name="gst_mpegts_descriptor_from_dvb_subtitling ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-from-dvb-subtitling"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_linkage ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-linkage"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_private_data_specifier ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-private-data-specifier"/>
@@ -300,42 +323,43 @@
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_multilingual_bouquet_name ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-multilingual-bouquet-name"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_multilingual_service_name ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-multilingual-service-name"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_multilingual_component ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-multilingual-component"/>
-    <keyword type="enum" name="enum GstMpegTsDVBDescriptorType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBDescriptorType"/>
-    <keyword type="enum" name="enum GstMpegTsDVBExtendedDescriptorType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBExtendedDescriptorType"/>
-    <keyword type="struct" name="struct GstMpegTsContent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsContent"/>
-    <keyword type="struct" name="struct GstMpegTsComponentDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsComponentDescriptor"/>
-    <keyword type="struct" name="struct GstMpegTsExtendedEventItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsExtendedEventItem"/>
-    <keyword type="struct" name="struct GstMpegTsExtendedEventDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsExtendedEventDescriptor"/>
-    <keyword type="struct" name="struct GstMpegTsSatelliteDeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsSatelliteDeliverySystemDescriptor"/>
-    <keyword type="enum" name="enum GstMpegTsDVBCodeRate" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBCodeRate"/>
-    <keyword type="enum" name="enum GstMpegTsModulationType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsModulationType"/>
-    <keyword type="enum" name="enum GstMpegTsSatellitePolarizationType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsSatellitePolarizationType"/>
-    <keyword type="enum" name="enum GstMpegTsSatelliteRolloff" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsSatelliteRolloff"/>
-    <keyword type="struct" name="struct GstMpegTsCableDeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsCableDeliverySystemDescriptor"/>
-    <keyword type="enum" name="enum GstMpegTsCableOuterFECScheme" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsCableOuterFECScheme"/>
-    <keyword type="struct" name="struct GstMpegTsTerrestrialDeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsTerrestrialDeliverySystemDescriptor"/>
-    <keyword type="enum" name="enum GstMpegTsTerrestrialTransmissionMode" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsTerrestrialTransmissionMode"/>
-    <keyword type="enum" name="enum GstMpegTsTerrestrialGuardInterval" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsTerrestrialGuardInterval"/>
-    <keyword type="enum" name="enum GstMpegTsTerrestrialHierarchy" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsTerrestrialHierarchy"/>
-    <keyword type="struct" name="struct GstMpegTsT2DeliverySystemCellExtension" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsT2DeliverySystemCellExtension"/>
-    <keyword type="struct" name="struct GstMpegTsT2DeliverySystemCell" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsT2DeliverySystemCell"/>
-    <keyword type="struct" name="struct GstMpegTsT2DeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsT2DeliverySystemDescriptor"/>
-    <keyword type="enum" name="enum GstMpegTsDVBServiceType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBServiceType"/>
-    <keyword type="enum" name="enum GstMpegTsDVBTeletextType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBTeletextType"/>
-    <keyword type="enum" name="enum GstMpegTsDVBLinkageType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBLinkageType"/>
-    <keyword type="enum" name="enum GstMpegTsDVBLinkageHandOverType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBLinkageHandOverType"/>
-    <keyword type="struct" name="struct GstMpegTsDVBLinkageMobileHandOver" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBLinkageMobileHandOver"/>
-    <keyword type="struct" name="struct GstMpegTsDVBLinkageEvent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBLinkageEvent"/>
-    <keyword type="struct" name="struct GstMpegTsDVBLinkageExtendedEvent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBLinkageExtendedEvent"/>
-    <keyword type="struct" name="struct GstMpegTsDVBLinkageDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBLinkageDescriptor"/>
-    <keyword type="struct" name="struct GstMpegTsDataBroadcastDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDataBroadcastDescriptor"/>
-    <keyword type="struct" name="struct GstMpegTsDVBParentalRatingItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBParentalRatingItem"/>
-    <keyword type="struct" name="struct GstMpegTsDVBServiceListItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBServiceListItem"/>
-    <keyword type="struct" name="struct GstMpegTsDvbMultilingualNetworkNameItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDvbMultilingualNetworkNameItem"/>
-    <keyword type="struct" name="struct GstMpegTsDvbMultilingualBouquetNameItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDvbMultilingualBouquetNameItem"/>
-    <keyword type="struct" name="struct GstMpegTsDvbMultilingualServiceNameItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDvbMultilingualServiceNameItem"/>
-    <keyword type="struct" name="struct GstMpegTsDvbMultilingualComponentItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDvbMultilingualComponentItem"/>
-    <keyword type="enum" name="enum GstMpegTsISDBDescriptorType" link="gst-plugins-bad-libs-ISDB-variants-of-MPEG-TS-descriptors.html#GstMpegTsISDBDescriptorType"/>
+    <keyword type="enum" name="enum GstMpegtsDVBDescriptorType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBDescriptorType"/>
+    <keyword type="enum" name="enum GstMpegtsDVBExtendedDescriptorType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBExtendedDescriptorType"/>
+    <keyword type="struct" name="struct GstMpegtsContent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsContent"/>
+    <keyword type="struct" name="struct GstMpegtsComponentDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsComponentDescriptor"/>
+    <keyword type="struct" name="struct GstMpegtsExtendedEventItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsExtendedEventItem"/>
+    <keyword type="struct" name="struct GstMpegtsExtendedEventDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsExtendedEventDescriptor"/>
+    <keyword type="struct" name="struct GstMpegtsSatelliteDeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsSatelliteDeliverySystemDescriptor"/>
+    <keyword type="enum" name="enum GstMpegtsDVBCodeRate" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBCodeRate"/>
+    <keyword type="enum" name="enum GstMpegtsModulationType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsModulationType"/>
+    <keyword type="enum" name="enum GstMpegtsSatellitePolarizationType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsSatellitePolarizationType"/>
+    <keyword type="enum" name="enum GstMpegtsSatelliteRolloff" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsSatelliteRolloff"/>
+    <keyword type="struct" name="struct GstMpegtsCableDeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsCableDeliverySystemDescriptor"/>
+    <keyword type="enum" name="enum GstMpegtsCableOuterFECScheme" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsCableOuterFECScheme"/>
+    <keyword type="struct" name="struct GstMpegtsTerrestrialDeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsTerrestrialDeliverySystemDescriptor"/>
+    <keyword type="enum" name="enum GstMpegtsTerrestrialTransmissionMode" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsTerrestrialTransmissionMode"/>
+    <keyword type="enum" name="enum GstMpegtsTerrestrialGuardInterval" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsTerrestrialGuardInterval"/>
+    <keyword type="enum" name="enum GstMpegtsTerrestrialHierarchy" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsTerrestrialHierarchy"/>
+    <keyword type="struct" name="struct GstMpegtsT2DeliverySystemCellExtension" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsT2DeliverySystemCellExtension"/>
+    <keyword type="struct" name="struct GstMpegtsT2DeliverySystemCell" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsT2DeliverySystemCell"/>
+    <keyword type="struct" name="struct GstMpegtsT2DeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsT2DeliverySystemDescriptor"/>
+    <keyword type="enum" name="enum GstMpegtsDVBServiceType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBServiceType"/>
+    <keyword type="enum" name="enum GstMpegtsDVBTeletextType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBTeletextType"/>
+    <keyword type="enum" name="enum GstMpegtsDVBLinkageType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBLinkageType"/>
+    <keyword type="enum" name="enum GstMpegtsDVBLinkageHandOverType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBLinkageHandOverType"/>
+    <keyword type="struct" name="struct GstMpegtsDVBLinkageMobileHandOver" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBLinkageMobileHandOver"/>
+    <keyword type="struct" name="struct GstMpegtsDVBLinkageEvent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBLinkageEvent"/>
+    <keyword type="struct" name="struct GstMpegtsDVBLinkageExtendedEvent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBLinkageExtendedEvent"/>
+    <keyword type="struct" name="struct GstMpegtsDVBLinkageDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBLinkageDescriptor"/>
+    <keyword type="struct" name="struct GstMpegtsDataBroadcastDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDataBroadcastDescriptor"/>
+    <keyword type="enum" name="enum GstMpegtsDVBScramblingModeType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBScramblingModeType"/>
+    <keyword type="struct" name="struct GstMpegtsDVBParentalRatingItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBParentalRatingItem"/>
+    <keyword type="struct" name="struct GstMpegtsDVBServiceListItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBServiceListItem"/>
+    <keyword type="struct" name="struct GstMpegtsDvbMultilingualNetworkNameItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualNetworkNameItem"/>
+    <keyword type="struct" name="struct GstMpegtsDvbMultilingualBouquetNameItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualBouquetNameItem"/>
+    <keyword type="struct" name="struct GstMpegtsDvbMultilingualServiceNameItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualServiceNameItem"/>
+    <keyword type="struct" name="struct GstMpegtsDvbMultilingualComponentItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualComponentItem"/>
+    <keyword type="enum" name="enum GstMpegtsISDBDescriptorType" link="gst-plugins-bad-libs-ISDB-variants-of-MPEG-TS-descriptors.html#GstMpegtsISDBDescriptorType"/>
     <keyword type="function" name="GstInsertBinCallback ()" link="gst-plugins-bad-libs-GstInsertbin.html#GstInsertBinCallback"/>
     <keyword type="function" name="gst_insert_bin_new ()" link="gst-plugins-bad-libs-GstInsertbin.html#gst-insert-bin-new" since="1.2"/>
     <keyword type="function" name="gst_insert_bin_append ()" link="gst-plugins-bad-libs-GstInsertbin.html#gst-insert-bin-append" since="1.2"/>
