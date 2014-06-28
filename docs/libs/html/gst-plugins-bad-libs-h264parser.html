@@ -164,6 +164,14 @@ bitstream parsing.</p>
 <span class="returnvalue">void</span>
 </td>
 <td class="function_name">
+<a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-pps-clear" title="gst_h264_pps_clear ()">gst_h264_pps_clear</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-quant-matrix-8x8-get-zigzag-from-raster" title="gst_h264_quant_matrix_8x8_get_zigzag_from_raster ()">gst_h264_quant_matrix_8x8_get_zigzag_from_raster</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
@@ -656,8 +664,12 @@ gst_h264_parser_parse_pps (<em class="parameter"><code><a class="link" href="gst
 <p>Parses <em class="parameter"><code>data</code></em>
 , and fills the <em class="parameter"><code>pps</code></em>
  structure.</p>
+<p>The resulting <em class="parameter"><code>pps</code></em>
+ data structure shall be deallocated with the
+<a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-pps-clear" title="gst_h264_pps_clear ()"><code class="function">gst_h264_pps_clear()</code></a> function when it is no longer needed, or prior
+to parsing a new PPS NAL unit.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.12.5"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.8.12.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -684,7 +696,7 @@ gst_h264_parser_parse_pps (<em class="parameter"><code><a class="link" href="gst
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.12.6"></a><h4>Returns</h4>
+<a name="id-1.2.4.3.8.12.7"></a><h4>Returns</h4>
 <p> a <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="type">GstH264ParserResult</span></a></p>
 <p></p>
 </div>
@@ -821,8 +833,12 @@ gst_h264_parse_pps (<em class="parameter"><code><a class="link" href="gst-plugin
 <p>Parses <em class="parameter"><code>data</code></em>
 , and fills the <em class="parameter"><code>pps</code></em>
  structure.</p>
+<p>The resulting <em class="parameter"><code>pps</code></em>
+ data structure shall be deallocated with the
+<a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-pps-clear" title="gst_h264_pps_clear ()"><code class="function">gst_h264_pps_clear()</code></a> function when it is no longer needed, or prior
+to parsing a new PPS NAL unit.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.17.5"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.8.17.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -849,10 +865,34 @@ gst_h264_parse_pps (<em class="parameter"><code><a class="link" href="gst-plugin
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.17.6"></a><h4>Returns</h4>
+<a name="id-1.2.4.3.8.17.7"></a><h4>Returns</h4>
 <p> a <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="type">GstH264ParserResult</span></a></p>
 <p></p>
 </div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-h264-pps-clear"></a><h3>gst_h264_pps_clear ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gst_h264_pps_clear (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264PPS" title="struct GstH264PPS"><span class="type">GstH264PPS</span></a> *pps</code></em>);</pre>
+<p>Clears all <em class="parameter"><code>pps</code></em>
+ internal resources.</p>
+<div class="refsect3">
+<a name="id-1.2.4.3.8.18.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>pps</p></td>
+<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264PPS" title="struct GstH264PPS"><span class="type">GstH264PPS</span></a> to free</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<p class="since">Since 1.4</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -870,7 +910,7 @@ zigzag scan order and store the resulting factors into <em class="parameter"><co
 <em class="parameter"><code>out_quant</code></em>
  arguments.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.18.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.8.19.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -909,7 +949,7 @@ raster scan order and store the resulting factors into <em class="parameter"><co
 <em class="parameter"><code>out_quant</code></em>
  arguments.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.19.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.8.20.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -948,7 +988,7 @@ zigzag scan order and store the resulting factors into <em class="parameter"><co
 <em class="parameter"><code>out_quant</code></em>
  arguments.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.20.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.8.21.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -987,7 +1027,7 @@ raster scan order and store the resulting factors into <em class="parameter"><co
 <em class="parameter"><code>out_quant</code></em>
  arguments.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.21.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.8.22.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -1030,7 +1070,7 @@ message.</p>
 and <em class="parameter"><code>fps_den</code></em>
  to 1.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.22.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.8.23.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -1308,7 +1348,14 @@ value if available, 0 otherwise</p></td>
 <tr>
 <td class="enum_member_name"><p><a name="GST-H264-SEI-PIC-TIMING:CAPS"></a>GST_H264_SEI_PIC_TIMING</p></td>
 <td class="enum_member_description">
-<p>Picture Timing SEI Message
+<p>Picture Timing SEI Message</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="GST-H264-SEI-RECOVERY-POINT:CAPS"></a>GST_H264_SEI_RECOVERY_POINT</p></td>
+<td class="enum_member_description">
+<p>Recovery Point SEI Message (D.2.7)
 ...</p>
 </td>
 <td class="enum_member_annotations"> </td>
@@ -2050,7 +2097,7 @@ dpb_output_delay syntax element</p></td>
   GstH264HRDParams nal_hrd_parameters;
 
   guint8 vcl_hrd_parameters_present_flag;
-  /* if nal_hrd_parameters_present_flag */
+  /* if vcl_hrd_parameters_present_flag */
   GstH264HRDParams vcl_hrd_parameters;
 
   guint8 low_delay_hrd_flag;
@@ -2473,6 +2520,7 @@ units of frame buffers.</p></td>
   union {
     GstH264BufferingPeriod buffering_period;
     GstH264PicTiming pic_timing;
+    GstH264RecoveryPoint recovery_point;
     /* ... could implement more */
   } payload;
 };

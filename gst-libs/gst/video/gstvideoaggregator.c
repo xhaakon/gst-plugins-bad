@@ -142,7 +142,7 @@ gst_videoaggregator_pad_finalize (GObject * o)
     videoconvert_convert_free (vaggpad->priv->convert);
   vaggpad->priv->convert = NULL;
 
-  G_OBJECT_CLASS (gst_videoaggregator_pad_parent_class)->dispose (o);
+  G_OBJECT_CLASS (gst_videoaggregator_pad_parent_class)->finalize (o);
 }
 
 static void
@@ -806,6 +806,7 @@ gst_videoaggregator_reset (GstVideoAggregator * vagg)
     GstVideoAggregatorPad *p = l->data;
 
     gst_buffer_replace (&p->buffer, NULL);
+    gst_buffer_replace (&p->queued, NULL);
     p->start_time = -1;
     p->end_time = -1;
 
@@ -959,6 +960,7 @@ gst_videoaggregator_fill_queues (GstVideoAggregator * vagg,
       } else if (start_time >= output_end_time) {
         GST_DEBUG_OBJECT (pad, "Keeping buffer until %" GST_TIME_FORMAT,
             GST_TIME_ARGS (start_time));
+        gst_buffer_unref (buf);
         eos = FALSE;
       } else {
         GST_DEBUG_OBJECT (pad, "Too old buffer -- dropping");
@@ -1011,7 +1013,7 @@ prepare_frames (GstVideoAggregator * vagg, GstVideoAggregatorPad * pad)
     GstClockTime timestamp;
     gint64 stream_time;
     GstSegment *seg;
-    GstVideoFrame *converted_frame = g_slice_new0 (GstVideoFrame);
+    GstVideoFrame *converted_frame;
     GstBuffer *converted_buf = NULL;
     GstVideoFrame *frame = g_slice_new0 (GstVideoFrame);
 
@@ -1033,6 +1035,8 @@ prepare_frames (GstVideoAggregator * vagg, GstVideoAggregatorPad * pad)
 
     if (pad->priv->convert) {
       gint converted_size;
+
+      converted_frame = g_slice_new0 (GstVideoFrame);
 
       /* We wait until here to set the conversion infos, in case vagg->info changed */
       if (pad->need_conversion_update) {
@@ -1854,6 +1858,8 @@ gst_videoaggregator_dispose (GObject * o)
   GstVideoAggregator *vagg = GST_VIDEO_AGGREGATOR (o);
 
   gst_caps_replace (&vagg->priv->current_caps, NULL);
+
+  G_OBJECT_CLASS (gst_videoaggregator_parent_class)->dispose (o);
 }
 
 static void

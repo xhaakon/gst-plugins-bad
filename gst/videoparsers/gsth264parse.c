@@ -501,6 +501,16 @@ gst_h264_parse_process_sei (GstH264Parse * h264parse, GstH264NalUnit * nalu)
             "new buffering period; ts_trn_nb updated: %" GST_TIME_FORMAT,
             GST_TIME_ARGS (h264parse->ts_trn_nb));
         break;
+
+        /* Additional messages that are not innerly useful to the
+         * element but for debugging purposes */
+      case GST_H264_SEI_RECOVERY_POINT:
+        GST_LOG_OBJECT (h264parse, "recovery point found: %u %u %u %u",
+            sei.payload.recovery_point.recovery_frame_cnt,
+            sei.payload.recovery_point.exact_match_flag,
+            sei.payload.recovery_point.broken_link_flag,
+            sei.payload.recovery_point.changing_slice_group_idc);
+        break;
     }
   }
   g_array_free (messages, TRUE);
@@ -571,6 +581,7 @@ gst_h264_parse_process_nal (GstH264Parse * h264parse, GstH264NalUnit * nalu)
       }
 
       gst_h264_parser_store_nal (h264parse, pps.id, nal_type, nalu);
+      gst_h264_pps_clear (&pps);
       break;
     case GST_H264_NAL_SEI:
       gst_h264_parse_process_sei (h264parse, nalu);

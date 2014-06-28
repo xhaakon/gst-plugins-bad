@@ -3,7 +3,7 @@ AC_PREREQ([2.68])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.3.3],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.3.90],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -48,11 +48,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 303, 0, 303)
+AS_LIBTOOL(GST, 390, 0, 390)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.3.3
-GSTPB_REQ=1.3.3
+GST_REQ=1.3.90
+GSTPB_REQ=1.3.90
 
 dnl *** autotools stuff ****
 
@@ -851,6 +851,8 @@ if test "x$HAVE_GL" = "xyes" -a "x$HAVE_GLES2" = "xyes"; then
 # endif
 "
   AC_MSG_CHECKING([whether it is possible to include both GL and GLES2 headers])
+  save_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS $ERROR_CFLAGS"
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[$GL_INCLUDES]], [[
     #if !defined(GL_FALSE)
     #error Failed to include GL headers
@@ -868,6 +870,7 @@ if test "x$HAVE_GL" = "xyes" -a "x$HAVE_GLES2" = "xyes"; then
       HAVE_GLES2=no
     fi
   ])
+  CPPFLAGS="$save_CPPFLAGS"
 fi
 
 #dnl Check for OpenGL, GLU
