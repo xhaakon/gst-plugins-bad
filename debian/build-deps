@@ -10,7 +10,7 @@ flite-dev
 @GST_EXTRA_BUILD_DEPENDS@
 @GST_LIB_DEV_DEP@
 gstreamer@GST_ABI@-doc
-gstreamer@GST_ABI@-plugins-base (>= 1.3.3)
+gstreamer@GST_ABI@-plugins-base (>= 1.3.90)
 gstreamer@GST_ABI@-plugins-base-doc
 gtk-doc-tools (>= 1.12)
 ladspa-sdk
@@ -35,7 +35,7 @@ libglu1-mesa-dev
 libgme-dev
 libgnutls-dev (>= 2.11.3)
 libgsm1-dev
-libgstreamer-plugins-base@GST_ABI@-dev (>= 1.3.3)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 1.3.90)
 libgtk2.0-dev (>= 2.14.0)
 libiptcdata0-dev (>= 1.0.2)
 libjasper-dev
