@@ -1,4 +1,4 @@
-gst-plugins-bad1.0 (1.3.90-2) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.3.90-2) experimental; urgency=medium
 
   [ Sebastian Dröge ]
   * debian/gstreamer-plugins-bad.install:
@@ -6,9 +6,9 @@ gst-plugins-bad1.0 (1.3.90-2) UNRELEASED; urgency=medium
 
   [ Sjoerd Simons ]
   * debian/patches/01_fix-modplug-linking.patch
-    - Re-add. Fixes link issues on i386
+    - Re-add. Fixes FTBS on i386
 
- -- Sjoerd Simons <sjoerd@debian.org>  Tue, 01 Jul 2014 12:56:54 +0200
+ -- Sjoerd Simons <sjoerd@debian.org>  Tue, 01 Jul 2014 15:01:07 +0200
 
 gst-plugins-bad1.0 (1.3.90-1) experimental; urgency=medium
 
