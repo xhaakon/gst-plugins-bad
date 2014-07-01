@@ -1,9 +1,14 @@
 gst-plugins-bad1.0 (1.3.90-2) UNRELEASED; urgency=medium
 
+  [ Sebastian Dröge ]
   * debian/gstreamer-plugins-bad.install:
     + Include mpeg2enc plugin.
 
- -- Sebastian Dröge <slomo@debian.org>  Sat, 28 Jun 2014 14:03:17 +0200
+  [ Sjoerd Simons ]
+  * debian/patches/01_fix-modplug-linking.patch
+    - Re-add. Fixes link issues on i386
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Tue, 01 Jul 2014 12:56:54 +0200
 
 gst-plugins-bad1.0 (1.3.90-1) experimental; urgency=medium
 
