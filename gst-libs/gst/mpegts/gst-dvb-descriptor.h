@@ -434,7 +434,6 @@ struct _GstMpegtsDVBLinkageExtendedEvent
  * @original_network_id: the original network id
  * @service_id: the service id
  * @linkage_type: the type which %linkage_data has
- * @linkage_data: the linkage structure depending from %linkage_type
  * @private_data_length: the length for %private_data_bytes
  * @private_data_bytes: additional data bytes
  */
@@ -444,7 +443,9 @@ struct _GstMpegtsDVBLinkageDescriptor
   guint16                           original_network_id;
   guint16                           service_id;
   GstMpegtsDVBLinkageType           linkage_type;
+  /*< private >*/
   gpointer                          linkage_data;
+  /*< public >*/
   guint8                            private_data_length;
   guint8                            *private_data_bytes;
 };
@@ -454,7 +455,12 @@ struct _GstMpegtsDVBLinkageDescriptor
 GType gst_mpegts_dvb_linkage_descriptor_get_type (void);
 
 void gst_mpegts_dvb_linkage_descriptor_free (GstMpegtsDVBLinkageDescriptor * source);
-
+const GstMpegtsDVBLinkageMobileHandOver * gst_mpegts_dvb_linkage_descriptor_get_mobile_hand_over
+    (const GstMpegtsDVBLinkageDescriptor * desc);
+const GstMpegtsDVBLinkageEvent * gst_mpegts_dvb_linkage_descriptor_get_event
+    (const GstMpegtsDVBLinkageDescriptor * desc);
+const GPtrArray * gst_mpegts_dvb_linkage_descriptor_get_extended_event
+    (const GstMpegtsDVBLinkageDescriptor * desc);
 gboolean gst_mpegts_descriptor_parse_dvb_linkage (const GstMpegtsDescriptor * descriptor,
                                                   GstMpegtsDVBLinkageDescriptor ** res);
 
@@ -849,7 +855,7 @@ typedef struct _GstMpegtsT2DeliverySystemCell GstMpegtsT2DeliverySystemCell;
 /**
  * GstMpegtsT2DeliverySystemCell:
  * @cell_id: id of the cell
- * @centre_frequencies: centre frequencies in Hz
+ * @centre_frequencies: (element-type guint32): centre frequencies in Hz
  * @sub_cells: (element-type GstMpegtsT2DeliverySystemCellExtension):
  */
 struct _GstMpegtsT2DeliverySystemCell

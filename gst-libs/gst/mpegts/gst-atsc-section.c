@@ -49,6 +49,7 @@ _gst_mpegts_atsc_vct_source_copy (GstMpegtsAtscVCTSource * source)
 static void
 _gst_mpegts_atsc_vct_source_free (GstMpegtsAtscVCTSource * source)
 {
+  g_free (source->short_name);
   if (source->descriptors)
     g_ptr_array_unref (source->descriptors);
   g_slice_free (GstMpegtsAtscVCTSource, source);
@@ -410,8 +411,7 @@ _gst_mpegts_atsc_string_segment_copy (GstMpegtsAtscStringSegment * seg)
 static void
 _gst_mpegts_atsc_string_segment_free (GstMpegtsAtscStringSegment * seg)
 {
-  if (seg->cached_string)
-    g_free (seg->cached_string);
+  g_free (seg->cached_string);
   g_slice_free (GstMpegtsAtscStringSegment, seg);
 }
 
@@ -842,6 +842,9 @@ _gst_mpegts_atsc_stt_free (GstMpegtsAtscSTT * stt)
 {
   if (stt->descriptors)
     g_ptr_array_unref (stt->descriptors);
+  if (stt->utc_datetime)
+    gst_date_time_unref (stt->utc_datetime);
+
   g_slice_free (GstMpegtsAtscSTT, stt);
 }
 

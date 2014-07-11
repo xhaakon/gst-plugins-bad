@@ -11,13 +11,6 @@ libgstbadvideo_@GST_API_VERSION@_la_SOURCES = \
 
 nodist_libgstbadvideo_@GST_API_VERSION@_la_SOURCES = $(BUILT_SOURCES)
 
-libgstbadvideo_@GST_API_VERSION@includedir = $(includedir)/gstreamer-@GST_API_VERSION@/gst/video
-libgstbadvideo_@GST_API_VERSION@include_HEADERS = \
-	gstvideoaggregatorpad.h \
-	gstvideoaggregator.h
-
-nodist_libgstbadvideo_@GST_API_VERSION@include_HEADERS = $(built_headers)
-
 libgstbadvideo_@GST_API_VERSION@_la_CFLAGS = \
 	-DGST_USE_UNSTABLE_API \
 	-I$(top_srcdir)/gst-libs \
@@ -30,4 +23,4 @@ libgstbadvideo_@GST_API_VERSION@_la_LIBADD = $(GST_BASE_LIBS) $(GST_LIBS) $(ORC_
 	$(top_builddir)/gst-libs/gst/base/libgstbadbase-$(GST_API_VERSION).la $(LIBM)
 libgstbadvideo_@GST_API_VERSION@_la_LDFLAGS = $(GST_LIB_LDFLAGS) $(GST_ALL_LDFLAGS) $(GST_LT_LDFLAGS)
 
-noinst_HEADERS = gstcms.h videoconvert.h
+noinst_HEADERS = gstcms.h videoconvert.h gstvideoaggregatorpad.h gstvideoaggregator.h

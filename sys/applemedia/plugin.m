@@ -31,18 +31,23 @@
 #include "avfvideosrc.h"
 #include "avfassetsrc.h"
 #endif
+#ifdef HAVE_VIDEOTOOLBOX
+#include "vtdec.h"
+#endif
 #ifndef HAVE_IOS
 #define AV_RANK GST_RANK_SECONDARY
 #include "vth264decbin.h"
 #include "vth264encbin.h"
-#include "vtdec.h"
 #else
 #define AV_RANK GST_RANK_PRIMARY
 #endif
 #include "atdec.h"
 
-#ifndef HAVE_IOS
+#ifdef HAVE_VIDEOTOOLBOX
 void gst_vtenc_register_elements (GstPlugin * plugin);
+#endif
+
+#ifndef HAVE_IOS
 
 static void
 enable_mt_mode (void)
@@ -82,9 +87,9 @@ plugin_init (GstPlugin * plugin)
   res &= gst_element_register (plugin, "vth264encbin", GST_RANK_NONE,
       GST_TYPE_VT_H264_ENC_BIN);
 #endif
-  res &= gst_element_register (plugin, "atdec", GST_RANK_PRIMARY, GST_TYPE_ATDEC);
+  res &= gst_element_register (plugin, "atdec", GST_RANK_MARGINAL, GST_TYPE_ATDEC);
 
-#ifndef HAVE_IOS
+#ifdef HAVE_VIDEOTOOLBOX
   res &= gst_element_register (plugin, "vtdec", GST_RANK_PRIMARY, GST_TYPE_VTDEC);
   gst_vtenc_register_elements (plugin);
 #endif

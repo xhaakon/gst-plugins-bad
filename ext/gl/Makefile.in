@@ -168,6 +168,7 @@ am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstopengl_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la \
+	$(top_builddir)/gst-libs/gst/base/libgstbadbase-$(GST_API_VERSION).la \
 	$(top_builddir)/gst-libs/gst/video/libgstbadvideo-$(GST_API_VERSION).la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -186,11 +187,12 @@ am__libgstopengl_la_SOURCES_DIST = gstopengl.c gstglimagesink.c \
 	gstglfilterapp.c gstglfilterapp.h gstglfilterreflectedscreen.c \
 	gstglfilterreflectedscreen.h gstgldeinterlace.c \
 	gstgldeinterlace.h gltestsrc.c gltestsrc.h gstgltestsrc.c \
-	gstgltestsrc.h gstglmosaic.c gstglmosaic.h \
-	effects/gstgleffectscurves.h effects/gstgleffectstretch.c \
-	effects/gstgleffecttunnel.c effects/gstgleffectfisheye.c \
-	effects/gstgleffecttwirl.c effects/gstgleffectbulge.c \
-	effects/gstgleffectsquare.c effects/gstgleffectlumatocurve.c \
+	gstgltestsrc.h gstglmixer.c gstglmixer.h gstglmixerpad.h \
+	gstglmosaic.c gstglmosaic.h effects/gstgleffectscurves.h \
+	effects/gstgleffectstretch.c effects/gstgleffecttunnel.c \
+	effects/gstgleffectfisheye.c effects/gstgleffecttwirl.c \
+	effects/gstgleffectbulge.c effects/gstgleffectsquare.c \
+	effects/gstgleffectlumatocurve.c \
 	effects/gstgleffectlumatocurve.h \
 	effects/gstgleffectrgbtocurve.c effects/gstgleffectsin.c \
 	effects/gstgleffectglow.c effects/gstgleffectxray.c \
@@ -210,6 +212,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @USE_OPENGL_TRUE@	libgstopengl_la-gstgldeinterlace.lo \
 @USE_OPENGL_TRUE@	libgstopengl_la-gltestsrc.lo \
 @USE_OPENGL_TRUE@	libgstopengl_la-gstgltestsrc.lo \
+@USE_OPENGL_TRUE@	libgstopengl_la-gstglmixer.lo \
 @USE_OPENGL_TRUE@	libgstopengl_la-gstglmosaic.lo \
 @USE_OPENGL_TRUE@	effects/libgstopengl_la-gstgleffectstretch.lo \
 @USE_OPENGL_TRUE@	effects/libgstopengl_la-gstgleffecttunnel.lo \
@@ -818,7 +821,8 @@ AM_LIBS = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS)
 @USE_OPENGL_TRUE@	gstglfilterreflectedscreen.h \
 @USE_OPENGL_TRUE@	gstgldeinterlace.c gstgldeinterlace.h \
 @USE_OPENGL_TRUE@	gltestsrc.c gltestsrc.h gstgltestsrc.c \
-@USE_OPENGL_TRUE@	gstgltestsrc.h gstglmosaic.c gstglmosaic.h \
+@USE_OPENGL_TRUE@	gstgltestsrc.h gstglmixer.c gstglmixer.h \
+@USE_OPENGL_TRUE@	gstglmixerpad.h gstglmosaic.c gstglmosaic.h \
 @USE_OPENGL_TRUE@	effects/gstgleffectscurves.h \
 @USE_OPENGL_TRUE@	effects/gstgleffectstretch.c \
 @USE_OPENGL_TRUE@	effects/gstgleffecttunnel.c \
@@ -856,6 +860,7 @@ libgstopengl_la_CFLAGS = \
 
 libgstopengl_la_LIBADD = \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la \
+	$(top_builddir)/gst-libs/gst/base/libgstbadbase-$(GST_API_VERSION).la \
 	$(top_builddir)/gst-libs/gst/video/libgstbadvideo-$(GST_API_VERSION).la \
 	$(GST_BASE_LIBS) \
 	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
@@ -1000,6 +1005,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopengl_la-gstglfiltershader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopengl_la-gstglfiltersobel.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopengl_la-gstglimagesink.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopengl_la-gstglmixer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopengl_la-gstglmosaic.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopengl_la-gstgloverlay.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopengl_la-gstgltestsrc.Plo@am__quote@
@@ -1185,6 +1191,13 @@ libgstopengl_la-gstgltestsrc.lo: gstgltestsrc.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgltestsrc.c' object='libgstopengl_la-gstgltestsrc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstgltestsrc.lo `test -f 'gstgltestsrc.c' || echo '$(srcdir)/'`gstgltestsrc.c
+
+libgstopengl_la-gstglmixer.lo: gstglmixer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT libgstopengl_la-gstglmixer.lo -MD -MP -MF $(DEPDIR)/libgstopengl_la-gstglmixer.Tpo -c -o libgstopengl_la-gstglmixer.lo `test -f 'gstglmixer.c' || echo '$(srcdir)/'`gstglmixer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopengl_la-gstglmixer.Tpo $(DEPDIR)/libgstopengl_la-gstglmixer.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglmixer.c' object='libgstopengl_la-gstglmixer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstglmixer.lo `test -f 'gstglmixer.c' || echo '$(srcdir)/'`gstglmixer.c
 
 libgstopengl_la-gstglmosaic.lo: gstglmosaic.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT libgstopengl_la-gstglmosaic.lo -MD -MP -MF $(DEPDIR)/libgstopengl_la-gstglmosaic.Tpo -c -o libgstopengl_la-gstglmosaic.lo `test -f 'gstglmosaic.c' || echo '$(srcdir)/'`gstglmosaic.c

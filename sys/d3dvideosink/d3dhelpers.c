@@ -365,7 +365,6 @@ gst_d3d_surface_memory_map (GstMemory * mem, gsize maxsize, GstMapFlags flags)
 {
   GstD3DSurfaceMemory *parent;
   gpointer ret = NULL;
-  gint d3d_flags = ((flags & GST_MAP_WRITE) == 0) ? D3DLOCK_READONLY : 0;
 
   /* find the real parent */
   if ((parent = (GstD3DSurfaceMemory *) mem->parent) == NULL)
@@ -374,7 +373,7 @@ gst_d3d_surface_memory_map (GstMemory * mem, gsize maxsize, GstMapFlags flags)
   g_mutex_lock (&parent->lock);
   if (!parent->map_count
       && IDirect3DSurface9_LockRect (parent->surface, &parent->lr, NULL,
-          d3d_flags) != D3D_OK) {
+          0) != D3D_OK) {
     ret = NULL;
     goto done;
   }
@@ -592,7 +591,7 @@ gst_d3dsurface_buffer_pool_alloc_buffer (GstBufferPool * bpool,
     goto fallback;
   }
 
-  IDirect3DSurface9_LockRect (surface, &lr, NULL, D3DLOCK_READONLY);
+  IDirect3DSurface9_LockRect (surface, &lr, NULL, 0);
   if (!lr.pBits) {
     GST_ERROR_OBJECT (sink, "Failed to lock D3D surface");
     IDirect3DSurface9_Release (surface);
@@ -629,14 +628,25 @@ gst_d3dsurface_buffer_pool_alloc_buffer (GstBufferPool * bpool,
     case GST_VIDEO_FORMAT_YV12:
       offset[0] = 0;
       stride[0] = lr.Pitch;
-      offset[2] =
-          offset[0] + stride[0] * GST_VIDEO_INFO_COMP_HEIGHT (&pool->info, 0);
-      stride[2] = lr.Pitch / 2;
-      offset[1] =
-          offset[2] + stride[2] * GST_VIDEO_INFO_COMP_HEIGHT (&pool->info, 2);
-      stride[1] = lr.Pitch / 2;
-      size =
-          offset[1] + stride[1] * GST_VIDEO_INFO_COMP_HEIGHT (&pool->info, 1);
+      if (GST_VIDEO_INFO_FORMAT (&pool->info) == GST_VIDEO_FORMAT_YV12) {
+        offset[1] =
+            offset[0] + stride[0] * GST_VIDEO_INFO_COMP_HEIGHT (&pool->info, 0);
+        stride[1] = lr.Pitch / 2;
+        offset[2] =
+            offset[1] + stride[1] * GST_VIDEO_INFO_COMP_HEIGHT (&pool->info, 1);
+        stride[2] = lr.Pitch / 2;
+        size =
+            offset[2] + stride[2] * GST_VIDEO_INFO_COMP_HEIGHT (&pool->info, 2);
+      } else {
+        offset[2] =
+            offset[0] + stride[0] * GST_VIDEO_INFO_COMP_HEIGHT (&pool->info, 0);
+        stride[2] = lr.Pitch / 2;
+        offset[1] =
+            offset[2] + stride[2] * GST_VIDEO_INFO_COMP_HEIGHT (&pool->info, 2);
+        stride[1] = lr.Pitch / 2;
+        size =
+            offset[1] + stride[1] * GST_VIDEO_INFO_COMP_HEIGHT (&pool->info, 1);
+      }
       break;
     case GST_VIDEO_FORMAT_NV12:
       offset[0] = 0;
@@ -1085,7 +1095,7 @@ d3d_set_window_handle (GstD3DVideoSink * sink, guintptr window_id,
 
   /* Unset current window  */
   if (sink->d3d.window_handle != NULL) {
-    PostMessage (sink->d3d.window_handle, WM_QUIT_THREAD, NULL, NULL);
+    PostMessage (sink->d3d.window_handle, WM_QUIT_THREAD, 0, 0);
     GST_DEBUG_OBJECT (sink, "Unsetting window [HWND:%p]",
         sink->d3d.window_handle);
     d3d_window_wndproc_unset (sink);
@@ -1881,13 +1891,9 @@ d3d_render_buffer (GstD3DVideoSink * sink, GstBuffer * buf)
 
     surface = ((GstD3DSurfaceMemory *) mem)->surface;
 
-#ifndef DISABLE_BUFFER_POOL
     /* Need to keep an additional ref until the next buffer
      * to make sure it isn't reused until then */
     sink->fallback_buffer = buf;
-#else
-    sink->fallback_buffer = NULL;
-#endif
   } else {
     mem = gst_buffer_peek_memory (buf, 0);
     surface = ((GstD3DSurfaceMemory *) mem)->surface;
@@ -1900,9 +1906,7 @@ d3d_render_buffer (GstD3DVideoSink * sink, GstBuffer * buf)
 
   if (sink->d3d.surface)
     IDirect3DSurface9_Release (sink->d3d.surface);
-#ifndef DISABLE_BUFFER_POOL
   IDirect3DSurface9_AddRef (surface);
-#endif
   sink->d3d.surface = surface;
 
   if (!d3d_present_swap_chain (sink)) {
@@ -2127,7 +2131,6 @@ d3d_internal_window_thread (D3DInternalWindowDat * dat)
   GstD3DVideoSink *sink;
   HWND hWnd;
   MSG msg;
-  BOOL fGetMsg;
 
   g_return_val_if_fail (dat != NULL, NULL);
 
@@ -2610,7 +2613,7 @@ error:
   if (!ret)
     klass->d3d.error_exit = TRUE;
   if (hWnd) {
-    PostMessage (hWnd, WM_DESTROY, NULL, NULL);
+    PostMessage (hWnd, WM_DESTROY, 0, 0);
     DestroyWindow (hWnd);
     klass->d3d.hidden_window = 0;
   }

@@ -541,6 +541,9 @@
 /* Define to enable VDPAU (used by vdpau). */
 #undef HAVE_VDPAU
 
+/* Define if building with VideoToolbox */
+#undef HAVE_VIDEOTOOLBOX
+
 /* Define to enable vo-aacenc library (used by vo-aacenc). */
 #undef HAVE_VOAACENC
 

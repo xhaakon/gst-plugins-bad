@@ -81,30 +81,32 @@ build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
 @HAVE_IOS_TRUE@am__append_1 = -fobjc-abi-version=2 -fobjc-legacy-dispatch
-@HAVE_IOS_FALSE@am__append_2 = -Wl,-framework -Wl,VideoToolbox
-@HAVE_IOS_TRUE@am__append_3 = \
+@HAVE_IOS_TRUE@am__append_2 = \
 @HAVE_IOS_TRUE@	iosassetsrc.m
 
-@HAVE_IOS_TRUE@am__append_4 = \
+@HAVE_IOS_TRUE@am__append_3 = \
 @HAVE_IOS_TRUE@	-Wl,-framework -Wl,Foundation		\
 @HAVE_IOS_TRUE@	-Wl,-framework -Wl,AssetsLibrary
 
-@HAVE_IOS_FALSE@am__append_5 = \
-@HAVE_IOS_FALSE@	qtkitvideosrc.m				\
-@HAVE_IOS_FALSE@	vtenc.c 				\
-@HAVE_IOS_FALSE@	vtdec.c
+@HAVE_IOS_FALSE@am__append_4 = \
+@HAVE_IOS_FALSE@	qtkitvideosrc.m
 
-@HAVE_IOS_FALSE@am__append_6 = \
+@HAVE_IOS_FALSE@am__append_5 = \
 @HAVE_IOS_FALSE@	-Wl,-framework -Wl,Cocoa		\
 @HAVE_IOS_FALSE@	-Wl,-framework -Wl,QTKit
 
-@HAVE_AVFOUNDATION_TRUE@am__append_7 = \
+@HAVE_AVFOUNDATION_TRUE@am__append_6 = \
 @HAVE_AVFOUNDATION_TRUE@	avfvideosrc.m				\
 @HAVE_AVFOUNDATION_TRUE@	avfassetsrc.m
 
-@HAVE_AVFOUNDATION_TRUE@am__append_8 = \
+@HAVE_AVFOUNDATION_TRUE@am__append_7 = \
 @HAVE_AVFOUNDATION_TRUE@	-Wl,-framework -Wl,AVFoundation
 
+@HAVE_VIDEOTOOLBOX_TRUE@am__append_8 = \
+@HAVE_VIDEOTOOLBOX_TRUE@	vtenc.c 				\
+@HAVE_VIDEOTOOLBOX_TRUE@	vtdec.c
+
+@HAVE_VIDEOTOOLBOX_TRUE@am__append_9 = -Wl,-framework -Wl,VideoToolbox
 subdir = sys/applemedia
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp $(noinst_HEADERS)
@@ -183,15 +185,15 @@ libgstapplemedia_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__libgstapplemedia_la_SOURCES_DIST = plugin.m vtutil.c \
 	corevideobuffer.c coremediabuffer.c coremediactx.c vtapi.c \
-	atdec.c dynapi.c iosassetsrc.m qtkitvideosrc.m vtenc.c vtdec.c \
-	avfvideosrc.m avfassetsrc.m
+	atdec.c dynapi.c iosassetsrc.m qtkitvideosrc.m avfvideosrc.m \
+	avfassetsrc.m vtenc.c vtdec.c
 @HAVE_IOS_TRUE@am__objects_1 = libgstapplemedia_la-iosassetsrc.lo
-@HAVE_IOS_FALSE@am__objects_2 = libgstapplemedia_la-qtkitvideosrc.lo \
-@HAVE_IOS_FALSE@	libgstapplemedia_la-vtenc.lo \
-@HAVE_IOS_FALSE@	libgstapplemedia_la-vtdec.lo
+@HAVE_IOS_FALSE@am__objects_2 = libgstapplemedia_la-qtkitvideosrc.lo
 @HAVE_AVFOUNDATION_TRUE@am__objects_3 =  \
 @HAVE_AVFOUNDATION_TRUE@	libgstapplemedia_la-avfvideosrc.lo \
 @HAVE_AVFOUNDATION_TRUE@	libgstapplemedia_la-avfassetsrc.lo
+@HAVE_VIDEOTOOLBOX_TRUE@am__objects_4 = libgstapplemedia_la-vtenc.lo \
+@HAVE_VIDEOTOOLBOX_TRUE@	libgstapplemedia_la-vtdec.lo
 am_libgstapplemedia_la_OBJECTS = libgstapplemedia_la-plugin.lo \
 	libgstapplemedia_la-vtutil.lo \
 	libgstapplemedia_la-corevideobuffer.lo \
@@ -199,7 +201,7 @@ am_libgstapplemedia_la_OBJECTS = libgstapplemedia_la-plugin.lo \
 	libgstapplemedia_la-coremediactx.lo \
 	libgstapplemedia_la-vtapi.lo libgstapplemedia_la-atdec.lo \
 	libgstapplemedia_la-dynapi.lo $(am__objects_1) \
-	$(am__objects_2) $(am__objects_3)
+	$(am__objects_2) $(am__objects_3) $(am__objects_4)
 libgstapplemedia_la_OBJECTS = $(am_libgstapplemedia_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -789,7 +791,8 @@ wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstapplemedia.la
 libgstapplemedia_la_SOURCES = plugin.m vtutil.c corevideobuffer.c \
 	coremediabuffer.c coremediactx.c vtapi.c atdec.c dynapi.c \
-	$(am__append_3) $(am__append_5) $(am__append_7)
+	$(am__append_2) $(am__append_4) $(am__append_6) \
+	$(am__append_8)
 libgstapplemedia_la_CPPFLAGS = \
 	-Dgst_dyn_api_get_type=gst_dyn_api_priv_get_type			\
 	-Dgst_dyn_api_debug=gst_dyn_api_priv_debug				\
@@ -820,8 +823,8 @@ libgstapplemedia_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS) --tag=CC
 libgstapplemedia_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) \
 	$(GST_BASE_LDFLAGS) $(GST_PLUGINS_BASE_LDFLAGS) -Wl,-framework \
 	-Wl,CoreFoundation -Wl,-framework -Wl,CoreMedia -Wl,-framework \
-	-Wl,CoreVideo -Wl,-framework -Wl,AudioToolbox $(am__append_2) \
-	$(am__append_4) $(am__append_6) $(am__append_8)
+	-Wl,CoreVideo -Wl,-framework -Wl,AudioToolbox $(am__append_3) \
+	$(am__append_5) $(am__append_7) $(am__append_9)
 noinst_HEADERS = \
 	qtkitvideosrc.h				\
 	avfvideosrc.h				\

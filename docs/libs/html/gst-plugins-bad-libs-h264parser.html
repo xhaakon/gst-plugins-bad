@@ -1550,10 +1550,12 @@ value if available, 0 otherwise</p></td>
 <tbody>
 <tr>
 <td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstH264NalUnit.ref-idc"></a>ref_idc</code></em>;</p></td>
-<td class="struct_member_description"><p>not equal to 0 specifies that the content of the NAL unit contains a sequence
-parameter set, a sequence * parameter set extension, a subset sequence parameter set, a
-picture parameter set, a slice of a reference picture, a slice data partition of a
-reference picture, or a prefix NAL unit preceding a slice of a reference picture.</p></td>
+<td class="struct_member_description"><p>not equal to 0 specifies that the content of the NAL unit
+contains a sequence parameter set, a sequence parameter set
+extension, a subset sequence parameter set, a picture parameter
+set, a slice of a reference picture, a slice data partition of a
+reference picture, or a prefix NAL unit preceding a slice of a
+reference picture.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
@@ -1569,12 +1571,15 @@ reference picture, or a prefix NAL unit preceding a slice of a reference picture
 <tr>
 <td class="struct_member_name"><p><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstH264NalUnit.size"></a>size</code></em>;</p></td>
 <td class="struct_member_description"><p>The size of the nal unit starting from <em class="parameter"><code>offset</code></em>
-</p></td>
+, thus
+including the header bytes. e.g. <em class="parameter"><code>type</code></em>
+(nal_unit_type)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstH264NalUnit.offset"></a>offset</code></em>;</p></td>
-<td class="struct_member_description"><p>The offset of the actual start of the nal unit</p></td>
+<td class="struct_member_description"><p>The offset of the actual start of the nal unit, thus
+including the header bytes</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
@@ -1584,7 +1589,7 @@ reference picture, or a prefix NAL unit preceding a slice of a reference picture
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> <em class="structfield"><code><a name="GstH264NalUnit.valid"></a>valid</code></em>;</p></td>
-<td class="struct_member_description"><p>If the nal unit is valid, which mean it has
+<td class="struct_member_description"><p>If the nal unit is valid, which means it has
 already been parsed</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
