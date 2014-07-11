@@ -328,8 +328,8 @@ dump_linkage (GstMpegtsDescriptor * desc, guint spacing)
     switch (res->linkage_type) {
       case GST_MPEGTS_DVB_LINKAGE_MOBILE_HAND_OVER:
       {
-        GstMpegtsDVBLinkageMobileHandOver *linkage =
-            (GstMpegtsDVBLinkageMobileHandOver *) res->linkage_data;
+        const GstMpegtsDVBLinkageMobileHandOver *linkage =
+            gst_mpegts_dvb_linkage_descriptor_get_mobile_hand_over (res);
         g_printf ("%*s   hand_over_type    : 0x%02x (%s)\n", spacing,
             "", linkage->hand_over_type,
             enum_name (GST_TYPE_MPEGTS_DVB_LINKAGE_HAND_OVER_TYPE,
@@ -344,8 +344,8 @@ dump_linkage (GstMpegtsDescriptor * desc, guint spacing)
       }
       case GST_MPEGTS_DVB_LINKAGE_EVENT:
       {
-        GstMpegtsDVBLinkageEvent *linkage =
-            (GstMpegtsDVBLinkageEvent *) res->linkage_data;
+        const GstMpegtsDVBLinkageEvent *linkage =
+            gst_mpegts_dvb_linkage_descriptor_get_event (res);
         g_printf ("%*s   target_event_id   : 0x%04x\n", spacing, "",
             linkage->target_event_id);
         g_printf ("%*s   target_listed     : %s\n", spacing, "",
@@ -357,7 +357,8 @@ dump_linkage (GstMpegtsDescriptor * desc, guint spacing)
       case GST_MPEGTS_DVB_LINKAGE_EXTENDED_EVENT:
       {
         guint i;
-        GPtrArray *items = (GPtrArray *) res->linkage_data;
+        const GPtrArray *items =
+            gst_mpegts_dvb_linkage_descriptor_get_extended_event (res);
 
         for (i = 0; i < items->len; i++) {
           GstMpegtsDVBLinkageExtendedEvent *linkage =
@@ -504,6 +505,23 @@ dump_descriptors (GPtrArray * descriptors, guint spacing)
             "", SAFE_CHAR (data[0]), SAFE_CHAR (data[1]), SAFE_CHAR (data[2]),
             SAFE_CHAR (data[3]), data[0], data[1], data[2], data[3]);
 
+        break;
+      }
+      case GST_MTS_DESC_CA:
+      {
+        guint16 ca_pid, ca_system_id;
+        const guint8 *private_data;
+        gsize private_data_size;
+        if (gst_mpegts_descriptor_parse_ca (desc, &ca_system_id, &ca_pid,
+                &private_data, &private_data_size)) {
+          g_printf ("%*s   CA system id : 0x%04x\n", spacing, "", ca_system_id);
+          g_printf ("%*s   CA PID       : 0x%04x\n", spacing, "", ca_pid);
+          if (private_data_size) {
+            g_printf ("%*s   Private Data :\n", spacing, "");
+            dump_memory_bytes ((guint8 *) private_data, private_data_size,
+                spacing + 2);
+          }
+        }
         break;
       }
       case GST_MTS_DESC_DVB_NETWORK_NAME:
@@ -1083,6 +1101,17 @@ dump_vct (GstMpegtsSection * section)
 }
 
 static void
+dump_cat (GstMpegtsSection * section)
+{
+  GPtrArray *descriptors;
+
+  descriptors = gst_mpegts_section_get_cat (section);
+  g_assert (descriptors);
+  dump_descriptors (descriptors, 7);
+  g_ptr_array_unref (descriptors);
+}
+
+static void
 dump_section (GstMpegtsSection * section)
 {
   switch (GST_MPEGTS_SECTION_TYPE (section)) {
@@ -1091,6 +1120,9 @@ dump_section (GstMpegtsSection * section)
       break;
     case GST_MPEGTS_SECTION_PMT:
       dump_pmt (section);
+      break;
+    case GST_MPEGTS_SECTION_CAT:
+      dump_cat (section);
       break;
     case GST_MPEGTS_SECTION_TDT:
       dump_tdt (section);

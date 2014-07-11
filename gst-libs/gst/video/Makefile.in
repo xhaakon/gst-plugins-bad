@@ -103,9 +103,7 @@ build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
 DIST_COMMON = $(top_srcdir)/common/orc.mak $(srcdir)/Makefile.in \
-	$(srcdir)/Makefile.am $(top_srcdir)/depcomp \
-	$(libgstbadvideo_@GST_API_VERSION@include_HEADERS) \
-	$(noinst_HEADERS)
+	$(srcdir)/Makefile.am $(top_srcdir)/depcomp $(noinst_HEADERS)
 subdir = gst-libs/gst/video
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
@@ -175,9 +173,7 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(libdir)" \
-	"$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)" \
-	"$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)"
+am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstbadvideo_@GST_API_VERSION@_la_DEPENDENCIES =  \
@@ -245,9 +241,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-HEADERS = $(libgstbadvideo_@GST_API_VERSION@include_HEADERS) \
-	$(nodist_libgstbadvideo_@GST_API_VERSION@include_HEADERS) \
-	$(noinst_HEADERS)
+HEADERS = $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -783,12 +777,6 @@ libgstbadvideo_@GST_API_VERSION@_la_SOURCES = \
 	videoconvert.c gstvideoaggregator.c gstcms.c
 
 nodist_libgstbadvideo_@GST_API_VERSION@_la_SOURCES = $(BUILT_SOURCES)
-libgstbadvideo_@GST_API_VERSION@includedir = $(includedir)/gstreamer-@GST_API_VERSION@/gst/video
-libgstbadvideo_@GST_API_VERSION@include_HEADERS = \
-	gstvideoaggregatorpad.h \
-	gstvideoaggregator.h
-
-nodist_libgstbadvideo_@GST_API_VERSION@include_HEADERS = $(built_headers)
 libgstbadvideo_@GST_API_VERSION@_la_CFLAGS = \
 	-DGST_USE_UNSTABLE_API \
 	-I$(top_srcdir)/gst-libs \
@@ -801,7 +789,7 @@ libgstbadvideo_@GST_API_VERSION@_la_LIBADD = $(GST_BASE_LIBS) $(GST_LIBS) $(ORC_
 	$(top_builddir)/gst-libs/gst/base/libgstbadbase-$(GST_API_VERSION).la $(LIBM)
 
 libgstbadvideo_@GST_API_VERSION@_la_LDFLAGS = $(GST_LIB_LDFLAGS) $(GST_ALL_LDFLAGS) $(GST_LT_LDFLAGS)
-noinst_HEADERS = gstcms.h videoconvert.h
+noinst_HEADERS = gstcms.h videoconvert.h gstvideoaggregatorpad.h gstvideoaggregator.h
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -945,48 +933,6 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-libgstbadvideo_@GST_API_VERSION@includeHEADERS: $(libgstbadvideo_@GST_API_VERSION@include_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(libgstbadvideo_@GST_API_VERSION@include_HEADERS)'; test -n "$(libgstbadvideo_@GST_API_VERSION@includedir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)" || exit $$?; \
-	done
-
-uninstall-libgstbadvideo_@GST_API_VERSION@includeHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(libgstbadvideo_@GST_API_VERSION@include_HEADERS)'; test -n "$(libgstbadvideo_@GST_API_VERSION@includedir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)'; $(am__uninstall_files_from_dir)
-install-nodist_libgstbadvideo_@GST_API_VERSION@includeHEADERS: $(nodist_libgstbadvideo_@GST_API_VERSION@include_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(nodist_libgstbadvideo_@GST_API_VERSION@include_HEADERS)'; test -n "$(libgstbadvideo_@GST_API_VERSION@includedir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)" || exit $$?; \
-	done
-
-uninstall-nodist_libgstbadvideo_@GST_API_VERSION@includeHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(nodist_libgstbadvideo_@GST_API_VERSION@include_HEADERS)'; test -n "$(libgstbadvideo_@GST_API_VERSION@includedir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -1078,7 +1024,7 @@ check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)" "$(DESTDIR)$(libgstbadvideo_@GST_API_VERSION@includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -1137,9 +1083,7 @@ info: info-am
 
 info-am:
 
-install-data-am:  \
-	install-libgstbadvideo_@GST_API_VERSION@includeHEADERS \
-	install-nodist_libgstbadvideo_@GST_API_VERSION@includeHEADERS
+install-data-am:
 
 install-dvi: install-dvi-am
 
@@ -1185,9 +1129,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES \
-	uninstall-libgstbadvideo_@GST_API_VERSION@includeHEADERS \
-	uninstall-nodist_libgstbadvideo_@GST_API_VERSION@includeHEADERS
+uninstall-am: uninstall-libLTLIBRARIES
 
 .MAKE: all check install install-am install-strip
 
@@ -1199,17 +1141,12 @@ uninstall-am: uninstall-libLTLIBRARIES \
 	install-data install-data-am install-dvi install-dvi-am \
 	install-exec install-exec-am install-html install-html-am \
 	install-info install-info-am install-libLTLIBRARIES \
-	install-libgstbadvideo_@GST_API_VERSION@includeHEADERS \
-	install-man \
-	install-nodist_libgstbadvideo_@GST_API_VERSION@includeHEADERS \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
-	uninstall-libLTLIBRARIES \
-	uninstall-libgstbadvideo_@GST_API_VERSION@includeHEADERS \
-	uninstall-nodist_libgstbadvideo_@GST_API_VERSION@includeHEADERS
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am uninstall-libLTLIBRARIES
 
 
 orc-update: tmp-orc.c $(ORC_SOURCE).h

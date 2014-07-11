@@ -173,20 +173,18 @@ am__installdirs = "$(DESTDIR)$(libdir)" \
 	"$(DESTDIR)$(libgstgl_@GST_API_VERSION@includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstgl_@GST_API_VERSION@_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/base/libgstbadbase-$(GST_API_VERSION).la \
-	$(top_builddir)/gst-libs/gst/video/libgstbadvideo-$(GST_API_VERSION).la \
+libgstgl_@GST_API_VERSION@_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__append_2) $(am__append_4) \
-	$(am__append_6) $(am__append_8) $(am__append_10) \
-	$(am__append_12) $(am__append_14) $(am__append_16)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) $(am__append_2) \
+	$(am__append_4) $(am__append_6) $(am__append_8) \
+	$(am__append_10) $(am__append_12) $(am__append_14) \
+	$(am__append_16)
 am_libgstgl_@GST_API_VERSION@_la_OBJECTS =  \
 	libgstgl_@GST_API_VERSION@_la-gstgldisplay.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglcontext.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglmemory.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglbufferpool.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglfilter.lo \
-	libgstgl_@GST_API_VERSION@_la-gstglmixer.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglshader.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglshadervariables.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglcolorconvert.lo \
@@ -823,7 +821,6 @@ libgstgl_@GST_API_VERSION@_la_SOURCES = \
 	gstglmemory.c \
 	gstglbufferpool.c \
 	gstglfilter.c \
-	gstglmixer.c \
         gstglshader.c \
         gstglshadervariables.c \
         gstglcolorconvert.c \
@@ -844,8 +841,6 @@ libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gstglmemory.h \
 	gstglbufferpool.h \
 	gstglfilter.h \
-	gstglmixer.h \
-	gstglmixerpad.h \
 	gstglshadervariables.h \
 	gstglshader.h \
 	gstglcolorconvert.h \
@@ -859,13 +854,12 @@ libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gstgl_fwd.h \
 	gl.h
 
-libgstgl_@GST_API_VERSION@_la_LIBADD = $(top_builddir)/gst-libs/gst/base/libgstbadbase-$(GST_API_VERSION).la \
-	$(top_builddir)/gst-libs/gst/video/libgstbadvideo-$(GST_API_VERSION).la \
-	$(GMODULE_NO_EXPORT_LIBS) $(GST_PLUGINS_BASE_LIBS) \
-	-lgstvideo-$(GST_API_VERSION) $(GST_BASE_LIBS) $(GST_LIBS) \
-	$(GL_LIBS) $(am__append_2) $(am__append_4) $(am__append_6) \
-	$(am__append_8) $(am__append_10) $(am__append_12) \
-	$(am__append_14) $(am__append_16)
+libgstgl_@GST_API_VERSION@_la_LIBADD = $(GMODULE_NO_EXPORT_LIBS) \
+	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
+	$(GST_BASE_LIBS) $(GST_LIBS) $(GL_LIBS) $(am__append_2) \
+	$(am__append_4) $(am__append_6) $(am__append_8) \
+	$(am__append_10) $(am__append_12) $(am__append_14) \
+	$(am__append_16)
 nodist_libgstgl_@GST_API_VERSION@include_HEADERS = \
 	$(built_header_configure)
 
@@ -975,7 +969,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglfilter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglframebuffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglmemory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglmixer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglshader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglshadervariables.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglupload.Plo@am__quote@
@@ -1041,13 +1034,6 @@ libgstgl_@GST_API_VERSION@_la-gstglfilter.lo: gstglfilter.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglfilter.c' object='libgstgl_@GST_API_VERSION@_la-gstglfilter.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstgl_@GST_API_VERSION@_la-gstglfilter.lo `test -f 'gstglfilter.c' || echo '$(srcdir)/'`gstglfilter.c
-
-libgstgl_@GST_API_VERSION@_la-gstglmixer.lo: gstglmixer.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstgl_@GST_API_VERSION@_la-gstglmixer.lo -MD -MP -MF $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglmixer.Tpo -c -o libgstgl_@GST_API_VERSION@_la-gstglmixer.lo `test -f 'gstglmixer.c' || echo '$(srcdir)/'`gstglmixer.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglmixer.Tpo $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglmixer.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglmixer.c' object='libgstgl_@GST_API_VERSION@_la-gstglmixer.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstgl_@GST_API_VERSION@_la-gstglmixer.lo `test -f 'gstglmixer.c' || echo '$(srcdir)/'`gstglmixer.c
 
 libgstgl_@GST_API_VERSION@_la-gstglshader.lo: gstglshader.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstgl_@GST_API_VERSION@_la-gstglshader.lo -MD -MP -MF $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglshader.Tpo -c -o libgstgl_@GST_API_VERSION@_la-gstglshader.lo `test -f 'gstglshader.c' || echo '$(srcdir)/'`gstglshader.c

@@ -163,6 +163,7 @@ struct _GstAggregatorPrivate
    * we can not add any source, avoiding:
    * "g_source_attach: assertion '!SOURCE_DESTROYED (source)' failed" */
   GMutex mcontext_lock;
+  GList *gsources;
 
   gboolean send_stream_start;
   gboolean send_segment;
@@ -361,6 +362,7 @@ gst_aggregator_finish_buffer (GstAggregator * self, GstBuffer * buffer)
     GST_INFO_OBJECT (self, "Not pushing (active: %i, flushing: %i)",
         g_atomic_int_get (&self->priv->flush_seeking),
         gst_pad_is_active (self->srcpad));
+    gst_buffer_unref (buffer);
     return GST_FLOW_OK;
   }
 }
@@ -374,17 +376,22 @@ _push_eos (GstAggregator * self)
   gst_pad_push_event (self->srcpad, gst_event_new_eos ());
 }
 
+
+static void
+_destroy_gsource (GSource * source)
+{
+  g_source_destroy (source);
+  g_source_unref (source);
+}
+
 static void
 _remove_all_sources (GstAggregator * self)
 {
-  GSource *source;
+  GstAggregatorPrivate *priv = self->priv;
 
   MAIN_CONTEXT_LOCK (self);
-  while ((source =
-          g_main_context_find_source_by_user_data (self->priv->mcontext,
-              self))) {
-    g_source_destroy (source);
-  }
+  g_list_free_full (priv->gsources, (GDestroyNotify) _destroy_gsource);
+  priv->gsources = NULL;
   MAIN_CONTEXT_UNLOCK (self);
 }
 
@@ -487,9 +494,14 @@ _start_srcpad_task (GstAggregator * self)
 static inline void
 _add_aggregate_gsource (GstAggregator * self)
 {
+  GSource *source;
+  GstAggregatorPrivate *priv = self->priv;
+
   MAIN_CONTEXT_LOCK (self);
-  g_main_context_invoke (self->priv->mcontext, (GSourceFunc) aggregate_func,
-      self);
+  source = g_idle_source_new ();
+  g_source_set_callback (source, (GSourceFunc) aggregate_func, self, NULL);
+  priv->gsources = g_list_prepend (priv->gsources, source);
+  g_source_attach (source, priv->mcontext);
   MAIN_CONTEXT_UNLOCK (self);
 }
 
@@ -625,9 +637,9 @@ _sink_event (GstAggregator * self, GstAggregatorPad * aggpad, GstEvent * event)
     }
     case GST_EVENT_SEGMENT:
     {
+      PAD_LOCK_EVENT (aggpad);
       gst_event_copy_segment (event, &aggpad->segment);
       PAD_UNLOCK_EVENT (aggpad);
-
       goto eat;
     }
     case GST_EVENT_STREAM_START:
@@ -1006,10 +1018,32 @@ _sink_query (GstAggregator * self, GstAggregatorPad * aggpad, GstQuery * query)
   return gst_pad_query_default (pad, GST_OBJECT (self), query);
 }
 
+static void
+gst_aggregator_finalize (GObject * object)
+{
+  GstAggregator *self = (GstAggregator *) object;
+
+  g_mutex_clear (&self->priv->mcontext_lock);
+
+  G_OBJECT_CLASS (aggregator_parent_class)->finalize (object);
+}
+
+static void
+gst_aggregator_dispose (GObject * object)
+{
+  GstAggregator *self = (GstAggregator *) object;
+
+  G_OBJECT_CLASS (aggregator_parent_class)->dispose (object);
+
+  g_main_context_unref (self->priv->mcontext);
+  _remove_all_sources (self);
+}
+
 /* GObject vmethods implementations */
 static void
 gst_aggregator_class_init (GstAggregatorClass * klass)
 {
+  GObjectClass *gobject_class = (GObjectClass *) klass;
   GstElementClass *gstelement_class = (GstElementClass *) klass;
 
   aggregator_parent_class = g_type_class_peek_parent (klass);
@@ -1031,6 +1065,9 @@ gst_aggregator_class_init (GstAggregatorClass * klass)
   gstelement_class->request_new_pad = GST_DEBUG_FUNCPTR (_request_new_pad);
   gstelement_class->release_pad = GST_DEBUG_FUNCPTR (_release_pad);
   gstelement_class->change_state = GST_DEBUG_FUNCPTR (_change_state);
+
+  gobject_class->finalize = gst_aggregator_finalize;
+  gobject_class->dispose = gst_aggregator_dispose;
 }
 
 static void
@@ -1066,6 +1103,8 @@ gst_aggregator_init (GstAggregator * self, GstAggregatorClass * klass)
       GST_DEBUG_FUNCPTR ((GstPadActivateModeFunction) src_activate_mode));
 
   gst_element_add_pad (GST_ELEMENT (self), self->srcpad);
+
+  g_mutex_init (&self->priv->mcontext_lock);
 }
 
 /* we can't use G_DEFINE_ABSTRACT_TYPE because we need the klass in the _init
@@ -1142,12 +1181,14 @@ _chain (GstPad * pad, GstObject * object, GstBuffer * buffer)
 
 flushing:
 
+  gst_buffer_unref (buffer);
   GST_DEBUG_OBJECT (aggpad, "We are flushing");
 
   return GST_FLOW_FLUSHING;
 
 eos:
 
+  gst_buffer_unref (buffer);
   GST_DEBUG_OBJECT (pad, "We are EOS already...");
 
   return GST_FLOW_EOS;
@@ -1196,6 +1237,7 @@ pad_activate_mode_func (GstPad * pad,
 /***********************************
  * GstAggregatorPad implementation  *
  ************************************/
+static GstPadClass *aggregator_pad_parent_class = NULL;
 G_DEFINE_TYPE (GstAggregatorPad, gst_aggregator_pad, GST_TYPE_PAD);
 
 static void
@@ -1214,13 +1256,40 @@ _pad_constructed (GObject * object)
 }
 
 static void
+gst_aggregator_pad_finalize (GObject * object)
+{
+  GstAggregatorPad *pad = (GstAggregatorPad *) object;
+
+  g_mutex_clear (&pad->priv->event_lock);
+  g_cond_clear (&pad->priv->event_cond);
+
+  G_OBJECT_CLASS (aggregator_pad_parent_class)->finalize (object);
+}
+
+static void
+gst_aggregator_pad_dispose (GObject * object)
+{
+  GstAggregatorPad *pad = (GstAggregatorPad *) object;
+  GstBuffer *buf;
+
+  buf = gst_aggregator_pad_steal_buffer (pad);
+  if (buf)
+    gst_buffer_unref (buf);
+
+  G_OBJECT_CLASS (aggregator_pad_parent_class)->dispose (object);
+}
+
+static void
 gst_aggregator_pad_class_init (GstAggregatorPadClass * klass)
 {
   GObjectClass *gobject_class = (GObjectClass *) klass;
 
+  aggregator_pad_parent_class = g_type_class_peek_parent (klass);
   g_type_class_add_private (klass, sizeof (GstAggregatorPadPrivate));
 
   gobject_class->constructed = GST_DEBUG_FUNCPTR (_pad_constructed);
+  gobject_class->finalize = GST_DEBUG_FUNCPTR (gst_aggregator_pad_finalize);
+  gobject_class->dispose = GST_DEBUG_FUNCPTR (gst_aggregator_pad_dispose);
 }
 
 static void

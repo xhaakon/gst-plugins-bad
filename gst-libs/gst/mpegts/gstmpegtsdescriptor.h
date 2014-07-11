@@ -255,7 +255,13 @@ struct _GstMpegtsDescriptor
   guint8 tag_extension;
   guint8 length;
   guint8 *data;
+
+  /*< private >*/
+  /* Padding for future extension */
+  gpointer _gst_reserved[GST_PADDING];
 };
+
+void       gst_mpegts_descriptor_free (GstMpegtsDescriptor *desc);
 
 GPtrArray *gst_mpegts_parse_descriptors (guint8 * buffer, gsize buf_len);
 
@@ -267,6 +273,13 @@ const GstMpegtsDescriptor * gst_mpegts_find_descriptor (GPtrArray *descriptors,
 GstMpegtsDescriptor *gst_mpegts_descriptor_from_registration (
     const gchar *format_identifier,
     guint8 *additional_info, gsize additional_info_length);
+
+/* GST_MTS_DESC_CA (0x09) */
+gboolean  gst_mpegts_descriptor_parse_ca (GstMpegtsDescriptor *descriptor,
+					  guint16 *ca_system_id,
+					  guint16 *ca_pid,
+					  const guint8 **private_data,
+					  gsize *private_data_size);
 
 /* GST_MTS_DESC_ISO_639_LANGUAGE (0x0A) */
 /**

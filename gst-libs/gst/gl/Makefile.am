@@ -14,7 +14,6 @@ libgstgl_@GST_API_VERSION@_la_SOURCES = \
 	gstglmemory.c \
 	gstglbufferpool.c \
 	gstglfilter.c \
-	gstglmixer.c \
         gstglshader.c \
         gstglshadervariables.c \
         gstglcolorconvert.c \
@@ -35,8 +34,6 @@ libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gstglmemory.h \
 	gstglbufferpool.h \
 	gstglfilter.h \
-	gstglmixer.h \
-	gstglmixerpad.h \
 	gstglshadervariables.h \
 	gstglshader.h \
 	gstglcolorconvert.h \
@@ -51,8 +48,6 @@ libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gl.h
 
 libgstgl_@GST_API_VERSION@_la_LIBADD = \
-	$(top_builddir)/gst-libs/gst/base/libgstbadbase-$(GST_API_VERSION).la \
-	$(top_builddir)/gst-libs/gst/video/libgstbadvideo-$(GST_API_VERSION).la \
 	$(GMODULE_NO_EXPORT_LIBS) \
 	$(GST_PLUGINS_BASE_LIBS) \
 	-lgstvideo-$(GST_API_VERSION) \

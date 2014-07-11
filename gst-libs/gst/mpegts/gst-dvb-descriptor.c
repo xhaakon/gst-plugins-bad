@@ -97,7 +97,10 @@ gst_mpegts_descriptor_from_dvb_network_name (const gchar * name)
 
   converted_name = dvb_text_from_utf8 (name, &size);
 
-  g_return_val_if_fail (size < 256, NULL);
+  if (size >= 256) {
+    g_free (converted_name);
+    return NULL;
+  }
 
   if (!converted_name) {
     GST_WARNING ("Could not find proper encoding for string `%s`", name);
@@ -519,10 +522,8 @@ gst_mpegts_descriptor_from_dvb_service (GstMpegtsDVBServiceType service_type,
     memcpy (data, conv_service_name, service_size);
 
 beach:
-  if (conv_service_name)
-    g_free (conv_service_name);
-  if (conv_provider_name)
-    g_free (conv_provider_name);
+  g_free (conv_service_name);
+  g_free (conv_provider_name);
 
   return descriptor;
 }
@@ -551,8 +552,8 @@ _gst_mpegts_dvb_linkage_descriptor_copy (GstMpegtsDVBLinkageDescriptor * source)
       break;
   }
 
-  copy->private_data_bytes = g_slice_copy (source->private_data_length,
-      source->private_data_bytes);
+  copy->private_data_bytes = g_memdup (source->private_data_bytes,
+      source->private_data_length);
 
   return copy;
 }
@@ -560,21 +561,22 @@ _gst_mpegts_dvb_linkage_descriptor_copy (GstMpegtsDVBLinkageDescriptor * source)
 void
 gst_mpegts_dvb_linkage_descriptor_free (GstMpegtsDVBLinkageDescriptor * source)
 {
-  switch (source->linkage_type) {
-    case GST_MPEGTS_DVB_LINKAGE_MOBILE_HAND_OVER:
-      g_slice_free (GstMpegtsDVBLinkageMobileHandOver, source->linkage_data);
-      break;
-    case GST_MPEGTS_DVB_LINKAGE_EVENT:
-      g_slice_free (GstMpegtsDVBLinkageEvent, source->linkage_data);
-      break;
-    case GST_MPEGTS_DVB_LINKAGE_EXTENDED_EVENT:
-      g_ptr_array_unref (source->linkage_data);
-      break;
-    default:
-      break;
-  }
+  if (source->linkage_data)
+    switch (source->linkage_type) {
+      case GST_MPEGTS_DVB_LINKAGE_MOBILE_HAND_OVER:
+        g_slice_free (GstMpegtsDVBLinkageMobileHandOver, source->linkage_data);
+        break;
+      case GST_MPEGTS_DVB_LINKAGE_EVENT:
+        g_slice_free (GstMpegtsDVBLinkageEvent, source->linkage_data);
+        break;
+      case GST_MPEGTS_DVB_LINKAGE_EXTENDED_EVENT:
+        g_ptr_array_unref (source->linkage_data);
+        break;
+      default:
+        break;
+    }
 
-  g_slice_free1 (source->private_data_length, source->private_data_bytes);
+  g_free (source->private_data_bytes);
   g_slice_free (GstMpegtsDVBLinkageDescriptor, source);
 }
 
@@ -632,7 +634,7 @@ gst_mpegts_descriptor_parse_dvb_linkage (const GstMpegtsDescriptor * descriptor,
       GstMpegtsDVBLinkageMobileHandOver *hand_over;
 
       if (end - data < 1)
-        return FALSE;
+        goto fail;
 
       hand_over = g_slice_new0 (GstMpegtsDVBLinkageMobileHandOver);
       res->linkage_data = (gpointer) hand_over;
@@ -647,22 +649,16 @@ gst_mpegts_descriptor_parse_dvb_linkage (const GstMpegtsDescriptor * descriptor,
           GST_MPEGTS_DVB_LINKAGE_HAND_OVER_LOCAL_VARIATION
           || hand_over->hand_over_type ==
           GST_MPEGTS_DVB_LINKAGE_HAND_OVER_ASSOCIATED) {
-        if (end - data < 2) {
-          g_slice_free (GstMpegtsDVBLinkageMobileHandOver, hand_over);
-          res->linkage_data = NULL;
-          return FALSE;
-        }
+        if (end - data < 2)
+          goto fail;
 
         hand_over->network_id = GST_READ_UINT16_BE (data);
         data += 2;
       }
 
       if (hand_over->origin_type == 0) {
-        if (end - data < 2) {
-          g_slice_free (GstMpegtsDVBLinkageMobileHandOver, hand_over);
-          res->linkage_data = NULL;
-          return FALSE;
-        }
+        if (end - data < 2)
+          goto fail;
 
         hand_over->initial_service_id = GST_READ_UINT16_BE (data);
         data += 2;
@@ -673,7 +669,7 @@ gst_mpegts_descriptor_parse_dvb_linkage (const GstMpegtsDescriptor * descriptor,
       GstMpegtsDVBLinkageEvent *event;
 
       if (end - data < 3)
-        return FALSE;
+        goto fail;
 
       event = g_slice_new0 (GstMpegtsDVBLinkageEvent);
       res->linkage_data = (gpointer) event;
@@ -762,9 +758,59 @@ gst_mpegts_descriptor_parse_dvb_linkage (const GstMpegtsDescriptor * descriptor,
   return TRUE;
 
 fail:
-  g_ptr_array_unref (res->linkage_data);
-  res->linkage_data = NULL;
+  gst_mpegts_dvb_linkage_descriptor_free (res);
   return FALSE;
+}
+
+/**
+ * gst_mpegts_dvb_linkage_descriptor_get_mobile_hand_over:
+ * @desc: the #GstMpegtsDVBLinkageDescriptor
+ *
+ * Returns: The #GstMpegtsDVBLinkageMobileHandOver or %NULL if an error happened
+ */
+const GstMpegtsDVBLinkageMobileHandOver *
+gst_mpegts_dvb_linkage_descriptor_get_mobile_hand_over (const
+    GstMpegtsDVBLinkageDescriptor * desc)
+{
+  g_return_val_if_fail (desc != NULL, NULL);
+  g_return_val_if_fail (desc->linkage_type ==
+      GST_MPEGTS_DVB_LINKAGE_MOBILE_HAND_OVER, NULL);
+
+  return (const GstMpegtsDVBLinkageMobileHandOver *) desc->linkage_data;
+}
+
+/**
+ * gst_mpegts_dvb_linkage_descriptor_get_event:
+ * @desc: the #GstMpegtsDVBLinkageDescriptor
+ *
+ * Returns: The #GstMpegtsDVBLinkageEvent or %NULL if an error happened
+ */
+const GstMpegtsDVBLinkageEvent *
+gst_mpegts_dvb_linkage_descriptor_get_event (const GstMpegtsDVBLinkageDescriptor
+    * desc)
+{
+  g_return_val_if_fail (desc != NULL, NULL);
+  g_return_val_if_fail (desc->linkage_type ==
+      GST_MPEGTS_DVB_LINKAGE_EVENT, NULL);
+
+  return (const GstMpegtsDVBLinkageEvent *) desc->linkage_data;
+}
+
+/**
+ * gst_mpegts_dvb_linkage_descriptor_get_extended_event:
+ * @desc: the #GstMpegtsDVBLinkageDescriptor
+ *
+ * Returns: (element-type GstMpegtsDVBLinkageExtendedEvent): an #GstMpegtsDVBLinkageExtendedEvent array or %NULL if an error happened
+ */
+const GPtrArray *
+gst_mpegts_dvb_linkage_descriptor_get_extended_event (const
+    GstMpegtsDVBLinkageDescriptor * desc)
+{
+  g_return_val_if_fail (desc != NULL, NULL);
+  g_return_val_if_fail (desc->linkage_type ==
+      GST_MPEGTS_DVB_LINKAGE_EXTENDED_EVENT, NULL);
+
+  return (const GPtrArray *) desc->linkage_data;
 }
 
 /* GST_MTS_DESC_DVB_SHORT_EVENT (0x4D) */
@@ -974,7 +1020,7 @@ _gst_mpegts_extended_event_descriptor_copy (GstMpegtsExtendedEventDescriptor *
 
   copy = g_slice_dup (GstMpegtsExtendedEventDescriptor, source);
   copy->items = g_ptr_array_ref (source->items);
-  copy->text = g_slice_copy (sizeof (source->text), source->text);
+  copy->text = g_strdup (source->text);
 
   return copy;
 }
@@ -984,6 +1030,7 @@ gst_mpegts_extended_event_descriptor_free (GstMpegtsExtendedEventDescriptor *
     source)
 {
   g_free (source->text);
+  g_free (source->language_code);
   g_ptr_array_unref (source->items);
   g_slice_free (GstMpegtsExtendedEventDescriptor, source);
 }
@@ -1089,12 +1136,8 @@ _gst_mpegts_dvb_component_descriptor_copy (GstMpegtsComponentDescriptor *
 void
 gst_mpegts_dvb_component_descriptor_free (GstMpegtsComponentDescriptor * source)
 {
-  if (source->language_code)
-    g_free (source->language_code);
-
-  if (source->text)
-    g_free (source->text);
-
+  g_free (source->language_code);
+  g_free (source->text);
   g_slice_free (GstMpegtsComponentDescriptor, source);
 }
 
@@ -1856,7 +1899,7 @@ _gst_mpegts_dvb_data_broadcast_descriptor_copy (GstMpegtsDataBroadcastDescriptor
 
   copy = g_slice_dup (GstMpegtsDataBroadcastDescriptor, source);
 
-  copy->selector_bytes = g_slice_copy (source->length, source->selector_bytes);
+  copy->selector_bytes = g_memdup (source->selector_bytes, source->length);
   copy->language_code = g_strdup (source->language_code);
   copy->text = g_strdup (source->text);
 

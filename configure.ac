@@ -3,7 +3,7 @@ AC_PREREQ([2.68])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.3.90],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.3.91],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -48,11 +48,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 390, 0, 390)
+AS_LIBTOOL(GST, 391, 0, 391)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.3.90
-GSTPB_REQ=1.3.90
+GST_REQ=1.3.91
+GSTPB_REQ=1.3.91
 
 dnl *** autotools stuff ****
 
@@ -501,6 +501,7 @@ fi
 
 AC_CHECK_HEADER(AVFoundation/AVFoundation.h, HAVE_AVFOUNDATION="yes", HAVE_AVFOUNDATION="no", [-])
 AC_CHECK_HEADER(MobileCoreServices/MobileCoreServices.h, HAVE_IOS="yes", HAVE_IOS="no", [-])
+AC_CHECK_HEADER(VideoToolbox/VideoToolbox.h, HAVE_VIDEOTOOLBOX="yes", HAVE_VIDEOTOOLBOX="no", [-])
 
 AM_CONDITIONAL(HAVE_AVFOUNDATION, test "x$HAVE_AVFOUNDATION" = "xyes")
 if test "x$HAVE_AVFOUNDATION" = "xyes"; then
@@ -510,6 +511,11 @@ fi
 AM_CONDITIONAL(HAVE_IOS, test "x$HAVE_IOS" = "xyes")
 if test "x$HAVE_IOS" = "xyes"; then
   AC_DEFINE(HAVE_IOS, 1, [Define if building for Apple iOS])
+fi
+
+AM_CONDITIONAL(HAVE_VIDEOTOOLBOX, test "x$HAVE_VIDEOTOOLBOX" = "xyes")
+if test "x$HAVE_VIDEOTOOLBOX" = "xyes"; then
+  AC_DEFINE(HAVE_VIDEOTOOLBOX, 1, [Define if building with VideoToolbox])
 fi
 
 dnl disable gst plugins we might not be able to build on this
@@ -3005,6 +3011,7 @@ AM_CONDITIONAL(USE_FAAD, false)
 AM_CONDITIONAL(USE_FBDEV, false)
 AM_CONDITIONAL(USE_FLITE, false)
 AM_CONDITIONAL(USE_FLUIDSYNTH, false)
+AM_CONDITIONAL(USE_GL, false)
 AM_CONDITIONAL(USE_GSM, false)
 AM_CONDITIONAL(USE_HLS, false)
 AM_CONDITIONAL(USE_KATE, false)
@@ -3050,6 +3057,7 @@ AM_CONDITIONAL(USE_VDPAU, false)
 AM_CONDITIONAL(USE_SBC, false)
 AM_CONDITIONAL(USE_SCHRO, false)
 AM_CONDITIONAL(USE_ZBAR, false)
+AM_CONDITIONAL(USE_RSVG, false)
 AM_CONDITIONAL(USE_RTMP, false)
 AM_CONDITIONAL(USE_TELETEXTDEC, false)
 AM_CONDITIONAL(USE_SNDIO, false)

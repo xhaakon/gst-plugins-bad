@@ -587,6 +587,12 @@ gst_uvc_h264_src_dispose (GObject * object)
   if (self->usb_ctx)
     libusb_exit (self->usb_ctx);
   self->usb_ctx = NULL;
+  g_free (self->jpeg_decoder_name);
+  self->jpeg_decoder_name = NULL;
+  g_free (self->colorspace_name);
+  self->colorspace_name = NULL;
+  g_free (self->device);
+  self->device = NULL;
 
   G_OBJECT_CLASS (parent_class)->dispose (object);
 }
@@ -2728,6 +2734,8 @@ gst_uvc_h264_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
       self->secondary_format = UVC_H264_SRC_FORMAT_RAW;
     } else {
       g_assert_not_reached ();
+      type = NONE_NONE;
+      self->main_format = UVC_H264_SRC_FORMAT_NONE;
     }
   } else {
     type = NONE_NONE;

@@ -252,10 +252,12 @@ GstMpegtsContent
 gst_mpegts_descriptor_parse_dvb_content
 <SUBSECTION component>
 GstMpegtsComponentDescriptor
+gst_mpegts_dvb_component_descriptor_free
 gst_mpegts_descriptor_parse_dvb_component
 <SUBSECTION extended_event>
 GstMpegtsExtendedEventItem
 GstMpegtsExtendedEventDescriptor
+gst_mpegts_extended_event_descriptor_free
 gst_mpegts_descriptor_parse_dvb_extended_event
 <SUBSECTION satellite_delivery>
 GstMpegtsSatelliteDeliverySystemDescriptor
@@ -280,6 +282,7 @@ gst_mpegts_descriptor_parse_terrestrial_delivery_system
 GstMpegtsT2DeliverySystemCellExtension
 GstMpegtsT2DeliverySystemCell
 GstMpegtsT2DeliverySystemDescriptor
+gst_mpegts_t2_delivery_system_descriptor_free
 gst_mpegts_descriptor_parse_dvb_t2_delivery_system
 <SUBSECTION short_event>
 gst_mpegts_descriptor_parse_dvb_short_event
@@ -305,6 +308,10 @@ GstMpegtsDVBLinkageMobileHandOver
 GstMpegtsDVBLinkageEvent
 GstMpegtsDVBLinkageExtendedEvent
 GstMpegtsDVBLinkageDescriptor
+gst_mpegts_dvb_linkage_descriptor_free
+gst_mpegts_dvb_linkage_descriptor_get_mobile_hand_over
+gst_mpegts_dvb_linkage_descriptor_get_event
+gst_mpegts_dvb_linkage_descriptor_get_extended_event
 gst_mpegts_descriptor_parse_dvb_linkage
 <SUBSECTION private_data_specifier>
 gst_mpegts_descriptor_parse_dvb_private_data_specifier
@@ -312,6 +319,7 @@ gst_mpegts_descriptor_parse_dvb_private_data_specifier
 gst_mpegts_descriptor_parse_dvb_frequency_list
 <SUBSECTION data_broadcast>
 GstMpegtsDataBroadcastDescriptor
+gst_mpegts_dvb_data_broadcast_descriptor_free
 gst_mpegts_descriptor_parse_dvb_data_broadcast
 <SUBSECTION scrambling>
 GstMpegtsDVBScramblingModeType
@@ -1031,38 +1039,6 @@ gst_is_egl_image_memory
 GST_EGL_IMAGE_MEMORY_TYPE
 GST_CAPS_FEATURE_MEMORY_EGL_IMAGE
 <SUBSECTION Standard>
-</SECTION>
-
-<SECTION>
-<FILE>gstglmixer</FILE>
-GstGLMixerPad
-GstGLMixerPadClass
-GstGLMixerCollect
-<TITLE>GstGLMixer</TITLE>
-GstGLMixer
-GstGLMixerClass
-GstGLMixerProcessFunc
-GstGLMixerSetCaps
-GstGLMixerReset
-GstGLMixerProcessTextures
-GstGLMixerFrameData
-gst_gl_mixer_process_textures
-gst_gl_mixer_set_pad_type
-<SUBSECTION Standard>
-GstGLMixerPrivate
-GST_GL_MIXER
-GST_GL_MIXER_CLASS
-GST_GL_MIXER_GET_CLASS
-GST_GL_MIXER_PAD
-GST_GL_MIXER_PAD_CLASS
-gst_gl_mixer_get_type
-gst_gl_mixer_pad_get_type
-GST_IS_GL_MIXER
-GST_IS_GL_MIXER_CLASS
-GST_IS_GL_MIXER_PAD
-GST_IS_GL_MIXER_PAD_CLASS
-GST_TYPE_GL_MIXER
-GST_TYPE_GL_MIXER_PAD
 </SECTION>
 
 <SECTION>

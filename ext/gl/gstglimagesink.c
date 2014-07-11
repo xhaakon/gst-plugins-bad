@@ -293,7 +293,7 @@ gst_glimage_sink_init (GstGLImageSink * glimage_sink)
   glimage_sink->window_id = 0;
   glimage_sink->new_window_id = 0;
   glimage_sink->display = NULL;
-  glimage_sink->keep_aspect_ratio = FALSE;
+  glimage_sink->keep_aspect_ratio = TRUE;
   glimage_sink->par_n = 0;
   glimage_sink->par_d = 1;
   glimage_sink->pool = NULL;
@@ -358,6 +358,7 @@ gst_glimage_sink_finalize (GObject * object)
   g_free (glimage_sink->display_name);
 
   GST_DEBUG ("finalized");
+  G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
 static void
@@ -587,6 +588,9 @@ gst_glimage_sink_change_state (GstElement * element, GstStateChange transition)
         gst_object_unref (window);
         gst_object_unref (glimage_sink->context);
         glimage_sink->context = NULL;
+      }
+
+      if (glimage_sink->display) {
         gst_object_unref (glimage_sink->display);
         glimage_sink->display = NULL;
       }
