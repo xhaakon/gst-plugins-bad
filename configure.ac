@@ -3,7 +3,7 @@ AC_PREREQ([2.68])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.3.91],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.4.0],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -48,11 +48,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 391, 0, 391)
+AS_LIBTOOL(GST, 400, 0, 400)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.3.91
-GSTPB_REQ=1.3.91
+GST_REQ=1.4.0
+GSTPB_REQ=1.4.0
 
 dnl *** autotools stuff ****
 
@@ -990,6 +990,7 @@ case $host in
       if test "x$NEED_EGL" != "xno"; then
         if test "x$HAVE_WINDOW_WAYLAND" = "xyes" -o "x$HAVE_WINDOW_X11" = "xyes" -o "x$HAVE_WINDOW_DISPMANX" = "xyes"; then
           GL_LIBS="$GL_LIBS -lEGL $EGL_LIBS"
+          GL_CFLAGS="$GL_CFLAGS $EGL_CFLAGS"
           USE_EGL=yes
         fi
       fi
@@ -1326,6 +1327,9 @@ GST_GL_HAVE_GLCHAR=0
 GST_GL_HAVE_GLSIZEIPTR=0
 GST_GL_HAVE_GLINTPTR=0
 
+old_CFLAGS=$CFLAGS
+CFLAGS="$GL_CFLAGS $CFLAGS"
+
 AC_CHECK_TYPES(GLeglImageOES, [], [], [[$GL_INCLUDES]])
 if test "x$ac_cv_type_GLeglImageOES" = "xyes"; then
   GST_GL_HAVE_GLEGLIMAGEOES=1
@@ -1345,6 +1349,8 @@ AC_CHECK_TYPES(GLintptr, [], [], [[$GL_INCLUDES]])
 if test "x$ac_cv_type_GLintptr" = "xyes"; then
   GST_GL_HAVE_GLINTPTR=1
 fi
+
+CFLAGS=$old_CFLAGS
 
 GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
 #define GST_GL_HAVE_GLEGLIMAGEOES $GST_GL_HAVE_GLEGLIMAGEOES
