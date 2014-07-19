@@ -44,21 +44,25 @@
 #include "config.h"
 #endif
 
+#include "gstcurlsshsink.h"
+#include "gstcurlsftpsink.h"
+
 #include <curl/curl.h>
 #include <string.h>
 #include <stdio.h>
 
+#ifdef G_OS_WIN32
+#include <winsock2.h>
+#else
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <netinet/in.h>
-#include <unistd.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
+#endif
+#include <sys/types.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-#include "gstcurlsshsink.h"
-#include "gstcurlsftpsink.h"
 
 /* Default values */
 #define GST_CAT_DEFAULT    gst_curl_sftp_sink_debug
