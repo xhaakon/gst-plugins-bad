@@ -8,15 +8,14 @@
 <link rel="up" href="base.html" title="GStreamer Base classes from gst-plugins-bad">
 <link rel="prev" href="base.html" title="GStreamer Base classes from gst-plugins-bad">
 <link rel="next" href="gst-plugins-bad-libs-GstAggregatorPad.html" title="GstAggregatorPad">
-<meta name="generator" content="GTK-Doc V1.20 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.21 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
-<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="10"><tr valign="middle">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
-<a href="#" class="shortcut">Top</a><span id="nav_description"> <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-libs-GstAggregator.description" class="shortcut">Description</a></span><span id="nav_hierarchy"> <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-libs-GstAggregator.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-libs-GstAggregator.description" class="shortcut">Description</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="base.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
@@ -88,11 +87,6 @@ aggregating their buffers.</p>
 </table></div>
 </div>
 <div class="refsect1">
-<a name="gst-plugins-bad-libs-GstAggregator.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">
-</pre>
-</div>
-<div class="refsect1">
 <a name="gst-plugins-bad-libs-GstAggregator.description"></a><h2>Description</h2>
 <p>Manages a set of pads with the purpose of aggregating their buffers.
 Control is given to the subclass when all pads have data.</p>
@@ -131,11 +125,11 @@ Control is given to the subclass when all pads have data.</p>
 <a name="gst-aggregator-finish-buffer"></a><h3>gst_aggregator_finish_buffer ()</h3>
 <pre class="programlisting"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstPad.html#GstFlowReturn"><span class="returnvalue">GstFlowReturn</span></a>
 gst_aggregator_finish_buffer (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstAggregator.html#GstAggregator" title="struct GstAggregator"><span class="type">GstAggregator</span></a> *agg</code></em>,
-                              <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="type">GstBuffer</span></a> *buffer</code></em>);</pre>
+                              <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBuffer.html"><span class="type">GstBuffer</span></a> *buffer</code></em>);</pre>
 <p>This method will take care of sending mandatory events before pushing
 the provided buffer.</p>
 <div class="refsect3">
-<a name="id-1.2.7.2.7.2.5"></a><h4>Parameters</h4>
+<a name="id-1.2.7.2.6.2.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -150,7 +144,7 @@ the provided buffer.</p>
 </tr>
 <tr>
 <td class="parameter_name"><p>buffer</p></td>
-<td class="parameter_description"><p>the <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="type">GstBuffer</span></a> to push.</p></td>
+<td class="parameter_description"><p>the <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBuffer.html"><span class="type">GstBuffer</span></a> to push.</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 </tbody>
@@ -162,10 +156,10 @@ the provided buffer.</p>
 <a name="gst-aggregator-set-src-caps"></a><h3>gst_aggregator_set_src_caps ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_aggregator_set_src_caps (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstAggregator.html#GstAggregator" title="struct GstAggregator"><span class="type">GstAggregator</span></a> *agg</code></em>,
-                             <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *caps</code></em>);</pre>
+                             <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> *caps</code></em>);</pre>
 <p>Sets the caps to be used on the src pad.</p>
 <div class="refsect3">
-<a name="id-1.2.7.2.7.3.5"></a><h4>Parameters</h4>
+<a name="id-1.2.7.2.6.3.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -180,7 +174,7 @@ gst_aggregator_set_src_caps (<em class="parameter"><code><a class="link" href="g
 </tr>
 <tr>
 <td class="parameter_name"><p>caps</p></td>
-<td class="parameter_description"><p>The <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> to set later on the src pad.</p></td>
+<td class="parameter_description"><p>The <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> to set later on the src pad.</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 </tbody>
@@ -199,7 +193,7 @@ gst_aggregator_iterate_sinkpads (<em class="parameter"><code><a class="link" hre
  will be called only once for each
 sink pad.</p>
 <div class="refsect3">
-<a name="id-1.2.7.2.7.4.6"></a><h4>Parameters</h4>
+<a name="id-1.2.7.2.6.4.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -242,7 +236,7 @@ sink pad.</p>
 </pre>
 <p>Collectpads object.</p>
 <div class="refsect3">
-<a name="id-1.2.7.2.8.2.5"></a><h4>Members</h4>
+<a name="id-1.2.7.2.7.2.5"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -261,7 +255,7 @@ sink pad.</p>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstSegment.html#GstSegment"><span class="type">GstSegment</span></a> <em class="structfield"><code><a name="GstAggregator.segment"></a>segment</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstSegment.html"><span class="type">GstSegment</span></a> <em class="structfield"><code><a name="GstAggregator.segment"></a>segment</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
@@ -320,7 +314,7 @@ the way the implementor sees fit.</p>
 , and call
 _finish_buffer from inside that function.</p>
 <div class="refsect3">
-<a name="id-1.2.7.2.8.3.7"></a><h4>Members</h4>
+<a name="id-1.2.7.2.7.3.7"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -430,6 +424,6 @@ aggregated buffers.</p></td>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.20</div>
+          Generated by GTK-Doc V1.21</div>
 </body>
 </html>

@@ -61,7 +61,6 @@
 <ANCHOR id="GstBurn--silent" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-burn.html#GstBurn--silent">
 <ANCHOR id="GstBurn--adjustment" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-burn.html#GstBurn--adjustment">
 <ANCHOR id="gst-plugins-bad-plugins-camerabin" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-camerabin.html">
-<ANCHOR id="gst-plugins-bad-plugins-camerabin.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-camerabin.html#gst-plugins-bad-plugins-camerabin.object-hierarchy">
 <ANCHOR id="gst-plugins-bad-plugins-camerabin.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-camerabin.html#gst-plugins-bad-plugins-camerabin.description">
 <ANCHOR id="gst-plugins-bad-plugins-camerabin.functions_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-camerabin.html#gst-plugins-bad-plugins-camerabin.functions_details">
 <ANCHOR id="gst-plugins-bad-plugins-camerabin.other_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-camerabin.html#gst-plugins-bad-plugins-camerabin.other_details">
@@ -306,12 +305,10 @@
 <ANCHOR id="GstExclusion--silent" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-exclusion.html#GstExclusion--silent">
 <ANCHOR id="GstExclusion--factor" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-exclusion.html#GstExclusion--factor">
 <ANCHOR id="gst-plugins-bad-plugins-edgedetect" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-edgedetect.html">
-<ANCHOR id="gst-plugins-bad-plugins-edgedetect.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-edgedetect.html#gst-plugins-bad-plugins-edgedetect.object-hierarchy">
 <ANCHOR id="gst-plugins-bad-plugins-edgedetect.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-edgedetect.html#gst-plugins-bad-plugins-edgedetect.description">
 <ANCHOR id="gst-plugins-bad-plugins-edgedetect.functions_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-edgedetect.html#gst-plugins-bad-plugins-edgedetect.functions_details">
 <ANCHOR id="gst-plugins-bad-plugins-edgedetect.other_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-edgedetect.html#gst-plugins-bad-plugins-edgedetect.other_details">
 <ANCHOR id="gst-plugins-bad-plugins-eglglessink" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-eglglessink.html">
-<ANCHOR id="gst-plugins-bad-plugins-eglglessink.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-eglglessink.html#gst-plugins-bad-plugins-eglglessink.object-hierarchy">
 <ANCHOR id="gst-plugins-bad-plugins-eglglessink.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-eglglessink.html#gst-plugins-bad-plugins-eglglessink.description">
 <ANCHOR id="gst-plugins-bad-plugins-eglglessink.functions_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-eglglessink.html#gst-plugins-bad-plugins-eglglessink.functions_details">
 <ANCHOR id="gst-plugins-bad-plugins-eglglessink.other_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-eglglessink.html#gst-plugins-bad-plugins-eglglessink.other_details">
@@ -343,12 +340,10 @@
 <ANCHOR id="gst-plugins-bad-plugins-faad.other_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-faad.html#gst-plugins-bad-plugins-faad.other_details">
 <ANCHOR id="GstFaad-struct" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-faad.html#GstFaad-struct">
 <ANCHOR id="gst-plugins-bad-plugins-faceblur" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-faceblur.html">
-<ANCHOR id="gst-plugins-bad-plugins-faceblur.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-faceblur.html#gst-plugins-bad-plugins-faceblur.object-hierarchy">
 <ANCHOR id="gst-plugins-bad-plugins-faceblur.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-faceblur.html#gst-plugins-bad-plugins-faceblur.description">
 <ANCHOR id="gst-plugins-bad-plugins-faceblur.functions_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-faceblur.html#gst-plugins-bad-plugins-faceblur.functions_details">
 <ANCHOR id="gst-plugins-bad-plugins-faceblur.other_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-faceblur.html#gst-plugins-bad-plugins-faceblur.other_details">
 <ANCHOR id="gst-plugins-bad-plugins-facedetect" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-facedetect.html">
-<ANCHOR id="gst-plugins-bad-plugins-facedetect.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-facedetect.html#gst-plugins-bad-plugins-facedetect.object-hierarchy">
 <ANCHOR id="gst-plugins-bad-plugins-facedetect.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-facedetect.html#gst-plugins-bad-plugins-facedetect.description">
 <ANCHOR id="gst-plugins-bad-plugins-facedetect.functions_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-facedetect.html#gst-plugins-bad-plugins-facedetect.functions_details">
 <ANCHOR id="gst-plugins-bad-plugins-facedetect.other_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-facedetect.html#gst-plugins-bad-plugins-facedetect.other_details">
@@ -394,7 +389,6 @@
 <ANCHOR id="gst-plugins-bad-plugins-fpsdisplaysink.signal-details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-fpsdisplaysink.html#gst-plugins-bad-plugins-fpsdisplaysink.signal-details">
 <ANCHOR id="GstFPSDisplaySink-fps-measurements" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-fpsdisplaysink.html#GstFPSDisplaySink-fps-measurements">
 <ANCHOR id="gst-plugins-bad-plugins-gaussianblur" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-gaussianblur.html">
-<ANCHOR id="gst-plugins-bad-plugins-gaussianblur.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-gaussianblur.html#gst-plugins-bad-plugins-gaussianblur.object-hierarchy">
 <ANCHOR id="gst-plugins-bad-plugins-gaussianblur.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-gaussianblur.html#gst-plugins-bad-plugins-gaussianblur.description">
 <ANCHOR id="gst-plugins-bad-plugins-gaussianblur.functions_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-gaussianblur.html#gst-plugins-bad-plugins-gaussianblur.functions_details">
 <ANCHOR id="gst-plugins-bad-plugins-gaussianblur.other_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-gaussianblur.html#gst-plugins-bad-plugins-gaussianblur.other_details">
@@ -578,7 +572,6 @@
 <ANCHOR id="gst-plugins-bad-plugins-neonhttpsrc" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-neonhttpsrc.html">
 <ANCHOR id="gst-plugins-bad-plugins-neonhttpsrc.properties" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-neonhttpsrc.html#gst-plugins-bad-plugins-neonhttpsrc.properties">
 <ANCHOR id="gst-plugins-bad-plugins-neonhttpsrc.other" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-neonhttpsrc.html#gst-plugins-bad-plugins-neonhttpsrc.other">
-<ANCHOR id="gst-plugins-bad-plugins-neonhttpsrc.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-neonhttpsrc.html#gst-plugins-bad-plugins-neonhttpsrc.object-hierarchy">
 <ANCHOR id="gst-plugins-bad-plugins-neonhttpsrc.implemented-interfaces" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-neonhttpsrc.html#gst-plugins-bad-plugins-neonhttpsrc.implemented-interfaces">
 <ANCHOR id="gst-plugins-bad-plugins-neonhttpsrc.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-neonhttpsrc.html#gst-plugins-bad-plugins-neonhttpsrc.description">
 <ANCHOR id="gst-plugins-bad-plugins-neonhttpsrc.functions_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-neonhttpsrc.html#gst-plugins-bad-plugins-neonhttpsrc.functions_details">
@@ -623,7 +616,6 @@
 <ANCHOR id="GstOpenalSrc--device" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-openalsrc.html#GstOpenalSrc--device">
 <ANCHOR id="GstOpenalSrc--device-name" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-openalsrc.html#GstOpenalSrc--device-name">
 <ANCHOR id="gst-plugins-bad-plugins-openalsink" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-openalsink.html">
-<ANCHOR id="gst-plugins-bad-plugins-openalsink.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-openalsink.html#gst-plugins-bad-plugins-openalsink.object-hierarchy">
 <ANCHOR id="gst-plugins-bad-plugins-openalsink.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-openalsink.html#gst-plugins-bad-plugins-openalsink.description">
 <ANCHOR id="gst-plugins-bad-plugins-openalsink.functions_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-openalsink.html#gst-plugins-bad-plugins-openalsink.functions_details">
 <ANCHOR id="gst-plugins-bad-plugins-openalsink.other_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-openalsink.html#gst-plugins-bad-plugins-openalsink.other_details">
@@ -656,7 +648,6 @@
 <ANCHOR id="GstPinch--intensity" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-pinch.html#GstPinch--intensity">
 <ANCHOR id="gst-plugins-bad-plugins-pyramidsegment" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-pyramidsegment.html">
 <ANCHOR id="GstPinch" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-pyramidsegment.html#GstPinch">
-<ANCHOR id="gst-plugins-bad-plugins-pyramidsegment.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-pyramidsegment.html#gst-plugins-bad-plugins-pyramidsegment.object-hierarchy">
 <ANCHOR id="gst-plugins-bad-plugins-pyramidsegment.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-pyramidsegment.html#gst-plugins-bad-plugins-pyramidsegment.description">
 <ANCHOR id="gst-plugins-bad-plugins-pyramidsegment.functions_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-pyramidsegment.html#gst-plugins-bad-plugins-pyramidsegment.functions_details">
 <ANCHOR id="gst-plugins-bad-plugins-pyramidsegment.other_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-pyramidsegment.html#gst-plugins-bad-plugins-pyramidsegment.other_details">
@@ -685,7 +676,6 @@
 <ANCHOR id="gst-plugins-bad-plugins-rtmpsink" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsink.html">
 <ANCHOR id="gst-plugins-bad-plugins-rtmpsink.properties" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsink.html#gst-plugins-bad-plugins-rtmpsink.properties">
 <ANCHOR id="gst-plugins-bad-plugins-rtmpsink.other" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsink.html#gst-plugins-bad-plugins-rtmpsink.other">
-<ANCHOR id="gst-plugins-bad-plugins-rtmpsink.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsink.html#gst-plugins-bad-plugins-rtmpsink.object-hierarchy">
 <ANCHOR id="gst-plugins-bad-plugins-rtmpsink.implemented-interfaces" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsink.html#gst-plugins-bad-plugins-rtmpsink.implemented-interfaces">
 <ANCHOR id="gst-plugins-bad-plugins-rtmpsink.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsink.html#gst-plugins-bad-plugins-rtmpsink.description">
 <ANCHOR id="gst-plugins-bad-plugins-rtmpsink.functions_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsink.html#gst-plugins-bad-plugins-rtmpsink.functions_details">
@@ -696,7 +686,6 @@
 <ANCHOR id="gst-plugins-bad-plugins-rtmpsrc" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsrc.html">
 <ANCHOR id="gst-plugins-bad-plugins-rtmpsrc.properties" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsrc.html#gst-plugins-bad-plugins-rtmpsrc.properties">
 <ANCHOR id="gst-plugins-bad-plugins-rtmpsrc.other" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsrc.html#gst-plugins-bad-plugins-rtmpsrc.other">
-<ANCHOR id="gst-plugins-bad-plugins-rtmpsrc.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsrc.html#gst-plugins-bad-plugins-rtmpsrc.object-hierarchy">
 <ANCHOR id="gst-plugins-bad-plugins-rtmpsrc.implemented-interfaces" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsrc.html#gst-plugins-bad-plugins-rtmpsrc.implemented-interfaces">
 <ANCHOR id="gst-plugins-bad-plugins-rtmpsrc.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsrc.html#gst-plugins-bad-plugins-rtmpsrc.description">
 <ANCHOR id="gst-plugins-bad-plugins-rtmpsrc.functions_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-rtmpsrc.html#gst-plugins-bad-plugins-rtmpsrc.functions_details">
@@ -955,7 +944,6 @@
 <ANCHOR id="gst-plugins-bad-plugins-voaacenc.property-details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-voaacenc.html#gst-plugins-bad-plugins-voaacenc.property-details">
 <ANCHOR id="GstVoAacEnc--bitrate" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-voaacenc.html#GstVoAacEnc--bitrate">
 <ANCHOR id="gst-plugins-bad-plugins-voamrwbenc" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-voamrwbenc.html">
-<ANCHOR id="gst-plugins-bad-plugins-voamrwbenc.object-hierarchy" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-voamrwbenc.html#gst-plugins-bad-plugins-voamrwbenc.object-hierarchy">
 <ANCHOR id="gst-plugins-bad-plugins-voamrwbenc.description" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-voamrwbenc.html#gst-plugins-bad-plugins-voamrwbenc.description">
 <ANCHOR id="gst-plugins-bad-plugins-voamrwbenc.functions_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-voamrwbenc.html#gst-plugins-bad-plugins-voamrwbenc.functions_details">
 <ANCHOR id="gst-plugins-bad-plugins-voamrwbenc.other_details" href="gst-plugins-bad-plugins-1.0/gst-plugins-bad-plugins-voamrwbenc.html#gst-plugins-bad-plugins-voamrwbenc.other_details">

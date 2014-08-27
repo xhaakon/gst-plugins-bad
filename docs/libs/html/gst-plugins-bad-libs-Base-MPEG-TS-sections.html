@@ -8,14 +8,14 @@
 <link rel="up" href="mpegts.html" title="Mpeg TS helper library">
 <link rel="prev" href="gst-plugins-bad-libs-Mpeg-ts-helper-library.html" title="Mpeg-ts helper library">
 <link rel="next" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html" title="Base MPEG-TS descriptors">
-<meta name="generator" content="GTK-Doc V1.20 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.21 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
-<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="10"><tr valign="middle">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
-<a href="#" class="shortcut">Top</a><span id="nav_description"> <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-libs-Base-MPEG-TS-sections.description" class="shortcut">Description</a></span><span id="nav_hierarchy"> <span class="dim">|</span> 
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-libs-Base-MPEG-TS-sections.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-libs-Base-MPEG-TS-sections.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
@@ -48,7 +48,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#GstMessage"><span class="returnvalue">GstMessage</span></a> *
+<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstMessage.html"><span class="returnvalue">GstMessage</span></a> *
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-message-new-mpegts-section" title="gst_message_new_mpegts_section ()">gst_message_new_mpegts_section</a> <span class="c_punctuation">()</span>
@@ -229,9 +229,9 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-Base-MPEG-TS-sections.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    GBoxed
+<pre class="screen">    <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Boxed-Types.html">GBoxed</a>
     <span class="lineart">╰──</span> GstMpegtsSection
-    GEnum
+    <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Enumeration-and-Flag-Types.html">GEnum</a>
     <span class="lineart">├──</span> GstMpegtsSectionTableID
     <span class="lineart">├──</span> GstMpegtsSectionType
     <span class="lineart">╰──</span> GstMpegtsStreamType
@@ -257,10 +257,10 @@ and other specifications mentionned in the documentation.</p>
 <hr>
 <div class="refsect2">
 <a name="gst-message-new-mpegts-section"></a><h3>gst_message_new_mpegts_section ()</h3>
-<pre class="programlisting"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#GstMessage"><span class="returnvalue">GstMessage</span></a> *
+<pre class="programlisting"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstMessage.html"><span class="returnvalue">GstMessage</span></a> *
 gst_message_new_mpegts_section (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html"><span class="type">GstObject</span></a> *parent</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSection"><span class="type">GstMpegtsSection</span></a> *section</code></em>);</pre>
-<p>Creates a new <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#GstMessage"><span class="type">GstMessage</span></a> for a <em class="parameter"><code>GstMpegtsSection</code></em>
+<p>Creates a new <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstMessage.html"><span class="type">GstMessage</span></a> for a <em class="parameter"><code>GstMpegtsSection</code></em>
 .</p>
 <div class="refsect3">
 <a name="id-1.2.5.4.9.3.5"></a><h4>Parameters</h4>
@@ -286,7 +286,7 @@ gst_message_new_mpegts_section (<em class="parameter"><code><a href="http://gstr
 </div>
 <div class="refsect3">
 <a name="id-1.2.5.4.9.3.6"></a><h4>Returns</h4>
-<p> The new <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#GstMessage"><span class="type">GstMessage</span></a> to be posted, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if the
+<p> The new <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstMessage.html"><span class="type">GstMessage</span></a> to be posted, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if the
 section is not valid. </p>
 <p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
 </div>
@@ -295,7 +295,7 @@ section is not valid. </p>
 <div class="refsect2">
 <a name="gst-message-parse-mpegts-section"></a><h3>gst_message_parse_mpegts_section ()</h3>
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSection"><span class="returnvalue">GstMpegtsSection</span></a> *
-gst_message_parse_mpegts_section (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#GstMessage"><span class="type">GstMessage</span></a> *message</code></em>);</pre>
+gst_message_parse_mpegts_section (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstMessage.html"><span class="type">GstMessage</span></a> *message</code></em>);</pre>
 <p>Returns the <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSection"><span class="type">GstMpegtsSection</span></a> contained in a message.</p>
 <div class="refsect3">
 <a name="id-1.2.5.4.9.4.5"></a><h4>Parameters</h4>
@@ -307,7 +307,7 @@ gst_message_parse_mpegts_section (<em class="parameter"><code><a href="http://gs
 </colgroup>
 <tbody><tr>
 <td class="parameter_name"><p>message</p></td>
-<td class="parameter_description"><p>a <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#GstMessage"><span class="type">GstMessage</span></a></p></td>
+<td class="parameter_description"><p>a <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstMessage.html"><span class="type">GstMessage</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr></tbody>
 </table></div>
@@ -324,9 +324,9 @@ gst_message_parse_mpegts_section (<em class="parameter"><code><a href="http://gs
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpegts_section_send_event (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSection"><span class="type">GstMpegtsSection</span></a> *section</code></em>,
                                <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html"><span class="type">GstElement</span></a> *element</code></em>);</pre>
-<p>Creates a custom <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstEvent.html#GstEvent"><span class="type">GstEvent</span></a> with a <em class="parameter"><code>GstMpegtsSection</code></em>
+<p>Creates a custom <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstEvent.html"><span class="type">GstEvent</span></a> with a <em class="parameter"><code>GstMpegtsSection</code></em>
 .
-The <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstEvent.html#GstEvent"><span class="type">GstEvent</span></a> is sent to the <em class="parameter"><code>element</code></em>
+The <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstEvent.html"><span class="type">GstEvent</span></a> is sent to the <em class="parameter"><code>element</code></em>
  <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html"><span class="type">GstElement</span></a>.</p>
 <div class="refsect3">
 <a name="id-1.2.5.4.9.5.5"></a><h4>Parameters</h4>
@@ -360,9 +360,9 @@ The <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/
 <div class="refsect2">
 <a name="gst-event-parse-mpegts-section"></a><h3>gst_event_parse_mpegts_section ()</h3>
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSection"><span class="returnvalue">GstMpegtsSection</span></a> *
-gst_event_parse_mpegts_section (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstEvent.html#GstEvent"><span class="type">GstEvent</span></a> *event</code></em>);</pre>
+gst_event_parse_mpegts_section (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstEvent.html"><span class="type">GstEvent</span></a> *event</code></em>);</pre>
 <p>Extracts the <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSection"><span class="type">GstMpegtsSection</span></a> contained in the <em class="parameter"><code>event</code></em>
- <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstEvent.html#GstEvent"><span class="type">GstEvent</span></a></p>
+ <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstEvent.html"><span class="type">GstEvent</span></a></p>
 <div class="refsect3">
 <a name="id-1.2.5.4.9.6.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
@@ -373,7 +373,7 @@ gst_event_parse_mpegts_section (<em class="parameter"><code><a href="http://gstr
 </colgroup>
 <tbody><tr>
 <td class="parameter_name"><p>event</p></td>
-<td class="parameter_description"><p> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstEvent.html#GstEvent"><span class="type">GstEvent</span></a> containing a <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSection"><span class="type">GstMpegtsSection</span></a>. </p></td>
+<td class="parameter_description"><p> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstEvent.html"><span class="type">GstEvent</span></a> containing a <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSection"><span class="type">GstMpegtsSection</span></a>. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
 </tr></tbody>
 </table></div>
@@ -1473,6 +1473,6 @@ profiles defined in Annex A for service-compatible stereoscopic 3D services</p>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.20</div>
+          Generated by GTK-Doc V1.21</div>
 </body>
 </html>

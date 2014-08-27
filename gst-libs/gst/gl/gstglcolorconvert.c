@@ -690,7 +690,7 @@ _YUV_to_RGB (GstGLColorConvert * convert)
   GstVideoFormat out_format = GST_VIDEO_INFO_FORMAT (&convert->out_info);
   const gchar *out_format_str = gst_video_format_to_string (out_format);
   gchar *pixel_order = _RGB_pixel_order ("rgba", out_format_str);
-#ifdef GST_GL_HAVE_PLATFORM_EAGL
+#if GST_GL_HAVE_PLATFORM_EAGL
   gboolean texture_rg = FALSE;
 #else
   gboolean texture_rg =
@@ -889,7 +889,7 @@ _GRAY_to_RGB (GstGLColorConvert * convert)
   GstVideoFormat out_format = GST_VIDEO_INFO_FORMAT (&convert->out_info);
   const gchar *out_format_str = gst_video_format_to_string (out_format);
   gchar *pixel_order = _RGB_pixel_order ("rgba", out_format_str);
-#ifdef GST_GL_HAVE_PLATFORM_EAGL
+#if GST_GL_HAVE_PLATFORM_EAGL
   gboolean texture_rg = FALSE;
 #else
   gboolean texture_rg =
@@ -1137,6 +1137,9 @@ _init_convert_fbo (GstGLColorConvert * convert)
   if (!gst_gl_context_check_framebuffer_status (convert->context)) {
     gst_gl_context_set_error (convert->context,
         "GL framebuffer status incomplete");
+
+    gl->DeleteTextures (1, &fake_texture);
+
     return FALSE;
   }
 

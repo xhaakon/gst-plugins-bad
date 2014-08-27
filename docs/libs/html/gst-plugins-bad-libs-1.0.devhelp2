@@ -109,7 +109,7 @@
     <keyword type="struct" name="struct GstH264PicTiming" link="gst-plugins-bad-libs-h264parser.html#GstH264PicTiming"/>
     <keyword type="struct" name="struct GstH264BufferingPeriod" link="gst-plugins-bad-libs-h264parser.html#GstH264BufferingPeriod"/>
     <keyword type="struct" name="struct GstH264SEIMessage" link="gst-plugins-bad-libs-h264parser.html#GstH264SEIMessage"/>
-    <keyword type="" name="" link="gst-plugins-bad-libs-mpegvideoparser.html#id-1.2.4.4.7.2"/>
+    <keyword type="" name="" link="gst-plugins-bad-libs-mpegvideoparser.html#id-1.2.4.4.6.2"/>
     <keyword type="function" name="gst_mpeg_video_parse ()" link="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse"/>
     <keyword type="function" name="gst_mpeg_video_parse_sequence_header ()" link="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-sequence-header" deprecated="Use gst_mpeg_video_packet_parse_sequence_header() instead."/>
     <keyword type="function" name="gst_mpeg_video_parse_picture_header ()" link="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-picture-header" deprecated="Use gst_mpeg_video_packet_parse_picture_header() instead."/>

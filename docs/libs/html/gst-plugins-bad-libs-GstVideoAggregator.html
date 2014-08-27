@@ -8,15 +8,14 @@
 <link rel="up" href="video.html" title="Video helpers and baseclasses">
 <link rel="prev" href="video.html" title="Video helpers and baseclasses">
 <link rel="next" href="gst-plugins-bad-libs-GstVideoAggregatorPad.html" title="GstVideoAggregatorPad">
-<meta name="generator" content="GTK-Doc V1.20 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.21 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
-<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="10"><tr valign="middle">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
-<a href="#" class="shortcut">Top</a><span id="nav_description"> <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-libs-GstVideoAggregator.description" class="shortcut">Description</a></span><span id="nav_hierarchy"> <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-libs-GstVideoAggregator.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-libs-GstVideoAggregator.description" class="shortcut">Description</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="video.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
@@ -52,11 +51,6 @@
 </table></div>
 </div>
 <div class="refsect1">
-<a name="gst-plugins-bad-libs-GstVideoAggregator.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">
-</pre>
-</div>
-<div class="refsect1">
 <a name="gst-plugins-bad-libs-GstVideoAggregator.description"></a><h2>Description</h2>
 <p>VideoAggregator can accept AYUV, ARGB and BGRA video streams. For each of the requested
 sink pads it will compare the incoming geometry and framerate to define the
@@ -81,7 +75,7 @@ biggest incoming video stream and the framerate of the fastest incoming one.</p>
 };
 </pre>
 <div class="refsect3">
-<a name="id-1.2.8.2.7.2.4"></a><h4>Members</h4>
+<a name="id-1.2.8.2.6.2.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -121,7 +115,7 @@ srcpad caps.</p></td>
 };
 </pre>
 <div class="refsect3">
-<a name="id-1.2.8.2.7.3.4"></a><h4>Members</h4>
+<a name="id-1.2.8.2.6.3.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -147,8 +141,8 @@ the src pad caps before usage.</p></td>
 <td class="struct_member_name"><p><em class="structfield"><code><a name="GstVideoAggregatorClass.aggregate-frames"></a>aggregate_frames</code></em> ()</p></td>
 <td class="struct_member_description"><p>Lets subclasses aggregate frames that are ready. Subclasses
 should iterate the GstElement.sinkpads and use the already
-mapped <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-GstBaseVideoCodec.html#GstVideoFrame"><span class="type">GstVideoFrame</span></a> from GstVideoAggregatorPad.aggregated_frame
-or directly use the <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="type">GstBuffer</span></a> from GstVideoAggregatorPad.buffer
+mapped <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideo.html#GstVideoFrame"><span class="type">GstVideoFrame</span></a> from GstVideoAggregatorPad.aggregated_frame
+or directly use the <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBuffer.html"><span class="type">GstBuffer</span></a> from GstVideoAggregatorPad.buffer
 if it needs to map the buffer in a special way. The result of the
 aggregation should land in <em class="parameter"><code>outbuffer</code></em>
 .</p></td>
@@ -157,7 +151,7 @@ aggregation should land in <em class="parameter"><code>outbuffer</code></em>
 <tr>
 <td class="struct_member_name"><p><em class="structfield"><code><a name="GstVideoAggregatorClass.get-output-buffer"></a>get_output_buffer</code></em> ()</p></td>
 <td class="struct_member_description"><p>Optional.
-Lets subclasses provide a <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="type">GstBuffer</span></a> to be used as <em class="parameter"><code>outbuffer</code></em>
+Lets subclasses provide a <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBuffer.html"><span class="type">GstBuffer</span></a> to be used as <em class="parameter"><code>outbuffer</code></em>
 of
 the <span class="type">aggregate_frames</span> vmethod.</p></td>
 <td class="struct_member_annotations"> </td>
@@ -176,6 +170,6 @@ Notifies subclasses what caps format has been negotiated</p></td>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.20</div>
+          Generated by GTK-Doc V1.21</div>
 </body>
 </html>

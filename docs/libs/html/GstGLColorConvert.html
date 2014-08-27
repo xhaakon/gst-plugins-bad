@@ -8,14 +8,14 @@
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
 <link rel="prev" href="GstGLBufferPool.html" title="GstGLBufferPool">
 <link rel="next" href="GstGLContext.html" title="GstGLContext">
-<meta name="generator" content="GTK-Doc V1.20 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.21 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
-<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="10"><tr valign="middle">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
-<a href="#" class="shortcut">Top</a><span id="nav_description"> <span class="dim">|</span> 
-                  <a href="#GstGLColorConvert.description" class="shortcut">Description</a></span><span id="nav_hierarchy"> <span class="dim">|</span> 
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#GstGLColorConvert.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
                   <a href="#GstGLColorConvert.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
@@ -58,7 +58,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="returnvalue">GstBuffer</span></a> *
+<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBuffer.html"><span class="returnvalue">GstBuffer</span></a> *
 </td>
 <td class="function_name">
 <a class="link" href="GstGLColorConvert.html#gst-gl-color-convert-perform" title="gst_gl_color_convert_perform ()">gst_gl_color_convert_perform</a> <span class="c_punctuation">()</span>
@@ -157,9 +157,9 @@ gst_gl_color_convert_set_format (<em class="parameter"><code><a class="link" hre
 <hr>
 <div class="refsect2">
 <a name="gst-gl-color-convert-perform"></a><h3>gst_gl_color_convert_perform ()</h3>
-<pre class="programlisting"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="returnvalue">GstBuffer</span></a> *
+<pre class="programlisting"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBuffer.html"><span class="returnvalue">GstBuffer</span></a> *
 gst_gl_color_convert_perform (<em class="parameter"><code><a class="link" href="GstGLColorConvert.html" title="GstGLColorConvert"><span class="type">GstGLColorConvert</span></a> *convert</code></em>,
-                              <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="type">GstBuffer</span></a> *inbuf</code></em>);</pre>
+                              <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBuffer.html"><span class="type">GstBuffer</span></a> *inbuf</code></em>);</pre>
 <p>Converts the data contained by <em class="parameter"><code>inbuf</code></em>
  using the formats specified by the
 <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideo.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a>s passed to <a class="link" href="GstGLColorConvert.html#gst-gl-color-convert-set-format" title="gst_gl_color_convert_set_format ()"><code class="function">gst_gl_color_convert_set_format()</code></a></p>
@@ -187,7 +187,7 @@ gst_gl_color_convert_perform (<em class="parameter"><code><a class="link" href="
 </div>
 <div class="refsect3">
 <a name="id-1.2.9.4.7.4.6"></a><h4>Returns</h4>
-<p> a converted <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="type">GstBuffer</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>%</p>
+<p> a converted <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBuffer.html"><span class="type">GstBuffer</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>%</p>
 <p></p>
 </div>
 </div>
@@ -204,7 +204,7 @@ gst_gl_color_convert_perform (<em class="parameter"><code><a class="link" href="
 <a name="GST-GL-COLOR-CONVERT-VIDEO-CAPS"></a><h3>GST_GL_COLOR_CONVERT_VIDEO_CAPS</h3>
 <pre class="programlisting">#define GST_GL_COLOR_CONVERT_VIDEO_CAPS GST_VIDEO_CAPS_MAKE (GST_GL_COLOR_CONVERT_FORMATS)
 </pre>
-<p>The currently supported <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> that can be converted</p>
+<p>The currently supported <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> that can be converted</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -229,6 +229,6 @@ gst_gl_color_convert_perform (<em class="parameter"><code><a class="link" href="
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.20</div>
+          Generated by GTK-Doc V1.21</div>
 </body>
 </html>
