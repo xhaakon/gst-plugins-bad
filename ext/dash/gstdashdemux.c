@@ -511,7 +511,10 @@ gst_dash_demux_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
         gst_dash_demux_wait_stop (demux);
 
         /* select the requested Period in the Media Presentation */
-        target_pos = (GstClockTime) demux->segment.start;
+        if (demux->segment.rate > 0.0)
+          target_pos = (GstClockTime) demux->segment.start;
+        else
+          target_pos = (GstClockTime) demux->segment.stop;
         GST_DEBUG_OBJECT (demux, "Seeking to target %" GST_TIME_FORMAT,
             GST_TIME_ARGS (target_pos));
         current_period = 0;
@@ -1974,11 +1977,10 @@ _src_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
 
     /* TODO properly stop tasks */
     /* gst_hls_demux_pause_tasks (demux); */
+    g_cond_signal (&stream->fragment_download_cond);
   }
 
-  /* avoid having the source handle the same error again */
   stream->last_ret = ret;
-  ret = GST_FLOW_OK;
 
   return ret;
 }
@@ -2217,7 +2219,8 @@ gst_dash_demux_stream_download_fragment (GstDashDemux * demux,
   }
 
   g_mutex_lock (&stream->fragment_download_lock);
-  if (gst_mpd_client_get_next_fragment (demux->client, stream_idx, fragment)) {
+  if (gst_mpd_client_get_next_fragment (demux->client, stream_idx, fragment,
+          stream->demux->segment.rate > 0.0)) {
     GST_INFO_OBJECT (stream->pad,
         "Fetching next fragment %s ts:%" GST_TIME_FORMAT " dur:%"
         GST_TIME_FORMAT " Range:%" G_GINT64_FORMAT "-%" G_GINT64_FORMAT,
@@ -2317,7 +2320,6 @@ static GstFlowReturn
 gst_dash_demux_stream_get_next_fragment (GstDashDemuxStream * stream,
     GstClockTime * ts)
 {
-  GstFlowReturn ret = GST_FLOW_OK;
   GstDashDemux *demux = stream->demux;
 
   if (stream->stream_eos)
@@ -2358,11 +2360,11 @@ gst_dash_demux_stream_get_next_fragment (GstDashDemuxStream * stream,
 
   demux->end_of_period = FALSE;
 
-  if (stream->last_ret < GST_FLOW_EOS) {
-    GST_WARNING_OBJECT (stream->pad, "Failed to download fragment");
-    return GST_FLOW_ERROR;
+  if (stream->last_ret != GST_FLOW_OK) {
+    GST_WARNING_OBJECT (stream->pad, "Failed to download fragment: %s",
+        gst_flow_get_name (stream->last_ret));
   }
-  return ret;
+  return stream->last_ret;
 }
 
 static void

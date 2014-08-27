@@ -49,6 +49,7 @@ static void gst_gl_mixer_pad_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 static void gst_gl_mixer_pad_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
+static void gst_gl_mixer_pad_finalize (GObject * object);
 
 static void gst_gl_mixer_set_context (GstElement * element,
     GstContext * context);
@@ -70,6 +71,10 @@ struct _GstGLMixerPrivate
   GstAllocator *allocator;
   GstAllocationParams params;
   GstQuery *query;
+
+  gboolean gl_resource_ready;
+  GMutex gl_resource_lock;
+  GCond gl_resource_cond;
 };
 
 G_DEFINE_TYPE (GstGLMixerPad, gst_gl_mixer_pad, GST_TYPE_VIDEO_AGGREGATOR_PAD);
@@ -81,6 +86,19 @@ gst_gl_mixer_pad_class_init (GstGLMixerPadClass * klass)
 
   gobject_class->set_property = gst_gl_mixer_pad_set_property;
   gobject_class->get_property = gst_gl_mixer_pad_get_property;
+
+  gobject_class->finalize = gst_gl_mixer_pad_finalize;
+}
+
+static void
+gst_gl_mixer_pad_finalize (GObject * object)
+{
+  GstGLMixerPad *pad = GST_GL_MIXER_PAD (object);
+
+  if (pad->upload) {
+    gst_object_unref (pad->upload);
+    pad->upload = NULL;
+  }
 }
 
 static void
@@ -427,6 +445,9 @@ gst_gl_mixer_init (GstGLMixer * mix)
   mix->fbo = 0;
   mix->depthbuffer = 0;
 
+  mix->priv->gl_resource_ready = FALSE;
+  g_mutex_init (&mix->priv->gl_resource_lock);
+  g_cond_init (&mix->priv->gl_resource_cond);
   /* initialize variables */
   gst_gl_mixer_reset (mix);
 }
@@ -434,6 +455,10 @@ gst_gl_mixer_init (GstGLMixer * mix)
 static void
 gst_gl_mixer_finalize (GObject * object)
 {
+  GstGLMixerPrivate *priv = GST_GL_MIXER (object)->priv;
+
+  g_mutex_clear (&priv->gl_resource_lock);
+  g_cond_clear (&priv->gl_resource_cond);
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
@@ -641,9 +666,20 @@ gst_gl_mixer_decide_allocation (GstGLMixer * mix, GstQuery * query)
   out_width = GST_VIDEO_INFO_WIDTH (&vagg->info);
   out_height = GST_VIDEO_INFO_HEIGHT (&vagg->info);
 
+  g_mutex_lock (&mix->priv->gl_resource_lock);
+  mix->priv->gl_resource_ready = FALSE;
+  if (mix->fbo) {
+    gst_gl_context_del_fbo (mix->context, mix->fbo, mix->depthbuffer);
+    mix->fbo = 0;
+    mix->depthbuffer = 0;
+  }
+
   if (!gst_gl_context_gen_fbo (mix->context, out_width, out_height,
-          &mix->fbo, &mix->depthbuffer))
+          &mix->fbo, &mix->depthbuffer)) {
+    g_cond_signal (&mix->priv->gl_resource_cond);
+    g_mutex_unlock (&mix->priv->gl_resource_lock);
     goto context_error;
+  }
 
   if (mix->out_tex_id)
     gst_gl_context_del_texture (mix->context, &mix->out_tex_id);
@@ -652,6 +688,10 @@ gst_gl_mixer_decide_allocation (GstGLMixer * mix, GstQuery * query)
 
   if (mixer_class->set_caps)
     mixer_class->set_caps (mix, caps);
+
+  mix->priv->gl_resource_ready = TRUE;
+  g_cond_signal (&mix->priv->gl_resource_cond);
+  g_mutex_unlock (&mix->priv->gl_resource_lock);
 
   if (!pool)
     pool = gst_gl_buffer_pool_new (mix->context);
@@ -791,6 +831,7 @@ gst_gl_mixer_process_textures (GstGLMixer * mix, GstBuffer * outbuf)
   GstElement *element = GST_ELEMENT (mix);
   GstVideoAggregator *vagg = GST_VIDEO_AGGREGATOR (mix);
   GstGLMixerClass *mix_class = GST_GL_MIXER_GET_CLASS (mix);
+  GstGLMixerPrivate *priv = mix->priv;
 
   GST_TRACE ("Processing buffers");
 
@@ -854,7 +895,21 @@ gst_gl_mixer_process_textures (GstGLMixer * mix, GstBuffer * outbuf)
     ++array_index;
   }
 
+  g_mutex_lock (&priv->gl_resource_lock);
+  if (!priv->gl_resource_ready)
+    g_cond_wait (&priv->gl_resource_cond, &priv->gl_resource_lock);
+
+  if (!priv->gl_resource_ready) {
+    g_mutex_unlock (&priv->gl_resource_lock);
+    GST_ERROR_OBJECT (mix,
+        "fbo used to render can't be created, do not run process_textures");
+    res = FALSE;
+    goto out;
+  }
+
   mix_class->process_textures (mix, mix->frames, out_tex);
+
+  g_mutex_unlock (&priv->gl_resource_lock);
 
   if (out_gl_wrapped) {
     if (!gst_gl_download_perform_with_data (mix->download, out_tex,

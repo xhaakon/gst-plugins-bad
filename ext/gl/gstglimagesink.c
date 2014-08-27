@@ -30,6 +30,9 @@
  * If no Window ID was provided by the application, the element will
  * create its own internal window and render into it.
  *
+ * See the #GstGLDisplay documentation for a list of environment variables that
+ * can override window/platform detection.
+ *
  * <refsect2>
  * <title>Scaling</title>
  * <para>
@@ -808,7 +811,6 @@ gst_glimage_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
     return GST_FLOW_ERROR;
   }
 
-  gst_gl_upload_release_buffer (glimage_sink->upload);
   return GST_FLOW_OK;
 
 /* ERRORS */

@@ -836,7 +836,9 @@ gst_ts_demux_do_seek (MpegTSBase * base, GstEvent * event)
   for (tmp = demux->program->stream_list; tmp; tmp = tmp->next) {
     TSDemuxStream *stream = tmp->data;
 
-    stream->needs_keyframe = TRUE;
+
+    if (flags & GST_SEEK_FLAG_ACCURATE)
+      stream->needs_keyframe = TRUE;
 
     stream->seeked_pts = GST_CLOCK_TIME_NONE;
     stream->seeked_dts = GST_CLOCK_TIME_NONE;
@@ -1385,7 +1387,8 @@ gst_ts_demux_stream_added (MpegTSBase * base, MpegTSBaseStream * bstream,
         gst_flow_combiner_add_pad (demux->flowcombiner, stream->pad);
     }
 
-    if (bstream->stream_type == GST_MPEGTS_STREAM_TYPE_VIDEO_H264) {
+    if (base->mode != BASE_MODE_PUSHING
+        && bstream->stream_type == GST_MPEGTS_STREAM_TYPE_VIDEO_H264) {
       stream->scan_function =
           (GstTsDemuxKeyFrameScanFunction) scan_keyframe_h264;
     } else {
@@ -1395,6 +1398,7 @@ gst_ts_demux_stream_added (MpegTSBase * base, MpegTSBaseStream * bstream,
     stream->active = FALSE;
 
     stream->need_newsegment = TRUE;
+    stream->needs_keyframe = FALSE;
     stream->discont = TRUE;
     stream->pts = GST_CLOCK_TIME_NONE;
     stream->dts = GST_CLOCK_TIME_NONE;
@@ -1427,15 +1431,19 @@ gst_ts_demux_stream_removed (MpegTSBase * base, MpegTSBaseStream * bstream)
   if (stream->pad) {
     gst_flow_combiner_remove_pad (GST_TS_DEMUX_CAST (base)->flowcombiner,
         stream->pad);
-    if (stream->active && gst_pad_is_active (stream->pad)) {
-      /* Flush out all data */
-      GST_DEBUG_OBJECT (stream->pad, "Flushing out pending data");
-      gst_ts_demux_push_pending_data ((GstTSDemux *) base, stream);
+    if (stream->active) {
 
-      GST_DEBUG_OBJECT (stream->pad, "Pushing out EOS");
-      gst_pad_push_event (stream->pad, gst_event_new_eos ());
-      GST_DEBUG_OBJECT (stream->pad, "Deactivating and removing pad");
-      gst_pad_set_active (stream->pad, FALSE);
+      if (gst_pad_is_active (stream->pad)) {
+        /* Flush out all data */
+        GST_DEBUG_OBJECT (stream->pad, "Flushing out pending data");
+        gst_ts_demux_push_pending_data ((GstTSDemux *) base, stream);
+
+        GST_DEBUG_OBJECT (stream->pad, "Pushing out EOS");
+        gst_pad_push_event (stream->pad, gst_event_new_eos ());
+        gst_pad_set_active (stream->pad, FALSE);
+      }
+
+      GST_DEBUG_OBJECT (stream->pad, "Removing pad");
       gst_element_remove_pad (GST_ELEMENT_CAST (base), stream->pad);
       stream->active = FALSE;
     }

@@ -3,7 +3,7 @@ AC_PREREQ([2.68])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.4.0],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.4.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -48,7 +48,7 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 400, 0, 400)
+AS_LIBTOOL(GST, 401, 0, 401)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.4.0
@@ -2553,8 +2553,20 @@ translit(dnm, m, l) AM_CONDITIONAL(USE_OPENJPEG, true)
 AG_GST_CHECK_FEATURE(OPENJPEG, [openjpeg library], openjpeg, [
   HAVE_OPENJPEG="no"
 
-  AG_GST_CHECK_LIBHEADER(OPENJPEG, openjp2, opj_version, ,openjpeg-2.0/openjpeg.h, OPENJPEG_LIBS="-lopenjp2")
+  save_LIBS="$LIBS"
+  save_CFLAGS="$CFLAGS"
+  OPENJPEG_LIBS="-lopenjp2"
+  LIBS="$LIBS $OPENJPEG_LIBS"
+  CFLAGS="$CFLAGS $OPENJPEG_CFLAGS"
+  AC_LINK_IFELSE([
+    AC_LANG_PROGRAM([#include <openjpeg-2.0/openjpeg.h>],
+                    [return (int) *opj_version ();])
+                 ], [HAVE_OPENJPEG=yes], [HAVE_OPENJPEG=no])
+  LIBS="$save_LIBS"
+  CFLAGS="$save_CFLAGS"
+
   if test x"$HAVE_OPENJPEG" = x"no"; then
+    OPENJPEG_LIBS=""
     PKG_CHECK_MODULES(OPENJPEG, libopenjpeg1,
       HAVE_OPENJPEG="yes",
       AG_GST_CHECK_LIBHEADER(OPENJPEG, openjpeg, opj_version, , openjpeg.h, OPENJPEG_LIBS="-lopenjpeg")

@@ -7,16 +7,16 @@
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="ch03.html" title="gst-plugins-bad Interfaces">
 <link rel="prev" href="ch03.html" title="gst-plugins-bad Interfaces">
-<meta name="generator" content="GTK-Doc V1.20 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.21 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
-<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="10"><tr valign="middle">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
-<a href="#" class="shortcut">Top</a><span id="nav_description"> <span class="dim">|</span> 
-                  <a href="#GstPhotography.description" class="shortcut">Description</a></span><span id="nav_hierarchy"> <span class="dim">|</span> 
-                  <a href="#GstPhotography.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_prerequisites"> <span class="dim">|</span> 
-                  <a href="#GstPhotography.prerequisites" class="shortcut">Prerequisites</a></span><span id="nav_properties"> <span class="dim">|</span> 
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#GstPhotography.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#GstPhotography.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_prerequisites">  <span class="dim">|</span> 
+                  <a href="#GstPhotography.prerequisites" class="shortcut">Prerequisites</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#GstPhotography.properties" class="shortcut">Properties</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
@@ -303,7 +303,7 @@
 </tr>
 <tr>
 <td class="property_type">
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *</td>
+<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> *</td>
 <td class="property_name"><a class="link" href="GstPhotography.html#GstPhotography--image-capture-supported-caps" title="The “image-capture-supported-caps” property">image-capture-supported-caps</a></td>
 <td class="property_flags">Read</td>
 </tr>
@@ -324,7 +324,7 @@
 </tr>
 <tr>
 <td class="property_type">
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *</td>
+<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> *</td>
 <td class="property_name"><a class="link" href="GstPhotography.html#GstPhotography--image-preview-supported-caps" title="The “image-preview-supported-caps” property">image-preview-supported-caps</a></td>
 <td class="property_flags">Read</td>
 </tr>
@@ -447,7 +447,7 @@
 </div>
 <div class="refsect1">
 <a name="GstPhotography.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    GInterface
+<pre class="screen">    <a href="http://library.gnome.org/devel/gobject/unstable/GTypeModule.html">GInterface</a>
     <span class="lineart">╰──</span> GstPhotography
 </pre>
 </div>
@@ -468,7 +468,7 @@ GstPhotography requires
 <a name="GstPhotographyCapturePrepared"></a><h3>GstPhotographyCapturePrepared ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 <span class="c_punctuation">(</span>*GstPhotographyCapturePrepared<span class="c_punctuation">)</span> (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>,
-                                  <em class="parameter"><code>const <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *configured_caps</code></em>);</pre>
+                                  <em class="parameter"><code>const <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> *configured_caps</code></em>);</pre>
 <p>
 </p>
 </div>
@@ -752,7 +752,7 @@ gst_photography_get_capabilities (<em class="parameter"><code><a class="link" hr
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_photography_prepare_for_capture (<em class="parameter"><code><a class="link" href="GstPhotography.html" title="GstPhotography"><span class="type">GstPhotography</span></a> *photo</code></em>,
                                      <em class="parameter"><code><a class="link" href="GstPhotography.html#GstPhotographyCapturePrepared" title="GstPhotographyCapturePrepared ()"><span class="type">GstPhotographyCapturePrepared</span></a> func</code></em>,
-                                     <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *capture_caps</code></em>,
+                                     <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> *capture_caps</code></em>,
                                      <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
 <p>
 </p>
@@ -1516,7 +1516,7 @@ gst_photography_get_config (<em class="parameter"><code><a class="link" href="Gs
 <hr>
 <div class="refsect2">
 <a name="GstPhotography--image-capture-supported-caps"></a><h3>The <code class="literal">“image-capture-supported-caps”</code> property</h3>
-<pre class="programlisting">  “image-capture-supported-caps” <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *</pre>
+<pre class="programlisting">  “image-capture-supported-caps” <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> *</pre>
 <p>Caps describing supported image capture formats.</p>
 <p>Flags: Read</p>
 </div>
@@ -1548,7 +1548,7 @@ gst_photography_get_config (<em class="parameter"><code><a class="link" href="Gs
 <hr>
 <div class="refsect2">
 <a name="GstPhotography--image-preview-supported-caps"></a><h3>The <code class="literal">“image-preview-supported-caps”</code> property</h3>
-<pre class="programlisting">  “image-preview-supported-caps” <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *</pre>
+<pre class="programlisting">  “image-preview-supported-caps” <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> *</pre>
 <p>Caps describing supported image preview formats.</p>
 <p>Flags: Read</p>
 </div>
@@ -1637,6 +1637,6 @@ gst_photography_get_config (<em class="parameter"><code><a class="link" href="Gs
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.20</div>
+          Generated by GTK-Doc V1.21</div>
 </body>
 </html>

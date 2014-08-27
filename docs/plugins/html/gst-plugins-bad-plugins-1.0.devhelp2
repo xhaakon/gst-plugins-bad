@@ -158,8 +158,8 @@
     <keyword type="struct" name="struct GstBurn" link="gst-plugins-bad-plugins-burn.html#GstBurn-struct"/>
     <keyword type="property" name="The “silent” property" link="gst-plugins-bad-plugins-burn.html#GstBurn--silent"/>
     <keyword type="property" name="The “adjustment” property" link="gst-plugins-bad-plugins-burn.html#GstBurn--adjustment"/>
-    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-camerabin.html#id-1.2.7.4.2.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-camerabin.html#id-1.2.7.4.2.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-camerabin.html#id-1.2.7.3.2.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-camerabin.html#id-1.2.7.3.2.2"/>
     <keyword type="" name="Example launch line" link="gst-plugins-bad-plugins-chromium.html#id-1.2.8.7.3"/>
     <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-chromium.html#id-1.2.8.7.4.1"/>
     <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-chromium.html#id-1.2.8.7.4.2"/>
@@ -282,10 +282,10 @@
     <keyword type="struct" name="struct GstExclusion" link="gst-plugins-bad-plugins-exclusion.html#GstExclusion-struct"/>
     <keyword type="property" name="The “silent” property" link="gst-plugins-bad-plugins-exclusion.html#GstExclusion--silent"/>
     <keyword type="property" name="The “factor” property" link="gst-plugins-bad-plugins-exclusion.html#GstExclusion--factor"/>
-    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-edgedetect.html#id-1.2.27.4.2.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-edgedetect.html#id-1.2.27.4.2.2"/>
-    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-eglglessink.html#id-1.2.28.4.2.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-eglglessink.html#id-1.2.28.4.2.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-edgedetect.html#id-1.2.27.3.2.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-edgedetect.html#id-1.2.27.3.2.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-eglglessink.html#id-1.2.28.3.2.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-eglglessink.html#id-1.2.28.3.2.2"/>
     <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-faac.html#id-1.2.29.8.2.1"/>
     <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-faac.html#id-1.2.29.8.2.2"/>
     <keyword type="struct" name="struct GstFaac" link="gst-plugins-bad-plugins-faac.html#GstFaac-struct"/>
@@ -300,10 +300,10 @@
     <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-faad.html#id-1.2.30.6.2.1"/>
     <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-faad.html#id-1.2.30.6.2.2"/>
     <keyword type="struct" name="GstFaad" link="gst-plugins-bad-plugins-faad.html#GstFaad-struct"/>
-    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-faceblur.html#id-1.2.31.4.2.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-faceblur.html#id-1.2.31.4.2.2"/>
-    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-facedetect.html#id-1.2.32.4.2.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-facedetect.html#id-1.2.32.4.2.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-faceblur.html#id-1.2.31.3.2.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-faceblur.html#id-1.2.31.3.2.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-facedetect.html#id-1.2.32.3.2.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-facedetect.html#id-1.2.32.3.2.2"/>
     <keyword type="" name="Example pipeline" link="gst-plugins-bad-plugins-festival.html#id-1.2.33.6.5"/>
     <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-festival.html#id-1.2.33.6.6.1"/>
     <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-festival.html#id-1.2.33.6.6.2"/>
@@ -327,9 +327,9 @@
     <keyword type="property" name="The “last-message” property" link="gst-plugins-bad-plugins-fpsdisplaysink.html#GstFPSDisplaySink--last-message"/>
     <keyword type="property" name="The “silent” property" link="gst-plugins-bad-plugins-fpsdisplaysink.html#GstFPSDisplaySink--silent"/>
     <keyword type="signal" name="The “fps-measurements” signal" link="gst-plugins-bad-plugins-fpsdisplaysink.html#GstFPSDisplaySink-fps-measurements"/>
-    <keyword type="" name="Example launch line" link="gst-plugins-bad-plugins-gaussianblur.html#id-1.2.36.4.3"/>
-    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-gaussianblur.html#id-1.2.36.4.4.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-gaussianblur.html#id-1.2.36.4.4.2"/>
+    <keyword type="" name="Example launch line" link="gst-plugins-bad-plugins-gaussianblur.html#id-1.2.36.3.3"/>
+    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-gaussianblur.html#id-1.2.36.3.4.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-gaussianblur.html#id-1.2.36.3.4.2"/>
     <keyword type="" name="Example launch line" link="gst-plugins-bad-plugins-jpegparse.html#id-1.2.37.7.3"/>
     <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-jpegparse.html#id-1.2.37.7.4.1"/>
     <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-jpegparse.html#id-1.2.37.7.4.2"/>
@@ -434,8 +434,8 @@
     <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-mpg123audiodec.html#id-1.2.47.6.2.1"/>
     <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-mpg123audiodec.html#id-1.2.47.6.2.2"/>
     <keyword type="struct" name="struct GstMpg123AudioDec" link="gst-plugins-bad-plugins-mpg123audiodec.html#GstMpg123AudioDec-struct"/>
-    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-neonhttpsrc.html#id-1.2.48.7.2.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-neonhttpsrc.html#id-1.2.48.7.2.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-neonhttpsrc.html#id-1.2.48.6.2.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-neonhttpsrc.html#id-1.2.48.6.2.2"/>
     <keyword type="struct" name="struct GstNeonhttpSrc" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc"/>
     <keyword type="property" name="The “location” property" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc--location"/>
     <keyword type="property" name="The “proxy” property" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc--proxy"/>
@@ -460,8 +460,8 @@
     <keyword type="struct" name="struct GstOpenalSrc" link="gst-plugins-bad-plugins-openalsrc.html#GstOpenalSrc-struct"/>
     <keyword type="property" name="The “device” property" link="gst-plugins-bad-plugins-openalsrc.html#GstOpenalSrc--device"/>
     <keyword type="property" name="The “device-name” property" link="gst-plugins-bad-plugins-openalsrc.html#GstOpenalSrc--device-name"/>
-    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-openalsink.html#id-1.2.51.4.2.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-openalsink.html#id-1.2.51.4.2.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-openalsink.html#id-1.2.51.3.2.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-openalsink.html#id-1.2.51.3.2.2"/>
     <keyword type="" name="Example pipelines" link="gst-plugins-bad-plugins-pcapparse.html#id-1.2.52.7.3"/>
     <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-pcapparse.html#id-1.2.52.7.4.1"/>
     <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-pcapparse.html#id-1.2.52.7.4.2"/>
@@ -476,8 +476,8 @@
     <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-pinch.html#id-1.2.53.7.2.2"/>
     <keyword type="struct" name="struct GstPinch" link="gst-plugins-bad-plugins-pinch.html#GstPinch-struct"/>
     <keyword type="property" name="The “intensity” property" link="gst-plugins-bad-plugins-pinch.html#GstPinch--intensity"/>
-    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-pyramidsegment.html#id-1.2.54.5.2.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-pyramidsegment.html#id-1.2.54.5.2.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-pyramidsegment.html#id-1.2.54.4.2.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-pyramidsegment.html#id-1.2.54.4.2.2"/>
     <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-rfbsrc.html#id-1.2.55.7.2.1"/>
     <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-rfbsrc.html#id-1.2.55.7.2.2"/>
     <keyword type="struct" name="struct GstRfbSrc" link="gst-plugins-bad-plugins-rfbsrc.html#GstRfbSrc-struct"/>
@@ -493,12 +493,12 @@
     <keyword type="property" name="The “use-copyrect” property" link="gst-plugins-bad-plugins-rfbsrc.html#GstRfbSrc--use-copyrect"/>
     <keyword type="property" name="The “shared” property" link="gst-plugins-bad-plugins-rfbsrc.html#GstRfbSrc--shared"/>
     <keyword type="property" name="The “view-only” property" link="gst-plugins-bad-plugins-rfbsrc.html#GstRfbSrc--view-only"/>
-    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-rtmpsink.html#id-1.2.56.7.2.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-rtmpsink.html#id-1.2.56.7.2.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-rtmpsink.html#id-1.2.56.6.2.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-rtmpsink.html#id-1.2.56.6.2.2"/>
     <keyword type="struct" name="struct GstRTMPSink" link="gst-plugins-bad-plugins-rtmpsink.html#GstRTMPSink"/>
     <keyword type="property" name="The “location” property" link="gst-plugins-bad-plugins-rtmpsink.html#GstRTMPSink--location"/>
-    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-rtmpsrc.html#id-1.2.57.7.2.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-rtmpsrc.html#id-1.2.57.7.2.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-rtmpsrc.html#id-1.2.57.6.2.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-rtmpsrc.html#id-1.2.57.6.2.2"/>
     <keyword type="struct" name="struct GstRTMPSrc" link="gst-plugins-bad-plugins-rtmpsrc.html#GstRTMPSrc"/>
     <keyword type="property" name="The “location” property" link="gst-plugins-bad-plugins-rtmpsrc.html#GstRTMPSrc--location"/>
     <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-shmsink.html#id-1.2.58.8.2.1"/>
@@ -621,8 +621,8 @@
     <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-voaacenc.html#id-1.2.76.8.2.2"/>
     <keyword type="struct" name="struct GstVoAacEnc" link="gst-plugins-bad-plugins-voaacenc.html#GstVoAacEnc-struct"/>
     <keyword type="property" name="The “bitrate” property" link="gst-plugins-bad-plugins-voaacenc.html#GstVoAacEnc--bitrate"/>
-    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-voamrwbenc.html#id-1.2.77.4.2.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-voamrwbenc.html#id-1.2.77.4.2.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-voamrwbenc.html#id-1.2.77.3.2.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-voamrwbenc.html#id-1.2.77.3.2.2"/>
     <keyword type="" name="Example launch line" link="gst-plugins-bad-plugins-wavescope.html#id-1.2.78.7.3"/>
     <keyword type="" name="Element Information" link="gst-plugins-bad-plugins-wavescope.html#id-1.2.78.7.4.1"/>
     <keyword type="" name="Element Pads" link="gst-plugins-bad-plugins-wavescope.html#id-1.2.78.7.4.2"/>

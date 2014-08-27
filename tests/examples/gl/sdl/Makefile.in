@@ -702,10 +702,13 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 @HAVE_SDL_TRUE@sdlshare_SOURCES = sdlshare.c
-@HAVE_SDL_TRUE@sdlshare_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS)$(GST_CFLAGS) \
-@HAVE_SDL_TRUE@    $(GL_CFLAGS) $(SDL_CFLAGS) \
+@HAVE_SDL_TRUE@sdlshare_CFLAGS = \
 @HAVE_SDL_TRUE@	-I$(top_srcdir)/gst-libs \
-@HAVE_SDL_TRUE@	-I$(top_builddir)/gst-libs
+@HAVE_SDL_TRUE@	-I$(top_builddir)/gst-libs \
+@HAVE_SDL_TRUE@	$(GST_PLUGINS_BASE_CFLAGS) \
+@HAVE_SDL_TRUE@	$(GST_CFLAGS) \
+@HAVE_SDL_TRUE@	$(GL_CFLAGS) \
+@HAVE_SDL_TRUE@	$(SDL_CFLAGS)
 
 @HAVE_SDL_TRUE@sdlshare_LDADD = $(GST_LIBS) $(GL_LIBS) $(SDL_LIBS) \
 @HAVE_SDL_TRUE@	$(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la \

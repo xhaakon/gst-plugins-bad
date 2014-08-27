@@ -8,15 +8,14 @@
 <link rel="up" href="codecparsers.html" title="Bitstream parsing Library">
 <link rel="prev" href="codecparsers.html" title="Bitstream parsing Library">
 <link rel="next" href="gst-plugins-bad-libs-mpegvideoparser.html" title="mpegvideoparser">
-<meta name="generator" content="GTK-Doc V1.20 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.21 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
-<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="10"><tr valign="middle">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
-<a href="#" class="shortcut">Top</a><span id="nav_description"> <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-libs-h264parser.description" class="shortcut">Description</a></span><span id="nav_hierarchy"> <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-libs-h264parser.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-libs-h264parser.description" class="shortcut">Description</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="codecparsers.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
@@ -306,11 +305,6 @@ bitstream parsing.</p>
 </table></div>
 </div>
 <div class="refsect1">
-<a name="gst-plugins-bad-libs-h264parser.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">
-</pre>
-</div>
-<div class="refsect1">
 <a name="gst-plugins-bad-libs-h264parser.includes"></a><h2>Includes</h2>
 <pre class="synopsis">#include &lt;gst/codecparsers/gsth264parser.h&gt;
 </pre>
@@ -405,7 +399,7 @@ gst_h264_parser_identify_nalu (<em class="parameter"><code><a class="link" href=
  from the next nalu data from <em class="parameter"><code>data</code></em>
 </p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.7.5"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.7.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -444,7 +438,7 @@ gst_h264_parser_identify_nalu (<em class="parameter"><code><a class="link" href=
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.7.6"></a><h4>Returns</h4>
+<a name="id-1.2.4.3.7.7.6"></a><h4>Returns</h4>
 <p> a <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="type">GstH264ParserResult</span></a></p>
 <p></p>
 </div>
@@ -463,7 +457,7 @@ gst_h264_parser_identify_nalu_avc (<em class="parameter"><code><a class="link" h
  and sets <em class="parameter"><code>nalu</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.8.5"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.8.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -507,7 +501,7 @@ gst_h264_parser_identify_nalu_avc (<em class="parameter"><code><a class="link" h
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.8.6"></a><h4>Returns</h4>
+<a name="id-1.2.4.3.7.8.6"></a><h4>Returns</h4>
 <p> a <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="type">GstH264ParserResult</span></a></p>
 <p></p>
 </div>
@@ -523,7 +517,7 @@ parse a specific structure. It is necessary to do so to make
 sure <em class="parameter"><code>nalparser</code></em>
  is up to date.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.9.5"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.9.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -545,7 +539,7 @@ sure <em class="parameter"><code>nalparser</code></em>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.9.6"></a><h4>Returns</h4>
+<a name="id-1.2.4.3.7.9.6"></a><h4>Returns</h4>
 <p> a <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="type">GstH264ParserResult</span></a></p>
 <p></p>
 </div>
@@ -563,7 +557,7 @@ gst_h264_parser_parse_slice_hdr (<em class="parameter"><code><a class="link" hre
 , and fills the <em class="parameter"><code>slice</code></em>
  structure.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.10.5"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.10.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -600,7 +594,7 @@ gst_h264_parser_parse_slice_hdr (<em class="parameter"><code><a class="link" hre
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.10.6"></a><h4>Returns</h4>
+<a name="id-1.2.4.3.7.10.6"></a><h4>Returns</h4>
 <p> a <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="type">GstH264ParserResult</span></a></p>
 <p></p>
 </div>
@@ -617,7 +611,7 @@ gst_h264_parser_parse_sps (<em class="parameter"><code><a class="link" href="gst
 , and fills the <em class="parameter"><code>sps</code></em>
  structure.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.11.5"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.11.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -649,7 +643,7 @@ gst_h264_parser_parse_sps (<em class="parameter"><code><a class="link" href="gst
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.11.6"></a><h4>Returns</h4>
+<a name="id-1.2.4.3.7.11.6"></a><h4>Returns</h4>
 <p> a <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="type">GstH264ParserResult</span></a></p>
 <p></p>
 </div>
@@ -669,7 +663,7 @@ gst_h264_parser_parse_pps (<em class="parameter"><code><a class="link" href="gst
 <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-pps-clear" title="gst_h264_pps_clear ()"><code class="function">gst_h264_pps_clear()</code></a> function when it is no longer needed, or prior
 to parsing a new PPS NAL unit.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.12.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.12.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -696,7 +690,7 @@ to parsing a new PPS NAL unit.</p>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.12.7"></a><h4>Returns</h4>
+<a name="id-1.2.4.3.7.12.7"></a><h4>Returns</h4>
 <p> a <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="type">GstH264ParserResult</span></a></p>
 <p></p>
 </div>
@@ -712,7 +706,7 @@ gst_h264_parser_parse_sei (<em class="parameter"><code><a class="link" href="gst
 , create and fills the <em class="parameter"><code>messages</code></em>
  array.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.13.5"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.13.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -739,7 +733,7 @@ gst_h264_parser_parse_sei (<em class="parameter"><code><a class="link" href="gst
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.13.6"></a><h4>Returns</h4>
+<a name="id-1.2.4.3.7.13.6"></a><h4>Returns</h4>
 <p> a <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="type">GstH264ParserResult</span></a></p>
 <p></p>
 </div>
@@ -752,7 +746,7 @@ gst_h264_nal_parser_new (<em class="parameter"><code><span class="type">void</sp
 <p>Creates a new <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a>. It should be freed with
 gst_h264_nal_parser_free after use.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.14.5"></a><h4>Returns</h4>
+<a name="id-1.2.4.3.7.14.5"></a><h4>Returns</h4>
 <p> a new <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a></p>
 <p></p>
 </div>
@@ -765,7 +759,7 @@ gst_h264_nal_parser_free (<em class="parameter"><code><a class="link" href="gst-
 <p>Frees <em class="parameter"><code>nalparser</code></em>
  and sets it to <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.15.5"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.15.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -791,7 +785,7 @@ gst_h264_parse_sps (<em class="parameter"><code><a class="link" href="gst-plugin
 , and fills the <em class="parameter"><code>sps</code></em>
  structure.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.16.5"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.16.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -818,7 +812,7 @@ gst_h264_parse_sps (<em class="parameter"><code><a class="link" href="gst-plugin
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.16.6"></a><h4>Returns</h4>
+<a name="id-1.2.4.3.7.16.6"></a><h4>Returns</h4>
 <p> a <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="type">GstH264ParserResult</span></a></p>
 <p></p>
 </div>
@@ -838,7 +832,7 @@ gst_h264_parse_pps (<em class="parameter"><code><a class="link" href="gst-plugin
 <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-pps-clear" title="gst_h264_pps_clear ()"><code class="function">gst_h264_pps_clear()</code></a> function when it is no longer needed, or prior
 to parsing a new PPS NAL unit.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.17.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.17.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -865,7 +859,7 @@ to parsing a new PPS NAL unit.</p>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.17.7"></a><h4>Returns</h4>
+<a name="id-1.2.4.3.7.17.7"></a><h4>Returns</h4>
 <p> a <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="type">GstH264ParserResult</span></a></p>
 <p></p>
 </div>
@@ -878,7 +872,7 @@ gst_h264_pps_clear (<em class="parameter"><code><a class="link" href="gst-plugin
 <p>Clears all <em class="parameter"><code>pps</code></em>
  internal resources.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.18.5"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.18.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -910,7 +904,7 @@ zigzag scan order and store the resulting factors into <em class="parameter"><co
 <em class="parameter"><code>out_quant</code></em>
  arguments.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.19.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.19.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -949,7 +943,7 @@ raster scan order and store the resulting factors into <em class="parameter"><co
 <em class="parameter"><code>out_quant</code></em>
  arguments.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.20.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.20.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -988,7 +982,7 @@ zigzag scan order and store the resulting factors into <em class="parameter"><co
 <em class="parameter"><code>out_quant</code></em>
  arguments.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.21.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.21.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -1027,7 +1021,7 @@ raster scan order and store the resulting factors into <em class="parameter"><co
 <em class="parameter"><code>out_quant</code></em>
  arguments.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.22.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.22.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -1070,7 +1064,7 @@ message.</p>
 and <em class="parameter"><code>fps_den</code></em>
  to 1.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.8.23.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.3.7.23.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -1128,7 +1122,7 @@ value if available, 0 otherwise</p></td>
 <a name="GstH264NalUnitType"></a><h3>enum GstH264NalUnitType</h3>
 <p>Indicates the type of H264 Nal Units</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.9.4.4"></a><h4>Members</h4>
+<a name="id-1.2.4.3.8.4.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -1271,7 +1265,7 @@ value if available, 0 otherwise</p></td>
 <a name="GstH264ParserResult"></a><h3>enum GstH264ParserResult</h3>
 <p>The result of parsing H264 data.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.9.5.4"></a><h4>Members</h4>
+<a name="id-1.2.4.3.8.5.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -1330,7 +1324,7 @@ value if available, 0 otherwise</p></td>
 <a name="GstH264SEIPayloadType"></a><h3>enum GstH264SEIPayloadType</h3>
 <p>The type of SEI message.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.9.6.4"></a><h4>Members</h4>
+<a name="id-1.2.4.3.8.6.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -1369,7 +1363,7 @@ value if available, 0 otherwise</p></td>
 <a name="GstH264SEIPicStructType"></a><h3>enum GstH264SEIPicStructType</h3>
 <p>SEI pic_struct type</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.9.7.4"></a><h4>Members</h4>
+<a name="id-1.2.4.3.8.7.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -1451,7 +1445,7 @@ value if available, 0 otherwise</p></td>
 <a name="GstH264SliceType"></a><h3>enum GstH264SliceType</h3>
 <p>Type of Picture slice</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.9.8.4"></a><h4>Members</h4>
+<a name="id-1.2.4.3.8.8.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -1540,7 +1534,7 @@ value if available, 0 otherwise</p></td>
 </pre>
 <p>Structure defining the Nal unit headers</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.9.10.5"></a><h4>Members</h4>
+<a name="id-1.2.4.3.8.10.5"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -1672,7 +1666,7 @@ already been parsed</p></td>
 </pre>
 <p>H264 Sequence Parameter Set (SPS)</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.9.11.5"></a><h4>Members</h4>
+<a name="id-1.2.4.3.8.11.5"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -1994,7 +1988,7 @@ already been parsed</p></td>
 </pre>
 <p>Defines the HRD parameters</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.9.13.5"></a><h4>Members</h4>
+<a name="id-1.2.4.3.8.13.5"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -2125,7 +2119,7 @@ dpb_output_delay syntax element</p></td>
 </pre>
 <p>The structure representing the VUI parameters.</p>
 <div class="refsect3">
-<a name="id-1.2.4.3.9.14.5"></a><h4>Members</h4>
+<a name="id-1.2.4.3.8.14.5"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -2535,6 +2529,6 @@ units of frame buffers.</p></td>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.20</div>
+          Generated by GTK-Doc V1.21</div>
 </body>
 </html>
