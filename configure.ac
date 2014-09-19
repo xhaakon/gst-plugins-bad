@@ -3,7 +3,7 @@ AC_PREREQ([2.68])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.4.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.4.2],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -48,7 +48,7 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 401, 0, 401)
+AS_LIBTOOL(GST, 402, 0, 402)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.4.0
@@ -511,6 +511,20 @@ fi
 AM_CONDITIONAL(HAVE_IOS, test "x$HAVE_IOS" = "xyes")
 if test "x$HAVE_IOS" = "xyes"; then
   AC_DEFINE(HAVE_IOS, 1, [Define if building for Apple iOS])
+fi
+
+if test "x$HAVE_IOS" = "xyes"; then
+  AC_MSG_CHECKING([Checking for __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0])
+
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <AvailabilityMacros.h>]], [[
+        #if !defined(__IPHONE_OS_VERSION_MIN_REQUIRED) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0
+        #error "Need iOS >= 8.0 for VideoToolbox"
+        #endif
+  ]])], [ AC_MSG_RESULT(yes)
+    HAVE_VIDEOTOOLBOX="yes"
+  ], [ AC_MSG_RESULT(no)
+    HAVE_VIDEOTOOLBOX="no"
+  ])
 fi
 
 AM_CONDITIONAL(HAVE_VIDEOTOOLBOX, test "x$HAVE_VIDEOTOOLBOX" = "xyes")
