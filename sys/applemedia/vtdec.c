@@ -97,7 +97,7 @@ static GstStaticPadTemplate gst_vtdec_sink_template =
 #endif
 
 /* define EnableHardwareAcceleratedVideoDecoder in < 10.9 */
-#if MAC_OS_X_VERSION_MAX_ALLOWED < 1090
+#if defined(MAC_OS_X_VERSION_MAX_ALLOWED) && MAC_OS_X_VERSION_MAX_ALLOWED < 1090
 const CFStringRef
     kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder =
 CFSTR ("EnableHardwareAcceleratedVideoDecoder");
@@ -322,8 +322,12 @@ gst_vtdec_create_session (GstVtdec * vtdec)
   videoDecoderSpecification =
       CFDictionaryCreateMutable (NULL, 0, &kCFTypeDictionaryKeyCallBacks,
       &kCFTypeDictionaryValueCallBacks);
+
+  /* This is the default on iOS and the key does not exist there */
+#ifndef HAVE_IOS
   gst_vtutil_dict_set_boolean (videoDecoderSpecification,
       kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder, TRUE);
+#endif
 
   output_image_buffer_attrs =
       CFDictionaryCreateMutable (NULL, 0, &kCFTypeDictionaryKeyCallBacks,

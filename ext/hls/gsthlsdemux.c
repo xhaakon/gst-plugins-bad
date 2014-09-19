@@ -1193,7 +1193,7 @@ gst_hls_demux_stream_loop (GstHLSDemux * demux)
       }
     } else {
       demux->download_failed_count++;
-      if (demux->download_failed_count < DEFAULT_FAILED_COUNT) {
+      if (demux->download_failed_count <= DEFAULT_FAILED_COUNT) {
         GST_WARNING_OBJECT (demux, "Could not fetch the next fragment");
         g_clear_error (&err);
 
@@ -1205,6 +1205,7 @@ gst_hls_demux_stream_loop (GstHLSDemux * demux)
             && !gst_m3u8_client_is_live (demux->client)
             && gst_hls_demux_update_playlist (demux, FALSE, &err)) {
           /* Retry immediately, the playlist actually has changed */
+          GST_DEBUG_OBJECT (demux, "Updated the playlist");
           return;
         } else {
           /* Wait half the fragment duration before retrying */
@@ -1225,6 +1226,12 @@ gst_hls_demux_stream_loop (GstHLSDemux * demux)
             demux->next_download);
         g_mutex_unlock (&demux->download_lock);
         GST_DEBUG_OBJECT (demux, "Retrying now");
+
+        /* Refetch the playlist now after we waited */
+        if (!gst_m3u8_client_is_live (demux->client)
+            && gst_hls_demux_update_playlist (demux, FALSE, &err)) {
+          GST_DEBUG_OBJECT (demux, "Updated the playlist");
+        }
         return;
       } else {
         GST_ELEMENT_ERROR_FROM_ERROR (demux,
@@ -1431,7 +1438,7 @@ gst_hls_demux_updates_loop (GstHLSDemux * demux)
       if (demux->stop_updates_task)
         goto quit;
       demux->client->update_failed_count++;
-      if (demux->client->update_failed_count < DEFAULT_FAILED_COUNT) {
+      if (demux->client->update_failed_count <= DEFAULT_FAILED_COUNT) {
         GST_WARNING_OBJECT (demux, "Could not update the playlist");
         demux->next_update =
             g_get_monotonic_time () +
@@ -1660,12 +1667,15 @@ gst_hls_demux_change_playlist (GstHLSDemux * demux, guint max_bitrate)
   current_variant = gst_m3u8_client_get_playlist_for_bitrate (demux->client,
       max_bitrate);
 
+  GST_M3U8_CLIENT_LOCK (demux->client);
+
 retry_failover_protection:
   old_bandwidth = GST_M3U8 (previous_variant->data)->bandwidth;
   new_bandwidth = GST_M3U8 (current_variant->data)->bandwidth;
 
   /* Don't do anything else if the playlist is the same */
   if (new_bandwidth == old_bandwidth) {
+    GST_M3U8_CLIENT_UNLOCK (demux->client);
     return TRUE;
   }
 
