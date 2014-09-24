@@ -49,7 +49,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *
+<a href="https://developer.gnome.org/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-parse-descriptors" title="gst_mpegts_parse_descriptors ()">gst_mpegts_parse_descriptors</a> <span class="c_punctuation">()</span>
@@ -73,7 +73,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-iso-639-language" title="gst_mpegts_descriptor_parse_iso_639_language ()">gst_mpegts_descriptor_parse_iso_639_language</a> <span class="c_punctuation">()</span>
@@ -81,7 +81,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-iso-639-language-idx" title="gst_mpegts_descriptor_parse_iso_639_language_idx ()">gst_mpegts_descriptor_parse_iso_639_language_idx</a> <span class="c_punctuation">()</span>
@@ -89,7 +89,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-iso-639-language-nb" title="gst_mpegts_descriptor_parse_iso_639_language_nb ()">gst_mpegts_descriptor_parse_iso_639_language_nb</a> <span class="c_punctuation">()</span>
@@ -105,7 +105,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-logical-channel" title="gst_mpegts_descriptor_parse_logical_channel ()">gst_mpegts_descriptor_parse_logical_channel</a> <span class="c_punctuation">()</span>
@@ -155,9 +155,9 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Boxed-Types.html">GBoxed</a>
+<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-Boxed-Types.html">GBoxed</a>
     <span class="lineart">╰──</span> GstMpegtsDescriptor
-    <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Enumeration-and-Flag-Types.html">GEnum</a>
+    <a href="https://developer.gnome.org/gobject/unstable/gobject-Enumeration-and-Flag-Types.html">GEnum</a>
     <span class="lineart">├──</span> GstMpegtsDescriptorType
     <span class="lineart">╰──</span> GstMpegtsIso639AudioType
 </pre>
@@ -178,12 +178,12 @@ and other specifications mentionned in the documentation.</p>
 <div class="refsect2">
 <a name="gst-mpegts-find-descriptor"></a><h3>gst_mpegts_find_descriptor ()</h3>
 <pre class="programlisting">const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="returnvalue">GstMpegtsDescriptor</span></a> *
-gst_mpegts_find_descriptor (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="type">GPtrArray</span></a> *descriptors</code></em>,
+gst_mpegts_find_descriptor (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="type">GPtrArray</span></a> *descriptors</code></em>,
                             <em class="parameter"><code><span class="type">guint8</span> tag</code></em>);</pre>
 <p>Finds the first descriptor of type <em class="parameter"><code>tag</code></em>
  in the array.</p>
 <p>Note: To look for descriptors that can be present more than once in an
-array of descriptors, iterate the <a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="type">GArray</span></a> manually.</p>
+array of descriptors, iterate the <a href="https://developer.gnome.org/glib/unstable/glib-Arrays.html#GArray"><span class="type">GArray</span></a> manually.</p>
 <div class="refsect3">
 <a name="id-1.2.5.5.9.2.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
@@ -210,14 +210,14 @@ of <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstM
 <div class="refsect3">
 <a name="id-1.2.5.5.9.2.7"></a><h4>Returns</h4>
 <p> the first descriptor matchin <em class="parameter"><code>tag</code></em>
-, else <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. </p>
+, else <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. </p>
 <p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
 </div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="gst-mpegts-parse-descriptors"></a><h3>gst_mpegts_parse_descriptors ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="returnvalue">GPtrArray</span></a> *
 gst_mpegts_parse_descriptors (<em class="parameter"><code><span class="type">guint8</span> *buffer</code></em>,
                               <em class="parameter"><code><span class="type">gsize</span> buf_len</code></em>);</pre>
 <p>Parses the descriptors present in <em class="parameter"><code>buffer</code></em>
@@ -251,8 +251,8 @@ array.</p>
 <div class="refsect3">
 <a name="id-1.2.5.5.9.3.7"></a><h4>Returns</h4>
 <p> an
-array of the parsed descriptors or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if there was an error.
-Release with <a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#g-array-unref"><span class="type">g_array_unref</span></a> when done with it. </p>
+array of the parsed descriptors or <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if there was an error.
+Release with <a href="https://developer.gnome.org/glib/unstable/glib-Arrays.html#g-array-unref"><span class="type">g_array_unref</span></a> when done with it. </p>
 <p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>][<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> GstMpegtsDescriptor]</span></p>
 </div>
 </div>
@@ -305,11 +305,11 @@ gst_mpegts_descriptor_from_custom (<em class="parameter"><code><span class="type
 <a name="gst-mpegts-descriptor-from-registration"></a><h3>gst_mpegts_descriptor_from_registration ()</h3>
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="returnvalue">GstMpegtsDescriptor</span></a> *
 gst_mpegts_descriptor_from_registration
-                               (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *format_identifier</code></em>,
+                               (<em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *format_identifier</code></em>,
                                 <em class="parameter"><code><span class="type">guint8</span> *additional_info</code></em>,
                                 <em class="parameter"><code><span class="type">gsize</span> additional_info_length</code></em>);</pre>
 <p>Creates a <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GST-MTS-DESC-REGISTRATION:CAPS"><code class="literal">GST_MTS_DESC_REGISTRATION</code></a> <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="type">GstMpegtsDescriptor</span></a></p>
-<p>Return: <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="type">GstMpegtsDescriptor</span></a>, <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> on failure</p>
+<p>Return: <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="type">GstMpegtsDescriptor</span></a>, <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> on failure</p>
 <div class="refsect3">
 <a name="id-1.2.5.5.9.5.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
@@ -342,7 +342,7 @@ gst_mpegts_descriptor_from_registration
 <hr>
 <div class="refsect2">
 <a name="gst-mpegts-descriptor-parse-iso-639-language"></a><h3>gst_mpegts_descriptor_parse_iso_639_language ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpegts_descriptor_parse_iso_639_language
                                (<em class="parameter"><code>const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="type">GstMpegtsDescriptor</span></a> *descriptor</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsISO639LanguageDescriptor" title="struct GstMpegtsISO639LanguageDescriptor"><span class="type">GstMpegtsISO639LanguageDescriptor</span></a> **res</code></em>);</pre>
@@ -374,18 +374,18 @@ ISO 639-1 language code from the returned ISO 639-2 one.</p>
 </div>
 <div class="refsect3">
 <a name="id-1.2.5.5.9.6.7"></a><h4>Returns</h4>
-<p> <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if parsing succeeded, else <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>.</p>
+<p> <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if parsing succeeded, else <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>.</p>
 <p></p>
 </div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="gst-mpegts-descriptor-parse-iso-639-language-idx"></a><h3>gst_mpegts_descriptor_parse_iso_639_language_idx ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpegts_descriptor_parse_iso_639_language_idx
                                (<em class="parameter"><code>const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="type">GstMpegtsDescriptor</span></a> *descriptor</code></em>,
-                                <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> idx</code></em>,
-                                <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **lang</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> idx</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **lang</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsIso639AudioType" title="enum GstMpegtsIso639AudioType"><span class="type">GstMpegtsIso639AudioType</span></a> *audio_type</code></em>);</pre>
 <p>Extracts the iso 639-2 language information from specific table id in <em class="parameter"><code>descriptor</code></em>
 .</p>
@@ -425,14 +425,14 @@ ISO 639-1 language code from the returned ISO 639-2 one.</p>
 </div>
 <div class="refsect3">
 <a name="id-1.2.5.5.9.7.7"></a><h4>Returns</h4>
-<p> <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if parsing succeeded, else <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>.</p>
+<p> <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if parsing succeeded, else <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>.</p>
 <p></p>
 </div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="gst-mpegts-descriptor-parse-iso-639-language-nb"></a><h3>gst_mpegts_descriptor_parse_iso_639_language_nb ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
 gst_mpegts_descriptor_parse_iso_639_language_nb
                                (<em class="parameter"><code>const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="type">GstMpegtsDescriptor</span></a> *descriptor</code></em>);</pre>
 <div class="refsect3">
@@ -467,7 +467,7 @@ gst_mpegts_iso_639_language_descriptor_free
 <hr>
 <div class="refsect2">
 <a name="gst-mpegts-descriptor-parse-logical-channel"></a><h3>gst_mpegts_descriptor_parse_logical_channel ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpegts_descriptor_parse_logical_channel
                                (<em class="parameter"><code>const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="type">GstMpegtsDescriptor</span></a> *descriptor</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsLogicalChannelDescriptor" title="struct GstMpegtsLogicalChannelDescriptor"><span class="type">GstMpegtsLogicalChannelDescriptor</span></a> *res</code></em>);</pre>
@@ -497,7 +497,7 @@ gst_mpegts_descriptor_parse_logical_channel
 </div>
 <div class="refsect3">
 <a name="id-1.2.5.5.9.10.6"></a><h4>Returns</h4>
-<p> <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if parsing succeeded, else <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>.</p>
+<p> <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if parsing succeeded, else <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>.</p>
 <p></p>
 </div>
 </div>
