@@ -33,7 +33,7 @@ libgles2-mesa-dev
 libglib2.0-dev (>= 2.32)
 libglu1-mesa-dev
 libgme-dev
-libgnutls-dev (>= 2.11.3)
+libgnutls28-dev (>= 2.11.3)
 libgsm1-dev
 libgstreamer-plugins-base@GST_ABI@-dev (>= 1.4.0)
 libgtk2.0-dev (>= 2.14.0)

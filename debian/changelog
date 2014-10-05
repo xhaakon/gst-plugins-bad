@@ -1,3 +1,12 @@
+gst-plugins-bad1.0 (1.4.3-2) unstable; urgency=medium
+
+  * debian/build-deps.in:
+    + Build-depend on libgnutls28-dev instead of libgnutls-dev. The latter is
+      removed. We don't actually need to build-depend on it anymore but because
+      of a missing dependency in librtmp-dev we still need it (Closes: #764100).
+
+ -- Sebastian Dröge <slomo@debian.org>  Sun, 05 Oct 2014 20:30:36 +0300
+
 gst-plugins-bad1.0 (1.4.3-1) unstable; urgency=medium
 
   * New upstream bugfix release.
