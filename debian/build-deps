@@ -20,7 +20,6 @@ libcairo2-dev
 libchromaprint-dev
 libcurl4-gnutls-dev (>= 7.21.0)
 libdca-dev
-libdirac-dev (>= 0.10)
 libdirectfb-dev (>= 0.9.25)
 libdvdnav-dev (>= 4.1.2) [!hurd-any]
 libegl1-mesa-dev
