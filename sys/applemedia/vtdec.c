@@ -306,7 +306,7 @@ out:
 
 error:
   GST_ELEMENT_ERROR (vtdec, STREAM, DECODE, (NULL),
-      ("VTDecompressionSessionDecodeFrame returned %d", status));
+      ("VTDecompressionSessionDecodeFrame returned %d", (int) status));
   ret = GST_FLOW_ERROR;
   goto out;
 }
@@ -350,7 +350,7 @@ gst_vtdec_create_session (GstVtdec * vtdec)
 
   if (status != noErr) {
     GST_ELEMENT_ERROR (vtdec, RESOURCE, FAILED, (NULL),
-        ("VTDecompressionSessionCreate returned %d", status));
+        ("VTDecompressionSessionCreate returned %d", (int) status));
     return FALSE;
   }
 
@@ -455,9 +455,23 @@ cm_sample_buffer_from_gst_buffer (GstVtdec * vtdec, GstBuffer * buf)
     goto block_error;
 
   /* create a sample buffer, the CoreMedia equivalent of GstBuffer */
-  sample_timing.duration = CMTimeMake (GST_BUFFER_DURATION (buf), 1);
-  sample_timing.presentationTimeStamp = CMTimeMake (GST_BUFFER_PTS (buf), 1);
-  sample_timing.decodeTimeStamp = CMTimeMake (GST_BUFFER_DTS (buf), 1);
+  if (GST_BUFFER_DURATION_IS_VALID (buf))
+    sample_timing.duration = CMTimeMake (GST_BUFFER_DURATION (buf), GST_SECOND);
+  else
+    sample_timing.duration = kCMTimeInvalid;
+
+  if (GST_BUFFER_PTS_IS_VALID (buf))
+    sample_timing.presentationTimeStamp =
+        CMTimeMake (GST_BUFFER_PTS (buf), GST_SECOND);
+  else
+    sample_timing.presentationTimeStamp = kCMTimeInvalid;
+
+  if (GST_BUFFER_DTS_IS_VALID (buf))
+    sample_timing.decodeTimeStamp =
+        CMTimeMake (GST_BUFFER_DTS (buf), GST_SECOND);
+  else
+    sample_timing.decodeTimeStamp = kCMTimeInvalid;
+
   time_array[0] = sample_timing;
 
   status =
@@ -471,12 +485,12 @@ out:
 
 block_error:
   GST_ELEMENT_ERROR (vtdec, RESOURCE, FAILED, (NULL),
-      ("CMBlockBufferCreateWithMemoryBlock returned %d", status));
+      ("CMBlockBufferCreateWithMemoryBlock returned %d", (int) status));
   goto out;
 
 sample_error:
   GST_ELEMENT_ERROR (vtdec, RESOURCE, FAILED, (NULL),
-      ("CMSampleBufferCreate returned %d", status));
+      ("CMSampleBufferCreate returned %d", (int) status));
 
   if (bbuf)
     CFRelease (bbuf);
@@ -520,7 +534,7 @@ gst_vtdec_session_output_callback (void *decompression_output_ref_con,
       frame->decode_frame_number, image_buffer);
 
   if (status != noErr) {
-    GST_ERROR_OBJECT (vtdec, "Error decoding frame %d", status);
+    GST_ERROR_OBJECT (vtdec, "Error decoding frame %d", (int) status);
     goto drop;
   }
 
@@ -715,6 +729,8 @@ compute_h264_decode_picture_buffer_length (GstVtdec * vtdec,
   int width_in_mb_s = vtdec->video_info.width / dpb_mb_size;
   int height_in_mb_s = vtdec->video_info.height / dpb_mb_size;
 
+  *length = 0;
+
   if (!parse_h264_profile_and_level_from_codec_data (vtdec, codec_data,
           &profile, &level))
     return FALSE;
@@ -736,9 +752,17 @@ compute_h264_decode_picture_buffer_length (GstVtdec * vtdec,
 static void
 gst_vtdec_set_latency (GstVtdec * vtdec)
 {
-  GstClockTime frame_duration = gst_util_uint64_scale (GST_SECOND,
+  GstClockTime frame_duration;
+  GstClockTime latency;
+
+  if (vtdec->video_info.fps_n == 0) {
+    GST_INFO_OBJECT (vtdec, "Framerate not known, can't set latency");
+    return;
+  }
+
+  frame_duration = gst_util_uint64_scale (GST_SECOND,
       vtdec->video_info.fps_d, vtdec->video_info.fps_n);
-  GstClockTime latency = frame_duration * vtdec->reorder_queue_length;
+  latency = frame_duration * vtdec->reorder_queue_length;
 
   GST_INFO_OBJECT (vtdec, "setting latency frames:%d time:%" GST_TIME_FORMAT,
       vtdec->reorder_queue_length, GST_TIME_ARGS (latency));

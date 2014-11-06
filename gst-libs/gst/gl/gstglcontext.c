@@ -138,6 +138,7 @@ struct _GstGLContextPrivate
   GstGLDisplay *display;
 
   GThread *gl_thread;
+  GThread *active_thread;
 
   /* conditions */
   GMutex render_lock;
@@ -147,7 +148,7 @@ struct _GstGLContextPrivate
   gboolean created;
   gboolean alive;
 
-  GstGLContext *other_context;
+  GWeakRef other_context_ref;
   GError **error;
 
   gint gl_major;
@@ -215,6 +216,8 @@ gst_gl_context_init (GstGLContext * context)
   g_cond_init (&context->priv->create_cond);
   g_cond_init (&context->priv->destroy_cond);
   context->priv->created = FALSE;
+
+  g_weak_ref_init (&context->priv->other_context_ref, NULL);
 }
 
 static void
@@ -249,6 +252,8 @@ _init_debug (void)
  * Create a new #GstGLContext with the specified @display
  *
  * Returns: a new #GstGLContext
+ *
+ * Since: 1.4
  */
 GstGLContext *
 gst_gl_context_new (GstGLDisplay * display)
@@ -305,6 +310,8 @@ gst_gl_context_new (GstGLDisplay * display)
  * Wraps an existing OpenGL context into a #GstGLContext.  
  *
  * Returns: a #GstGLContext wrapping @handle
+ *
+ * Since: 1.4
  */
 GstGLContext *
 gst_gl_context_new_wrapped (GstGLDisplay * display, guintptr handle,
@@ -379,6 +386,7 @@ gst_gl_context_finalize (GObject * object)
   g_cond_clear (&context->priv->create_cond);
 
   g_free (context->priv->gl_exts);
+  g_weak_ref_clear (&context->priv->other_context_ref);
 
   G_OBJECT_CLASS (gst_gl_context_parent_class)->finalize (object);
 }
@@ -394,6 +402,8 @@ gst_gl_context_finalize (GObject * object)
  * currently set window.  See gst_gl_context_set_window() for details.
  *
  * Returns: Whether the activation succeeded
+ *
+ * Since: 1.4
  */
 gboolean
 gst_gl_context_activate (GstGLContext * context, gboolean activate)
@@ -405,9 +415,36 @@ gst_gl_context_activate (GstGLContext * context, gboolean activate)
   context_class = GST_GL_CONTEXT_GET_CLASS (context);
   g_return_val_if_fail (context_class->activate != NULL, FALSE);
 
+  GST_OBJECT_LOCK (context);
   result = context_class->activate (context, activate);
 
+  context->priv->active_thread = result
+      && activate ? context->priv->gl_thread : NULL;
+  GST_OBJECT_UNLOCK (context);
+
   return result;
+}
+
+/**
+ * gst_gl_context_get_thread:
+ * @context: a #GstGLContext
+ *
+ * Returns: (transfer full): The #GThread, @context is current in or NULL
+ *
+ * Since: 1.4.5
+ */
+GThread *
+gst_gl_context_get_thread (GstGLContext * context)
+{
+  GThread *ret;
+
+  GST_OBJECT_LOCK (context);
+  ret = context->priv->active_thread;
+  if (ret)
+    g_thread_ref (ret);
+  GST_OBJECT_UNLOCK (context);
+
+  return ret;
 }
 
 /**
@@ -419,7 +456,9 @@ gst_gl_context_activate (GstGLContext * context, gboolean activate)
  * The currently available API may be limited by the #GstGLDisplay in use and/or
  * the #GstGLWindow chosen.
  *
- * Returns: the currently available OpenGL api
+ * Returns: the available OpenGL api
+ *
+ * Since: 1.4
  */
 GstGLAPI
 gst_gl_context_get_gl_api (GstGLContext * context)
@@ -445,6 +484,8 @@ gst_gl_context_get_gl_api (GstGLContext * context)
  * be retreived using this method.
  *
  * Returns: a function pointer or NULL
+ *
+ * Since: 1.4
  */
 gpointer
 gst_gl_context_get_proc_address (GstGLContext * context, const gchar * name)
@@ -503,6 +544,8 @@ gst_gl_context_default_get_proc_address (GstGLContext * context,
  * already running.
  *
  * Returns: Whether the window was successfully updated
+ *
+ * Since: 1.4
  */
 gboolean
 gst_gl_context_set_window (GstGLContext * context, GstGLWindow * window)
@@ -533,6 +576,8 @@ gst_gl_context_set_window (GstGLContext * context, GstGLWindow * window)
  * @context: a #GstGLContext
  *
  * Returns: the currently set window
+ *
+ * Since: 1.4
  */
 GstGLWindow *
 gst_gl_context_get_window (GstGLContext * context)
@@ -545,6 +590,73 @@ gst_gl_context_get_window (GstGLContext * context)
   _ensure_window (context);
 
   return gst_object_ref (context->window);
+}
+
+static gboolean
+_share_group_descendant (GstGLContext * context, GstGLContext * other_context,
+    GstGLContext ** root)
+{
+  GstGLContext *next = gst_object_ref (context);
+  GstGLContext *prev = NULL;
+
+  /* given a context tree where --> means "has other gl context":
+   *
+   * a-->b-->c-->d
+   *    /   /
+   *   e   /
+   *      /
+   * f-->g
+   *
+   * return TRUE if @other_context is a descendant of @context
+   *
+   * e.g. [a, b], [f, d], [e, c] are all descendants
+   * but [b, a], [d, f], [e, f] are not descendants.  Provide the root node (d)
+   * so that we can check if two chains end up at the end with the same
+   * GstGLContext
+   */
+
+  while (next != NULL) {
+    if (next == other_context) {
+      gst_object_unref (next);
+      if (root)
+        *root = NULL;
+      return TRUE;
+    }
+
+    prev = next;
+    next = g_weak_ref_get (&next->priv->other_context_ref);
+    gst_object_unref (prev);
+  }
+
+  if (root != NULL)
+    *root = prev;
+
+  return FALSE;
+}
+
+/**
+ * gst_gl_context_can_share:
+ * @context: a #GstGLContext
+ * @other_context: another #GstGLContext
+ *
+ * Returns: whether @context and @other_context are able to share OpenGL
+ *      resources.
+ *
+ * Since: 1.6
+ */
+gboolean
+gst_gl_context_can_share (GstGLContext * context, GstGLContext * other_context)
+{
+  GstGLContext *root1, *root2;
+
+  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), FALSE);
+  g_return_val_if_fail (GST_GL_IS_CONTEXT (other_context), FALSE);
+
+  /* check if the contexts are descendants or the root nodes are the same */
+  return context == other_context
+      || _share_group_descendant (context, other_context, &root1)
+      || _share_group_descendant (other_context, context, &root2)
+      || ((root1 != NULL || root2 != NULL) && root1 == root2);
 }
 
 /**
@@ -563,6 +675,8 @@ gst_gl_context_get_window (GstGLContext * context)
  * Should only be called once.
  *
  * Returns: whether the context could successfully be created
+ *
+ * Since: 1.4
  */
 gboolean
 gst_gl_context_create (GstGLContext * context,
@@ -577,7 +691,7 @@ gst_gl_context_create (GstGLContext * context,
   g_mutex_lock (&context->priv->render_lock);
 
   if (!context->priv->created) {
-    context->priv->other_context = other_context;
+    g_weak_ref_set (&context->priv->other_context_ref, other_context);
     context->priv->error = error;
 
     context->priv->gl_thread = g_thread_new ("gstglcontext",
@@ -711,7 +825,7 @@ gst_gl_context_create_thread (GstGLContext * context)
   g_mutex_lock (&context->priv->render_lock);
 
   error = context->priv->error;
-  other_context = context->priv->other_context;
+  other_context = g_weak_ref_get (&context->priv->other_context_ref);
 
   context_class = GST_GL_CONTEXT_GET_CLASS (context);
   window_class = GST_GL_WINDOW_GET_CLASS (context->window);
@@ -871,6 +985,9 @@ gst_gl_context_create_thread (GstGLContext * context)
 
 failure:
   {
+    if (other_context)
+      gst_object_unref (other_context);
+
     g_cond_signal (&context->priv->create_cond);
     g_mutex_unlock (&context->priv->render_lock);
     return NULL;
@@ -884,6 +1001,8 @@ failure:
  * Gets the backing OpenGL context used by @context.
  *
  * Returns: The platform specific backing OpenGL context
+ *
+ * Since: 1.4
  */
 guintptr
 gst_gl_context_get_gl_context (GstGLContext * context)
@@ -907,6 +1026,8 @@ gst_gl_context_get_gl_context (GstGLContext * context)
  * Gets the OpenGL platform that used by @context.
  *
  * Returns: The platform specific backing OpenGL context
+ *
+ * Since: 1.4
  */
 GstGLPlatform
 gst_gl_context_get_gl_platform (GstGLContext * context)
@@ -925,6 +1046,8 @@ gst_gl_context_get_gl_platform (GstGLContext * context)
  * @context: a #GstGLContext:
  *
  * Returns: the #GstGLDisplay associated with this @context
+ *
+ * Since: 1.4
  */
 GstGLDisplay *
 gst_gl_context_get_display (GstGLContext * context)
@@ -958,6 +1081,8 @@ _gst_gl_context_thread_run_generic (RunGenericData * data)
  * Execute @func in the OpenGL thread of @context with @data
  *
  * MT-safe
+ *
+ * Since: 1.4
  */
 void
 gst_gl_context_thread_add (GstGLContext * context,
@@ -991,6 +1116,8 @@ gst_gl_context_thread_add (GstGLContext * context,
  * Returns the OpenGL version implemented by @context.  See
  * gst_gl_context_get_gl_api() for retreiving the OpenGL api implemented by
  * @context.
+ *
+ * Since: 1.4
  */
 void
 gst_gl_context_get_gl_version (GstGLContext * context, gint * maj, gint * min)
@@ -1014,6 +1141,8 @@ gst_gl_context_get_gl_version (GstGLContext * context, gint * maj, gint * min)
  *
  * Returns: whether OpenGL context implements the required api and specified
  * version.
+ *
+ * Since: 1.4
  */
 gboolean
 gst_gl_context_check_gl_version (GstGLContext * context, GstGLAPI api,
@@ -1045,6 +1174,8 @@ gst_gl_context_check_gl_version (GstGLContext * context, GstGLAPI api,
  * determine their existence and so will fail if that is not the case.
  *
  * Returns: Whether @feature is supported by @context
+ *
+ * Since: 1.4
  */
 gboolean
 gst_gl_context_check_feature (GstGLContext * context, const gchar * feature)

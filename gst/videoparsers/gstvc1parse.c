@@ -115,6 +115,16 @@ static const struct
   "frame-layer", VC1_STREAM_FORMAT_FRAME_LAYER}
 };
 
+static const struct
+{
+  gchar str[5];
+  GstVC1ParseFormat en;
+} parse_formats[] = {
+  {
+  "WMV3", GST_VC1_PARSE_FORMAT_WMV3}, {
+  "WVC1", GST_VC1_PARSE_FORMAT_WVC1}
+};
+
 static const gchar *
 stream_format_to_string (VC1StreamFormat stream_format)
 {
@@ -149,6 +159,12 @@ header_format_from_string (const gchar * header_format)
       return header_formats[i].en;
   }
   return -1;
+}
+
+static const gchar *
+parse_format_to_string (GstVC1ParseFormat format)
+{
+  return parse_formats[format].str;
 }
 
 static GstStaticPadTemplate sinktemplate = GST_STATIC_PAD_TEMPLATE ("sink",
@@ -300,7 +316,9 @@ gst_vc1_parse_stop (GstBaseParse * parse)
 static gboolean
 gst_vc1_parse_renegotiate (GstVC1Parse * vc1parse)
 {
+  GstCaps *in_caps;
   GstCaps *allowed_caps;
+  GstCaps *tmp;
 
   /* Negotiate with downstream here */
   GST_DEBUG_OBJECT (vc1parse, "Renegotiating");
@@ -314,9 +332,25 @@ gst_vc1_parse_renegotiate (GstVC1Parse * vc1parse)
     GST_DEBUG_OBJECT (vc1parse, "Downstream allowed caps: %" GST_PTR_FORMAT,
         allowed_caps);
 
-    allowed_caps = gst_caps_make_writable (allowed_caps);
-    allowed_caps = gst_caps_truncate (allowed_caps);
-    s = gst_caps_get_structure (allowed_caps, 0);
+    /* Downstream element can have differents caps according to wmv format
+     * so intersect to select the good caps */
+    in_caps = gst_caps_new_simple ("video/x-wmv",
+        "format", G_TYPE_STRING, parse_format_to_string (vc1parse->format),
+        NULL);
+
+    tmp = gst_caps_intersect_full (allowed_caps, in_caps,
+        GST_CAPS_INTERSECT_FIRST);
+    gst_caps_unref (in_caps);
+
+    if (gst_caps_is_empty (tmp)) {
+      GST_ERROR_OBJECT (vc1parse, "Empty caps, downstream doesn't support %s",
+          parse_format_to_string (vc1parse->format));
+      gst_caps_unref (tmp);
+      return FALSE;
+    }
+
+    tmp = gst_caps_make_writable (tmp);
+    s = gst_caps_get_structure (tmp, 0);
 
     /* If already fixed this does nothing */
     gst_structure_fixate_field_string (s, "header-format", "asf");
@@ -343,8 +377,10 @@ gst_vc1_parse_renegotiate (GstVC1Parse * vc1parse)
       vc1parse->output_stream_format =
           stream_format_from_string (stream_format);
     }
+    gst_caps_unref (tmp);
   } else if (gst_caps_is_empty (allowed_caps)) {
     GST_ERROR_OBJECT (vc1parse, "Empty caps");
+    gst_caps_unref (allowed_caps);
     return FALSE;
   } else {
     GST_DEBUG_OBJECT (vc1parse, "Using input header/stream format");
@@ -862,6 +898,14 @@ gst_vc1_parse_update_caps (GstVC1Parse * vc1parse)
   return TRUE;
 }
 
+static inline void
+calculate_mb_size (GstVC1SeqHdr * seqhdr, guint width, guint height)
+{
+  seqhdr->mb_width = (width + 15) >> 4;
+  seqhdr->mb_height = (height + 15) >> 4;
+  seqhdr->mb_stride = seqhdr->mb_width + 1;
+}
+
 static gboolean
 gst_vc1_parse_handle_bdu (GstVC1Parse * vc1parse, GstVC1StartCode startcode,
     GstBuffer * buffer, guint offset, guint size)
@@ -1051,7 +1095,7 @@ gst_vc1_parse_handle_frame (GstBaseParse * parse, GstBaseParseFrame * frame,
     /* frame-layer or sequence-layer-frame-layer */
     g_assert (size >= 8);
     /* Parse frame layer size */
-    framesize = GST_READ_UINT24_LE (data + 1) + 8;
+    framesize = GST_READ_UINT24_LE (data) + 8;
   }
 
 
@@ -1172,6 +1216,34 @@ gst_vc1_parse_handle_frame (GstBaseParse * parse, GstBaseParseFrame * frame,
         /* Must be a frame or a frame + field */
         /* TODO: Check if keyframe */
       }
+    } else {
+      /* In simple/main, we basically have a raw frame, so parse it */
+      GstVC1ParserResult pres;
+      GstVC1FrameHdr frame_hdr;
+      GstVC1SeqHdr seq_hdr;
+
+      if (!vc1parse->seq_hdr_buffer) {
+        /* Build seq_hdr from sequence-layer to be able to parse frame */
+        seq_hdr.profile = vc1parse->profile;
+        seq_hdr.struct_c = vc1parse->seq_layer.struct_c;
+        calculate_mb_size (&seq_hdr, vc1parse->seq_layer.struct_a.horiz_size,
+            vc1parse->seq_layer.struct_a.vert_size);
+      } else {
+        seq_hdr = vc1parse->seq_hdr;
+      }
+
+      pres = gst_vc1_parse_frame_header (data, size, &frame_hdr,
+          &seq_hdr, NULL);
+      if (pres != GST_VC1_PARSER_OK) {
+        GST_ERROR_OBJECT (vc1parse, "Invalid VC1 frame header");
+        ret = GST_FLOW_ERROR;
+        goto done;
+      }
+
+      if (frame_hdr.ptype == GST_VC1_PICTURE_TYPE_I)
+        GST_BUFFER_FLAG_UNSET (buffer, GST_BUFFER_FLAG_DELTA_UNIT);
+      else
+        GST_BUFFER_FLAG_SET (buffer, GST_BUFFER_FLAG_DELTA_UNIT);
     }
     ret = GST_FLOW_OK;
   } else {
@@ -1772,9 +1844,7 @@ gst_vc1_parse_set_caps (GstBaseParse * parse, GstCaps * caps)
     gst_buffer_unmap (codec_data, &minfo);
   } else {
     vc1parse->input_header_format = VC1_HEADER_FORMAT_NONE;
-    if (header_format && strcmp (header_format, "sequence-layer") != 0)
-      vc1parse->input_header_format = VC1_HEADER_FORMAT_SEQUENCE_LAYER;
-    else if (header_format && strcmp (header_format, "none") != 0)
+    if (header_format && strcmp (header_format, "none") != 0)
       GST_WARNING_OBJECT (vc1parse,
           "Upstream claimed '%s' header format but 'none' detected",
           header_format);

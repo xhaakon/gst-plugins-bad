@@ -605,6 +605,7 @@ gst_dash_demux_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
             stream->last_ret = GST_FLOW_OK;
             stream->restart_download = TRUE;
             stream->need_header = TRUE;
+            stream->discont = TRUE;
             GST_DEBUG_OBJECT (stream->pad, "Restarting download loop");
             gst_task_start (stream->download_task);
           }
@@ -704,6 +705,7 @@ gst_dash_demux_setup_all_streams (GstDashDemux * demux)
     stream = g_new0 (GstDashDemuxStream, 1);
     stream->demux = demux;
     stream->active_stream = active_stream;
+    stream->discont = FALSE;
     caps = gst_dash_demux_get_input_caps (demux, active_stream);
 
     g_rec_mutex_init (&stream->download_task_lock);
@@ -1942,6 +1944,11 @@ _src_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
     GST_BUFFER_PTS (buffer) = GST_CLOCK_TIME_NONE;
   }
 
+  if (stream->discont) {
+    discont = TRUE;
+    stream->discont = FALSE;
+  }
+
   if (discont) {
     GST_DEBUG_OBJECT (stream->pad, "Marking fragment as discontinuous");
     GST_BUFFER_FLAG_SET (buffer, GST_BUFFER_FLAG_DISCONT);
@@ -2184,9 +2191,10 @@ gst_dash_demux_stream_download_fragment (GstDashDemux * demux,
   GstMediaFragmentInfo *fragment = &stream->current_fragment;
 
   if (G_UNLIKELY (stream->restart_download)) {
+    GstSegment segment;
     GstClockTime cur, ts;
     gint64 pos;
-    GstEvent *gap;
+    GstEvent *seg_event;
 
     GST_DEBUG_OBJECT (stream->pad,
         "Reactivating stream after to reconfigure event");
@@ -2206,14 +2214,18 @@ gst_dash_demux_stream_download_fragment (GstDashDemux * demux,
     GST_DEBUG_OBJECT (stream->pad, "Restarting stream at "
         "position %" GST_TIME_FORMAT, GST_TIME_ARGS (ts));
 
+    gst_segment_copy_into (&demux->segment, &segment);
     if (GST_CLOCK_TIME_IS_VALID (ts)) {
       gst_mpd_client_stream_seek (demux->client, stream->active_stream, ts);
 
       if (cur < ts) {
-        gap = gst_event_new_gap (cur, ts - cur);
-        gst_pad_push_event (stream->pad, gap);
+        segment.position = ts;
       }
     }
+    seg_event = gst_event_new_segment (&segment);
+    GST_DEBUG_OBJECT (stream->pad, "Sending restart segment: %"
+        GST_PTR_FORMAT, seg_event);
+    gst_pad_push_event (stream->pad, seg_event);
 
     stream->restart_download = FALSE;
   }

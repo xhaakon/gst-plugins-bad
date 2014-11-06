@@ -136,9 +136,12 @@ gst_rtmp_sink_init (GstRTMPSink * sink)
 static void
 gst_rtmp_sink_finalize (GObject * object)
 {
+  GstRTMPSink *sink = GST_RTMP_SINK (object);
+
 #ifdef G_OS_WIN32
   WSACleanup ();
 #endif
+  g_free (sink->uri);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
