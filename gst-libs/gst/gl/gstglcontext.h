@@ -120,12 +120,14 @@ GstGLContext * gst_gl_context_new_wrapped (GstGLDisplay *display,
                                            GstGLAPI available_apis);
 
 gboolean      gst_gl_context_activate         (GstGLContext *context, gboolean activate);
+GThread *     gst_gl_context_get_thread       (GstGLContext *context);
 
 GstGLDisplay * gst_gl_context_get_display (GstGLContext *context);
 gpointer      gst_gl_context_get_proc_address (GstGLContext *context, const gchar *name);
 GstGLPlatform gst_gl_context_get_gl_platform  (GstGLContext *context);
 GstGLAPI      gst_gl_context_get_gl_api       (GstGLContext *context);
 guintptr      gst_gl_context_get_gl_context   (GstGLContext *context);
+gboolean      gst_gl_context_can_share        (GstGLContext * context, GstGLContext *other_context);
 
 gboolean      gst_gl_context_create           (GstGLContext *context, GstGLContext *other_context, GError ** error);
 

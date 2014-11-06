@@ -3,7 +3,7 @@ AC_PREREQ([2.68])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.4.3],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.4.4],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -48,7 +48,7 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 403, 0, 403)
+AS_LIBTOOL(GST, 404, 0, 404)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.4.0
@@ -286,7 +286,7 @@ AM_CONDITIONAL(HAVE_XCOMPOSITE, test "x$HAVE_XCOMPOSITE" = "xyes")
 
 dnl graphene-1.0 is optional and used in gltransformation
 HAVE_GRAPHENE=NO
-PKG_CHECK_MODULES(GRAPHENE, graphene-1.0, HAVE_GRAPHENE=yes, HAVE_GRAPHENE=no)
+PKG_CHECK_MODULES(GRAPHENE, graphene-1.0 >= 1.0.0, HAVE_GRAPHENE=yes, HAVE_GRAPHENE=no)
 if test "x$HAVE_GRAPHENE" = "xyes"; then
   AC_DEFINE(HAVE_GRAPHENE, [1] , [Use graphene])
 fi
@@ -503,6 +503,16 @@ AC_CHECK_HEADER(AVFoundation/AVFoundation.h, HAVE_AVFOUNDATION="yes", HAVE_AVFOU
 AC_CHECK_HEADER(MobileCoreServices/MobileCoreServices.h, HAVE_IOS="yes", HAVE_IOS="no", [-])
 AC_CHECK_HEADER(VideoToolbox/VideoToolbox.h, HAVE_VIDEOTOOLBOX="yes", HAVE_VIDEOTOOLBOX="no", [-])
 
+if test "x$HAVE_VIDEOTOOLBOX" = "xyes"; then
+  old_LIBS=$LIBS
+  LIBS="$LIBS -framework VideoToolbox"
+  AC_CHECK_FUNC(VTCompressionSessionPrepareToEncodeFrames, [
+    AC_DEFINE(HAVE_VIDEOTOOLBOX_10_9_6, 1, [Define if building with VideoToolbox >= 10.9.6])
+  ], [
+  ])
+  LIBS=$old_LIBS
+fi
+
 AM_CONDITIONAL(HAVE_AVFOUNDATION, test "x$HAVE_AVFOUNDATION" = "xyes")
 if test "x$HAVE_AVFOUNDATION" = "xyes"; then
   AC_DEFINE(HAVE_AVFOUNDATION, 1, [Define if building with AVFoundation])
@@ -511,20 +521,6 @@ fi
 AM_CONDITIONAL(HAVE_IOS, test "x$HAVE_IOS" = "xyes")
 if test "x$HAVE_IOS" = "xyes"; then
   AC_DEFINE(HAVE_IOS, 1, [Define if building for Apple iOS])
-fi
-
-if test "x$HAVE_IOS" = "xyes"; then
-  AC_MSG_CHECKING([Checking for __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_8_0])
-
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <AvailabilityMacros.h>]], [[
-        #if !defined(__IPHONE_OS_VERSION_MIN_REQUIRED) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0
-        #error "Need iOS >= 8.0 for VideoToolbox"
-        #endif
-  ]])], [ AC_MSG_RESULT(yes)
-    HAVE_VIDEOTOOLBOX="yes"
-  ], [ AC_MSG_RESULT(no)
-    HAVE_VIDEOTOOLBOX="no"
-  ])
 fi
 
 AM_CONDITIONAL(HAVE_VIDEOTOOLBOX, test "x$HAVE_VIDEOTOOLBOX" = "xyes")
@@ -861,6 +857,10 @@ if test "x$HAVE_GL" = "xyes" -a "x$HAVE_GLES2" = "xyes"; then
 # if __APPLE__
 #  include <OpenGL/OpenGL.h>
 #  include <OpenGL/gl.h>
+#  if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
+#   define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
+#   include <OpenGL/gl3.h>
+#  endif
 #  include <OpenGL/glu.h>
 # else
 #  include <GL/gl.h>
@@ -884,7 +884,7 @@ if test "x$HAVE_GL" = "xyes" -a "x$HAVE_GLES2" = "xyes"; then
         AC_MSG_ERROR([Cannot seem to include both GL and GLES2 headers. Try disabling one API])
       fi
       AC_MSG_WARN([Disabling Desktop GL support])
-      HAVE_OPENGL=no
+      HAVE_GL=no
     else
       AC_MSG_WARN([Disabling GL|ES 2.0 support])
       HAVE_GLES2=no

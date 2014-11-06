@@ -30,48 +30,27 @@
 
 G_BEGIN_DECLS
 
-@interface AppThreadPerformer : NSObject {
-  GstGLWindowCocoa *m_cocoa;
-  GstGLWindowCB m_callback;
-  GstGLWindowResizeCB m_callback2;
-  gpointer m_data;
-  gint m_width;
-  gint m_height;
-}
-- (id) init: (GstGLWindowCocoa *)window;
-- (id) initWithCallback:(GstGLWindowCocoa *)window callback:(GstGLWindowCB)callback userData:(gpointer) data;
-- (id) initWithSize: (GstGLWindowCocoa *)window callback:(GstGLWindowResizeCB)callback userData:(gpointer)data toSize:(NSSize)size;
-- (id) initWithAll: (GstGLWindowCocoa *)window callback:(GstGLWindowCB)callback userData:(gpointer) data;
-- (void) updateWindow;
-- (void) sendToApp;
-- (void) setWindow;
-- (void) stopApp;
-- (void) closeWindow;
-@end
-
 struct _GstGLContextCocoaPrivate
 {
   NSOpenGLContext *gl_context;
   NSOpenGLContext *external_gl_context;
-  NSRect rect;
   gint source_id;
 };
 
 
 /* =============================================================*/
 /*                                                              */
-/*                  GstGLNSOpenGLView declaration               */
+/*                  GstGLNSView declaration               */
 /*                                                              */
 /* =============================================================*/
 
-@interface GstGLNSOpenGLView: NSOpenGLView {
-  GstGLWindowCocoa *m_cocoa;
+@interface GstGLNSView: NSView {
+  GstGLWindowCocoa *window_cocoa;
 }
-- (id) initWithFrame:(GstGLWindowCocoa *)window rect:(NSRect)contentRect
-    pixelFormat:(NSOpenGLPixelFormat *)fmt;
+- (id) initWithFrame:(GstGLWindowCocoa *)window rect:(NSRect)contentRect;
 @end
 
-gboolean gst_gl_window_cocoa_create_window (GstGLWindowCocoa *window_cocoa);
+gboolean gst_gl_window_cocoa_create_window (GstGLWindowCocoa *window_cocoa, NSRect rect);
 
 G_END_DECLS
 

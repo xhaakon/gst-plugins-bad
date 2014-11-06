@@ -36,8 +36,6 @@
 #endif
 #ifndef HAVE_IOS
 #define AV_RANK GST_RANK_SECONDARY
-#include "vth264decbin.h"
-#include "vth264encbin.h"
 #else
 #define AV_RANK GST_RANK_PRIMARY
 #endif
@@ -81,17 +79,14 @@ plugin_init (GstPlugin * plugin)
       GST_TYPE_AVF_ASSET_SRC);
 #endif
 
-#if 0
-  res &= gst_element_register (plugin, "vth264decbin", GST_RANK_NONE,
-      GST_TYPE_VT_H264_DEC_BIN);
-  res &= gst_element_register (plugin, "vth264encbin", GST_RANK_NONE,
-      GST_TYPE_VT_H264_ENC_BIN);
-#endif
   res &= gst_element_register (plugin, "atdec", GST_RANK_MARGINAL, GST_TYPE_ATDEC);
 
 #ifdef HAVE_VIDEOTOOLBOX
-  res &= gst_element_register (plugin, "vtdec", GST_RANK_PRIMARY, GST_TYPE_VTDEC);
-  gst_vtenc_register_elements (plugin);
+  /* Check if the framework actually exists at runtime */
+  if (VTCompressionSessionCreate != NULL) {
+    res &= gst_element_register (plugin, "vtdec", GST_RANK_PRIMARY, GST_TYPE_VTDEC);
+    gst_vtenc_register_elements (plugin);
+  }
 #endif
 
   return res;

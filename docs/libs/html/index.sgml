@@ -520,6 +520,8 @@
 <ANCHOR id="gst-gl-context-get-gl-api" href="gst-plugins-bad-libs-1.0/GstGLContext.html#gst-gl-context-get-gl-api">
 <ANCHOR id="gst-gl-context-get-gl-context" href="gst-plugins-bad-libs-1.0/GstGLContext.html#gst-gl-context-get-gl-context">
 <ANCHOR id="gst-gl-context-get-gl-platform" href="gst-plugins-bad-libs-1.0/GstGLContext.html#gst-gl-context-get-gl-platform">
+<ANCHOR id="gst-gl-context-get-thread" href="gst-plugins-bad-libs-1.0/GstGLContext.html#gst-gl-context-get-thread">
+<ANCHOR id="gst-gl-context-can-share" href="gst-plugins-bad-libs-1.0/GstGLContext.html#gst-gl-context-can-share">
 <ANCHOR id="gst-gl-context-check-feature" href="gst-plugins-bad-libs-1.0/GstGLContext.html#gst-gl-context-check-feature">
 <ANCHOR id="gst-gl-context-check-gl-version" href="gst-plugins-bad-libs-1.0/GstGLContext.html#gst-gl-context-check-gl-version">
 <ANCHOR id="gst-gl-context-get-gl-version" href="gst-plugins-bad-libs-1.0/GstGLContext.html#gst-gl-context-get-gl-version">

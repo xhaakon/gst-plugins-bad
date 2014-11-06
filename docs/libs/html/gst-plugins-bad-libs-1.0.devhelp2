@@ -418,22 +418,24 @@
     <keyword type="macro" name="GST_GL_CONTEXT_ERROR" link="GstGLContext.html#GST-GL-CONTEXT-ERROR:CAPS"/>
     <keyword type="function" name="gst_gl_context_error_quark ()" link="GstGLContext.html#gst-gl-context-error-quark"/>
     <keyword type="function" name="GstGLContextThreadFunc ()" link="GstGLContext.html#GstGLContextThreadFunc"/>
-    <keyword type="function" name="gst_gl_context_new ()" link="GstGLContext.html#gst-gl-context-new"/>
-    <keyword type="function" name="gst_gl_context_new_wrapped ()" link="GstGLContext.html#gst-gl-context-new-wrapped"/>
-    <keyword type="function" name="gst_gl_context_create ()" link="GstGLContext.html#gst-gl-context-create"/>
-    <keyword type="function" name="gst_gl_context_activate ()" link="GstGLContext.html#gst-gl-context-activate"/>
+    <keyword type="function" name="gst_gl_context_new ()" link="GstGLContext.html#gst-gl-context-new" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_new_wrapped ()" link="GstGLContext.html#gst-gl-context-new-wrapped" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_create ()" link="GstGLContext.html#gst-gl-context-create" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_activate ()" link="GstGLContext.html#gst-gl-context-activate" since="1.4"/>
     <keyword type="function" name="gst_gl_context_default_get_proc_address ()" link="GstGLContext.html#gst-gl-context-default-get-proc-address"/>
-    <keyword type="function" name="gst_gl_context_get_proc_address ()" link="GstGLContext.html#gst-gl-context-get-proc-address"/>
-    <keyword type="function" name="gst_gl_context_get_window ()" link="GstGLContext.html#gst-gl-context-get-window"/>
-    <keyword type="function" name="gst_gl_context_set_window ()" link="GstGLContext.html#gst-gl-context-set-window"/>
-    <keyword type="function" name="gst_gl_context_thread_add ()" link="GstGLContext.html#gst-gl-context-thread-add"/>
-    <keyword type="function" name="gst_gl_context_get_display ()" link="GstGLContext.html#gst-gl-context-get-display"/>
-    <keyword type="function" name="gst_gl_context_get_gl_api ()" link="GstGLContext.html#gst-gl-context-get-gl-api"/>
-    <keyword type="function" name="gst_gl_context_get_gl_context ()" link="GstGLContext.html#gst-gl-context-get-gl-context"/>
-    <keyword type="function" name="gst_gl_context_get_gl_platform ()" link="GstGLContext.html#gst-gl-context-get-gl-platform"/>
-    <keyword type="function" name="gst_gl_context_check_feature ()" link="GstGLContext.html#gst-gl-context-check-feature"/>
-    <keyword type="function" name="gst_gl_context_check_gl_version ()" link="GstGLContext.html#gst-gl-context-check-gl-version"/>
-    <keyword type="function" name="gst_gl_context_get_gl_version ()" link="GstGLContext.html#gst-gl-context-get-gl-version"/>
+    <keyword type="function" name="gst_gl_context_get_proc_address ()" link="GstGLContext.html#gst-gl-context-get-proc-address" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_window ()" link="GstGLContext.html#gst-gl-context-get-window" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_set_window ()" link="GstGLContext.html#gst-gl-context-set-window" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_thread_add ()" link="GstGLContext.html#gst-gl-context-thread-add" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_display ()" link="GstGLContext.html#gst-gl-context-get-display" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_gl_api ()" link="GstGLContext.html#gst-gl-context-get-gl-api" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_gl_context ()" link="GstGLContext.html#gst-gl-context-get-gl-context" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_gl_platform ()" link="GstGLContext.html#gst-gl-context-get-gl-platform" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_thread ()" link="GstGLContext.html#gst-gl-context-get-thread" since="1.4.5"/>
+    <keyword type="function" name="gst_gl_context_can_share ()" link="GstGLContext.html#gst-gl-context-can-share" since="1.6"/>
+    <keyword type="function" name="gst_gl_context_check_feature ()" link="GstGLContext.html#gst-gl-context-check-feature" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_check_gl_version ()" link="GstGLContext.html#gst-gl-context-check-gl-version" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_gl_version ()" link="GstGLContext.html#gst-gl-context-get-gl-version" since="1.4"/>
     <keyword type="enum" name="enum GstGLContextError" link="GstGLContext.html#GstGLContextError"/>
     <keyword type="struct" name="GstGLContext" link="GstGLContext.html#GstGLContext-struct"/>
     <keyword type="function" name="gst_gl_context_cocoa_new ()" link="gst-plugins-bad-libs-GstGLContextCocoa.html#gst-gl-context-cocoa-new"/>
@@ -444,10 +446,10 @@
     <keyword type="struct" name="struct GstGLContextGLX" link="gst-plugins-bad-libs-GstGLContextGLX.html#GstGLContextGLX"/>
     <keyword type="function" name="gst_gl_context_wgl_new ()" link="gst-plugins-bad-libs-GstGLContextWGL.html#gst-gl-context-wgl-new"/>
     <keyword type="struct" name="struct GstGLContextWGL" link="gst-plugins-bad-libs-GstGLContextWGL.html#GstGLContextWGL"/>
-    <keyword type="function" name="gst_gl_display_new ()" link="GstGLDisplay.html#gst-gl-display-new"/>
-    <keyword type="function" name="gst_gl_display_get_handle_type ()" link="GstGLDisplay.html#gst-gl-display-get-handle-type"/>
-    <keyword type="function" name="gst_context_get_gl_display ()" link="GstGLDisplay.html#gst-context-get-gl-display"/>
-    <keyword type="function" name="gst_context_set_gl_display ()" link="GstGLDisplay.html#gst-context-set-gl-display"/>
+    <keyword type="function" name="gst_gl_display_new ()" link="GstGLDisplay.html#gst-gl-display-new" since="1.4"/>
+    <keyword type="function" name="gst_gl_display_get_handle_type ()" link="GstGLDisplay.html#gst-gl-display-get-handle-type" since="1.4"/>
+    <keyword type="function" name="gst_context_get_gl_display ()" link="GstGLDisplay.html#gst-context-get-gl-display" since="1.4"/>
+    <keyword type="function" name="gst_context_set_gl_display ()" link="GstGLDisplay.html#gst-context-set-gl-display" since="1.4"/>
     <keyword type="macro" name="GST_GL_DISPLAY_CONTEXT_TYPE" link="GstGLDisplay.html#GST-GL-DISPLAY-CONTEXT-TYPE:CAPS"/>
     <keyword type="enum" name="enum GstGLDisplayType" link="GstGLDisplay.html#GstGLDisplayType"/>
     <keyword type="struct" name="GstGLDisplay" link="GstGLDisplay.html#GstGLDisplay-struct"/>
@@ -590,21 +592,21 @@
     <keyword type="macro" name="GST_GL_WINDOW_RESIZE_CB()" link="GstGLWindow.html#GST-GL-WINDOW-RESIZE-CB:CAPS"/>
     <keyword type="function" name="GstGLWindowCB ()" link="GstGLWindow.html#GstGLWindowCB"/>
     <keyword type="macro" name="GST_GL_WINDOW_CB()" link="GstGLWindow.html#GST-GL-WINDOW-CB:CAPS"/>
-    <keyword type="function" name="gst_gl_window_new ()" link="GstGLWindow.html#gst-gl-window-new"/>
-    <keyword type="function" name="gst_gl_window_draw ()" link="GstGLWindow.html#gst-gl-window-draw"/>
-    <keyword type="function" name="gst_gl_window_draw_unlocked ()" link="GstGLWindow.html#gst-gl-window-draw-unlocked"/>
-    <keyword type="function" name="gst_gl_window_is_running ()" link="GstGLWindow.html#gst-gl-window-is-running"/>
-    <keyword type="function" name="gst_gl_window_quit ()" link="GstGLWindow.html#gst-gl-window-quit"/>
-    <keyword type="function" name="gst_gl_window_run ()" link="GstGLWindow.html#gst-gl-window-run"/>
-    <keyword type="function" name="gst_gl_window_get_context ()" link="GstGLWindow.html#gst-gl-window-get-context"/>
-    <keyword type="function" name="gst_gl_window_get_display ()" link="GstGLWindow.html#gst-gl-window-get-display"/>
-    <keyword type="function" name="gst_gl_window_send_message ()" link="GstGLWindow.html#gst-gl-window-send-message"/>
-    <keyword type="function" name="gst_gl_window_send_message_async ()" link="GstGLWindow.html#gst-gl-window-send-message-async"/>
-    <keyword type="function" name="gst_gl_window_set_close_callback ()" link="GstGLWindow.html#gst-gl-window-set-close-callback"/>
-    <keyword type="function" name="gst_gl_window_set_draw_callback ()" link="GstGLWindow.html#gst-gl-window-set-draw-callback"/>
-    <keyword type="function" name="gst_gl_window_set_resize_callback ()" link="GstGLWindow.html#gst-gl-window-set-resize-callback"/>
-    <keyword type="function" name="gst_gl_window_set_window_handle ()" link="GstGLWindow.html#gst-gl-window-set-window-handle"/>
-    <keyword type="function" name="gst_gl_window_get_window_handle ()" link="GstGLWindow.html#gst-gl-window-get-window-handle"/>
+    <keyword type="function" name="gst_gl_window_new ()" link="GstGLWindow.html#gst-gl-window-new" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_draw ()" link="GstGLWindow.html#gst-gl-window-draw" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_draw_unlocked ()" link="GstGLWindow.html#gst-gl-window-draw-unlocked" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_is_running ()" link="GstGLWindow.html#gst-gl-window-is-running" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_quit ()" link="GstGLWindow.html#gst-gl-window-quit" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_run ()" link="GstGLWindow.html#gst-gl-window-run" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_get_context ()" link="GstGLWindow.html#gst-gl-window-get-context" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_get_display ()" link="GstGLWindow.html#gst-gl-window-get-display" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_send_message ()" link="GstGLWindow.html#gst-gl-window-send-message" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_send_message_async ()" link="GstGLWindow.html#gst-gl-window-send-message-async" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_set_close_callback ()" link="GstGLWindow.html#gst-gl-window-set-close-callback" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_set_draw_callback ()" link="GstGLWindow.html#gst-gl-window-set-draw-callback" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_set_resize_callback ()" link="GstGLWindow.html#gst-gl-window-set-resize-callback" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_set_window_handle ()" link="GstGLWindow.html#gst-gl-window-set-window-handle" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_get_window_handle ()" link="GstGLWindow.html#gst-gl-window-get-window-handle" since="1.4"/>
     <keyword type="enum" name="enum GstGLWindowError" link="GstGLWindow.html#GstGLWindowError"/>
     <keyword type="struct" name="GstGLWindow" link="GstGLWindow.html#GstGLWindow-struct"/>
     <keyword type="struct" name="GstGLWindowClass" link="GstGLWindow.html#GstGLWindowClass"/>

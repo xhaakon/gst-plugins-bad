@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.4.3\n"
+"Project-Id-Version: gst-plugins-bad 1.4.4\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2014-09-24 11:38+0300\n"
+"POT-Creation-Date: 2014-11-06 12:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,13 +16,13 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ext/dash/gstdashdemux.c:1511 ext/smoothstreaming/gstmssdemux.c:1532
-#: gst/mpegtsdemux/mpegtsbase.c:1366 gst/mpegtsdemux/mpegtsbase.c:1370
+#: ext/dash/gstdashdemux.c:1513 ext/smoothstreaming/gstmssdemux.c:1532
+#: gst/mpegtsdemux/mpegtsbase.c:1353 gst/mpegtsdemux/mpegtsbase.c:1357
 #: gst/nuvdemux/gstnuvdemux.c:737
 msgid "Internal data stream error."
 msgstr ""
 
-#: ext/gl/gstgltestsrc.c:544
+#: ext/gl/gstgltestsrc.c:550
 msgid "format wasn't negotiated before get function"
 msgstr ""
 

@@ -291,7 +291,7 @@ gst_raw_parse_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
   GstRawParse *rp = GST_RAW_PARSE (parent);
   GstFlowReturn ret = GST_FLOW_OK;
   GstRawParseClass *rp_class = GST_RAW_PARSE_GET_CLASS (rp);
-  guint buffersize;
+  guint buffersize, available;
 
   if (G_UNLIKELY (GST_BUFFER_FLAG_IS_SET (buffer, GST_BUFFER_FLAG_DISCONT))) {
     GST_DEBUG_OBJECT (rp, "received DISCONT buffer");
@@ -310,14 +310,15 @@ gst_raw_parse_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
 
   gst_adapter_push (rp->adapter, buffer);
 
+  available = gst_adapter_available (rp->adapter);
   if (rp_class->multiple_frames_per_buffer) {
-    buffersize = gst_adapter_available (rp->adapter);
+    buffersize = available;
     buffersize -= buffersize % rp->framesize;
   } else {
     buffersize = rp->framesize;
   }
 
-  while (gst_adapter_available (rp->adapter) >= buffersize) {
+  while (buffersize > 0 && gst_adapter_available (rp->adapter) >= buffersize) {
     buffer = gst_adapter_take_buffer (rp->adapter, buffersize);
 
     ret = gst_raw_parse_push_buffer (rp, buffer);
@@ -697,8 +698,6 @@ gst_raw_parse_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
       if (segment.format != GST_FORMAT_TIME) {
         gst_event_unref (event);
 
-        segment.format = GST_FORMAT_TIME;
-
         ret =
             gst_raw_parse_convert (rp, segment.format, segment.start,
             GST_FORMAT_TIME, (gint64 *) & segment.start);
@@ -712,6 +711,8 @@ gst_raw_parse_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
               segment.format);
           break;
         }
+
+        segment.format = GST_FORMAT_TIME;
 
         event = gst_event_new_segment (&segment);
       }

@@ -544,6 +544,9 @@
 /* Define if building with VideoToolbox */
 #undef HAVE_VIDEOTOOLBOX
 
+/* Define if building with VideoToolbox >= 10.9.6 */
+#undef HAVE_VIDEOTOOLBOX_10_9_6
+
 /* Define to enable vo-aacenc library (used by vo-aacenc). */
 #undef HAVE_VOAACENC
 
