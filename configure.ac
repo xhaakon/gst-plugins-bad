@@ -3,7 +3,7 @@ AC_PREREQ([2.68])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.4.4],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.4.5],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -48,7 +48,7 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 404, 0, 404)
+AS_LIBTOOL(GST, 405, 0, 405)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.4.0
@@ -611,7 +611,7 @@ AC_ARG_ENABLE([glx],
      esac],[NEED_GLX=auto])
 
 AC_ARG_ENABLE([cocoa],
-     [  --enable-cocoa          Enable Cocoa support (using GNUstep on non OS X platforms) @<:@default=auto@:>@],
+     [  --enable-cocoa          Enable Cocoa support @<:@default=auto@:>@],
      [case "${enableval}" in
        yes)  NEED_COCOA=yes ;;
        no)   NEED_COCOA=no ;;
@@ -653,7 +653,6 @@ save_LIBS="$LIBS"
 HAVE_GL=no
 HAVE_GLES2=no
 HAVE_GLU=no
-HAVE_GNUSTEP_COCOA=no
 HAVE_WAYLAND_EGL=no
 
 HAVE_EGL_RPI=no
@@ -744,35 +743,6 @@ case $host in
   ;;
 esac
 
-case $host in
-  *-darwin* ) ;;
-  *)
-    AC_PATH_PROG([GNUSTEP_CONFIG],[gnustep-config])
-    if test "x$GNUSTEP_CONFIG" != "x"; then
-      GNUSTEP_HOST="`$GNUSTEP_CONFIG --variable=GNUSTEP_HOST`"
-      case $host in
-        *-mingw* )
-          case $GNUSTEP_HOST in
-            *-mingw* )
-              HAVE_GNUSTEP_COCOA=yes
-            ;;
-          esac
-          ;;
-        * )
-          HAVE_GNUSTEP_COCOA=yes
-        ;;
-      esac
-    fi
-  ;;
-esac
-
-AC_MSG_CHECKING([for GNUstep])
-if test "x$HAVE_GNUSTEP_COCOA" = "xyes" ; then
-  AC_MSG_RESULT([yes])
-else
-  AC_MSG_RESULT([no])
-fi
-
 CPPFLAGS="$save_CPPFLAGS"
 LIBS="$save_LIBS"
 
@@ -857,7 +827,7 @@ if test "x$HAVE_GL" = "xyes" -a "x$HAVE_GLES2" = "xyes"; then
 # if __APPLE__
 #  include <OpenGL/OpenGL.h>
 #  include <OpenGL/gl.h>
-#  if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
+#  if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
 #   define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 #   include <OpenGL/gl3.h>
 #  endif
@@ -1009,19 +979,6 @@ case $host in
         fi
       fi
     fi
-
-    dnl GNUstep provides the Cocoa API on unix
-    if test "x$NEED_COCOA" != "xno"; then
-      if test "x$HAVE_GNUSTEP_COCOA" = "xyes" ; then
-        GNUSTEP_OBJCFLAGS="`$GNUSTEP_CONFIG --objc-flags`"
-        GNUSTEP_LIBS="`$GNUSTEP_CONFIG --gui-libs`"
-        GL_LIBS="$GL_LIBS $GNUSTEP_LIBS -lgnustep-gui -lgnustep-base"
-        GL_OBJCFLAGS="$GL_OBJCFLAGS $GNUSTEP_OBJCFLAGS"
-
-        USE_COCOA=yes
-        HAVE_WINDOW_COCOA=yes
-      fi
-    fi
     ;;
   *-darwin*)
     if test "x$HAVE_IOS" = "xyes"; then
@@ -1113,17 +1070,6 @@ case $host in
           fi
         fi
       fi
-    fi
-
-    dnl GNUstep provides the Cocoa API on win32
-    if test "x$HAVE_GNUSTEP_COCOA" = "xyes" ; then
-      GNUSTEP_CFLAGS="`$GNUSTEP_CONFIG --objc-flags`"
-      GNUSTEP_LIBS="`$GNUSTEP_CONFIG --gui-libs`"
-      GL_LIBS="$GL_LIBS $GNUSTEP_LIBS -lgnustep-gui -lgnustep-base"
-      GL_OBJCFLAGS="$OBJCFLAGS $GNUSTEP_CFLAGS"
-
-      USE_COCOA=yes
-      HAVE_WINDOW_COCOA=yes
     fi
     ;;
   *)
@@ -1812,9 +1758,9 @@ AG_GST_CHECK_FEATURE(UVCH264, [UVC H264], uvch264, [
           AC_DEFINE([HAVE_LIBUSB], 1, [Define if libusb 1.x is installed])
           HAVE_LIBUSB="yes" ],
           [HAVE_LIBUSB="no"])
-  if test "x$HAVE_UVCVIDEO_H" == "xyes" && \
-     test "x$HAVE_GUDEV" == "xyes" && \
-     test "x$HAVE_LIBUSB" == "xyes"; then
+  if test "x$HAVE_UVCVIDEO_H" = "xyes" && \
+     test "x$HAVE_GUDEV" = "xyes" && \
+     test "x$HAVE_LIBUSB" = "xyes"; then
     HAVE_UVCH264=yes
   else
     HAVE_UVCH264=no
