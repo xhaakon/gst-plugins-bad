@@ -138,8 +138,6 @@ gst_gl_window_cocoa_create_window (GstGLWindowCocoa *window_cocoa, NSRect rect)
 
       GST_DEBUG ("NSWindow id: %"G_GUINTPTR_FORMAT, (guintptr) priv->internal_win_id);
 
-      [NSApp setDelegate: priv->internal_win_id];
-
   return TRUE;
 }
 
@@ -257,11 +255,9 @@ draw_cb (gpointer data)
       x += 20;
       y += 20;
 
-#ifndef GNUSTEP
       [priv->internal_win_id setFrame:windowRect display:NO];
       GST_DEBUG ("make the window available\n");
       [priv->internal_win_id makeMainWindow];
-#endif
 
       [priv->internal_win_id orderFrontRegardless];
 
@@ -445,31 +441,6 @@ close_window_cb (gpointer data)
   return YES;
 }
 
-- (void) applicationDidFinishLaunching: (NSNotification *) not {
-}
-
-- (void) applicationWillFinishLaunching: (NSNotification *) not {
-}
-
-- (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app {
-  /* the application is manually stopped by calling stopApp on the AppThreadPerformer */
-  return NO;
-}
-
-- (void) applicationWillTerminate:(NSNotification *)aNotification {
-#ifdef GNUSTEP
-  /* fixes segfault with gst-launch-1.0 -e ... and sending SIGINT (Ctrl-C)
-   * which causes GNUstep to run a signal handler in the main thread.
-   * However that thread has never been 'registered' with GNUstep so
-   * the autorelease magic of objective-c causes a segfault from accessing
-   * a null NSThread object somewhere deep in GNUstep.
-   *
-   * I put it here because this is the first time we can register the thread.
-   */
-  GSRegisterCurrentThread();
-#endif
-}
-
 @end
 
 
@@ -488,9 +459,7 @@ close_window_cb (gpointer data)
 
   window_cocoa = window;
 
-#ifndef GNUSTEP
   [self setWantsLayer:NO];
-#endif
 
   /* Get notified about changes */
   [self setPostsFrameChangedNotifications:YES];
@@ -564,8 +533,10 @@ resize_cb (gpointer data)
     NSRect visibleRect = [self visibleRect];
     struct resize *resize_data = g_new (struct resize, 1);
 
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
     bounds = [self convertRectToBacking:bounds];
     visibleRect = [self convertRectToBacking:visibleRect];
+#endif
 
     GST_DEBUG_OBJECT (window, "Window resized: bounds %lf %lf %lf %lf "
                       "visibleRect %lf %lf %lf %lf",
