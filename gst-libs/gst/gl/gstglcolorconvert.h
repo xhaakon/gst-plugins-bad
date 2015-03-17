@@ -61,8 +61,6 @@ struct _GstGLColorConvert
   GLuint           fbo;
   GLuint           depth_buffer;
   GstGLShader     *shader;
-  GLint            shader_attr_position_loc;
-  GLint            shader_attr_texture_loc;
 
   /* <private> */
   GstGLColorConvertPrivate *priv;
@@ -88,20 +86,26 @@ struct _GstGLColorConvertClass
 #define GST_GL_COLOR_CONVERT_FORMATS "{ RGB, RGBx, RGBA, BGR, BGRx, BGRA, xRGB, " \
                                "xBGR, ARGB, ABGR, Y444, I420, YV12, Y42B, " \
                                "Y41B, NV12, NV21, YUY2, UYVY, AYUV, " \
-                               "GRAY8, GRAY16_LE, GRAY16_BE }"
+                               "GRAY8, GRAY16_LE, GRAY16_BE, RGB16, BGR16 }"
 
 /**
  * GST_GL_COLOR_CONVERT_VIDEO_CAPS:
  *
  * The currently supported #GstCaps that can be converted
  */
-#define GST_GL_COLOR_CONVERT_VIDEO_CAPS GST_VIDEO_CAPS_MAKE (GST_GL_COLOR_CONVERT_FORMATS)
+#define GST_GL_COLOR_CONVERT_VIDEO_CAPS \
+    GST_VIDEO_CAPS_MAKE_WITH_FEATURES (GST_CAPS_FEATURE_MEMORY_GL_MEMORY, \
+        GST_GL_COLOR_CONVERT_FORMATS)
 
 GstGLColorConvert * gst_gl_color_convert_new (GstGLContext * context);
 
-void     gst_gl_color_convert_set_format    (GstGLColorConvert * convert,
-                                             GstVideoInfo * in_info,
-                                             GstVideoInfo * out_info);
+GstCaps *   gst_gl_color_convert_transform_caps (GstGLContext * convert,
+                                                 GstPadDirection direction,
+                                                 GstCaps * caps,
+                                                 GstCaps * filter);
+gboolean    gst_gl_color_convert_set_caps    (GstGLColorConvert * convert,
+                                              GstCaps           * in_caps,
+                                              GstCaps           * out_caps);
 
 GstBuffer * gst_gl_color_convert_perform    (GstGLColorConvert * convert, GstBuffer * inbuf);
 

@@ -456,6 +456,7 @@ struct _GstActiveStream
   GstSegmentTemplateNode *cur_seg_template;   /* active segment template */
   guint segment_idx;                          /* index of next sequence chunk */
   GPtrArray *segments;                        /* array of GstMediaSegment */
+  GstClockTime presentationTimeOffset;        /* presentation time offset of the current segment */
 };
 
 struct _GstMpdClient
@@ -471,7 +472,9 @@ struct _GstMpdClient
   gchar *mpd_uri;                             /* manifest file URI */
   gchar *mpd_base_uri;                        /* base URI for resolving relative URIs.
                                                * this will be different for redirects */
-  GMutex lock;
+
+  /* profiles */
+  gboolean profile_isoff_ondemand;
 };
 
 /* Basic initialization/deinitialization functions */
@@ -501,13 +504,16 @@ gboolean gst_mpd_client_seek_to_time (GstMpdClient * client, GDateTime * time);
 GstDateTime *gst_mpd_client_add_time_difference (GstDateTime * t1, gint64 usecs);
 gint gst_mpd_client_get_segment_index_at_time (GstMpdClient *client, GstActiveStream * stream, const GstDateTime *time);
 gint gst_mpd_client_check_time_position (GstMpdClient * client, GstActiveStream * stream, GstClockTime ts, gint64 * diff);
+GstClockTime gst_mpd_parser_get_stream_presentation_offset (GstMpdClient *client, guint stream_idx);
 
 /* Period selection */
+guint gst_mpd_client_get_period_index_at_time (GstMpdClient * client, GstDateTime * time);
 gboolean gst_mpd_client_set_period_index (GstMpdClient *client, guint period_idx);
 gboolean gst_mpd_client_set_period_id (GstMpdClient *client, const gchar * period_id);
 guint gst_mpd_client_get_period_index (GstMpdClient *client);
 const gchar *gst_mpd_client_get_period_id (GstMpdClient *client);
 gboolean gst_mpd_client_has_next_period (GstMpdClient *client);
+gboolean gst_mpd_client_has_previous_period (GstMpdClient * client);
 GstDateTime *gst_mpd_client_get_next_segment_availability_end_time (GstMpdClient * client, GstActiveStream * stream);
 
 /* Representation selection */
@@ -529,6 +535,7 @@ guint gst_mpdparser_get_nb_adaptationSet (GstMpdClient *client);
 void gst_mpd_client_set_segment_index_for_all_streams (GstMpdClient * client, guint segment_idx);
 guint gst_mpd_client_get_segment_index (GstActiveStream * stream);
 void gst_mpd_client_set_segment_index (GstActiveStream * stream, guint segment_idx);
+GstFlowReturn gst_mpd_client_advance_segment (GstMpdClient * client, GstActiveStream * stream, gboolean forward);
 
 /* Get audio/video stream parameters (mimeType, width, height, rate, number of channels) */
 const gchar *gst_mpd_client_get_stream_mimeType (GstActiveStream * stream);
@@ -542,6 +549,9 @@ guint gst_mpd_client_get_audio_stream_num_channels (GstActiveStream * stream);
 guint gst_mpdparser_get_list_and_nb_of_audio_language (GstMpdClient *client, GList **lang);
 
 gint64 gst_mpd_client_calculate_time_difference (const GstDateTime * t1, const GstDateTime * t2);
+
+/* profiles */
+gboolean gst_mpd_client_has_isoff_ondemand_profile (GstMpdClient *client);
 
 G_END_DECLS
 

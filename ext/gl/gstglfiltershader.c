@@ -36,13 +36,6 @@
 #include "config.h"
 #endif
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <string.h>
-
 #include <gst/gst.h>
 #include <gst/gl/gstglshadervariables.h>
 
@@ -156,6 +149,9 @@ gst_gl_filtershader_class_init (GstGLFilterShaderClass * klass)
       gst_gl_filtershader_reset_resources;
   GST_GL_FILTER_CLASS (klass)->onInitFBO = gst_gl_filtershader_init_shader;
   GST_GL_FILTER_CLASS (klass)->onReset = gst_gl_filter_filtershader_reset;
+
+  GST_GL_BASE_FILTER_CLASS (klass)->supported_gl_api =
+      GST_GL_API_OPENGL | GST_GL_API_GLES2 | GST_GL_API_OPENGL3;
 }
 
 static void
@@ -171,7 +167,8 @@ gst_gl_filter_filtershader_reset (GstGLFilter * filter)
 
   //blocking call, wait the opengl thread has destroyed the shader
   if (filtershader->shader0)
-    gst_gl_context_del_shader (filter->context, filtershader->shader0);
+    gst_gl_context_del_shader (GST_GL_BASE_FILTER (filter)->context,
+        filtershader->shader0);
   filtershader->shader0 = NULL;
 }
 
@@ -330,8 +327,8 @@ gst_gl_filtershader_init_shader (GstGLFilter * filter)
     return FALSE;
 
   //blocking call, wait the opengl thread has compiled the shader
-  if (!gst_gl_context_gen_shader (filter->context, text_vertex_shader,
-          hfilter_fragment_source, &filtershader->shader0))
+  if (!gst_gl_context_gen_shader (GST_GL_BASE_FILTER (filter)->context,
+          text_vertex_shader, hfilter_fragment_source, &filtershader->shader0))
     return FALSE;
 
 
@@ -399,26 +396,11 @@ gst_gl_filtershader_hcallback (gint width, gint height, guint texture,
 {
   GstGLFilter *filter = GST_GL_FILTER (stuff);
   GstGLFilterShader *filtershader = GST_GL_FILTERSHADER (filter);
-  GstGLFuncs *gl = filter->context->gl_vtable;
-  const GLfloat vVertices[] = {
-    -1.0f, -1.0f, -1.0f, 0.0f, 0.0f,
-    1.0, -1.0f, -1.0f, 1.0f, 0.0f,
-    1.0f, 1.0f, -1.0f, 1.0f, 1.0f,
-    -1.0f, 1.0f, -1.0f, 0.0f, 1.0f
-  };
-  GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
-
-#if GST_GL_HAVE_OPENGL
-  if (gst_gl_context_get_gl_api (filter->context) & GST_GL_API_OPENGL) {
-    gl->MatrixMode (GL_PROJECTION);
-    gl->LoadIdentity ();
-  }
-#endif
+  GstGLFuncs *gl = GST_GL_BASE_FILTER (filter)->context->gl_vtable;
 
   gst_gl_shader_use (filtershader->shader0);
 
   gl->ActiveTexture (GL_TEXTURE0);
-  gl->Enable (GL_TEXTURE_2D);
   gl->BindTexture (GL_TEXTURE_2D, texture);
 
   gst_gl_shader_set_uniform_1i (filtershader->shader0, "tex", 0);
@@ -427,10 +409,10 @@ gst_gl_filtershader_hcallback (gint width, gint height, guint texture,
   gst_gl_shader_set_uniform_1f (filtershader->shader0, "time",
       filtershader->time);
 
-  filtershader->attr_position_loc =
+  filter->draw_attr_position_loc =
       gst_gl_shader_get_attribute_location (filtershader->shader0,
       "a_position");
-  filtershader->attr_texture_loc =
+  filter->draw_attr_texture_loc =
       gst_gl_shader_get_attribute_location (filtershader->shader0,
       "a_texcoord");
 
@@ -449,19 +431,5 @@ gst_gl_filtershader_hcallback (gint width, gint height, guint texture,
 
   gl->Clear (GL_COLOR_BUFFER_BIT);
 
-  gl->EnableVertexAttribArray (filtershader->attr_position_loc);
-  gl->EnableVertexAttribArray (filtershader->attr_texture_loc);
-
-  /* Load the vertex position */
-  gl->VertexAttribPointer (filtershader->attr_position_loc, 3, GL_FLOAT,
-      GL_FALSE, 5 * sizeof (GLfloat), vVertices);
-
-  /* Load the texture coordinate */
-  gl->VertexAttribPointer (filtershader->attr_texture_loc, 2, GL_FLOAT,
-      GL_FALSE, 5 * sizeof (GLfloat), &vVertices[3]);
-
-  gl->DrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
-
-  gl->DisableVertexAttribArray (filtershader->attr_position_loc);
-  gl->DisableVertexAttribArray (filtershader->attr_texture_loc);
+  gst_gl_filter_draw_texture (filter, texture, width, height);
 }

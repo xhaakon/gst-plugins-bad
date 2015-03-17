@@ -25,12 +25,12 @@
         <sub name="GstInsertbin" link="gst-plugins-bad-libs-GstInsertbin.html"/>
       </sub>
       <sub name="GStreamer Base classes from gst-plugins-bad" link="base.html">
-        <sub name="GstAggregator" link="GstAggregator.html"/>
-        <sub name="GstAggregatorPad" link="GstAggregatorPad.html"/>
+        <sub name="GstAggregator" link="gst-plugins-bad-libs-GstAggregator.html"/>
+        <sub name="GstAggregatorPad" link="gst-plugins-bad-libs-GstAggregatorPad.html"/>
       </sub>
       <sub name="Video helpers and baseclasses" link="video.html">
-        <sub name="GstVideoAggregator" link="GstVideoAggregator.html"/>
-        <sub name="GstVideoAggregatorPad" link="GstVideoAggregatorPad.html"/>
+        <sub name="GstVideoAggregator" link="gst-plugins-bad-libs-GstVideoAggregator.html"/>
+        <sub name="GstVideoAggregatorPad" link="gst-plugins-bad-libs-GstVideoAggregatorPad.html"/>
       </sub>
       <sub name="OpenGL Helper Library" link="gl.html">
         <sub name="GstGLAPI" link="gst-plugins-bad-libs-GstGLAPI.html"/>
@@ -39,18 +39,20 @@
         <sub name="GstGLContext" link="GstGLContext.html"/>
         <sub name="GstGLContextCocoa" link="gst-plugins-bad-libs-GstGLContextCocoa.html"/>
         <sub name="GstGLContextEGL" link="gst-plugins-bad-libs-GstGLContextEGL.html"/>
+        <sub name="GstGLContextEagl" link="gst-plugins-bad-libs-GstGLContextEagl.html"/>
         <sub name="GstGLContextGLX" link="gst-plugins-bad-libs-GstGLContextGLX.html"/>
         <sub name="GstGLContextWGL" link="gst-plugins-bad-libs-GstGLContextWGL.html"/>
         <sub name="GstGLDisplay" link="GstGLDisplay.html"/>
         <sub name="GstGLDownload" link="GstGLDownload.html"/>
         <sub name="GstEGLImageMemory" link="gst-plugins-bad-libs-GstEGLImageMemory.html"/>
+        <sub name="GstGLBaseFilter" link="GstGLBaseFilter.html"/>
         <sub name="GstGLFilter" link="GstGLFilter.html"/>
-        <sub name="GstGLFramebuffer" link="gst-plugins-bad-libs-GstGLFramebuffer.html"/>
+        <sub name="GstGLFramebuffer" link="GstGLFramebuffer.html"/>
         <sub name="GstGLMemory" link="gst-plugins-bad-libs-gstglmemory.html"/>
-        <sub name="GstGLMixer" link="gst-plugins-bad-libs-gstglmixer.html"/>
         <sub name="GstGLShader" link="gst-plugins-bad-libs-gstglshader.html"/>
+        <sub name="GstGLSyncMeta" link="gst-plugins-bad-libs-GstGLSyncMeta.html"/>
         <sub name="GstGLUpload" link="GstGLUpload.html"/>
-        <sub name="GstGLUploadMeta" link="gst-plugins-bad-libs-GstGLUploadMeta.html"/>
+        <sub name="GstGLUploadMeta" link="GstGLUploadMeta.html"/>
         <sub name="Utilities" link="gst-plugins-bad-libs-Utilities.html"/>
         <sub name="GstGLWindow" link="GstGLWindow.html"/>
         <sub name="GstGLWindowAndroid" link="gst-plugins-bad-libs-GstGLWindowAndroid.html"/>
@@ -59,6 +61,9 @@
         <sub name="GstGLWindowWayland" link="gst-plugins-bad-libs-GstGLWindowWayland.html"/>
         <sub name="GstGLWindowWin32" link="gst-plugins-bad-libs-GstGLWindowWin32.html"/>
         <sub name="GstGLWindowX11" link="gst-plugins-bad-libs-GstGLWindowX11.html"/>
+      </sub>
+      <sub name="Interfaces" link="ch07.html">
+        <sub name="GstPhotography" link="gst-plugins-bad-libs-GstPhotography.html"/>
       </sub>
     </sub>
     <sub name="Object Hierarchy" link="gstreamer-libs-hierarchy.html"/>
@@ -83,6 +88,7 @@
     <keyword type="function" name="gst_h264_nal_parser_free ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-nal-parser-free"/>
     <keyword type="function" name="gst_h264_parse_sps ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-parse-sps"/>
     <keyword type="function" name="gst_h264_parse_pps ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-parse-pps"/>
+    <keyword type="function" name="gst_h264_pps_clear ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-pps-clear" since="1.4"/>
     <keyword type="function" name="gst_h264_quant_matrix_8x8_get_zigzag_from_raster ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-quant-matrix-8x8-get-zigzag-from-raster" since="1.4"/>
     <keyword type="function" name="gst_h264_quant_matrix_8x8_get_raster_from_zigzag ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-quant-matrix-8x8-get-raster-from-zigzag" since="1.4"/>
     <keyword type="function" name="gst_h264_quant_matrix_4x4_get_zigzag_from_raster ()" link="gst-plugins-bad-libs-h264parser.html#gst-h264-quant-matrix-4x4-get-zigzag-from-raster" since="1.4"/>
@@ -109,7 +115,7 @@
     <keyword type="struct" name="struct GstH264PicTiming" link="gst-plugins-bad-libs-h264parser.html#GstH264PicTiming"/>
     <keyword type="struct" name="struct GstH264BufferingPeriod" link="gst-plugins-bad-libs-h264parser.html#GstH264BufferingPeriod"/>
     <keyword type="struct" name="struct GstH264SEIMessage" link="gst-plugins-bad-libs-h264parser.html#GstH264SEIMessage"/>
-    <keyword type="" name="" link="gst-plugins-bad-libs-mpegvideoparser.html#id-1.2.4.4.7.2"/>
+    <keyword type="" name="" link="gst-plugins-bad-libs-mpegvideoparser.html#id-1.2.4.4.6.2"/>
     <keyword type="function" name="gst_mpeg_video_parse ()" link="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse"/>
     <keyword type="function" name="gst_mpeg_video_parse_sequence_header ()" link="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-sequence-header" deprecated="Use gst_mpeg_video_packet_parse_sequence_header() instead."/>
     <keyword type="function" name="gst_mpeg_video_parse_picture_header ()" link="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-picture-header" deprecated="Use gst_mpeg_video_packet_parse_picture_header() instead."/>
@@ -223,33 +229,53 @@
     <keyword type="function" name="gst_mpegts_section_from_pmt ()" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-from-pmt"/>
     <keyword type="function" name="gst_mpegts_section_get_tsdt ()" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-get-tsdt"/>
     <keyword type="function" name="gst_mpegts_section_get_cat ()" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#gst-mpegts-section-get-cat"/>
-    <keyword type="struct" name="struct GstMpegTsSection" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSection-struct"/>
-    <keyword type="enum" name="enum GstMpegTsSectionTableID" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSectionTableID"/>
-    <keyword type="enum" name="enum GstMpegTsSectionType" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsSectionType"/>
-    <keyword type="struct" name="struct GstMpegTsPatProgram" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsPatProgram"/>
-    <keyword type="struct" name="struct GstMpegTsPMT" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsPMT"/>
-    <keyword type="struct" name="struct GstMpegTsPMTStream" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsPMTStream"/>
-    <keyword type="enum" name="enum GstMpegTsStreamType" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegTsStreamType"/>
+    <keyword type="struct" name="struct GstMpegtsSection" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSection-struct"/>
+    <keyword type="enum" name="enum GstMpegtsSectionTableID" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSectionTableID"/>
+    <keyword type="enum" name="enum GstMpegtsSectionType" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsSectionType"/>
+    <keyword type="struct" name="struct GstMpegtsPatProgram" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsPatProgram"/>
+    <keyword type="struct" name="struct GstMpegtsPMT" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsPMT"/>
+    <keyword type="struct" name="struct GstMpegtsPMTStream" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsPMTStream"/>
+    <keyword type="enum" name="enum GstMpegtsStreamType" link="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsStreamType"/>
     <keyword type="function" name="gst_mpegts_find_descriptor ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-find-descriptor"/>
     <keyword type="function" name="gst_mpegts_parse_descriptors ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-parse-descriptors"/>
     <keyword type="function" name="gst_mpegts_descriptor_from_custom ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-from-custom"/>
     <keyword type="function" name="gst_mpegts_descriptor_from_registration ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-from-registration"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_iso_639_language ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-iso-639-language"/>
-    <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_stream_identifier ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-stream-identifier"/>
+    <keyword type="function" name="gst_mpegts_descriptor_parse_iso_639_language_idx ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-iso-639-language-idx"/>
+    <keyword type="function" name="gst_mpegts_descriptor_parse_iso_639_language_nb ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-iso-639-language-nb"/>
+    <keyword type="function" name="gst_mpegts_iso_639_language_descriptor_free ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-iso-639-language-descriptor-free"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_logical_channel ()" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-logical-channel"/>
-    <keyword type="struct" name="struct GstMpegTsDescriptor" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsDescriptor-struct"/>
-    <keyword type="enum" name="enum GstMpegTsDescriptorType" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsDescriptorType"/>
-    <keyword type="enum" name="enum GstMpegTsMiscDescriptorType" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsMiscDescriptorType"/>
-    <keyword type="struct" name="struct GstMpegTsISO639LanguageDescriptor" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsISO639LanguageDescriptor"/>
-    <keyword type="enum" name="enum GstMpegTsIso639AudioType" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsIso639AudioType"/>
-    <keyword type="struct" name="struct GstMpegTsLogicalChannel" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsLogicalChannel"/>
-    <keyword type="struct" name="struct GstMpegTsLogicalChannelDescriptor" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegTsLogicalChannelDescriptor"/>
+    <keyword type="struct" name="struct GstMpegtsDescriptor" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor-struct"/>
+    <keyword type="enum" name="enum GstMpegtsDescriptorType" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptorType"/>
+    <keyword type="enum" name="enum GstMpegtsMiscDescriptorType" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsMiscDescriptorType"/>
+    <keyword type="struct" name="struct GstMpegtsISO639LanguageDescriptor" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsISO639LanguageDescriptor"/>
+    <keyword type="enum" name="enum GstMpegtsIso639AudioType" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsIso639AudioType"/>
+    <keyword type="struct" name="struct GstMpegtsLogicalChannel" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsLogicalChannel"/>
+    <keyword type="struct" name="struct GstMpegtsLogicalChannelDescriptor" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsLogicalChannelDescriptor"/>
     <keyword type="function" name="gst_mpegts_section_get_atsc_tvct ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-tvct"/>
-    <keyword type="enum" name="enum GstMpegTsSectionATSCTableID" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegTsSectionATSCTableID"/>
+    <keyword type="function" name="gst_mpegts_section_get_atsc_cvct ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-cvct"/>
+    <keyword type="function" name="gst_mpegts_section_get_atsc_mgt ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-mgt"/>
+    <keyword type="function" name="gst_mpegts_atsc_string_segment_get_string ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-atsc-string-segment-get-string"/>
+    <keyword type="function" name="gst_mpegts_section_get_atsc_eit ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-eit"/>
+    <keyword type="function" name="gst_mpegts_section_get_atsc_ett ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-ett"/>
+    <keyword type="function" name="gst_mpegts_section_get_atsc_stt ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-stt"/>
+    <keyword type="function" name="gst_mpegts_atsc_stt_get_datetime_utc ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-atsc-stt-get-datetime-utc"/>
+    <keyword type="enum" name="enum GstMpegtsSectionATSCTableID" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsSectionATSCTableID"/>
+    <keyword type="struct" name="struct GstMpegtsAtscVCTSource" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource"/>
+    <keyword type="struct" name="struct GstMpegtsAtscVCT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCT"/>
+    <keyword type="enum" name="enum GstMpegtsAtscMGTTableType" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTableType"/>
+    <keyword type="struct" name="struct GstMpegtsAtscMGTTable" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable"/>
+    <keyword type="struct" name="struct GstMpegtsAtscMGT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGT"/>
+    <keyword type="struct" name="struct GstMpegtsAtscMultString" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMultString"/>
+    <keyword type="struct" name="struct GstMpegtsAtscEITEvent" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent"/>
+    <keyword type="struct" name="struct GstMpegtsAtscEIT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEIT"/>
+    <keyword type="struct" name="struct GstMpegtsAtscETT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscETT"/>
+    <keyword type="struct" name="struct GstMpegtsAtscSTT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT"/>
     <keyword type="function" name="gst_mpegts_section_get_nit ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-nit"/>
     <keyword type="function" name="gst_mpegts_nit_new ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-nit-new"/>
     <keyword type="function" name="gst_mpegts_nit_stream_new ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-nit-stream-new"/>
     <keyword type="function" name="gst_mpegts_section_from_nit ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-from-nit"/>
+    <keyword type="function" name="gst_mpegts_section_get_bat ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-bat"/>
     <keyword type="function" name="gst_mpegts_section_get_sdt ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-sdt"/>
     <keyword type="function" name="gst_mpegts_sdt_new ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-sdt-new"/>
     <keyword type="function" name="gst_mpegts_sdt_service_new ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-sdt-service-new"/>
@@ -257,24 +283,27 @@
     <keyword type="function" name="gst_mpegts_section_get_eit ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-eit"/>
     <keyword type="function" name="gst_mpegts_section_get_tdt ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-tdt"/>
     <keyword type="function" name="gst_mpegts_section_get_tot ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-tot"/>
-    <keyword type="enum" name="enum GstMpegTsSectionDVBTableID" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsSectionDVBTableID"/>
-    <keyword type="struct" name="struct GstMpegTsNIT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsNIT"/>
-    <keyword type="struct" name="struct GstMpegTsNITStream" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsNITStream"/>
-    <keyword type="struct" name="struct GstMpegTsBAT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsBAT"/>
-    <keyword type="struct" name="struct GstMpegTsBATStream" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsBATStream"/>
-    <keyword type="struct" name="struct GstMpegTsSDT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsSDT"/>
-    <keyword type="struct" name="struct GstMpegTsSDTService" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsSDTService"/>
-    <keyword type="struct" name="struct GstMpegTsEIT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsEIT"/>
-    <keyword type="struct" name="struct GstMpegTsEITEvent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsEITEvent"/>
-    <keyword type="enum" name="enum GstMpegTsRunningStatus" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsRunningStatus"/>
-    <keyword type="struct" name="struct GstMpegTsTOT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegTsTOT"/>
-    <keyword type="enum" name="enum GstMpegTsATSCDescriptorType" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-descriptors.html#GstMpegTsATSCDescriptorType"/>
+    <keyword type="enum" name="enum GstMpegtsSectionDVBTableID" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsSectionDVBTableID"/>
+    <keyword type="struct" name="struct GstMpegtsNIT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsNIT"/>
+    <keyword type="struct" name="struct GstMpegtsNITStream" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsNITStream"/>
+    <keyword type="struct" name="struct GstMpegtsBAT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsBAT"/>
+    <keyword type="struct" name="struct GstMpegtsBATStream" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsBATStream"/>
+    <keyword type="struct" name="struct GstMpegtsSDT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsSDT"/>
+    <keyword type="struct" name="struct GstMpegtsSDTService" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsSDTService"/>
+    <keyword type="struct" name="struct GstMpegtsEIT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsEIT"/>
+    <keyword type="struct" name="struct GstMpegtsEITEvent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsEITEvent"/>
+    <keyword type="enum" name="enum GstMpegtsRunningStatus" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsRunningStatus"/>
+    <keyword type="struct" name="struct GstMpegtsTOT" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsTOT"/>
+    <keyword type="enum" name="enum GstMpegtsATSCDescriptorType" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-descriptors.html#GstMpegtsATSCDescriptorType"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_content ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-content"/>
+    <keyword type="function" name="gst_mpegts_dvb_component_descriptor_free ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-dvb-component-descriptor-free"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_component ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-component"/>
+    <keyword type="function" name="gst_mpegts_extended_event_descriptor_free ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-extended-event-descriptor-free"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_extended_event ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-extended-event"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_satellite_delivery_system ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-satellite-delivery-system"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_cable_delivery_system ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-cable-delivery-system"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_terrestrial_delivery_system ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-terrestrial-delivery-system"/>
+    <keyword type="function" name="gst_mpegts_t2_delivery_system_descriptor_free ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-t2-delivery-system-descriptor-free"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_t2_delivery_system ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-t2-delivery-system"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_short_event ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-short-event"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_network_name ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-network-name"/>
@@ -283,10 +312,17 @@
     <keyword type="function" name="gst_mpegts_descriptor_from_dvb_service ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-from-dvb-service"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_teletext_idx ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-teletext-idx"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_teletext_nb ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-teletext-nb"/>
+    <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_subtitling_idx ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-subtitling-idx"/>
+    <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_subtitling_nb ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-subtitling-nb"/>
     <keyword type="function" name="gst_mpegts_descriptor_from_dvb_subtitling ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-from-dvb-subtitling"/>
+    <keyword type="function" name="gst_mpegts_dvb_linkage_descriptor_free ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-dvb-linkage-descriptor-free"/>
+    <keyword type="function" name="gst_mpegts_dvb_linkage_descriptor_get_mobile_hand_over ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-dvb-linkage-descriptor-get-mobile-hand-over"/>
+    <keyword type="function" name="gst_mpegts_dvb_linkage_descriptor_get_event ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-dvb-linkage-descriptor-get-event"/>
+    <keyword type="function" name="gst_mpegts_dvb_linkage_descriptor_get_extended_event ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-dvb-linkage-descriptor-get-extended-event"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_linkage ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-linkage"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_private_data_specifier ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-private-data-specifier"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_frequency_list ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-frequency-list"/>
+    <keyword type="function" name="gst_mpegts_dvb_data_broadcast_descriptor_free ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-dvb-data-broadcast-descriptor-free"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_data_broadcast ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-data-broadcast"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_scrambling ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-scrambling"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_data_broadcast_id ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-data-broadcast-id"/>
@@ -300,42 +336,43 @@
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_multilingual_bouquet_name ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-multilingual-bouquet-name"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_multilingual_service_name ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-multilingual-service-name"/>
     <keyword type="function" name="gst_mpegts_descriptor_parse_dvb_multilingual_component ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#gst-mpegts-descriptor-parse-dvb-multilingual-component"/>
-    <keyword type="enum" name="enum GstMpegTsDVBDescriptorType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBDescriptorType"/>
-    <keyword type="enum" name="enum GstMpegTsDVBExtendedDescriptorType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBExtendedDescriptorType"/>
-    <keyword type="struct" name="struct GstMpegTsContent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsContent"/>
-    <keyword type="struct" name="struct GstMpegTsComponentDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsComponentDescriptor"/>
-    <keyword type="struct" name="struct GstMpegTsExtendedEventItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsExtendedEventItem"/>
-    <keyword type="struct" name="struct GstMpegTsExtendedEventDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsExtendedEventDescriptor"/>
-    <keyword type="struct" name="struct GstMpegTsSatelliteDeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsSatelliteDeliverySystemDescriptor"/>
-    <keyword type="enum" name="enum GstMpegTsDVBCodeRate" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBCodeRate"/>
-    <keyword type="enum" name="enum GstMpegTsModulationType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsModulationType"/>
-    <keyword type="enum" name="enum GstMpegTsSatellitePolarizationType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsSatellitePolarizationType"/>
-    <keyword type="enum" name="enum GstMpegTsSatelliteRolloff" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsSatelliteRolloff"/>
-    <keyword type="struct" name="struct GstMpegTsCableDeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsCableDeliverySystemDescriptor"/>
-    <keyword type="enum" name="enum GstMpegTsCableOuterFECScheme" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsCableOuterFECScheme"/>
-    <keyword type="struct" name="struct GstMpegTsTerrestrialDeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsTerrestrialDeliverySystemDescriptor"/>
-    <keyword type="enum" name="enum GstMpegTsTerrestrialTransmissionMode" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsTerrestrialTransmissionMode"/>
-    <keyword type="enum" name="enum GstMpegTsTerrestrialGuardInterval" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsTerrestrialGuardInterval"/>
-    <keyword type="enum" name="enum GstMpegTsTerrestrialHierarchy" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsTerrestrialHierarchy"/>
-    <keyword type="struct" name="struct GstMpegTsT2DeliverySystemCellExtension" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsT2DeliverySystemCellExtension"/>
-    <keyword type="struct" name="struct GstMpegTsT2DeliverySystemCell" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsT2DeliverySystemCell"/>
-    <keyword type="struct" name="struct GstMpegTsT2DeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsT2DeliverySystemDescriptor"/>
-    <keyword type="enum" name="enum GstMpegTsDVBServiceType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBServiceType"/>
-    <keyword type="enum" name="enum GstMpegTsDVBTeletextType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBTeletextType"/>
-    <keyword type="enum" name="enum GstMpegTsDVBLinkageType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBLinkageType"/>
-    <keyword type="enum" name="enum GstMpegTsDVBLinkageHandOverType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBLinkageHandOverType"/>
-    <keyword type="struct" name="struct GstMpegTsDVBLinkageMobileHandOver" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBLinkageMobileHandOver"/>
-    <keyword type="struct" name="struct GstMpegTsDVBLinkageEvent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBLinkageEvent"/>
-    <keyword type="struct" name="struct GstMpegTsDVBLinkageExtendedEvent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBLinkageExtendedEvent"/>
-    <keyword type="struct" name="struct GstMpegTsDVBLinkageDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBLinkageDescriptor"/>
-    <keyword type="struct" name="struct GstMpegTsDataBroadcastDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDataBroadcastDescriptor"/>
-    <keyword type="struct" name="struct GstMpegTsDVBParentalRatingItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBParentalRatingItem"/>
-    <keyword type="struct" name="struct GstMpegTsDVBServiceListItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDVBServiceListItem"/>
-    <keyword type="struct" name="struct GstMpegTsDvbMultilingualNetworkNameItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDvbMultilingualNetworkNameItem"/>
-    <keyword type="struct" name="struct GstMpegTsDvbMultilingualBouquetNameItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDvbMultilingualBouquetNameItem"/>
-    <keyword type="struct" name="struct GstMpegTsDvbMultilingualServiceNameItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDvbMultilingualServiceNameItem"/>
-    <keyword type="struct" name="struct GstMpegTsDvbMultilingualComponentItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegTsDvbMultilingualComponentItem"/>
-    <keyword type="enum" name="enum GstMpegTsISDBDescriptorType" link="gst-plugins-bad-libs-ISDB-variants-of-MPEG-TS-descriptors.html#GstMpegTsISDBDescriptorType"/>
+    <keyword type="enum" name="enum GstMpegtsDVBDescriptorType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBDescriptorType"/>
+    <keyword type="enum" name="enum GstMpegtsDVBExtendedDescriptorType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBExtendedDescriptorType"/>
+    <keyword type="struct" name="struct GstMpegtsContent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsContent"/>
+    <keyword type="struct" name="struct GstMpegtsComponentDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsComponentDescriptor"/>
+    <keyword type="struct" name="struct GstMpegtsExtendedEventItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsExtendedEventItem"/>
+    <keyword type="struct" name="struct GstMpegtsExtendedEventDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsExtendedEventDescriptor"/>
+    <keyword type="struct" name="struct GstMpegtsSatelliteDeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsSatelliteDeliverySystemDescriptor"/>
+    <keyword type="enum" name="enum GstMpegtsDVBCodeRate" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBCodeRate"/>
+    <keyword type="enum" name="enum GstMpegtsModulationType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsModulationType"/>
+    <keyword type="enum" name="enum GstMpegtsSatellitePolarizationType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsSatellitePolarizationType"/>
+    <keyword type="enum" name="enum GstMpegtsSatelliteRolloff" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsSatelliteRolloff"/>
+    <keyword type="struct" name="struct GstMpegtsCableDeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsCableDeliverySystemDescriptor"/>
+    <keyword type="enum" name="enum GstMpegtsCableOuterFECScheme" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsCableOuterFECScheme"/>
+    <keyword type="struct" name="struct GstMpegtsTerrestrialDeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsTerrestrialDeliverySystemDescriptor"/>
+    <keyword type="enum" name="enum GstMpegtsTerrestrialTransmissionMode" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsTerrestrialTransmissionMode"/>
+    <keyword type="enum" name="enum GstMpegtsTerrestrialGuardInterval" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsTerrestrialGuardInterval"/>
+    <keyword type="enum" name="enum GstMpegtsTerrestrialHierarchy" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsTerrestrialHierarchy"/>
+    <keyword type="struct" name="struct GstMpegtsT2DeliverySystemCellExtension" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsT2DeliverySystemCellExtension"/>
+    <keyword type="struct" name="struct GstMpegtsT2DeliverySystemCell" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsT2DeliverySystemCell"/>
+    <keyword type="struct" name="struct GstMpegtsT2DeliverySystemDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsT2DeliverySystemDescriptor"/>
+    <keyword type="enum" name="enum GstMpegtsDVBServiceType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBServiceType"/>
+    <keyword type="enum" name="enum GstMpegtsDVBTeletextType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBTeletextType"/>
+    <keyword type="enum" name="enum GstMpegtsDVBLinkageType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBLinkageType"/>
+    <keyword type="enum" name="enum GstMpegtsDVBLinkageHandOverType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBLinkageHandOverType"/>
+    <keyword type="struct" name="struct GstMpegtsDVBLinkageMobileHandOver" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBLinkageMobileHandOver"/>
+    <keyword type="struct" name="struct GstMpegtsDVBLinkageEvent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBLinkageEvent"/>
+    <keyword type="struct" name="struct GstMpegtsDVBLinkageExtendedEvent" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBLinkageExtendedEvent"/>
+    <keyword type="struct" name="struct GstMpegtsDVBLinkageDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBLinkageDescriptor"/>
+    <keyword type="struct" name="struct GstMpegtsDataBroadcastDescriptor" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDataBroadcastDescriptor"/>
+    <keyword type="enum" name="enum GstMpegtsDVBScramblingModeType" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBScramblingModeType"/>
+    <keyword type="struct" name="struct GstMpegtsDVBParentalRatingItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBParentalRatingItem"/>
+    <keyword type="struct" name="struct GstMpegtsDVBServiceListItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBServiceListItem"/>
+    <keyword type="struct" name="struct GstMpegtsDvbMultilingualNetworkNameItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualNetworkNameItem"/>
+    <keyword type="struct" name="struct GstMpegtsDvbMultilingualBouquetNameItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualBouquetNameItem"/>
+    <keyword type="struct" name="struct GstMpegtsDvbMultilingualServiceNameItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualServiceNameItem"/>
+    <keyword type="struct" name="struct GstMpegtsDvbMultilingualComponentItem" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualComponentItem"/>
+    <keyword type="enum" name="enum GstMpegtsISDBDescriptorType" link="gst-plugins-bad-libs-ISDB-variants-of-MPEG-TS-descriptors.html#GstMpegtsISDBDescriptorType"/>
     <keyword type="function" name="GstInsertBinCallback ()" link="gst-plugins-bad-libs-GstInsertbin.html#GstInsertBinCallback"/>
     <keyword type="function" name="gst_insert_bin_new ()" link="gst-plugins-bad-libs-GstInsertbin.html#gst-insert-bin-new" since="1.2"/>
     <keyword type="function" name="gst_insert_bin_append ()" link="gst-plugins-bad-libs-GstInsertbin.html#gst-insert-bin-append" since="1.2"/>
@@ -350,19 +387,21 @@
     <keyword type="signal" name="The “insert-before” signal" link="gst-plugins-bad-libs-GstInsertbin.html#GstInsertBin-insert-before"/>
     <keyword type="signal" name="The “prepend” signal" link="gst-plugins-bad-libs-GstInsertbin.html#GstInsertBin-prepend"/>
     <keyword type="signal" name="The “remove” signal" link="gst-plugins-bad-libs-GstInsertbin.html#GstInsertBin-remove"/>
-    <keyword type="function" name="gst_aggregator_finish_buffer ()" link="GstAggregator.html#gst-aggregator-finish-buffer"/>
-    <keyword type="function" name="gst_aggregator_set_src_caps ()" link="GstAggregator.html#gst-aggregator-set-src-caps"/>
-    <keyword type="function" name="gst_aggregator_iterate_sinkpads ()" link="GstAggregator.html#gst-aggregator-iterate-sinkpads"/>
-    <keyword type="struct" name="struct GstAggregator" link="GstAggregator.html#GstAggregator-struct"/>
-    <keyword type="struct" name="struct GstAggregatorClass" link="GstAggregator.html#GstAggregatorClass"/>
-    <keyword type="function" name="gst_aggregator_pad_steal_buffer ()" link="GstAggregatorPad.html#gst-aggregator-pad-steal-buffer"/>
-    <keyword type="function" name="gst_aggregator_pad_get_buffer ()" link="GstAggregatorPad.html#gst-aggregator-pad-get-buffer"/>
-    <keyword type="struct" name="struct GstAggregatorPad" link="GstAggregatorPad.html#GstAggregatorPad-struct"/>
-    <keyword type="struct" name="struct GstAggregatorPadClass" link="GstAggregatorPad.html#GstAggregatorPadClass"/>
-    <keyword type="struct" name="struct GstVideoAggregator" link="GstVideoAggregator.html#GstVideoAggregator-struct"/>
-    <keyword type="struct" name="struct GstVideoAggregatorClass" link="GstVideoAggregator.html#GstVideoAggregatorClass"/>
-    <keyword type="struct" name="struct GstVideoAggregatorPad" link="GstVideoAggregatorPad.html#GstVideoAggregatorPad-struct"/>
-    <keyword type="struct" name="struct GstVideoAggregatorPadClass" link="GstVideoAggregatorPad.html#GstVideoAggregatorPadClass"/>
+    <keyword type="function" name="gst_aggregator_finish_buffer ()" link="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-finish-buffer"/>
+    <keyword type="function" name="gst_aggregator_set_src_caps ()" link="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-set-src-caps"/>
+    <keyword type="function" name="gst_aggregator_iterate_sinkpads ()" link="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-iterate-sinkpads"/>
+    <keyword type="struct" name="struct GstAggregator" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregator"/>
+    <keyword type="struct" name="struct GstAggregatorClass" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass"/>
+    <keyword type="function" name="gst_aggregator_pad_steal_buffer ()" link="gst-plugins-bad-libs-GstAggregatorPad.html#gst-aggregator-pad-steal-buffer"/>
+    <keyword type="function" name="gst_aggregator_pad_get_buffer ()" link="gst-plugins-bad-libs-GstAggregatorPad.html#gst-aggregator-pad-get-buffer"/>
+    <keyword type="function" name="gst_aggregator_pad_drop_buffer ()" link="gst-plugins-bad-libs-GstAggregatorPad.html#gst-aggregator-pad-drop-buffer"/>
+    <keyword type="function" name="gst_aggregator_pad_is_eos ()" link="gst-plugins-bad-libs-GstAggregatorPad.html#gst-aggregator-pad-is-eos"/>
+    <keyword type="struct" name="struct GstAggregatorPad" link="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad"/>
+    <keyword type="struct" name="struct GstAggregatorPadClass" link="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPadClass"/>
+    <keyword type="struct" name="struct GstVideoAggregator" link="gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregator"/>
+    <keyword type="struct" name="struct GstVideoAggregatorClass" link="gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregatorClass"/>
+    <keyword type="struct" name="struct GstVideoAggregatorPad" link="gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPad"/>
+    <keyword type="struct" name="struct GstVideoAggregatorPadClass" link="gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPadClass"/>
     <keyword type="function" name="gst_gl_api_to_string ()" link="gst-plugins-bad-libs-GstGLAPI.html#gst-gl-api-to-string"/>
     <keyword type="function" name="gst_gl_api_from_string ()" link="gst-plugins-bad-libs-GstGLAPI.html#gst-gl-api-from-string"/>
     <keyword type="function" name="gst_gl_platform_to_string ()" link="gst-plugins-bad-libs-GstGLAPI.html#gst-gl-platform-to-string"/>
@@ -378,7 +417,8 @@
     <keyword type="struct" name="struct GstGLBufferPool" link="GstGLBufferPool.html#GstGLBufferPool-struct"/>
     <keyword type="struct" name="struct GstGLBufferPoolClass" link="GstGLBufferPool.html#GstGLBufferPoolClass"/>
     <keyword type="function" name="gst_gl_color_convert_new ()" link="GstGLColorConvert.html#gst-gl-color-convert-new"/>
-    <keyword type="function" name="gst_gl_color_convert_set_format ()" link="GstGLColorConvert.html#gst-gl-color-convert-set-format"/>
+    <keyword type="function" name="gst_gl_color_convert_set_caps ()" link="GstGLColorConvert.html#gst-gl-color-convert-set-caps"/>
+    <keyword type="function" name="gst_gl_color_convert_transform_caps ()" link="GstGLColorConvert.html#gst-gl-color-convert-transform-caps"/>
     <keyword type="function" name="gst_gl_color_convert_perform ()" link="GstGLColorConvert.html#gst-gl-color-convert-perform"/>
     <keyword type="macro" name="GST_GL_COLOR_CONVERT_FORMATS" link="GstGLColorConvert.html#GST-GL-COLOR-CONVERT-FORMATS:CAPS"/>
     <keyword type="macro" name="GST_GL_COLOR_CONVERT_VIDEO_CAPS" link="GstGLColorConvert.html#GST-GL-COLOR-CONVERT-VIDEO-CAPS"/>
@@ -387,41 +427,65 @@
     <keyword type="macro" name="GST_GL_CONTEXT_ERROR" link="GstGLContext.html#GST-GL-CONTEXT-ERROR:CAPS"/>
     <keyword type="function" name="gst_gl_context_error_quark ()" link="GstGLContext.html#gst-gl-context-error-quark"/>
     <keyword type="function" name="GstGLContextThreadFunc ()" link="GstGLContext.html#GstGLContextThreadFunc"/>
-    <keyword type="function" name="gst_gl_context_new ()" link="GstGLContext.html#gst-gl-context-new"/>
-    <keyword type="function" name="gst_gl_context_new_wrapped ()" link="GstGLContext.html#gst-gl-context-new-wrapped"/>
-    <keyword type="function" name="gst_gl_context_create ()" link="GstGLContext.html#gst-gl-context-create"/>
-    <keyword type="function" name="gst_gl_context_activate ()" link="GstGLContext.html#gst-gl-context-activate"/>
+    <keyword type="function" name="gst_gl_context_new ()" link="GstGLContext.html#gst-gl-context-new" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_new_wrapped ()" link="GstGLContext.html#gst-gl-context-new-wrapped" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_create ()" link="GstGLContext.html#gst-gl-context-create" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_destroy ()" link="GstGLContext.html#gst-gl-context-destroy" since="1.6"/>
+    <keyword type="function" name="gst_gl_context_activate ()" link="GstGLContext.html#gst-gl-context-activate" since="1.4"/>
     <keyword type="function" name="gst_gl_context_default_get_proc_address ()" link="GstGLContext.html#gst-gl-context-default-get-proc-address"/>
-    <keyword type="function" name="gst_gl_context_get_proc_address ()" link="GstGLContext.html#gst-gl-context-get-proc-address"/>
-    <keyword type="function" name="gst_gl_context_get_window ()" link="GstGLContext.html#gst-gl-context-get-window"/>
-    <keyword type="function" name="gst_gl_context_set_window ()" link="GstGLContext.html#gst-gl-context-set-window"/>
-    <keyword type="function" name="gst_gl_context_thread_add ()" link="GstGLContext.html#gst-gl-context-thread-add"/>
-    <keyword type="function" name="gst_gl_context_get_display ()" link="GstGLContext.html#gst-gl-context-get-display"/>
-    <keyword type="function" name="gst_gl_context_get_gl_api ()" link="GstGLContext.html#gst-gl-context-get-gl-api"/>
-    <keyword type="function" name="gst_gl_context_get_gl_context ()" link="GstGLContext.html#gst-gl-context-get-gl-context"/>
-    <keyword type="function" name="gst_gl_context_get_gl_platform ()" link="GstGLContext.html#gst-gl-context-get-gl-platform"/>
-    <keyword type="function" name="gst_gl_context_check_feature ()" link="GstGLContext.html#gst-gl-context-check-feature"/>
-    <keyword type="function" name="gst_gl_context_check_gl_version ()" link="GstGLContext.html#gst-gl-context-check-gl-version"/>
-    <keyword type="function" name="gst_gl_context_get_gl_version ()" link="GstGLContext.html#gst-gl-context-get-gl-version"/>
+    <keyword type="function" name="gst_gl_context_get_proc_address ()" link="GstGLContext.html#gst-gl-context-get-proc-address" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_window ()" link="GstGLContext.html#gst-gl-context-get-window" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_set_window ()" link="GstGLContext.html#gst-gl-context-set-window" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_thread_add ()" link="GstGLContext.html#gst-gl-context-thread-add" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_display ()" link="GstGLContext.html#gst-gl-context-get-display" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_gl_api ()" link="GstGLContext.html#gst-gl-context-get-gl-api" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_gl_context ()" link="GstGLContext.html#gst-gl-context-get-gl-context" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_gl_platform ()" link="GstGLContext.html#gst-gl-context-get-gl-platform" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_current_gl_context ()" link="GstGLContext.html#gst-gl-context-get-current-gl-context" since="1.6"/>
+    <keyword type="function" name="gst_gl_context_get_current_gl_api ()" link="GstGLContext.html#gst-gl-context-get-current-gl-api" since="1.6"/>
+    <keyword type="function" name="gst_gl_context_get_thread ()" link="GstGLContext.html#gst-gl-context-get-thread" since="1.6"/>
+    <keyword type="function" name="gst_gl_context_can_share ()" link="GstGLContext.html#gst-gl-context-can-share" since="1.6"/>
+    <keyword type="function" name="gst_gl_context_check_feature ()" link="GstGLContext.html#gst-gl-context-check-feature" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_check_gl_version ()" link="GstGLContext.html#gst-gl-context-check-gl-version" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_gl_version ()" link="GstGLContext.html#gst-gl-context-get-gl-version" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_fill_info ()" link="GstGLContext.html#gst-gl-context-fill-info" since="1.6"/>
+    <keyword type="function" name="gst_gl_context_get_current ()" link="GstGLContext.html#gst-gl-context-get-current" since="1.6"/>
     <keyword type="enum" name="enum GstGLContextError" link="GstGLContext.html#GstGLContextError"/>
     <keyword type="struct" name="GstGLContext" link="GstGLContext.html#GstGLContext-struct"/>
     <keyword type="function" name="gst_gl_context_cocoa_new ()" link="gst-plugins-bad-libs-GstGLContextCocoa.html#gst-gl-context-cocoa-new"/>
+    <keyword type="function" name="gst_gl_context_cocoa_get_current_context ()" link="gst-plugins-bad-libs-GstGLContextCocoa.html#gst-gl-context-cocoa-get-current-context"/>
+    <keyword type="function" name="gst_gl_context_cocoa_get_pixel_format ()" link="gst-plugins-bad-libs-GstGLContextCocoa.html#gst-gl-context-cocoa-get-pixel-format"/>
     <keyword type="struct" name="struct GstGLContextCocoa" link="gst-plugins-bad-libs-GstGLContextCocoa.html#GstGLContextCocoa"/>
     <keyword type="function" name="gst_gl_context_egl_new ()" link="gst-plugins-bad-libs-GstGLContextEGL.html#gst-gl-context-egl-new"/>
+    <keyword type="function" name="gst_gl_context_egl_get_current_context ()" link="gst-plugins-bad-libs-GstGLContextEGL.html#gst-gl-context-egl-get-current-context"/>
+    <keyword type="function" name="gst_gl_context_egl_get_proc_address ()" link="gst-plugins-bad-libs-GstGLContextEGL.html#gst-gl-context-egl-get-proc-address"/>
     <keyword type="struct" name="struct GstGLContextEGL" link="gst-plugins-bad-libs-GstGLContextEGL.html#GstGLContextEGL"/>
+    <keyword type="function" name="gst_gl_context_eagl_new ()" link="gst-plugins-bad-libs-GstGLContextEagl.html#gst-gl-context-eagl-new"/>
+    <keyword type="function" name="gst_gl_context_eagl_get_current_context ()" link="gst-plugins-bad-libs-GstGLContextEagl.html#gst-gl-context-eagl-get-current-context"/>
+    <keyword type="struct" name="struct GstGLContextEagl" link="gst-plugins-bad-libs-GstGLContextEagl.html#GstGLContextEagl"/>
     <keyword type="function" name="gst_gl_context_glx_new ()" link="gst-plugins-bad-libs-GstGLContextGLX.html#gst-gl-context-glx-new"/>
+    <keyword type="function" name="gst_gl_context_glx_get_current_context ()" link="gst-plugins-bad-libs-GstGLContextGLX.html#gst-gl-context-glx-get-current-context"/>
+    <keyword type="function" name="gst_gl_context_glx_get_proc_address ()" link="gst-plugins-bad-libs-GstGLContextGLX.html#gst-gl-context-glx-get-proc-address"/>
     <keyword type="struct" name="struct GstGLContextGLX" link="gst-plugins-bad-libs-GstGLContextGLX.html#GstGLContextGLX"/>
     <keyword type="function" name="gst_gl_context_wgl_new ()" link="gst-plugins-bad-libs-GstGLContextWGL.html#gst-gl-context-wgl-new"/>
+    <keyword type="function" name="gst_gl_context_wgl_get_current_context ()" link="gst-plugins-bad-libs-GstGLContextWGL.html#gst-gl-context-wgl-get-current-context"/>
+    <keyword type="function" name="gst_gl_context_wgl_get_proc_address ()" link="gst-plugins-bad-libs-GstGLContextWGL.html#gst-gl-context-wgl-get-proc-address"/>
     <keyword type="struct" name="struct GstGLContextWGL" link="gst-plugins-bad-libs-GstGLContextWGL.html#GstGLContextWGL"/>
-    <keyword type="function" name="gst_gl_display_new ()" link="GstGLDisplay.html#gst-gl-display-new"/>
-    <keyword type="function" name="gst_gl_display_get_handle_type ()" link="GstGLDisplay.html#gst-gl-display-get-handle-type"/>
-    <keyword type="function" name="gst_context_get_gl_display ()" link="GstGLDisplay.html#gst-context-get-gl-display"/>
-    <keyword type="function" name="gst_context_set_gl_display ()" link="GstGLDisplay.html#gst-context-set-gl-display"/>
+    <keyword type="function" name="gst_gl_display_new ()" link="GstGLDisplay.html#gst-gl-display-new" since="1.4"/>
+    <keyword type="function" name="gst_gl_display_get_handle_type ()" link="GstGLDisplay.html#gst-gl-display-get-handle-type" since="1.4"/>
+    <keyword type="function" name="gst_gl_display_filter_gl_api ()" link="GstGLDisplay.html#gst-gl-display-filter-gl-api"/>
+    <keyword type="function" name="gst_gl_display_get_gl_api ()" link="GstGLDisplay.html#gst-gl-display-get-gl-api"/>
+    <keyword type="function" name="gst_gl_display_add_context ()" link="GstGLDisplay.html#gst-gl-display-add-context" since="1.6"/>
+    <keyword type="function" name="gst_gl_display_get_gl_context_for_thread ()" link="GstGLDisplay.html#gst-gl-display-get-gl-context-for-thread" since="1.6"/>
+    <keyword type="function" name="gst_gl_display_get_handle ()" link="GstGLDisplay.html#gst-gl-display-get-handle"/>
+    <keyword type="function" name="gst_context_get_gl_display ()" link="GstGLDisplay.html#gst-context-get-gl-display" since="1.4"/>
+    <keyword type="function" name="gst_context_set_gl_display ()" link="GstGLDisplay.html#gst-context-set-gl-display" since="1.4"/>
     <keyword type="macro" name="GST_GL_DISPLAY_CONTEXT_TYPE" link="GstGLDisplay.html#GST-GL-DISPLAY-CONTEXT-TYPE:CAPS"/>
     <keyword type="enum" name="enum GstGLDisplayType" link="GstGLDisplay.html#GstGLDisplayType"/>
     <keyword type="struct" name="GstGLDisplay" link="GstGLDisplay.html#GstGLDisplay-struct"/>
     <keyword type="function" name="gst_gl_download_new ()" link="GstGLDownload.html#gst-gl-download-new"/>
     <keyword type="function" name="gst_gl_download_set_format ()" link="GstGLDownload.html#gst-gl-download-set-format"/>
+    <keyword type="function" name="gst_gl_download_transform_caps ()" link="GstGLDownload.html#gst-gl-download-transform-caps"/>
     <keyword type="function" name="gst_gl_download_perform_with_data ()" link="GstGLDownload.html#gst-gl-download-perform-with-data"/>
     <keyword type="struct" name="GstGLDownload" link="GstGLDownload.html#GstGLDownload-struct"/>
     <keyword type="function" name="gst_egl_image_memory_init ()" link="gst-plugins-bad-libs-GstEGLImageMemory.html#gst-egl-image-memory-init"/>
@@ -433,20 +497,21 @@
     <keyword type="function" name="gst_is_egl_image_memory ()" link="gst-plugins-bad-libs-GstEGLImageMemory.html#gst-is-egl-image-memory"/>
     <keyword type="macro" name="GST_EGL_IMAGE_MEMORY_TYPE" link="gst-plugins-bad-libs-GstEGLImageMemory.html#GST-EGL-IMAGE-MEMORY-TYPE:CAPS"/>
     <keyword type="macro" name="GST_CAPS_FEATURE_MEMORY_EGL_IMAGE" link="gst-plugins-bad-libs-GstEGLImageMemory.html#GST-CAPS-FEATURE-MEMORY-EGL-IMAGE:CAPS"/>
+    <keyword type="struct" name="GstGLBaseFilter" link="GstGLBaseFilter.html#GstGLBaseFilter-struct"/>
+    <keyword type="struct" name="GstGLBaseFilterClass" link="GstGLBaseFilter.html#GstGLBaseFilterClass"/>
+    <keyword type="property" name="The “context” property" link="GstGLBaseFilter.html#GstGLBaseFilter--context"/>
     <keyword type="function" name="gst_gl_filter_draw_texture ()" link="GstGLFilter.html#gst-gl-filter-draw-texture"/>
     <keyword type="function" name="gst_gl_filter_render_to_target ()" link="GstGLFilter.html#gst-gl-filter-render-to-target"/>
     <keyword type="function" name="gst_gl_filter_render_to_target_with_shader ()" link="GstGLFilter.html#gst-gl-filter-render-to-target-with-shader"/>
     <keyword type="function" name="gst_gl_filter_filter_texture ()" link="GstGLFilter.html#gst-gl-filter-filter-texture"/>
-    <keyword type="struct" name="struct GstGLFilter" link="GstGLFilter.html#GstGLFilter-struct"/>
-    <keyword type="struct" name="struct GstGLFilterClass" link="GstGLFilter.html#GstGLFilterClass"/>
-    <keyword type="property" name="The “other-context” property" link="GstGLFilter.html#GstGLFilter--other-context"/>
-    <keyword type="function" name="gst_gl_framebuffer_new ()" link="gst-plugins-bad-libs-GstGLFramebuffer.html#gst-gl-framebuffer-new"/>
-    <keyword type="function" name="gst_gl_framebuffer_generate ()" link="gst-plugins-bad-libs-GstGLFramebuffer.html#gst-gl-framebuffer-generate"/>
-    <keyword type="function" name="gst_gl_framebuffer_delete ()" link="gst-plugins-bad-libs-GstGLFramebuffer.html#gst-gl-framebuffer-delete"/>
-    <keyword type="function" name="gst_gl_framebuffer_use ()" link="gst-plugins-bad-libs-GstGLFramebuffer.html#gst-gl-framebuffer-use"/>
-    <keyword type="function" name="gst_gl_framebuffer_use_v2 ()" link="gst-plugins-bad-libs-GstGLFramebuffer.html#gst-gl-framebuffer-use-v2"/>
-    <keyword type="struct" name="struct GstGLFramebuffer" link="gst-plugins-bad-libs-GstGLFramebuffer.html#GstGLFramebuffer"/>
-    <keyword type="struct" name="struct GstGLFramebufferClass" link="gst-plugins-bad-libs-GstGLFramebuffer.html#GstGLFramebufferClass"/>
+    <keyword type="struct" name="GstGLFilter" link="GstGLFilter.html#GstGLFilter-struct"/>
+    <keyword type="struct" name="GstGLFilterClass" link="GstGLFilter.html#GstGLFilterClass"/>
+    <keyword type="function" name="gst_gl_framebuffer_new ()" link="GstGLFramebuffer.html#gst-gl-framebuffer-new"/>
+    <keyword type="function" name="gst_gl_framebuffer_generate ()" link="GstGLFramebuffer.html#gst-gl-framebuffer-generate"/>
+    <keyword type="function" name="gst_gl_framebuffer_delete ()" link="GstGLFramebuffer.html#gst-gl-framebuffer-delete"/>
+    <keyword type="function" name="gst_gl_framebuffer_use_v2 ()" link="GstGLFramebuffer.html#gst-gl-framebuffer-use-v2"/>
+    <keyword type="struct" name="struct GstGLFramebuffer" link="GstGLFramebuffer.html#GstGLFramebuffer-struct"/>
+    <keyword type="struct" name="struct GstGLFramebufferClass" link="GstGLFramebuffer.html#GstGLFramebufferClass"/>
     <keyword type="macro" name="GST_GL_MEMORY_FLAGS()" link="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAGS:CAPS"/>
     <keyword type="macro" name="GST_GL_MEMORY_FLAG_IS_SET()" link="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAG-IS-SET:CAPS"/>
     <keyword type="macro" name="GST_GL_MEMORY_FLAG_SET()" link="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAG-SET:CAPS"/>
@@ -466,16 +531,6 @@
     <keyword type="macro" name="GST_GL_MEMORY_ALLOCATOR" link="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-ALLOCATOR:CAPS"/>
     <keyword type="enum" name="enum GstGLMemoryFlags" link="gst-plugins-bad-libs-gstglmemory.html#GstGLMemoryFlags"/>
     <keyword type="struct" name="GstGLMemory" link="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory"/>
-    <keyword type="function" name="GstGLMixerProcessFunc ()" link="gst-plugins-bad-libs-gstglmixer.html#GstGLMixerProcessFunc"/>
-    <keyword type="function" name="GstGLMixerSetCaps ()" link="gst-plugins-bad-libs-gstglmixer.html#GstGLMixerSetCaps"/>
-    <keyword type="function" name="GstGLMixerReset ()" link="gst-plugins-bad-libs-gstglmixer.html#GstGLMixerReset"/>
-    <keyword type="function" name="GstGLMixerProcessTextures ()" link="gst-plugins-bad-libs-gstglmixer.html#GstGLMixerProcessTextures"/>
-    <keyword type="function" name="gst_gl_mixer_process_textures ()" link="gst-plugins-bad-libs-gstglmixer.html#gst-gl-mixer-process-textures"/>
-    <keyword type="struct" name="struct GstGLMixerPad" link="gst-plugins-bad-libs-gstglmixer.html#GstGLMixerPad-struct"/>
-    <keyword type="struct" name="struct GstGLMixerPadClass" link="gst-plugins-bad-libs-gstglmixer.html#GstGLMixerPadClass"/>
-    <keyword type="struct" name="struct GstGLMixer" link="gst-plugins-bad-libs-gstglmixer.html#GstGLMixer-struct"/>
-    <keyword type="struct" name="struct GstGLMixerClass" link="gst-plugins-bad-libs-gstglmixer.html#GstGLMixerClass"/>
-    <keyword type="struct" name="struct GstGLMixerFrameData" link="gst-plugins-bad-libs-gstglmixer.html#GstGLMixerFrameData"/>
     <keyword type="function" name="gst_gl_shader_error_quark ()" link="gst-plugins-bad-libs-gstglshader.html#gst-gl-shader-error-quark"/>
     <keyword type="macro" name="GST_GL_SHADER_ERROR" link="gst-plugins-bad-libs-gstglshader.html#GST-GL-SHADER-ERROR:CAPS"/>
     <keyword type="function" name="gst_gl_shadervariable_set ()" link="gst-plugins-bad-libs-gstglshader.html#gst-gl-shadervariable-set"/>
@@ -485,6 +540,7 @@
     <keyword type="function" name="gst_gl_shader_set_fragment_source ()" link="gst-plugins-bad-libs-gstglshader.html#gst-gl-shader-set-fragment-source"/>
     <keyword type="function" name="gst_gl_shader_get_vertex_source ()" link="gst-plugins-bad-libs-gstglshader.html#gst-gl-shader-get-vertex-source"/>
     <keyword type="function" name="gst_gl_shader_get_fragment_source ()" link="gst-plugins-bad-libs-gstglshader.html#gst-gl-shader-get-fragment-source"/>
+    <keyword type="function" name="gst_gl_shader_get_program_handle ()" link="gst-plugins-bad-libs-gstglshader.html#gst-gl-shader-get-program-handle"/>
     <keyword type="function" name="gst_gl_shader_set_active ()" link="gst-plugins-bad-libs-gstglshader.html#gst-gl-shader-set-active"/>
     <keyword type="function" name="gst_gl_shader_is_compiled ()" link="gst-plugins-bad-libs-gstglshader.html#gst-gl-shader-is-compiled"/>
     <keyword type="function" name="gst_gl_shader_compile ()" link="gst-plugins-bad-libs-gstglshader.html#gst-gl-shader-compile"/>
@@ -530,30 +586,36 @@
     <keyword type="property" name="The “compiled” property" link="gst-plugins-bad-libs-gstglshader.html#GstGLShader--compiled"/>
     <keyword type="property" name="The “fragment-src” property" link="gst-plugins-bad-libs-gstglshader.html#GstGLShader--fragment-src"/>
     <keyword type="property" name="The “vertex-src” property" link="gst-plugins-bad-libs-gstglshader.html#GstGLShader--vertex-src"/>
+    <keyword type="function" name="gst_buffer_add_gl_sync_meta ()" link="gst-plugins-bad-libs-GstGLSyncMeta.html#gst-buffer-add-gl-sync-meta"/>
+    <keyword type="macro" name="gst_buffer_get_gl_sync_meta()" link="gst-plugins-bad-libs-GstGLSyncMeta.html#gst-buffer-get-gl-sync-meta"/>
+    <keyword type="function" name="gst_gl_sync_meta_api_get_type ()" link="gst-plugins-bad-libs-GstGLSyncMeta.html#gst-gl-sync-meta-api-get-type"/>
+    <keyword type="function" name="gst_gl_sync_meta_get_info ()" link="gst-plugins-bad-libs-GstGLSyncMeta.html#gst-gl-sync-meta-get-info"/>
+    <keyword type="function" name="gst_gl_sync_meta_set_sync_point ()" link="gst-plugins-bad-libs-GstGLSyncMeta.html#gst-gl-sync-meta-set-sync-point"/>
+    <keyword type="function" name="gst_gl_sync_meta_wait ()" link="gst-plugins-bad-libs-GstGLSyncMeta.html#gst-gl-sync-meta-wait"/>
+    <keyword type="struct" name="struct GstGLSyncMeta" link="gst-plugins-bad-libs-GstGLSyncMeta.html#GstGLSyncMeta"/>
+    <keyword type="macro" name="GST_BUFFER_POOL_OPTION_GL_SYNC_META" link="gst-plugins-bad-libs-GstGLSyncMeta.html#GST-BUFFER-POOL-OPTION-GL-SYNC-META:CAPS"/>
     <keyword type="function" name="gst_gl_upload_new ()" link="GstGLUpload.html#gst-gl-upload-new"/>
-    <keyword type="function" name="gst_gl_upload_set_format ()" link="GstGLUpload.html#gst-gl-upload-set-format"/>
-    <keyword type="function" name="gst_gl_upload_get_format ()" link="GstGLUpload.html#gst-gl-upload-get-format"/>
-    <keyword type="function" name="gst_gl_upload_perform_with_data ()" link="GstGLUpload.html#gst-gl-upload-perform-with-data"/>
-    <keyword type="function" name="gst_gl_upload_perform_with_gl_texture_upload_meta ()" link="GstGLUpload.html#gst-gl-upload-perform-with-gl-texture-upload-meta"/>
+    <keyword type="function" name="gst_gl_upload_get_caps ()" link="GstGLUpload.html#gst-gl-upload-get-caps"/>
+    <keyword type="function" name="gst_gl_upload_set_caps ()" link="GstGLUpload.html#gst-gl-upload-set-caps"/>
+    <keyword type="function" name="gst_gl_upload_propose_allocation ()" link="GstGLUpload.html#gst-gl-upload-propose-allocation"/>
+    <keyword type="function" name="gst_gl_upload_transform_caps ()" link="GstGLUpload.html#gst-gl-upload-transform-caps"/>
     <keyword type="function" name="gst_gl_upload_perform_with_buffer ()" link="GstGLUpload.html#gst-gl-upload-perform-with-buffer"/>
     <keyword type="function" name="gst_gl_upload_release_buffer ()" link="GstGLUpload.html#gst-gl-upload-release-buffer"/>
     <keyword type="struct" name="GstGLUpload" link="GstGLUpload.html#GstGLUpload-struct"/>
-    <keyword type="function" name="gst_gl_upload_meta_new ()" link="gst-plugins-bad-libs-GstGLUploadMeta.html#gst-gl-upload-meta-new"/>
-    <keyword type="function" name="gst_gl_upload_meta_set_format ()" link="gst-plugins-bad-libs-GstGLUploadMeta.html#gst-gl-upload-meta-set-format"/>
-    <keyword type="function" name="gst_gl_upload_meta_get_format ()" link="gst-plugins-bad-libs-GstGLUploadMeta.html#gst-gl-upload-meta-get-format"/>
-    <keyword type="function" name="gst_gl_upload_meta_add_to_buffer ()" link="gst-plugins-bad-libs-GstGLUploadMeta.html#gst-gl-upload-meta-add-to-buffer"/>
-    <keyword type="struct" name="GstGLUploadMeta" link="gst-plugins-bad-libs-GstGLUploadMeta.html#GstGLUploadMeta"/>
+    <keyword type="function" name="gst_gl_upload_meta_new ()" link="GstGLUploadMeta.html#gst-gl-upload-meta-new"/>
+    <keyword type="function" name="gst_gl_upload_meta_set_format ()" link="GstGLUploadMeta.html#gst-gl-upload-meta-set-format"/>
+    <keyword type="function" name="gst_gl_upload_meta_get_format ()" link="GstGLUploadMeta.html#gst-gl-upload-meta-get-format"/>
+    <keyword type="function" name="gst_gl_upload_meta_add_to_buffer ()" link="GstGLUploadMeta.html#gst-gl-upload-meta-add-to-buffer"/>
+    <keyword type="struct" name="GstGLUploadMeta" link="GstGLUploadMeta.html#GstGLUploadMeta-struct"/>
     <keyword type="function" name="GLCB ()" link="gst-plugins-bad-libs-Utilities.html#GLCB:CAPS"/>
     <keyword type="function" name="GLCB_V2 ()" link="gst-plugins-bad-libs-Utilities.html#GLCB-V2:CAPS"/>
     <keyword type="function" name="CDCB ()" link="gst-plugins-bad-libs-Utilities.html#CDCB:CAPS"/>
-    <keyword type="function" name="gst_gl_ensure_display ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-ensure-display"/>
     <keyword type="function" name="gst_gl_handle_set_context ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-handle-set-context"/>
     <keyword type="function" name="gst_gl_handle_context_query ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-handle-context-query"/>
     <keyword type="function" name="gst_gl_context_gen_texture ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-context-gen-texture"/>
     <keyword type="function" name="gst_gl_context_del_texture ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-context-del-texture"/>
     <keyword type="function" name="gst_gl_context_gen_fbo ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-context-gen-fbo"/>
     <keyword type="function" name="gst_gl_context_del_fbo ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-context-del-fbo"/>
-    <keyword type="function" name="gst_gl_context_use_fbo ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-context-use-fbo"/>
     <keyword type="function" name="gst_gl_context_use_fbo_v2 ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-context-use-fbo-v2"/>
     <keyword type="function" name="gst_gl_context_gen_shader ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-context-gen-shader"/>
     <keyword type="function" name="gst_gl_context_del_shader ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-context-del-shader"/>
@@ -562,6 +624,10 @@
     <keyword type="function" name="gst_gl_context_get_error ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-context-get-error"/>
     <keyword type="function" name="gst_gl_context_clear_shader ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-context-clear-shader"/>
     <keyword type="function" name="gst_gl_generate_texture_full ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-generate-texture-full"/>
+    <keyword type="function" name="gst_gl_caps_replace_all_caps_features ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-caps-replace-all-caps-features"/>
+    <keyword type="function" name="gst_gl_ensure_element_data ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-ensure-element-data"/>
+    <keyword type="function" name="gst_gl_get_plane_data_size ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-get-plane-data-size"/>
+    <keyword type="function" name="gst_gl_run_query ()" link="gst-plugins-bad-libs-Utilities.html#gst-gl-run-query"/>
     <keyword type="enum" name="enum GstGLDisplayProjection" link="gst-plugins-bad-libs-Utilities.html#GstGLDisplayProjection"/>
     <keyword type="function" name="gst_gl_window_error_quark ()" link="GstGLWindow.html#gst-gl-window-error-quark"/>
     <keyword type="macro" name="GST_GL_WINDOW_ERROR" link="GstGLWindow.html#GST-GL-WINDOW-ERROR:CAPS"/>
@@ -569,24 +635,32 @@
     <keyword type="macro" name="GST_GL_WINDOW_RESIZE_CB()" link="GstGLWindow.html#GST-GL-WINDOW-RESIZE-CB:CAPS"/>
     <keyword type="function" name="GstGLWindowCB ()" link="GstGLWindow.html#GstGLWindowCB"/>
     <keyword type="macro" name="GST_GL_WINDOW_CB()" link="GstGLWindow.html#GST-GL-WINDOW-CB:CAPS"/>
-    <keyword type="function" name="gst_gl_window_new ()" link="GstGLWindow.html#gst-gl-window-new"/>
-    <keyword type="function" name="gst_gl_window_draw ()" link="GstGLWindow.html#gst-gl-window-draw"/>
-    <keyword type="function" name="gst_gl_window_draw_unlocked ()" link="GstGLWindow.html#gst-gl-window-draw-unlocked"/>
-    <keyword type="function" name="gst_gl_window_is_running ()" link="GstGLWindow.html#gst-gl-window-is-running"/>
-    <keyword type="function" name="gst_gl_window_quit ()" link="GstGLWindow.html#gst-gl-window-quit"/>
-    <keyword type="function" name="gst_gl_window_run ()" link="GstGLWindow.html#gst-gl-window-run"/>
-    <keyword type="function" name="gst_gl_window_get_context ()" link="GstGLWindow.html#gst-gl-window-get-context"/>
-    <keyword type="function" name="gst_gl_window_get_display ()" link="GstGLWindow.html#gst-gl-window-get-display"/>
-    <keyword type="function" name="gst_gl_window_send_message ()" link="GstGLWindow.html#gst-gl-window-send-message"/>
-    <keyword type="function" name="gst_gl_window_send_message_async ()" link="GstGLWindow.html#gst-gl-window-send-message-async"/>
-    <keyword type="function" name="gst_gl_window_set_close_callback ()" link="GstGLWindow.html#gst-gl-window-set-close-callback"/>
-    <keyword type="function" name="gst_gl_window_set_draw_callback ()" link="GstGLWindow.html#gst-gl-window-set-draw-callback"/>
-    <keyword type="function" name="gst_gl_window_set_resize_callback ()" link="GstGLWindow.html#gst-gl-window-set-resize-callback"/>
-    <keyword type="function" name="gst_gl_window_set_window_handle ()" link="GstGLWindow.html#gst-gl-window-set-window-handle"/>
-    <keyword type="function" name="gst_gl_window_get_window_handle ()" link="GstGLWindow.html#gst-gl-window-get-window-handle"/>
+    <keyword type="function" name="gst_gl_window_new ()" link="GstGLWindow.html#gst-gl-window-new" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_draw ()" link="GstGLWindow.html#gst-gl-window-draw" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_draw_unlocked ()" link="GstGLWindow.html#gst-gl-window-draw-unlocked" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_is_running ()" link="GstGLWindow.html#gst-gl-window-is-running" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_quit ()" link="GstGLWindow.html#gst-gl-window-quit" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_run ()" link="GstGLWindow.html#gst-gl-window-run" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_get_context ()" link="GstGLWindow.html#gst-gl-window-get-context" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_get_display ()" link="GstGLWindow.html#gst-gl-window-get-display" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_send_message ()" link="GstGLWindow.html#gst-gl-window-send-message" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_send_message_async ()" link="GstGLWindow.html#gst-gl-window-send-message-async" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_set_close_callback ()" link="GstGLWindow.html#gst-gl-window-set-close-callback" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_set_draw_callback ()" link="GstGLWindow.html#gst-gl-window-set-draw-callback" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_set_resize_callback ()" link="GstGLWindow.html#gst-gl-window-set-resize-callback" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_set_window_handle ()" link="GstGLWindow.html#gst-gl-window-set-window-handle" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_get_window_handle ()" link="GstGLWindow.html#gst-gl-window-get-window-handle" since="1.4"/>
+    <keyword type="function" name="gst_gl_window_set_preferred_size ()" link="GstGLWindow.html#gst-gl-window-set-preferred-size" since="1.6"/>
+    <keyword type="function" name="gst_gl_window_show ()" link="GstGLWindow.html#gst-gl-window-show" since="1.6"/>
+    <keyword type="function" name="gst_gl_window_get_surface_dimensions ()" link="GstGLWindow.html#gst-gl-window-get-surface-dimensions" since="1.6"/>
+    <keyword type="function" name="gst_gl_window_handle_events ()" link="GstGLWindow.html#gst-gl-window-handle-events"/>
     <keyword type="enum" name="enum GstGLWindowError" link="GstGLWindow.html#GstGLWindowError"/>
     <keyword type="struct" name="GstGLWindow" link="GstGLWindow.html#GstGLWindow-struct"/>
     <keyword type="struct" name="GstGLWindowClass" link="GstGLWindow.html#GstGLWindowClass"/>
+    <keyword type="signal" name="The “key-event” signal" link="GstGLWindow.html#GstGLWindow-key-event"/>
+    <keyword type="signal" name="The “mouse-event” signal" link="GstGLWindow.html#GstGLWindow-mouse-event"/>
+    <keyword type="signal" name="The “key-event” signal" link="GstGLWindow.html#GstGLWindow-key-event"/>
+    <keyword type="signal" name="The “mouse-event” signal" link="GstGLWindow.html#GstGLWindow-mouse-event"/>
     <keyword type="function" name="gst_gl_window_android_egl_new ()" link="gst-plugins-bad-libs-GstGLWindowAndroid.html#gst-gl-window-android-egl-new"/>
     <keyword type="struct" name="struct GstGLWindowAndroidEGL" link="gst-plugins-bad-libs-GstGLWindowAndroid.html#GstGLWindowAndroidEGL"/>
     <keyword type="struct" name="struct GstGLWindowAndroidEGLClass" link="gst-plugins-bad-libs-GstGLWindowAndroid.html#GstGLWindowAndroidEGLClass"/>
@@ -610,5 +684,63 @@
     <keyword type="function" name="gst_gl_window_x11_untrap_x_errors ()" link="gst-plugins-bad-libs-GstGLWindowX11.html#gst-gl-window-x11-untrap-x-errors"/>
     <keyword type="struct" name="struct GstGLWindowX11" link="gst-plugins-bad-libs-GstGLWindowX11.html#GstGLWindowX11"/>
     <keyword type="struct" name="struct GstGLWindowX11Class" link="gst-plugins-bad-libs-GstGLWindowX11.html#GstGLWindowX11Class"/>
+    <keyword type="function" name="GstPhotographyCapturePrepared ()" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyCapturePrepared"/>
+    <keyword type="function" name="gst_photography_get_ev_compensation ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-ev-compensation"/>
+    <keyword type="function" name="gst_photography_get_iso_speed ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-iso-speed"/>
+    <keyword type="function" name="gst_photography_get_aperture ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-aperture"/>
+    <keyword type="function" name="gst_photography_get_exposure ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-exposure"/>
+    <keyword type="function" name="gst_photography_get_white_balance_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-white-balance-mode"/>
+    <keyword type="function" name="gst_photography_get_color_tone_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-color-tone-mode"/>
+    <keyword type="function" name="gst_photography_get_scene_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-scene-mode"/>
+    <keyword type="function" name="gst_photography_get_flash_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-flash-mode"/>
+    <keyword type="function" name="gst_photography_get_flicker_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-flicker-mode"/>
+    <keyword type="function" name="gst_photography_get_focus_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-focus-mode"/>
+    <keyword type="function" name="gst_photography_get_noise_reduction ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-noise-reduction" since="0.10.21"/>
+    <keyword type="function" name="gst_photography_get_zoom ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-zoom"/>
+    <keyword type="function" name="gst_photography_set_ev_compensation ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-ev-compensation"/>
+    <keyword type="function" name="gst_photography_set_iso_speed ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-iso-speed"/>
+    <keyword type="function" name="gst_photography_set_aperture ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-aperture"/>
+    <keyword type="function" name="gst_photography_set_exposure ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-exposure"/>
+    <keyword type="function" name="gst_photography_set_white_balance_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-white-balance-mode"/>
+    <keyword type="function" name="gst_photography_set_color_tone_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-color-tone-mode"/>
+    <keyword type="function" name="gst_photography_set_scene_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-scene-mode"/>
+    <keyword type="function" name="gst_photography_set_flash_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-flash-mode"/>
+    <keyword type="function" name="gst_photography_set_flicker_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-flicker-mode"/>
+    <keyword type="function" name="gst_photography_set_focus_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-focus-mode"/>
+    <keyword type="function" name="gst_photography_set_noise_reduction ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-noise-reduction" since="0.10.21"/>
+    <keyword type="function" name="gst_photography_set_zoom ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-zoom"/>
+    <keyword type="function" name="gst_photography_get_capabilities ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-capabilities"/>
+    <keyword type="function" name="gst_photography_prepare_for_capture ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-prepare-for-capture"/>
+    <keyword type="function" name="gst_photography_set_autofocus ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-autofocus"/>
+    <keyword type="function" name="gst_photography_set_config ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-config"/>
+    <keyword type="function" name="gst_photography_get_config ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-config"/>
+    <keyword type="struct" name="GstPhotography" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotography"/>
+    <keyword type="enum" name="enum GstPhotographyNoiseReduction" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyNoiseReduction" since="0.10.21"/>
+    <keyword type="enum" name="enum GstPhotographyWhiteBalanceMode" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyWhiteBalanceMode"/>
+    <keyword type="enum" name="enum GstPhotographyColorToneMode" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyColorToneMode"/>
+    <keyword type="enum" name="enum GstPhotographySceneMode" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographySceneMode"/>
+    <keyword type="enum" name="enum GstPhotographyFlashMode" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyFlashMode"/>
+    <keyword type="enum" name="enum GstPhotographyFlickerReductionMode" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyFlickerReductionMode"/>
+    <keyword type="enum" name="enum GstPhotographyFocusMode" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyFocusMode"/>
+    <keyword type="enum" name="enum GstPhotographyFocusStatus" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyFocusStatus"/>
+    <keyword type="enum" name="enum GstPhotographyCaps" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyCaps"/>
+    <keyword type="enum" name="enum GstPhotographyShakeRisk" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyShakeRisk"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_AUTOFOCUS_DONE" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-AUTOFOCUS-DONE:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_SHAKE_RISK" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-SHAKE-RISK:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_WB_MODE" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-WB-MODE:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_SCENE_MODE" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-SCENE-MODE:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_FLASH_MODE" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-FLASH-MODE:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_NOISE_REDUCTION" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-NOISE-REDUCTION:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_FOCUS_STATUS" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-FOCUS-STATUS:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_CAPABILITIES" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-CAPABILITIES:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_SHAKE_RISK" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-SHAKE-RISK:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_EV_COMP" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-EV-COMP:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_ISO_SPEED" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-ISO-SPEED:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_APERTURE" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-APERTURE:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_IMAGE_CAPTURE_SUPPORTED_CAPS" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-IMAGE-CAPTURE-SUPPORTED-CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_IMAGE_PREVIEW_SUPPORTED_CAPS" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-IMAGE-PREVIEW-SUPPORTED-CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_FLICKER_MODE" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-FLICKER-MODE:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_FOCUS_MODE" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-FOCUS-MODE:CAPS"/>
+    <keyword type="macro" name="GST_PHOTOGRAPHY_PROP_ZOOM" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-PROP-ZOOM:CAPS"/>
   </functions>
 </book>

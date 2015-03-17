@@ -22,6 +22,12 @@ endif
 AUDIOFILE_DIR=
 # endif
 
+if USE_BS2B
+BS2B_DIR=bs2b
+else
+BS2B_DIR=
+endif
+
 if USE_BZ2
 BZ2_DIR=bz2
 else
@@ -142,6 +148,12 @@ else
 LV2_DIR =
 endif
 
+if USE_LIBDE265
+LIBDE265_DIR = libde265
+else
+LIBDE265_DIR =
+endif
+
 # if USE_LIBFAME
 # LIBFAME_DIR=libfame
 # else
@@ -196,12 +208,6 @@ else
 MUSEPACK_DIR=
 endif
 
-if USE_MYTHTV
-MYTHTV_DIR=mythtv
-else
-MYTHTV_DIR=
-endif
-
 if USE_NAS
 NAS_DIR=nas
 else
@@ -236,6 +242,12 @@ if USE_OPENEXR
 OPENEXR_DIR = openexr
 else
 OPENEXR_DIR =
+endif
+
+if USE_OPENH264
+OPENH264_DIR = openh264
+else
+OPENH264_DIR =
 endif
 
 if USE_OPENNI2
@@ -394,12 +406,25 @@ else
 WEBP_DIR=
 endif
 
+if USE_X265
+X265_DIR=x265
+else
+X265_DIR=
+endif
+
+if USE_DTLS
+DTLS_DIR=dtls
+else
+DTLS_DIR=
+endif
+
 SUBDIRS=\
 	$(VOAACENC_DIR) \
 	$(ASSRENDER_DIR) \
 	$(VOAMRWBENC_DIR) \
 	$(APEXSINK_DIR) \
 	$(AUDIOFILE_DIR) \
+	$(BS2B_DIR) \
 	$(BZ2_DIR) \
 	$(CHROMAPRINT_DIR) \
 	$(CURL_DIR) \
@@ -421,6 +446,7 @@ SUBDIRS=\
 	$(KATE_DIR) \
 	$(LADSPA_DIR) \
 	$(LV2_DIR) \
+	$(LIBDE265_DIR) \
 	$(LIBFAME_DIR) \
 	$(LIBMMS_DIR) \
 	$(LIBVISUAL_DIR) \
@@ -430,13 +456,13 @@ SUBDIRS=\
 	$(MIMIC_DIR) \
 	$(MPLEX_DIR) \
 	$(MUSEPACK_DIR) \
-	$(MYTHTV_DIR) \
 	$(NAS_DIR) \
 	$(NEON_DIR) \
 	$(OFA_DIR) \
 	$(OPENAL_DIR) \
 	$(OPENCV_DIR) \
 	$(OPENEXR_DIR) \
+	$(OPENH264_DIR) \
 	$(OPENJPEG_DIR) \
 	$(OPENNI2_DIR) \
 	$(OPUS_DIR) \
@@ -459,11 +485,14 @@ SUBDIRS=\
 	$(ZBAR_DIR) \
 	$(RTMP_DIR) \
 	$(HLS_DIR) \
-	$(WEBP_DIR)
+	$(WEBP_DIR) \
+	$(X265_DIR) \
+	$(DTLS_DIR)
 
 DIST_SUBDIRS = \
 	assrender \
 	apexsink \
+	bs2b \
 	bz2 \
 	chromaprint \
 	curl \
@@ -480,6 +509,7 @@ DIST_SUBDIRS = \
 	hls \
 	ladspa \
 	kate \
+	libde265 \
 	libmms \
 	libvisual \
 	lv2 \
@@ -492,13 +522,13 @@ DIST_SUBDIRS = \
 	mpg123 \
 	mplex \
 	musepack \
-	mythtv \
 	nas \
 	neon \
 	ofa \
 	openal \
 	opencv \
 	openexr \
+	openh264 \
 	openni2 \
 	openjpeg \
 	opus \
@@ -522,6 +552,8 @@ DIST_SUBDIRS = \
 	xvid \
 	zbar \
 	rtmp \
-	webp
+	webp \
+	x265 \
+	dtls
 
 include $(top_srcdir)/common/parallel-subdirs.mak

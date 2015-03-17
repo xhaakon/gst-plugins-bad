@@ -168,6 +168,8 @@ gst_gl_deinterlace_class_init (GstGLDeinterlaceClass * klass)
       gst_gl_deinterlace_filter_texture;
   GST_GL_FILTER_CLASS (klass)->onInitFBO = gst_gl_deinterlace_init_shader;
   GST_GL_FILTER_CLASS (klass)->onReset = gst_gl_deinterlace_reset;
+
+  GST_GL_BASE_FILTER_CLASS (klass)->supported_gl_api = GST_GL_API_OPENGL;
 }
 
 static void
@@ -183,13 +185,12 @@ gst_gl_deinterlace_reset (GstGLFilter * filter)
 {
   GstGLDeinterlace *deinterlace_filter = GST_GL_DEINTERLACE (filter);
 
-  if (deinterlace_filter->prev_buffer) {
-    gst_buffer_unref (deinterlace_filter->prev_buffer);
-    deinterlace_filter->prev_buffer = NULL;
-  }
+  gst_buffer_replace (&deinterlace_filter->prev_buffer, NULL);
+
   //blocking call, wait the opengl thread has destroyed the shader
   if (deinterlace_filter->shader)
-    gst_gl_context_del_shader (filter->context, deinterlace_filter->shader);
+    gst_gl_context_del_shader (GST_GL_BASE_FILTER (filter)->context,
+        deinterlace_filter->shader);
   deinterlace_filter->shader = NULL;
 }
 
@@ -225,8 +226,8 @@ gst_gl_deinterlace_init_shader (GstGLFilter * filter)
   GstGLDeinterlace *deinterlace_filter = GST_GL_DEINTERLACE (filter);
 
   //blocking call, wait the opengl thread has compiled the shader
-  return gst_gl_context_gen_shader (filter->context, 0, greedyh_fragment_source,
-      &deinterlace_filter->shader);
+  return gst_gl_context_gen_shader (GST_GL_BASE_FILTER (filter)->context, 0,
+      greedyh_fragment_source, &deinterlace_filter->shader);
 }
 
 static gboolean
@@ -250,10 +251,7 @@ gst_gl_deinterlace_filter (GstGLFilter * filter, GstBuffer * inbuf,
 
   gst_gl_filter_filter_texture (filter, inbuf, outbuf);
 
-  if (deinterlace_filter->prev_buffer) {
-    gst_buffer_unref (deinterlace_filter->prev_buffer);
-  }
-  deinterlace_filter->prev_buffer = gst_buffer_ref (inbuf);
+  gst_buffer_replace (&deinterlace_filter->prev_buffer, inbuf);
 
   return TRUE;
 }
@@ -265,7 +263,7 @@ gst_gl_deinterlace_callback (gint width, gint height, guint texture,
 {
   GstGLDeinterlace *deinterlace_filter = GST_GL_DEINTERLACE (stuff);
   GstGLFilter *filter = GST_GL_FILTER (stuff);
-  GstGLFuncs *gl = filter->context->gl_vtable;
+  GstGLFuncs *gl = GST_GL_BASE_FILTER (filter)->context->gl_vtable;
   guint temp;
 
   GLfloat verts[] = { -1.0, -1.0,
@@ -292,7 +290,7 @@ gst_gl_deinterlace_callback (gint width, gint height, guint texture,
   gl->Enable (GL_TEXTURE_2D);
 
   if (G_UNLIKELY (deinterlace_filter->prev_tex == 0)) {
-    gst_gl_context_gen_texture (filter->context,
+    gst_gl_context_gen_texture (GST_GL_BASE_FILTER (filter)->context,
         &deinterlace_filter->prev_tex,
         GST_VIDEO_INFO_FORMAT (&filter->out_info),
         GST_VIDEO_INFO_WIDTH (&filter->out_info),

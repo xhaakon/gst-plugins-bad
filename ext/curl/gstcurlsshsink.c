@@ -30,21 +30,25 @@
 #include "config.h"
 #endif
 
+#include "gstcurlbasesink.h"
+#include "gstcurlsshsink.h"
+
 #include <curl/curl.h>
 #include <string.h>
 #include <stdio.h>
 
+#ifdef G_OS_WIN32
+#include <winsock2.h>
+#else
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <netinet/in.h>
-#include <unistd.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
+#endif
+#include <sys/types.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-#include "gstcurlbasesink.h"
-#include "gstcurlsshsink.h"
 
 /* Default values */
 #define GST_CAT_DEFAULT    gst_curl_ssh_sink_debug
@@ -175,7 +179,7 @@ gst_curl_ssh_sink_class_init (GstCurlSshSinkClass * klass)
 static void
 gst_curl_ssh_sink_init (GstCurlSshSink * sink)
 {
-  sink->ssh_auth_type = CURLSSH_AUTH_NONE;
+  sink->ssh_auth_type = GST_CURLSSH_AUTH_NONE;
   sink->ssh_pub_keyfile = NULL;
   sink->ssh_priv_keyfile = NULL;
   sink->ssh_key_passphrase = NULL;
@@ -369,8 +373,8 @@ gst_curl_ssh_sink_set_options_unlocked (GstCurlBaseSink * bcsink)
 
   /* make sure we only accept PASSWORD or PUBLICKEY auth methods
    * (can be extended later) */
-  if (sink->ssh_auth_type == CURLSSH_AUTH_PASSWORD ||
-      sink->ssh_auth_type == CURLSSH_AUTH_PUBLICKEY) {
+  if (sink->ssh_auth_type == GST_CURLSSH_AUTH_PASSWORD ||
+      sink->ssh_auth_type == GST_CURLSSH_AUTH_PUBLICKEY) {
 
     /* set the SSH_AUTH_TYPE */
     if ((curl_err = curl_easy_setopt (bcsink->curl, CURLOPT_SSH_AUTH_TYPES,
@@ -381,7 +385,7 @@ gst_curl_ssh_sink_set_options_unlocked (GstCurlBaseSink * bcsink)
     }
 
     /* if key authentication -> provide the private key passphrase as well */
-    if (sink->ssh_auth_type == CURLSSH_AUTH_PUBLICKEY) {
+    if (sink->ssh_auth_type == GST_CURLSSH_AUTH_PUBLICKEY) {
       if (sink->ssh_key_passphrase) {
         if ((curl_err = curl_easy_setopt (bcsink->curl, CURLOPT_KEYPASSWD,
                     sink->ssh_key_passphrase)) != CURLE_OK) {

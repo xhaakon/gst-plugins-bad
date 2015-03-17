@@ -170,7 +170,7 @@ G_DEFINE_TYPE (GstUvcH264Src, gst_uvc_h264_src, GST_TYPE_BASE_CAMERA_SRC);
   "height = " GST_VIDEO_SIZE_RANGE ", "                                 \
   "framerate = " GST_VIDEO_FPS_RANGE ", "                               \
   "stream-format = (string) { byte-stream, avc }, "                     \
-  "alignment = (string) { au }, "                                       \
+  "alignment = (string) au, "                                           \
   "profile = (string) { high, main, baseline, constrained-baseline }"
 
 static GstStaticPadTemplate vfsrc_template =
@@ -587,6 +587,12 @@ gst_uvc_h264_src_dispose (GObject * object)
   if (self->usb_ctx)
     libusb_exit (self->usb_ctx);
   self->usb_ctx = NULL;
+  g_free (self->jpeg_decoder_name);
+  self->jpeg_decoder_name = NULL;
+  g_free (self->colorspace_name);
+  self->colorspace_name = NULL;
+  g_free (self->device);
+  self->device = NULL;
 
   G_OBJECT_CLASS (parent_class)->dispose (object);
 }
@@ -2728,6 +2734,8 @@ gst_uvc_h264_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
       self->secondary_format = UVC_H264_SRC_FORMAT_RAW;
     } else {
       g_assert_not_reached ();
+      type = NONE_NONE;
+      self->main_format = UVC_H264_SRC_FORMAT_NONE;
     }
   } else {
     type = NONE_NONE;

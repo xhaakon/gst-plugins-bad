@@ -44,21 +44,25 @@
 #include "config.h"
 #endif
 
+#include "gstcurlsshsink.h"
+#include "gstcurlsftpsink.h"
+
 #include <curl/curl.h>
 #include <string.h>
 #include <stdio.h>
 
+#ifdef G_OS_WIN32
+#include <winsock2.h>
+#else
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <netinet/in.h>
-#include <unistd.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
+#endif
+#include <sys/types.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-#include "gstcurlsshsink.h"
-#include "gstcurlsftpsink.h"
 
 /* Default values */
 #define GST_CAT_DEFAULT    gst_curl_sftp_sink_debug
@@ -140,14 +144,13 @@ set_sftp_dynamic_options_unlocked (GstCurlBaseSink * basesink)
   gchar *tmp = g_strdup_printf ("%s%s", basesink->url, basesink->file_name);
   CURLcode curl_err = CURLE_OK;
 
-  if ((curl_err =
-          curl_easy_setopt (basesink->curl, CURLOPT_URL, tmp)) != CURLE_OK) {
+  curl_err = curl_easy_setopt (basesink->curl, CURLOPT_URL, tmp);
+  g_free (tmp);
+  if (curl_err != CURLE_OK) {
     basesink->error = g_strdup_printf ("failed to set URL: %s",
         curl_easy_strerror (curl_err));
     return FALSE;
   }
-
-  g_free (tmp);
 
   return TRUE;
 }

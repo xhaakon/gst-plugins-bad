@@ -100,6 +100,8 @@ gst_gl_upload_meta_new (GstGLContext * context)
 
   upload->context = gst_object_ref (context);
 
+  GST_DEBUG_OBJECT (upload, "Created upload for context %"GST_PTR_FORMAT, upload->context);
+  
   return upload;
 }
 
@@ -108,6 +110,7 @@ gst_gl_upload_meta_finalize (GObject * object)
 {
   GstGLUploadMeta *upload;
 
+  GST_DEBUG_OBJECT (object, "Finalizing");
   upload = GST_GL_UPLOAD_META (object);
 
   gst_gl_upload_meta_reset (upload);
@@ -219,12 +222,13 @@ _perform_with_gl_memory (GstGLUploadMeta * upload, GstVideoGLTextureUploadMeta *
       GST_GL_MEMORY_FLAG_SET (in_mem, GST_GL_MEMORY_FLAG_NEED_UPLOAD);
     } else {
       GstGLMemory *out_mem;
+      gint mem_width, mem_height;
 
-      if (!upload->priv->out_tex[i])
+      if (!upload->priv->out_tex[i]) {
+        /* the GL upload meta creates GL_TEXTURE_2D textures */
         upload->priv->out_tex[i] = gst_gl_memory_wrapped_texture (upload->context,
-            texture_id[i], meta->texture_type[i],
-            GST_VIDEO_INFO_WIDTH (&upload->info),
-            GST_VIDEO_INFO_HEIGHT (&upload->info), NULL, NULL);
+            texture_id[i], GL_TEXTURE_2D, &upload->info, i, NULL, NULL, NULL);
+      }
 
       out_mem = upload->priv->out_tex[i];
 
@@ -233,8 +237,12 @@ _perform_with_gl_memory (GstGLUploadMeta * upload, GstVideoGLTextureUploadMeta *
         GST_GL_MEMORY_FLAG_SET (out_mem, GST_GL_MEMORY_FLAG_NEED_DOWNLOAD);
       }
 
+      mem_width = gst_gl_memory_get_texture_width (out_mem);
+      mem_height = gst_gl_memory_get_texture_height (out_mem);
+
       if (!(res = gst_gl_memory_copy_into_texture (in_mem, out_mem->tex_id,
-            out_mem->tex_type, out_mem->width, out_mem->height, out_mem->stride,
+            out_mem->tex_type, mem_width, mem_height,
+            GST_VIDEO_INFO_PLANE_STRIDE (&out_mem->info, out_mem->plane),
             FALSE)))
         break;
     }
@@ -253,9 +261,7 @@ _perform_with_data_unlocked (GstGLUploadMeta * upload,
   for (i = 0; i < GST_VIDEO_INFO_N_PLANES (&upload->info); i++) {
     if (!upload->priv->in_tex[i])
       upload->priv->in_tex[i] = gst_gl_memory_wrapped (upload->context,
-          meta->texture_type[i], GST_VIDEO_INFO_WIDTH (&upload->info),
-          GST_VIDEO_INFO_HEIGHT (&upload->info),
-          GST_VIDEO_INFO_PLANE_STRIDE (&upload->info, i), data[i], NULL, NULL);
+          &upload->info, i, NULL, data[i], NULL, NULL);
 
     upload->priv->in_tex[i]->data = data[i];
   }
@@ -269,9 +275,9 @@ _perform_for_gl_texture_upload_meta (GstVideoGLTextureUploadMeta *
 {
   GstGLUploadMeta *upload;
   GstVideoFrame frame;
-//  GstMemory *mem;
+  GstMemory *mem;
   gboolean ret;
-//  guint i, n;
+  guint i, n;
 
   g_return_val_if_fail (meta != NULL, FALSE);
   g_return_val_if_fail (texture_id != NULL, FALSE);
@@ -304,7 +310,7 @@ _perform_for_gl_texture_upload_meta (GstVideoGLTextureUploadMeta *
 
   GST_LOG ("Uploading for meta with textures %i,%i,%i,%i", texture_id[0],
       texture_id[1], texture_id[2], texture_id[3]);
-#if 0
+
   /* GstGLMemory */
   n = gst_buffer_n_memory (upload->priv->buffer);
   mem = gst_buffer_peek_memory (upload->priv->buffer, 0);
@@ -321,7 +327,7 @@ _perform_for_gl_texture_upload_meta (GstVideoGLTextureUploadMeta *
     if (ret)
       goto out;
   }
-#endif
+
   if (!(ret = gst_video_frame_map (&frame, &upload->info, upload->priv->buffer,
           GST_MAP_READ))) {
     GST_ERROR ("failed to map video frame");

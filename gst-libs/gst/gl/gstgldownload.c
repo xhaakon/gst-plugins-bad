@@ -47,7 +47,8 @@ static gboolean _do_download (GstGLDownload * download, guint texture_id,
     gpointer data[GST_VIDEO_MAX_PLANES]);
 static gboolean _init_download (GstGLDownload * download);
 static gboolean _gst_gl_download_perform_with_data_unlocked (GstGLDownload *
-    download, GLuint texture_id, gpointer data[GST_VIDEO_MAX_PLANES]);
+    download, GLuint texture_id, GLuint texture_target,
+    gpointer data[GST_VIDEO_MAX_PLANES]);
 static void gst_gl_download_reset (GstGLDownload * download);
 
 /* *INDENT-ON* */
@@ -179,10 +180,75 @@ gst_gl_download_set_format (GstGLDownload * download, GstVideoInfo * out_info)
   GST_OBJECT_UNLOCK (download);
 }
 
+static GstCaps *
+_set_caps_features (const GstCaps * caps, const gchar * feature_name)
+{
+  GstCaps *tmp = gst_caps_copy (caps);
+  guint n = gst_caps_get_size (tmp);
+  guint i = 0;
+
+  for (i = 0; i < n; i++) {
+    GstCapsFeatures *features;
+
+    features = gst_caps_features_new (feature_name, NULL);
+    gst_caps_set_features (tmp, i, features);
+  }
+
+  return tmp;
+}
+
+GstCaps *
+gst_gl_download_transform_caps (GstGLContext * context,
+    GstPadDirection direction, GstCaps * caps, GstCaps * filter)
+{
+  GstCaps *gl_templ, *templ, *result, *tmp;
+
+  templ =
+      gst_caps_from_string (GST_VIDEO_CAPS_MAKE (GST_GL_COLOR_CONVERT_FORMATS));
+  gl_templ =
+      gst_caps_from_string (GST_VIDEO_CAPS_MAKE_WITH_FEATURES
+      (GST_CAPS_FEATURE_MEMORY_GL_MEMORY, GST_GL_COLOR_CONVERT_FORMATS));
+
+  if (direction == GST_PAD_SRC) {
+    tmp = gst_caps_intersect_full (caps, templ, GST_CAPS_INTERSECT_FIRST);
+    result = _set_caps_features (tmp, GST_CAPS_FEATURE_MEMORY_GL_MEMORY);
+    gst_caps_unref (tmp);
+    tmp = result;
+  } else {
+    tmp = gst_caps_ref (caps);
+  }
+
+  result =
+      gst_gl_color_convert_transform_caps (context, direction, tmp, filter);
+  gst_caps_unref (tmp);
+  tmp = result;
+
+  if (direction == GST_PAD_SINK) {
+    result = _set_caps_features (tmp, GST_CAPS_FEATURE_MEMORY_SYSTEM_MEMORY);
+    gst_caps_unref (tmp);
+    tmp = result;
+    result = gst_caps_intersect_full (tmp, templ, GST_CAPS_INTERSECT_FIRST);
+    gst_caps_unref (tmp);
+    tmp = result;
+  }
+
+  if (filter) {
+    result = gst_caps_intersect_full (filter, tmp, GST_CAPS_INTERSECT_FIRST);
+    gst_caps_unref (tmp);
+  } else {
+    result = tmp;
+  }
+  gst_caps_unref (templ);
+  gst_caps_unref (gl_templ);
+
+  return result;
+}
+
 /**
  * gst_gl_download_perform_with_data:
  * @download: a #GstGLDownload
  * @texture_id: the texture id to download
+ * @texture_target: the GL texture target
  * @data: (out): where the downloaded data should go
  *
  * Downloads @texture_id into @data. @data size and format is specified by
@@ -191,7 +257,8 @@ gst_gl_download_set_format (GstGLDownload * download, GstVideoInfo * out_info)
  * Returns: whether the download was successful
  */
 gboolean
-gst_gl_download_perform_with_data (GstGLDownload * download, GLuint texture_id,
+gst_gl_download_perform_with_data (GstGLDownload * download,
+    GLuint texture_id, GLuint texture_target,
     gpointer data[GST_VIDEO_MAX_PLANES])
 {
   gboolean ret;
@@ -200,7 +267,8 @@ gst_gl_download_perform_with_data (GstGLDownload * download, GLuint texture_id,
 
   GST_OBJECT_LOCK (download);
   ret =
-      _gst_gl_download_perform_with_data_unlocked (download, texture_id, data);
+      _gst_gl_download_perform_with_data_unlocked (download,
+      texture_id, texture_target, data);
   GST_OBJECT_UNLOCK (download);
 
   return ret;
@@ -208,7 +276,8 @@ gst_gl_download_perform_with_data (GstGLDownload * download, GLuint texture_id,
 
 static gboolean
 _gst_gl_download_perform_with_data_unlocked (GstGLDownload * download,
-    GLuint texture_id, gpointer data[GST_VIDEO_MAX_PLANES])
+    GLuint texture_id, GLuint texture_target,
+    gpointer data[GST_VIDEO_MAX_PLANES])
 {
   guint i;
 
@@ -223,11 +292,17 @@ _gst_gl_download_perform_with_data_unlocked (GstGLDownload * download,
     g_return_val_if_fail (data[i] != NULL, FALSE);
   }
 
-  if (!download->priv->in_tex[0])
+  if (!download->priv->in_tex[0]) {
+    GstVideoInfo temp_info;
+
+    gst_video_info_set_format (&temp_info, GST_VIDEO_FORMAT_RGBA,
+        GST_VIDEO_INFO_WIDTH (&download->info),
+        GST_VIDEO_INFO_HEIGHT (&download->info));
+
     download->priv->in_tex[0] =
-        gst_gl_memory_wrapped_texture (download->context, texture_id,
-        GST_VIDEO_GL_TEXTURE_TYPE_RGBA, GST_VIDEO_INFO_WIDTH (&download->info),
-        GST_VIDEO_INFO_HEIGHT (&download->info), NULL, NULL);
+        gst_gl_memory_wrapped_texture (download->context,
+        texture_id, texture_target, &temp_info, 0, NULL, NULL, NULL);
+  }
 
   download->priv->in_tex[0]->tex_id = texture_id;
 
@@ -240,6 +315,9 @@ _init_download (GstGLDownload * download)
   GstVideoFormat v_format;
   guint out_width, out_height;
   GstVideoInfo in_info;
+  GstCaps *in_caps, *out_caps;
+  GstCapsFeatures *in_gl_features, *out_gl_features;
+  gboolean res;
 
   v_format = GST_VIDEO_INFO_FORMAT (&download->info);
   out_width = GST_VIDEO_INFO_WIDTH (&download->info);
@@ -260,13 +338,24 @@ _init_download (GstGLDownload * download)
     }
   }
 
+  in_gl_features =
+      gst_caps_features_from_string (GST_CAPS_FEATURE_MEMORY_GL_MEMORY);
   gst_video_info_set_format (&in_info, GST_VIDEO_FORMAT_RGBA, out_width,
       out_height);
+  in_caps = gst_video_info_to_caps (&in_info);
+  gst_caps_set_features (in_caps, 0, in_gl_features);
 
-  gst_gl_color_convert_set_format (download->convert, &in_info,
-      &download->info);
+  out_gl_features =
+      gst_caps_features_from_string (GST_CAPS_FEATURE_MEMORY_GL_MEMORY);
+  out_caps = gst_video_info_to_caps (&download->info);
+  gst_caps_set_features (out_caps, 0, out_gl_features);
 
-  return TRUE;
+  res = gst_gl_color_convert_set_caps (download->convert, in_caps, out_caps);
+
+  gst_caps_unref (in_caps);
+  gst_caps_unref (out_caps);
+
+  return res;
 }
 
 static gboolean
@@ -302,6 +391,8 @@ _do_download (GstGLDownload * download, guint texture_id,
     GstMemory *out_mem = gst_buffer_peek_memory (outbuf, i);
     gpointer temp_data = ((GstGLMemory *) out_mem)->data;
     ((GstGLMemory *) out_mem)->data = data[i];
+
+    gst_gl_memory_download_transfer ((GstGLMemory *) out_mem);
 
     if (!gst_memory_map (out_mem, &map_info, GST_MAP_READ)) {
       GST_ERROR_OBJECT (download, "Failed to map memory");

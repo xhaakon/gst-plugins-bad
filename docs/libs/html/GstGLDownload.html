@@ -8,14 +8,14 @@
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
 <link rel="prev" href="GstGLDisplay.html" title="GstGLDisplay">
 <link rel="next" href="gst-plugins-bad-libs-GstEGLImageMemory.html" title="GstEGLImageMemory">
-<meta name="generator" content="GTK-Doc V1.20 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.21 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
-<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="10"><tr valign="middle">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
-<a href="#" class="shortcut">Top</a><span id="nav_description"> <span class="dim">|</span> 
-                  <a href="#GstGLDownload.description" class="shortcut">Description</a></span><span id="nav_hierarchy"> <span class="dim">|</span> 
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#GstGLDownload.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
                   <a href="#GstGLDownload.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
@@ -58,7 +58,15 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="returnvalue">GstCaps</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="GstGLDownload.html#gst-gl-download-transform-caps" title="gst_gl_download_transform_caps ()">gst_gl_download_transform_caps</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="GstGLDownload.html#gst-gl-download-perform-with-data" title="gst_gl_download_perform_with_data ()">gst_gl_download_perform_with_data</a> <span class="c_punctuation">()</span>
@@ -82,8 +90,8 @@
 </div>
 <div class="refsect1">
 <a name="GstGLDownload.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
-    <span class="lineart">╰──</span> <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
         <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
             <span class="lineart">╰──</span> GstGLDownload
 </pre>
@@ -100,7 +108,7 @@
 <pre class="programlisting"><a class="link" href="GstGLDownload.html" title="GstGLDownload"><span class="returnvalue">GstGLDownload</span></a> *
 gst_gl_download_new (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.11.7.2.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.12.7.2.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -115,7 +123,7 @@ gst_gl_download_new (<em class="parameter"><code><a class="link" href="GstGLCont
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.11.7.2.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.12.7.2.5"></a><h4>Returns</h4>
 <p> a new <a class="link" href="GstGLDownload.html" title="GstGLDownload"><span class="type">GstGLDownload</span></a> object</p>
 <p></p>
 </div>
@@ -129,7 +137,7 @@ gst_gl_download_set_format (<em class="parameter"><code><a class="link" href="Gs
 <p>Initializes <em class="parameter"><code>download</code></em>
  with the information required for download.</p>
 <div class="refsect3">
-<a name="id-1.2.9.11.7.3.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.12.7.3.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -163,18 +171,28 @@ gst_gl_download_set_format (<em class="parameter"><code><a class="link" href="Gs
 </div>
 <hr>
 <div class="refsect2">
+<a name="gst-gl-download-transform-caps"></a><h3>gst_gl_download_transform_caps ()</h3>
+<pre class="programlisting"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="returnvalue">GstCaps</span></a> *
+gst_gl_download_transform_caps (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *convert</code></em>,
+                                <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstPad.html#GstPadDirection"><span class="type">GstPadDirection</span></a> direction</code></em>,
+                                <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> *caps</code></em>,
+                                <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> *filter</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
 <a name="gst-gl-download-perform-with-data"></a><h3>gst_gl_download_perform_with_data ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_gl_download_perform_with_data (<em class="parameter"><code><a class="link" href="GstGLDownload.html" title="GstGLDownload"><span class="type">GstGLDownload</span></a> *download</code></em>,
                                    <em class="parameter"><code><span class="type">GLuint</span> texture_id</code></em>,
-                                   <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data[GST_VIDEO_MAX_PLANES]</code></em>);</pre>
+                                   <em class="parameter"><code><span class="type">GLuint</span> texture_target</code></em>,
+                                   <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data[GST_VIDEO_MAX_PLANES]</code></em>);</pre>
 <p>Downloads <em class="parameter"><code>texture_id</code></em>
  into <em class="parameter"><code>data</code></em>
 . <em class="parameter"><code>data</code></em>
  size and format is specified by
 the <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideo.html#GstVideoFormat"><span class="type">GstVideoFormat</span></a> passed to <a class="link" href="GstGLDownload.html#gst-gl-download-set-format" title="gst_gl_download_set_format ()"><code class="function">gst_gl_download_set_format()</code></a></p>
 <div class="refsect3">
-<a name="id-1.2.9.11.7.4.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.12.7.5.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -193,6 +211,11 @@ the <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugin
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
+<td class="parameter_name"><p>texture_target</p></td>
+<td class="parameter_description"><p>the GL texture target</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
 <td class="parameter_name"><p>data</p></td>
 <td class="parameter_description"><p> where the downloaded data should go. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
@@ -201,7 +224,7 @@ the <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugin
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.11.7.4.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.12.7.5.6"></a><h4>Returns</h4>
 <p> whether the download was successful</p>
 <p></p>
 </div>
@@ -222,6 +245,6 @@ the <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugin
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.20</div>
+          Generated by GTK-Doc V1.21</div>
 </body>
 </html>

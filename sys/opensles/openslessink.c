@@ -69,8 +69,8 @@ static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
     );
 
 #define _do_init \
-  GST_DEBUG_CATEGORY_INIT (opensles_sink_debug, "opensles_sink", 0, \
-      "OpenSL ES Sink");
+  GST_DEBUG_CATEGORY_INIT (opensles_sink_debug, "openslessink", 0, \
+      "OpenSLES Sink");
 #define parent_class gst_opensles_sink_parent_class
 G_DEFINE_TYPE_WITH_CODE (GstOpenSLESSink, gst_opensles_sink,
     GST_TYPE_AUDIO_BASE_SINK, _do_init);
@@ -120,7 +120,12 @@ _opensles_query_capabilities (GstOpenSLESSink * sink)
   /* Get the engine interface, which is needed in order to create other objects */
   result = (*engineObject)->GetInterface (engineObject,
       SL_IID_AUDIOIODEVICECAPABILITIES, &audioIODeviceCapabilities);
-  if (result != SL_RESULT_SUCCESS) {
+  if (result == SL_RESULT_FEATURE_UNSUPPORTED) {
+    GST_LOG_OBJECT (sink,
+        "engine.GetInterface(IODeviceCapabilities) unsupported(0x%08x)",
+        (guint32) result);
+    goto beach;
+  } else if (result != SL_RESULT_SUCCESS) {
     GST_ERROR_OBJECT (sink,
         "engine.GetInterface(IODeviceCapabilities) failed(0x%08x)",
         (guint32) result);
@@ -130,7 +135,12 @@ _opensles_query_capabilities (GstOpenSLESSink * sink)
   /* Query the list of available audio outputs */
   result = (*audioIODeviceCapabilities)->GetAvailableAudioOutputs
       (audioIODeviceCapabilities, &numOutputs, outputDeviceIDs);
-  if (result != SL_RESULT_SUCCESS) {
+  if (result == SL_RESULT_FEATURE_UNSUPPORTED) {
+    GST_LOG_OBJECT (sink,
+        "IODeviceCapabilities.GetAvailableAudioOutputs unsupported(0x%08x)",
+        (guint32) result);
+    goto beach;
+  } else if (result != SL_RESULT_SUCCESS) {
     GST_ERROR_OBJECT (sink,
         "IODeviceCapabilities.GetAvailableAudioOutputs failed(0x%08x)",
         (guint32) result);
@@ -142,7 +152,13 @@ _opensles_query_capabilities (GstOpenSLESSink * sink)
   for (i = 0; i < numOutputs; i++) {
     result = (*audioIODeviceCapabilities)->QueryAudioOutputCapabilities
         (audioIODeviceCapabilities, outputDeviceIDs[i], &audioOutputDescriptor);
-    if (result != SL_RESULT_SUCCESS) {
+
+    if (result == SL_RESULT_FEATURE_UNSUPPORTED) {
+      GST_LOG_OBJECT (sink,
+          "IODeviceCapabilities.QueryAudioOutputCapabilities unsupported(0x%08x)",
+          (guint32) result);
+      continue;
+    } else if (result != SL_RESULT_SUCCESS) {
       GST_ERROR_OBJECT (sink,
           "IODeviceCapabilities.QueryAudioOutputCapabilities failed(0x%08x)",
           (guint32) result);
@@ -260,6 +276,6 @@ gst_opensles_sink_init (GstOpenSLESSink * sink)
   gst_audio_base_sink_set_provide_clock (GST_AUDIO_BASE_SINK (sink), TRUE);
   /* Override some default values to fit on the AudioFlinger behaviour of
    * processing 20ms buffers as minimum buffer size. */
-  GST_AUDIO_BASE_SINK (sink)->buffer_time = 400000;
+  GST_AUDIO_BASE_SINK (sink)->buffer_time = 200000;
   GST_AUDIO_BASE_SINK (sink)->latency_time = 20000;
 }

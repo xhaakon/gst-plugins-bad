@@ -5,7 +5,7 @@
  * Authors:
  *   Edward Hervey <edward@collabora.com>
  *
- * This library is free softwagre; you can redistribute it and/or
+ * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
@@ -32,20 +32,20 @@ GST_DEBUG_CATEGORY_EXTERN (gst_mpegts_debug);
 G_GNUC_INTERNAL void __initialize_descriptors (void);
 G_GNUC_INTERNAL guint32 _calc_crc32 (const guint8 *data, guint datalen);
 G_GNUC_INTERNAL gchar *get_encoding_and_convert (const gchar *text, guint length);
+G_GNUC_INTERNAL gchar *convert_lang_code (guint8 * data);
 G_GNUC_INTERNAL guint8 *dvb_text_from_utf8 (const gchar * text, gsize *out_size);
-G_GNUC_INTERNAL void _free_descriptor (GstMpegTsDescriptor *descriptor);
-G_GNUC_INTERNAL GstMpegTsDescriptor *_new_descriptor (guint8 tag, guint8 length);
-G_GNUC_INTERNAL GstMpegTsDescriptor *_new_descriptor_with_extension (guint8 tag,
+G_GNUC_INTERNAL GstMpegtsDescriptor *_new_descriptor (guint8 tag, guint8 length);
+G_GNUC_INTERNAL GstMpegtsDescriptor *_new_descriptor_with_extension (guint8 tag,
     guint8 tag_extension, guint8 length);
 G_GNUC_INTERNAL void _packetize_descriptor_array (GPtrArray * array,
     guint8 ** out_data);
-G_GNUC_INTERNAL GstMpegTsSection *_gst_mpegts_section_init (guint16 pid, guint8 table_id);
-G_GNUC_INTERNAL void _packetize_common_section (GstMpegTsSection * section, gsize length);
+G_GNUC_INTERNAL GstMpegtsSection *_gst_mpegts_section_init (guint16 pid, guint8 table_id);
+G_GNUC_INTERNAL void _packetize_common_section (GstMpegtsSection * section, gsize length);
 
-typedef gpointer (*GstMpegTsParseFunc) (GstMpegTsSection *section);
-G_GNUC_INTERNAL gpointer __common_section_checks (GstMpegTsSection *section,
+typedef gpointer (*GstMpegtsParseFunc) (GstMpegtsSection *section);
+G_GNUC_INTERNAL gpointer __common_section_checks (GstMpegtsSection *section,
 						  guint minsize,
-						  GstMpegTsParseFunc parsefunc,
+						  GstMpegtsParseFunc parsefunc,
 						  GDestroyNotify destroynotify);
 
 #define __common_desc_check_base(desc, tagtype, retval)			\

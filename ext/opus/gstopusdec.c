@@ -56,7 +56,7 @@ GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS ("audio/x-raw, "
-        "format = (string) { " GST_AUDIO_NE (S16) " }, "
+        "format = (string) " GST_AUDIO_NE (S16) ", "
         "layout = (string) interleaved, "
         "rate = (int) { 48000, 24000, 16000, 12000, 8000 }, "
         "channels = (int) [ 1, 8 ] ")
@@ -181,8 +181,11 @@ gst_opus_dec_start (GstAudioDecoder * dec)
   gst_audio_decoder_set_plc_aware (dec, TRUE);
 
   if (odec->use_inband_fec) {
-    gst_audio_decoder_set_latency (dec, 2 * GST_MSECOND + GST_MSECOND / 2,
-        120 * GST_MSECOND);
+    /* opusdec outputs samples directly from an input buffer, except if
+     * FEC is on, in which case it buffers one buffer in case one buffer
+     * goes missing.
+     */
+    gst_audio_decoder_set_latency (dec, 120 * GST_MSECOND, 120 * GST_MSECOND);
   }
 
   return TRUE;

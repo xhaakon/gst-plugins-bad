@@ -4,6 +4,7 @@
  * Copyright (C) 2005 Ronald S. Bultje <rbultje@ronald.bitfreak.net>
  * Copyright (C) 2008 Michael Sheldon <mike@mikeasoft.com>
  * Copyright (C) 2011 Stefan Sauer <ensonic@users.sf.net>
+ * Copyright (C) 2014 Robert Jobbagy <jobbagy.robert@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -48,6 +49,7 @@
  * SECTION:element-facedetect
  *
  * Performs face detection on videos and images.
+ * If you have high cpu load you need to use videoscale with capsfilter and reduce the video resolution.
  *
  * The image is scaled down multiple times using the GstFaceDetect::scale-factor
  * until the size is &lt;= GstFaceDetect::min-size-width or 
@@ -56,10 +58,10 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch-0.10 autovideosrc ! decodebin2 ! colorspace ! facedetect ! videoconvert ! xvimagesink
+ * gst-launch-1.0 autovideosrc ! decodebin2 ! colorspace ! facedetect ! videoconvert ! xvimagesink
  * ]| Detect and show faces
  * |[
- * gst-launch-0.10 autovideosrc ! video/x-raw,width=320,height=240 ! videoconvert ! facedetect min-size-width=60 min-size-height=60 ! colorspace ! xvimagesink
+ * gst-launch-1.0 autovideosrc ! video/x-raw,width=320,height=240 ! videoconvert ! facedetect min-size-width=60 min-size-height=60 ! colorspace ! xvimagesink
  * ]| Detect large faces on a smaller image 
  *
  * </refsect2>
@@ -83,16 +85,19 @@
 GST_DEBUG_CATEGORY_STATIC (gst_face_detect_debug);
 #define GST_CAT_DEFAULT gst_face_detect_debug
 
-#define HAAR_CASCADES_DIR OPENCV_PREFIX "/share/opencv/haarcascades/"
+#define HAAR_CASCADES_DIR OPENCV_PREFIX G_DIR_SEPARATOR_S "share" \
+    G_DIR_SEPARATOR_S "opencv" G_DIR_SEPARATOR_S "haarcascades" \
+    G_DIR_SEPARATOR_S
 #define DEFAULT_FACE_PROFILE HAAR_CASCADES_DIR "haarcascade_frontalface_default.xml"
 #define DEFAULT_NOSE_PROFILE HAAR_CASCADES_DIR "haarcascade_mcs_nose.xml"
 #define DEFAULT_MOUTH_PROFILE HAAR_CASCADES_DIR "haarcascade_mcs_mouth.xml"
 #define DEFAULT_EYES_PROFILE HAAR_CASCADES_DIR "haarcascade_mcs_eyepair_small.xml"
-#define DEFAULT_SCALE_FACTOR 1.1
-#define DEFAULT_FLAGS 0
+#define DEFAULT_SCALE_FACTOR 1.25
+#define DEFAULT_FLAGS CV_HAAR_DO_CANNY_PRUNING
 #define DEFAULT_MIN_NEIGHBORS 3
-#define DEFAULT_MIN_SIZE_WIDTH 0
-#define DEFAULT_MIN_SIZE_HEIGHT 0
+#define DEFAULT_MIN_SIZE_WIDTH 30
+#define DEFAULT_MIN_SIZE_HEIGHT 30
+#define DEFAULT_MIN_STDDEV 0
 
 /* Filter signals and args */
 enum
@@ -114,7 +119,8 @@ enum
   PROP_FLAGS,
   PROP_MIN_SIZE_WIDTH,
   PROP_MIN_SIZE_HEIGHT,
-  PROP_UPDATES
+  PROP_UPDATES,
+  PROP_MIN_STDDEV
 };
 
 
@@ -161,10 +167,10 @@ facedetect_update_get_type (void)
     {GST_FACEDETECT_UPDATES_EVERY_FRAME, "Send update messages on every frame",
         "every_frame"},
     {GST_FACEDETECT_UPDATES_ON_CHANGE,
-          "Send update messages on change (face detected/not detected)",
+          "Send messages when a new face is detected or one is not anymore detected",
         "on_change"},
     {GST_FACEDETECT_UPDATES_ON_FACE,
-          "Send update messages when a face is detected",
+          "Send messages whenever a face is detected",
         "on_face"},
     {GST_FACEDETECT_UPDATES_NONE, "Send no messages update", "none"},
     {0, NULL, NULL},
@@ -302,6 +308,14 @@ gst_face_detect_class_init (GstFaceDetectClass * klass)
           "When send update bus messages, if at all",
           GST_TYPE_FACE_DETECT_UPDATES, GST_FACEDETECT_UPDATES_EVERY_FRAME,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_MIN_STDDEV,
+      g_param_spec_int ("min-stddev", "Minimum image standard deviation",
+          "Minimum image average standard deviation: on images with standard "
+          "deviation lesser than this value facedetection will not be "
+          "performed. Setting this property help to save cpu and reduce "
+          "false positives not performing face detection on images with "
+          "little changes", 0,
+          255, DEFAULT_MIN_STDDEV, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   gst_element_class_set_static_metadata (element_class,
       "facedetect",
@@ -332,6 +346,7 @@ gst_face_detect_init (GstFaceDetect * filter)
   filter->flags = DEFAULT_FLAGS;
   filter->min_size_width = DEFAULT_MIN_SIZE_WIDTH;
   filter->min_size_height = DEFAULT_MIN_SIZE_HEIGHT;
+  filter->min_stddev = DEFAULT_MIN_STDDEV;
   filter->cvFaceDetect =
       gst_face_detect_load_profile (filter, filter->face_profile);
   filter->cvNoseDetect =
@@ -400,6 +415,9 @@ gst_face_detect_set_property (GObject * object, guint prop_id,
     case PROP_MIN_SIZE_HEIGHT:
       filter->min_size_height = g_value_get_int (value);
       break;
+    case PROP_MIN_STDDEV:
+      filter->min_stddev = g_value_get_int (value);
+      break;
     case PROP_FLAGS:
       filter->flags = g_value_get_flags (value);
       break;
@@ -445,6 +463,9 @@ gst_face_detect_get_property (GObject * object, guint prop_id,
       break;
     case PROP_MIN_SIZE_HEIGHT:
       g_value_set_int (value, filter->min_size_height);
+      break;
+    case PROP_MIN_STDDEV:
+      g_value_set_int (value, filter->min_stddev);
       break;
     case PROP_FLAGS:
       g_value_set_flags (value, filter->flags);
@@ -510,13 +531,26 @@ gst_face_detect_run_detector (GstFaceDetect * filter,
     CvHaarClassifierCascade * detector, gint min_size_width,
     gint min_size_height)
 {
-  return cvHaarDetectObjects (filter->cvGray, detector,
-      filter->cvStorage, filter->scale_factor, filter->min_neighbors,
-      filter->flags, cvSize (min_size_width, min_size_height)
+  double img_stddev = 0;
+  if (filter->min_stddev > 0) {
+    CvScalar mean, stddev;
+    cvAvgSdv (filter->cvGray, &mean, &stddev, NULL);
+    img_stddev = stddev.val[0];
+  }
+  if (img_stddev >= filter->min_stddev) {
+    return cvHaarDetectObjects (filter->cvGray, detector,
+        filter->cvStorage, filter->scale_factor, filter->min_neighbors,
+        filter->flags, cvSize (min_size_width, min_size_height)
 #if (CV_MAJOR_VERSION >= 2) && (CV_MINOR_VERSION >= 2)
-      , cvSize (0, 0)
+        , cvSize (0, 0)
 #endif
-      );
+        );
+  } else {
+    GST_LOG_OBJECT (filter,
+        "Calculated stddev %f lesser than min_stddev %d, detection not performed",
+        img_stddev, filter->min_stddev);
+    return cvCreateSeq (0, sizeof (CvSeq), sizeof (CvPoint), filter->cvStorage);
+  }
 }
 
 /* 
@@ -559,7 +593,8 @@ gst_face_detect_transform_ip (GstOpencvVideoFilter * base, GstBuffer * buf,
         break;
       case GST_FACEDETECT_UPDATES_ON_CHANGE:
         if (faces && faces->total > 0) {
-          post_msg = TRUE;
+          if (!filter->face_detected)
+            post_msg = TRUE;
         } else {
           if (filter->face_detected) {
             post_msg = TRUE;
@@ -765,6 +800,8 @@ gst_face_detect_load_profile (GstFaceDetect * filter, gchar * profile)
 {
   CvHaarClassifierCascade *cascade;
 
+  if (profile == NULL)
+    return NULL;
   if (!(cascade = (CvHaarClassifierCascade *) cvLoad (profile, 0, 0, 0))) {
     GST_WARNING_OBJECT (filter, "Couldn't load Haar classifier cascade: %s.",
         profile);

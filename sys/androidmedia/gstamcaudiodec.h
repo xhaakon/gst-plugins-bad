@@ -78,14 +78,10 @@ struct _GstAmcAudioDec
   GCond drain_cond;
   /* TRUE if EOS buffers shouldn't be forwarded */
   gboolean draining;
-
-  /* TRUE if upstream is EOS */
-  gboolean eos;
+  /* TRUE if the component is drained currently */
+  gboolean drained;
 
   GstFlowReturn downstream_flow_ret;
-
-  /* Output buffers counter */
-  gint n_buffers;
 };
 
 struct _GstAmcAudioDecClass

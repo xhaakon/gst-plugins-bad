@@ -398,8 +398,10 @@ gst_d3dvideosink_set_caps (GstBaseSink * bsink, GstCaps * caps)
 
   if (oldpool)
     gst_object_unref (oldpool);
-  if (oldfbpool)
+  if (oldfbpool) {
+    gst_buffer_pool_set_active (oldfbpool, FALSE);
     gst_object_unref (oldfbpool);
+  }
 
   return TRUE;
   /* ERRORS */
@@ -472,6 +474,10 @@ gst_d3dvideosink_propose_allocation (GstBaseSink * bsink, GstQuery * query)
   gst_query_add_allocation_meta (query, GST_VIDEO_META_API_TYPE, NULL);
   gst_query_add_allocation_meta (query, GST_VIDEO_CROP_META_API_TYPE, NULL);
 
+#ifdef DISABLE_BUFFER_POOL
+  return TRUE;
+#endif
+
   GST_OBJECT_LOCK (sink);
   pool = sink->pool ? gst_object_ref (sink->pool) : NULL;
   GST_OBJECT_UNLOCK (sink);
@@ -520,9 +526,7 @@ gst_d3dvideosink_propose_allocation (GstBaseSink * bsink, GstQuery * query)
 
   if (pool) {
     /* we need at least 2 buffer because we hold on to the last one */
-#ifndef DISABLE_BUFFER_POOL
     gst_query_add_allocation_pool (query, pool, size, 2, 0);
-#endif
     gst_object_unref (pool);
   }
 

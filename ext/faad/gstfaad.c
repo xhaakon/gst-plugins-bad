@@ -360,21 +360,18 @@ gst_faad_set_format (GstAudioDecoder * dec, GstCaps * caps)
 wrong_length:
   {
     GST_DEBUG_OBJECT (faad, "codec_data less than 2 bytes long");
-    gst_object_unref (faad);
     gst_buffer_unmap (buf, &map);
     return FALSE;
   }
 open_failed:
   {
     GST_DEBUG_OBJECT (faad, "failed to create decoder");
-    gst_object_unref (faad);
     gst_buffer_unmap (buf, &map);
     return FALSE;
   }
 init_failed:
   {
     GST_DEBUG_OBJECT (faad, "faacDecInit2() failed");
-    gst_object_unref (faad);
     gst_buffer_unmap (buf, &map);
     return FALSE;
   }
@@ -459,7 +456,6 @@ gst_faad_chanpos_to_gst (GstFaad * faad, guchar * fpos,
         GST_WARNING_OBJECT (faad,
             "Unsupported FAAD channel position 0x%x encountered", fpos[n]);
         return FALSE;
-        break;
       }
     }
   }
@@ -474,6 +470,7 @@ gst_faad_update_caps (GstFaad * faad, faacDecFrameInfo * info)
   gboolean fmt_change = FALSE;
   GstAudioInfo ainfo;
   gint i;
+  GstAudioChannelPosition position[6];
 
   /* see if we need to renegotiate */
   if (info->samplerate != faad->samplerate ||
@@ -499,10 +496,6 @@ gst_faad_update_caps (GstFaad * faad, faacDecFrameInfo * info)
   g_free (faad->channel_positions);
   faad->channel_positions = g_memdup (info->channel_position, faad->channels);
 
-  /* FIXME: Use the GstAudioInfo of GstAudioDecoder for all of this */
-  gst_audio_info_init (&ainfo);
-  gst_audio_info_set_format (&ainfo, GST_AUDIO_FORMAT_S16, faad->samplerate,
-      faad->channels, NULL);
   faad->bps = 16 / 8;
 
   if (!gst_faad_chanpos_to_gst (faad, faad->channel_positions,
@@ -510,14 +503,11 @@ gst_faad_update_caps (GstFaad * faad, faacDecFrameInfo * info)
     GST_DEBUG_OBJECT (faad, "Could not map channel positions");
     return FALSE;
   }
-  memcpy (ainfo.position, faad->aac_positions,
+
+  memcpy (position, faad->aac_positions, sizeof (position));
+  gst_audio_channel_positions_to_valid_order (position, faad->channels);
+  memcpy (faad->gst_positions, position,
       faad->channels * sizeof (GstAudioChannelPosition));
-  gst_audio_channel_positions_to_valid_order (ainfo.position, faad->channels);
-  memcpy (faad->gst_positions, ainfo.position,
-      faad->channels * sizeof (GstAudioChannelPosition));
-  /* Unset UNPOSITIONED flag */
-  if (ainfo.position[0] != GST_AUDIO_CHANNEL_POSITION_NONE)
-    ainfo.flags &= ~GST_AUDIO_FLAG_UNPOSITIONED;
 
   /* get the remap table */
   memset (faad->reorder_map, 0, sizeof (faad->reorder_map));
@@ -531,6 +521,11 @@ gst_faad_update_caps (GstFaad * faad, faacDecFrameInfo * info)
       }
     }
   }
+
+  /* FIXME: Use the GstAudioInfo of GstAudioDecoder for all of this */
+  gst_audio_info_init (&ainfo);
+  gst_audio_info_set_format (&ainfo, GST_AUDIO_FORMAT_S16, faad->samplerate,
+      faad->channels, position);
 
   ret = gst_audio_decoder_set_output_format (GST_AUDIO_DECODER (faad), &ainfo);
 
@@ -893,7 +888,8 @@ gst_faad_close_decoder (GstFaad * faad)
 static gboolean
 plugin_init (GstPlugin * plugin)
 {
-  return gst_element_register (plugin, "faad", GST_RANK_PRIMARY, GST_TYPE_FAAD);
+  return gst_element_register (plugin, "faad", GST_RANK_SECONDARY,
+      GST_TYPE_FAAD);
 }
 
 GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,

@@ -8,14 +8,14 @@
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-gaussianblur.html" title="gaussianblur">
 <link rel="next" href="gst-plugins-bad-plugins-kaleidoscope.html" title="kaleidoscope">
-<meta name="generator" content="GTK-Doc V1.20 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.21 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
-<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="10"><tr valign="middle">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
-<a href="#" class="shortcut">Top</a><span id="nav_description"> <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-jpegparse.description" class="shortcut">Description</a></span><span id="nav_hierarchy"> <span class="dim">|</span> 
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-jpegparse.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-jpegparse.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
@@ -66,7 +66,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="http://library.gnome.org/devel/gobject/unstable/gobject-Type-Information.html#GType"><span class="returnvalue">GType</span></a>
+<a href="https://developer.gnome.org/gobject/unstable/gobject-Type-Information.html#GType"><span class="returnvalue">GType</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-plugins-jpegparse.html#gst-jpeg-parse-get-type" title="gst_jpeg_parse_get_type ()">gst_jpeg_parse_get_type</a> <span class="c_punctuation">()</span>
@@ -100,11 +100,12 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-jpegparse.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
-    <span class="lineart">╰──</span> <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
         <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
             <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
-                <span class="lineart">╰──</span> GstJpegParse
+                <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseParse.html">GstBaseParse</a>
+                    <span class="lineart">╰──</span> GstJpegParse
 </pre>
 </div>
 <div class="refsect1">
@@ -114,7 +115,7 @@ split a continuous stream into single-frame buffers. Also reads the
 image header searching for image properties such as width and height
 among others. Jpegparse can also extract metadata (e.g. xmp).</p>
 <div class="refsect2">
-<a name="id-1.2.37.7.3"></a><h3>Example launch line</h3>
+<a name="id-1.2.40.7.3"></a><h3>Example launch line</h3>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -132,7 +133,7 @@ HTTP and stores it in a matroska file.
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.37.7.4.1"></a><h3>Element Information</h3>
+<a name="id-1.2.40.7.4.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -158,7 +159,7 @@ HTTP and stores it in a matroska file.
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.37.7.4.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.40.7.4.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -203,7 +204,7 @@ HTTP and stores it in a matroska file.
 </tr>
 <tr>
 <td><p><span class="term">details</span></p></td>
-<td>image/jpeg, format=(string){ I420, Y41B, UYVY, YV12 }, width=(int)[ 0, 2147483647 ], height=(int)[ 0, 2147483647 ], interlaced=(boolean){ true, false }, framerate=(fraction)[ 0/1, 2147483647/1 ], parsed=(boolean)true</td>
+<td>image/jpeg, format=(string){ I420, Y41B, UYVY, YV12 }, width=(int)[ 0, 2147483647 ], height=(int)[ 0, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ], parsed=(boolean)true</td>
 </tr>
 </tbody>
 </table></div>
@@ -244,12 +245,12 @@ HTTP and stores it in a matroska file.
 <hr>
 <div class="refsect2">
 <a name="gst-jpeg-parse-get-type"></a><h3>gst_jpeg_parse_get_type ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/gobject/unstable/gobject-Type-Information.html#GType"><span class="returnvalue">GType</span></a>
+<pre class="programlisting"><a href="https://developer.gnome.org/gobject/unstable/gobject-Type-Information.html#GType"><span class="returnvalue">GType</span></a>
 gst_jpeg_parse_get_type (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
 <p>
 </p>
 <div class="refsect3">
-<a name="id-1.2.37.8.6.5"></a><h4>Returns</h4>
+<a name="id-1.2.40.8.6.5"></a><h4>Returns</h4>
 <p></p>
 </div>
 </div>
@@ -266,7 +267,7 @@ gst_jpeg_parse_get_type (<em class="parameter"><code><span class="type">void</sp
 <div class="refsect2">
 <a name="GstJpegParseClass"></a><h3>struct GstJpegParseClass</h3>
 <pre class="programlisting">struct GstJpegParseClass {
-  GstElementClass  parent_class;
+  GstBaseParseClass  parent_class;
 };
 </pre>
 <p>
@@ -283,6 +284,6 @@ gst_jpeg_parse_get_type (<em class="parameter"><code><span class="type">void</sp
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.20</div>
+          Generated by GTK-Doc V1.21</div>
 </body>
 </html>

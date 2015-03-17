@@ -49,6 +49,9 @@ struct _GstGLContextEGL {
   EGLImageKHR (*eglCreateImage) (EGLDisplay dpy, EGLContext ctx, EGLenum target,
       EGLClientBuffer buffer, const EGLint *attrib_list);
   EGLBoolean (*eglDestroyImage) (EGLDisplay dpy, EGLImageKHR image);
+
+  /* Cached handle */
+  EGLNativeWindowType window_handle;
 };
 
 struct _GstGLContextEGLClass {
@@ -56,7 +59,9 @@ struct _GstGLContextEGLClass {
 };
 
 GType gst_gl_context_egl_get_type     (void);
-GstGLContextEGL * gst_gl_context_egl_new (void);
+GstGLContextEGL *   gst_gl_context_egl_new                  (void);
+guintptr            gst_gl_context_egl_get_current_context  (void);
+gpointer            gst_gl_context_egl_get_proc_address     (GstGLContext * context, const gchar * name);
 
 /* TODO:
  * add support for EGL_NO_CONTEXT

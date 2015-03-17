@@ -41,13 +41,13 @@ const gchar *WlEGLErrorString ();
 #define gst_gl_window_wayland_egl_parent_class parent_class
 G_DEFINE_TYPE (GstGLWindowWaylandEGL, gst_gl_window_wayland_egl,
     GST_GL_TYPE_WINDOW);
+static void gst_gl_window_wayland_egl_finalize (GObject * object);
 
 static guintptr gst_gl_window_wayland_egl_get_window_handle (GstGLWindow *
     window);
 static void gst_gl_window_wayland_egl_set_window_handle (GstGLWindow * window,
     guintptr handle);
-static void gst_gl_window_wayland_egl_draw (GstGLWindow * window, guint width,
-    guint height);
+static void gst_gl_window_wayland_egl_draw (GstGLWindow * window);
 static void gst_gl_window_wayland_egl_run (GstGLWindow * window);
 static void gst_gl_window_wayland_egl_quit (GstGLWindow * window);
 static void gst_gl_window_wayland_egl_send_message_async (GstGLWindow * window,
@@ -91,6 +91,40 @@ static void
 pointer_handle_motion (void *data, struct wl_pointer *pointer, uint32_t time,
     wl_fixed_t sx_w, wl_fixed_t sy_w)
 {
+  GstGLWindowWaylandEGL *window_egl = data;
+
+  window_egl->display.pointer_x = wl_fixed_to_double (sx_w);
+  window_egl->display.pointer_y = wl_fixed_to_double (sy_w);
+}
+
+enum wl_edges
+{
+  WL_EDGE_NONE = 0,
+  WL_EDGE_TOP = 1,
+  WL_EDGE_BOTTOM = 2,
+  WL_EDGE_LEFT = 4,
+  WL_EDGE_RIGHT = 8,
+};
+
+static guint
+_get_closest_pointer_corner (GstGLWindowWaylandEGL * window_egl)
+{
+  guint edges = 0;
+  gdouble win_width, win_height;
+  gdouble p_x, p_y;
+
+  win_width = (gdouble) window_egl->window.window_width;
+  win_height = (gdouble) window_egl->window.window_height;
+  p_x = window_egl->display.pointer_x;
+  p_y = window_egl->display.pointer_y;
+
+  if (win_width == 0.0 || win_height == 0.0)
+    return WL_EDGE_NONE;
+
+  edges |= win_width / 2.0 - p_x < 0.0 ? WL_EDGE_RIGHT : WL_EDGE_LEFT;
+  edges |= win_height / 2.0 - p_y < 0.0 ? WL_EDGE_BOTTOM : WL_EDGE_TOP;
+
+  return edges;
 }
 
 static void
@@ -98,11 +132,16 @@ pointer_handle_button (void *data, struct wl_pointer *pointer, uint32_t serial,
     uint32_t time, uint32_t button, uint32_t state_w)
 {
   GstGLWindowWaylandEGL *window_egl = data;
+  guint edges = _get_closest_pointer_corner (window_egl);
   window_egl->display.serial = serial;
 
   if (button == BTN_LEFT && state_w == WL_POINTER_BUTTON_STATE_PRESSED)
     wl_shell_surface_move (window_egl->window.shell_surface,
         window_egl->display.seat, serial);
+
+  if (button == BTN_RIGHT && state_w == WL_POINTER_BUTTON_STATE_PRESSED)
+    wl_shell_surface_resize (window_egl->window.shell_surface,
+        window_egl->display.seat, serial, edges);
 }
 
 static void
@@ -154,6 +193,10 @@ static void
 handle_ping (void *data, struct wl_shell_surface *shell_surface,
     uint32_t serial)
 {
+  GstGLWindowWaylandEGL *window_egl = data;
+
+  GST_TRACE_OBJECT (window_egl, "ping received serial %u", serial);
+
   wl_shell_surface_pong (shell_surface, serial);
 }
 
@@ -166,7 +209,8 @@ handle_configure (void *data, struct wl_shell_surface *shell_surface,
 {
   GstGLWindowWaylandEGL *window_egl = data;
 
-  GST_DEBUG ("configure event %ix%i", width, height);
+  GST_DEBUG ("configure event on surface %p, %ix%i", shell_surface, width,
+      height);
 
   window_resize (window_egl, width, height);
 }
@@ -225,13 +269,6 @@ destroy_surface (GstGLWindowWaylandEGL * window_egl)
 
   if (window_egl->window.callback)
     wl_callback_destroy (window_egl->window.callback);
-
-  g_source_destroy (window_egl->wl_source);
-  g_source_unref (window_egl->wl_source);
-  window_egl->wl_source = NULL;
-  g_main_loop_unref (window_egl->loop);
-  window_egl->loop = NULL, g_main_context_unref (window_egl->main_context);
-  window_egl->main_context = NULL;
 }
 
 static void
@@ -240,6 +277,9 @@ registry_handle_global (void *data, struct wl_registry *registry,
 {
   GstGLWindowWaylandEGL *window_egl = data;
   struct display *d = &window_egl->display;
+
+  GST_TRACE_OBJECT (window_egl, "registry_handle_global with registry %p, "
+      "interface %s, version %u", registry, interface, version);
 
   if (g_strcmp0 (interface, "wl_compositor") == 0) {
     d->compositor =
@@ -265,6 +305,7 @@ static void
 gst_gl_window_wayland_egl_class_init (GstGLWindowWaylandEGLClass * klass)
 {
   GstGLWindowClass *window_class = (GstGLWindowClass *) klass;
+  GObjectClass *gobject_class = (GObjectClass *) klass;
 
   window_class->get_window_handle =
       GST_DEBUG_FUNCPTR (gst_gl_window_wayland_egl_get_window_handle);
@@ -281,11 +322,26 @@ gst_gl_window_wayland_egl_class_init (GstGLWindowWaylandEGLClass * klass)
   window_class->open = GST_DEBUG_FUNCPTR (gst_gl_window_wayland_egl_open);
   window_class->get_display =
       GST_DEBUG_FUNCPTR (gst_gl_window_wayland_egl_get_display);
+
+  gobject_class->finalize = gst_gl_window_wayland_egl_finalize;
 }
 
 static void
 gst_gl_window_wayland_egl_init (GstGLWindowWaylandEGL * window)
 {
+  window->main_context = g_main_context_new ();
+  window->loop = g_main_loop_new (window->main_context, FALSE);
+}
+
+static void
+gst_gl_window_wayland_egl_finalize (GObject * object)
+{
+  GstGLWindowWaylandEGL *window_egl = GST_GL_WINDOW_WAYLAND_EGL (object);
+
+  g_main_loop_unref (window_egl->loop);
+  g_main_context_unref (window_egl->main_context);
+
+  G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
 /* Must be called in the gl thread */
@@ -326,6 +382,10 @@ gst_gl_window_wayland_egl_close (GstGLWindow * window)
     wl_display_flush (window_egl->display.display);
     wl_display_disconnect (window_egl->display.display);
   }
+
+  g_source_destroy (window_egl->wl_source);
+  g_source_unref (window_egl->wl_source);
+  window_egl->wl_source = NULL;
 }
 
 static gboolean
@@ -355,8 +415,6 @@ gst_gl_window_wayland_egl_open (GstGLWindow * window, GError ** error)
 
   window_egl->wl_source =
       wayland_event_source_new (window_egl->display.display);
-  window_egl->main_context = g_main_context_new ();
-  window_egl->loop = g_main_loop_new (window_egl->main_context, FALSE);
 
   g_source_attach (window_egl->wl_source, window_egl->main_context);
 
@@ -461,33 +519,15 @@ window_resize (GstGLWindowWaylandEGL * window_egl, guint width, guint height)
 
   window_egl->window.window_width = width;
   window_egl->window.window_height = height;
-
-#if 0
-  wl_shell_surface_resize (window_egl->window.shell_surface,
-      window_egl->display.seat, window_egl->display.serial, 0);
-#endif
 }
-
-struct draw
-{
-  GstGLWindowWaylandEGL *window;
-  guint width, height;
-};
 
 static void
 draw_cb (gpointer data)
 {
-  struct draw *draw_data = data;
-  GstGLWindowWaylandEGL *window_egl = draw_data->window;
+  GstGLWindowWaylandEGL *window_egl = data;
   GstGLWindow *window = GST_GL_WINDOW (window_egl);
   GstGLContext *context = gst_gl_window_get_context (window);
   GstGLContextClass *context_class = GST_GL_CONTEXT_GET_CLASS (context);
-
-  if (window_egl->window.window_width != draw_data->width
-      || window_egl->window.window_height != draw_data->height) {
-    GST_DEBUG ("dimensions don't match, attempting resize");
-    window_resize (window_egl, draw_data->width, draw_data->height);
-  }
 
   if (window->draw)
     window->draw (window->draw_data);
@@ -498,15 +538,9 @@ draw_cb (gpointer data)
 }
 
 static void
-gst_gl_window_wayland_egl_draw (GstGLWindow * window, guint width, guint height)
+gst_gl_window_wayland_egl_draw (GstGLWindow * window)
 {
-  struct draw draw_data;
-
-  draw_data.window = GST_GL_WINDOW_WAYLAND_EGL (window);
-  draw_data.width = width;
-  draw_data.height = height;
-
-  gst_gl_window_send_message (window, (GstGLWindowCB) draw_cb, &draw_data);
+  gst_gl_window_send_message (window, (GstGLWindowCB) draw_cb, window);
 }
 
 static guintptr

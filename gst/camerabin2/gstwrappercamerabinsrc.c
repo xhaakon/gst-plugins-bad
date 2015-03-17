@@ -31,10 +31,6 @@
 #  include <config.h>
 #endif
 
-/* FIXME 0.11: suppress warnings for deprecated API such as GStaticRecMutex
- * with newer GLib versions (>= 2.31.0) */
-#define GLIB_DISABLE_DEPRECATION_WARNINGS
-
 #include <gst/interfaces/photography.h>
 
 #include "gstwrappercamerabinsrc.h"
@@ -80,6 +76,14 @@ gst_wrapper_camera_bin_src_dispose (GObject * object)
 {
   GstWrapperCameraBinSrc *self = GST_WRAPPER_CAMERA_BIN_SRC (object);
 
+  if (self->outsel_imgpad) {
+    gst_object_unref (self->outsel_imgpad);
+    self->outsel_imgpad = NULL;
+  }
+  if (self->outsel_vidpad) {
+    gst_object_unref (self->outsel_vidpad);
+    self->outsel_vidpad = NULL;
+  }
   if (self->app_vid_src) {
     gst_object_unref (self->app_vid_src);
     self->app_vid_src = NULL;
@@ -87,6 +91,10 @@ gst_wrapper_camera_bin_src_dispose (GObject * object)
   if (self->app_vid_filter) {
     gst_object_unref (self->app_vid_filter);
     self->app_vid_filter = NULL;
+  }
+  if (self->srcfilter_pad) {
+    gst_object_unref (self->srcfilter_pad);
+    self->srcfilter_pad = NULL;
   }
   gst_caps_replace (&self->image_capture_caps, NULL);
 
@@ -165,23 +173,45 @@ gst_wrapper_camera_bin_src_get_property (GObject * object,
 
 static void
 gst_wrapper_camera_bin_reset_video_src_caps (GstWrapperCameraBinSrc * self,
-    GstCaps * caps)
+    GstCaps * new_filter_caps)
 {
-  GST_DEBUG_OBJECT (self, "Resetting src caps to %" GST_PTR_FORMAT, caps);
+  GST_DEBUG_OBJECT (self, "Resetting src caps to %" GST_PTR_FORMAT,
+      new_filter_caps);
   if (self->src_vid_src) {
-    GstCaps *old_caps;
+    GstCaps *src_neg_caps;      /* negotiated caps on src_filter */
+    gboolean ret = FALSE;
 
-    g_object_get (G_OBJECT (self->src_filter), "caps", &old_caps, NULL);
-    if (gst_caps_is_equal (caps, old_caps)) {
-      GST_DEBUG_OBJECT (self, "old and new caps are same, do not reset it");
-      if (old_caps)
-        gst_caps_unref (old_caps);
+    /* After pipe was negotiated src_filter do not have any filter caps.
+     * In this situation we should compare neogotiated caps on capsfilter pad
+     * with requested range of caps. If one of this caps intersect,
+     * then we can avoid reseting.
+     */
+    src_neg_caps = gst_pad_get_current_caps (self->srcfilter_pad);
+    if (src_neg_caps && new_filter_caps && gst_caps_is_fixed (new_filter_caps))
+      ret = gst_caps_can_intersect (src_neg_caps, new_filter_caps);
+    else if (new_filter_caps == NULL) {
+      /* If new_filter_caps = NULL, then some body wont to empty
+       * capsfilter (set to ANY). In this case we will need to reset pipe,
+       * but if capsfilter is actually empthy, then we can avoid
+       * one more reseting.
+       */
+      GstCaps *old_filter_caps; /* range of caps on capsfilter */
+
+      g_object_get (G_OBJECT (self->src_filter),
+          "caps", &old_filter_caps, NULL);
+      ret = gst_caps_is_any (old_filter_caps);
+      gst_caps_unref (old_filter_caps);
+    }
+    if (src_neg_caps)
+      gst_caps_unref (src_neg_caps);
+
+    if (ret) {
+      GST_DEBUG_OBJECT (self, "Negotiated caps on srcfilter intersect "
+          "with requested caps, do not reset it.");
       return;
     }
-    if (old_caps)
-      gst_caps_unref (old_caps);
 
-    set_capsfilter_caps (self, caps);
+    set_capsfilter_caps (self, new_filter_caps);
   }
 }
 
@@ -312,10 +342,6 @@ gst_wrapper_camera_src_src_event_probe (GstPad * pad, GstPadProbeInfo * info,
   GstEvent *evt = GST_EVENT (info->data);
 
   switch (GST_EVENT_TYPE (evt)) {
-    case GST_EVENT_EOS:
-      /* drop */
-      ret = GST_PAD_PROBE_DROP;
-      break;
     case GST_EVENT_SEGMENT:
       if (self->drop_newseg) {
         ret = GST_PAD_PROBE_DROP;
@@ -329,24 +355,19 @@ gst_wrapper_camera_src_src_event_probe (GstPad * pad, GstPadProbeInfo * info,
 }
 
 static void
-gst_wrapper_camera_bin_src_caps_cb (GObject * gobject, GParamSpec * pspec,
+gst_wrapper_camera_bin_src_caps_cb (GstPad * pad, GParamSpec * pspec,
     gpointer user_data)
 {
   GstBaseCameraSrc *bcamsrc = GST_BASE_CAMERA_SRC (user_data);
   GstWrapperCameraBinSrc *self = GST_WRAPPER_CAMERA_BIN_SRC (user_data);
-  GstPad *src_caps_src_pad;
-  GstCaps *caps = NULL;
+  GstCaps *caps;
   GstStructure *in_st = NULL;
 
-  /* get the new caps that were set on the capsfilter that configures the
-   * source */
-  src_caps_src_pad = gst_element_get_static_pad (self->src_filter, "src");
-  caps = gst_pad_query_caps (src_caps_src_pad, NULL);
-  gst_object_unref (src_caps_src_pad);
-  GST_DEBUG_OBJECT (self, "src-filter caps changed to %s",
-      gst_caps_to_string (caps));
+  caps = gst_pad_get_current_caps (pad);
 
-  if (gst_caps_get_size (caps)) {
+  GST_DEBUG_OBJECT (self, "src-filter caps changed to %" GST_PTR_FORMAT, caps);
+
+  if (caps && gst_caps_get_size (caps)) {
     in_st = gst_caps_get_structure (caps, 0);
     if (in_st) {
       gst_structure_get_int (in_st, "width", &bcamsrc->width);
@@ -365,13 +386,17 @@ gst_wrapper_camera_bin_src_caps_cb (GObject * gobject, GParamSpec * pspec,
     GstCaps *filtercaps;
 
     g_object_get (G_OBJECT (self->src_zoom_filter), "caps", &filtercaps, NULL);
-    if (!gst_caps_is_equal (filtercaps, caps))
+
+    if (caps != filtercaps && (caps == NULL || filtercaps == NULL ||
+            !gst_caps_is_equal (filtercaps, caps)))
       g_object_set (G_OBJECT (self->src_zoom_filter), "caps", caps, NULL);
-    gst_caps_unref (filtercaps);
+
+    if (filtercaps)
+      gst_caps_unref (filtercaps);
   }
 
-  /* drop our ref on the caps */
-  gst_caps_unref (caps);
+  if (caps)
+    gst_caps_unref (caps);
 };
 
 static void
@@ -442,6 +467,7 @@ check_and_replace_src (GstWrapperCameraBinSrc * self)
 {
   GstBin *cbin = GST_BIN_CAST (self);
   GstBaseCameraSrc *bcamsrc = GST_BASE_CAMERA_SRC_CAST (self);
+  GstElement *videoconvert;
 
   if (self->src_vid_src && self->src_vid_src == self->app_vid_src) {
     GST_DEBUG_OBJECT (self, "No need to change current videosrc");
@@ -474,20 +500,20 @@ check_and_replace_src (GstWrapperCameraBinSrc * self)
               "camerasrc-real-src"))) {
     self->src_vid_src = NULL;
     return FALSE;
-  } else {
-    GstElement *videoconvert;
-    if (!gst_bin_add (cbin, self->src_vid_src)) {
+  }
+
+  if (!gst_bin_add (cbin, self->src_vid_src)) {
+    return FALSE;
+  }
+
+  /* check if we already have the next element to link to */
+  videoconvert = gst_bin_get_by_name (cbin, "src-videoconvert");
+  if (videoconvert) {
+    if (!gst_element_link_pads (self->src_vid_src, "src", videoconvert, "sink")) {
+      gst_object_unref (videoconvert);
       return FALSE;
     }
-
-    /* check if we already have the next element to link to */
-    videoconvert = gst_bin_get_by_name (cbin, "src-videoconvert");
-    if (videoconvert) {
-      if (!gst_element_link_pads (self->src_vid_src, "src", videoconvert,
-              "sink")) {
-        return FALSE;
-      }
-    }
+    gst_object_unref (videoconvert);
   }
 
   /* we listen for changes to max-zoom in the video src so that
@@ -505,8 +531,7 @@ check_and_replace_src (GstWrapperCameraBinSrc * self)
 
     self->src_event_probe_id =
         gst_pad_add_probe (pad, GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM,
-        gst_wrapper_camera_src_src_event_probe, gst_object_ref (self),
-        gst_object_unref);
+        gst_wrapper_camera_src_src_event_probe, self, NULL);
     gst_object_unref (pad);
   }
   return TRUE;
@@ -538,7 +563,6 @@ gst_wrapper_camera_bin_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
   gboolean ret = FALSE;
   GstPad *vf_pad;
   GstPad *tee_capture_pad;
-  GstPad *src_caps_src_pad;
 
   /* checks and adds a new video src if needed */
   if (!check_and_replace_src (self))
@@ -570,10 +594,9 @@ gst_wrapper_camera_bin_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
     /* attach to notify::caps on the first capsfilter and use a callback
      * to recalculate the zoom properties when these caps change and to
      * propagate the caps to the second capsfilter */
-    src_caps_src_pad = gst_element_get_static_pad (self->src_filter, "src");
-    g_signal_connect (src_caps_src_pad, "notify::caps",
+    self->srcfilter_pad = gst_element_get_static_pad (self->src_filter, "src");
+    g_signal_connect (self->srcfilter_pad, "notify::caps",
         G_CALLBACK (gst_wrapper_camera_bin_src_caps_cb), self);
-    gst_object_unref (src_caps_src_pad);
 
     if (!(self->src_zoom_crop =
             gst_camerabin_create_and_add_element (cbin, "videocrop",
@@ -625,11 +648,9 @@ gst_wrapper_camera_bin_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
     g_assert (self->outsel_imgpad != NULL);
 
     gst_pad_add_probe (self->outsel_imgpad, GST_PAD_PROBE_TYPE_BUFFER,
-        gst_wrapper_camera_bin_src_imgsrc_probe, gst_object_ref (self),
-        gst_object_unref);
+        gst_wrapper_camera_bin_src_imgsrc_probe, self, NULL);
     gst_pad_add_probe (self->outsel_vidpad, GST_PAD_PROBE_TYPE_BUFFER,
-        gst_wrapper_camera_bin_src_vidsrc_probe, gst_object_ref (self),
-        gst_object_unref);
+        gst_wrapper_camera_bin_src_vidsrc_probe, self, NULL);
     gst_ghost_pad_set_target (GST_GHOST_PAD (self->imgsrc),
         self->outsel_imgpad);
     gst_ghost_pad_set_target (GST_GHOST_PAD (self->vidsrc),
@@ -676,8 +697,13 @@ gst_wrapper_camera_bin_src_construct_pipeline (GstBaseCameraSrc * bcamsrc)
       if (gst_pad_is_linked (gst_element_get_static_pad (src_csp, "src")))
         gst_element_unlink (src_csp, capsfilter);
       if (!gst_element_link_many (src_csp, self->video_filter, filter_csp,
-              capsfilter, NULL))
+              capsfilter, NULL)) {
+        gst_object_unref (src_csp);
+        gst_object_unref (capsfilter);
         goto done;
+      }
+      gst_object_unref (src_csp);
+      gst_object_unref (capsfilter);
     }
   }
   ret = TRUE;
@@ -828,9 +854,24 @@ start_image_capture (GstWrapperCameraBinSrc * self)
   GstCaps *caps;
 
   GST_DEBUG_OBJECT (self, "Starting image capture");
-  gst_element_set_state (self->src_vid_src, GST_STATE_READY);
 
+  /* V4L2 source will not close the device until all buffers have came
+   * back. Draining the pipeline, will ensure it's properly closed, and that
+   * setting it back to PLAYING will work. */
   if (self->image_renegotiate) {
+    GstPad *pad, *peer;
+
+    g_mutex_unlock (&bcamsrc->capturing_mutex);
+    pad = gst_element_get_static_pad (self->src_vid_src, "src");
+    peer = gst_pad_get_peer (pad);
+    gst_object_unref (pad);
+    gst_pad_query (peer, gst_query_new_drain ());
+    gst_object_unref (peer);
+
+    self->image_renegotiate = FALSE;
+
+    gst_element_set_state (self->src_vid_src, GST_STATE_READY);
+
     /* clean capsfilter caps so they don't interfere here */
     g_object_set (self->src_filter, "caps", NULL, NULL);
     if (self->src_zoom_filter)
@@ -848,8 +889,7 @@ start_image_capture (GstWrapperCameraBinSrc * self)
     /* We caught this event in the src pad event handler and now we want to
      * actually push it upstream */
     gst_pad_send_event (self->outsel_imgpad, gst_event_new_reconfigure ());
-
-    self->image_renegotiate = FALSE;
+    g_mutex_lock (&bcamsrc->capturing_mutex);
   }
 
   if (photography) {
@@ -859,6 +899,7 @@ start_image_capture (GstWrapperCameraBinSrc * self)
     ret = gst_photography_prepare_for_capture (photography,
         (GstPhotographyCapturePrepared) img_capture_prepared,
         self->image_capture_caps, self);
+    gst_object_unref (photography);
   } else {
     g_mutex_unlock (&bcamsrc->capturing_mutex);
     gst_wrapper_camera_bin_reset_video_src_caps (self,
@@ -898,6 +939,7 @@ gst_wrapper_camera_bin_src_set_mode (GstBaseCameraSrc * bcamsrc,
             "capture-mode")) {
       g_object_set (G_OBJECT (photography), "capture-mode", mode, NULL);
     }
+    gst_object_unref (photography);
   } else {
     GstCaps *anycaps = gst_caps_new_any ();
     gst_wrapper_camera_bin_reset_video_src_caps (self, anycaps);
@@ -1166,7 +1208,7 @@ static GstStateChangeReturn
 gst_wrapper_camera_bin_src_change_state (GstElement * element,
     GstStateChange trans)
 {
-  GstStateChangeReturn ret = GST_STATE_CHANGE_SUCCESS;
+  GstStateChangeReturn ret;
   GstWrapperCameraBinSrc *self = GST_WRAPPER_CAMERA_BIN_SRC (element);
 
   ret = GST_ELEMENT_CLASS (parent_class)->change_state (element, trans);

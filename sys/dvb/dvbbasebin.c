@@ -1,9 +1,11 @@
 /*
  * dvbbasebin.c - 
  * Copyright (C) 2007 Alessandro Decina
+ * Copyright (C) 2014 Samsung Electronics. All rights reserved.
  * 
  * Authors:
  *   Alessandro Decina <alessandro@nnva.org>
+ *   Reynaldo H. Verdejo Pinochet <r.verdejo@sisa.samsung.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -52,6 +54,7 @@ enum
   SIGNAL_TUNING_START,
   SIGNAL_TUNING_DONE,
   SIGNAL_TUNING_FAIL,
+  SIGNAL_TUNE,
   LAST_SIGNAL
 };
 
@@ -79,8 +82,29 @@ enum
   PROP_PILOT,
   PROP_ROLLOFF,
   PROP_STREAM_ID,
-  PROP_BANDWIDTH_HZ
-      /* FILL ME */
+  PROP_BANDWIDTH_HZ,
+  PROP_ISDBT_LAYER_ENABLED,
+  PROP_ISDBT_PARTIAL_RECEPTION,
+  PROP_ISDBT_SOUND_BROADCASTING,
+  PROP_ISDBT_SB_SUBCHANNEL_ID,
+  PROP_ISDBT_SB_SEGMENT_IDX,
+  PROP_ISDBT_SB_SEGMENT_COUNT,
+  PROP_ISDBT_LAYERA_FEC,
+  PROP_ISDBT_LAYERA_MODULATION,
+  PROP_ISDBT_LAYERA_SEGMENT_COUNT,
+  PROP_ISDBT_LAYERA_TIME_INTERLEAVING,
+  PROP_ISDBT_LAYERB_FEC,
+  PROP_ISDBT_LAYERB_MODULATION,
+  PROP_ISDBT_LAYERB_SEGMENT_COUNT,
+  PROP_ISDBT_LAYERB_TIME_INTERLEAVING,
+  PROP_ISDBT_LAYERC_FEC,
+  PROP_ISDBT_LAYERC_MODULATION,
+  PROP_ISDBT_LAYERC_SEGMENT_COUNT,
+  PROP_ISDBT_LAYERC_TIME_INTERLEAVING,
+  PROP_LNB_SLOF,
+  PROP_LNB_LOF1,
+  PROP_LNB_LOF2,
+  PROP_INTERLEAVING
 };
 
 typedef struct
@@ -94,10 +118,10 @@ typedef struct
   gint program_number;
   guint16 pmt_pid;
   guint16 pcr_pid;
-  GstMpegTsSection *section;
-  GstMpegTsSection *old_section;
-  const GstMpegTsPMT *pmt;
-  const GstMpegTsPMT *old_pmt;
+  GstMpegtsSection *section;
+  GstMpegtsSection *old_section;
+  const GstMpegtsPMT *pmt;
+  const GstMpegtsPMT *old_pmt;
   gboolean selected;
   gboolean pmt_active;
   gboolean active;
@@ -117,9 +141,9 @@ static GstStateChangeReturn dvb_base_bin_change_state (GstElement * element,
     GstStateChange transition);
 static void dvb_base_bin_handle_message (GstBin * bin, GstMessage * message);
 static void dvb_base_bin_pat_info_cb (DvbBaseBin * dvbbasebin,
-    GstMpegTsSection * pat);
+    GstMpegtsSection * pat);
 static void dvb_base_bin_pmt_info_cb (DvbBaseBin * dvbbasebin,
-    GstMpegTsSection * pmt);
+    GstMpegtsSection * pmt);
 static GstPad *dvb_base_bin_request_new_pad (GstElement * element,
     GstPadTemplate * templ, const gchar * name, const GstCaps * caps);
 static void dvb_base_bin_release_pad (GstElement * element, GstPad * pad);
@@ -137,6 +161,8 @@ static void dvb_base_bin_program_destroy (gpointer data);
 static void tuning_start_signal_cb (GObject * object, DvbBaseBin * dvbbasebin);
 static void tuning_done_signal_cb (GObject * object, DvbBaseBin * dvbbasebin);
 static void tuning_fail_signal_cb (GObject * object, DvbBaseBin * dvbbasebin);
+
+static void dvb_base_bin_do_tune (DvbBaseBin * dvbbasebin);
 
 #define dvb_base_bin_parent_class parent_class
 G_DEFINE_TYPE_EXTENDED (DvbBaseBin, dvb_base_bin, GST_TYPE_BIN,
@@ -230,6 +256,11 @@ tuning_fail_signal_cb (GObject * object, DvbBaseBin * dvbbasebin)
   g_signal_emit (dvbbasebin, dvb_base_bin_signals[SIGNAL_TUNING_FAIL], 0);
 }
 
+static void
+dvb_base_bin_do_tune (DvbBaseBin * dvbbasebin)
+{
+  g_signal_emit_by_name (dvbbasebin->dvbsrc, "tune", NULL);
+}
 
 static void
 dvb_base_bin_class_init (DvbBaseBinClass * klass)
@@ -237,6 +268,7 @@ dvb_base_bin_class_init (DvbBaseBinClass * klass)
   GObjectClass *gobject_class;
   GstElementClass *element_class;
   GstBinClass *bin_class;
+  DvbBaseBinClass *dvbbasebin_class;
   GstElementFactory *dvbsrc_factory;
   GObjectClass *dvbsrc_class;
   typedef struct
@@ -252,7 +284,9 @@ dvb_base_bin_class_init (DvbBaseBinClass * klass)
     {PROP_FREQUENCY, "frequency"},
     {PROP_POLARITY, "polarity"},
     {PROP_SYMBOL_RATE, "symbol-rate"},
+#ifndef GST_REMOVE_DEPRECATED
     {PROP_BANDWIDTH, "bandwidth"},
+#endif
     {PROP_CODE_RATE_HP, "code-rate-hp"},
     {PROP_CODE_RATE_LP, "code-rate-lp"},
     {PROP_GUARD, "guard"},
@@ -267,6 +301,28 @@ dvb_base_bin_class_init (DvbBaseBinClass * klass)
     {PROP_ROLLOFF, "rolloff"},
     {PROP_STREAM_ID, "stream-id"},
     {PROP_BANDWIDTH_HZ, "bandwidth-hz"},
+    {PROP_ISDBT_LAYER_ENABLED, "isdbt-layer-enabled"},
+    {PROP_ISDBT_PARTIAL_RECEPTION, "isdbt-partial-reception"},
+    {PROP_ISDBT_SOUND_BROADCASTING, "isdbt-sound-broadcasting"},
+    {PROP_ISDBT_SB_SUBCHANNEL_ID, "isdbt-sb-subchannel-id"},
+    {PROP_ISDBT_SB_SEGMENT_IDX, "isdbt-sb-segment-idx"},
+    {PROP_ISDBT_SB_SEGMENT_COUNT, "isdbt-sb-segment-count"},
+    {PROP_ISDBT_LAYERA_FEC, "isdbt-layera-fec"},
+    {PROP_ISDBT_LAYERA_MODULATION, "isdbt-layera-modulation"},
+    {PROP_ISDBT_LAYERA_SEGMENT_COUNT, "isdbt-layera-segment-count"},
+    {PROP_ISDBT_LAYERA_TIME_INTERLEAVING, "isdbt-layera-time-interleaving"},
+    {PROP_ISDBT_LAYERB_FEC, "isdbt-layerb-fec"},
+    {PROP_ISDBT_LAYERB_MODULATION, "isdbt-layerb-modulation"},
+    {PROP_ISDBT_LAYERB_SEGMENT_COUNT, "isdbt-layerb-segment-count"},
+    {PROP_ISDBT_LAYERB_TIME_INTERLEAVING, "isdbt-layerb-time-interleaving"},
+    {PROP_ISDBT_LAYERC_FEC, "isdbt-layerc-fec"},
+    {PROP_ISDBT_LAYERC_MODULATION, "isdbt-layerc-modulation"},
+    {PROP_ISDBT_LAYERC_SEGMENT_COUNT, "isdbt-layerc-segment-count"},
+    {PROP_ISDBT_LAYERC_TIME_INTERLEAVING, "isdbt-layerc-time-interleaving"},
+    {PROP_LNB_SLOF, "lnb-slof"},
+    {PROP_LNB_LOF1, "lnb-lof1"},
+    {PROP_LNB_LOF2, "lnb-lof2"},
+    {PROP_INTERLEAVING, "interleaving"},
     {0, NULL}
   };
 
@@ -287,13 +343,17 @@ dvb_base_bin_class_init (DvbBaseBinClass * klass)
   gst_element_class_set_static_metadata (element_class, "DVB bin",
       "Source/Bin/Video",
       "Access descramble and split DVB streams",
-      "Alessandro Decina <alessandro@nnva.org>");
+      "Alessandro Decina <alessandro@nnva.org>\n"
+      "Reynaldo H. Verdejo Pinochet <r.verdejo@sisa.samsung.com>");
 
   gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->set_property = dvb_base_bin_set_property;
   gobject_class->get_property = dvb_base_bin_get_property;
   gobject_class->dispose = dvb_base_bin_dispose;
   gobject_class->finalize = dvb_base_bin_finalize;
+
+  dvbbasebin_class = (DvbBaseBinClass *) klass;
+  dvbbasebin_class->do_tune = dvb_base_bin_do_tune;
 
   /* install dvbsrc properties */
   dvbsrc_factory = gst_element_factory_find ("dvbsrc");
@@ -390,6 +450,18 @@ dvb_base_bin_class_init (DvbBaseBinClass * klass)
       g_signal_new ("tuning-fail", G_TYPE_FROM_CLASS (klass),
       G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL, G_TYPE_NONE, 0);
 
+  /**
+   * DvbBaseBin::tune:
+   * @dvbbasesink: the element on which the signal is emitted
+   *
+   * Signal emited from the application to the element, instructing it
+   * to tune.
+   */
+  dvb_base_bin_signals[SIGNAL_TUNE] =
+      g_signal_new ("tune", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+      G_STRUCT_OFFSET (DvbBaseBinClass, do_tune),
+      NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
 }
 
 static void
@@ -403,7 +475,7 @@ dvb_base_bin_reset (DvbBaseBin * dvbbasebin)
   dvbbasebin->trycam = TRUE;
 }
 
-static gint16 initial_pids[] = { 0, 1, 0x10, 0x11, 0x12, 0x14, -1 };
+static const gint16 initial_pids[] = { 0, 1, 0x10, 0x11, 0x12, 0x14, -1 };
 
 static void
 dvb_base_bin_init (DvbBaseBin * dvbbasebin)
@@ -417,7 +489,7 @@ dvb_base_bin_init (DvbBaseBin * dvbbasebin)
   dvbbasebin->tsparse = gst_element_factory_make ("tsparse", NULL);
 
   g_object_set (dvbbasebin->buffer_queue, "max-size-buffers", 0,
-      "max-size-bytes", 0, "max-size-time", 0, NULL);
+      "max-size-bytes", 0, "max-size-time", (guint64) 0, NULL);
 
   gst_bin_add_many (GST_BIN (dvbbasebin), dvbbasebin->dvbsrc,
       dvbbasebin->buffer_queue, dvbbasebin->tsparse, NULL);
@@ -561,6 +633,28 @@ dvb_base_bin_set_property (GObject * object, guint prop_id,
     case PROP_ROLLOFF:
     case PROP_STREAM_ID:
     case PROP_BANDWIDTH_HZ:
+    case PROP_ISDBT_LAYER_ENABLED:
+    case PROP_ISDBT_PARTIAL_RECEPTION:
+    case PROP_ISDBT_SOUND_BROADCASTING:
+    case PROP_ISDBT_SB_SUBCHANNEL_ID:
+    case PROP_ISDBT_SB_SEGMENT_IDX:
+    case PROP_ISDBT_SB_SEGMENT_COUNT:
+    case PROP_ISDBT_LAYERA_FEC:
+    case PROP_ISDBT_LAYERA_MODULATION:
+    case PROP_ISDBT_LAYERA_SEGMENT_COUNT:
+    case PROP_ISDBT_LAYERA_TIME_INTERLEAVING:
+    case PROP_ISDBT_LAYERB_FEC:
+    case PROP_ISDBT_LAYERB_MODULATION:
+    case PROP_ISDBT_LAYERB_SEGMENT_COUNT:
+    case PROP_ISDBT_LAYERB_TIME_INTERLEAVING:
+    case PROP_ISDBT_LAYERC_FEC:
+    case PROP_ISDBT_LAYERC_MODULATION:
+    case PROP_ISDBT_LAYERC_SEGMENT_COUNT:
+    case PROP_ISDBT_LAYERC_TIME_INTERLEAVING:
+    case PROP_LNB_SLOF:
+    case PROP_LNB_LOF1:
+    case PROP_LNB_LOF2:
+    case PROP_INTERLEAVING:
       /* FIXME: check if we can tune (state < PLAYING || program-numbers == "") */
       g_object_set_property (G_OBJECT (dvbbasebin->dvbsrc), pspec->name, value);
       break;
@@ -600,6 +694,28 @@ dvb_base_bin_get_property (GObject * object, guint prop_id,
     case PROP_ROLLOFF:
     case PROP_STREAM_ID:
     case PROP_BANDWIDTH_HZ:
+    case PROP_ISDBT_LAYER_ENABLED:
+    case PROP_ISDBT_PARTIAL_RECEPTION:
+    case PROP_ISDBT_SOUND_BROADCASTING:
+    case PROP_ISDBT_SB_SUBCHANNEL_ID:
+    case PROP_ISDBT_SB_SEGMENT_IDX:
+    case PROP_ISDBT_SB_SEGMENT_COUNT:
+    case PROP_ISDBT_LAYERA_FEC:
+    case PROP_ISDBT_LAYERA_MODULATION:
+    case PROP_ISDBT_LAYERA_SEGMENT_COUNT:
+    case PROP_ISDBT_LAYERA_TIME_INTERLEAVING:
+    case PROP_ISDBT_LAYERB_FEC:
+    case PROP_ISDBT_LAYERB_MODULATION:
+    case PROP_ISDBT_LAYERB_SEGMENT_COUNT:
+    case PROP_ISDBT_LAYERB_TIME_INTERLEAVING:
+    case PROP_ISDBT_LAYERC_FEC:
+    case PROP_ISDBT_LAYERC_MODULATION:
+    case PROP_ISDBT_LAYERC_SEGMENT_COUNT:
+    case PROP_ISDBT_LAYERC_TIME_INTERLEAVING:
+    case PROP_LNB_SLOF:
+    case PROP_LNB_LOF1:
+    case PROP_LNB_LOF2:
+    case PROP_INTERLEAVING:
       g_object_get_property (G_OBJECT (dvbbasebin->dvbsrc), pspec->name, value);
       break;
     case PROP_PROGRAM_NUMBERS:
@@ -661,7 +777,7 @@ dvb_base_bin_reset_pmtlist (DvbBaseBin * dvbbasebin)
 {
   CamConditionalAccessPmtFlag flag;
   GList *walk;
-  GstMpegTsPMT *pmt;
+  GstMpegtsPMT *pmt;
 
   walk = dvbbasebin->pmtlist;
   while (walk) {
@@ -677,7 +793,7 @@ dvb_base_bin_reset_pmtlist (DvbBaseBin * dvbbasebin)
         flag = CAM_CONDITIONAL_ACCESS_PMT_FLAG_MORE;
     }
 
-    pmt = (GstMpegTsPMT *) walk->data;
+    pmt = (GstMpegtsPMT *) walk->data;
     cam_device_set_pmt (dvbbasebin->hwcam, pmt, flag);
 
     walk = walk->next;
@@ -793,13 +909,13 @@ dvb_base_bin_rebuild_filter (DvbBaseBin * dvbbasebin)
 
 static void
 dvb_base_bin_remove_pmt_streams (DvbBaseBin * dvbbasebin,
-    const GstMpegTsPMT * pmt)
+    const GstMpegtsPMT * pmt)
 {
   gint i;
   DvbBaseBinStream *stream;
 
   for (i = 0; i < pmt->streams->len; i++) {
-    GstMpegTsPMTStream *pmtstream = g_ptr_array_index (pmt->streams, i);
+    GstMpegtsPMTStream *pmtstream = g_ptr_array_index (pmt->streams, i);
 
     stream = dvb_base_bin_get_stream (dvbbasebin, pmtstream->pid);
     if (stream == NULL) {
@@ -813,13 +929,13 @@ dvb_base_bin_remove_pmt_streams (DvbBaseBin * dvbbasebin,
 }
 
 static void
-dvb_base_bin_add_pmt_streams (DvbBaseBin * dvbbasebin, const GstMpegTsPMT * pmt)
+dvb_base_bin_add_pmt_streams (DvbBaseBin * dvbbasebin, const GstMpegtsPMT * pmt)
 {
   DvbBaseBinStream *stream;
   gint i;
 
   for (i = 0; i < pmt->streams->len; i++) {
-    GstMpegTsPMTStream *pmtstream = g_ptr_array_index (pmt->streams, i);
+    GstMpegtsPMTStream *pmtstream = g_ptr_array_index (pmt->streams, i);
 
     GST_DEBUG ("filtering stream %d stream_type %d", pmtstream->pid,
         pmtstream->stream_type);
@@ -914,7 +1030,7 @@ dvb_base_bin_handle_message (GstBin * bin, GstMessage * message)
 
   /* note: message->src might be a GstPad, so use element cast w/o typecheck */
   if (GST_ELEMENT_CAST (message->src) == dvbbasebin->tsparse) {
-    GstMpegTsSection *section = gst_message_parse_mpegts_section (message);
+    GstMpegtsSection *section = gst_message_parse_mpegts_section (message);
 
     if (section) {
       switch (GST_MPEGTS_SECTION_TYPE (section)) {
@@ -938,7 +1054,7 @@ dvb_base_bin_handle_message (GstBin * bin, GstMessage * message)
 
 
 static void
-dvb_base_bin_pat_info_cb (DvbBaseBin * dvbbasebin, GstMpegTsSection * section)
+dvb_base_bin_pat_info_cb (DvbBaseBin * dvbbasebin, GstMpegtsSection * section)
 {
   GPtrArray *pat;
   DvbBaseBinProgram *program;
@@ -953,7 +1069,7 @@ dvb_base_bin_pat_info_cb (DvbBaseBin * dvbbasebin, GstMpegTsSection * section)
   }
 
   for (i = 0; i < pat->len; i++) {
-    GstMpegTsPatProgram *patp = g_ptr_array_index (pat, i);
+    GstMpegtsPatProgram *patp = g_ptr_array_index (pat, i);
 
     program = dvb_base_bin_get_program (dvbbasebin, patp->program_number);
     if (program == NULL)
@@ -984,9 +1100,9 @@ dvb_base_bin_pat_info_cb (DvbBaseBin * dvbbasebin, GstMpegTsSection * section)
 }
 
 static void
-dvb_base_bin_pmt_info_cb (DvbBaseBin * dvbbasebin, GstMpegTsSection * section)
+dvb_base_bin_pmt_info_cb (DvbBaseBin * dvbbasebin, GstMpegtsSection * section)
 {
-  const GstMpegTsPMT *pmt;
+  const GstMpegtsPMT *pmt;
   DvbBaseBinProgram *program;
   guint program_number;
 

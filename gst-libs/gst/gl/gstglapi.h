@@ -22,7 +22,6 @@
 #define __GST_GL_API_H__
 
 #include <gst/gl/gstglconfig.h>
-#include <gst/gl/glprototypes/gstgl_compat.h>
 
 #if GST_GL_HAVE_PLATFORM_EGL
 
@@ -71,11 +70,13 @@
 # ifdef __APPLE__
 #  include <OpenGL/OpenGL.h>
 #  include <OpenGL/gl.h>
-#  include <OpenGL/glu.h>
+#  if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+#   define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
+#   include <OpenGL/gl3.h>
+#  endif
 # else
 #  include <GL/gl.h>
-#  include <GL/glu.h>
-#  if __WIN32__ || _WIN32
+#  if defined(__WIN32__) || defined(_WIN32)
 #   include <GL/glext.h>
 #  endif
 # endif
@@ -86,6 +87,7 @@
 #else
 #define GSTGLAPI
 #endif
+#include <gst/gl/glprototypes/gstgl_compat.h>
 
 #include <gst/gst.h>
 
@@ -121,7 +123,7 @@ typedef enum
 #define GST_GL_EXT_BEGIN(name, gl_availability, min_gl, maj_gl, gles_maj, \
     gles_min, ext_suf, ext_name)
 #define GST_GL_EXT_FUNCTION(ret, name, args) \
-  ret GSTGLAPI (*name) args;
+  ret (GSTGLAPI *name) args;
 #define GST_GL_EXT_END()
 
 typedef struct _GstGLFuncs

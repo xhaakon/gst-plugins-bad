@@ -57,6 +57,7 @@ void nal_reader_init (NalReader * nr, const guint8 * data, guint size);
 
 gboolean nal_reader_read (NalReader * nr, guint nbits);
 gboolean nal_reader_skip (NalReader * nr, guint nbits);
+gboolean nal_reader_skip_long (NalReader * nr, guint nbits);
 guint nal_reader_get_pos (const NalReader * nr);
 guint nal_reader_get_remaining (const NalReader * nr);
 guint nal_reader_get_epb_count (const NalReader * nr);
@@ -78,6 +79,14 @@ NAL_READER_PEEK_BITS_H (8);
 
 gboolean nal_reader_get_ue (NalReader * nr, guint32 * val);
 gboolean nal_reader_get_se (NalReader * nr, gint32 * val);
+
+#define CHECK_ALLOWED_MAX(val, max) { \
+  if (val > max) { \
+    GST_WARNING ("value greater than max. value: %d, max %d", \
+                     val, max); \
+    goto error; \
+  } \
+}
 
 #define CHECK_ALLOWED(val, min, max) { \
   if (val < min || val > max) { \
@@ -126,6 +135,13 @@ gboolean nal_reader_get_se (NalReader * nr, gint32 * val);
   guint32 tmp; \
   READ_UE (nr, tmp); \
   CHECK_ALLOWED (tmp, min, max); \
+  val = tmp; \
+}
+
+#define READ_UE_MAX(nr, val, max) { \
+  guint32 tmp; \
+  READ_UE (nr, tmp); \
+  CHECK_ALLOWED_MAX (tmp, max); \
   val = tmp; \
 }
 

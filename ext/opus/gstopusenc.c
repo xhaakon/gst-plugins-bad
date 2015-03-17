@@ -114,6 +114,51 @@ gst_opus_enc_frame_size_get_type (void)
   return id;
 }
 
+#define GST_OPUS_ENC_TYPE_AUDIO_TYPE (gst_opus_enc_audio_type_get_type())
+static GType
+gst_opus_enc_audio_type_get_type (void)
+{
+  static const GEnumValue values[] = {
+    {OPUS_APPLICATION_AUDIO, "Generic audio", "generic"},
+    {OPUS_APPLICATION_VOIP, "Voice", "voice"},
+    {0, NULL, NULL}
+  };
+  static volatile GType id = 0;
+
+  if (g_once_init_enter ((gsize *) & id)) {
+    GType _id;
+
+    _id = g_enum_register_static ("GstOpusEncAudioType", values);
+
+    g_once_init_leave ((gsize *) & id, _id);
+  }
+
+  return id;
+}
+
+#define GST_OPUS_ENC_TYPE_BITRATE_TYPE (gst_opus_enc_bitrate_type_get_type())
+static GType
+gst_opus_enc_bitrate_type_get_type (void)
+{
+  static const GEnumValue values[] = {
+    {BITRATE_TYPE_CBR, "CBR", "cbr"},
+    {BITRATE_TYPE_VBR, "VBR", "vbr"},
+    {BITRATE_TYPE_CONSTRAINED_VBR, "Constrained VBR", "constrained-vbr"},
+    {0, NULL, NULL}
+  };
+  static volatile GType id = 0;
+
+  if (g_once_init_enter ((gsize *) & id)) {
+    GType _id;
+
+    _id = g_enum_register_static ("GstOpusEncBitrateType", values);
+
+    g_once_init_leave ((gsize *) & id, _id);
+  }
+
+  return id;
+}
+
 #define FORMAT_STR GST_AUDIO_NE(S16)
 static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
@@ -132,11 +177,13 @@ static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
     );
 
 #define DEFAULT_AUDIO           TRUE
+#define DEFAULT_AUDIO_TYPE      OPUS_APPLICATION_AUDIO
 #define DEFAULT_BITRATE         64000
 #define DEFAULT_BANDWIDTH       OPUS_BANDWIDTH_FULLBAND
 #define DEFAULT_FRAMESIZE       20
 #define DEFAULT_CBR             TRUE
 #define DEFAULT_CONSTRAINED_VBR TRUE
+#define DEFAULT_BITRATE_TYPE    BITRATE_TYPE_CBR
 #define DEFAULT_COMPLEXITY      10
 #define DEFAULT_INBAND_FEC      FALSE
 #define DEFAULT_DTX             FALSE
@@ -147,11 +194,13 @@ enum
 {
   PROP_0,
   PROP_AUDIO,
+  PROP_AUDIO_TYPE,
   PROP_BITRATE,
   PROP_BANDWIDTH,
   PROP_FRAME_SIZE,
   PROP_CBR,
   PROP_CONSTRAINED_VBR,
+  PROP_BITRATE_TYPE,
   PROP_COMPLEXITY,
   PROP_INBAND_FEC,
   PROP_DTX,
@@ -218,13 +267,18 @@ gst_opus_enc_class_init (GstOpusEncClass * klass)
   base_class->getcaps = GST_DEBUG_FUNCPTR (gst_opus_enc_sink_getcaps);
 
   g_object_class_install_property (gobject_class, PROP_AUDIO,
-      g_param_spec_boolean ("audio", "Audio or voice",
-          "Audio or voice", DEFAULT_AUDIO,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+      g_param_spec_boolean ("audio",
+          "Audio or voice (obsolete, use audio-type)",
+          "Audio or voice (obsolete, use audio-type)", DEFAULT_AUDIO,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_DEPRECATED));
+  g_object_class_install_property (gobject_class, PROP_AUDIO_TYPE,
+      g_param_spec_enum ("audio-type", "What type of audio to optimize for",
+          "What type of audio to optimize for", GST_OPUS_ENC_TYPE_AUDIO_TYPE,
+          DEFAULT_AUDIO_TYPE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
   g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_BITRATE,
       g_param_spec_int ("bitrate", "Encoding Bit-rate",
-          "Specify an encoding bit-rate (in bps).",
-          LOWEST_BITRATE, HIGHEST_BITRATE, DEFAULT_BITRATE,
+          "Specify an encoding bit-rate (in bps).", LOWEST_BITRATE,
+          HIGHEST_BITRATE, DEFAULT_BITRATE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
           GST_PARAM_MUTABLE_PLAYING));
   g_object_class_install_property (gobject_class, PROP_BANDWIDTH,
@@ -242,10 +296,16 @@ gst_opus_enc_class_init (GstOpusEncClass * klass)
       g_param_spec_boolean ("cbr", "Constant bit rate", "Constant bit rate",
           DEFAULT_CBR,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
-          GST_PARAM_MUTABLE_PLAYING));
+          GST_PARAM_MUTABLE_PLAYING | G_PARAM_DEPRECATED));
   g_object_class_install_property (gobject_class, PROP_CONSTRAINED_VBR,
       g_param_spec_boolean ("constrained-vbr", "Constrained VBR",
           "Constrained VBR", DEFAULT_CONSTRAINED_VBR,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
+          GST_PARAM_MUTABLE_PLAYING | G_PARAM_DEPRECATED));
+  g_object_class_install_property (gobject_class, PROP_BITRATE_TYPE,
+      g_param_spec_enum ("bitrate-type", "Bitrate type",
+          "Bitrate type", GST_OPUS_ENC_TYPE_BITRATE_TYPE,
+          DEFAULT_BITRATE_TYPE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
           GST_PARAM_MUTABLE_PLAYING));
   g_object_class_install_property (gobject_class, PROP_COMPLEXITY,
@@ -308,13 +368,13 @@ gst_opus_enc_init (GstOpusEnc * enc)
   enc->bitrate = DEFAULT_BITRATE;
   enc->bandwidth = DEFAULT_BANDWIDTH;
   enc->frame_size = DEFAULT_FRAMESIZE;
-  enc->cbr = DEFAULT_CBR;
-  enc->constrained_vbr = DEFAULT_CONSTRAINED_VBR;
+  enc->bitrate_type = DEFAULT_BITRATE_TYPE;
   enc->complexity = DEFAULT_COMPLEXITY;
   enc->inband_fec = DEFAULT_INBAND_FEC;
   enc->dtx = DEFAULT_DTX;
   enc->packet_loss_percentage = DEFAULT_PACKET_LOSS_PERCENT;
   enc->max_payload_size = DEFAULT_MAX_PAYLOAD_SIZE;
+  enc->audio_type = DEFAULT_AUDIO_TYPE;
 
   /* arrange granulepos marking (and required perfect ts) */
   gst_audio_encoder_set_mark_granule (benc, TRUE);
@@ -329,6 +389,7 @@ gst_opus_enc_start (GstAudioEncoder * benc)
   GST_DEBUG_OBJECT (enc, "start");
   enc->tags = gst_tag_list_new_empty ();
   enc->header_sent = FALSE;
+  enc->encoded_samples = 0;
 
   return TRUE;
 }
@@ -657,17 +718,18 @@ gst_opus_enc_setup (GstOpusEnc * enc)
   enc->state = opus_multistream_encoder_create (enc->sample_rate,
       enc->n_channels, enc->n_channels - enc->n_stereo_streams,
       enc->n_stereo_streams, enc->encoding_channel_mapping,
-      enc->audio_or_voip ? OPUS_APPLICATION_AUDIO : OPUS_APPLICATION_VOIP,
-      &error);
+      enc->audio_type, &error);
   if (!enc->state || error != OPUS_OK)
     goto encoder_creation_failed;
 
   opus_multistream_encoder_ctl (enc->state, OPUS_SET_BITRATE (enc->bitrate), 0);
   opus_multistream_encoder_ctl (enc->state, OPUS_SET_BANDWIDTH (enc->bandwidth),
       0);
-  opus_multistream_encoder_ctl (enc->state, OPUS_SET_VBR (!enc->cbr), 0);
   opus_multistream_encoder_ctl (enc->state,
-      OPUS_SET_VBR_CONSTRAINT (enc->constrained_vbr), 0);
+      OPUS_SET_VBR (enc->bitrate_type != BITRATE_TYPE_CBR), 0);
+  opus_multistream_encoder_ctl (enc->state,
+      OPUS_SET_VBR_CONSTRAINT (enc->bitrate_type ==
+          BITRATE_TYPE_CONSTRAINED_VBR), 0);
   opus_multistream_encoder_ctl (enc->state,
       OPUS_SET_COMPLEXITY (enc->complexity), 0);
   opus_multistream_encoder_ctl (enc->state,
@@ -704,6 +766,9 @@ gst_opus_enc_sink_event (GstAudioEncoder * benc, GstEvent * event)
       gst_tag_setter_merge_tags (setter, list, mode);
       break;
     }
+    case GST_EVENT_SEGMENT:
+      enc->encoded_samples = 0;
+      break;
 
     default:
       break;
@@ -717,6 +782,7 @@ gst_opus_enc_sink_getcaps (GstAudioEncoder * benc, GstCaps * filter)
 {
   GstOpusEnc *enc;
   GstCaps *caps;
+  GstCaps *tcaps;
   GstCaps *peercaps = NULL;
   GstCaps *intersect = NULL;
   guint i;
@@ -729,13 +795,12 @@ gst_opus_enc_sink_getcaps (GstAudioEncoder * benc, GstCaps * filter)
   peercaps = gst_pad_peer_query_caps (GST_AUDIO_ENCODER_SRC_PAD (benc), NULL);
   if (!peercaps) {
     GST_DEBUG_OBJECT (benc, "No peercaps, returning template sink caps");
-    return
-        gst_caps_copy (gst_pad_get_pad_template_caps
-        (GST_AUDIO_ENCODER_SINK_PAD (benc)));
+    return gst_pad_get_pad_template_caps (GST_AUDIO_ENCODER_SINK_PAD (benc));
   }
 
-  intersect = gst_caps_intersect (peercaps,
-      gst_pad_get_pad_template_caps (GST_AUDIO_ENCODER_SRC_PAD (benc)));
+  tcaps = gst_pad_get_pad_template_caps (GST_AUDIO_ENCODER_SRC_PAD (benc));
+  intersect = gst_caps_intersect (peercaps, tcaps);
+  gst_caps_unref (tcaps);
   gst_caps_unref (peercaps);
 
   if (gst_caps_is_empty (intersect))
@@ -756,9 +821,8 @@ gst_opus_enc_sink_getcaps (GstAudioEncoder * benc, GstCaps * filter)
 
   gst_caps_unref (intersect);
 
-  caps =
-      gst_caps_copy (gst_pad_get_pad_template_caps (GST_AUDIO_ENCODER_SINK_PAD
-          (benc)));
+  caps = gst_pad_get_pad_template_caps (GST_AUDIO_ENCODER_SINK_PAD (benc));
+  caps = gst_caps_make_writable (caps);
   if (!allow_multistream) {
     GValue range = { 0 };
     g_value_init (&range, GST_TYPE_INT_RANGE);
@@ -792,6 +856,8 @@ gst_opus_enc_encode (GstOpusEnc * enc, GstBuffer * buf)
   GstMapInfo omap;
   gint outsize;
   GstBuffer *outbuf;
+  GstSegment *segment;
+  GstClockTime duration;
 
   guint max_payload_size;
   gint frame_samples;
@@ -811,6 +877,26 @@ gst_opus_enc_encode (GstOpusEnc * enc, GstBuffer * buf)
 
     if (G_UNLIKELY (bsize % bytes)) {
       GST_DEBUG_OBJECT (enc, "draining; adding silence samples");
+
+      /* If encoding part of a frame, and we have no set stop time on
+       * the output segment, we update the segment stop time to reflect
+       * the last sample. This will let oggmux set the last page's
+       * granpos to tell a decoder the dummy samples should be clipped.
+       */
+      segment = &GST_AUDIO_ENCODER_OUTPUT_SEGMENT (enc);
+      if (!GST_CLOCK_TIME_IS_VALID (segment->stop)) {
+        int input_samples = bsize / (enc->n_channels * 2);
+        GST_DEBUG_OBJECT (enc,
+            "No stop time and partial frame, updating segment");
+        duration =
+            gst_util_uint64_scale (enc->encoded_samples + input_samples,
+            GST_SECOND, enc->sample_rate);
+        segment->stop = segment->start + duration;
+        GST_DEBUG_OBJECT (enc, "new output segment %" GST_SEGMENT_FORMAT,
+            segment);
+        gst_pad_push_event (GST_AUDIO_ENCODER_SRC_PAD (enc),
+            gst_event_new_segment (segment));
+      }
 
       size = ((bsize / bytes) + 1) * bytes;
       mdata = g_malloc0 (size);
@@ -863,6 +949,7 @@ gst_opus_enc_encode (GstOpusEnc * enc, GstBuffer * buf)
   ret =
       gst_audio_encoder_finish_frame (GST_AUDIO_ENCODER (enc), outbuf,
       frame_samples);
+  enc->encoded_samples += frame_samples;
 
 done:
 
@@ -926,7 +1013,11 @@ gst_opus_enc_get_property (GObject * object, guint prop_id, GValue * value,
 
   switch (prop_id) {
     case PROP_AUDIO:
-      g_value_set_boolean (value, enc->audio_or_voip);
+      g_value_set_boolean (value,
+          enc->audio_type == OPUS_APPLICATION_AUDIO ? TRUE : FALSE);
+      break;
+    case PROP_AUDIO_TYPE:
+      g_value_set_enum (value, enc->audio_type);
       break;
     case PROP_BITRATE:
       g_value_set_int (value, enc->bitrate);
@@ -938,10 +1029,16 @@ gst_opus_enc_get_property (GObject * object, guint prop_id, GValue * value,
       g_value_set_enum (value, enc->frame_size);
       break;
     case PROP_CBR:
-      g_value_set_boolean (value, enc->cbr);
+      g_warning ("cbr property is deprecated; use bitrate-type instead");
+      g_value_set_boolean (value, enc->bitrate_type == BITRATE_TYPE_CBR);
       break;
     case PROP_CONSTRAINED_VBR:
-      g_value_set_boolean (value, enc->constrained_vbr);
+      g_warning
+          ("constrained-vbr property is deprecated; use bitrate-type instead");
+      g_value_set_boolean (value,
+          enc->bitrate_type == BITRATE_TYPE_CONSTRAINED_VBR);
+    case PROP_BITRATE_TYPE:
+      g_value_set_enum (value, enc->bitrate_type);
       break;
     case PROP_COMPLEXITY:
       g_value_set_int (value, enc->complexity);
@@ -985,7 +1082,12 @@ gst_opus_enc_set_property (GObject * object, guint prop_id,
 
   switch (prop_id) {
     case PROP_AUDIO:
-      enc->audio_or_voip = g_value_get_boolean (value);
+      enc->audio_type =
+          g_value_get_boolean (value) ? OPUS_APPLICATION_AUDIO :
+          OPUS_APPLICATION_VOIP;
+      break;
+    case PROP_AUDIO_TYPE:
+      enc->audio_type = g_value_get_enum (value);
       break;
     case PROP_BITRATE:
       GST_OPUS_UPDATE_PROPERTY (bitrate, int, BITRATE);
@@ -1001,15 +1103,40 @@ gst_opus_enc_set_property (GObject * object, guint prop_id,
       g_mutex_unlock (&enc->property_lock);
       break;
     case PROP_CBR:
-      /* this one has an opposite meaning to the opus ctl... */
+      g_warning ("cbr property is deprecated; use bitrate-type instead");
       g_mutex_lock (&enc->property_lock);
-      enc->cbr = g_value_get_boolean (value);
-      if (enc->state)
-        opus_multistream_encoder_ctl (enc->state, OPUS_SET_VBR (!enc->cbr));
+      enc->bitrate_type = BITRATE_TYPE_CBR;
+      if (enc->state) {
+        opus_multistream_encoder_ctl (enc->state, OPUS_SET_VBR (FALSE));
+        opus_multistream_encoder_ctl (enc->state,
+            OPUS_SET_VBR_CONSTRAINT (FALSE), 0);
+      }
       g_mutex_unlock (&enc->property_lock);
       break;
     case PROP_CONSTRAINED_VBR:
-      GST_OPUS_UPDATE_PROPERTY (constrained_vbr, boolean, VBR_CONSTRAINT);
+      g_warning
+          ("constrained-vbr property is deprecated; use bitrate-type instead");
+      g_mutex_lock (&enc->property_lock);
+      enc->bitrate_type = BITRATE_TYPE_CONSTRAINED_VBR;
+      if (enc->state) {
+        opus_multistream_encoder_ctl (enc->state, OPUS_SET_VBR (TRUE));
+        opus_multistream_encoder_ctl (enc->state,
+            OPUS_SET_VBR_CONSTRAINT (TRUE), 0);
+      }
+      g_mutex_unlock (&enc->property_lock);
+      break;
+    case PROP_BITRATE_TYPE:
+      /* this one has an opposite meaning to the opus ctl... */
+      g_mutex_lock (&enc->property_lock);
+      enc->bitrate_type = g_value_get_enum (value);
+      if (enc->state) {
+        opus_multistream_encoder_ctl (enc->state,
+            OPUS_SET_VBR (enc->bitrate_type != BITRATE_TYPE_CBR));
+        opus_multistream_encoder_ctl (enc->state,
+            OPUS_SET_VBR_CONSTRAINT (enc->bitrate_type ==
+                BITRATE_TYPE_CONSTRAINED_VBR), 0);
+      }
+      g_mutex_unlock (&enc->property_lock);
       break;
     case PROP_COMPLEXITY:
       GST_OPUS_UPDATE_PROPERTY (complexity, int, COMPLEXITY);

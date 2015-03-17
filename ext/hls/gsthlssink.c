@@ -51,6 +51,8 @@ GST_DEBUG_CATEGORY_STATIC (gst_hls_sink_debug);
 #define DEFAULT_TARGET_DURATION 15
 #define DEFAULT_PLAYLIST_LENGTH 5
 
+#define GST_M3U8_PLAYLIST_VERSION 3
+
 enum
 {
   PROP_0,
@@ -161,8 +163,9 @@ gst_hls_sink_class_init (GstHlsSinkClass * klass)
   g_object_class_install_property (gobject_class, PROP_PLAYLIST_LENGTH,
       g_param_spec_uint ("playlist-length", "Playlist length",
           "Length of HLS playlist. To allow players to conform to section 6.3.3 "
-          "of the HLS specification, this should be at least 3.",
-          1, G_MAXUINT, DEFAULT_PLAYLIST_LENGTH,
+          "of the HLS specification, this should be at least 3. If set to 0, "
+          "the playlist will be infinite.",
+          0, G_MAXUINT, DEFAULT_PLAYLIST_LENGTH,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
@@ -204,7 +207,9 @@ gst_hls_sink_reset (GstHlsSink * sink)
 
   if (sink->playlist)
     gst_m3u8_playlist_free (sink->playlist);
-  sink->playlist = gst_m3u8_playlist_new (6, sink->playlist_length, FALSE);
+  sink->playlist =
+      gst_m3u8_playlist_new (GST_M3U8_PLAYLIST_VERSION, sink->playlist_length,
+      FALSE);
 }
 
 static gboolean
@@ -252,8 +257,7 @@ gst_hls_sink_handle_message (GstBin * bin, GstMessage * message)
   switch (message->type) {
     case GST_MESSAGE_ELEMENT:
     {
-      GFile *file;
-      const char *filename, *title;
+      const char *filename;
       char *playlist_content;
       GstClockTime running_time, duration;
       gboolean discont = FALSE;
@@ -270,8 +274,6 @@ gst_hls_sink_handle_message (GstBin * bin, GstMessage * message)
       duration = running_time - sink->last_running_time;
       sink->last_running_time = running_time;
 
-      file = g_file_new_for_path (filename);
-      title = "ciao";
       GST_INFO_OBJECT (sink, "COUNT %d", sink->index);
       if (sink->playlist_root == NULL)
         entry_location = g_path_get_basename (filename);
@@ -281,8 +283,8 @@ gst_hls_sink_handle_message (GstBin * bin, GstMessage * message)
         g_free (name);
       }
 
-      gst_m3u8_playlist_add_entry (sink->playlist, entry_location, file,
-          title, duration, sink->index, discont);
+      gst_m3u8_playlist_add_entry (sink->playlist, entry_location,
+          NULL, duration, sink->index, discont);
       g_free (entry_location);
       playlist_content = gst_m3u8_playlist_render (sink->playlist);
       if (!g_file_set_contents (sink->playlist_location,

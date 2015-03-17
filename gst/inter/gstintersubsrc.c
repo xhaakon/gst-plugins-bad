@@ -48,12 +48,11 @@ GST_DEBUG_CATEGORY_STATIC (gst_inter_sub_src_debug_category);
 #define GST_CAT_DEFAULT gst_inter_sub_src_debug_category
 
 /* prototypes */
-
-
 static void gst_inter_sub_src_set_property (GObject * object,
     guint property_id, const GValue * value, GParamSpec * pspec);
 static void gst_inter_sub_src_get_property (GObject * object,
     guint property_id, GValue * value, GParamSpec * pspec);
+static void gst_inter_sub_src_finalize (GObject * object);
 
 static gboolean gst_inter_sub_src_start (GstBaseSrc * src);
 static gboolean gst_inter_sub_src_stop (GstBaseSrc * src);
@@ -70,8 +69,9 @@ enum
   PROP_CHANNEL
 };
 
-/* pad templates */
+#define DEFAULT_CHANNEL ("default")
 
+/* pad templates */
 static GstStaticPadTemplate gst_inter_sub_src_src_template =
 GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
@@ -79,9 +79,8 @@ GST_STATIC_PAD_TEMPLATE ("src",
     GST_STATIC_CAPS ("application/unknown")
     );
 
-
 /* class initialization */
-
+#define parent_class gst_inter_sub_src_parent_class
 G_DEFINE_TYPE (GstInterSubSrc, gst_inter_sub_src, GST_TYPE_BASE_SRC);
 
 static void
@@ -105,6 +104,7 @@ gst_inter_sub_src_class_init (GstInterSubSrcClass * klass)
 
   gobject_class->set_property = gst_inter_sub_src_set_property;
   gobject_class->get_property = gst_inter_sub_src_get_property;
+  gobject_class->finalize = gst_inter_sub_src_finalize;
   base_src_class->start = GST_DEBUG_FUNCPTR (gst_inter_sub_src_start);
   base_src_class->stop = GST_DEBUG_FUNCPTR (gst_inter_sub_src_stop);
   base_src_class->get_times = GST_DEBUG_FUNCPTR (gst_inter_sub_src_get_times);
@@ -113,20 +113,16 @@ gst_inter_sub_src_class_init (GstInterSubSrcClass * klass)
   g_object_class_install_property (gobject_class, PROP_CHANNEL,
       g_param_spec_string ("channel", "Channel",
           "Channel name to match inter src and sink elements",
-          "default", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          DEFAULT_CHANNEL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
 static void
 gst_inter_sub_src_init (GstInterSubSrc * intersubsrc)
 {
-
-  intersubsrc->srcpad =
-      gst_pad_new_from_static_template (&gst_inter_sub_src_src_template, "src");
-
   gst_base_src_set_format (GST_BASE_SRC (intersubsrc), GST_FORMAT_TIME);
   gst_base_src_set_live (GST_BASE_SRC (intersubsrc), TRUE);
 
-  intersubsrc->channel = g_strdup ("default");
+  intersubsrc->channel = g_strdup (DEFAULT_CHANNEL);
 }
 
 void
@@ -162,6 +158,16 @@ gst_inter_sub_src_get_property (GObject * object, guint property_id,
   }
 }
 
+static void
+gst_inter_sub_src_finalize (GObject * object)
+{
+  GstInterSubSrc *intersubsrc = GST_INTER_SUB_SRC (object);
+
+  g_free (intersubsrc->channel);
+  intersubsrc->channel = NULL;
+
+  G_OBJECT_CLASS (parent_class)->finalize (object);
+}
 
 static gboolean
 gst_inter_sub_src_start (GstBaseSrc * src)
@@ -212,7 +218,6 @@ gst_inter_sub_src_get_times (GstBaseSrc * src, GstBuffer * buffer,
     *end = -1;
   }
 }
-
 
 static GstFlowReturn
 gst_inter_sub_src_create (GstBaseSrc * src, guint64 offset, guint size,

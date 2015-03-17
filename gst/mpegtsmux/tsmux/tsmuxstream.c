@@ -180,6 +180,7 @@ tsmux_stream_new (guint16 pid, TsMuxStreamType stream_type)
     case TSMUX_ST_PS_TELETEXT:
       /* needs fixes PES header length */
       stream->pi.pes_header_length = 36;
+      /* fall through */
     case TSMUX_ST_PS_DVB_SUBPICTURE:
       /* private stream 1 */
       stream->id = 0xBD;
@@ -697,9 +698,9 @@ tsmux_stream_add_data (TsMuxStream * stream, guint8 * data, guint len,
  */
 void
 tsmux_stream_get_es_descrs (TsMuxStream * stream,
-    GstMpegTsPMTStream * pmt_stream)
+    GstMpegtsPMTStream * pmt_stream)
 {
-  GstMpegTsDescriptor *descriptor;
+  GstMpegtsDescriptor *descriptor;
 
   g_return_if_fail (stream != NULL);
   g_return_if_fail (pmt_stream != NULL);

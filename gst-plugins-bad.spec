@@ -6,8 +6,8 @@
 
 Summary: GStreamer streaming media framework "bad" plug-ins
 Name: %{gstreamer}-plugins-bad
-Version: 1.3.3
-Release: 1.gst
+Version: 1.5.0.1
+Release: 0.20150316.190059.gst
 # The freeze and nfs plugins are LGPLv2 (only)
 License: LGPLv2+ and LGPLv2
 Group: Applications/Multimedia
@@ -31,6 +31,7 @@ BuildRequires: libass-devel
 %ifnarch s390 s390x
 BuildRequires: libdc1394-devel
 %endif
+BuildRequires: libde265-devel
 BuildRequires: libdvdnav-devel
 BuildRequires: libexif-devel
 BuildRequires: libiptcdata-devel
@@ -102,7 +103,7 @@ gstreamer-plugins-bad contains plug-ins that aren't
 tested well enough, or the code is not of good enough quality.
 
 This package (gstreamer-plugins-bad-extras) contains extra "bad" plugins for
-sources (mythtv), sinks (jack) and effects (pitch) which are not used
+sources, sinks (jack) and effects (pitch) which are not used
 very much and require additional libraries to be installed.
 
 
@@ -266,6 +267,7 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 # %{_libdir}/gstreamer-%{majorminor}/libgstgsm.so
 %{_libdir}/gstreamer-%{majorminor}/libgstkate.so
 %{_libdir}/gstreamer-%{majorminor}/libgstladspa.so
+%{_libdir}/gstreamer-%{majorminor}/libgstlibde265.so
 %{_libdir}/gstreamer-%{majorminor}/libgstmodplug.so
 %{_libdir}/gstreamer-%{majorminor}/libgstofa.so
 %{_libdir}/gstreamer-%{majorminor}/libgstresindvd.so
@@ -301,7 +303,6 @@ make ERROR_CFLAGS='' ERROR_CXXFLAGS=''
 %defattr(-,root,root,-)
 # Plugins with external dependencies
 # %{_libdir}/gstreamer-%{majorminor}/libgstjack.so
-# %{_libdir}/gstreamer-%{majorminor}/libgstmythtvsrc.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstsdl.so
 # %{_libdir}/gstreamer-%{majorminor}/libgstsoundtouch.so
 # %{_libdir}/gstreamer-%{majorminor}/libgsttimidity.so

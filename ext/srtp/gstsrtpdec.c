@@ -52,7 +52,7 @@
  * packets (encryption and authentication) and out RTP and RTCP. It
  * receives packet of type 'application/x-srtp' or 'application/x-srtcp'
  * on its sink pad, and outs packets of type 'application/x-rtp' or
- * 'application/x-rtcp' on its sink pad.
+ * 'application/x-rtcp' on its source pad.
  *
  * For each packet received, it checks if the internal SSRC is in the list
  * of streams already in use. If this is not the case, it sends a signal to
@@ -560,20 +560,18 @@ validate_buffer (GstSrtpDec * filter, GstBuffer * buf, guint32 * ssrc,
     gboolean * is_rtcp)
 {
   GstSrtpDecSsrcStream *stream = NULL;
+  GstRTPBuffer rtpbuf = GST_RTP_BUFFER_INIT;
 
-  if (!(*is_rtcp)) {
-    GstRTPBuffer rtpbuf = GST_RTP_BUFFER_INIT;
+  if (gst_rtp_buffer_map (buf, GST_MAP_READ, &rtpbuf)) {
+    if (gst_rtp_buffer_get_payload_type (&rtpbuf) < 64
+        || gst_rtp_buffer_get_payload_type (&rtpbuf) > 80) {
+      *ssrc = gst_rtp_buffer_get_ssrc (&rtpbuf);
 
-    if (gst_rtp_buffer_map (buf, GST_MAP_READ, &rtpbuf)) {
-      if (gst_rtp_buffer_get_payload_type (&rtpbuf) < 64
-          || gst_rtp_buffer_get_payload_type (&rtpbuf) > 80) {
-        *ssrc = gst_rtp_buffer_get_ssrc (&rtpbuf);
-
-        gst_rtp_buffer_unmap (&rtpbuf);
-        goto have_ssrc;
-      }
       gst_rtp_buffer_unmap (&rtpbuf);
+      *is_rtcp = FALSE;
+      goto have_ssrc;
     }
+    gst_rtp_buffer_unmap (&rtpbuf);
   }
 
   if (rtcp_buffer_get_ssrc (buf, ssrc)) {
@@ -759,13 +757,16 @@ gst_srtp_dec_sink_setcaps (GstPad * pad, GstObject * parent,
 static gboolean
 gst_srtp_dec_sink_event_rtp (GstPad * pad, GstObject * parent, GstEvent * event)
 {
+  gboolean ret;
   GstCaps *caps;
   GstSrtpDec *filter = GST_SRTP_DEC (parent);
 
   switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_CAPS:
       gst_event_parse_caps (event, &caps);
-      return gst_srtp_dec_sink_setcaps (pad, parent, caps, FALSE);
+      ret = gst_srtp_dec_sink_setcaps (pad, parent, caps, FALSE);
+      gst_event_unref (event);
+      return ret;
     case GST_EVENT_SEGMENT:
       filter->rtp_has_segment = TRUE;
       break;
@@ -783,13 +784,16 @@ static gboolean
 gst_srtp_dec_sink_event_rtcp (GstPad * pad, GstObject * parent,
     GstEvent * event)
 {
+  gboolean ret;
   GstCaps *caps;
   GstSrtpDec *filter = GST_SRTP_DEC (parent);
 
   switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_CAPS:
       gst_event_parse_caps (event, &caps);
-      return gst_srtp_dec_sink_setcaps (pad, parent, caps, TRUE);
+      ret = gst_srtp_dec_sink_setcaps (pad, parent, caps, TRUE);
+      gst_event_unref (event);
+      return ret;
     case GST_EVENT_SEGMENT:
       filter->rtcp_has_segment = TRUE;
       break;

@@ -56,6 +56,8 @@ struct _GstGLImageSink
 
     guintptr window_id;
     guintptr new_window_id;
+    gulong mouse_sig_id;
+    gulong key_sig_id;
 
     //caps
     GstVideoInfo info;
@@ -63,9 +65,11 @@ struct _GstGLImageSink
     GstGLDisplay *display;
     GstGLContext *context;
     GstGLContext *other_context;
+    gboolean handle_events;
+    gboolean ignore_alpha;
 
-    GstGLUpload *upload;
     guint      next_tex;
+    GstBuffer *next_buffer;
 
     volatile gint to_quit;
     gboolean keep_aspect_ratio;
@@ -78,12 +82,15 @@ struct _GstGLImageSink
     GstBuffer *stored_buffer;
     GLuint redisplay_texture;
 
-#if GST_GL_HAVE_GLES2
-  GstGLShader *redisplay_shader;
-  GLint redisplay_attr_position_loc;
-  GLint redisplay_attr_texture_loc;
-#endif
+    gboolean caps_change;
+    guint window_width;
+    guint window_height;
 
+    GstGLShader *redisplay_shader;
+    GLuint vao;
+    GLuint vertex_buffer;
+    GLint  attr_position;
+    GLint  attr_texture;
 };
 
 struct _GstGLImageSinkClass
@@ -92,6 +99,7 @@ struct _GstGLImageSinkClass
 };
 
 GType gst_glimage_sink_get_type(void);
+GType gst_gl_image_sink_bin_get_type(void);
 
 G_END_DECLS
 

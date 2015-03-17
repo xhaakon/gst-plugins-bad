@@ -564,7 +564,8 @@ gst_pvrvideosink_blit (GstPVRVideoSink * pvrvideosink, GstBuffer * buffer)
   }
 
   if (pvrvideosink->keep_aspect) {
-    GstVideoRectangle src, dst;
+    GstVideoRectangle src = { 0, };
+    GstVideoRectangle dst = { 0, };
 
     src.w = GST_VIDEO_SINK_WIDTH (pvrvideosink);
     src.h = GST_VIDEO_SINK_HEIGHT (pvrvideosink);
@@ -994,6 +995,7 @@ gst_pvrvideosink_propose_allocation (GstBaseSink * bsink, GstQuery * query)
     GST_DEBUG_OBJECT (pvrvideosink, "check existing pool caps");
     config = gst_buffer_pool_get_config (pool);
     gst_buffer_pool_config_get (config, &pcaps, &size, NULL, NULL, NULL, NULL);
+    gst_structure_free (config);
 
     if (!gst_caps_is_equal (caps, pcaps)) {
       GST_DEBUG_OBJECT (pvrvideosink, "pool has different caps");
