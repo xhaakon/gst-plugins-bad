@@ -57,7 +57,7 @@ static GstStaticPadTemplate adpcmenc_src_template =
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS ("audio/x-adpcm, "
-        " layout=(string){dvi}, "
+        " layout=(string)dvi, "
         " block_align = (int) [64, 8192], "
         " rate = (int)[ 1, MAX ], " "channels = (int)[1,2];")
     );
@@ -100,7 +100,7 @@ adpcmenc_layout_get_type (void)
   static GType adpcmenc_layout_type = 0;
 
   if (!adpcmenc_layout_type) {
-    static GEnumValue layout_types[] = {
+    static const GEnumValue layout_types[] = {
       {LAYOUT_ADPCM_DVI, "DVI/IMA APDCM", "dvi"},
       {0, NULL, NULL},
     };

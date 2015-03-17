@@ -734,9 +734,15 @@ gst_vtenc_finish (GstVideoEncoder * enc)
   GstFlowReturn ret = GST_FLOW_OK;
   OSStatus vt_status;
 
+  /* We need to unlock the stream lock here because
+   * it can wait for gst_vtenc_enqueue_buffer() to
+   * handle a buffer... which will take the stream
+   * lock from another thread and then deadlock */
+  GST_VIDEO_ENCODER_STREAM_UNLOCK (self);
   vt_status =
       VTCompressionSessionCompleteFrames (self->session,
       kCMTimePositiveInfinity);
+  GST_VIDEO_ENCODER_STREAM_LOCK (self);
   if (vt_status != noErr) {
     GST_WARNING_OBJECT (self, "VTCompressionSessionCompleteFrames returned %d",
         (int) vt_status);
@@ -1008,6 +1014,11 @@ gst_vtenc_update_latency (GstVTEnc * self)
 
   status = VTSessionCopyProperty (self->session,
       kVTCompressionPropertyKey_NumberOfPendingFrames, NULL, &value);
+  if (status != noErr || !value) {
+    GST_INFO_OBJECT (self, "failed to get NumberOfPendingFrames: %d", status);
+    return;
+  }
+
   CFNumberGetValue (value, kCFNumberSInt32Type, &frames);
   if (self->latency_frames == -1 || self->latency_frames != frames) {
     self->latency_frames = frames;
@@ -1092,7 +1103,8 @@ gst_vtenc_encode_frame (GstVTEnc * self, GstVideoCodecFrame * frame)
       goto cv_error;
     }
 
-    outbuf = gst_core_video_buffer_new ((CVBufferRef) pbuf, &self->video_info);
+    outbuf =
+        gst_core_video_buffer_new ((CVBufferRef) pbuf, &self->video_info, TRUE);
     if (!gst_video_frame_map (&outframe, &self->video_info, outbuf,
             GST_MAP_WRITE)) {
       gst_video_frame_unmap (&inframe);
@@ -1253,6 +1265,11 @@ gst_vtenc_enqueue_buffer (void *outputCallbackRefCon,
       gst_video_encoder_get_frame (GST_VIDEO_ENCODER_CAST (self),
       GPOINTER_TO_INT (sourceFrameRefCon));
 
+  if (!frame) {
+    GST_WARNING_OBJECT (self, "No corresponding frame found!");
+    goto beach;
+  }
+
   if (is_keyframe) {
     GST_VIDEO_CODEC_FRAME_SET_SYNC_POINT (frame);
     gst_vtenc_clear_cached_caps_downstream (self);
@@ -1260,7 +1277,7 @@ gst_vtenc_enqueue_buffer (void *outputCallbackRefCon,
 
   /* We are dealing with block buffers here, so we don't need
    * to enable the use of the video meta API on the core media buffer */
-  frame->output_buffer = gst_core_media_buffer_new (sampleBuffer, FALSE);
+  frame->output_buffer = gst_core_media_buffer_new (sampleBuffer, FALSE, TRUE);
 
   g_async_queue_push (self->cur_outframes, frame);
 
@@ -1349,7 +1366,7 @@ gst_vtenc_register (GstPlugin * plugin,
   g_type_set_qdata (type, GST_VTENC_CODEC_DETAILS_QDATA,
       (gpointer) codec_details);
 
-  result = gst_element_register (plugin, type_name, GST_RANK_NONE, type);
+  result = gst_element_register (plugin, type_name, GST_RANK_PRIMARY, type);
   if (!result) {
     GST_ERROR_OBJECT (plugin, "failed to register element %s", type_name);
   }

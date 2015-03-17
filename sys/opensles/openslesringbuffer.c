@@ -355,10 +355,16 @@ _opensles_player_acquire (GstAudioRingBuffer * rb,
   SLresult result;
   SLDataFormat_PCM format;
 
-  /* Configure audio source */
+  /* Configure audio source
+   * 4 buffers is the "typical" size as optimized inside Android's
+   * OpenSL ES, see frameworks/wilhelm/src/itfstruct.h BUFFER_HEADER_TYPICAL
+   *
+   * Also only use half of our segment size to make sure that there's always
+   * some more queued up in our ringbuffer and we don't start to read silence.
+   */
   SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {
-    SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,
-    MIN (32, (spec->segtotal >> 1))
+    SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, MIN (4, MAX (spec->segtotal >> 1,
+            1))
   };
   SLDataSource audioSrc = { &loc_bufq, &format };
 
@@ -518,7 +524,6 @@ _opensles_player_start (GstAudioRingBuffer * rb)
 {
   GstOpenSLESRingBuffer *thiz = GST_OPENSLES_RING_BUFFER_CAST (rb);
   SLresult result;
-  gint i;
 
   /* Register callback on the buffer queue */
   if (!thiz->is_queue_callback_registered) {
@@ -532,11 +537,9 @@ _opensles_player_start (GstAudioRingBuffer * rb)
     thiz->is_queue_callback_registered = TRUE;
   }
 
-  /* Fill the queue by enqueing buffers */
+  /* Fill the queue by enqueing a buffer */
   if (!g_atomic_int_get (&thiz->is_prerolled)) {
-    for (i = 0; i < thiz->data_segtotal; i++) {
-      _opensles_player_cb (NULL, rb);
-    }
+    _opensles_player_cb (NULL, rb);
     g_atomic_int_set (&thiz->is_prerolled, 1);
   }
 

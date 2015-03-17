@@ -15,6 +15,7 @@
 @SET_MAKE@
 
 
+
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -107,6 +108,7 @@ am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/as-libtool.m4 \
 	$(top_srcdir)/common/m4/as-version.m4 \
 	$(top_srcdir)/common/m4/ax_create_stdint_h.m4 \
+	$(top_srcdir)/common/m4/ax_pthread.m4 \
 	$(top_srcdir)/common/m4/gst-arch.m4 \
 	$(top_srcdir)/common/m4/gst-args.m4 \
 	$(top_srcdir)/common/m4/gst-check.m4 \
@@ -120,7 +122,6 @@ am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/gst-platform.m4 \
 	$(top_srcdir)/common/m4/gst-plugin-docs.m4 \
 	$(top_srcdir)/common/m4/gst-plugindir.m4 \
-	$(top_srcdir)/common/m4/gst-x11.m4 \
 	$(top_srcdir)/common/m4/gst.m4 \
 	$(top_srcdir)/common/m4/gtk-doc.m4 \
 	$(top_srcdir)/common/m4/introspection.m4 \
@@ -168,9 +169,10 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(libdir)" \
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(girdir)" \
+	"$(DESTDIR)$(typelibsdir)" \
 	"$(DESTDIR)$(libgstgl_@GST_API_VERSION@includedir)" \
-	"$(DESTDIR)$(libgstgl_@GST_API_VERSION@includedir)"
+	"$(DESTDIR)$(configexecincludedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstgl_@GST_API_VERSION@_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
@@ -185,6 +187,7 @@ am_libgstgl_@GST_API_VERSION@_la_OBJECTS =  \
 	libgstgl_@GST_API_VERSION@_la-gstglmemory.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglbufferpool.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglfilter.lo \
+	libgstgl_@GST_API_VERSION@_la-gstglbasefilter.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglshader.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglshadervariables.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglcolorconvert.lo \
@@ -195,7 +198,8 @@ am_libgstgl_@GST_API_VERSION@_la_OBJECTS =  \
 	libgstgl_@GST_API_VERSION@_la-gstglapi.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglfeature.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglutils.lo \
-	libgstgl_@GST_API_VERSION@_la-gstglframebuffer.lo
+	libgstgl_@GST_API_VERSION@_la-gstglframebuffer.lo \
+	libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.lo
 libgstgl_@GST_API_VERSION@_la_OBJECTS =  \
 	$(am_libgstgl_@GST_API_VERSION@_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -255,9 +259,9 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+DATA = $(gir_DATA) $(typelibs_DATA)
 HEADERS = $(libgstgl_@GST_API_VERSION@include_HEADERS) \
-	$(nodist_libgstgl_@GST_API_VERSION@include_HEADERS) \
-	$(noinst_HEADERS)
+	$(nodist_configexecinclude_HEADERS) $(noinst_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -327,8 +331,12 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BLUEZ_CFLAGS = @BLUEZ_CFLAGS@
-BLUEZ_LIBS = @BLUEZ_LIBS@
+BLUEZ4_CFLAGS = @BLUEZ4_CFLAGS@
+BLUEZ4_LIBS = @BLUEZ4_LIBS@
+BLUEZ5_CFLAGS = @BLUEZ5_CFLAGS@
+BLUEZ5_LIBS = @BLUEZ5_LIBS@
+BS2B_CFLAGS = @BS2B_CFLAGS@
+BS2B_LIBS = @BS2B_LIBS@
 BZ2_LIBS = @BZ2_LIBS@
 CC = @CC@
 CCASFLAGS = @CCASFLAGS@
@@ -367,7 +375,6 @@ DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DEPRECATED_CFLAGS = @DEPRECATED_CFLAGS@
 DIRECT3D_LIBS = @DIRECT3D_LIBS@
-DIRECTDRAW_LIBS = @DIRECTDRAW_LIBS@
 DIRECTFB_CFLAGS = @DIRECTFB_CFLAGS@
 DIRECTFB_LIBS = @DIRECTFB_LIBS@
 DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
@@ -375,6 +382,8 @@ DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
+DTLS_CFLAGS = @DTLS_CFLAGS@
+DTLS_LIBS = @DTLS_LIBS@
 DTS_LIBS = @DTS_LIBS@
 DUMPBIN = @DUMPBIN@
 DVDNAV_CFLAGS = @DVDNAV_CFLAGS@
@@ -424,8 +433,6 @@ GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
 GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
-GMYTH_CFLAGS = @GMYTH_CFLAGS@
-GMYTH_LIBS = @GMYTH_LIBS@
 GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
 GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
@@ -504,7 +511,6 @@ HAVE_CLUTTER_GLX = @HAVE_CLUTTER_GLX@
 HAVE_CLUTTER_X11 = @HAVE_CLUTTER_X11@
 HAVE_CXX = @HAVE_CXX@
 HAVE_DIRECT3D = @HAVE_DIRECT3D@
-HAVE_DIRECTDRAW = @HAVE_DIRECTDRAW@
 HAVE_DIRECTSOUND = @HAVE_DIRECTSOUND@
 HAVE_DTS = @HAVE_DTS@
 HAVE_EGL = @HAVE_EGL@
@@ -513,7 +519,6 @@ HAVE_FAAD = @HAVE_FAAD@
 HAVE_FLITE = @HAVE_FLITE@
 HAVE_GL = @HAVE_GL@
 HAVE_GLES2 = @HAVE_GLES2@
-HAVE_GLU = @HAVE_GLU@
 HAVE_GRAPHENE = @HAVE_GRAPHENE@
 HAVE_GSM = @HAVE_GSM@
 HAVE_GTK3 = @HAVE_GTK3@
@@ -526,7 +531,6 @@ HAVE_WASAPI = @HAVE_WASAPI@
 HAVE_WILDMIDI = @HAVE_WILDMIDI@
 HAVE_WINKS = @HAVE_WINKS@
 HAVE_WINSCREENCAP = @HAVE_WINSCREENCAP@
-HAVE_X = @HAVE_X@
 HAVE_X11 = @HAVE_X11@
 HTML_DIR = @HTML_DIR@
 INSTALL = @INSTALL@
@@ -551,6 +555,8 @@ LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBDC1394_CFLAGS = @LIBDC1394_CFLAGS@
 LIBDC1394_LIBS = @LIBDC1394_LIBS@
+LIBDE265_CFLAGS = @LIBDE265_CFLAGS@
+LIBDE265_LIBS = @LIBDE265_LIBS@
 LIBDIR = @LIBDIR@
 LIBGCRYPT_CFLAGS = @LIBGCRYPT_CFLAGS@
 LIBGCRYPT_CONFIG = @LIBGCRYPT_CONFIG@
@@ -624,10 +630,14 @@ OPENCV_LIBS = @OPENCV_LIBS@
 OPENCV_PREFIX = @OPENCV_PREFIX@
 OPENEXR_CFLAGS = @OPENEXR_CFLAGS@
 OPENEXR_LIBS = @OPENEXR_LIBS@
+OPENH264_CFLAGS = @OPENH264_CFLAGS@
+OPENH264_LIBS = @OPENH264_LIBS@
 OPENJPEG_CFLAGS = @OPENJPEG_CFLAGS@
 OPENJPEG_LIBS = @OPENJPEG_LIBS@
 OPENNI2_CFLAGS = @OPENNI2_CFLAGS@
 OPENNI2_LIBS = @OPENNI2_LIBS@
+OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
+OPENSSL_LIBS = @OPENSSL_LIBS@
 OPUS_CFLAGS = @OPUS_CFLAGS@
 OPUS_LIBS = @OPUS_LIBS@
 ORCC = @ORCC@
@@ -653,6 +663,9 @@ PKG_CONFIG = @PKG_CONFIG@
 PLUGINDIR = @PLUGINDIR@
 POSUB = @POSUB@
 PROFILE_CFLAGS = @PROFILE_CFLAGS@
+PTHREAD_CC = @PTHREAD_CC@
+PTHREAD_CFLAGS = @PTHREAD_CFLAGS@
+PTHREAD_LIBS = @PTHREAD_LIBS@
 PVR_CFLAGS = @PVR_CFLAGS@
 PVR_LIBS = @PVR_LIBS@
 PYTHON = @PYTHON@
@@ -689,6 +702,7 @@ SOUNDTOUCH_LIBS = @SOUNDTOUCH_LIBS@
 SPANDSP_CFLAGS = @SPANDSP_CFLAGS@
 SPANDSP_LIBS = @SPANDSP_LIBS@
 SPC_LIBS = @SPC_LIBS@
+SRTP_CFLAGS = @SRTP_CFLAGS@
 SRTP_LIBS = @SRTP_LIBS@
 SSH2_CFLAGS = @SSH2_CFLAGS@
 SSH2_LIBS = @SSH2_LIBS@
@@ -729,17 +743,16 @@ WINSCREENCAP_LIBS = @WINSCREENCAP_LIBS@
 WINSOCK2_LIBS = @WINSOCK2_LIBS@
 X11_CFLAGS = @X11_CFLAGS@
 X11_LIBS = @X11_LIBS@
+X265_CFLAGS = @X265_CFLAGS@
+X265_LIBS = @X265_LIBS@
 XCOMPOSITE_CFLAGS = @XCOMPOSITE_CFLAGS@
 XCOMPOSITE_LIBS = @XCOMPOSITE_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
 XGETTEXT_EXTRA_OPTIONS = @XGETTEXT_EXTRA_OPTIONS@
-XMKMF = @XMKMF@
 XVID_LIBS = @XVID_LIBS@
 X_CFLAGS = @X_CFLAGS@
-X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_LIBS = @X_LIBS@
-X_PRE_LIBS = @X_PRE_LIBS@
 ZBAR_CFLAGS = @ZBAR_CFLAGS@
 ZBAR_LIBS = @ZBAR_LIBS@
 abs_builddir = @abs_builddir@
@@ -756,6 +769,7 @@ am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
 am__tar = @am__tar@
 am__untar = @am__untar@
+ax_pthread_config = @ax_pthread_config@
 bindir = @bindir@
 build = @build@
 build_alias = @build_alias@
@@ -813,13 +827,14 @@ SUBDIRS = glprototypes $(am__append_1) $(am__append_3) $(am__append_5) \
 	$(am__append_13) $(am__append_15)
 DIST_SUBDIRS = glprototypes android x11 win32 cocoa wayland dispmanx egl eagl
 noinst_HEADERS = 
-built_header_configure = gstglconfig.h
+built_sys_header_configure = gstglconfig.h
 libgstgl_@GST_API_VERSION@_la_SOURCES = \
 	gstgldisplay.c \
 	gstglcontext.c \
 	gstglmemory.c \
 	gstglbufferpool.c \
 	gstglfilter.c \
+	gstglbasefilter.c \
         gstglshader.c \
         gstglshadervariables.c \
         gstglcolorconvert.c \
@@ -830,7 +845,8 @@ libgstgl_@GST_API_VERSION@_la_SOURCES = \
         gstglapi.c \
         gstglfeature.c \
         gstglutils.c \
-        gstglframebuffer.c
+        gstglframebuffer.c \
+        gstglsyncmeta.c
 
 libgstgl_@GST_API_VERSION@includedir = $(includedir)/gstreamer-@GST_API_VERSION@/gst/gl
 libgstgl_@GST_API_VERSION@include_HEADERS = \
@@ -840,6 +856,7 @@ libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gstglmemory.h \
 	gstglbufferpool.h \
 	gstglfilter.h \
+	gstglbasefilter.h \
 	gstglshadervariables.h \
 	gstglshader.h \
 	gstglcolorconvert.h \
@@ -850,6 +867,7 @@ libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gstglfeature.h \
 	gstglutils.h \
 	gstglframebuffer.h \
+	gstglsyncmeta.h \
 	gstgl_fwd.h \
 	gl.h
 
@@ -859,9 +877,8 @@ libgstgl_@GST_API_VERSION@_la_LIBADD = $(GMODULE_NO_EXPORT_LIBS) \
 	$(am__append_4) $(am__append_6) $(am__append_8) \
 	$(am__append_10) $(am__append_12) $(am__append_14) \
 	$(am__append_16)
-nodist_libgstgl_@GST_API_VERSION@include_HEADERS = \
-	$(built_header_configure)
-
+configexecincludedir = $(libdir)/gstreamer-@GST_API_VERSION@/include/gst/gl
+nodist_configexecinclude_HEADERS = $(built_sys_header_configure)
 libgstgl_@GST_API_VERSION@_la_CFLAGS = \
 	-I$(top_srcdir)/gst-libs \
 	-I$(top_builddir)/gst-libs \
@@ -878,7 +895,18 @@ libgstgl_@GST_API_VERSION@_la_LDFLAGS = \
 
 
 # DISTCLEANFILES is for files generated by configure
-DISTCLEANFILES = $(built_header_configure)
+DISTCLEANFILES = $(built_sys_header_configure)
+@HAVE_INTROSPECTION_TRUE@BUILT_GIRSOURCES = GstGL-@GST_API_VERSION@.gir
+@HAVE_INTROSPECTION_TRUE@gir_headers = $(patsubst %,$(srcdir)/%, $(libgstgl_@GST_API_VERSION@include_HEADERS))
+@HAVE_INTROSPECTION_TRUE@gir_sources = $(patsubst %,$(srcdir)/%, $(libgstgl_@GST_API_VERSION@_la_SOURCES))
+
+# INTROSPECTION_GIRDIR/INTROSPECTION_TYPELIBDIR aren't the right place to
+# install anything - we need to install inside our prefix.
+@HAVE_INTROSPECTION_TRUE@girdir = $(datadir)/gir-1.0
+@HAVE_INTROSPECTION_TRUE@gir_DATA = $(BUILT_GIRSOURCES)
+@HAVE_INTROSPECTION_TRUE@typelibsdir = $(libdir)/girepository-1.0/
+@HAVE_INTROSPECTION_TRUE@typelibs_DATA = $(BUILT_GIRSOURCES:.gir=.typelib)
+@HAVE_INTROSPECTION_TRUE@CLEANFILES = $(BUILT_GIRSOURCES) $(typelibs_DATA)
 all: all-recursive
 
 .SUFFIXES:
@@ -959,6 +987,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglapi.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglbasefilter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglbufferpool.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglcolorconvert.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglcontext.Plo@am__quote@
@@ -970,6 +999,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglmemory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglshader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglshadervariables.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglupload.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstgluploadmeta.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglutils.Plo@am__quote@
@@ -1033,6 +1063,13 @@ libgstgl_@GST_API_VERSION@_la-gstglfilter.lo: gstglfilter.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglfilter.c' object='libgstgl_@GST_API_VERSION@_la-gstglfilter.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstgl_@GST_API_VERSION@_la-gstglfilter.lo `test -f 'gstglfilter.c' || echo '$(srcdir)/'`gstglfilter.c
+
+libgstgl_@GST_API_VERSION@_la-gstglbasefilter.lo: gstglbasefilter.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstgl_@GST_API_VERSION@_la-gstglbasefilter.lo -MD -MP -MF $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglbasefilter.Tpo -c -o libgstgl_@GST_API_VERSION@_la-gstglbasefilter.lo `test -f 'gstglbasefilter.c' || echo '$(srcdir)/'`gstglbasefilter.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglbasefilter.Tpo $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglbasefilter.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglbasefilter.c' object='libgstgl_@GST_API_VERSION@_la-gstglbasefilter.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstgl_@GST_API_VERSION@_la-gstglbasefilter.lo `test -f 'gstglbasefilter.c' || echo '$(srcdir)/'`gstglbasefilter.c
 
 libgstgl_@GST_API_VERSION@_la-gstglshader.lo: gstglshader.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstgl_@GST_API_VERSION@_la-gstglshader.lo -MD -MP -MF $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglshader.Tpo -c -o libgstgl_@GST_API_VERSION@_la-gstglshader.lo `test -f 'gstglshader.c' || echo '$(srcdir)/'`gstglshader.c
@@ -1111,11 +1148,60 @@ libgstgl_@GST_API_VERSION@_la-gstglframebuffer.lo: gstglframebuffer.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstgl_@GST_API_VERSION@_la-gstglframebuffer.lo `test -f 'gstglframebuffer.c' || echo '$(srcdir)/'`gstglframebuffer.c
 
+libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.lo: gstglsyncmeta.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.lo -MD -MP -MF $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.Tpo -c -o libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.lo `test -f 'gstglsyncmeta.c' || echo '$(srcdir)/'`gstglsyncmeta.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.Tpo $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglsyncmeta.c' object='libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.lo `test -f 'gstglsyncmeta.c' || echo '$(srcdir)/'`gstglsyncmeta.c
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
+install-girDATA: $(gir_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(gir_DATA)'; test -n "$(girdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(girdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(girdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(girdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(girdir)" || exit $$?; \
+	done
+
+uninstall-girDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(gir_DATA)'; test -n "$(girdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(girdir)'; $(am__uninstall_files_from_dir)
+install-typelibsDATA: $(typelibs_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(typelibs_DATA)'; test -n "$(typelibsdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(typelibsdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(typelibsdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(typelibsdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(typelibsdir)" || exit $$?; \
+	done
+
+uninstall-typelibsDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(typelibs_DATA)'; test -n "$(typelibsdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(typelibsdir)'; $(am__uninstall_files_from_dir)
 install-libgstgl_@GST_API_VERSION@includeHEADERS: $(libgstgl_@GST_API_VERSION@include_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(libgstgl_@GST_API_VERSION@include_HEADERS)'; test -n "$(libgstgl_@GST_API_VERSION@includedir)" || list=; \
@@ -1137,27 +1223,27 @@ uninstall-libgstgl_@GST_API_VERSION@includeHEADERS:
 	@list='$(libgstgl_@GST_API_VERSION@include_HEADERS)'; test -n "$(libgstgl_@GST_API_VERSION@includedir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(libgstgl_@GST_API_VERSION@includedir)'; $(am__uninstall_files_from_dir)
-install-nodist_libgstgl_@GST_API_VERSION@includeHEADERS: $(nodist_libgstgl_@GST_API_VERSION@include_HEADERS)
+install-nodist_configexecincludeHEADERS: $(nodist_configexecinclude_HEADERS)
 	@$(NORMAL_INSTALL)
-	@list='$(nodist_libgstgl_@GST_API_VERSION@include_HEADERS)'; test -n "$(libgstgl_@GST_API_VERSION@includedir)" || list=; \
+	@list='$(nodist_configexecinclude_HEADERS)'; test -n "$(configexecincludedir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(libgstgl_@GST_API_VERSION@includedir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(libgstgl_@GST_API_VERSION@includedir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(configexecincludedir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(configexecincludedir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libgstgl_@GST_API_VERSION@includedir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libgstgl_@GST_API_VERSION@includedir)" || exit $$?; \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(configexecincludedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(configexecincludedir)" || exit $$?; \
 	done
 
-uninstall-nodist_libgstgl_@GST_API_VERSION@includeHEADERS:
+uninstall-nodist_configexecincludeHEADERS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(nodist_libgstgl_@GST_API_VERSION@include_HEADERS)'; test -n "$(libgstgl_@GST_API_VERSION@includedir)" || list=; \
+	@list='$(nodist_configexecinclude_HEADERS)'; test -n "$(configexecincludedir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(libgstgl_@GST_API_VERSION@includedir)'; $(am__uninstall_files_from_dir)
+	dir='$(DESTDIR)$(configexecincludedir)'; $(am__uninstall_files_from_dir)
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -1315,10 +1401,10 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(DATA) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libgstgl_@GST_API_VERSION@includedir)" "$(DESTDIR)$(libgstgl_@GST_API_VERSION@includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(girdir)" "$(DESTDIR)$(typelibsdir)" "$(DESTDIR)$(libgstgl_@GST_API_VERSION@includedir)" "$(DESTDIR)$(configexecincludedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -1343,6 +1429,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
@@ -1375,14 +1462,16 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-libgstgl_@GST_API_VERSION@includeHEADERS \
-	install-nodist_libgstgl_@GST_API_VERSION@includeHEADERS
+install-data-am: install-girDATA \
+	install-libgstgl_@GST_API_VERSION@includeHEADERS \
+	install-typelibsDATA
 
 install-dvi: install-dvi-recursive
 
 install-dvi-am:
 
-install-exec-am: install-libLTLIBRARIES
+install-exec-am: install-libLTLIBRARIES \
+	install-nodist_configexecincludeHEADERS
 
 install-html: install-html-recursive
 
@@ -1422,9 +1511,10 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES \
+uninstall-am: uninstall-girDATA uninstall-libLTLIBRARIES \
 	uninstall-libgstgl_@GST_API_VERSION@includeHEADERS \
-	uninstall-nodist_libgstgl_@GST_API_VERSION@includeHEADERS
+	uninstall-nodist_configexecincludeHEADERS \
+	uninstall-typelibsDATA
 
 .MAKE: $(am__recursive_targets) install-am install-strip
 
@@ -1434,20 +1524,57 @@ uninstall-am: uninstall-libLTLIBRARIES \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am \
+	install-dvi-am install-exec install-exec-am install-girDATA \
+	install-html install-html-am install-info install-info-am \
 	install-libLTLIBRARIES \
 	install-libgstgl_@GST_API_VERSION@includeHEADERS install-man \
-	install-nodist_libgstgl_@GST_API_VERSION@includeHEADERS \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
+	install-nodist_configexecincludeHEADERS install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	install-typelibsDATA installcheck installcheck-am installdirs \
 	installdirs-am maintainer-clean maintainer-clean-generic \
 	mostlyclean mostlyclean-compile mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-libLTLIBRARIES \
+	uninstall-am uninstall-girDATA uninstall-libLTLIBRARIES \
 	uninstall-libgstgl_@GST_API_VERSION@includeHEADERS \
-	uninstall-nodist_libgstgl_@GST_API_VERSION@includeHEADERS
+	uninstall-nodist_configexecincludeHEADERS \
+	uninstall-typelibsDATA
 
+
+@HAVE_INTROSPECTION_TRUE@GstGL-@GST_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libgstgl-@GST_API_VERSION@.la
+@HAVE_INTROSPECTION_TRUE@	$(AM_V_GEN)PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" \
+@HAVE_INTROSPECTION_TRUE@		GST_PLUGIN_SYSTEM_PATH_1_0="" GST_PLUGIN_PATH_1_0="" GST_REGISTRY_UPDATE=no \
+@HAVE_INTROSPECTION_TRUE@		$(INTROSPECTION_SCANNER) -v --namespace GstGL \
+@HAVE_INTROSPECTION_TRUE@		--nsversion=@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--strip-prefix=Gst \
+@HAVE_INTROSPECTION_TRUE@		--warn-all \
+@HAVE_INTROSPECTION_TRUE@		--c-include "gst/gl/gl.h" \
+@HAVE_INTROSPECTION_TRUE@		-I$(top_srcdir)/gst-libs \
+@HAVE_INTROSPECTION_TRUE@		-I$(top_builddir)/gst-libs \
+@HAVE_INTROSPECTION_TRUE@		$(GST_PLUGINS_BASE_CFLAGS) \
+@HAVE_INTROSPECTION_TRUE@		--add-include-path=`PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" $(PKG_CONFIG) --variable=girdir gstreamer-@GST_API_VERSION@` \
+@HAVE_INTROSPECTION_TRUE@		--add-include-path=`PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" $(PKG_CONFIG) --variable=girdir gstreamer-base-@GST_API_VERSION@` \
+@HAVE_INTROSPECTION_TRUE@		--library=libgstgl-@GST_API_VERSION@.la \
+@HAVE_INTROSPECTION_TRUE@		--include=Gst-@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--include=GstBase-@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--libtool="$(top_builddir)/libtool" \
+@HAVE_INTROSPECTION_TRUE@		--pkg gstreamer-@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--pkg gstreamer-base-@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--pkg gstreamer-video-@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--pkg-export gstreamer-gl-@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--add-init-section="gst_init(NULL,NULL);" \
+@HAVE_INTROSPECTION_TRUE@		-DGST_USE_UNSTABLE_API \
+@HAVE_INTROSPECTION_TRUE@		--output $@ \
+@HAVE_INTROSPECTION_TRUE@		$(gir_headers) \
+@HAVE_INTROSPECTION_TRUE@		$(gir_sources)
+
+@HAVE_INTROSPECTION_TRUE@%.typelib: %.gir $(INTROSPECTION_COMPILER)
+@HAVE_INTROSPECTION_TRUE@	$(AM_V_GEN)PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" \
+@HAVE_INTROSPECTION_TRUE@		$(INTROSPECTION_COMPILER) \
+@HAVE_INTROSPECTION_TRUE@		--includedir=$(srcdir) \
+@HAVE_INTROSPECTION_TRUE@		--includedir=$(builddir) \
+@HAVE_INTROSPECTION_TRUE@		--includedir=`PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" $(PKG_CONFIG) --variable=girdir gstreamer-@GST_API_VERSION@` \
+@HAVE_INTROSPECTION_TRUE@		--includedir=`PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" $(PKG_CONFIG) --variable=girdir gstreamer-base-@GST_API_VERSION@` \
+@HAVE_INTROSPECTION_TRUE@		$(INTROSPECTION_COMPILER_OPTS) $< -o $(@F)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

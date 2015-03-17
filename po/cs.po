@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.1.4\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2014-12-18 12:07+0100\n"
+"POT-Creation-Date: 2015-03-17 09:28+0100\n"
 "PO-Revision-Date: 2013-09-18 10:05+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
@@ -22,9 +22,6 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: Gtranslator 2.91.6\n"
 
-msgid "Internal data stream error."
-msgstr "Chyba proudu vnitřních dat."
-
 msgid "format wasn't negotiated before get function"
 msgstr ""
 
@@ -34,7 +31,7 @@ msgstr ""
 msgid ""
 "GStreamer can play audio using any number of output elements. Some possible "
 "choices are osssink, pulsesink and alsasink. The audiosink can be a partial "
-"pipeline instea of just one element."
+"pipeline instead of just one element."
 msgstr ""
 
 msgid "description for default GStreamer sound events audiosink"
@@ -117,6 +114,9 @@ msgstr ""
 msgid "Describes the selected visualization element."
 msgstr ""
 
+msgid "OpenCV failed to load template image"
+msgstr ""
+
 msgid "Could not read title information for DVD."
 msgstr "Nezdařilo se přečtení informací o titulu DVD."
 
@@ -139,15 +139,6 @@ msgstr "Nezdařilo se čtení DVD."
 
 msgid "This file contains no playable streams."
 msgstr "Tento soubor neobsahuje žádný proud, který by šel přehrát."
-
-msgid "Couldn't get the Manifest's URI"
-msgstr "Nelze získat adresu URI prohlášení."
-
-msgid "Failed to get fragment URL."
-msgstr "Selhalo získání adresy URL fragmentu."
-
-msgid "Couldn't download fragments"
-msgstr "Nelze stáhnout fragmenty"
 
 #, fuzzy
 msgid "Could not open sndfile stream for reading."
@@ -184,6 +175,15 @@ msgstr ""
 
 msgid "Subpicture format was not configured before data flow"
 msgstr "Formát podřízeného obrázku nebyl nastaven před datovým tokem"
+
+msgid "Failed to get fragment URL."
+msgstr "Selhalo získání adresy URL fragmentu."
+
+msgid "Internal data stream error."
+msgstr "Chyba proudu vnitřních dat."
+
+msgid "Couldn't download fragments"
+msgstr "Nelze stáhnout fragmenty"
 
 msgid "No file name specified for writing."
 msgstr "K zápisu nebyl zadán žádný název souboru."
@@ -230,6 +230,9 @@ msgstr "Soubor s nastavením kanálů DVB neobsahuje žádné kanály"
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr "Nelze najít podrobnosti ke kanálu DVB %s"
+
+#~ msgid "Couldn't get the Manifest's URI"
+#~ msgstr "Nelze získat adresu URI prohlášení."
 
 #~ msgid "Could not write to file \"%s\"."
 #~ msgstr "Nezdařil se zápis do souboru „%s“."

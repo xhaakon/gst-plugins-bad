@@ -88,10 +88,6 @@
 #include <stdio.h>
 #include <string.h>
 
-/* FIXME 0.11: suppress warnings for deprecated API such as GStaticRecMutex
- * with newer GLib versions (>= 2.31.0) */
-#define GLIB_DISABLE_DEPRECATION_WARNINGS
-
 #include <gst/tag/tag.h>
 #include <gst/video/video.h>
 #include <gst/mpegts/mpegts.h>
@@ -171,7 +167,7 @@ static GstFlowReturn mpegtsmux_push_packets (MpegTsMux * mux, gboolean force);
 static gboolean new_packet_m2ts (MpegTsMux * mux, GstBuffer * buf,
     gint64 new_pcr);
 
-static void mpegtsdemux_prepare_srcpad (MpegTsMux * mux);
+static void mpegtsmux_prepare_srcpad (MpegTsMux * mux);
 GstFlowReturn mpegtsmux_clip_inc_running_time (GstCollectPads * pads,
     GstCollectData * cdata, GstBuffer * buf, GstBuffer ** outbuf,
     gpointer user_data);
@@ -186,7 +182,7 @@ static void mpegtsmux_release_pad (GstElement * element, GstPad * pad);
 static GstStateChangeReturn mpegtsmux_change_state (GstElement * element,
     GstStateChange transition);
 static gboolean mpegtsmux_send_event (GstElement * element, GstEvent * event);
-static void mpegtsdemux_set_header_on_caps (MpegTsMux * mux);
+static void mpegtsmux_set_header_on_caps (MpegTsMux * mux);
 static gboolean mpegtsmux_src_event (GstPad * pad, GstObject * parent,
     GstEvent * event);
 
@@ -284,7 +280,7 @@ mpegtsmux_class_init (MpegTsMuxClass * klass)
   g_object_class_install_property (G_OBJECT_CLASS (klass), ARG_ALIGNMENT,
       g_param_spec_int ("alignment", "packet alignment",
           "Number of packets per buffer (padded with dummy packets on EOS) "
-          "(-1 = auto, 0 = all available packets)",
+          "(-1 = auto, 0 = all available packets, 7 for UDP streaming)",
           -1, G_MAXINT, MPEGTSMUX_DEFAULT_ALIGNMENT,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
@@ -315,9 +311,6 @@ mpegtsmux_init (MpegTsMux * mux)
       mux);
   gst_collect_pads_set_clip_function (mux->collect, (GstCollectPadsClipFunction)
       GST_DEBUG_FUNCPTR (mpegtsmux_clip_inc_running_time), mux);
-
-  mux->tsmux = tsmux_new ();
-  tsmux_set_write_func (mux->tsmux, new_packet_cb, mux);
 
   mux->adapter = gst_adapter_new ();
   mux->out_adapter = gst_adapter_new ();
@@ -378,7 +371,6 @@ mpegtsmux_reset (MpegTsMux * mux, gboolean alloc)
   mux->is_delta = TRUE;
 
   mux->streamheader_sent = FALSE;
-  mux->force_key_unit_event = NULL;
   mux->pending_key_unit_ts = GST_CLOCK_TIME_NONE;
 #if 0
   mux->spn_count = 0;
@@ -599,7 +591,6 @@ mpegtsmux_create_stream (MpegTsMux * mux, MpegTsPadData * ts_data)
       GST_PTR_FORMAT, ts_data->pid, caps);
 
   s = gst_caps_get_structure (caps, 0);
-  g_return_val_if_fail (s != NULL, FALSE);
 
   mt = gst_structure_get_name (s);
   value = gst_structure_get_value (s, "codec_data");
@@ -981,8 +972,7 @@ check_pending_key_unit_event (GstEvent * pending_event, GstSegment * segment,
   guint count;
   GstEvent *event = NULL;
 
-  g_return_val_if_fail (pending_event != NULL, NULL);
-  g_return_val_if_fail (segment != NULL, NULL);
+  g_assert (segment != NULL);
 
   if (pending_event == NULL)
     goto out;
@@ -1008,8 +998,13 @@ check_pending_key_unit_event (GstEvent * pending_event, GstSegment * segment,
   stream_time = gst_segment_to_stream_time (segment,
       GST_FORMAT_TIME, timestamp);
 
-  gst_video_event_parse_upstream_force_key_unit (pending_event,
-      NULL, &all_headers, &count);
+  if (GST_EVENT_TYPE (pending_event) == GST_EVENT_CUSTOM_DOWNSTREAM) {
+    gst_video_event_parse_downstream_force_key_unit (pending_event,
+        NULL, NULL, NULL, &all_headers, &count);
+  } else {
+    gst_video_event_parse_upstream_force_key_unit (pending_event, NULL,
+        &all_headers, &count);
+  }
 
   event =
       gst_video_event_new_downstream_force_key_unit (timestamp, stream_time,
@@ -1106,7 +1101,7 @@ mpegtsmux_collected_buffer (GstCollectPads * pads, GstCollectData * data,
     if (G_UNLIKELY (ret != GST_FLOW_OK))
       return ret;
 
-    mpegtsdemux_prepare_srcpad (mux);
+    mpegtsmux_prepare_srcpad (mux);
 
     mux->first = FALSE;
   }
@@ -1328,7 +1323,7 @@ new_packet_common_init (MpegTsMux * mux, GstBuffer * buf, guint8 * data,
     guint len)
 {
   /* Packets should be at least 188 bytes, but check anyway */
-  g_return_if_fail (len >= 2 || !data);
+  g_assert (len >= 2 || !data);
 
   if (!mux->streamheader_sent && data) {
     guint pid = ((data[1] & 0x1f) << 8) | data[2];
@@ -1344,7 +1339,7 @@ new_packet_common_init (MpegTsMux * mux, GstBuffer * buf, guint8 * data,
       }
       mux->streamheader = g_list_append (mux->streamheader, hbuf);
     } else if (mux->streamheader) {
-      mpegtsdemux_set_header_on_caps (mux);
+      mpegtsmux_set_header_on_caps (mux);
       mux->streamheader_sent = TRUE;
     }
   }
@@ -1363,11 +1358,9 @@ new_packet_common_init (MpegTsMux * mux, GstBuffer * buf, guint8 * data,
 static GstFlowReturn
 mpegtsmux_push_packets (MpegTsMux * mux, gboolean force)
 {
+  GstBufferList *buffer_list;
   gint align = mux->alignment;
   gint av, packet_size;
-  GstBuffer *buf;
-  GstFlowReturn ret = GST_FLOW_OK;
-  GstClockTime ts;
 
   if (mux->m2ts_mode) {
     packet_size = M2TS_PACKET_LENGTH;
@@ -1382,25 +1375,31 @@ mpegtsmux_push_packets (MpegTsMux * mux, gboolean force)
   av = gst_adapter_available (mux->out_adapter);
   GST_LOG_OBJECT (mux, "align %d, av %d", align, av);
 
-  if (!align)
-    align = av;
-  else
-    align *= packet_size;
+  if (av == 0)
+    return GST_FLOW_OK;
 
-  /* FIXME: what about DTS here? */
-  GST_LOG_OBJECT (mux, "aligning to %d bytes", align);
-  if (G_LIKELY ((align <= av) && av)) {
-    GST_LOG_OBJECT (mux, "pushing %d aligned bytes", av - (av % align));
-    ts = gst_adapter_prev_pts (mux->out_adapter, NULL);
-    buf = gst_adapter_take_buffer (mux->out_adapter, av - (av % align));
-    g_assert (buf);
-    GST_BUFFER_PTS (buf) = ts;
-
-    ret = gst_pad_push (mux->srcpad, buf);
-    av = av % align;
+  /* no alignment, just push all available data */
+  if (align == 0) {
+    buffer_list = gst_adapter_take_buffer_list (mux->out_adapter, av);
+    return gst_pad_push_list (mux->srcpad, buffer_list);
   }
 
-  if (av && force) {
+  align *= packet_size;
+
+  if (!force && align > av)
+    return GST_FLOW_OK;
+
+  buffer_list = gst_buffer_list_new_sized ((av / align) + 1);
+
+  GST_LOG_OBJECT (mux, "aligning to %d bytes", align);
+  while (align <= av) {
+    gst_buffer_list_add (buffer_list,
+        gst_adapter_take_buffer (mux->out_adapter, align));
+    av -= align;
+  }
+
+  if (av > 0 && force) {
+    GstBuffer *buf;
     guint8 *data;
     guint32 header;
     gint dummy;
@@ -1410,11 +1409,9 @@ mpegtsmux_push_packets (MpegTsMux * mux, gboolean force)
     buf = gst_buffer_new_and_alloc (align);
     gst_buffer_map (buf, &map, GST_MAP_READ);
     data = map.data;
-    ts = gst_adapter_prev_pts (mux->out_adapter, NULL);
 
     gst_adapter_copy (mux->out_adapter, data, 0, av);
     gst_adapter_clear (mux->out_adapter);
-    GST_BUFFER_PTS (buf) = ts;
 
     data += av;
     header = GST_READ_UINT32_BE (data - packet_size);
@@ -1444,11 +1441,10 @@ mpegtsmux_push_packets (MpegTsMux * mux, gboolean force)
     }
 
     gst_buffer_unmap (buf, &map);
-
-    ret = gst_pad_push (mux->srcpad, buf);
+    gst_buffer_list_add (buffer_list, buf);
   }
 
-  return ret;
+  return gst_pad_push_list (mux->srcpad, buffer_list);
 }
 
 static GstFlowReturn
@@ -1632,7 +1628,7 @@ alloc_packet_cb (GstBuffer ** _buf, void *user_data)
 }
 
 static void
-mpegtsdemux_set_header_on_caps (MpegTsMux * mux)
+mpegtsmux_set_header_on_caps (MpegTsMux * mux)
 {
   GstBuffer *buf;
   GstStructure *structure;
@@ -1666,7 +1662,7 @@ mpegtsdemux_set_header_on_caps (MpegTsMux * mux)
 }
 
 static void
-mpegtsdemux_prepare_srcpad (MpegTsMux * mux)
+mpegtsmux_prepare_srcpad (MpegTsMux * mux)
 {
   GstSegment seg;
   /* we are not going to seek */
@@ -1739,8 +1735,6 @@ mpegtsmux_send_event (GstElement * element, GstEvent * event)
 {
   GstMpegtsSection *section;
   MpegTsMux *mux = GST_MPEG_TSMUX (element);
-
-  g_return_val_if_fail (event != NULL, FALSE);
 
   section = gst_event_parse_mpegts_section (event);
   gst_event_unref (event);

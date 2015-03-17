@@ -1,6 +1,7 @@
 ADPCMEnc GstPreset
 DvbBaseBin GstChildProxy GstURIHandler
 GstA2dpSink GstChildProxy
+GstAdaptiveDemux GstChildProxy
 GstAmrWbEnc GstPreset
 GstApExSink GstImplementsInterface GstMixer
 GstAsfMux GstTagSetter
@@ -27,10 +28,18 @@ GstFPSDisplaySink GstChildProxy
 GstFaac GstPreset
 GstFaceOverlay GstChildProxy
 GstFreeverb GstPreset
+GstGLBaseMixer GstChildProxy
+GstGLFilterBin GstChildProxy
 GstGLImageSink GstVideoOverlay
+GstGLImageSink GstVideoOverlay GstNavigation
+GstGLImageSinkBin GstChildProxy GstVideoOverlay GstNavigation
 GstGLMixer GstChildProxy
+GstGLMixerBin GstChildProxy
 GstGLMosaic GstChildProxy
+GstGLSinkBin GstChildProxy GstVideoOverlay GstNavigation
+GstGLSrcBin GstChildProxy
 GstGLVideoMixer GstChildProxy
+GstGLVideoMixerBin GstChildProxy
 GstGSMEnc GstPreset
 GstGSettingsAudioSink GstChildProxy
 GstGSettingsAudioSrc GstChildProxy
@@ -52,8 +61,10 @@ GstMssDemux GstChildProxy
 GstMythtvSrc GstURIHandler
 GstNeonhttpSrc GstURIHandler
 GstOpenJPEGEnc GstPreset
+GstOpenh264Enc GstPreset
 GstOpusEnc GstPreset GstTagSetter
 GstPipeline GstChildProxy
+GstPnmenc GstPreset
 GstRTMPSink GstURIHandler
 GstRTMPSrc GstURIHandler
 GstSDLVideoSink GstImplementsInterface GstXOverlay GstNavigation
@@ -72,6 +83,7 @@ GstViewfinderBin GstChildProxy
 GstVoAacEnc GstPreset
 GstVoAmrWbEnc GstPreset
 GstWaylandSink GstVideoOverlay GstWaylandVideo
+GstWebpEnc GstPreset
 GstWrapperCameraBinSrc GstChildProxy
 GstXvidEnc GstPreset
 MXFDMS1ClipFramework MXFDescriptiveMetadataFrameworkInterface

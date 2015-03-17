@@ -44,8 +44,10 @@
 #include "config.h"
 #endif
 
-#include <gst/gl/gstglapi.h>
 #include "gstgltransformation.h"
+
+#include <gst/gl/gstglapi.h>
+#include <graphene-gobject.h>
 
 #define GST_CAT_DEFAULT gst_gl_transformation_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -53,7 +55,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 enum
 {
   PROP_0,
-  PROP_FOVY,
+  PROP_FOV,
   PROP_ORTHO,
   PROP_TRANSLATION_X,
   PROP_TRANSLATION_Y,
@@ -62,7 +64,8 @@ enum
   PROP_ROTATION_Y,
   PROP_ROTATION_Z,
   PROP_SCALE_X,
-  PROP_SCALE_Y
+  PROP_SCALE_Y,
+  PROP_MVP
 };
 
 #define DEBUG_INIT \
@@ -79,6 +82,7 @@ static void gst_gl_transformation_get_property (GObject * object, guint prop_id,
 static gboolean gst_gl_transformation_set_caps (GstGLFilter * filter,
     GstCaps * incaps, GstCaps * outcaps);
 
+static void gst_gl_transformation_reset_gl (GstGLFilter * filter);
 static void gst_gl_transformation_reset (GstGLFilter * filter);
 static gboolean gst_gl_transformation_init_shader (GstGLFilter * filter);
 static void gst_gl_transformation_callback (gpointer stuff);
@@ -125,13 +129,15 @@ gst_gl_transformation_class_init (GstGLTransformationClass * klass)
   gobject_class->get_property = gst_gl_transformation_get_property;
 
   GST_GL_FILTER_CLASS (klass)->onInitFBO = gst_gl_transformation_init_shader;
+  GST_GL_FILTER_CLASS (klass)->display_reset_cb =
+      gst_gl_transformation_reset_gl;
   GST_GL_FILTER_CLASS (klass)->onReset = gst_gl_transformation_reset;
   GST_GL_FILTER_CLASS (klass)->set_caps = gst_gl_transformation_set_caps;
   GST_GL_FILTER_CLASS (klass)->filter_texture =
       gst_gl_transformation_filter_texture;
 
-  g_object_class_install_property (gobject_class, PROP_FOVY,
-      g_param_spec_float ("fovy", "Fovy", "Field of view angle in degrees",
+  g_object_class_install_property (gobject_class, PROP_FOV,
+      g_param_spec_float ("fov", "Fov", "Field of view angle in degrees",
           0.0, G_MAXFLOAT, 90.0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_ORTHO,
@@ -161,44 +167,54 @@ gst_gl_transformation_class_init (GstGLTransformationClass * klass)
   /* Translation */
   g_object_class_install_property (gobject_class, PROP_TRANSLATION_X,
       g_param_spec_float ("translation-x", "X Translation",
-          "Translates the video at the X-Axis.",
+          "Translates the video at the X-Axis, in universal [0-1] coordinate.",
           -G_MAXFLOAT, G_MAXFLOAT, 0.0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_TRANSLATION_Y,
       g_param_spec_float ("translation-y", "Y Translation",
-          "Translates the video at the Y-Axis.",
+          "Translates the video at the Y-Axis, in universal [0-1] coordinate.",
           -G_MAXFLOAT, G_MAXFLOAT, 0.0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_TRANSLATION_Z,
       g_param_spec_float ("translation-z", "Z Translation",
-          "Translates the video at the Z-Axis.",
+          "Translates the video at the Z-Axis, in universal [0-1] coordinate.",
           -G_MAXFLOAT, G_MAXFLOAT, 0.0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   /* Scale */
   g_object_class_install_property (gobject_class, PROP_SCALE_X,
       g_param_spec_float ("scale-x", "X Scale",
-          "Scale multiplierer for the X-Axis.",
+          "Scale multiplier for the X-Axis.",
           0.0, G_MAXFLOAT, 1.0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_SCALE_Y,
       g_param_spec_float ("scale-y", "Y Scale",
-          "Scale multiplierer for the Y-Axis.",
+          "Scale multiplier for the Y-Axis.",
           0.0, G_MAXFLOAT, 1.0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  /* MVP */
+  g_object_class_install_property (gobject_class, PROP_MVP,
+      g_param_spec_boxed ("mvp-matrix",
+          "Modelview Projection Matrix",
+          "The final Graphene 4x4 Matrix for transformation",
+          GRAPHENE_TYPE_MATRIX, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   gst_element_class_set_metadata (element_class, "OpenGL transformation filter",
       "Filter/Effect/Video", "Transform video on the GPU",
       "Lubosz Sarnecki <lubosz@gmail.com>");
+
+  GST_GL_BASE_FILTER_CLASS (klass)->supported_gl_api =
+      GST_GL_API_OPENGL | GST_GL_API_OPENGL3 | GST_GL_API_GLES2;
 }
 
 static void
 gst_gl_transformation_init (GstGLTransformation * filter)
 {
   filter->shader = NULL;
-  filter->fovy = 90;
-  filter->aspect = 0;
+  filter->fov = 90;
+  filter->aspect = 1.0;
   filter->znear = 0.1;
   filter->zfar = 100;
 
@@ -214,9 +230,10 @@ static void
 gst_gl_transformation_build_mvp (GstGLTransformation * transformation)
 {
   graphene_point3d_t translation_vector =
-      GRAPHENE_POINT3D_INIT (transformation->xtranslation,
-      transformation->ytranslation,
-      transformation->ztranslation);
+      GRAPHENE_POINT3D_INIT (transformation->xtranslation * 2.0 *
+      transformation->aspect,
+      transformation->ytranslation * 2.0,
+      transformation->ztranslation * 2.0);
 
   graphene_matrix_t model_matrix;
   graphene_matrix_t projection_matrix;
@@ -231,14 +248,16 @@ gst_gl_transformation_build_mvp (GstGLTransformation * transformation)
   graphene_vec3_init (&center, 0.f, 0.f, 0.f);
   graphene_vec3_init (&up, 0.f, 1.f, 0.f);
 
-  graphene_matrix_init_rotate (&model_matrix,
+  graphene_matrix_init_scale (&model_matrix,
+      transformation->xscale, transformation->yscale, 1.0f);
+
+  graphene_matrix_rotate (&model_matrix,
       transformation->xrotation, graphene_vec3_x_axis ());
   graphene_matrix_rotate (&model_matrix,
       transformation->yrotation, graphene_vec3_y_axis ());
   graphene_matrix_rotate (&model_matrix,
       transformation->zrotation, graphene_vec3_z_axis ());
-  graphene_matrix_scale (&model_matrix,
-      transformation->xscale, transformation->yscale, 1.0f);
+
   graphene_matrix_translate (&model_matrix, &translation_vector);
 
   if (transformation->ortho) {
@@ -247,7 +266,7 @@ gst_gl_transformation_build_mvp (GstGLTransformation * transformation)
         -1, 1, transformation->znear, transformation->zfar);
   } else {
     graphene_matrix_init_perspective (&projection_matrix,
-        transformation->fovy,
+        transformation->fov,
         transformation->aspect, transformation->znear, transformation->zfar);
   }
 
@@ -265,8 +284,8 @@ gst_gl_transformation_set_property (GObject * object, guint prop_id,
   GstGLTransformation *filter = GST_GL_TRANSFORMATION (object);
 
   switch (prop_id) {
-    case PROP_FOVY:
-      filter->fovy = g_value_get_float (value);
+    case PROP_FOV:
+      filter->fov = g_value_get_float (value);
       break;
     case PROP_ORTHO:
       filter->ortho = g_value_get_boolean (value);
@@ -295,6 +314,11 @@ gst_gl_transformation_set_property (GObject * object, guint prop_id,
     case PROP_SCALE_Y:
       filter->yscale = g_value_get_float (value);
       break;
+    case PROP_MVP:
+      if (g_value_get_boxed (value) != NULL)
+        filter->mvp_matrix = *((graphene_matrix_t *) g_value_get_boxed (value));
+      return;
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -309,8 +333,8 @@ gst_gl_transformation_get_property (GObject * object, guint prop_id,
   GstGLTransformation *filter = GST_GL_TRANSFORMATION (object);
 
   switch (prop_id) {
-    case PROP_FOVY:
-      g_value_set_float (value, filter->fovy);
+    case PROP_FOV:
+      g_value_set_float (value, filter->fov);
       break;
     case PROP_ORTHO:
       g_value_set_boolean (value, filter->ortho);
@@ -339,6 +363,9 @@ gst_gl_transformation_get_property (GObject * object, guint prop_id,
     case PROP_SCALE_Y:
       g_value_set_float (value, filter->yscale);
       break;
+    case PROP_MVP:
+      g_value_set_boxed (value, (gconstpointer) & filter->mvp_matrix);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -355,9 +382,28 @@ gst_gl_transformation_set_caps (GstGLFilter * filter, GstCaps * incaps,
       (gdouble) GST_VIDEO_INFO_WIDTH (&filter->out_info) /
       (gdouble) GST_VIDEO_INFO_HEIGHT (&filter->out_info);
 
+  transformation->caps_change = TRUE;
+
   gst_gl_transformation_build_mvp (transformation);
 
   return TRUE;
+}
+
+static void
+gst_gl_transformation_reset_gl (GstGLFilter * filter)
+{
+  GstGLTransformation *transformation = GST_GL_TRANSFORMATION (filter);
+  const GstGLFuncs *gl = GST_GL_BASE_FILTER (filter)->context->gl_vtable;
+
+  if (transformation->vao) {
+    gl->DeleteVertexArrays (1, &transformation->vao);
+    transformation->vao = 0;
+  }
+
+  if (transformation->vertex_buffer) {
+    gl->DeleteBuffers (1, &transformation->vertex_buffer);
+    transformation->vertex_buffer = 0;
+  }
 }
 
 static void
@@ -367,7 +413,8 @@ gst_gl_transformation_reset (GstGLFilter * filter)
 
   /* blocking call, wait until the opengl thread has destroyed the shader */
   if (transformation->shader)
-    gst_gl_context_del_shader (filter->context, transformation->shader);
+    gst_gl_context_del_shader (GST_GL_BASE_FILTER (filter)->context,
+        transformation->shader);
   transformation->shader = NULL;
 }
 
@@ -376,10 +423,10 @@ gst_gl_transformation_init_shader (GstGLFilter * filter)
 {
   GstGLTransformation *transformation = GST_GL_TRANSFORMATION (filter);
 
-  if (gst_gl_context_get_gl_api (filter->context)) {
+  if (gst_gl_context_get_gl_api (GST_GL_BASE_FILTER (filter)->context)) {
     /* blocking call, wait until the opengl thread has compiled the shader */
-    return gst_gl_context_gen_shader (filter->context, cube_v_src, cube_f_src,
-        &transformation->shader);
+    return gst_gl_context_gen_shader (GST_GL_BASE_FILTER (filter)->context,
+        cube_v_src, cube_f_src, &transformation->shader);
   }
   return TRUE;
 }
@@ -393,7 +440,7 @@ gst_gl_transformation_filter_texture (GstGLFilter * filter, guint in_tex,
   transformation->in_tex = in_tex;
 
   /* blocking call, use a FBO */
-  gst_gl_context_use_fbo_v2 (filter->context,
+  gst_gl_context_use_fbo_v2 (GST_GL_BASE_FILTER (filter)->context,
       GST_VIDEO_INFO_WIDTH (&filter->out_info),
       GST_VIDEO_INFO_HEIGHT (&filter->out_info),
       filter->fbo, filter->depthbuffer,
@@ -402,62 +449,78 @@ gst_gl_transformation_filter_texture (GstGLFilter * filter, guint in_tex,
   return TRUE;
 }
 
+
+static void
+_upload_vertices (GstGLTransformation * transformation)
+{
+  const GstGLFuncs *gl =
+      GST_GL_BASE_FILTER (transformation)->context->gl_vtable;
+
+/* *INDENT-OFF* */
+  GLfloat vertices[] = {
+     -transformation->aspect,  1.0,  0.0, 1.0, 0.0, 1.0,
+      transformation->aspect,  1.0,  0.0, 1.0, 1.0, 1.0,
+      transformation->aspect, -1.0,  0.0, 1.0, 1.0, 0.0,
+     -transformation->aspect, -1.0,  0.0, 1.0, 0.0, 0.0
+  };
+  /* *INDENT-ON* */
+
+  gl->BindBuffer (GL_ARRAY_BUFFER, transformation->vertex_buffer);
+
+  gl->BufferData (GL_ARRAY_BUFFER, 4 * 6 * sizeof (GLfloat), vertices,
+      GL_STATIC_DRAW);
+}
+
+static void
+_bind_buffer (GstGLTransformation * transformation)
+{
+  const GstGLFuncs *gl =
+      GST_GL_BASE_FILTER (transformation)->context->gl_vtable;
+
+  gl->BindBuffer (GL_ARRAY_BUFFER, transformation->vertex_buffer);
+
+  /* Load the vertex position */
+  gl->VertexAttribPointer (transformation->attr_position, 4, GL_FLOAT,
+      GL_FALSE, 6 * sizeof (GLfloat), (void *) 0);
+
+  /* Load the texture coordinate */
+  gl->VertexAttribPointer (transformation->attr_texture, 2, GL_FLOAT, GL_FALSE,
+      6 * sizeof (GLfloat), (void *) (4 * sizeof (GLfloat)));
+
+  gl->EnableVertexAttribArray (transformation->attr_position);
+  gl->EnableVertexAttribArray (transformation->attr_texture);
+}
+
+static void
+_unbind_buffer (GstGLTransformation * transformation)
+{
+  const GstGLFuncs *gl =
+      GST_GL_BASE_FILTER (transformation)->context->gl_vtable;
+
+  gl->BindBuffer (GL_ARRAY_BUFFER, 0);
+
+  gl->DisableVertexAttribArray (transformation->attr_position);
+  gl->DisableVertexAttribArray (transformation->attr_texture);
+}
+
 static void
 gst_gl_transformation_callback (gpointer stuff)
 {
   GstGLFilter *filter = GST_GL_FILTER (stuff);
   GstGLTransformation *transformation = GST_GL_TRANSFORMATION (filter);
-  GstGLFuncs *gl = filter->context->gl_vtable;
-
-/* *INDENT-OFF* */
-
-  const GLfloat positions[] = {
-     -transformation->aspect,  1.0,  0.0, 1.0,
-      transformation->aspect,  1.0,  0.0, 1.0,
-      transformation->aspect, -1.0,  0.0, 1.0,
-     -transformation->aspect, -1.0,  0.0, 1.0,
-  };
-
-  const GLfloat texture_coordinates[] = {
-     0.0,  1.0,
-     1.0,  1.0,
-     1.0,  0.0,
-     0.0,  0.0,
-  };
-
-/* *INDENT-ON* */
+  GstGLFuncs *gl = GST_GL_BASE_FILTER (filter)->context->gl_vtable;
 
   GLushort indices[] = { 0, 1, 2, 3, 0 };
 
   GLfloat temp_matrix[16];
 
-  GLint attr_position_loc = 0;
-  GLint attr_texture_loc = 0;
-
-  gst_gl_context_clear_shader (filter->context);
+  gst_gl_context_clear_shader (GST_GL_BASE_FILTER (filter)->context);
   gl->BindTexture (GL_TEXTURE_2D, 0);
 
-  gl->ClearColor (0.f, 0.f, 0.f, 0.f);
+  gl->ClearColor (0.f, 0.f, 0.f, 1.f);
   gl->Clear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   gst_gl_shader_use (transformation->shader);
-
-  attr_position_loc =
-      gst_gl_shader_get_attribute_location (transformation->shader, "position");
-
-  attr_texture_loc =
-      gst_gl_shader_get_attribute_location (transformation->shader, "uv");
-
-  /* Load the vertex position */
-  gl->VertexAttribPointer (attr_position_loc, 4, GL_FLOAT,
-      GL_FALSE, 0, positions);
-
-  /* Load the texture coordinate */
-  gl->VertexAttribPointer (attr_texture_loc, 2, GL_FLOAT,
-      GL_FALSE, 0, texture_coordinates);
-
-  gl->EnableVertexAttribArray (attr_position_loc);
-  gl->EnableVertexAttribArray (attr_texture_loc);
 
   gl->ActiveTexture (GL_TEXTURE0);
   gl->BindTexture (GL_TEXTURE_2D, transformation->in_tex);
@@ -467,10 +530,43 @@ gst_gl_transformation_callback (gpointer stuff)
   gst_gl_shader_set_uniform_matrix_4fv (transformation->shader, "mvp",
       1, GL_FALSE, temp_matrix);
 
+  if (!transformation->vertex_buffer) {
+    transformation->attr_position =
+        gst_gl_shader_get_attribute_location (transformation->shader,
+        "position");
+
+    transformation->attr_texture =
+        gst_gl_shader_get_attribute_location (transformation->shader, "uv");
+
+    if (gl->GenVertexArrays) {
+      gl->GenVertexArrays (1, &transformation->vao);
+      gl->BindVertexArray (transformation->vao);
+    }
+
+    gl->GenBuffers (1, &transformation->vertex_buffer);
+    transformation->caps_change = TRUE;
+  }
+
+  if (gl->GenVertexArrays)
+    gl->BindVertexArray (transformation->vao);
+
+  if (transformation->caps_change) {
+    _upload_vertices (transformation);
+    _bind_buffer (transformation);
+
+    if (gl->GenVertexArrays)
+      gl->BindBuffer (GL_ARRAY_BUFFER, 0);
+  } else if (!gl->GenVertexArrays) {
+    _bind_buffer (transformation);
+  }
+
   gl->DrawElements (GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_SHORT, indices);
 
-  gl->DisableVertexAttribArray (attr_position_loc);
-  gl->DisableVertexAttribArray (attr_texture_loc);
+  if (gl->GenVertexArrays)
+    gl->BindVertexArray (0);
+  else
+    _unbind_buffer (transformation);
 
-  gst_gl_context_clear_shader (filter->context);
+  gst_gl_context_clear_shader (GST_GL_BASE_FILTER (filter)->context);
+  transformation->caps_change = FALSE;
 }

@@ -82,13 +82,15 @@
     "channels = (int) [ 1, 6 ], "      \
     "rate = (int) {" SAMPLE_RATES "}, "   \
     "stream-format = (string) { adts, raw }, " \
-    "base-profile = (string) { main, lc, ssr, ltp }; " \
+    "base-profile = (string) { main, lc, ssr, ltp }, " \
+    "framed = (boolean) true; " \
     "audio/mpeg, "                     \
     "mpegversion = (int) 2, "   \
     "channels = (int) [ 1, 6 ], "      \
     "rate = (int) {" SAMPLE_RATES "}, "   \
     "stream-format = (string) { adts, raw }, " \
-    "profile = (string) { main, lc }"
+    "profile = (string) { main, lc }," \
+    "framed = (boolean) true; "
 static GstStaticPadTemplate src_template = GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
@@ -152,7 +154,7 @@ gst_faac_brtype_get_type (void)
   static GType gst_faac_brtype_type = 0;
 
   if (!gst_faac_brtype_type) {
-    static GEnumValue gst_faac_brtype[] = {
+    static const GEnumValue gst_faac_brtype[] = {
       {VBR, "VBR", "VBR encoding"},
       {ABR, "ABR", "ABR encoding"},
       {0, NULL, NULL},
@@ -172,7 +174,7 @@ gst_faac_shortctl_get_type (void)
   static GType gst_faac_shortctl_type = 0;
 
   if (!gst_faac_shortctl_type) {
-    static GEnumValue gst_faac_shortctl[] = {
+    static const GEnumValue gst_faac_shortctl[] = {
       {SHORTCTL_NORMAL, "SHORTCTL_NORMAL", "Normal block type"},
       {SHORTCTL_NOSHORT, "SHORTCTL_NOSHORT", "No short blocks"},
       {SHORTCTL_NOLONG, "SHORTCTL_NOLONG", "No long blocks"},
@@ -550,7 +552,7 @@ gst_faac_configure_source_pad (GstFaac * faac, GstAudioInfo * info)
       "channels", G_TYPE_INT, info->channels,
       "rate", G_TYPE_INT, info->rate,
       "stream-format", G_TYPE_STRING, (faac->outputformat ? "adts" : "raw"),
-      NULL);
+      "framed", G_TYPE_BOOLEAN, TRUE, NULL);
 
   /* DecoderSpecificInfo is only available for mpegversion=4 */
   if (faac->mpegversion == 4) {

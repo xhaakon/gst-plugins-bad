@@ -6,10 +6,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.4.0\n"
+"Project-Id-Version: gst-plugins-bad 1.2.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2014-12-18 12:07+0100\n"
-"PO-Revision-Date: 2014-07-22 12:38+0100\n"
+"POT-Creation-Date: 2015-03-17 09:28+0100\n"
+"PO-Revision-Date: 2014-01-22 17:56+0100\n"
 "Last-Translator: Johnny A. Solbu <johnny@solbu.net>\n"
 "Language-Team: Norwegian Bokmaal <i18n-nb@lister.ping.uio.no>\n"
 "Language: nb_NO\n"
@@ -18,11 +18,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.5.4\n"
 
-msgid "Internal data stream error."
-msgstr "Intern feil i datastrøm."
-
 msgid "format wasn't negotiated before get function"
-msgstr "formatet ble ikke forhandlet før get-funksjon"
+msgstr ""
 
 msgid "default GStreamer sound events audiosink"
 msgstr ""
@@ -30,7 +27,7 @@ msgstr ""
 msgid ""
 "GStreamer can play audio using any number of output elements. Some possible "
 "choices are osssink, pulsesink and alsasink. The audiosink can be a partial "
-"pipeline instea of just one element."
+"pipeline instead of just one element."
 msgstr ""
 
 msgid "description for default GStreamer sound events audiosink"
@@ -113,6 +110,9 @@ msgstr ""
 msgid "Describes the selected visualization element."
 msgstr ""
 
+msgid "OpenCV failed to load template image"
+msgstr ""
+
 msgid "Could not read title information for DVD."
 msgstr "Kunne ikke lese tittelinformasjonen til DVD-en."
 
@@ -136,17 +136,9 @@ msgstr "Kunne ikke lese DVD-en."
 msgid "This file contains no playable streams."
 msgstr "Denne filen inneholder ingen spillbare strømmer."
 
-msgid "Couldn't get the Manifest's URI"
-msgstr "Kunne ikke hente Manifest-nettadressen."
-
-msgid "Failed to get fragment URL."
-msgstr "Klarte ikke å hente fragment-nettadresse."
-
-msgid "Couldn't download fragments"
-msgstr "Kunne ikke laste ned fragmenter"
-
+#, fuzzy
 msgid "Could not open sndfile stream for reading."
-msgstr "Kunne ikke åpne sndfile for lesing."
+msgstr "Kunne ikke åpne filen «%s» for lesing."
 
 msgid "Could not establish connection to sndio"
 msgstr "Kunne ikke opprette forbindelse til sndio"
@@ -177,6 +169,15 @@ msgstr ""
 msgid "Subpicture format was not configured before data flow"
 msgstr "Underbildeformat er ikke konfigurert før dataflyt"
 
+msgid "Failed to get fragment URL."
+msgstr "Klarte ikke å hente fragment-nettadresse."
+
+msgid "Internal data stream error."
+msgstr "Intern feil i datastrøm."
+
+msgid "Couldn't download fragments"
+msgstr "Kunne ikke laste ned fragmenter"
+
 msgid "No file name specified for writing."
 msgstr "Ingen filnavn oppgitt for skriving."
 
@@ -200,9 +201,9 @@ msgstr "Kunne ikke åpne frontenhet «%s»."
 msgid "Could not get settings from frontend device \"%s\"."
 msgstr "Kunne ikke hente innstillinger fra frontenhet «%s»."
 
-#, c-format
+#, fuzzy, c-format
 msgid "Cannot enumerate delivery systems from frontend device \"%s\"."
-msgstr "Kan ikke nummerere leveringssystemer fra frontenhet «%s»."
+msgstr "Kunne ikke hente innstillinger fra frontenhet «%s»."
 
 #, c-format
 msgid "Could not open file \"%s\" for reading."
@@ -221,6 +222,9 @@ msgstr "DVB-kanalkonfigurasjonsfilen inneholder ingen kanaler"
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr "Kunne ikke finne detaljer for DVB-kanal %s"
+
+#~ msgid "Couldn't get the Manifest's URI"
+#~ msgstr "Kunne ikke hente Manifest-nettadressen."
 
 #~ msgid "Could not write to file \"%s\"."
 #~ msgstr "Kunne ikke skrive til fil «%s»."

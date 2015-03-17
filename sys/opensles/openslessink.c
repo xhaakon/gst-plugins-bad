@@ -69,8 +69,8 @@ static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
     );
 
 #define _do_init \
-  GST_DEBUG_CATEGORY_INIT (opensles_sink_debug, "opensles_sink", 0, \
-      "OpenSL ES Sink");
+  GST_DEBUG_CATEGORY_INIT (opensles_sink_debug, "openslessink", 0, \
+      "OpenSLES Sink");
 #define parent_class gst_opensles_sink_parent_class
 G_DEFINE_TYPE_WITH_CODE (GstOpenSLESSink, gst_opensles_sink,
     GST_TYPE_AUDIO_BASE_SINK, _do_init);
@@ -276,6 +276,6 @@ gst_opensles_sink_init (GstOpenSLESSink * sink)
   gst_audio_base_sink_set_provide_clock (GST_AUDIO_BASE_SINK (sink), TRUE);
   /* Override some default values to fit on the AudioFlinger behaviour of
    * processing 20ms buffers as minimum buffer size. */
-  GST_AUDIO_BASE_SINK (sink)->buffer_time = 400000;
+  GST_AUDIO_BASE_SINK (sink)->buffer_time = 200000;
   GST_AUDIO_BASE_SINK (sink)->latency_time = 20000;
 }

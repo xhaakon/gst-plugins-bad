@@ -86,7 +86,7 @@
 #define GST_PACKAGE_ORIGIN "Unknown package origin"
 
 /* GStreamer package release date/time for plugins as YYYY-MM-DD */
-#define GST_PACKAGE_RELEASE_DATETIME "2014-12-18"
+#define GST_PACKAGE_RELEASE_DATETIME "2014-07-19"
 
 /* Define if static plugins should be built */
 #undef GST_PLUGIN_BUILD_STATIC
@@ -547,9 +547,6 @@
 /* Define if building with VideoToolbox */
 #undef HAVE_VIDEOTOOLBOX
 
-/* Define if building with VideoToolbox >= 10.9.6 */
-#undef HAVE_VIDEOTOOLBOX_10_9_6
-
 /* Define to enable vo-aacenc library (used by vo-aacenc). */
 #undef HAVE_VOAACENC
 
@@ -640,7 +637,7 @@
 #define PACKAGE_NAME "GStreamer Bad Plug-ins"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "GStreamer Bad Plug-ins 1.4.5"
+#define PACKAGE_STRING "GStreamer Bad Plug-ins 1.4.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "gst-plugins-bad"
@@ -649,7 +646,7 @@
 #undef PACKAGE_URL
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.4.5"
+#define PACKAGE_VERSION "1.4.0"
 
 /* directory where plugins are located */
 #ifdef _DEBUG
@@ -689,7 +686,7 @@
 #undef USE_EGL_RPI
 
 /* Version number of package */
-#define VERSION "1.4.5"
+#define VERSION "1.4.0"
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */

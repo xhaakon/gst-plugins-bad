@@ -126,24 +126,108 @@
 <a name="gst-gl-api-to-string"></a><h3>gst_gl_api_to_string ()</h3>
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
 gst_gl_api_to_string (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> api</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.9.2.6.2.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>api</p></td>
+<td class="parameter_description"><p>a <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> to stringify</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.9.2.6.2.5"></a><h4>Returns</h4>
+<p> A space seperated string of the OpenGL api's enabled in <em class="parameter"><code>api</code></em>
+</p>
+<p></p>
+</div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="gst-gl-api-from-string"></a><h3>gst_gl_api_from_string ()</h3>
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="returnvalue">GstGLAPI</span></a>
 gst_gl_api_from_string (<em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *api_s</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.9.2.6.3.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>api_s</p></td>
+<td class="parameter_description"><p>a space seperated string of OpenGL apis</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.9.2.6.3.5"></a><h4>Returns</h4>
+<p> The <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> represented by <em class="parameter"><code>api_s</code></em>
+</p>
+<p></p>
+</div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="gst-gl-platform-to-string"></a><h3>gst_gl_platform_to_string ()</h3>
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
 gst_gl_platform_to_string (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLPlatform" title="enum GstGLPlatform"><span class="type">GstGLPlatform</span></a> api</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.9.2.6.4.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>api</p></td>
+<td class="parameter_description"><p>a <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLPlatform" title="enum GstGLPlatform"><span class="type">GstGLPlatform</span></a> to stringify</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.9.2.6.4.5"></a><h4>Returns</h4>
+<p> A space seperated string of the OpenGL platforms enabled in <em class="parameter"><code>api</code></em>
+</p>
+<p></p>
+</div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="gst-gl-platform-from-string"></a><h3>gst_gl_platform_from_string ()</h3>
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLPlatform" title="enum GstGLPlatform"><span class="returnvalue">GstGLPlatform</span></a>
 gst_gl_platform_from_string (<em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *platform_s</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.9.2.6.5.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>platform_s</p></td>
+<td class="parameter_description"><p>a space seperated string of OpenGL platformss</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.9.2.6.5.5"></a><h4>Returns</h4>
+<p> The <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLPlatform" title="enum GstGLPlatform"><span class="type">GstGLPlatform</span></a> represented by <em class="parameter"><code>platform_s</code></em>
+</p>
+<p></p>
+</div>
 </div>
 <hr>
 <div class="refsect2">

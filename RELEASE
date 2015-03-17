@@ -1,27 +1,23 @@
 
-Release notes for GStreamer Bad Plugins 1.4.5
-
-The GStreamer team is pleased to announce a bugfix release of the stable
-1.4 release series. The 1.4 release series is adding new features on top
-of the 1.2 series and is part of the API and ABI-stable 1.x release
-series of the GStreamer multimedia framework that contains new features.
-The 1.4.x bugfix releases only contain important bugfixes compared to 1.4.0.
+Release notes for GStreamer Bad Plugins 1.4.0
 
 
-Binaries for Android, iOS, Mac OS X and Windows are provided by the
-GStreamer project for this release.
+The GStreamer team is pleased to announce the first release of
+the stable 1.4 release series. The 1.4 release series is adding new
+features on top of the 1.0 and 1.2 series and is part of the API and
+ABI-stable 1.x release series of the GStreamer multimedia framework.
 
 
-The 1.x series is a stable series targeted at end users. It is not API
-or ABI compatible with the 0.10.x series. It can, however, be installed
-in parallel with the 0.10.x series and will not affect an existing
-0.10.x installation.
+
+Binaries for Android, iOS, Mac OS X and Windows are provided together
+with this release.
 
 
-The stable 1.4.x release series is API and ABI compatible with 1.0.x and
-any other 1.x release series in the future. Compared to 1.0.x it contains
-some new features and more intrusive changes that were considered too
-risky as a bugfix.
+
+The stable 1.4 release series is API and ABI compatible with 1.0.x,
+1.2.x and any other 1.x release series in the future. Compared to 1.2.x
+it contains some new features and more intrusive changes that were
+considered too risky as a bugfix.
 
 
 
@@ -73,14 +69,12 @@ contains a set of codecs plugins based on libav (formerly gst-ffmpeg)
 
 Bugs fixed in this release
      
-      * 722764 : rawparse: fix SEEKING query handling
-      * 729768 : mpegtsbase: Raise limit to read more bytes initially to find PCR
-      * 739152 : gl/cocoa: build with GNUStep fails
-      * 740191 : dvbbasesink: segfaults on 32-bit (rpi)
-      * 740201 : gl/cocoa: Does not compile on OSX < 10.7 anymore
-      * 740451 : srtpdec: leaks rtp/rtcp sink events
-      * 740953 : configure.ac: unportable test(1) comparison operator
-      * 741321 : opusparse: fix header parsing esp. of encoded output of libopus
+      * 726555 : POTFILES.in is out of date
+      * 733052 : Include windsock header for Windows targets
+      * 733063 : examples: gl fxtest example fails to build on win32 with gtk+ 3.0
+      * 733072 : camerabin: Taking a picture in cheese leads to all sort of race
+      * 733123 : mxfmux: Avoid taking unnecessary ref
+      * 733248 : gl: GLintptr/GLsizeiptr/etc typechecks ignore GL_CFLAGS, potentially causing typedef redefinition errors from gst-libs/gst/gl/glprototypes/gstgl_compat.h at buildtime
 
 ==== Download ====
 
@@ -117,17 +111,28 @@ subscribe to the gstreamer-devel list.
         
 Contributors to this release
     
-      * Aleix Conchillo Flaqué
       * Alessandro Decina
+      * Alexey Pavlov
+      * Arun Raghavan
+      * Edward Hervey
       * Gwenole Beauchesne
+      * Göran Jönsson
+      * Jan Alexander Steffens (heftig)
+      * Jan Schmidt
+      * Julien Isorce
+      * Mart Raudsepp
       * Mathieu Duponchelle
       * Matthew Waters
+      * Matthieu Bouron
+      * Nicolas Dufresne
+      * Philip Withnall
+      * Piotr Drąg
       * Sebastian Dröge
-      * Sudip Jain
+      * Sebastian Rasmussen
+      * Stefan Ringel
+      * Thiago Santos
       * Thibault Saunier
-      * Thomas Klausner
       * Tim-Philipp Müller
       * Vincent Penquerc'h
-      * Wim Taymans
-      * Wonchul Lee
+      * Wang Xin-yu (王昕宇)
  

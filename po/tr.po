@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad-0.10.21.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2014-12-18 12:07+0100\n"
+"POT-Creation-Date: 2015-03-17 09:28+0100\n"
 "PO-Revision-Date: 2011-04-26 19:21+0200\n"
 "Last-Translator: Server Acim <serveracim@gmail.com>\n"
 "Language-Team: Turkish <gnu-tr-u12a@lists.sourceforge.net>\n"
@@ -15,9 +15,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
-
-msgid "Internal data stream error."
-msgstr "İç veri akım hatası."
 
 msgid "format wasn't negotiated before get function"
 msgstr ""
@@ -28,7 +25,7 @@ msgstr ""
 msgid ""
 "GStreamer can play audio using any number of output elements. Some possible "
 "choices are osssink, pulsesink and alsasink. The audiosink can be a partial "
-"pipeline instea of just one element."
+"pipeline instead of just one element."
 msgstr ""
 
 msgid "description for default GStreamer sound events audiosink"
@@ -111,6 +108,9 @@ msgstr ""
 msgid "Describes the selected visualization element."
 msgstr ""
 
+msgid "OpenCV failed to load template image"
+msgstr ""
+
 msgid "Could not read title information for DVD."
 msgstr "DVD'deki başlık bilgisi okunamıyor."
 
@@ -132,15 +132,6 @@ msgid "Could not read DVD."
 msgstr "DVD okunamıyor."
 
 msgid "This file contains no playable streams."
-msgstr ""
-
-msgid "Couldn't get the Manifest's URI"
-msgstr ""
-
-msgid "Failed to get fragment URL."
-msgstr ""
-
-msgid "Couldn't download fragments"
 msgstr ""
 
 #, fuzzy
@@ -175,6 +166,15 @@ msgid "File location is set to NULL, please set it to a valid filename"
 msgstr ""
 
 msgid "Subpicture format was not configured before data flow"
+msgstr ""
+
+msgid "Failed to get fragment URL."
+msgstr ""
+
+msgid "Internal data stream error."
+msgstr "İç veri akım hatası."
+
+msgid "Couldn't download fragments"
 msgstr ""
 
 msgid "No file name specified for writing."

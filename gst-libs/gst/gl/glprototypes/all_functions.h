@@ -26,3 +26,6 @@
 #include "gles.h"
 #include "opengl.h"
 #include "shaders.h"
+#include "debug.h"
+#include "vao.h"
+#include "sync.h"

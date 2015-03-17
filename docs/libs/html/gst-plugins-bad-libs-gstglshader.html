@@ -7,7 +7,7 @@
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
 <link rel="prev" href="gst-plugins-bad-libs-gstglmemory.html" title="GstGLMemory">
-<link rel="next" href="GstGLUpload.html" title="GstGLUpload">
+<link rel="next" href="gst-plugins-bad-libs-GstGLSyncMeta.html" title="GstGLSyncMeta">
 <meta name="generator" content="GTK-Doc V1.21 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -22,7 +22,7 @@
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="gl.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
 <td><a accesskey="p" href="gst-plugins-bad-libs-gstglmemory.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
-<td><a accesskey="n" href="GstGLUpload.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+<td><a accesskey="n" href="gst-plugins-bad-libs-GstGLSyncMeta.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
 <a name="gst-plugins-bad-libs-gstglshader"></a><div class="titlepage"></div>
@@ -105,6 +105,14 @@
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-gstglshader.html#gst-gl-shader-get-fragment-source" title="gst_gl_shader_get_fragment_source ()">gst_gl_shader_get_fragment_source</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">int</span>
+</td>
+<td class="function_name">
+<a class="link" href="gst-plugins-bad-libs-gstglshader.html#gst-gl-shader-get-program-handle" title="gst_gl_shader_get_program_handle ()">gst_gl_shader_get_program_handle</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
@@ -541,6 +549,12 @@ gst_gl_shader_get_fragment_source (<em class="parameter"><code><a class="link" h
 </div>
 <hr>
 <div class="refsect2">
+<a name="gst-gl-shader-get-program-handle"></a><h3>gst_gl_shader_get_program_handle ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>
+gst_gl_shader_get_program_handle (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglshader.html#GstGLShader"><span class="type">GstGLShader</span></a> *shader</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
 <a name="gst-gl-shader-set-active"></a><h3>gst_gl_shader_set_active ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_gl_shader_set_active (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglshader.html#GstGLShader"><span class="type">GstGLShader</span></a> *shader</code></em>,
@@ -886,7 +900,7 @@ gst_gl_shader_bind_attribute_location (<em class="parameter"><code><a class="lin
 <div class="refsect2">
 <a name="GstGLShaderError"></a><h3>enum GstGLShaderError</h3>
 <div class="refsect3">
-<a name="id-1.2.9.16.10.2.3"></a><h4>Members</h4>
+<a name="id-1.2.9.18.10.2.3"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -917,7 +931,7 @@ gst_gl_shader_bind_attribute_location (<em class="parameter"><code><a class="lin
 <div class="refsect2">
 <a name="GstGLShaderSourceType"></a><h3>enum GstGLShaderSourceType</h3>
 <div class="refsect3">
-<a name="id-1.2.9.16.10.3.3"></a><h4>Members</h4>
+<a name="id-1.2.9.18.10.3.3"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">

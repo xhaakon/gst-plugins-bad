@@ -106,6 +106,12 @@ else
 check_schro=
 endif
 
+if USE_X265
+check_x265enc=elements/x265enc
+else
+check_x265enc=
+endif
+
 if USE_TIMIDITY
 check_timidity=elements/timidity
 else
@@ -136,6 +142,12 @@ else
 check_zbar =
 endif
 
+if USE_OPENCV
+check_opencv = elements/templatematch
+else
+check_opencv =
+endif
+
 if USE_OPUS
 check_opus = elements/opus
 else
@@ -146,6 +158,12 @@ if USE_SSH2
 check_curl_sftp = elements/curlsftpsink
 else
 check_curl_sftp =
+endif
+
+if USE_HLS
+check_hlsdemux = elements/hlsdemux_m3u8
+else
+check_hlsdemux =
 endif
 
 if USE_CURL
@@ -179,7 +197,9 @@ endif
 if USE_GL
 check_gl=libs/gstglcontext \
     libs/gstglmemory \
-    libs/gstglupload
+    libs/gstglupload \
+    libs/gstglcolorconvert \
+    elements/glimagesink
 else
 check_gl=
 endif
@@ -187,8 +207,7 @@ endif
 VALGRIND_TO_FIX = \
 	elements/mpeg2enc \
 	elements/mplex    \
-	elements/zbar     \
-	pipeline/colorspace
+	elements/zbar
 
 # valgrind testing
 VALGRIND_TESTS_DISABLE = \
@@ -196,9 +215,7 @@ VALGRIND_TESTS_DISABLE = \
 
 # these tests don't even pass
 # neon: too flaky (almost always fails 'the first time')
-# colorspace: bad memory accesses in orc code for odd width buffers - https://bugzilla.gnome.org/show_bug.cgi?id=663248
 noinst_PROGRAMS = \
-	pipelines/colorspace \
 	pipelines/streamheader \
 	$(check_neon)
 
@@ -214,12 +231,14 @@ check_PROGRAMS = \
 	$(check_ofa)        \
 	$(check_timidity)  \
 	$(check_kate)  \
+	$(check_opencv) \
 	$(check_opus)  \
 	$(check_curl) \
 	$(check_shm) \
 	elements/aiffparse \
 	elements/autoconvert \
 	elements/autovideoconvert \
+	elements/audiointerleave \
 	elements/audiomixer \
 	elements/asfmux \
 	elements/baseaudiovisualizer \
@@ -227,7 +246,7 @@ check_PROGRAMS = \
 	elements/dataurisrc \
 	elements/gdppay \
 	elements/gdpdepay \
- 	elements/compositor \
+	elements/compositor \
 	$(check_jifmux) \
 	elements/jpegparse \
 	elements/h263parse \
@@ -238,6 +257,7 @@ check_PROGRAMS = \
 	$(check_mpg123) \
 	elements/mxfdemux \
 	elements/mxfmux \
+	elements/rtponvif \
 	elements/id3mux \
 	pipelines/mxf \
 	$(check_mimic) \
@@ -249,11 +269,13 @@ check_PROGRAMS = \
 	$(check_uvch264) \
 	libs/vc1parser \
 	$(check_schro) \
+	$(check_x265enc) \
 	elements/viewfinderbin \
 	$(check_zbar) \
 	$(check_orc) \
 	libs/insertbin \
 	$(check_gl) \
+	$(check_hlsdemux) \
 	$(EXPERIMENTAL_CHECKS)
 
 noinst_HEADERS = elements/mxfdemux.h
@@ -266,7 +288,10 @@ AM_CFLAGS = $(GST_CFLAGS) $(GST_CHECK_CFLAGS) $(GST_OPTION_CFLAGS) \
 LDADD = $(GST_CHECK_LIBS)
 
 elements_audiomixer_LDADD = $(GST_BASE_LIBS) -lgstbase-@GST_API_VERSION@ $(LDADD)
-elements_audiomixer_CFLAGS = $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_audiomixer_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+
+elements_audiointerleave_LDADD = $(GST_BASE_LIBS) -lgstbase-@GST_API_VERSION@ -lgstaudio-@GST_API_VERSION@ $(LDADD)
+elements_audiointerleave_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 
 # parser unit test convenience lib
 noinst_LTLIBRARIES = libparser.la
@@ -411,11 +436,14 @@ libs_insertbin_LDADD = \
 libs_insertbin_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
 
+elements_rtponvif_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_rtponvif_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) -lgstrtp-$(GST_API_VERSION) $(LDADD)
 
 EXTRA_DIST = gst-plugins-bad.supp $(uvch264_dist_data)
 
 orc_bayer_CFLAGS = $(ORC_CFLAGS)
 orc_bayer_LDADD = $(ORC_LIBS) -lorc-test-0.4
+nodist_orc_bayer_SOURCES = orc/bayer.c
 
 orc/bayer.c: $(top_srcdir)/gst/bayer/gstbayerorc.orc
 	$(MKDIR_P) orc
@@ -423,6 +451,7 @@ orc/bayer.c: $(top_srcdir)/gst/bayer/gstbayerorc.orc
 
 orc_audiomixer_CFLAGS = $(ORC_CFLAGS)
 orc_audiomixer_LDADD = $(ORC_LIBS) -lorc-test-0.4
+nodist_orc_audiomixer_SOURCES = orc/audiomixer.c
 
 orc/audiomixer.c: $(top_srcdir)/gst/audiomixer/gstaudiomixerorc.orc
 	$(MKDIR_P) orc
@@ -457,6 +486,26 @@ libs_gstglupload_LDADD = \
 	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
 	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
 
+libs_gstglcolorconvert_CFLAGS = \
+	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
+	-DGST_USE_UNSTABLE_API \
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+
+libs_gstglcolorconvert_LDADD = \
+	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
+	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
+	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+
+elements_glimagesink_CFLAGS = \
+	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
+	-DGST_USE_UNSTABLE_API \
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+
+elements_glimagesink_LDADD = \
+	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
+	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
+	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+
 libs_aggregator_LDADD = \
 	$(top_builddir)/gst-libs/gst/base/libgstbadbase-@GST_API_VERSION@.la \
 	$(GST_PLUGINS_BASE_LIBS) \
@@ -469,6 +518,10 @@ libs_aggregator_CFLAGS = \
 
 elements_compositor_LDADD = $(LDADD)  $(GST_BASE_LIBS)
 elements_compositor_CFLAGS = $(GST_BASE_CFLAGS) $(CFLAGS) $(AM_CFLAGS)
+
+elements_hlsdemux_m3u8_CFLAGS = $(GST_BASE_CFLAGS) $(AM_CFLAGS) -I$(top_srcdir)/ext/hls
+elements_hlsdemux_m3u8_LDADD = $(GST_BASE_LIBS) $(LDADD)
+elements_hlsdemux_m3u8_SOURCES = elements/hlsdemux_m3u8.c
 
 orc_compositor_CFLAGS = $(ORC_CFLAGS)
 orc_compositor_LDADD = $(ORC_LIBS) -lorc-test-0.4

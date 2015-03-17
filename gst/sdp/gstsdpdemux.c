@@ -20,7 +20,7 @@
  * SECTION:element-sdpdemux
  *
  * sdpdemux currently understands SDP as the input format of the session description.
- * For each stream listed in the SDP a new stream_%u pad will be created
+ * For each stream listed in the SDP a new stream_\%u pad will be created
  * with caps derived from the SDP media description. This is a caps of mime type
  * "application/x-rtp" that can be connected to any available RTP depayloader
  * element. 
@@ -44,10 +44,6 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-/* FIXME 0.11: suppress warnings for deprecated API such as GStaticRecMutex
- * with newer GLib versions (>= 2.31.0) */
-#define GLIB_DISABLE_DEPRECATION_WARNINGS
 
 #include "gstsdpdemux.h"
 

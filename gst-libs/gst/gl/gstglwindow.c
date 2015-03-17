@@ -79,10 +79,16 @@ G_DEFINE_ABSTRACT_TYPE (GstGLWindow, gst_gl_window, GST_TYPE_OBJECT);
 
 static void gst_gl_window_default_send_message (GstGLWindow * window,
     GstGLWindowCB callback, gpointer data);
+static gpointer gst_gl_window_navigation_thread (GstGLWindow * window);
+void gst_gl_window_run_navigation (GstGLWindow * window);
+void gst_gl_window_open_navigation (GstGLWindow * window);
+void gst_gl_window_close_navigation (GstGLWindow * window);
+void gst_gl_window_quit_navigation (GstGLWindow * window);
 
 struct _GstGLWindowPrivate
 {
   GThread *gl_thread;
+  GThread *navigation_thread;
 
   gboolean alive;
 };
@@ -106,6 +112,16 @@ typedef struct _GstGLDummyWindowCass
 
 GstGLDummyWindow *gst_gl_dummy_window_new (void);
 
+enum
+{
+  SIGNAL_0,
+  EVENT_MOUSE_SIGNAL,
+  EVENT_KEY_SIGNAL,
+  LAST_SIGNAL
+};
+
+static guint gst_gl_window_signals[LAST_SIGNAL] = { 0 };
+
 GQuark
 gst_gl_window_error_quark (void)
 {
@@ -118,6 +134,11 @@ gst_gl_window_init (GstGLWindow * window)
   window->priv = GST_GL_WINDOW_GET_PRIVATE (window);
 
   g_mutex_init (&window->lock);
+  g_mutex_init (&window->nav_lock);
+  g_cond_init (&window->nav_create_cond);
+  g_cond_init (&window->nav_destroy_cond);
+  window->nav_created = FALSE;
+  window->nav_alive = FALSE;
   window->is_drawing = FALSE;
 
   g_weak_ref_init (&window->context_ref, NULL);
@@ -131,6 +152,38 @@ gst_gl_window_class_init (GstGLWindowClass * klass)
   klass->send_message = GST_DEBUG_FUNCPTR (gst_gl_window_default_send_message);
 
   G_OBJECT_CLASS (klass)->finalize = gst_gl_window_finalize;
+
+  /**
+   * GstGLWindow::mouse-event:
+   * @object: the #GstGLWindow
+   * @id: the name of the event
+   * @button: the id of the button
+   * @x: the x coordinate of the mouse event
+   * @y: the y coordinate of the mouse event
+   *
+   * Will be emitted when a mouse event is received by the GstGLwindow.
+   *
+   * Since: 1.6
+   */
+  gst_gl_window_signals[EVENT_MOUSE_SIGNAL] =
+      g_signal_new ("mouse-event", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST, 0, NULL, NULL, g_cclosure_marshal_generic,
+      G_TYPE_NONE, 4, G_TYPE_STRING, G_TYPE_INT, G_TYPE_DOUBLE, G_TYPE_DOUBLE);
+
+  /**
+   * GstGLWindow::key-event:
+   * @object: the #GstGLWindow
+   * @id: the name of the event
+   * @key: the id of the key pressed
+   *
+   * Will be emitted when a key event is received by the GstGLwindow.
+   *
+   * Since: 1.6
+   */
+  gst_gl_window_signals[EVENT_KEY_SIGNAL] =
+      g_signal_new ("key-event", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST, 0, NULL, NULL, g_cclosure_marshal_generic,
+      G_TYPE_NONE, 2, G_TYPE_STRING, G_TYPE_STRING);
 }
 
 /**
@@ -197,6 +250,17 @@ gst_gl_window_new (GstGLDisplay * display)
 
   window->display = gst_object_ref (display);
 
+  g_mutex_lock (&window->nav_lock);
+
+  if (!window->nav_created) {
+    window->priv->navigation_thread = g_thread_new ("gstglnavigation",
+        (GThreadFunc) gst_gl_window_navigation_thread, window);
+
+    g_cond_wait (&window->nav_create_cond, &window->nav_lock);
+    window->nav_created = TRUE;
+  }
+  g_mutex_unlock (&window->nav_lock);
+
   return window;
 }
 
@@ -205,12 +269,51 @@ gst_gl_window_finalize (GObject * object)
 {
   GstGLWindow *window = GST_GL_WINDOW (object);
 
+  if (window->nav_alive) {
+    g_mutex_lock (&window->nav_lock);
+    GST_INFO ("send quit navigation loop");
+    gst_gl_window_quit_navigation (window);
+    while (window->nav_alive) {
+      g_cond_wait (&window->nav_destroy_cond, &window->nav_lock);
+    }
+    g_mutex_unlock (&window->nav_lock);
+  }
+
   g_weak_ref_clear (&window->context_ref);
 
   g_mutex_clear (&window->lock);
+  g_mutex_clear (&window->nav_lock);
+  g_cond_clear (&window->nav_create_cond);
+  g_cond_clear (&window->nav_destroy_cond);
   gst_object_unref (window->display);
 
   G_OBJECT_CLASS (gst_gl_window_parent_class)->finalize (object);
+}
+
+typedef struct _GstSetWindowHandleCb
+{
+  GstGLWindow *window;
+  guintptr handle;
+} GstSetWindowHandleCb;
+
+static void
+_set_window_handle_cb (GstSetWindowHandleCb * data)
+{
+  GstGLContext *context = gst_gl_window_get_context (data->window);
+  GstGLWindowClass *window_class = GST_GL_WINDOW_GET_CLASS (data->window);
+
+  gst_gl_context_activate (context, FALSE);
+  window_class->set_window_handle (data->window, data->handle);
+  gst_gl_context_activate (context, TRUE);
+
+  gst_object_unref (context);
+}
+
+static void
+_free_swh_cb (GstSetWindowHandleCb * data)
+{
+  gst_object_unref (data->window);
+  g_slice_free (GstSetWindowHandleCb, data);
 }
 
 /**
@@ -227,27 +330,35 @@ void
 gst_gl_window_set_window_handle (GstGLWindow * window, guintptr handle)
 {
   GstGLWindowClass *window_class;
+  GstSetWindowHandleCb *data;
 
   g_return_if_fail (GST_GL_IS_WINDOW (window));
   g_return_if_fail (handle != 0);
   window_class = GST_GL_WINDOW_GET_CLASS (window);
   g_return_if_fail (window_class->set_window_handle != NULL);
 
-  window_class->set_window_handle (window, handle);
+  data = g_slice_new (GstSetWindowHandleCb);
+  data->window = gst_object_ref (window);
+  data->handle = handle;
+
+  /* FIXME: Move to a message which deactivates, calls implementation, activates */
+  gst_gl_window_send_message_async (window,
+      (GstGLWindowCB) _set_window_handle_cb, data,
+      (GDestroyNotify) _free_swh_cb);
+
+  /* window_class->set_window_handle (window, handle); */
 }
 
 /**
  * gst_gl_window_draw_unlocked:
  * @window: a #GstGLWindow
- * @width: requested width of the window
- * @height: requested height of the window
  *
  * Redraw the window contents.  Implementations should invoke the draw callback.
  *
  * Since: 1.4
  */
 void
-gst_gl_window_draw_unlocked (GstGLWindow * window, guint width, guint height)
+gst_gl_window_draw_unlocked (GstGLWindow * window)
 {
   GstGLWindowClass *window_class;
 
@@ -255,21 +366,19 @@ gst_gl_window_draw_unlocked (GstGLWindow * window, guint width, guint height)
   window_class = GST_GL_WINDOW_GET_CLASS (window);
   g_return_if_fail (window_class->draw_unlocked != NULL);
 
-  window_class->draw_unlocked (window, width, height);
+  window_class->draw_unlocked (window);
 }
 
 /**
  * gst_gl_window_draw:
  * @window: a #GstGLWindow
- * @width: requested width of the window
- * @height: requested height of the window
  *
  * Redraw the window contents.  Implementations should invoke the draw callback.
  *
  * Since: 1.4
  */
 void
-gst_gl_window_draw (GstGLWindow * window, guint width, guint height)
+gst_gl_window_draw (GstGLWindow * window)
 {
   GstGLWindowClass *window_class;
 
@@ -282,7 +391,50 @@ gst_gl_window_draw (GstGLWindow * window, guint width, guint height)
     return;
   }
 
-  window_class->draw (window, width, height);
+  window_class->draw (window);
+}
+
+/**
+ * gst_gl_window_set_preferred_size:
+ * @window: a #GstGLWindow
+ * @width: new preferred width
+ * @height: new preferred height
+ *
+ * Set the preferred width and height of the window.  Implementations are free
+ * to ignore this information.
+ *
+ * Since: 1.6
+ */
+void
+gst_gl_window_set_preferred_size (GstGLWindow * window, gint width, gint height)
+{
+  GstGLWindowClass *window_class;
+
+  g_return_if_fail (GST_GL_IS_WINDOW (window));
+  window_class = GST_GL_WINDOW_GET_CLASS (window);
+
+  if (window_class->set_preferred_size)
+    window_class->set_preferred_size (window, width, height);
+}
+
+/**
+ * gst_gl_window_show:
+ * @window: a #GstGLWindow
+ *
+ * Present the window to the screen.
+ *
+ * Since: 1.6
+ */
+void
+gst_gl_window_show (GstGLWindow * window)
+{
+  GstGLWindowClass *window_class;
+
+  g_return_if_fail (GST_GL_IS_WINDOW (window));
+  window_class = GST_GL_WINDOW_GET_CLASS (window);
+
+  if (window_class->show)
+    window_class->show (window);
 }
 
 /**
@@ -304,6 +456,23 @@ gst_gl_window_run (GstGLWindow * window)
 
   window->priv->alive = TRUE;
   window_class->run (window);
+}
+
+/**
+ * gst_gl_window_run_navigation:
+ * @window: a #GstGLWindow
+ *
+ * Start the execution of the navigation runloop.
+ *
+ * Since: 1.6
+ */
+void
+gst_gl_window_run_navigation (GstGLWindow * window)
+{
+  g_return_if_fail (GST_GL_IS_WINDOW (window));
+  g_return_if_fail (window->navigation_context != NULL);
+  g_return_if_fail (window->navigation_loop != NULL);
+  g_main_loop_run (window->navigation_loop);
 }
 
 /**
@@ -591,6 +760,25 @@ gst_gl_window_get_context (GstGLWindow * window)
   return (GstGLContext *) g_weak_ref_get (&window->context_ref);
 }
 
+/**
+ * gst_gl_window_get_surface_dimensions:
+ * @window: a #GstGLWindow
+ * @width: (out): resulting surface width
+ * @height: (out): resulting surface height
+ *
+ * Since: 1.6
+ */
+void
+gst_gl_window_get_surface_dimensions (GstGLWindow * window, guint * width,
+    guint * height)
+{
+  GstGLWindowClass *window_class;
+  g_return_if_fail (GST_GL_IS_WINDOW (window));
+  window_class = GST_GL_WINDOW_GET_CLASS (window);
+  g_return_if_fail (window_class->get_surface_dimensions != NULL);
+  window_class->get_surface_dimensions (window, width, height);
+}
+
 GType gst_gl_dummy_window_get_type (void);
 
 G_DEFINE_TYPE (GstGLDummyWindow, gst_gl_dummy_window, GST_GL_TYPE_WINDOW);
@@ -629,6 +817,54 @@ gst_gl_dummy_window_run (GstGLWindow * window)
   GstGLDummyWindow *dummy = (GstGLDummyWindow *) window;
 
   g_main_loop_run (dummy->loop);
+}
+
+void
+gst_gl_window_open_navigation (GstGLWindow * window)
+{
+  g_return_if_fail (GST_GL_IS_WINDOW (window));
+  g_mutex_lock (&window->nav_lock);
+  window->navigation_context = g_main_context_new ();
+  window->navigation_loop = g_main_loop_new (window->navigation_context, FALSE);
+  g_main_context_push_thread_default (window->navigation_context);
+  window->nav_alive = TRUE;
+  g_cond_signal (&window->nav_create_cond);
+  g_mutex_unlock (&window->nav_lock);
+}
+
+void
+gst_gl_window_close_navigation (GstGLWindow * window)
+{
+  g_return_if_fail (GST_GL_IS_WINDOW (window));
+  g_return_if_fail (window->navigation_context != NULL);
+  g_return_if_fail (window->navigation_loop != NULL);
+
+  g_mutex_lock (&window->nav_lock);
+  window->nav_alive = FALSE;
+  g_main_context_pop_thread_default (window->navigation_context);
+  g_main_loop_unref (window->navigation_loop);
+  g_main_context_unref (window->navigation_context);
+  g_cond_signal (&window->nav_destroy_cond);
+  g_mutex_unlock (&window->nav_lock);
+}
+
+void
+gst_gl_window_quit_navigation (GstGLWindow * window)
+{
+  g_return_if_fail (GST_GL_IS_WINDOW (window));
+
+  g_main_loop_quit (window->navigation_loop);
+}
+
+static gpointer
+gst_gl_window_navigation_thread (GstGLWindow * window)
+{
+  gst_gl_window_open_navigation (window);
+  gst_gl_window_run_navigation (window);
+  GST_INFO ("navigation loop exited\n");
+  gst_gl_window_close_navigation (window);
+
+  return NULL;
 }
 
 typedef struct _GstGLMessage
@@ -686,17 +922,10 @@ gst_gl_dummy_window_get_window_handle (GstGLWindow * window)
   return (guintptr) dummy->handle;
 }
 
-struct draw
-{
-  GstGLDummyWindow *window;
-  guint width, height;
-};
-
 static void
 draw_cb (gpointer data)
 {
-  struct draw *draw_data = data;
-  GstGLDummyWindow *dummy = draw_data->window;
+  GstGLDummyWindow *dummy = data;
   GstGLWindow *window = GST_GL_WINDOW (dummy);
   GstGLContext *context = gst_gl_window_get_context (window);
   GstGLContextClass *context_class = GST_GL_CONTEXT_GET_CLASS (context);
@@ -710,21 +939,21 @@ draw_cb (gpointer data)
 }
 
 static void
-gst_gl_dummy_window_draw (GstGLWindow * window, guint width, guint height)
+gst_gl_dummy_window_draw (GstGLWindow * window)
 {
-  struct draw draw_data;
-
-  draw_data.window = (GstGLDummyWindow *) window;
-  draw_data.width = width;
-  draw_data.height = height;
-
-  gst_gl_window_send_message (window, (GstGLWindowCB) draw_cb, &draw_data);
+  gst_gl_window_send_message (window, (GstGLWindowCB) draw_cb, window);
 }
 
 static guintptr
 gst_gl_dummy_window_get_display (GstGLWindow * window)
 {
   return 0;
+}
+
+static void
+gst_gl_dummy_window_get_surface_dimensions (GstGLWindow * window, guint * width,
+    guint * height)
+{
 }
 
 static void
@@ -746,6 +975,8 @@ gst_gl_dummy_window_class_init (GstGLDummyWindowClass * klass)
       GST_DEBUG_FUNCPTR (gst_gl_dummy_window_send_message_async);
   window_class->open = GST_DEBUG_FUNCPTR (gst_gl_dummy_window_open);
   window_class->close = GST_DEBUG_FUNCPTR (gst_gl_dummy_window_close);
+  window_class->get_surface_dimensions =
+      GST_DEBUG_FUNCPTR (gst_gl_dummy_window_get_surface_dimensions);
 }
 
 static void
@@ -758,4 +989,71 @@ GstGLDummyWindow *
 gst_gl_dummy_window_new (void)
 {
   return g_object_new (gst_gl_dummy_window_get_type (), NULL);
+}
+
+gboolean
+gst_gl_window_key_event_cb (gpointer data)
+{
+  struct key_event *key_data = (struct key_event *) data;
+  GST_DEBUG
+      ("%s called data struct %p window %p key %s event %s ",
+      __func__, key_data, key_data->window, key_data->key_str,
+      key_data->event_type);
+  gst_gl_window_send_key_event (GST_GL_WINDOW (key_data->window),
+      key_data->event_type, key_data->key_str);
+  g_slice_free (struct key_event, key_data);
+  return G_SOURCE_REMOVE;
+}
+
+void
+gst_gl_window_send_key_event (GstGLWindow * window, const char *event_type,
+    const char *key_str)
+{
+  g_signal_emit (window, gst_gl_window_signals[EVENT_KEY_SIGNAL], 0,
+      event_type, key_str);
+}
+
+gboolean
+gst_gl_window_mouse_event_cb (gpointer data)
+{
+  struct mouse_event *mouse_data = (struct mouse_event *) data;
+  GST_DEBUG ("%s called data struct %p mouse event %s button %d at %g, %g",
+      __func__, mouse_data, mouse_data->event_type, mouse_data->button,
+      mouse_data->posx, mouse_data->posy);
+  gst_gl_window_send_mouse_event (GST_GL_WINDOW (mouse_data->window),
+      mouse_data->event_type, mouse_data->button, mouse_data->posx,
+      mouse_data->posy);
+  g_slice_free (struct mouse_event, mouse_data);
+  return G_SOURCE_REMOVE;
+}
+
+void
+gst_gl_window_send_mouse_event (GstGLWindow * window, const char *event_type,
+    int button, double posx, double posy)
+{
+  g_signal_emit (window, gst_gl_window_signals[EVENT_MOUSE_SIGNAL], 0,
+      event_type, button, posx, posy);
+}
+
+/**
+ * gst_gl_window_handle_events:
+ * @window: a #GstGLWindow
+ * @handle_events: a #gboolean indicating if events should be handled or not.
+ *
+ * Tell a @window that it should handle events from the window system. These
+ * events are forwarded upstream as navigation events. In some window systems
+ * events are not propagated in the window hierarchy if a client is listening
+ * for them. This method allows you to disable events handling completely
+ * from the @window.
+ */
+void
+gst_gl_window_handle_events (GstGLWindow * window, gboolean handle_events)
+{
+  GstGLWindowClass *window_class;
+
+  g_return_if_fail (GST_GL_IS_WINDOW (window));
+  window_class = GST_GL_WINDOW_GET_CLASS (window);
+
+  if (window_class->handle_events)
+    window_class->handle_events (window, handle_events);
 }

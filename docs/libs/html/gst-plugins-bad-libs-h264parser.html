@@ -1297,7 +1297,7 @@ value if available, 0 otherwise</p></td>
 <tr>
 <td class="enum_member_name"><p><a name="GST-H264-PARSER-ERROR:CAPS"></a>GST_H264_PARSER_ERROR</p></td>
 <td class="enum_member_description">
-<p>An error accured when parsing</p>
+<p>An error occured when parsing</p>
 </td>
 <td class="enum_member_annotations"> </td>
 </tr>
@@ -1349,7 +1349,22 @@ value if available, 0 otherwise</p></td>
 <tr>
 <td class="enum_member_name"><p><a name="GST-H264-SEI-RECOVERY-POINT:CAPS"></a>GST_H264_SEI_RECOVERY_POINT</p></td>
 <td class="enum_member_description">
-<p>Recovery Point SEI Message (D.2.7)
+<p>Recovery Point SEI Message (D.2.7)</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="GST-H264-SEI-STEREO-VIDEO-INFO:CAPS"></a>GST_H264_SEI_STEREO_VIDEO_INFO</p></td>
+<td class="enum_member_description">
+<p>stereo video info SEI message (Since: 1.6)</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="GST-H264-SEI-FRAME-PACKING:CAPS"></a>GST_H264_SEI_FRAME_PACKING</p></td>
+<td class="enum_member_description">
+<p>Frame Packing Arrangement (FPA) message that
+    contains the 3D arrangement for stereoscopic 3D video (Since: 1.6)
 ...</p>
 </td>
 <td class="enum_member_annotations"> </td>
@@ -1530,6 +1545,12 @@ value if available, 0 otherwise</p></td>
   gboolean valid;
 
   guint8 *data;
+
+  guint8 header_bytes;
+  guint8 extension_type;
+  union {
+    GstH264NalUnitExtensionMVC mvc;
+  } extension;
 };
 </pre>
 <p>Structure defining the Nal unit headers</p>
@@ -1592,6 +1613,16 @@ already been parsed</p></td>
 <td class="struct_member_description"><p>The data from which the Nalu has been parsed</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264NalUnit.header-bytes"></a>header_bytes</code></em>;</p></td>
+<td class="struct_member_description"><p>The size of the NALU header in bytes (Since 1.6)</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264NalUnit.extension-type"></a>extension_type</code></em>;</p></td>
+<td class="struct_member_description"><p>the extension type (Since 1.6)</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -1607,6 +1638,8 @@ already been parsed</p></td>
   guint8 constraint_set1_flag;
   guint8 constraint_set2_flag;
   guint8 constraint_set3_flag;
+  guint8 constraint_set4_flag;
+  guint8 constraint_set5_flag;
   guint8 level_idc;
 
   guint8 chroma_format_idc;
@@ -1662,6 +1695,12 @@ already been parsed</p></td>
   gint crop_rect_x, crop_rect_y;
   gint fps_num, fps_den;
   gboolean valid;
+
+  /* Subset SPS extensions */
+  guint8 extension_type;
+  union {
+    GstH264SPSExtMVC mvc;
+  } extension;
 };
 </pre>
 <p>H264 Sequence Parameter Set (SPS)</p>
@@ -1701,6 +1740,16 @@ already been parsed</p></td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.constraint-set3-flag"></a>constraint_set3_flag</code></em>;</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.constraint-set4-flag"></a>constraint_set4_flag</code></em>;</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.constraint-set5-flag"></a>constraint_set5_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
@@ -1911,6 +1960,11 @@ already been parsed</p></td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> <em class="structfield"><code><a name="GstH264SPS.valid"></a>valid</code></em>;</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.extension-type"></a>extension_type</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
@@ -2501,12 +2555,12 @@ units of frame buffers.</p></td>
   GstH264SPS *sps;
 
   /* seq-&gt;vui_parameters-&gt;nal_hrd_parameters_present_flag */
-  guint8 nal_initial_cpb_removal_delay[32];
-  guint8 nal_initial_cpb_removal_delay_offset[32];
+  guint32 nal_initial_cpb_removal_delay[32];
+  guint32 nal_initial_cpb_removal_delay_offset[32];
 
   /* seq-&gt;vui_parameters-&gt;vcl_hrd_parameters_present_flag */
-  guint8 vcl_initial_cpb_removal_delay[32];
-  guint8 vcl_initial_cpb_removal_delay_offset[32];
+  guint32 vcl_initial_cpb_removal_delay[32];
+  guint32 vcl_initial_cpb_removal_delay_offset[32];
 };
 </pre>
 </div>
@@ -2520,6 +2574,8 @@ units of frame buffers.</p></td>
     GstH264BufferingPeriod buffering_period;
     GstH264PicTiming pic_timing;
     GstH264RecoveryPoint recovery_point;
+    GstH264StereoVideoInfo stereo_video_info;
+    GstH264FramePacking frame_packing;
     /* ... could implement more */
   } payload;
 };

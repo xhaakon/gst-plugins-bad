@@ -466,16 +466,16 @@ retry:
           goto get_output_buffers_error;
 
         goto retry;
-        break;
+
       }
       case INFO_TRY_AGAIN_LATER:
         GST_DEBUG_OBJECT (self, "Dequeueing output buffer timed out");
         goto retry;
-        break;
+
       case G_MININT:
         GST_ERROR_OBJECT (self, "Failure dequeueing output buffer");
         goto dequeue_error;
-        break;
+
       default:
         g_assert_not_reached ();
         break;
@@ -492,7 +492,6 @@ retry:
   is_eos = ! !(buffer_info.flags & BUFFER_FLAG_END_OF_STREAM);
 
   if (buffer_info.size > 0) {
-    GstAmcAudioDecClass *klass = GST_AMC_AUDIO_DEC_GET_CLASS (self);
     GstBuffer *outbuf;
     GstAmcBuffer *buf;
     GstMapInfo minfo;
@@ -550,7 +549,6 @@ retry:
         nframes);
   }
 
-done:
   if (!gst_amc_codec_release_output_buffer (self->codec, idx, &err)) {
     if (self->flushing) {
       g_clear_error (&err);
@@ -592,6 +590,10 @@ dequeue_error:
     gst_pad_pause_task (GST_AUDIO_DECODER_SRC_PAD (self));
     self->downstream_flow_ret = GST_FLOW_ERROR;
     GST_AUDIO_DECODER_STREAM_UNLOCK (self);
+    g_mutex_lock (&self->drain_lock);
+    self->draining = FALSE;
+    g_cond_broadcast (&self->drain_cond);
+    g_mutex_unlock (&self->drain_lock);
     return;
   }
 
@@ -602,6 +604,10 @@ get_output_buffers_error:
     gst_pad_pause_task (GST_AUDIO_DECODER_SRC_PAD (self));
     self->downstream_flow_ret = GST_FLOW_ERROR;
     GST_AUDIO_DECODER_STREAM_UNLOCK (self);
+    g_mutex_lock (&self->drain_lock);
+    self->draining = FALSE;
+    g_cond_broadcast (&self->drain_cond);
+    g_mutex_unlock (&self->drain_lock);
     return;
   }
 
@@ -616,6 +622,10 @@ format_error:
     gst_pad_pause_task (GST_AUDIO_DECODER_SRC_PAD (self));
     self->downstream_flow_ret = GST_FLOW_ERROR;
     GST_AUDIO_DECODER_STREAM_UNLOCK (self);
+    g_mutex_lock (&self->drain_lock);
+    self->draining = FALSE;
+    g_cond_broadcast (&self->drain_cond);
+    g_mutex_unlock (&self->drain_lock);
     return;
   }
 failed_release:
@@ -625,6 +635,10 @@ failed_release:
     gst_pad_pause_task (GST_AUDIO_DECODER_SRC_PAD (self));
     self->downstream_flow_ret = GST_FLOW_ERROR;
     GST_AUDIO_DECODER_STREAM_UNLOCK (self);
+    g_mutex_lock (&self->drain_lock);
+    self->draining = FALSE;
+    g_cond_broadcast (&self->drain_cond);
+    g_mutex_unlock (&self->drain_lock);
     return;
   }
 flushing:
@@ -655,6 +669,10 @@ flow_error:
       gst_pad_pause_task (GST_AUDIO_DECODER_SRC_PAD (self));
     }
     GST_AUDIO_DECODER_STREAM_UNLOCK (self);
+    g_mutex_lock (&self->drain_lock);
+    self->draining = FALSE;
+    g_cond_broadcast (&self->drain_cond);
+    g_mutex_unlock (&self->drain_lock);
     return;
   }
 
@@ -666,6 +684,10 @@ invalid_buffer_index:
     gst_pad_pause_task (GST_AUDIO_DECODER_SRC_PAD (self));
     self->downstream_flow_ret = GST_FLOW_ERROR;
     GST_AUDIO_DECODER_STREAM_UNLOCK (self);
+    g_mutex_lock (&self->drain_lock);
+    self->draining = FALSE;
+    g_cond_broadcast (&self->drain_cond);
+    g_mutex_unlock (&self->drain_lock);
     return;
   }
 invalid_buffer_size:
@@ -680,6 +702,10 @@ invalid_buffer_size:
     gst_pad_pause_task (GST_AUDIO_DECODER_SRC_PAD (self));
     self->downstream_flow_ret = GST_FLOW_ERROR;
     GST_AUDIO_DECODER_STREAM_UNLOCK (self);
+    g_mutex_lock (&self->drain_lock);
+    self->draining = FALSE;
+    g_cond_broadcast (&self->drain_cond);
+    g_mutex_unlock (&self->drain_lock);
     return;
   }
 
@@ -695,6 +721,10 @@ failed_allocate:
     gst_pad_pause_task (GST_AUDIO_DECODER_SRC_PAD (self));
     self->downstream_flow_ret = GST_FLOW_ERROR;
     GST_AUDIO_DECODER_STREAM_UNLOCK (self);
+    g_mutex_lock (&self->drain_lock);
+    self->draining = FALSE;
+    g_cond_broadcast (&self->drain_cond);
+    g_mutex_unlock (&self->drain_lock);
     return;
   }
 }
@@ -706,7 +736,7 @@ gst_amc_audio_dec_start (GstAudioDecoder * decoder)
 
   self = GST_AMC_AUDIO_DEC (decoder);
   self->last_upstream_ts = 0;
-  self->eos = FALSE;
+  self->drained = TRUE;
   self->downstream_flow_ret = GST_FLOW_OK;
   self->started = FALSE;
   self->flushing = TRUE;
@@ -747,7 +777,7 @@ gst_amc_audio_dec_stop (GstAudioDecoder * decoder)
   self->codec_datas = NULL;
 
   self->downstream_flow_ret = GST_FLOW_FLUSHING;
-  self->eos = FALSE;
+  self->drained = TRUE;
   g_mutex_lock (&self->drain_lock);
   self->draining = FALSE;
   g_cond_broadcast (&self->drain_cond);
@@ -978,7 +1008,7 @@ gst_amc_audio_dec_flush (GstAudioDecoder * decoder, gboolean hard)
 
   /* Start the srcpad loop again */
   self->last_upstream_ts = 0;
-  self->eos = FALSE;
+  self->drained = TRUE;
   self->downstream_flow_ret = GST_FLOW_OK;
   gst_pad_start_task (GST_AUDIO_DECODER_SRC_PAD (self),
       (GstTaskFunction) gst_amc_audio_dec_loop, decoder, NULL);
@@ -1015,13 +1045,6 @@ gst_amc_audio_dec_handle_frame (GstAudioDecoder * decoder, GstBuffer * inbuf)
     if (inbuf)
       gst_buffer_unref (inbuf);
     return GST_FLOW_NOT_NEGOTIATED;
-  }
-
-  if (self->eos) {
-    GST_WARNING_OBJECT (self, "Got frame after EOS");
-    if (inbuf)
-      gst_buffer_unref (inbuf);
-    return GST_FLOW_EOS;
   }
 
   if (self->flushing)
@@ -1132,6 +1155,7 @@ gst_amc_audio_dec_handle_frame (GstAudioDecoder * decoder, GstBuffer * inbuf)
       }
       goto queue_error;
     }
+    self->drained = FALSE;
   }
   gst_buffer_unmap (inbuf, &minfo);
   gst_buffer_unref (inbuf);
@@ -1200,9 +1224,9 @@ gst_amc_audio_dec_drain (GstAmcAudioDec * self)
     return GST_FLOW_OK;
   }
 
-  /* Don't send EOS buffer twice, this doesn't work */
-  if (self->eos) {
-    GST_DEBUG_OBJECT (self, "Codec is EOS already");
+  /* Don't send drain buffer twice, this doesn't work */
+  if (self->drained) {
+    GST_DEBUG_OBJECT (self, "Codec is drained already");
     return GST_FLOW_OK;
   }
 
@@ -1246,6 +1270,8 @@ gst_amc_audio_dec_drain (GstAmcAudioDec * self)
       }
     }
 
+    self->drained = TRUE;
+    self->draining = FALSE;
     g_mutex_unlock (&self->drain_lock);
     GST_AUDIO_DECODER_STREAM_LOCK (self);
   } else if (idx >= self->n_input_buffers) {

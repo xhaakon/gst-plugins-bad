@@ -1062,7 +1062,12 @@ d3d_prepare_render_window (GstD3DVideoSink * sink)
   LOCK_SINK (sink);
 
   if (sink->d3d.window_handle == NULL) {
-    GST_DEBUG_OBJECT (sink, "No window handle has been set..");
+    GST_DEBUG_OBJECT (sink, "No window handle has been set.");
+    goto end;
+  }
+
+  if (sink->d3d.device_lost) {
+    GST_DEBUG_OBJECT (sink, "Device is lost, waiting for reset.");
     goto end;
   }
 
@@ -1308,6 +1313,10 @@ d3d_init_swap_chain (GstD3DVideoSink * sink, HWND hWnd)
   GST_DEBUG ("Direct3D stretch rect texture filter: %d", d3d_filtertype);
 
   sink->d3d.filtertype = d3d_filtertype;
+
+  if (sink->d3d.swapchain != NULL)
+    IDirect3DSwapChain9_Release (sink->d3d.swapchain);
+
   sink->d3d.swapchain = d3d_swapchain;
 
   ret = TRUE;
@@ -1341,6 +1350,10 @@ d3d_release_swap_chain (GstD3DVideoSink * sink)
     ret = TRUE;
     goto end;
   }
+
+  gst_buffer_replace (&sink->fallback_buffer, NULL);
+  if (sink->fallback_pool)
+    gst_buffer_pool_set_active (sink->fallback_pool, FALSE);
 
   if (sink->d3d.swapchain) {
     ref_count = IDirect3DSwapChain9_Release (sink->d3d.swapchain);

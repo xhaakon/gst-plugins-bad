@@ -90,6 +90,7 @@ am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/as-libtool.m4 \
 	$(top_srcdir)/common/m4/as-version.m4 \
 	$(top_srcdir)/common/m4/ax_create_stdint_h.m4 \
+	$(top_srcdir)/common/m4/ax_pthread.m4 \
 	$(top_srcdir)/common/m4/gst-arch.m4 \
 	$(top_srcdir)/common/m4/gst-args.m4 \
 	$(top_srcdir)/common/m4/gst-check.m4 \
@@ -103,7 +104,6 @@ am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/gst-platform.m4 \
 	$(top_srcdir)/common/m4/gst-plugin-docs.m4 \
 	$(top_srcdir)/common/m4/gst-plugindir.m4 \
-	$(top_srcdir)/common/m4/gst-x11.m4 \
 	$(top_srcdir)/common/m4/gst.m4 \
 	$(top_srcdir)/common/m4/gtk-doc.m4 \
 	$(top_srcdir)/common/m4/introspection.m4 \
@@ -159,7 +159,8 @@ libgstwaylandsink_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(top_builddir)/gst-libs/gst/wayland/libgstwayland-$(GST_API_VERSION).la
 am_libgstwaylandsink_la_OBJECTS =  \
 	libgstwaylandsink_la-gstwaylandsink.lo \
-	libgstwaylandsink_la-waylandpool.lo \
+	libgstwaylandsink_la-wlshmallocator.lo \
+	libgstwaylandsink_la-wlbuffer.lo \
 	libgstwaylandsink_la-wldisplay.lo \
 	libgstwaylandsink_la-wlwindow.lo \
 	libgstwaylandsink_la-wlvideoformat.lo \
@@ -251,8 +252,12 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BLUEZ_CFLAGS = @BLUEZ_CFLAGS@
-BLUEZ_LIBS = @BLUEZ_LIBS@
+BLUEZ4_CFLAGS = @BLUEZ4_CFLAGS@
+BLUEZ4_LIBS = @BLUEZ4_LIBS@
+BLUEZ5_CFLAGS = @BLUEZ5_CFLAGS@
+BLUEZ5_LIBS = @BLUEZ5_LIBS@
+BS2B_CFLAGS = @BS2B_CFLAGS@
+BS2B_LIBS = @BS2B_LIBS@
 BZ2_LIBS = @BZ2_LIBS@
 CC = @CC@
 CCASFLAGS = @CCASFLAGS@
@@ -291,7 +296,6 @@ DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DEPRECATED_CFLAGS = @DEPRECATED_CFLAGS@
 DIRECT3D_LIBS = @DIRECT3D_LIBS@
-DIRECTDRAW_LIBS = @DIRECTDRAW_LIBS@
 DIRECTFB_CFLAGS = @DIRECTFB_CFLAGS@
 DIRECTFB_LIBS = @DIRECTFB_LIBS@
 DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
@@ -299,6 +303,8 @@ DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
+DTLS_CFLAGS = @DTLS_CFLAGS@
+DTLS_LIBS = @DTLS_LIBS@
 DTS_LIBS = @DTS_LIBS@
 DUMPBIN = @DUMPBIN@
 DVDNAV_CFLAGS = @DVDNAV_CFLAGS@
@@ -348,8 +354,6 @@ GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
 GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
-GMYTH_CFLAGS = @GMYTH_CFLAGS@
-GMYTH_LIBS = @GMYTH_LIBS@
 GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
 GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
@@ -428,7 +432,6 @@ HAVE_CLUTTER_GLX = @HAVE_CLUTTER_GLX@
 HAVE_CLUTTER_X11 = @HAVE_CLUTTER_X11@
 HAVE_CXX = @HAVE_CXX@
 HAVE_DIRECT3D = @HAVE_DIRECT3D@
-HAVE_DIRECTDRAW = @HAVE_DIRECTDRAW@
 HAVE_DIRECTSOUND = @HAVE_DIRECTSOUND@
 HAVE_DTS = @HAVE_DTS@
 HAVE_EGL = @HAVE_EGL@
@@ -437,7 +440,6 @@ HAVE_FAAD = @HAVE_FAAD@
 HAVE_FLITE = @HAVE_FLITE@
 HAVE_GL = @HAVE_GL@
 HAVE_GLES2 = @HAVE_GLES2@
-HAVE_GLU = @HAVE_GLU@
 HAVE_GRAPHENE = @HAVE_GRAPHENE@
 HAVE_GSM = @HAVE_GSM@
 HAVE_GTK3 = @HAVE_GTK3@
@@ -450,7 +452,6 @@ HAVE_WASAPI = @HAVE_WASAPI@
 HAVE_WILDMIDI = @HAVE_WILDMIDI@
 HAVE_WINKS = @HAVE_WINKS@
 HAVE_WINSCREENCAP = @HAVE_WINSCREENCAP@
-HAVE_X = @HAVE_X@
 HAVE_X11 = @HAVE_X11@
 HTML_DIR = @HTML_DIR@
 INSTALL = @INSTALL@
@@ -475,6 +476,8 @@ LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBDC1394_CFLAGS = @LIBDC1394_CFLAGS@
 LIBDC1394_LIBS = @LIBDC1394_LIBS@
+LIBDE265_CFLAGS = @LIBDE265_CFLAGS@
+LIBDE265_LIBS = @LIBDE265_LIBS@
 LIBDIR = @LIBDIR@
 LIBGCRYPT_CFLAGS = @LIBGCRYPT_CFLAGS@
 LIBGCRYPT_CONFIG = @LIBGCRYPT_CONFIG@
@@ -548,10 +551,14 @@ OPENCV_LIBS = @OPENCV_LIBS@
 OPENCV_PREFIX = @OPENCV_PREFIX@
 OPENEXR_CFLAGS = @OPENEXR_CFLAGS@
 OPENEXR_LIBS = @OPENEXR_LIBS@
+OPENH264_CFLAGS = @OPENH264_CFLAGS@
+OPENH264_LIBS = @OPENH264_LIBS@
 OPENJPEG_CFLAGS = @OPENJPEG_CFLAGS@
 OPENJPEG_LIBS = @OPENJPEG_LIBS@
 OPENNI2_CFLAGS = @OPENNI2_CFLAGS@
 OPENNI2_LIBS = @OPENNI2_LIBS@
+OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
+OPENSSL_LIBS = @OPENSSL_LIBS@
 OPUS_CFLAGS = @OPUS_CFLAGS@
 OPUS_LIBS = @OPUS_LIBS@
 ORCC = @ORCC@
@@ -577,6 +584,9 @@ PKG_CONFIG = @PKG_CONFIG@
 PLUGINDIR = @PLUGINDIR@
 POSUB = @POSUB@
 PROFILE_CFLAGS = @PROFILE_CFLAGS@
+PTHREAD_CC = @PTHREAD_CC@
+PTHREAD_CFLAGS = @PTHREAD_CFLAGS@
+PTHREAD_LIBS = @PTHREAD_LIBS@
 PVR_CFLAGS = @PVR_CFLAGS@
 PVR_LIBS = @PVR_LIBS@
 PYTHON = @PYTHON@
@@ -613,6 +623,7 @@ SOUNDTOUCH_LIBS = @SOUNDTOUCH_LIBS@
 SPANDSP_CFLAGS = @SPANDSP_CFLAGS@
 SPANDSP_LIBS = @SPANDSP_LIBS@
 SPC_LIBS = @SPC_LIBS@
+SRTP_CFLAGS = @SRTP_CFLAGS@
 SRTP_LIBS = @SRTP_LIBS@
 SSH2_CFLAGS = @SSH2_CFLAGS@
 SSH2_LIBS = @SSH2_LIBS@
@@ -653,17 +664,16 @@ WINSCREENCAP_LIBS = @WINSCREENCAP_LIBS@
 WINSOCK2_LIBS = @WINSOCK2_LIBS@
 X11_CFLAGS = @X11_CFLAGS@
 X11_LIBS = @X11_LIBS@
+X265_CFLAGS = @X265_CFLAGS@
+X265_LIBS = @X265_LIBS@
 XCOMPOSITE_CFLAGS = @XCOMPOSITE_CFLAGS@
 XCOMPOSITE_LIBS = @XCOMPOSITE_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
 XGETTEXT_EXTRA_OPTIONS = @XGETTEXT_EXTRA_OPTIONS@
-XMKMF = @XMKMF@
 XVID_LIBS = @XVID_LIBS@
 X_CFLAGS = @X_CFLAGS@
-X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_LIBS = @X_LIBS@
-X_PRE_LIBS = @X_PRE_LIBS@
 ZBAR_CFLAGS = @ZBAR_CFLAGS@
 ZBAR_LIBS = @ZBAR_LIBS@
 abs_builddir = @abs_builddir@
@@ -680,6 +690,7 @@ am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
 am__tar = @am__tar@
 am__untar = @am__untar@
+ax_pthread_config = @ax_pthread_config@
 bindir = @bindir@
 build = @build@
 build_alias = @build_alias@
@@ -734,7 +745,8 @@ wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstwaylandsink.la
 libgstwaylandsink_la_SOURCES = \
 	gstwaylandsink.c \
-	waylandpool.c \
+	wlshmallocator.c \
+	wlbuffer.c \
 	wldisplay.c \
 	wlwindow.c \
 	wlvideoformat.c \
@@ -753,7 +765,8 @@ libgstwaylandsink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstwaylandsink_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 noinst_HEADERS = \
 	gstwaylandsink.h \
-	waylandpool.h \
+	wlshmallocator.h \
+	wlbuffer.h \
 	wldisplay.h \
 	wlwindow.h \
 	wlvideoformat.h \
@@ -842,8 +855,9 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-gstwaylandsink.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-scaler-protocol.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-waylandpool.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wlbuffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wldisplay.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wlshmallocator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wlvideoformat.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wlwindow.Plo@am__quote@
 
@@ -878,12 +892,19 @@ libgstwaylandsink_la-gstwaylandsink.lo: gstwaylandsink.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-gstwaylandsink.lo `test -f 'gstwaylandsink.c' || echo '$(srcdir)/'`gstwaylandsink.c
 
-libgstwaylandsink_la-waylandpool.lo: waylandpool.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -MT libgstwaylandsink_la-waylandpool.lo -MD -MP -MF $(DEPDIR)/libgstwaylandsink_la-waylandpool.Tpo -c -o libgstwaylandsink_la-waylandpool.lo `test -f 'waylandpool.c' || echo '$(srcdir)/'`waylandpool.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstwaylandsink_la-waylandpool.Tpo $(DEPDIR)/libgstwaylandsink_la-waylandpool.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='waylandpool.c' object='libgstwaylandsink_la-waylandpool.lo' libtool=yes @AMDEPBACKSLASH@
+libgstwaylandsink_la-wlshmallocator.lo: wlshmallocator.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -MT libgstwaylandsink_la-wlshmallocator.lo -MD -MP -MF $(DEPDIR)/libgstwaylandsink_la-wlshmallocator.Tpo -c -o libgstwaylandsink_la-wlshmallocator.lo `test -f 'wlshmallocator.c' || echo '$(srcdir)/'`wlshmallocator.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstwaylandsink_la-wlshmallocator.Tpo $(DEPDIR)/libgstwaylandsink_la-wlshmallocator.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='wlshmallocator.c' object='libgstwaylandsink_la-wlshmallocator.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-waylandpool.lo `test -f 'waylandpool.c' || echo '$(srcdir)/'`waylandpool.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-wlshmallocator.lo `test -f 'wlshmallocator.c' || echo '$(srcdir)/'`wlshmallocator.c
+
+libgstwaylandsink_la-wlbuffer.lo: wlbuffer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -MT libgstwaylandsink_la-wlbuffer.lo -MD -MP -MF $(DEPDIR)/libgstwaylandsink_la-wlbuffer.Tpo -c -o libgstwaylandsink_la-wlbuffer.lo `test -f 'wlbuffer.c' || echo '$(srcdir)/'`wlbuffer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstwaylandsink_la-wlbuffer.Tpo $(DEPDIR)/libgstwaylandsink_la-wlbuffer.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='wlbuffer.c' object='libgstwaylandsink_la-wlbuffer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-wlbuffer.lo `test -f 'wlbuffer.c' || echo '$(srcdir)/'`wlbuffer.c
 
 libgstwaylandsink_la-wldisplay.lo: wldisplay.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -MT libgstwaylandsink_la-wldisplay.lo -MD -MP -MF $(DEPDIR)/libgstwaylandsink_la-wldisplay.Tpo -c -o libgstwaylandsink_la-wldisplay.lo `test -f 'wldisplay.c' || echo '$(srcdir)/'`wldisplay.c
@@ -1136,7 +1157,9 @@ uninstall-am: uninstall-pluginLTLIBRARIES
 
 gstwaylandsink.c: scaler-client-protocol.h
 
-waylandpool.c: scaler-client-protocol.h
+wlshmallocator.c: scaler-client-protocol.h
+
+wlbuffer.c: scaler-client-protocol.h
 
 wldisplay.c: scaler-client-protocol.h
 

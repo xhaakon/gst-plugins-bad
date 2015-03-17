@@ -29,6 +29,7 @@
 #include "camerabingeneral.h"
 
 G_BEGIN_DECLS
+
 #define GST_TYPE_WRAPPER_CAMERA_BIN_SRC \
   (gst_wrapper_camera_bin_src_get_type())
 #define GST_WRAPPER_CAMERA_BIN_SRC(obj) \
@@ -62,6 +63,7 @@ struct _GstWrapperCameraBinSrc
 
   GstCameraBinMode mode;
 
+  GstPad *srcfilter_pad;
   GstPad *vfsrc;
   GstPad *imgsrc;
   GstPad *vidsrc;
@@ -126,5 +128,7 @@ struct _GstWrapperCameraBinSrcClass
 };
 
 gboolean gst_wrapper_camera_bin_src_plugin_init (GstPlugin * plugin);
+
+G_END_DECLS
 
 #endif /* __GST_WRAPPER_CAMERA_BIN_SRC_H__ */
