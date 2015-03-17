@@ -1,3 +1,11 @@
+gst-plugins-bad1.0 (1.5.0.1+git20150316-1) experimental; urgency=medium
+
+  * New upstream GIT snapshot:
+    + Add new bs2b, de265, x265, dtls, rtp plugins.
+    + Add ported vcd and bluez5 plugins.
+
+ -- Sebastian Dröge <slomo@debian.org>  Tue, 17 Mar 2015 09:42:54 +0100
+
 gst-plugins-bad1.0 (1.4.5-1) experimental; urgency=medium
 
   * New upstream bugfix release.
