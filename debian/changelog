@@ -1,3 +1,14 @@
+gst-plugins-bad1.0 (1.5.0.1+git20150316-2) experimental; urgency=medium
+
+  * debian/libgstreamer-plugins-bad-dev.install:
+    + Include platform dependent GL headers.
+  * debian/libgstreamer-plugins-bad-dev.install,
+    debian/rules,
+    debian/build-deps.in:
+    + Include GObject-Introspection files for the libraries.
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 23 Mar 2015 10:04:25 +0100
+
 gst-plugins-bad1.0 (1.5.0.1+git20150316-1) experimental; urgency=medium
 
   * New upstream GIT snapshot:

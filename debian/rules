@@ -149,6 +149,8 @@ pre-build::
 			> debian/libgstreamer-plugins-bad$(gst_deb_abi).install
 	sed 's/@GST_ABI@/$(gst_abi)/g' debian/libgstreamer-plugins-bad-dev.install \
 			> debian/libgstreamer-plugins-bad$(gst_abi)-dev.install
+	cp debian/gir1.2-gst-plugins-bad.install \
+			debian/gir1.2-gst-plugins-bad-$(gst_abi).install
 
 maint: debian/control
 
