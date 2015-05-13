@@ -39,19 +39,21 @@
 #include <gst/gl/gstglconfig.h>
 #include "gstgleffects.h"
 
-#define GST_TYPE_GL_EFFECTS            (gst_gl_effects_get_type())
-#define GST_GL_EFFECTS(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), GST_TYPE_GL_EFFECTS,GstGLEffects))
-#define GST_IS_GL_EFFECTS(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), GST_TYPE_GL_EFFECTS))
-#define GST_GL_EFFECTS_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass) , GST_TYPE_GL_EFFECTS,GstGLEffectsClass))
-#define GST_IS_GL_EFFECTS_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass) , GST_TYPE_GL_EFFECTS))
-#define GST_GL_EFFECTS_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj) , GST_TYPE_GL_EFFECTS,GstGLEffectsClass))
-
 #define GST_CAT_DEFAULT gst_gl_effects_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+
+enum
+{
+  PROP_0 = 0x0,
+  PROP_EFFECT = 0x1 << 1,
+  PROP_HSWAP = 0x1 << 2,
+  PROP_INVERT = 0x1 << 3
+};
 
 #define DEBUG_INIT \
   GST_DEBUG_CATEGORY_INIT (gst_gl_effects_debug, "gleffects", 0, "gleffects element");
 
+#define gst_gl_effects_parent_class parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGLEffects, gst_gl_effects, GST_TYPE_GL_FILTER,
     DEBUG_INIT);
 
@@ -60,8 +62,8 @@ static void gst_gl_effects_set_property (GObject * object, guint prop_id,
 static void gst_gl_effects_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 
-static void gst_gl_effects_init_resources (GstGLFilter * filter);
-static void gst_gl_effects_reset_resources (GstGLFilter * filter);
+static gboolean gst_gl_effects_init_resources (GstBaseTransform * trans);
+static gboolean gst_gl_effects_reset_resources (GstBaseTransform * trans);
 
 static gboolean gst_gl_effects_on_init_gl_context (GstGLFilter * filter);
 
@@ -70,6 +72,8 @@ static void gst_gl_effects_ghash_func_clean (gpointer key, gpointer value,
 
 static gboolean gst_gl_effects_filter_texture (GstGLFilter * filter,
     guint in_tex, guint out_tex);
+static gboolean gst_gl_effects_filters_is_property_supported (const
+    GstGLEffectsFilterDescriptor *, gint property);
 
 /* dont' forget to edit the following when a new effect is added */
 typedef enum
@@ -90,24 +94,24 @@ typedef enum
   GST_GL_EFFECT_XRAY,
   GST_GL_EFFECT_SIN,
   GST_GL_EFFECT_GLOW,
+  GST_GL_EFFECT_SOBEL,
+  GST_GL_EFFECT_BLUR,
+  GST_GL_EFFECT_LAPLACIAN,
   GST_GL_N_EFFECTS
 } GstGLEffectsEffect;
 
-#define GST_TYPE_GL_EFFECTS_EFFECT (gst_gl_effects_effect_get_type ())
-static GType
-gst_gl_effects_effect_get_type (void)
+static const GEnumValue *
+gst_gl_effects_get_effects (void)
 {
-  static GType gl_effects_effect_type = 0;
   static const GEnumValue effect_types[] = {
     {GST_GL_EFFECT_IDENTITY, "Do nothing Effect", "identity"},
     {GST_GL_EFFECT_MIRROR, "Mirror Effect", "mirror"},
     {GST_GL_EFFECT_SQUEEZE, "Squeeze Effect", "squeeze"},
-#if GST_GL_HAVE_OPENGL
     {GST_GL_EFFECT_STRETCH, "Stretch Effect", "stretch"},
+    {GST_GL_EFFECT_TUNNEL, "Light Tunnel Effect", "tunnel"},
     {GST_GL_EFFECT_FISHEYE, "FishEye Effect", "fisheye"},
     {GST_GL_EFFECT_TWIRL, "Twirl Effect", "twirl"},
     {GST_GL_EFFECT_BULGE, "Bulge Effect", "bulge"},
-    {GST_GL_EFFECT_TUNNEL, "Light Tunnel Effect", "tunnel"},
     {GST_GL_EFFECT_SQUARE, "Square Effect", "square"},
     {GST_GL_EFFECT_HEAT, "Heat Signature Effect", "heat"},
     {GST_GL_EFFECT_SEPIA, "Sepia Toning Effect", "sepia"},
@@ -116,13 +120,23 @@ gst_gl_effects_effect_get_type (void)
     {GST_GL_EFFECT_XRAY, "Glowing negative effect", "xray"},
     {GST_GL_EFFECT_SIN, "All Grey but Red Effect", "sin"},
     {GST_GL_EFFECT_GLOW, "Glow Lighting Effect", "glow"},
-#endif
+    {GST_GL_EFFECT_SOBEL, "Sobel edge detection Effect", "sobel"},
+    {GST_GL_EFFECT_BLUR, "Blur with 9x9 separable convolution Effect", "blur"},
+    {GST_GL_EFFECT_LAPLACIAN, "Laplacian Convolution Demo Effect", "laplacian"},
     {0, NULL, NULL}
   };
+  return effect_types;
+}
 
+#define GST_TYPE_GL_EFFECTS_EFFECT (gst_gl_effects_effect_get_type ())
+static GType
+gst_gl_effects_effect_get_type (void)
+{
+  static GType gl_effects_effect_type = 0;
   if (!gl_effects_effect_type) {
     gl_effects_effect_type =
-        g_enum_register_static ("GstGLEffectsEffect", effect_types);
+        g_enum_register_static ("GstGLEffectsEffect",
+        gst_gl_effects_get_effects ());
   }
   return gl_effects_effect_type;
 }
@@ -131,7 +145,6 @@ static void
 gst_gl_effects_set_effect (GstGLEffects * effects, gint effect_type)
 {
   GstGLBaseFilterClass *filter_class = GST_GL_BASE_FILTER_GET_CLASS (effects);
-  GstGLContext *context = GST_GL_BASE_FILTER (effects)->context;
 
   switch (effect_type) {
     case GST_GL_EFFECT_IDENTITY:
@@ -152,78 +165,106 @@ gst_gl_effects_set_effect (GstGLEffects * effects, gint effect_type)
           GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
       effects->current_effect = effect_type;
       break;
-  }
-
-  if (context
-      && (gst_gl_context_get_gl_api (context) & GST_GL_API_OPENGL) ==
-      GST_GL_API_NONE) {
-    GST_ELEMENT_WARNING (effects, RESOURCE, SETTINGS, ("%s",
-            "cannot change effect type"), ("%s",
-            "the current OpenGL context does not support the GL API required"));
-    return;
-  }
-#if GST_GL_HAVE_OPENGL
-  switch (effect_type) {
-    case GST_GL_EFFECT_IDENTITY:
-    case GST_GL_EFFECT_MIRROR:
-    case GST_GL_EFFECT_SQUEEZE:
-      break;
     case GST_GL_EFFECT_STRETCH:
       effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_stretch;
-      filter_class->supported_gl_api = GST_GL_API_OPENGL;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
       break;
     case GST_GL_EFFECT_TUNNEL:
       effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_tunnel;
-      filter_class->supported_gl_api = GST_GL_API_OPENGL;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
       break;
     case GST_GL_EFFECT_FISHEYE:
       effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_fisheye;
-      filter_class->supported_gl_api = GST_GL_API_OPENGL;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
       break;
     case GST_GL_EFFECT_TWIRL:
       effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_twirl;
-      filter_class->supported_gl_api = GST_GL_API_OPENGL;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
       break;
     case GST_GL_EFFECT_BULGE:
       effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_bulge;
-      filter_class->supported_gl_api = GST_GL_API_OPENGL;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
       break;
     case GST_GL_EFFECT_SQUARE:
       effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_square;
-      filter_class->supported_gl_api = GST_GL_API_OPENGL;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
       break;
     case GST_GL_EFFECT_HEAT:
       effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_heat;
-      filter_class->supported_gl_api = GST_GL_API_OPENGL;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
       break;
     case GST_GL_EFFECT_SEPIA:
       effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_sepia;
-      filter_class->supported_gl_api = GST_GL_API_OPENGL;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
       break;
     case GST_GL_EFFECT_XPRO:
       effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_xpro;
-      filter_class->supported_gl_api = GST_GL_API_OPENGL;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
       break;
     case GST_GL_EFFECT_LUMA_XPRO:
       effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_luma_xpro;
-      filter_class->supported_gl_api = GST_GL_API_OPENGL;
-      break;
-    case GST_GL_EFFECT_XRAY:
-      effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_xray;
-      filter_class->supported_gl_api = GST_GL_API_OPENGL;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
       break;
     case GST_GL_EFFECT_SIN:
       effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_sin;
-      filter_class->supported_gl_api = GST_GL_API_OPENGL;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
+      break;
+    case GST_GL_EFFECT_XRAY:
+      effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_sin;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
       break;
     case GST_GL_EFFECT_GLOW:
       effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_glow;
-      filter_class->supported_gl_api = GST_GL_API_OPENGL;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
+      break;
+    case GST_GL_EFFECT_SOBEL:
+      effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_sobel;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
+      break;
+    case GST_GL_EFFECT_BLUR:
+      effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_blur;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
+      break;
+    case GST_GL_EFFECT_LAPLACIAN:
+      effects->effect = (GstGLEffectProcessFunc) gst_gl_effects_laplacian;
+      filter_class->supported_gl_api =
+          GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
+      effects->current_effect = effect_type;
       break;
     default:
       g_assert_not_reached ();
   }
-#endif
+
   effects->current_effect = effect_type;
 }
 
@@ -276,37 +317,19 @@ gst_gl_effects_reset_gl_resources (GstGLFilter * filter)
 static void
 gst_gl_effects_class_init (GstGLEffectsClass * klass)
 {
-  GObjectClass *gobject_class;
-  GstElementClass *element_class;
+  GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
-  gobject_class = (GObjectClass *) klass;
-  element_class = GST_ELEMENT_CLASS (klass);
-
-  gobject_class->set_property = gst_gl_effects_set_property;
-  gobject_class->get_property = gst_gl_effects_get_property;
+  GST_BASE_TRANSFORM_CLASS (klass)->start = gst_gl_effects_init_resources;
+  GST_BASE_TRANSFORM_CLASS (klass)->stop = gst_gl_effects_reset_resources;
 
   GST_GL_FILTER_CLASS (klass)->filter_texture = gst_gl_effects_filter_texture;
   GST_GL_FILTER_CLASS (klass)->display_init_cb =
       gst_gl_effects_init_gl_resources;
   GST_GL_FILTER_CLASS (klass)->display_reset_cb =
       gst_gl_effects_reset_gl_resources;
-  GST_GL_FILTER_CLASS (klass)->onStart = gst_gl_effects_init_resources;
-  GST_GL_FILTER_CLASS (klass)->onStop = gst_gl_effects_reset_resources;
-  GST_GL_FILTER_CLASS (klass)->onInitFBO = gst_gl_effects_on_init_gl_context;
+  GST_GL_FILTER_CLASS (klass)->init_fbo = gst_gl_effects_on_init_gl_context;
 
-  g_object_class_install_property (gobject_class,
-      PROP_EFFECT,
-      g_param_spec_enum ("effect",
-          "Effect",
-          "Select which effect apply to GL video texture",
-          GST_TYPE_GL_EFFECTS_EFFECT,
-          GST_GL_EFFECT_IDENTITY, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-  g_object_class_install_property (gobject_class,
-      PROP_HSWAP,
-      g_param_spec_boolean ("hswap",
-          "Horizontal Swap",
-          "Switch video texture left to right, useful with webcams",
-          FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  klass->filter_descriptor = NULL;
 
   gst_element_class_set_metadata (element_class,
       "Gstreamer OpenGL Effects", "Filter/Effect/Video",
@@ -315,6 +338,46 @@ gst_gl_effects_class_init (GstGLEffectsClass * klass)
 
   GST_GL_BASE_FILTER_CLASS (klass)->supported_gl_api =
       GST_GL_API_OPENGL | GST_GL_API_GLES2 | GST_GL_API_OPENGL3;
+}
+
+static void
+gst_gl_effects_filter_class_init (GstGLEffectsClass * klass,
+    const GstGLEffectsFilterDescriptor * filter_descriptor)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+  klass->filter_descriptor = filter_descriptor;
+
+  gobject_class->set_property = gst_gl_effects_set_property;
+  gobject_class->get_property = gst_gl_effects_get_property;
+
+  /* if filterDescriptor is null it's a generic gleffects */
+  if (!filter_descriptor) {
+    g_object_class_install_property (gobject_class,
+        PROP_EFFECT,
+        g_param_spec_enum ("effect",
+            "Effect",
+            "Select which effect apply to GL video texture",
+            GST_TYPE_GL_EFFECTS_EFFECT,
+            GST_GL_EFFECT_IDENTITY,
+            G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  }
+
+  g_object_class_install_property (gobject_class,
+      PROP_HSWAP,
+      g_param_spec_boolean ("hswap",
+          "Horizontal Swap",
+          "Switch video texture left to right, useful with webcams",
+          FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  /* FIXME: make it work on every effect */
+  if (gst_gl_effects_filters_is_property_supported (filter_descriptor,
+          PROP_INVERT)) {
+    g_object_class_install_property (gobject_class, PROP_INVERT,
+        g_param_spec_boolean ("invert", "Invert the colors for sobel effect",
+            "Invert colors to get dark edges on bright background when using sobel effect",
+            FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  }
 }
 
 static void
@@ -338,8 +401,16 @@ set_horizontal_swap (GstGLContext * context, gpointer data)
 static void
 gst_gl_effects_init (GstGLEffects * effects)
 {
-  effects->effect = gst_gl_effects_identity;
   effects->horizontal_swap = FALSE;
+  effects->invert = FALSE;
+  effects->effect = gst_gl_effects_identity;
+}
+
+static void
+gst_gl_effects_filter_init (GstGLEffects * effects)
+{
+  gst_gl_effects_set_effect (effects,
+      GST_GL_EFFECTS_GET_CLASS (effects)->filter_descriptor->effect);
 }
 
 static void
@@ -354,20 +425,22 @@ gst_gl_effects_ghash_func_clean (gpointer key, gpointer value, gpointer data)
   value = NULL;
 }
 
-static void
-gst_gl_effects_reset_resources (GstGLFilter * filter)
+static gboolean
+gst_gl_effects_reset_resources (GstBaseTransform * trans)
 {
-  GstGLEffects *effects = GST_GL_EFFECTS (filter);
+  GstGLEffects *effects = GST_GL_EFFECTS (trans);
 
   /* release shaders in the gl thread */
   g_hash_table_foreach (effects->shaderstable, gst_gl_effects_ghash_func_clean,
-      filter);
+      effects);
 
   /* clean the htable without calling values destructors
    * because shaders have been released in the glthread
    * through the foreach func */
   g_hash_table_unref (effects->shaderstable);
   effects->shaderstable = NULL;
+
+  return GST_BASE_TRANSFORM_CLASS (parent_class)->stop (trans);
 }
 
 static void
@@ -382,6 +455,9 @@ gst_gl_effects_set_property (GObject * object, guint prop_id,
       break;
     case PROP_HSWAP:
       effects->horizontal_swap = g_value_get_boolean (value);
+      break;
+    case PROP_INVERT:
+      effects->invert = g_value_get_boolean (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -402,16 +478,19 @@ gst_gl_effects_get_property (GObject * object, guint prop_id,
     case PROP_HSWAP:
       g_value_set_boolean (value, effects->horizontal_swap);
       break;
+    case PROP_INVERT:
+      g_value_set_boolean (value, effects->invert);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
   }
 }
 
-static void
-gst_gl_effects_init_resources (GstGLFilter * filter)
+static gboolean
+gst_gl_effects_init_resources (GstBaseTransform * trans)
 {
-  GstGLEffects *effects = GST_GL_EFFECTS (filter);
+  GstGLEffects *effects = GST_GL_EFFECTS (trans);
   gint i;
 
   effects->shaderstable = g_hash_table_new (g_str_hash, g_str_equal);
@@ -422,6 +501,8 @@ gst_gl_effects_init_resources (GstGLFilter * filter)
   for (i = 0; i < GST_GL_EFFECTS_N_CURVES; i++) {
     effects->curve[i] = 0;
   }
+
+  return GST_BASE_TRANSFORM_CLASS (parent_class)->start (trans);
 }
 
 static gboolean
@@ -446,4 +527,151 @@ gst_gl_effects_filter_texture (GstGLFilter * filter, guint in_tex,
   effects->effect (effects);
 
   return TRUE;
+}
+
+GstGLShader *
+gst_gl_effects_get_fragment_shader (GstGLEffects * effects,
+    const gchar * shader_name, const gchar * shader_source_gles2,
+    const gchar * shader_source_opengl)
+{
+  GstGLShader *shader;
+  GstGLFilter *filter = GST_GL_FILTER (effects);
+  GstGLContext *context = GST_GL_BASE_FILTER (filter)->context;
+
+  shader = g_hash_table_lookup (effects->shaderstable, shader_name);
+
+  if (!shader) {
+    shader = gst_gl_shader_new (context);
+    g_hash_table_insert (effects->shaderstable, (gchar *) shader_name, shader);
+
+    if (USING_GLES2 (context) || USING_OPENGL3 (context)) {
+      if (!gst_gl_shader_compile_with_default_v_and_check (shader,
+              shader_source_gles2, &filter->draw_attr_position_loc,
+              &filter->draw_attr_texture_loc)) {
+        /* gst gl context error is already set */
+        GST_ELEMENT_ERROR (effects, RESOURCE, NOT_FOUND,
+            ("Failed to initialize %s shader, %s",
+                shader_name, gst_gl_context_get_error ()), (NULL));
+        return NULL;
+      }
+    }
+#if GST_GL_HAVE_OPENGL
+    if (!gst_gl_shader_compile_and_check (shader,
+            shader_source_opengl, GST_GL_SHADER_FRAGMENT_SOURCE)) {
+      gst_gl_context_set_error (context, "Failed to initialize %s shader",
+          shader_name);
+      GST_ELEMENT_ERROR (effects, RESOURCE, NOT_FOUND, ("%s",
+              gst_gl_context_get_error ()), (NULL));
+      return NULL;
+    }
+#endif
+  }
+
+  return shader;
+}
+
+static const GstGLEffectsFilterDescriptor *
+gst_gl_effects_filters_supported_properties (void)
+{
+  /* Horizontal swap property is supported by all filters */
+  static const GstGLEffectsFilterDescriptor effects[] = {
+    {GST_GL_EFFECT_SOBEL, PROP_INVERT, NULL},
+    {GST_GL_EFFECT_LAPLACIAN, PROP_INVERT, NULL},
+    {0, 0, NULL}
+  };
+  return effects;
+}
+
+static inline gboolean
+gst_gl_effects_filters_is_property_supported (const GstGLEffectsFilterDescriptor
+    * descriptor, gint property)
+{
+  /* generic filter (NULL descriptor) supports all properties */
+  return !descriptor || (descriptor->supported_properties & property);
+}
+
+static const GstGLEffectsFilterDescriptor *
+gst_gl_effects_filters_descriptors (void)
+{
+  static GstGLEffectsFilterDescriptor *descriptors = NULL;
+  if (!descriptors) {
+    const GEnumValue *effect = gst_gl_effects_get_effects ();
+    guint n_filters = 0;
+    for (const GEnumValue * e = effect; NULL != e->value_nick; ++e, ++n_filters) {
+    }
+
+    descriptors = g_new0 (GstGLEffectsFilterDescriptor, n_filters + 1);
+    for (guint i = 0; i < n_filters; ++i, ++effect) {
+      descriptors[i].effect = effect->value;
+      descriptors[i].filter_name = effect->value_nick;
+    }
+
+    for (const GstGLEffectsFilterDescriptor * defined =
+        gst_gl_effects_filters_supported_properties ();
+        0 != defined->supported_properties; ++defined) {
+
+      guint i = 0;
+      for (; i < n_filters; ++i) {
+        if (descriptors[i].effect == defined->effect) {
+          descriptors[i].supported_properties = defined->supported_properties;
+          break;
+        }
+      }
+      if (i >= n_filters) {
+        GST_WARNING ("Could not match gstgleffects-%s descriptor",
+            defined->filter_name);
+      }
+    }
+  }
+  return descriptors;
+}
+
+gboolean
+gst_gl_effects_register_filters (GstPlugin * plugin, GstRank rank)
+{
+  static volatile gsize registered = 0;
+
+  if (g_once_init_enter (&registered)) {
+    GTypeInfo info = {
+      sizeof (GstGLEffectsClass),
+      NULL,
+      NULL,
+      (GClassInitFunc) gst_gl_effects_filter_class_init,
+      NULL,
+      NULL,
+      sizeof (GstGLEffects),
+      0,
+      NULL
+    };
+    GType generic_type =
+        g_type_register_static (GST_TYPE_GL_EFFECTS, "GstGLEffectsGeneric",
+        &info, 0);
+
+    if (gst_element_register (plugin, "gleffects", rank, generic_type)) {
+      for (const GstGLEffectsFilterDescriptor * filters =
+          gst_gl_effects_filters_descriptors (); NULL != filters->filter_name;
+          ++filters) {
+        gchar *name = g_strdup_printf ("gleffects_%s", filters->filter_name);
+        GTypeInfo info = {
+          sizeof (GstGLEffectsClass),
+          NULL,
+          NULL,
+          (GClassInitFunc) gst_gl_effects_filter_class_init,
+          NULL,
+          filters,
+          sizeof (GstGLEffects),
+          0,
+          (GInstanceInitFunc) gst_gl_effects_filter_init
+        };
+        GType type =
+            g_type_register_static (GST_TYPE_GL_EFFECTS, name, &info, 0);
+        if (!gst_element_register (plugin, name, rank, type)) {
+          GST_WARNING ("Could not register %s", name);
+        }
+        g_free (name);
+      }
+    }
+    g_once_init_leave (&registered, generic_type);
+  }
+  return registered;
 }

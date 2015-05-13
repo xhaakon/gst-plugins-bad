@@ -66,6 +66,9 @@
 
 #define GST_FLOW_REWINDING GST_FLOW_CUSTOM_ERROR
 
+/* latency in nsecs */
+#define TS_LATENCY (700 * GST_MSECOND)
+
 GST_DEBUG_CATEGORY_STATIC (ts_demux_debug);
 #define GST_CAT_DEFAULT ts_demux_debug
 
@@ -258,7 +261,7 @@ GST_STATIC_PAD_TEMPLATE ("private_%04x",
 
 enum
 {
-  ARG_0,
+  PROP_0,
   PROP_PROGRAM_NUMBER,
   PROP_EMIT_STATS,
   /* FILL ME */
@@ -455,6 +458,25 @@ gst_ts_demux_get_property (GObject * object, guint prop_id,
 }
 
 static gboolean
+gst_ts_demux_get_duration (GstTSDemux * demux, GstClockTime * dur)
+{
+  MpegTSBase *base = (MpegTSBase *) demux;
+  gboolean res = FALSE;
+  gint64 val;
+
+  /* Get total size in bytes */
+  if (gst_pad_peer_query_duration (base->sinkpad, GST_FORMAT_BYTES, &val)) {
+    /* Convert it to duration */
+    *dur =
+        mpegts_packetizer_offset_to_ts (base->packetizer, val,
+        demux->program->pcr_pid);
+    if (GST_CLOCK_TIME_IS_VALID (*dur))
+      res = TRUE;
+  }
+  return res;
+}
+
+static gboolean
 gst_ts_demux_srcpad_query (GstPad * pad, GstObject * parent, GstQuery * query)
 {
   gboolean res = TRUE;
@@ -472,20 +494,11 @@ gst_ts_demux_srcpad_query (GstPad * pad, GstObject * parent, GstQuery * query)
       gst_query_parse_duration (query, &format, NULL);
       if (format == GST_FORMAT_TIME) {
         if (!gst_pad_peer_query (base->sinkpad, query)) {
-          gint64 val;
-
-          format = GST_FORMAT_BYTES;
-          if (!gst_pad_peer_query_duration (base->sinkpad, format, &val))
+          GstClockTime dur;
+          if (gst_ts_demux_get_duration (demux, &dur))
+            gst_query_set_duration (query, GST_FORMAT_TIME, dur);
+          else
             res = FALSE;
-          else {
-            GstClockTime dur =
-                mpegts_packetizer_offset_to_ts (base->packetizer, val,
-                demux->program->pcr_pid);
-            if (GST_CLOCK_TIME_IS_VALID (dur))
-              gst_query_set_duration (query, GST_FORMAT_TIME, dur);
-            else
-              res = FALSE;
-          }
         }
       } else {
         GST_DEBUG_OBJECT (demux, "only query duration on TIME is supported");
@@ -497,7 +510,7 @@ gst_ts_demux_srcpad_query (GstPad * pad, GstObject * parent, GstQuery * query)
     {
       GST_DEBUG ("query latency");
       res = gst_pad_peer_query (base->sinkpad, query);
-      if (res && base->upstream_live) {
+      if (res) {
         GstClockTime min_lat, max_lat;
         gboolean live;
 
@@ -509,10 +522,10 @@ gst_ts_demux_srcpad_query (GstPad * pad, GstObject * parent, GstQuery * query)
            PTS/DTS. We therefore allow a latency of 700ms for that.
          */
         gst_query_parse_latency (query, &live, &min_lat, &max_lat);
-        if (min_lat != -1)
-          min_lat += 700 * GST_MSECOND;
-        if (max_lat != -1)
-          max_lat += 700 * GST_MSECOND;
+        if (min_lat)
+          min_lat += TS_LATENCY;
+        if (GST_CLOCK_TIME_IS_VALID (max_lat))
+          max_lat += TS_LATENCY;
         gst_query_set_latency (query, live, min_lat, max_lat);
       }
       break;
@@ -521,6 +534,7 @@ gst_ts_demux_srcpad_query (GstPad * pad, GstObject * parent, GstQuery * query)
     {
       GST_DEBUG ("query seeking");
       gst_query_parse_seeking (query, &format, NULL, NULL, NULL);
+      GST_DEBUG ("asked for format %s", gst_format_get_name (format));
       if (format == GST_FORMAT_TIME) {
         gboolean seekable = FALSE;
 
@@ -529,9 +543,13 @@ gst_ts_demux_srcpad_query (GstPad * pad, GstObject * parent, GstQuery * query)
 
         /* If upstream is not seekable in TIME format we use
          * our own values here */
-        if (!seekable)
-          gst_query_set_seeking (query, GST_FORMAT_TIME, TRUE, 0,
-              demux->segment.duration);
+        if (!seekable) {
+          GstClockTime dur;
+          if (gst_ts_demux_get_duration (demux, &dur)) {
+            gst_query_set_seeking (query, GST_FORMAT_TIME, TRUE, 0, dur);
+            GST_DEBUG ("Gave duration: %" GST_TIME_FORMAT, GST_TIME_ARGS (dur));
+          }
+        }
       } else {
         GST_DEBUG_OBJECT (demux, "only TIME is supported for query seeking");
         res = FALSE;
@@ -800,12 +818,29 @@ gst_ts_demux_do_seek (MpegTSBase * base, GstEvent * event)
   /* configure the segment with the seek variables */
   GST_DEBUG_OBJECT (demux, "configuring seek");
 
-  start_offset =
-      mpegts_packetizer_ts_to_offset (base->packetizer, MAX (0,
-          start - SEEK_TIMESTAMP_OFFSET), demux->program->pcr_pid);
+  if (start_type != GST_SEEK_TYPE_NONE) {
+    start_offset =
+        mpegts_packetizer_ts_to_offset (base->packetizer, MAX (0,
+            start - SEEK_TIMESTAMP_OFFSET), demux->program->pcr_pid);
 
-  if (G_UNLIKELY (start_offset == -1)) {
-    GST_WARNING ("Couldn't convert start position to an offset");
+    if (G_UNLIKELY (start_offset == -1)) {
+      GST_WARNING ("Couldn't convert start position to an offset");
+      goto done;
+    }
+  } else {
+    start_offset = GST_CLOCK_TIME_NONE;
+    for (tmp = demux->program->stream_list; tmp; tmp = tmp->next) {
+      TSDemuxStream *stream = tmp->data;
+
+      stream->need_newsegment = TRUE;
+    }
+    gst_segment_init (&demux->segment, GST_FORMAT_UNDEFINED);
+    if (demux->segment_event) {
+      gst_event_unref (demux->segment_event);
+      demux->segment_event = NULL;
+    }
+    demux->rate = rate;
+    res = GST_FLOW_OK;
     goto done;
   }
 
@@ -1399,6 +1434,7 @@ gst_ts_demux_stream_added (MpegTSBase * base, MpegTSBaseStream * bstream,
     stream->active = FALSE;
 
     stream->need_newsegment = TRUE;
+    demux->reset_segment = TRUE;
     stream->needs_keyframe = FALSE;
     stream->discont = TRUE;
     stream->pts = GST_CLOCK_TIME_NONE;
@@ -1455,6 +1491,11 @@ gst_ts_demux_stream_removed (MpegTSBase * base, MpegTSBaseStream * bstream)
   }
 
   gst_ts_demux_stream_flush (stream, GST_TS_DEMUX_CAST (base), TRUE);
+
+  if (stream->taglist != NULL) {
+    gst_tag_list_unref (stream->taglist);
+    stream->taglist = NULL;
+  }
 
   tsdemux_h264_parsing_info_clear (&stream->h264infos);
 }
@@ -1957,12 +1998,14 @@ calculate_and_push_newsegment (GstTSDemux * demux, TSDemuxStream * stream)
       demux->segment = base->segment;
     } else {
       /* Start from the first ts/pts */
+      GstClockTime base = demux->segment.position - demux->segment.start;
       gst_segment_init (&demux->segment, GST_FORMAT_TIME);
       demux->segment.start = firstts;
       demux->segment.stop = GST_CLOCK_TIME_NONE;
       demux->segment.position = firstts;
       demux->segment.time = firstts;
       demux->segment.rate = demux->rate;
+      demux->segment.base = base;
     }
   } else if (demux->segment.start < firstts) {
     /* Take into account the offset to the first buffer timestamp */
@@ -2199,6 +2242,11 @@ gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream)
   if (stream->discont)
     GST_BUFFER_FLAG_SET (buffer, GST_BUFFER_FLAG_DISCONT);
   stream->discont = FALSE;
+
+  if (GST_CLOCK_TIME_IS_VALID (GST_BUFFER_DTS (buffer)))
+    demux->segment.position = GST_BUFFER_DTS (buffer) - stream->first_dts;
+  else if (GST_CLOCK_TIME_IS_VALID (GST_BUFFER_PTS (buffer)))
+    demux->segment.position = GST_BUFFER_PTS (buffer) - stream->first_dts;
 
   res = gst_pad_push (stream->pad, buffer);
   /* Record that a buffer was pushed */

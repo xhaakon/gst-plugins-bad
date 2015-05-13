@@ -155,7 +155,8 @@ am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstdirectsoundsrc_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am_libgstdirectsoundsrc_la_OBJECTS =  \
 	libgstdirectsoundsrc_la-gstdirectsoundsrc.lo \
 	libgstdirectsoundsrc_la-gstdirectsoundplugin.lo
@@ -744,7 +745,7 @@ libgstdirectsoundsrc_la_CFLAGS = $(GST_CFLAGS) $(GST_BASE_CFLAGS) \
 
 libgstdirectsoundsrc_la_LIBADD = \
 	$(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS) -lgstaudio-$(GST_API_VERSION) \
-	$(DIRECTX_LDFLAGS) -ldsound
+	$(DIRECTX_LDFLAGS) $(DIRECTSOUND_LIBS)
 
 libgstdirectsoundsrc_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstdirectsoundsrc_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)

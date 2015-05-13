@@ -1111,7 +1111,7 @@ uninstall-am: uninstall-girDATA uninstall-libLTLIBRARIES \
 
 
 @HAVE_INTROSPECTION_TRUE@GstInsertBin-@GST_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libgstinsertbin-@GST_API_VERSION@.la
-@HAVE_INTROSPECTION_TRUE@	$(AM_V_GEN)PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" \
+@HAVE_INTROSPECTION_TRUE@	$(AM_V_GEN)PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)"  GI_SCANNER_DISABLE_CACHE=yes\
 @HAVE_INTROSPECTION_TRUE@		GST_PLUGIN_SYSTEM_PATH_1_0="" GST_PLUGIN_PATH_1_0="" GST_REGISTRY_UPDATE=no \
 @HAVE_INTROSPECTION_TRUE@		$(INTROSPECTION_SCANNER) -v --namespace GstInsertBin \
 @HAVE_INTROSPECTION_TRUE@		--nsversion=@GST_API_VERSION@ \
@@ -1143,22 +1143,6 @@ uninstall-am: uninstall-girDATA uninstall-libLTLIBRARIES \
 @HAVE_INTROSPECTION_TRUE@		--includedir=`PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" $(PKG_CONFIG) --variable=girdir gstreamer-@GST_API_VERSION@` \
 @HAVE_INTROSPECTION_TRUE@		--includedir=`PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" $(PKG_CONFIG) --variable=girdir gstreamer-base-@GST_API_VERSION@` \
 @HAVE_INTROSPECTION_TRUE@		$(INTROSPECTION_COMPILER_OPTS) $< -o $(@F)
-
-Android.mk:  $(BUILT_SOURCES) Makefile.am
-	androgenizer -:PROJECT libgstinsertbin -:STATIC libgstinsertbin-@GST_API_VERSION@ \
-	 -:TAGS eng debug \
-         -:REL_TOP $(top_srcdir) -:ABS_TOP $(abs_top_srcdir) \
-	 -:SOURCES $(libgstinsertbin_@GST_API_VERSION@_la_SOURCES) \
-         $(built_sources) \
-	 -:CFLAGS $(DEFS) $(libgstinsertbin_@GST_API_VERSION@_la_CFLAGS) \
-	 -:LDFLAGS $(libgstinsertbin_@GST_API_VERSION@_la_LDFLAGS) \
-	           $(libgstinsertbin@GST_API_VERSION@_la_LIBADD) \
-	           -ldl \
-	 -:HEADER_TARGET gstreamer-@GST_API_VERSION@/gst/insertbin \
-	 -:HEADERS $(libgstinsertbininclude_HEADERS) \
-         $(built_headers) \
-	 -:PASSTHROUGH LOCAL_ARM_MODE:=arm \
-	> $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

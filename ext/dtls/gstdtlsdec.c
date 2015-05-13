@@ -96,9 +96,11 @@ static void gst_dtls_dec_release_pad (GstElement *, GstPad *);
 
 static void on_key_received (GstDtlsConnection *, gpointer key, guint cipher,
     guint auth, GstDtlsDec *);
-static gboolean on_pegst_certificate_received (GstDtlsConnection *, gchar * pem,
+static gboolean on_peer_certificate_received (GstDtlsConnection *, gchar * pem,
     GstDtlsDec *);
 static GstFlowReturn sink_chain (GstPad *, GstObject * parent, GstBuffer *);
+static GstFlowReturn sink_chain_list (GstPad *, GstObject * parent,
+    GstBufferList *);
 
 static GstDtlsAgent *get_agent_by_pem (const gchar * pem);
 static void agent_weak_ref_notify (gchar * pem, GstDtlsAgent *);
@@ -150,7 +152,7 @@ gst_dtls_dec_class_init (GstDtlsDecClass * klass)
   properties[PROP_DECODER_KEY] =
       g_param_spec_boxed ("decoder-key",
       "Decoder key",
-      "SRTP key that should be used by the decider",
+      "SRTP key that should be used by the decoder",
       GST_TYPE_CAPS, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   properties[PROP_SRTP_CIPHER] =
@@ -189,9 +191,9 @@ gst_dtls_dec_init (GstDtlsDec * self)
   self->agent = get_agent_by_pem (NULL);
   self->connection_id = NULL;
   self->connection = NULL;
-  self->pegst_pem = NULL;
+  self->peer_pem = NULL;
 
-  self->decodgst_key = NULL;
+  self->decoder_key = NULL;
   self->srtp_cipher = DEFAULT_SRTP_CIPHER;
   self->srtp_auth = DEFAULT_SRTP_AUTH;
 
@@ -202,6 +204,7 @@ gst_dtls_dec_init (GstDtlsDec * self)
   g_return_if_fail (sink);
 
   gst_pad_set_chain_function (sink, GST_DEBUG_FUNCPTR (sink_chain));
+  gst_pad_set_chain_list_function (sink, GST_DEBUG_FUNCPTR (sink_chain_list));
 
   gst_element_add_pad (GST_ELEMENT (self), sink);
 }
@@ -211,16 +214,16 @@ gst_dtls_dec_finalize (GObject * object)
 {
   GstDtlsDec *self = GST_DTLS_DEC (object);
 
-  if (self->decodgst_key) {
-    gst_buffer_unref (self->decodgst_key);
-    self->decodgst_key = NULL;
+  if (self->decoder_key) {
+    gst_buffer_unref (self->decoder_key);
+    self->decoder_key = NULL;
   }
 
   g_free (self->connection_id);
   self->connection_id = NULL;
 
-  g_free (self->pegst_pem);
-  self->pegst_pem = NULL;
+  g_free (self->peer_pem);
+  self->peer_pem = NULL;
 
   g_mutex_clear (&self->src_mutex);
 
@@ -287,10 +290,10 @@ gst_dtls_dec_get_property (GObject * object, guint prop_id, GValue * value,
           gst_dtls_agent_get_certificate_pem (self->agent));
       break;
     case PROP_PEER_PEM:
-      g_value_set_string (value, self->pegst_pem);
+      g_value_set_string (value, self->peer_pem);
       break;
     case PROP_DECODER_KEY:
-      g_value_set_boxed (value, self->decodgst_key);
+      g_value_set_boxed (value, self->decoder_key);
       break;
     case PROP_SRTP_CIPHER:
       g_value_set_uint (value, self->srtp_cipher);
@@ -315,7 +318,7 @@ gst_dtls_dec_change_state (GstElement * element, GstStateChange transition)
         g_signal_connect_object (self->connection,
             "on-decoder-key", G_CALLBACK (on_key_received), self, 0);
         g_signal_connect_object (self->connection,
-            "on-peer-certificate", G_CALLBACK (on_pegst_certificate_received),
+            "on-peer-certificate", G_CALLBACK (on_peer_certificate_received),
             self, 0);
       } else {
         GST_WARNING_OBJECT (self,
@@ -337,6 +340,7 @@ gst_dtls_dec_request_new_pad (GstElement * element,
     GstPadTemplate * tmpl, const gchar * name, const GstCaps * caps)
 {
   GstDtlsDec *self = GST_DTLS_DEC (element);
+  GstPad *pad;
 
   GST_DEBUG_OBJECT (element, "requesting pad");
 
@@ -344,20 +348,26 @@ gst_dtls_dec_request_new_pad (GstElement * element,
   g_return_val_if_fail (tmpl->direction == GST_PAD_SRC, NULL);
 
   g_mutex_lock (&self->src_mutex);
-
-  self->src = gst_pad_new_from_template (tmpl, name);
-  g_return_val_if_fail (self->src, NULL);
-
-  if (caps) {
-    g_object_set (self->src, "caps", caps, NULL);
+  if (self->src) {
+    GST_ERROR_OBJECT (self, "Pad %s:%s exists already",
+        GST_DEBUG_PAD_NAME (self->src));
+    g_mutex_unlock (&self->src_mutex);
+    return NULL;
   }
 
-  gst_pad_set_active (self->src, TRUE);
-  gst_element_add_pad (element, self->src);
-
+  self->src = pad = gst_pad_new_from_template (tmpl, name);
+  gst_object_ref (pad);
   g_mutex_unlock (&self->src_mutex);
 
-  return self->src;
+  gst_pad_set_active (pad, TRUE);
+
+  if (caps)
+    gst_pad_set_caps (pad, (GstCaps *) caps);
+
+  gst_element_add_pad (element, pad);
+  gst_object_unref (pad);
+
+  return pad;
 }
 
 static void
@@ -365,15 +375,16 @@ gst_dtls_dec_release_pad (GstElement * element, GstPad * pad)
 {
   GstDtlsDec *self = GST_DTLS_DEC (element);
 
-  g_mutex_lock (&self->src_mutex);
-
   g_return_if_fail (self->src == pad);
-  gst_element_remove_pad (element, self->src);
+
+  g_mutex_lock (&self->src_mutex);
+  gst_object_unref (self->src);
   self->src = NULL;
+  g_mutex_unlock (&self->src_mutex);
+
+  gst_element_remove_pad (element, pad);
 
   GST_DEBUG_OBJECT (self, "releasing src pad");
-
-  g_mutex_unlock (&self->src_mutex);
 
   GST_ELEMENT_GET_CLASS (element)->release_pad (element, pad);
 }
@@ -391,7 +402,7 @@ on_key_received (GstDtlsConnection * connection, gpointer key, guint cipher,
   self->srtp_auth = auth;
 
   key_dup = g_memdup (key, GST_DTLS_SRTP_MASTER_KEY_LENGTH);
-  self->decodgst_key =
+  self->decoder_key =
       gst_buffer_new_wrapped (key_dup, GST_DTLS_SRTP_MASTER_KEY_LENGTH);
 
   key_str = g_base64_encode (key, GST_DTLS_SRTP_MASTER_KEY_LENGTH);
@@ -402,7 +413,7 @@ on_key_received (GstDtlsConnection * connection, gpointer key, guint cipher,
 }
 
 static gboolean
-signal_pegst_certificate_received (GWeakRef * ref)
+signal_peer_certificate_received (GWeakRef * ref)
 {
   GstDtlsDec *self;
 
@@ -421,7 +432,7 @@ signal_pegst_certificate_received (GWeakRef * ref)
 }
 
 static gboolean
-on_pegst_certificate_received (GstDtlsConnection * connection, gchar * pem,
+on_peer_certificate_received (GstDtlsConnection * connection, gchar * pem,
     GstDtlsDec * self)
 {
   GWeakRef *ref;
@@ -430,14 +441,92 @@ on_pegst_certificate_received (GstDtlsConnection * connection, gchar * pem,
 
   GST_DEBUG_OBJECT (self, "Received peer certificate PEM: \n%s", pem);
 
-  self->pegst_pem = g_strdup (pem);
+  self->peer_pem = g_strdup (pem);
 
   ref = g_new (GWeakRef, 1);
   g_weak_ref_init (ref, self);
 
-  g_idle_add ((GSourceFunc) signal_pegst_certificate_received, ref);
+  g_idle_add ((GSourceFunc) signal_peer_certificate_received, ref);
 
   return TRUE;
+}
+
+static gint
+process_buffer (GstDtlsDec * self, GstBuffer * buffer)
+{
+  GstMapInfo map_info;
+  gint size;
+
+  if (!gst_buffer_map (buffer, &map_info, GST_MAP_READWRITE))
+    return 0;
+
+  if (!map_info.size) {
+    gst_buffer_unmap (buffer, &map_info);
+    return 0;
+  }
+
+  size =
+      gst_dtls_connection_process (self->connection, map_info.data,
+      map_info.size);
+  gst_buffer_unmap (buffer, &map_info);
+
+  if (size <= 0)
+    return size;
+
+  gst_buffer_set_size (buffer, size);
+
+  return size;
+}
+
+static gboolean
+process_buffer_from_list (GstBuffer ** buffer, guint idx, gpointer user_data)
+{
+  GstDtlsDec *self = GST_DTLS_DEC (user_data);
+  gint size;
+
+  *buffer = gst_buffer_make_writable (*buffer);
+  size = process_buffer (self, *buffer);
+  if (size <= 0)
+    gst_buffer_replace (buffer, NULL);
+
+  return TRUE;
+}
+
+static GstFlowReturn
+sink_chain_list (GstPad * pad, GstObject * parent, GstBufferList * list)
+{
+  GstDtlsDec *self = GST_DTLS_DEC (parent);
+  GstFlowReturn ret = GST_FLOW_OK;
+  GstPad *other_pad;
+
+  list = gst_buffer_list_make_writable (list);
+  gst_buffer_list_foreach (list, process_buffer_from_list, self);
+
+  if (gst_buffer_list_length (list) == 0) {
+    GST_DEBUG_OBJECT (self, "Not produced any buffers");
+    gst_buffer_list_unref (list);
+
+    return GST_FLOW_OK;
+  }
+
+  g_mutex_lock (&self->src_mutex);
+  other_pad = self->src;
+  if (other_pad)
+    gst_object_ref (other_pad);
+  g_mutex_unlock (&self->src_mutex);
+
+  if (other_pad) {
+    GST_LOG_OBJECT (self, "decoded buffer list with length %u, pushing",
+        gst_buffer_list_length (list));
+    ret = gst_pad_push_list (other_pad, list);
+    gst_object_unref (other_pad);
+  } else {
+    GST_LOG_OBJECT (self, "dropped buffer list with length %d, not linked",
+        gst_buffer_list_length (list));
+    gst_buffer_list_unref (list);
+  }
+
+  return ret;
 }
 
 static GstFlowReturn
@@ -445,8 +534,8 @@ sink_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
 {
   GstDtlsDec *self = GST_DTLS_DEC (parent);
   GstFlowReturn ret = GST_FLOW_OK;
-  GstMapInfo map_info = GST_MAP_INFO_INIT;
   gint size;
+  GstPad *other_pad;
 
   if (!self->agent) {
     gst_buffer_unref (buffer);
@@ -456,17 +545,8 @@ sink_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
   GST_DEBUG_OBJECT (self, "received buffer from %s with length %zd",
       self->connection_id, gst_buffer_get_size (buffer));
 
-  gst_buffer_map (buffer, &map_info, GST_MAP_READWRITE);
-
-  if (!map_info.size) {
-    gst_buffer_unmap (buffer, &map_info);
-    return GST_FLOW_OK;
-  }
-
-  size =
-      gst_dtls_connection_process (self->connection, map_info.data,
-      map_info.size);
-  gst_buffer_unmap (buffer, &map_info);
+  buffer = gst_buffer_make_writable (buffer);
+  size = process_buffer (self, buffer);
 
   if (size <= 0) {
     gst_buffer_unref (buffer);
@@ -475,17 +555,19 @@ sink_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
   }
 
   g_mutex_lock (&self->src_mutex);
+  other_pad = self->src;
+  if (other_pad)
+    gst_object_ref (other_pad);
+  g_mutex_unlock (&self->src_mutex);
 
-  if (self->src) {
-    gst_buffer_set_size (buffer, size);
+  if (other_pad) {
     GST_LOG_OBJECT (self, "decoded buffer with length %d, pushing", size);
-    ret = gst_pad_push (self->src, buffer);
+    ret = gst_pad_push (other_pad, buffer);
+    gst_object_unref (other_pad);
   } else {
     GST_LOG_OBJECT (self, "dropped buffer with length %d, not linked", size);
     gst_buffer_unref (buffer);
   }
-
-  g_mutex_unlock (&self->src_mutex);
 
   return ret;
 }

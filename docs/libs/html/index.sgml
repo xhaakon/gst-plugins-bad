@@ -427,6 +427,7 @@
 <ANCHOR id="gst-aggregator-finish-buffer" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-finish-buffer">
 <ANCHOR id="gst-aggregator-set-src-caps" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-set-src-caps">
 <ANCHOR id="gst-aggregator-iterate-sinkpads" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-iterate-sinkpads">
+<ANCHOR id="gst-aggregator-get-latency" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-get-latency">
 <ANCHOR id="gst-plugins-bad-libs-GstAggregator.other_details" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-GstAggregator.html#gst-plugins-bad-libs-GstAggregator.other_details">
 <ANCHOR id="GstAggregator" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-GstAggregator.html#GstAggregator">
 <ANCHOR id="GstAggregatorClass" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass">

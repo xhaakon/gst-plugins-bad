@@ -47,16 +47,17 @@ struct _GstDtlsEnc {
 
     GstPad *src;
 
-    GPtrArray *queue;
+    GQueue queue;
     GMutex queue_lock;
     GCond queue_cond_add;
+    gboolean flushing;
 
     GstDtlsConnection *connection;
     gchar *connection_id;
 
     gboolean is_client;
 
-    GstBuffer *encodgst_key;
+    GstBuffer *encoder_key;
     guint srtp_cipher;
     guint srtp_auth;
 

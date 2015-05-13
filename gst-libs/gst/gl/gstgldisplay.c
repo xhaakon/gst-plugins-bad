@@ -214,6 +214,7 @@ gst_gl_display_default_get_handle (GstGLDisplay * display)
 /**
  * gst_gl_display_filter_gl_api:
  * @display: a #GstGLDisplay
+ * @gl_api: a #GstGLAPI to filter with
  *
  * limit the use of OpenGL to the requested @gl_api.  This is intended to allow
  * application and elements to request a specific set of OpenGL API's based on
@@ -234,6 +235,14 @@ gst_gl_display_filter_gl_api (GstGLDisplay * display, GstGLAPI gl_api)
   GST_OBJECT_LOCK (display);
   display->priv->gl_api &= gl_api;
   GST_OBJECT_UNLOCK (display);
+}
+
+GstGLAPI
+gst_gl_display_get_gl_api_unlocked (GstGLDisplay * display)
+{
+  g_return_val_if_fail (GST_IS_GL_DISPLAY (display), GST_GL_API_NONE);
+
+  return display->priv->gl_api;
 }
 
 /**
@@ -371,6 +380,8 @@ _get_gl_context_for_thread_unlocked (GstGLDisplay * display, GThread * thread)
  *
  * Returns: (transfer full): the #GstGLContext current on @thread or %NULL
  *
+ * Must be called with the object lock held.
+ *
  * Since: 1.6
  */
 GstGLContext *
@@ -381,11 +392,9 @@ gst_gl_display_get_gl_context_for_thread (GstGLDisplay * display,
 
   g_return_val_if_fail (GST_IS_GL_DISPLAY (display), NULL);
 
-  GST_OBJECT_LOCK (display);
   context = _get_gl_context_for_thread_unlocked (display, thread);
   GST_DEBUG_OBJECT (display, "returning context %" GST_PTR_FORMAT " for thread "
       "%p", context, thread);
-  GST_OBJECT_UNLOCK (display);
 
   return context;
 }
@@ -429,6 +438,8 @@ out:
  * Returns: whether @context was successfully added. %FALSE may be returned
  * if there already exists another context for @context's active thread.
  *
+ * Must be called with the object lock held.
+ *
  * Since: 1.6
  */
 gboolean
@@ -447,11 +458,10 @@ gst_gl_display_add_context (GstGLDisplay * display, GstGLContext * context)
   g_assert (context_display == display);
   gst_object_unref (context_display);
 
-  GST_OBJECT_LOCK (display);
-
   thread = gst_gl_context_get_thread (context);
   if (thread) {
     collision = _get_gl_context_for_thread_unlocked (display, thread);
+    g_thread_unref (thread);
     if (_check_collision (context, collision)) {
       ret = FALSE;
       goto out;
@@ -469,7 +479,6 @@ out:
 
   GST_DEBUG_OBJECT (display, "%ssuccessfully inserted context %" GST_PTR_FORMAT,
       ret ? "" : "un", context);
-  GST_OBJECT_UNLOCK (display);
 
   return ret;
 }

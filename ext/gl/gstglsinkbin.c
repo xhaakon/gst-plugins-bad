@@ -30,7 +30,6 @@
 GST_DEBUG_CATEGORY (gst_debug_gl_sink_bin);
 #define GST_CAT_DEFAULT gst_debug_gl_sink_bin
 
-static void gst_gl_sink_bin_finalize (GObject * object);
 static void gst_gl_sink_bin_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * param_spec);
 static void gst_gl_sink_bin_get_property (GObject * object, guint prop_id,
@@ -43,12 +42,6 @@ static void gst_gl_sink_bin_video_overlay_init (gpointer g_iface,
     gpointer g_iface_data);
 static void gst_gl_sink_bin_navigation_interface_init (gpointer g_iface,
     gpointer g_iface_data);
-
-static GstStaticPadTemplate gst_gl_sink_bin_template =
-GST_STATIC_PAD_TEMPLATE ("sink",
-    GST_PAD_SINK,
-    GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("video/x-raw(ANY)"));
 
 enum
 {
@@ -80,6 +73,7 @@ gst_gl_sink_bin_class_init (GstGLSinkBinClass * klass)
 {
   GObjectClass *gobject_class;
   GstElementClass *element_class;
+  GstCaps *upload_caps;
 
   gobject_class = (GObjectClass *) klass;
   element_class = GST_ELEMENT_CLASS (klass);
@@ -88,7 +82,6 @@ gst_gl_sink_bin_class_init (GstGLSinkBinClass * klass)
 
   gobject_class->set_property = gst_gl_sink_bin_set_property;
   gobject_class->get_property = gst_gl_sink_bin_get_property;
-  gobject_class->finalize = gst_gl_sink_bin_finalize;
 
   g_object_class_install_property (gobject_class, PROP_FORCE_ASPECT_RATIO,
       g_param_spec_boolean ("force-aspect-ratio",
@@ -121,14 +114,10 @@ gst_gl_sink_bin_class_init (GstGLSinkBinClass * klass)
       "Infrastructure to process GL textures",
       "Matthew Waters <matthew@centricular.com>");
 
+  upload_caps = gst_gl_upload_get_input_template_caps ();
   gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_gl_sink_bin_template));
-}
-
-static void
-gst_gl_sink_bin_finalize (GObject * object)
-{
-  G_OBJECT_CLASS (parent_class)->finalize (object);
+      gst_pad_template_new ("sink", GST_PAD_SINK, GST_PAD_ALWAYS, upload_caps));
+  gst_caps_unref (upload_caps);
 }
 
 static void

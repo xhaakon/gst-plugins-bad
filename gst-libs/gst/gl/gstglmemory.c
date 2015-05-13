@@ -219,15 +219,11 @@ GstVideoGLTextureType
 gst_gl_texture_type_from_format (GstGLContext * context,
     GstVideoFormat v_format, guint plane)
 {
-#if GST_GL_HAVE_PLATFORM_EAGL
-  gboolean texture_rg = FALSE;
-#else
   gboolean texture_rg =
       gst_gl_context_check_feature (context, "GL_EXT_texture_rg")
       || gst_gl_context_check_gl_version (context, GST_GL_API_GLES2, 3, 0)
       || gst_gl_context_check_feature (context, "GL_ARB_texture_rg")
       || gst_gl_context_check_gl_version (context, GST_GL_API_OPENGL3, 3, 0);
-#endif
   guint n_plane_components;
 
   switch (v_format) {
@@ -1073,7 +1069,6 @@ _gl_mem_copy (GstGLMemory * src, gssize offset, gssize size)
 
     if (dest == NULL) {
       GST_WARNING ("Could not copy GL Memory");
-      gst_memory_unref ((GstMemory *) dest);
       goto done;
     }
 
@@ -1407,7 +1402,7 @@ gst_is_gl_memory (GstMemory * mem)
 /**
  * gst_gl_memory_setup_buffer:
  * @context: a #GstGLContext
- * @param: a #GstAllocationParams
+ * @params: a #GstAllocationParams
  * @info: a #GstVideoInfo
  * @valign: the #GstVideoAlignment applied to @info
  * @buffer: a #GstBuffer

@@ -229,11 +229,18 @@ API supported by a <a class="link" href="GstGLContext.html" title="GstGLContext"
 <col class="parameters_description">
 <col width="200px" class="parameters_annotations">
 </colgroup>
-<tbody><tr>
+<tbody>
+<tr>
 <td class="parameter_name"><p>display</p></td>
 <td class="parameter_description"><p>a <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a></p></td>
 <td class="parameter_annotations"> </td>
-</tr></tbody>
+</tr>
+<tr>
+<td class="parameter_name"><p>gl_api</p></td>
+<td class="parameter_description"><p>a <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> to filter with</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
 </table></div>
 </div>
 </div>
@@ -299,6 +306,7 @@ gst_gl_display_add_context (<em class="parameter"><code><a class="link" href="Gs
 was successfully added. <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> may be returned
 if there already exists another context for <em class="parameter"><code>context</code></em>
 's active thread.</p>
+<p>Must be called with the object lock held.</p>
 <p></p>
 </div>
 <p class="since">Since 1.6</p>
@@ -335,7 +343,8 @@ gst_gl_display_get_gl_context_for_thread
 <div class="refsect3">
 <a name="id-1.2.9.11.7.7.5"></a><h4>Returns</h4>
 <p> the <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> current on <em class="parameter"><code>thread</code></em>
-or <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. </p>
+or <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p>
+<p>Must be called with the object lock held. </p>
 <p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
 </div>
 <p class="since">Since 1.6</p>

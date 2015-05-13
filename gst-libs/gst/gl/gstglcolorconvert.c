@@ -575,6 +575,35 @@ gst_gl_color_convert_reset (GstGLColorConvert * convert)
 }
 
 static gboolean
+_gst_gl_color_convert_can_passthrough (GstVideoInfo * in, GstVideoInfo * out)
+{
+  gint i;
+
+  if (GST_VIDEO_INFO_FORMAT (in) != GST_VIDEO_INFO_FORMAT (out))
+    return FALSE;
+  if (GST_VIDEO_INFO_WIDTH (in) != GST_VIDEO_INFO_WIDTH (out))
+    return FALSE;
+  if (GST_VIDEO_INFO_HEIGHT (in) != GST_VIDEO_INFO_HEIGHT (out))
+    return FALSE;
+  if (GST_VIDEO_INFO_SIZE (in) != GST_VIDEO_INFO_SIZE (out))
+    return FALSE;
+
+  for (i = 0; i < in->finfo->n_planes; i++) {
+    if (in->stride[i] != out->stride[i])
+      return FALSE;
+    if (in->offset[i] != out->offset[i])
+      return FALSE;
+  }
+
+  if (!gst_video_colorimetry_is_equal (&in->colorimetry, &out->colorimetry))
+    return FALSE;
+  if (in->chroma_site != out->chroma_site)
+    return FALSE;
+
+  return TRUE;
+}
+
+static gboolean
 _gst_gl_color_convert_set_caps_unlocked (GstGLColorConvert * convert,
     GstCaps * in_caps, GstCaps * out_caps)
 {
@@ -619,14 +648,27 @@ _gst_gl_color_convert_set_caps_unlocked (GstGLColorConvert * convert,
   convert->out_info = out_info;
   convert->initted = FALSE;
 
+  /* If input and output are identical, pass through directly */
+  convert->passthrough =
+      _gst_gl_color_convert_can_passthrough (&in_info, &out_info);
+#ifndef GST_DISABLE_GST_DEBUG
+  if (G_UNLIKELY (convert->passthrough))
+    GST_DEBUG_OBJECT (convert,
+        "Configuring passthrough mode for same in/out caps");
+  else {
+    GST_DEBUG_OBJECT (convert, "Color converting %" GST_PTR_FORMAT
+        " to %" GST_PTR_FORMAT, in_caps, out_caps);
+  }
+#endif
+
   return TRUE;
 }
 
 /**
  * gst_gl_color_convert_set_caps:
  * @convert: a #GstGLColorConvert
- * @in_info: input #GstVideoInfo
- * @out_info: output #GstVideoInfo
+ * @in_caps: input #GstCaps
+ * @out_caps: output #GstCaps
  *
  * Initializes @convert with the information required for conversion.
  */
@@ -732,7 +774,7 @@ _gst_gl_color_convert_perform_unlocked (GstGLColorConvert * convert,
   g_return_val_if_fail (convert != NULL, FALSE);
   g_return_val_if_fail (inbuf, FALSE);
 
-  if (gst_video_info_is_equal (&convert->in_info, &convert->out_info))
+  if (G_UNLIKELY (convert->passthrough))
     return gst_buffer_ref (inbuf);
 
   convert->inbuf = inbuf;
@@ -896,13 +938,13 @@ _YUV_to_RGB (GstGLColorConvert * convert)
   GstVideoFormat out_format = GST_VIDEO_INFO_FORMAT (&convert->out_info);
   const gchar *out_format_str = gst_video_format_to_string (out_format);
   gchar *pixel_order = _RGB_pixel_order ("rgba", out_format_str);
-#if GST_GL_HAVE_PLATFORM_EAGL
-  gboolean texture_rg = FALSE;
-#else
   gboolean texture_rg =
       gst_gl_context_check_feature (convert->context, "GL_EXT_texture_rg")
-      || gst_gl_context_check_feature (convert->context, "GL_ARB_texture_rg");
-#endif
+      || gst_gl_context_check_gl_version (convert->context, GST_GL_API_GLES2, 3,
+      0)
+      || gst_gl_context_check_feature (convert->context, "GL_ARB_texture_rg")
+      || gst_gl_context_check_gl_version (convert->context, GST_GL_API_OPENGL3,
+      3, 0);
   gboolean apple_ycbcr = gst_gl_context_check_feature (convert->context,
       "GL_APPLE_ycbcr_422");
   gboolean in_tex_rectangular = FALSE;
@@ -1134,13 +1176,13 @@ _GRAY_to_RGB (GstGLColorConvert * convert)
   GstVideoFormat out_format = GST_VIDEO_INFO_FORMAT (&convert->out_info);
   const gchar *out_format_str = gst_video_format_to_string (out_format);
   gchar *pixel_order = _RGB_pixel_order ("rgba", out_format_str);
-#if GST_GL_HAVE_PLATFORM_EAGL
-  gboolean texture_rg = FALSE;
-#else
   gboolean texture_rg =
       gst_gl_context_check_feature (convert->context, "GL_EXT_texture_rg")
-      || gst_gl_context_check_feature (convert->context, "GL_ARB_texture_rg");
-#endif
+      || gst_gl_context_check_gl_version (convert->context, GST_GL_API_GLES2, 3,
+      0)
+      || gst_gl_context_check_feature (convert->context, "GL_ARB_texture_rg")
+      || gst_gl_context_check_gl_version (convert->context, GST_GL_API_OPENGL3,
+      3, 0);
 
   info->in_n_textures = 1;
   info->out_n_textures = 1;

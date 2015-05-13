@@ -2048,11 +2048,13 @@ gst_mxf_demux_handle_index_table_segment (GstMXFDemux * demux,
       (GCompareFunc) compare_index_table_segments);
 
   /* Prevent duplicates */
-  if (l == NULL)
+  if (l == NULL) {
     demux->pending_index_table_segments =
         g_list_prepend (demux->pending_index_table_segments, segment);
-  else
+  } else {
+    mxf_index_table_segment_reset (segment);
     g_free (segment);
+  }
 
   return GST_FLOW_OK;
 }
@@ -3554,6 +3556,7 @@ gst_mxf_demux_seek_pull (GstMXFDemux * demux, GstEvent * event)
       }
       p->discont = TRUE;
     }
+    gst_flow_combiner_reset (demux->flowcombiner);
     if (new_offset == -1) {
       GST_WARNING_OBJECT (demux, "No new offset found");
       ret = FALSE;

@@ -351,11 +351,7 @@ from downstream and automatic upload/download for non-<a class="link" href="gst-
   gboolean (*set_caps)          (GstGLFilter* filter, GstCaps* incaps, GstCaps* outcaps);
   gboolean (*filter)            (GstGLFilter *filter, GstBuffer *inbuf, GstBuffer *outbuf);
   gboolean (*filter_texture)    (GstGLFilter *filter, guint in_tex, guint out_tex);
-  gboolean (*onInitFBO)         (GstGLFilter *filter);
-
-  void (*onStart)               (GstGLFilter *filter);
-  void (*onStop)                (GstGLFilter *filter);
-  void (*onReset)               (GstGLFilter *filter);
+  gboolean (*init_fbo)          (GstGLFilter *filter);
 
   /* useful to init and cleanup custom gl resources */
   void (*display_init_cb)       (GstGLFilter *filter);
@@ -401,24 +397,8 @@ exists</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.onInitFBO"></a>onInitFBO</code></em> ()</p></td>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.init-fbo"></a>init_fbo</code></em> ()</p></td>
 <td class="struct_member_description"><p>perform initialization when the Framebuffer object is created</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.onStart"></a>onStart</code></em> ()</p></td>
-<td class="struct_member_description"><p>called when element activates see also <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html"><span class="type">GstBaseTransform</span></a></p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.onStop"></a>onStop</code></em> ()</p></td>
-<td class="struct_member_description"><p>called when the element deactivates e also <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html"><span class="type">GstBaseTransform</span></a></p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.onReset"></a>onReset</code></em> ()</p></td>
-<td class="struct_member_description"><p>called on inizialation and after <em class="parameter"><code>onStop</code></em>
-</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>

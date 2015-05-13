@@ -27,7 +27,7 @@
 #include <gst/gst.h>
 #include <gst/audio/gstaudioencoder.h>
 
-#include <opus/opus_multistream.h>
+#include <opus_multistream.h>
 
 G_BEGIN_DECLS
 
@@ -79,12 +79,7 @@ struct _GstOpusEnc {
   gint                  n_channels;
   gint                  sample_rate;
 
-  gboolean              header_sent;
   guint64               encoded_samples;
-
-  GSList                *headers;
-
-  GstTagList            *tags;
 
   guint8                channel_mapping_family;
   guint8                encoding_channel_mapping[256];

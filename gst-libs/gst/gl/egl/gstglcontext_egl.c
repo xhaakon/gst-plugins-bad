@@ -37,6 +37,9 @@
 #if GST_GL_HAVE_WINDOW_WIN32
 #include "../win32/gstglwindow_win32.h"
 #endif
+#if GST_GL_HAVE_WINDOW_DISPMANX
+#include "../dispmanx/gstglwindow_dispmanx_egl.h"
+#endif
 
 #define GST_CAT_DEFAULT gst_gl_context_debug
 
@@ -181,16 +184,19 @@ gst_gl_context_egl_choose_config (GstGLContextEGL * egl,
   else
     config_attrib[i++] = EGL_OPENGL_BIT;
 #if defined(USE_EGL_RPI) && GST_GL_HAVE_WINDOW_WAYLAND
-  /* The configurations r=5 g=6 b=5 seems to be buggy whereas
+  /* The configurations with a=0 seems to be buggy whereas
    * it works when using dispmanx directly */
-  config_attrib[i++] = EGL_BUFFER_SIZE;
-  config_attrib[i++] = 24;
-  /* same with a=0 */
   config_attrib[i++] = EGL_ALPHA_SIZE;
   config_attrib[i++] = 1;
 #endif
   config_attrib[i++] = EGL_DEPTH_SIZE;
   config_attrib[i++] = 16;
+  config_attrib[i++] = EGL_RED_SIZE;
+  config_attrib[i++] = 1;
+  config_attrib[i++] = EGL_GREEN_SIZE;
+  config_attrib[i++] = 1;
+  config_attrib[i++] = EGL_BLUE_SIZE;
+  config_attrib[i++] = 1;
   config_attrib[i++] = EGL_NONE;
 
   if (eglChooseConfig (egl->egl_display, config_attrib,
@@ -392,6 +398,12 @@ gst_gl_context_egl_create_context (GstGLContext * context,
       gst_gl_window_win32_create_window ((GstGLWindowWin32 *) context->window);
     }
 #endif
+#if GST_GL_HAVE_WINDOW_DISPMANX
+    if (GST_GL_IS_WINDOW_DISPMANX_EGL (context->window)) {
+      gst_gl_window_dispmanx_egl_create_window ((GstGLWindowDispmanxEGL *)
+          context->window);
+    }
+#endif
   }
 
   if (window)
@@ -514,13 +526,25 @@ gst_gl_context_egl_activate (GstGLContext * context, gboolean activate)
           "Handle changed (have:%p, now:%p), switching surface",
           (void *) egl->window_handle, (void *) handle);
       if (egl->egl_surface) {
-        eglDestroySurface (egl->egl_display, egl->egl_surface);
+        result = eglDestroySurface (egl->egl_display, egl->egl_surface);
         egl->egl_surface = EGL_NO_SURFACE;
+        if (!result) {
+          GST_ERROR_OBJECT (context, "Failed to destroy old window surface: %s",
+              gst_gl_context_egl_get_error_string ());
+          goto done;
+        }
       }
       egl->egl_surface =
           eglCreateWindowSurface (egl->egl_display, egl->egl_config, handle,
           NULL);
       egl->window_handle = handle;
+
+      if (egl->egl_surface == EGL_NO_SURFACE) {
+        GST_ERROR_OBJECT (context, "Failed to create window surface: %s",
+            gst_gl_context_egl_get_error_string ());
+        result = FALSE;
+        goto done;
+      }
     }
     result = eglMakeCurrent (egl->egl_display, egl->egl_surface,
         egl->egl_surface, egl->egl_context);
@@ -528,6 +552,13 @@ gst_gl_context_egl_activate (GstGLContext * context, gboolean activate)
     result = eglMakeCurrent (egl->egl_display, EGL_NO_SURFACE,
         EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
+  if (!result) {
+    GST_ERROR_OBJECT (context,
+        "Failed to bind context to the current rendering thread: %s",
+        gst_gl_context_egl_get_error_string ());
+  }
+
+done:
   return result;
 }
 

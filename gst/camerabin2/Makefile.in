@@ -160,6 +160,7 @@ libgstcamerabin2_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/interfaces/libgs
 	$(am__DEPENDENCIES_1)
 am_libgstcamerabin2_la_OBJECTS =  \
 	libgstcamerabin2_la-gstviewfinderbin.lo \
+	libgstcamerabin2_la-gstdigitalzoom.lo \
 	libgstcamerabin2_la-camerabingeneral.lo \
 	libgstcamerabin2_la-gstwrappercamerabinsrc.lo \
 	libgstcamerabin2_la-gstcamerabin2.lo \
@@ -743,6 +744,7 @@ top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstcamerabin2.la
 libgstcamerabin2_la_SOURCES = gstviewfinderbin.c \
+				gstdigitalzoom.c \
 				camerabingeneral.c \
 				gstwrappercamerabinsrc.c \
 				gstcamerabin2.c \
@@ -764,6 +766,7 @@ libgstcamerabin2_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstcamerabin2_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 noinst_HEADERS = gstviewfinderbin.h \
 		camerabingeneral.h \
+		gstdigitalzoom.h \
 		gstwrappercamerabinsrc.h \
 		gstcamerabin2.h
 
@@ -848,6 +851,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin2_la-camerabingeneral.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin2_la-gstcamerabin2.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin2_la-gstdigitalzoom.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin2_la-gstplugin.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin2_la-gstviewfinderbin.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin2_la-gstwrappercamerabinsrc.Plo@am__quote@
@@ -882,6 +886,13 @@ libgstcamerabin2_la-gstviewfinderbin.lo: gstviewfinderbin.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstviewfinderbin.c' object='libgstcamerabin2_la-gstviewfinderbin.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin2_la-gstviewfinderbin.lo `test -f 'gstviewfinderbin.c' || echo '$(srcdir)/'`gstviewfinderbin.c
+
+libgstcamerabin2_la-gstdigitalzoom.lo: gstdigitalzoom.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin2_la-gstdigitalzoom.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin2_la-gstdigitalzoom.Tpo -c -o libgstcamerabin2_la-gstdigitalzoom.lo `test -f 'gstdigitalzoom.c' || echo '$(srcdir)/'`gstdigitalzoom.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcamerabin2_la-gstdigitalzoom.Tpo $(DEPDIR)/libgstcamerabin2_la-gstdigitalzoom.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstdigitalzoom.c' object='libgstcamerabin2_la-gstdigitalzoom.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin2_la-gstdigitalzoom.lo `test -f 'gstdigitalzoom.c' || echo '$(srcdir)/'`gstdigitalzoom.c
 
 libgstcamerabin2_la-camerabingeneral.lo: camerabingeneral.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin2_la-camerabingeneral.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin2_la-camerabingeneral.Tpo -c -o libgstcamerabin2_la-camerabingeneral.lo `test -f 'camerabingeneral.c' || echo '$(srcdir)/'`camerabingeneral.c
@@ -1124,22 +1135,6 @@ uninstall-am: uninstall-pluginLTLIBRARIES
 	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
 	uninstall-pluginLTLIBRARIES
 
-
-Android.mk: Makefile.am $(BUILT_SOURCES)
-	androgenizer \
-	-:PROJECT libgstcamerabin2 -:SHARED libgstcamerabin2 \
-	 -:TAGS eng debug \
-         -:REL_TOP $(top_srcdir) -:ABS_TOP $(abs_top_srcdir) \
-	 -:SOURCES $(libgstcamerabin2_la_SOURCES) \
-	 -:CFLAGS $(DEFS) $(DEFAULT_INCLUDES) $(libgstcamerabin2_la_CFLAGS) \
-	 -:LDFLAGS $(libgstcamerabin2_la_LDFLAGS) \
-	           $(libgstcamerabin2_la_LIBADD) \
-	           -ldl \
-	 -:LIBFILTER_STATIC gstphotography-@GST_API_VERSION@ \
-	          gstbasecamerabinsrc-@GST_API_VERSION@ \
-	 -:PASSTHROUGH LOCAL_ARM_MODE:=arm \
-		       LOCAL_MODULE_PATH:='$$(TARGET_OUT)/lib/gstreamer-0.10' \
-	> $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

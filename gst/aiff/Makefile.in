@@ -736,6 +736,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstaiff.la
+noinst_HEADERS = aiffmux.h aiffparse.h
 libgstaiff_la_SOURCES = aiff.c aiffmux.c aiffparse.c
 libgstaiff_la_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) \
@@ -750,7 +751,6 @@ libgstaiff_la_LIBADD = \
 
 libgstaiff_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstaiff_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
-noinst_HEADERS = aiffmux.h aiffparse.h
 all: all-am
 
 .SUFFIXES:
@@ -1092,20 +1092,6 @@ uninstall-am: uninstall-pluginLTLIBRARIES
 	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
 	uninstall-pluginLTLIBRARIES
 
-
-Android.mk: Makefile.am $(BUILT_SOURCES)
-	androgenizer \
-	-:PROJECT libgstaiff -:SHARED libgstaiff \
-	 -:TAGS eng debug \
-         -:REL_TOP $(top_srcdir) -:ABS_TOP $(abs_top_srcdir) \
-	 -:SOURCES $(libgstaiff_la_SOURCES) \
-	 -:CFLAGS $(DEFS) $(DEFAULT_INCLUDES) $(libgstaiff_la_CFLAGS) \
-	 -:LDFLAGS $(libgstaiff_la_LDFLAGS) \
-	           $(libgstaiff_la_LIBADD) \
-	           -ldl \
-	 -:PASSTHROUGH LOCAL_ARM_MODE:=arm \
-		       LOCAL_MODULE_PATH:='$$(TARGET_OUT)/lib/gstreamer-0.10' \
-	> $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

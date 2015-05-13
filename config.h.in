@@ -301,9 +301,6 @@
 /* Define if gudev is installed */
 #undef HAVE_GUDEV
 
-/* Define to 1 if you have the <highgui.h> header file. */
-#undef HAVE_HIGHGUI_H
-
 /* Define to enable http live streaming plugin (used by hls). */
 #undef HAVE_HLS
 
@@ -412,8 +409,40 @@
 /* Define to enable opencv plugins (used by opencv). */
 #undef HAVE_OPENCV
 
+/* Define to 1 if you have the <opencv2/contrib/contrib.hpp> header file. */
+#undef HAVE_OPENCV2_CONTRIB_CONTRIB_HPP
+
+/* Define to 1 if you have the <opencv2/core/core_c.h> header file. */
+#undef HAVE_OPENCV2_CORE_CORE_C_H
+
+/* Define to 1 if you have the <opencv2/core/types_c.h> header file. */
+#undef HAVE_OPENCV2_CORE_TYPES_C_H
+
+/* Define to 1 if you have the <opencv2/core/version.hpp> header file. */
+#undef HAVE_OPENCV2_CORE_VERSION_HPP
+
 /* Define to 1 if you have the <opencv2/highgui/highgui_c.h> header file. */
 #undef HAVE_OPENCV2_HIGHGUI_HIGHGUI_C_H
+
+/* Define to 1 if you have the <opencv2/imgproc/imgproc_c.h> header file. */
+#undef HAVE_OPENCV2_IMGPROC_IMGPROC_C_H
+
+/* Define to 1 if you have the <opencv2/imgproc/imgproc.hpp> header file. */
+#undef HAVE_OPENCV2_IMGPROC_IMGPROC_HPP
+
+/* Define to 1 if you have the <opencv2/legacy/compat.hpp> header file. */
+#undef HAVE_OPENCV2_LEGACY_COMPAT_HPP
+
+/* Define to 1 if you have the <opencv2/legacy/legacy.hpp> header file. */
+#undef HAVE_OPENCV2_LEGACY_LEGACY_HPP
+
+/* Define to 1 if you have the <opencv2/objdetect/objdetect.hpp> header file.
+   */
+#undef HAVE_OPENCV2_OBJDETECT_OBJDETECT_HPP
+
+/* Define to 1 if you have the <opencv2/video/background_segm.hpp> header
+   file. */
+#undef HAVE_OPENCV2_VIDEO_BACKGROUND_SEGM_HPP
 
 /* Define to enable openexr library (used by openexr). */
 #undef HAVE_OPENEXR

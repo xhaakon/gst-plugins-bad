@@ -449,7 +449,6 @@ gst_gl_context_get_current_gl_context (GstGLPlatform context_type)
 
 /**
  * gst_gl_context_get_current_gl_api:
- * @context_type: a #GstGLPlatform specifying the type of context to retreive
  * @major: (out): (allow-none): the major version
  * @minor: (out): (allow-none): the minor version
  *
@@ -1217,7 +1216,7 @@ gst_gl_context_create_thread (GstGLContext * context)
   context_class = GST_GL_CONTEXT_GET_CLASS (context);
   window_class = GST_GL_WINDOW_GET_CLASS (context->window);
 
-  display_api = gst_gl_display_get_gl_api (context->priv->display);
+  display_api = gst_gl_display_get_gl_api_unlocked (context->priv->display);
   if (display_api == GST_GL_API_NONE) {
     g_set_error (error, GST_GL_CONTEXT_ERROR, GST_GL_CONTEXT_ERROR_WRONG_API,
         "Cannot create context with satisfying requested apis "

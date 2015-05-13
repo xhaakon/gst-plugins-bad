@@ -271,8 +271,8 @@ elements_camerabin_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 elements_compositor_SOURCES = elements/compositor.c
 elements_compositor_OBJECTS =  \
 	elements/elements_compositor-compositor.$(OBJEXT)
-elements_compositor_DEPENDENCIES = $(am__DEPENDENCIES_2) \
-	$(am__DEPENDENCIES_1)
+elements_compositor_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
 elements_compositor_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(elements_compositor_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -1494,14 +1494,14 @@ REGISTRY_ENVIRONMENT = \
 
 
 # GST_PLUGINS_XYZ_DIR is only set in an uninstalled setup
-TESTS_ENVIRONMENT = \
+AM_TESTS_ENVIRONMENT = \
 	$(REGISTRY_ENVIRONMENT)                                 \
 	GST_PLUGIN_SYSTEM_PATH_1_0=				\
 	GST_PLUGIN_PATH_1_0=$(top_builddir)/gst:$(top_builddir)/sys:$(top_builddir)/ext:$(GST_PLUGINS_LIBAV_DIR):$(GST_PLUGINS_UGLY_DIR):$(GST_PLUGINS_GOOD_DIR):$(GST_PLUGINS_BASE_DIR):$(GST_PLUGINS_DIR) \
 	GST_PLUGIN_LOADING_WHITELIST="gstreamer@$(GST_PLUGINS_DIR):gst-plugins-base@$(GSTPB_PLUGINS_DIR):gst-plugins-good:gst-plugins-ugly:gst-libav:gst-plugins-bad@$(top_builddir)" \
 	GST_STATE_IGNORE_ELEMENTS="apexsink avdtpsrc camerabin dc1394src \
 	    dccpclientsrc dccpclientsink dccpserversrc dccpserversink decklinksrc \
-	    decklinksink dvbsrc dvbbasebin dfbvideosink festival fluidsynth gsettingsvideosrc \
+	    decklinksink dtlssrtpdec dtlssrtpenc dvbsrc dvbbasebin dfbvideosink festival fluidsynth gsettingsvideosrc \
 	    gsettingsvideosink gsettingsaudiosrc gsettingsaudiosink linsyssdisrc linsyssdisink nassink \
 	    rsndvdbin sdlaudiosink sdlvideosink vcdsrc rfbsrc vdpauyuvvideo vdpauvideoyuv \
 	    vdpaumpegdec vdpaumpeg4dec vdpauh264dec vdpauvideopostprocess vdpausink neonhttpsrc"
@@ -1592,8 +1592,9 @@ VALGRIND_TESTS_DISABLE = \
 noinst_HEADERS = elements/mxfdemux.h
 TESTS = $(check_PROGRAMS)
 AM_CFLAGS = $(GST_CFLAGS) $(GST_CHECK_CFLAGS) $(GST_OPTION_CFLAGS) \
-		-DGST_TEST_FILES_PATH="\"$(TEST_FILES_DIRECTORY)\"" \
-		-UG_DISABLE_ASSERT -UG_DISABLE_CAST_CHECKS
+	-DGST_CHECK_TEST_ENVIRONMENT_BEACON="\"GST_PLUGIN_LOADING_WHITELIST\"" \
+	-DGST_TEST_FILES_PATH="\"$(TEST_FILES_DIRECTORY)\"" \
+	-UG_DISABLE_ASSERT -UG_DISABLE_CAST_CHECKS
 
 LDADD = $(GST_CHECK_LIBS)
 elements_audiomixer_LDADD = $(GST_BASE_LIBS) -lgstbase-@GST_API_VERSION@ $(LDADD)
@@ -1808,8 +1809,14 @@ libs_aggregator_CFLAGS = \
 	-DGST_USE_UNSTABLE_API \
 	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
 
-elements_compositor_LDADD = $(LDADD)  $(GST_BASE_LIBS)
-elements_compositor_CFLAGS = $(GST_BASE_CFLAGS) $(CFLAGS) $(AM_CFLAGS)
+elements_compositor_LDADD = \
+	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
+	$(GST_BASE_LIBS) $(LDADD)
+
+elements_compositor_CFLAGS = \
+	$(GST_PLUGINS_BASE_CFLAGS) \
+	$(GST_BASE_CFLAGS) $(CFLAGS) $(AM_CFLAGS)
+
 elements_hlsdemux_m3u8_CFLAGS = $(GST_BASE_CFLAGS) $(AM_CFLAGS) -I$(top_srcdir)/ext/hls
 elements_hlsdemux_m3u8_LDADD = $(GST_BASE_LIBS) $(LDADD)
 elements_hlsdemux_m3u8_SOURCES = elements/hlsdemux_m3u8.c
@@ -3793,38 +3800,38 @@ LOOPS ?= 10
 # run any given test by running make test.check
 # if the test fails, run it again at at least debug level 2
 %.check: %
-	@$(TESTS_ENVIRONMENT)					\
+	@$(AM_TESTS_ENVIRONMENT)					\
 	CK_DEFAULT_TIMEOUT=20					\
 	$* ||							\
-	$(TESTS_ENVIRONMENT)					\
+	$(AM_TESTS_ENVIRONMENT)					\
 	GST_DEBUG=$$GST_DEBUG,*:2				\
 	CK_DEFAULT_TIMEOUT=20					\
 	$*
 
 # just like 'check', but don't run it again if it fails (useful for debugging)
 %.check-norepeat: %
-	@$(TESTS_ENVIRONMENT)					\
+	@$(AM_TESTS_ENVIRONMENT)					\
 	CK_DEFAULT_TIMEOUT=20					\
 	$*
 
 # run any given test in a loop
 %.torture: %
 	@for i in `seq 1 $(LOOPS)`; do				\
-	$(TESTS_ENVIRONMENT)					\
+	$(AM_TESTS_ENVIRONMENT)					\
 	CK_DEFAULT_TIMEOUT=20					\
 	$*; done
 
 # run any given test in an infinite loop
 %.forever: %
 	@while true; do						\
-	$(TESTS_ENVIRONMENT)					\
+	$(AM_TESTS_ENVIRONMENT)					\
 	CK_DEFAULT_TIMEOUT=20					\
 	$* || break; done
 
 # valgrind any given test by running make test.valgrind
 %.valgrind: %
 	@valgrind_log=$(subst /,-,$*-valgrind.log);		\
-	$(TESTS_ENVIRONMENT)					\
+	$(AM_TESTS_ENVIRONMENT)					\
 	CK_DEFAULT_TIMEOUT=360					\
 	G_SLICE=always-malloc					\
 	$(LIBTOOL) --mode=execute				\
@@ -3842,7 +3849,7 @@ LOOPS ?= 10
 
 # valgrind any given test and generate suppressions for it
 %.valgrind.gen-suppressions: %
-	@$(TESTS_ENVIRONMENT)					\
+	@$(AM_TESTS_ENVIRONMENT)					\
 	CK_DEFAULT_TIMEOUT=360					\
 	G_SLICE=always-malloc					\
 	$(LIBTOOL) --mode=execute				\
@@ -3872,7 +3879,7 @@ LOOPS ?= 10
 
 # gdb any given test by running make test.gdb
 %.gdb: %
-	@$(TESTS_ENVIRONMENT)					\
+	@$(AM_TESTS_ENVIRONMENT)					\
 	CK_FORK=no						\
 	$(LIBTOOL) --mode=execute				\
 	gdb $*
@@ -3976,7 +3983,7 @@ valgrind.gen-suppressions: $(TESTS)
 	fi
 inspect:
 	@echo "Inspecting features ..."
-	@for e in `$(TESTS_ENVIRONMENT) $(GST_INSPECT) | head -n -2 	\
+	@for e in `$(AM_TESTS_ENVIRONMENT) $(GST_INSPECT) | head -n -2 	\
 	  | cut -d: -f2`;						\
 	  do echo Inspecting $$e;					\
 	     $(GST_INSPECT) $$e > /dev/null 2>&1; done

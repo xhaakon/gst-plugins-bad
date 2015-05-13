@@ -159,7 +159,8 @@ libgstwinks_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 am_libgstwinks_la_OBJECTS = libgstwinks_la-gstksclock.lo \
 	libgstwinks_la-gstksvideodevice.lo \
-	libgstwinks_la-gstksvideosrc.lo libgstwinks_la-kshelpers.lo \
+	libgstwinks_la-gstksvideosrc.lo \
+	libgstwinks_la-ksdeviceprovider.lo libgstwinks_la-kshelpers.lo \
 	libgstwinks_la-ksvideohelpers.lo
 libgstwinks_la_OBJECTS = $(am_libgstwinks_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -742,6 +743,7 @@ plugin_LTLIBRARIES = libgstwinks.la
 libgstwinks_la_SOURCES = gstksclock.c \
 	gstksvideodevice.c \
 	gstksvideosrc.c \
+	ksdeviceprovider.c ksdeviceprovider.h \
 	kshelpers.c kshelpers.h \
 	ksvideohelpers.c 
 
@@ -837,6 +839,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwinks_la-gstksclock.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwinks_la-gstksvideodevice.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwinks_la-gstksvideosrc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwinks_la-ksdeviceprovider.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwinks_la-kshelpers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwinks_la-ksvideohelpers.Plo@am__quote@
 
@@ -884,6 +887,13 @@ libgstwinks_la-gstksvideosrc.lo: gstksvideosrc.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstksvideosrc.c' object='libgstwinks_la-gstksvideosrc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwinks_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwinks_la_CFLAGS) $(CFLAGS) -c -o libgstwinks_la-gstksvideosrc.lo `test -f 'gstksvideosrc.c' || echo '$(srcdir)/'`gstksvideosrc.c
+
+libgstwinks_la-ksdeviceprovider.lo: ksdeviceprovider.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwinks_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwinks_la_CFLAGS) $(CFLAGS) -MT libgstwinks_la-ksdeviceprovider.lo -MD -MP -MF $(DEPDIR)/libgstwinks_la-ksdeviceprovider.Tpo -c -o libgstwinks_la-ksdeviceprovider.lo `test -f 'ksdeviceprovider.c' || echo '$(srcdir)/'`ksdeviceprovider.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstwinks_la-ksdeviceprovider.Tpo $(DEPDIR)/libgstwinks_la-ksdeviceprovider.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ksdeviceprovider.c' object='libgstwinks_la-ksdeviceprovider.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwinks_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwinks_la_CFLAGS) $(CFLAGS) -c -o libgstwinks_la-ksdeviceprovider.lo `test -f 'ksdeviceprovider.c' || echo '$(srcdir)/'`ksdeviceprovider.c
 
 libgstwinks_la-kshelpers.lo: kshelpers.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwinks_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwinks_la_CFLAGS) $(CFLAGS) -MT libgstwinks_la-kshelpers.lo -MD -MP -MF $(DEPDIR)/libgstwinks_la-kshelpers.Tpo -c -o libgstwinks_la-kshelpers.lo `test -f 'kshelpers.c' || echo '$(srcdir)/'`kshelpers.c
