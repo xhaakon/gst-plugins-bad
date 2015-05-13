@@ -382,16 +382,11 @@ _backup_audiomixer_orc_volume_u8 (OrcExecutor * ORC_RESTRICT ex)
   orc_int8 var35;
 #endif
   orc_int8 var36;
-#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
-  volatile orc_int8 var37;
-#else
   orc_int8 var37;
-#endif
   orc_int8 var38;
-  orc_int8 var39;
+  orc_union16 var39;
   orc_union16 var40;
-  orc_union16 var41;
-  orc_int8 var42;
+  orc_int8 var41;
 
   ptr0 = (orc_int8 *)ex->arrays[0];
 
@@ -399,24 +394,22 @@ _backup_audiomixer_orc_volume_u8 (OrcExecutor * ORC_RESTRICT ex)
     var35 = (int)0x00000080; /* 128 or 6.32404e-322f */
     /* 3: loadpb */
     var36 = ex->params[24];
-    /* 7: loadpb */
-    var37 = (int)0x00000080; /* 128 or 6.32404e-322f */
 
   for (i = 0; i < n; i++) {
     /* 0: loadb */
     var34 = ptr0[i];
     /* 2: xorb */
-    var39 = var34 ^ var35;
+    var38 = var34 ^ var35;
     /* 4: mulsbw */
-    var40.i = var39 * var36;
+    var39.i = var38 * var36;
     /* 5: shrsw */
-    var41.i = var40.i >> 3;
+    var40.i = var39.i >> 3;
     /* 6: convssswb */
-    var42 = ORC_CLAMP_SB(var41.i);
-    /* 8: xorb */
-    var38 = var42 ^ var37;
-    /* 9: storeb */
-    ptr0[i] = var38;
+    var41 = ORC_CLAMP_SB(var40.i);
+    /* 7: xorb */
+    var37 = var41 ^ var35;
+    /* 8: storeb */
+    ptr0[i] = var37;
   }
 
 }
@@ -436,18 +429,13 @@ _backup_audiomixer_orc_add_volume_u8 (OrcExecutor * ORC_RESTRICT ex)
   orc_int8 var35;
 #endif
   orc_int8 var36;
-#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
-  volatile orc_int8 var37;
-#else
   orc_int8 var37;
-#endif
   orc_int8 var38;
   orc_int8 var39;
-  orc_int8 var40;
+  orc_union16 var40;
   orc_union16 var41;
-  orc_union16 var42;
+  orc_int8 var42;
   orc_int8 var43;
-  orc_int8 var44;
 
   ptr0 = (orc_int8 *)ex->arrays[0];
   ptr4 = (orc_int8 *)ex->arrays[4];
@@ -456,28 +444,26 @@ _backup_audiomixer_orc_add_volume_u8 (OrcExecutor * ORC_RESTRICT ex)
     var35 = (int)0x00000080; /* 128 or 6.32404e-322f */
     /* 3: loadpb */
     var36 = ex->params[24];
-    /* 7: loadpb */
-    var37 = (int)0x00000080; /* 128 or 6.32404e-322f */
 
   for (i = 0; i < n; i++) {
     /* 0: loadb */
     var34 = ptr4[i];
     /* 2: xorb */
-    var40 = var34 ^ var35;
+    var39 = var34 ^ var35;
     /* 4: mulsbw */
-    var41.i = var40 * var36;
+    var40.i = var39 * var36;
     /* 5: shrsw */
-    var42.i = var41.i >> 3;
+    var41.i = var40.i >> 3;
     /* 6: convssswb */
-    var43 = ORC_CLAMP_SB(var42.i);
-    /* 8: xorb */
-    var44 = var43 ^ var37;
-    /* 9: loadb */
-    var38 = ptr0[i];
-    /* 10: addusb */
-    var39 = ORC_CLAMP_UB((orc_uint8)var38 + (orc_uint8)var44);
-    /* 11: storeb */
-    ptr0[i] = var39;
+    var42 = ORC_CLAMP_SB(var41.i);
+    /* 7: xorb */
+    var43 = var42 ^ var35;
+    /* 8: loadb */
+    var37 = ptr0[i];
+    /* 9: addusb */
+    var38 = ORC_CLAMP_UB((orc_uint8)var37 + (orc_uint8)var43);
+    /* 10: storeb */
+    ptr0[i] = var38;
   }
 
 }
@@ -538,18 +524,13 @@ _backup_audiomixer_orc_add_volume_u16 (OrcExecutor * ORC_RESTRICT ex)
   orc_union16 var35;
 #endif
   orc_union16 var36;
-#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
-  volatile orc_union16 var37;
-#else
   orc_union16 var37;
-#endif
   orc_union16 var38;
   orc_union16 var39;
-  orc_union16 var40;
+  orc_union32 var40;
   orc_union32 var41;
-  orc_union32 var42;
+  orc_union16 var42;
   orc_union16 var43;
-  orc_union16 var44;
 
   ptr0 = (orc_union16 *)ex->arrays[0];
   ptr4 = (orc_union16 *)ex->arrays[4];
@@ -558,28 +539,26 @@ _backup_audiomixer_orc_add_volume_u16 (OrcExecutor * ORC_RESTRICT ex)
     var35.i = (int)0x00008000; /* 32768 or 1.61895e-319f */
     /* 3: loadpw */
     var36.i = ex->params[24];
-    /* 7: loadpw */
-    var37.i = (int)0x00008000; /* 32768 or 1.61895e-319f */
 
   for (i = 0; i < n; i++) {
     /* 0: loadw */
     var34 = ptr4[i];
     /* 2: xorw */
-    var40.i = var34.i ^ var35.i;
+    var39.i = var34.i ^ var35.i;
     /* 4: mulswl */
-    var41.i = var40.i * var36.i;
+    var40.i = var39.i * var36.i;
     /* 5: shrsl */
-    var42.i = var41.i >> 11;
+    var41.i = var40.i >> 11;
     /* 6: convssslw */
-    var43.i = ORC_CLAMP_SW(var42.i);
-    /* 8: xorw */
-    var44.i = var43.i ^ var37.i;
-    /* 9: loadw */
-    var38 = ptr0[i];
-    /* 10: addusw */
-    var39.i = ORC_CLAMP_UW((orc_uint16)var38.i + (orc_uint16)var44.i);
-    /* 11: storew */
-    ptr0[i] = var39;
+    var42.i = ORC_CLAMP_SW(var41.i);
+    /* 7: xorw */
+    var43.i = var42.i ^ var35.i;
+    /* 8: loadw */
+    var37 = ptr0[i];
+    /* 9: addusw */
+    var38.i = ORC_CLAMP_UW((orc_uint16)var37.i + (orc_uint16)var43.i);
+    /* 10: storew */
+    ptr0[i] = var38;
   }
 
 }
@@ -640,18 +619,13 @@ _backup_audiomixer_orc_add_volume_u32 (OrcExecutor * ORC_RESTRICT ex)
   orc_union32 var35;
 #endif
   orc_union32 var36;
-#if defined(__APPLE__) && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && defined (__i386__) 
-  volatile orc_union32 var37;
-#else
   orc_union32 var37;
-#endif
   orc_union32 var38;
   orc_union32 var39;
-  orc_union32 var40;
+  orc_union64 var40;
   orc_union64 var41;
-  orc_union64 var42;
+  orc_union32 var42;
   orc_union32 var43;
-  orc_union32 var44;
 
   ptr0 = (orc_union32 *)ex->arrays[0];
   ptr4 = (orc_union32 *)ex->arrays[4];
@@ -660,28 +634,26 @@ _backup_audiomixer_orc_add_volume_u32 (OrcExecutor * ORC_RESTRICT ex)
     var35.i = (int)0x80000000; /* -2147483648 or 1.061e-314f */
     /* 3: loadpl */
     var36.i = ex->params[24];
-    /* 7: loadpl */
-    var37.i = (int)0x80000000; /* -2147483648 or 1.061e-314f */
 
   for (i = 0; i < n; i++) {
     /* 0: loadl */
     var34 = ptr4[i];
     /* 2: xorl */
-    var40.i = var34.i ^ var35.i;
+    var39.i = var34.i ^ var35.i;
     /* 4: mulslq */
-    var41.i = ((orc_int64)var40.i) * ((orc_int64)var36.i);
+    var40.i = ((orc_int64)var39.i) * ((orc_int64)var36.i);
     /* 5: shrsq */
-    var42.i = var41.i >> 27;
+    var41.i = var40.i >> 27;
     /* 6: convsssql */
-    var43.i = ORC_CLAMP_SL(var42.i);
-    /* 8: xorl */
-    var44.i = var43.i ^ var37.i;
-    /* 9: loadl */
-    var38 = ptr0[i];
-    /* 10: addusl */
-    var39.i = ORC_CLAMP_UL((orc_int64)(orc_uint32)var38.i + (orc_int64)(orc_uint32)var44.i);
-    /* 11: storel */
-    ptr0[i] = var39;
+    var42.i = ORC_CLAMP_SL(var41.i);
+    /* 7: xorl */
+    var43.i = var42.i ^ var35.i;
+    /* 8: loadl */
+    var37 = ptr0[i];
+    /* 9: addusl */
+    var38.i = ORC_CLAMP_UL((orc_int64)(orc_uint32)var37.i + (orc_int64)(orc_uint32)var43.i);
+    /* 10: storel */
+    ptr0[i] = var38;
   }
 
 }
@@ -1264,7 +1236,7 @@ main (int argc, char *argv[])
     orc_program_set_backup_function (p, _backup_audiomixer_orc_volume_u8);
     orc_program_add_destination (p, 1, "d1");
       orc_program_add_constant (p, 1, 0x00000080, "c1");
-      orc_program_add_constant (p, 4, 0x00000003, "c2");
+      orc_program_add_constant (p, 2, 0x00000003, "c2");
     orc_program_add_parameter (p, 1, "p1");
     orc_program_add_temporary (p, 2, "t1");
     orc_program_add_temporary (p, 1, "t2");
@@ -1321,7 +1293,7 @@ main (int argc, char *argv[])
     orc_program_add_destination (p, 1, "d1");
     orc_program_add_source (p, 1, "s1");
       orc_program_add_constant (p, 1, 0x00000080, "c1");
-      orc_program_add_constant (p, 4, 0x00000003, "c2");
+      orc_program_add_constant (p, 2, 0x00000003, "c2");
     orc_program_add_parameter (p, 1, "p1");
     orc_program_add_temporary (p, 2, "t1");
     orc_program_add_temporary (p, 1, "t2");
@@ -1378,7 +1350,7 @@ main (int argc, char *argv[])
     orc_program_set_backup_function (p, _backup_audiomixer_orc_add_volume_s8);
     orc_program_add_destination (p, 1, "d1");
     orc_program_add_source (p, 1, "s1");
-      orc_program_add_constant (p, 4, 0x00000003, "c1");
+      orc_program_add_constant (p, 2, 0x00000003, "c1");
     orc_program_add_parameter (p, 1, "p1");
     orc_program_add_temporary (p, 2, "t1");
     orc_program_add_temporary (p, 1, "t2");
@@ -1547,7 +1519,7 @@ main (int argc, char *argv[])
     orc_program_add_destination (p, 4, "d1");
     orc_program_add_source (p, 4, "s1");
       orc_program_add_constant (p, 4, 0x80000000, "c1");
-      orc_program_add_constant (p, 4, 0x0000001b, "c2");
+      orc_program_add_constant_int64 (p, 8, 0x000000000000001bULL, "c2");
     orc_program_add_parameter (p, 4, "p1");
     orc_program_add_temporary (p, 8, "t1");
     orc_program_add_temporary (p, 4, "t2");
@@ -1604,7 +1576,7 @@ main (int argc, char *argv[])
     orc_program_set_backup_function (p, _backup_audiomixer_orc_add_volume_s32);
     orc_program_add_destination (p, 4, "d1");
     orc_program_add_source (p, 4, "s1");
-      orc_program_add_constant (p, 4, 0x0000001b, "c1");
+      orc_program_add_constant_int64 (p, 8, 0x000000000000001bULL, "c1");
     orc_program_add_parameter (p, 4, "p1");
     orc_program_add_temporary (p, 8, "t1");
     orc_program_add_temporary (p, 4, "t2");

@@ -57,7 +57,14 @@ struct _GstVTEnc
 
   const GstVTEncoderDetails * details;
 
+  CFStringRef profile_level;
   guint bitrate;
+  gboolean allow_frame_reordering;
+  gboolean realtime;
+  gdouble quality;
+  gint max_keyframe_interval;
+  GstClockTime max_keyframe_interval_duration;
+  gint latency_frames;
 
   gboolean dump_properties;
   gboolean dump_attributes;
