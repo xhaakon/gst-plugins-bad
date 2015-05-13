@@ -748,7 +748,6 @@ libgstrtponvif_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) \
 
 libgstrtponvif_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstrtponvif_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
-EXTRA_DIST = 
 all: all-am
 
 .SUFFIXES:
@@ -1090,20 +1089,6 @@ uninstall-am: uninstall-pluginLTLIBRARIES
 	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
 	uninstall-pluginLTLIBRARIES
 
-
-Android.mk: Makefile.am $(BUILT_SOURCES)
-	androgenizer \
-	-:PROJECT libgstrtponvif -:SHARED libgstrtponvif \
-	 -:TAGS eng debug \
-         -:REL_TOP $(top_srcdir) -:ABS_TOP $(abs_top_srcdir) \
-	 -:SOURCES $(libgstrtponvif_la_SOURCES) \
-	 -:CFLAGS $(DEFS) $(DEFAULT_INCLUDES) $(libgstrtponvif_la_CFLAGS) \
-	 -:LDFLAGS $(libgstrtponvif_la_LDFLAGS) \
-	           $(libgstrtponvif_la_LIBADD) \
-	           -ldl \
-	 -:PASSTHROUGH LOCAL_ARM_MODE:=arm \
-		       LOCAL_MODULE_PATH:='$$(TARGET_OUT)/lib/gstreamer-0.10' \
-	> $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

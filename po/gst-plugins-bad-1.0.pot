@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.5.0.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2015-03-17 09:28+0100\n"
+"POT-Creation-Date: 2015-05-13 13:05+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ext/gl/gstgltestsrc.c:707
+#: ext/gl/gstgltestsrc.c:673
 msgid "format wasn't negotiated before get function"
 msgstr ""
 
@@ -137,7 +137,7 @@ msgstr ""
 msgid "Describes the selected visualization element."
 msgstr ""
 
-#: ext/opencv/gsttemplatematch.c:441
+#: ext/opencv/gsttemplatematch.c:442
 msgid "OpenCV failed to load template image"
 msgstr ""
 
@@ -164,8 +164,8 @@ msgstr ""
 msgid "Could not read DVD."
 msgstr ""
 
-#: ext/smoothstreaming/gstmssdemux.c:378
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:514
+#: ext/smoothstreaming/gstmssdemux.c:380
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:520
 msgid "This file contains no playable streams."
 msgstr ""
 
@@ -198,13 +198,17 @@ msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 
 #: gst/camerabin2/camerabingeneral.c:166 gst/camerabin2/gstcamerabin2.c:1876
-#: gst/camerabin2/gstviewfinderbin.c:271
+#: gst/camerabin2/gstdigitalzoom.c:282 gst/camerabin2/gstviewfinderbin.c:271
 #, c-format
 msgid "Missing element '%s' - check your GStreamer installation."
 msgstr ""
 
 #: gst/camerabin2/gstcamerabin2.c:364
 msgid "File location is set to NULL, please set it to a valid filename"
+msgstr ""
+
+#: gst/camerabin2/gstwrappercamerabinsrc.c:584
+msgid "Digitalzoom element cound't be created"
 msgstr ""
 
 #: gst/dvdspu/gstdvdspu.c:1036
@@ -215,13 +219,14 @@ msgstr ""
 msgid "Failed to get fragment URL."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2107
-#: gst/mpegtsdemux/mpegtsbase.c:1361 gst/mpegtsdemux/mpegtsbase.c:1365
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2096
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2260
+#: gst/mpegtsdemux/mpegtsbase.c:1335 gst/mpegtsdemux/mpegtsbase.c:1339
 #: gst/nuvdemux/gstnuvdemux.c:736
 msgid "Internal data stream error."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2208
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2197
 msgid "Couldn't download fragments"
 msgstr ""
 

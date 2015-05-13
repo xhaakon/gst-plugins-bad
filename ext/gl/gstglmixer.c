@@ -42,7 +42,6 @@ static void gst_gl_mixer_pad_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 static void gst_gl_mixer_pad_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
-static void gst_gl_mixer_pad_finalize (GObject * object);
 
 enum
 {
@@ -73,17 +72,9 @@ gst_gl_mixer_pad_class_init (GstGLMixerPadClass * klass)
   gobject_class->set_property = gst_gl_mixer_pad_set_property;
   gobject_class->get_property = gst_gl_mixer_pad_get_property;
 
-  gobject_class->finalize = gst_gl_mixer_pad_finalize;
-
   vaggpad_class->set_info = NULL;
   vaggpad_class->prepare_frame = NULL;
   vaggpad_class->clean_frame = NULL;
-}
-
-static void
-gst_gl_mixer_pad_finalize (GObject * object)
-{
-  G_OBJECT_CLASS (gst_gl_mixer_pad_parent_class)->finalize (object);
 }
 
 static void
@@ -121,6 +112,26 @@ _negotiated_caps (GstVideoAggregator * vagg, GstCaps * caps)
   ret = GST_VIDEO_AGGREGATOR_CLASS (parent_class)->negotiated_caps (vagg, caps);
 
   return ret;
+}
+
+static void
+_find_best_format (GstVideoAggregator * vagg, GstCaps * downstream_caps,
+    GstVideoInfo * best_info, gboolean * at_least_one_alpha)
+{
+  GstVideoInfo tmp_info;
+
+  GST_VIDEO_AGGREGATOR_CLASS (parent_class)->find_best_format (vagg,
+      downstream_caps, best_info, at_least_one_alpha);
+
+  gst_video_info_set_format (&tmp_info, GST_VIDEO_FORMAT_RGBA,
+      best_info->width, best_info->height);
+  tmp_info.par_n = best_info->par_n;
+  tmp_info.par_d = best_info->par_d;
+  tmp_info.fps_n = best_info->fps_n;
+  tmp_info.fps_d = best_info->fps_d;
+  tmp_info.flags = best_info->flags;
+  tmp_info.interlace_mode = best_info->interlace_mode;
+  *best_info = tmp_info;
 }
 
 static gboolean
@@ -222,27 +233,27 @@ gst_gl_mixer_pad_sink_getcaps (GstPad * pad, GstGLMixer * mix, GstCaps * filter)
   GstCaps *template_caps;
   GstCaps *filtered_caps;
   GstCaps *returned_caps;
-  gboolean had_current_caps = TRUE;
 
   template_caps = gst_pad_get_pad_template_caps (pad);
 
   sinkcaps = gst_pad_get_current_caps (pad);
   if (sinkcaps == NULL) {
-    had_current_caps = FALSE;
-    sinkcaps = template_caps;
+    sinkcaps = gst_caps_ref (template_caps);
   } else {
-    sinkcaps = gst_caps_merge (sinkcaps, template_caps);
+    sinkcaps = gst_caps_merge (sinkcaps, gst_caps_ref (template_caps));
   }
 
-  filtered_caps = sinkcaps;
-  if (filter)
+  if (filter) {
     filtered_caps = gst_caps_intersect (sinkcaps, filter);
+    gst_caps_unref (sinkcaps);
+  } else {
+    filtered_caps = sinkcaps;   /* pass ownership */
+  }
+
   returned_caps = gst_caps_intersect (filtered_caps, template_caps);
 
-  if (filter)
-    gst_caps_unref (filtered_caps);
-  if (had_current_caps)
-    gst_caps_unref (template_caps);
+  gst_caps_unref (template_caps);
+  gst_caps_unref (filtered_caps);
 
   GST_DEBUG_OBJECT (pad, "returning %" GST_PTR_FORMAT, returned_caps);
 
@@ -375,7 +386,7 @@ gst_gl_mixer_class_init (GstGLMixerClass * klass)
   videoaggregator_class->get_output_buffer = gst_gl_mixer_get_output_buffer;
   videoaggregator_class->negotiated_caps = _negotiated_caps;
   videoaggregator_class->update_caps = _update_caps;
-  videoaggregator_class->find_best_format = NULL;
+  videoaggregator_class->find_best_format = _find_best_format;
 
   mix_class->propose_allocation = gst_gl_mixer_propose_allocation;
   mix_class->decide_allocation = gst_gl_mixer_decide_allocation;
@@ -412,6 +423,9 @@ gst_gl_mixer_finalize (GObject * object)
 {
   GstGLMixer *mix = GST_GL_MIXER (object);
   GstGLMixerPrivate *priv = mix->priv;
+
+  if (mix->out_caps)
+    gst_caps_unref (mix->out_caps);
 
   g_mutex_clear (&priv->gl_resource_lock);
   g_cond_clear (&priv->gl_resource_cond);
@@ -508,7 +522,6 @@ gst_gl_mixer_decide_allocation (GstGLBaseMixer * base_mix, GstQuery * query)
   GstCaps *caps;
   guint min, max, size;
   gboolean update_pool;
-  GError *error = NULL;
   guint out_width, out_height;
 
   out_width = GST_VIDEO_INFO_WIDTH (&vagg->info);
@@ -572,8 +585,7 @@ gst_gl_mixer_decide_allocation (GstGLBaseMixer * base_mix, GstQuery * query)
 
 context_error:
   {
-    GST_ELEMENT_ERROR (mix, RESOURCE, NOT_FOUND, ("%s", error->message),
-        (NULL));
+    GST_ELEMENT_ERROR (mix, RESOURCE, NOT_FOUND, ("Context error"), (NULL));
     return FALSE;
   }
 }
@@ -754,9 +766,9 @@ gst_gl_mixer_start (GstAggregator * agg)
   GstElement *element = GST_ELEMENT (agg);
 
   GST_OBJECT_LOCK (mix);
-  mix->array_buffers = g_ptr_array_new_full (element->numsinkpads,
+  mix->array_buffers = g_ptr_array_new_full (element->numsinkpads, NULL);
+  mix->frames = g_ptr_array_new_full (element->numsinkpads,
       (GDestroyNotify) _free_glmixer_frame_data);
-  mix->frames = g_ptr_array_new_full (element->numsinkpads, NULL);
 
   g_ptr_array_set_size (mix->array_buffers, element->numsinkpads);
   g_ptr_array_set_size (mix->frames, element->numsinkpads);

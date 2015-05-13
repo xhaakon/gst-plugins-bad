@@ -1,4 +1,4 @@
-AC_PREREQ([2.68])
+AC_PREREQ([2.69])
 
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
@@ -8,7 +8,7 @@ AC_INIT([GStreamer Bad Plug-ins],[1.5.0.1],[http://bugzilla.gnome.org/enter_bug.
 AG_GST_INIT
 
 dnl initialize automake
-AM_INIT_AUTOMAKE([-Wno-portability 1.11 no-dist-gzip dist-xz tar-ustar subdir-objects])
+AM_INIT_AUTOMAKE([-Wno-portability 1.14 no-dist-gzip dist-xz tar-ustar subdir-objects])
 
 dnl define PACKAGE_VERSION_* variables
 AS_VERSION
@@ -1397,12 +1397,13 @@ AG_GST_CHECK_FEATURE(DIRECTSOUND, [DirectSound], directsoundsrc, [
   save_LIBS="$LIBS"
   CFLAGS="$CFLAGS $DIRECTX_CFLAGS"
   LDFLAGS="$LDFLAGS $DIRECTX_LDFLAGS"
-  LIBS="$LIBS -ldsound -ldxerr9 -luser32"
+  LIBS="$LIBS -lwinmm -ldsound -ldxerr9 -luser32"
   AC_MSG_CHECKING(for DirectSound LDFLAGS)
   AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <windows.h>
 #include <dxerr9.h>
 #include <dsound.h>
+#include <mmsystem.h>
 ]], [[
   DXGetErrorString9 (0);
   DirectSoundCreate(NULL, NULL, NULL);
@@ -1416,7 +1417,7 @@ AG_GST_CHECK_FEATURE(DIRECTSOUND, [DirectSound], directsoundsrc, [
 
   if test "x$HAVE_DIRECTSOUND" = "xyes";  then
     dnl this is much more than we want
-    DIRECTSOUND_LIBS="-ldsound -ldxerr9 -luser32"
+    DIRECTSOUND_LIBS="-lwinmm -ldsound -ldxerr9 -luser32"
     AC_SUBST(DIRECTX_CFLAGS)
     AC_SUBST(DIRECTX_LDFLAGS)
     AC_SUBST(DIRECTSOUND_LIBS)
@@ -1866,6 +1867,9 @@ translit(dnm, m, l) AM_CONDITIONAL(USE_DECKLINK, true)
 AG_GST_CHECK_FEATURE(DECKLINK, [decklink], decklink, [
    HAVE_DECKLINK=no
    case "$host" in
+     *android*)
+       HAVE_DECKLINK=no
+       ;;
      *-*linux*)
        if test "x$HAVE_PTHREAD_H" = "xyes"; then
          AC_CHECK_LIB(dl, dlopen,
@@ -1883,7 +1887,7 @@ AG_GST_CHECK_FEATURE(DECKLINK, [decklink], decklink, [
             HAVE_DECKLINK=yes
             DECKLINK_CXXFLAGS=
             DECKLINK_LIBS="-lpthread -ldl"
-	    HAVE_DECKLINK_OSX=yes
+            HAVE_DECKLINK_OSX=yes
            ])
        fi
        ;;
@@ -2446,15 +2450,26 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
     AC_LANG([C++])
     OLD_CPPFLAGS=$CPPFLAGS
     CPPFLAGS=$OPENCV_CFLAGS
-    AC_CHECK_HEADERS([highgui.h opencv2/highgui/highgui_c.h])
+    something_not_found=no
+    AC_CHECK_HEADERS([opencv2/contrib/contrib.hpp \
+                      opencv2/core/core_c.h \
+                      opencv2/core/types_c.h \
+                      opencv2/core/version.hpp \
+                      opencv2/highgui/highgui_c.h \
+                      opencv2/imgproc/imgproc.hpp \
+                      opencv2/imgproc/imgproc_c.h \
+                      opencv2/legacy/compat.hpp \
+                      opencv2/legacy/legacy.hpp \
+                      opencv2/objdetect/objdetect.hpp \
+                      opencv2/video/background_segm.hpp], [], [something_not_found=yes])
     CPPFLAGS=$OLD_CPPFLAGS
     AC_LANG([C])
 
-    if test $ac_cv_header_highgui_h = "yes" -o $ac_cv_header_opencv2_highgui_highgui_c_h = "yes" ; then
-      HAVE_OPENCV="yes"
-    else
-      AC_MSG_RESULT([neither highgui.h nor opencv2/highgui/highgui_c.h could not be found])
+    if test $something_not_found = "yes"; then
+      AC_MSG_RESULT([not all opencv2 headers were found])
       HAVE_OPENCV="no"
+    else
+      HAVE_OPENCV="yes"
     fi
   ], [
     HAVE_OPENCV="no"
@@ -2475,7 +2490,7 @@ AG_GST_CHECK_FEATURE(OPENEXR, [openexr library], openexr, [
 dnl *** openh264 ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_OPENH264, true)
 AG_GST_CHECK_FEATURE(OPENH264, [openh264 library], openh264, [
-  AG_GST_PKG_CHECK_MODULES(OPENH264, openh264)
+  AG_GST_PKG_CHECK_MODULES(OPENH264, openh264 >= 1.3.0)
 ])
 
 dnl *** OpenJPEG ***

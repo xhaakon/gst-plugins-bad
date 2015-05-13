@@ -125,18 +125,18 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-@HAVE_GTK_TRUE@am__EXEEXT_1 = gst-camera2$(EXEEXT)
+@HAVE_GTK3_TRUE@am__EXEEXT_1 = gst-camera2$(EXEEXT)
 @HAVE_X11_TRUE@am__EXEEXT_2 = gst-camerabin2-test$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am__gst_camera2_SOURCES_DIST = gst-camera2.h gst-camera2.c
-@HAVE_GTK_TRUE@am_gst_camera2_OBJECTS =  \
-@HAVE_GTK_TRUE@	gst_camera2-gst-camera2.$(OBJEXT)
+@HAVE_GTK3_TRUE@am_gst_camera2_OBJECTS =  \
+@HAVE_GTK3_TRUE@	gst_camera2-gst-camera2.$(OBJEXT)
 gst_camera2_OBJECTS = $(am_gst_camera2_OBJECTS)
 am__DEPENDENCIES_1 =
-@HAVE_GTK_TRUE@gst_camera2_DEPENDENCIES = $(top_builddir)/gst-libs/gst/interfaces/libgstphotography-@GST_API_VERSION@.la \
-@HAVE_GTK_TRUE@	$(top_builddir)/gst-libs/gst/basecamerabinsrc/libgstbasecamerabinsrc-@GST_API_VERSION@.la \
-@HAVE_GTK_TRUE@	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-@HAVE_GTK_TRUE@	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+@HAVE_GTK3_TRUE@gst_camera2_DEPENDENCIES = $(top_builddir)/gst-libs/gst/interfaces/libgstphotography-@GST_API_VERSION@.la \
+@HAVE_GTK3_TRUE@	$(top_builddir)/gst-libs/gst/basecamerabinsrc/libgstbasecamerabinsrc-@GST_API_VERSION@.la \
+@HAVE_GTK3_TRUE@	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+@HAVE_GTK3_TRUE@	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -725,28 +725,28 @@ top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 GST_CAMERABIN_UI_FILES = gst-camera2.ui
 AM_CPPFLAGS = -DCAMERA_APPS_UIDIR=\""$(srcdir)"\"
-@HAVE_GTK_FALSE@GST_CAMERABIN_GTK_EXAMPLES = 
-@HAVE_GTK_TRUE@GST_CAMERABIN_GTK_EXAMPLES = gst-camera2
-@HAVE_GTK_TRUE@gst_camera2_SOURCES = gst-camera2.h gst-camera2.c
-@HAVE_GTK_TRUE@gst_camera2_CFLAGS = \
-@HAVE_GTK_TRUE@        $(GST_PLUGINS_BAD_CFLAGS) \
-@HAVE_GTK_TRUE@        $(GST_PLUGINS_BASE_CFLAGS) $(GST_CFLAGS) \
-@HAVE_GTK_TRUE@	$(GTK_CFLAGS) \
-@HAVE_GTK_TRUE@	$(GMODULE_EXPORT_CFLAGS) \
-@HAVE_GTK_TRUE@        -DGST_USE_UNSTABLE_API
+@HAVE_GTK3_FALSE@GST_CAMERABIN_GTK_EXAMPLES = 
+@HAVE_GTK3_TRUE@GST_CAMERABIN_GTK_EXAMPLES = gst-camera2
+@HAVE_GTK3_TRUE@gst_camera2_SOURCES = gst-camera2.h gst-camera2.c
+@HAVE_GTK3_TRUE@gst_camera2_CFLAGS = \
+@HAVE_GTK3_TRUE@        $(GST_PLUGINS_BAD_CFLAGS) \
+@HAVE_GTK3_TRUE@        $(GST_PLUGINS_BASE_CFLAGS) $(GST_CFLAGS) \
+@HAVE_GTK3_TRUE@	$(GTK3_CFLAGS) \
+@HAVE_GTK3_TRUE@	$(GMODULE_EXPORT_CFLAGS) \
+@HAVE_GTK3_TRUE@        -DGST_USE_UNSTABLE_API
 
-@HAVE_GTK_TRUE@gst_camera2_LDADD = \
-@HAVE_GTK_TRUE@        $(top_builddir)/gst-libs/gst/interfaces/libgstphotography-@GST_API_VERSION@.la \
-@HAVE_GTK_TRUE@        $(top_builddir)/gst-libs/gst/basecamerabinsrc/libgstbasecamerabinsrc-@GST_API_VERSION@.la \
-@HAVE_GTK_TRUE@        $(GST_PLUGINS_BAD_LIBS) \
-@HAVE_GTK_TRUE@        $(GST_PLUGINS_BASE_LIBS) \
-@HAVE_GTK_TRUE@        -lgstpbutils-@GST_API_VERSION@ \
-@HAVE_GTK_TRUE@	-lgstvideo-@GST_API_VERSION@ \
-@HAVE_GTK_TRUE@        $(GST_LIBS) \
-@HAVE_GTK_TRUE@	$(GTK_LIBS) \
-@HAVE_GTK_TRUE@	$(GMODULE_EXPORT_LIBS)
+@HAVE_GTK3_TRUE@gst_camera2_LDADD = \
+@HAVE_GTK3_TRUE@        $(top_builddir)/gst-libs/gst/interfaces/libgstphotography-@GST_API_VERSION@.la \
+@HAVE_GTK3_TRUE@        $(top_builddir)/gst-libs/gst/basecamerabinsrc/libgstbasecamerabinsrc-@GST_API_VERSION@.la \
+@HAVE_GTK3_TRUE@        $(GST_PLUGINS_BAD_LIBS) \
+@HAVE_GTK3_TRUE@        $(GST_PLUGINS_BASE_LIBS) \
+@HAVE_GTK3_TRUE@        -lgstpbutils-@GST_API_VERSION@ \
+@HAVE_GTK3_TRUE@	-lgstvideo-@GST_API_VERSION@ \
+@HAVE_GTK3_TRUE@        $(GST_LIBS) \
+@HAVE_GTK3_TRUE@	$(GTK3_LIBS) \
+@HAVE_GTK3_TRUE@	$(GMODULE_EXPORT_LIBS)
 
-@HAVE_GTK_TRUE@noinst_DATA = $(GST_CAMERABIN_UI_FILES)
+@HAVE_GTK3_TRUE@noinst_DATA = $(GST_CAMERABIN_UI_FILES)
 @HAVE_X11_FALSE@GST_CAMERABIN_X11_EXAMPLES = 
 @HAVE_X11_TRUE@GST_CAMERABIN_X11_EXAMPLES = gst-camerabin2-test
 @HAVE_X11_TRUE@gst_camerabin2_test_SOURCES = gst-camerabin2-test.c

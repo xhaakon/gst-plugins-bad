@@ -734,10 +734,11 @@ gst_videoaggregator_update_src_caps (GstVideoAggregator * vagg)
 
       gst_caps_unref (caps);
       gst_caps_unref (peercaps);
-      caps = tmp;
+      caps = tmp;               /* pass ownership */
       if (gst_caps_is_empty (caps)) {
         GST_DEBUG_OBJECT (vagg, "empty caps");
         ret = FALSE;
+        gst_caps_unref (caps);
         goto done;
       }
 
@@ -880,9 +881,11 @@ gst_videoaggregator_update_qos (GstVideoAggregator * vagg, gdouble proportion,
       GST_TIME_FORMAT, proportion, (diff < 0) ? "-" : "",
       GST_TIME_ARGS (ABS (diff)), GST_TIME_ARGS (timestamp));
 
+  live =
+      GST_CLOCK_TIME_IS_VALID (gst_aggregator_get_latency (GST_AGGREGATOR
+          (vagg)));
+
   GST_OBJECT_LOCK (vagg);
-  gst_aggregator_get_latency_unlocked (GST_AGGREGATOR (vagg), &live, NULL,
-      NULL);
 
   vagg->priv->proportion = proportion;
   if (G_LIKELY (timestamp != GST_CLOCK_TIME_NONE)) {
@@ -988,16 +991,6 @@ gst_videoaggregator_fill_queues (GstVideoAggregator * vagg,
       vinfo = &pad->info;
 
       /* FIXME: Make all this work with negative rates */
-
-      if ((start_time < GST_BUFFER_TIMESTAMP (buf))
-          || (pad->buffer && start_time < GST_BUFFER_TIMESTAMP (pad->buffer))) {
-        GST_DEBUG_OBJECT (pad, "Buffer from the past, dropping");
-        gst_buffer_unref (buf);
-        gst_aggregator_pad_drop_buffer (bpad);
-        need_more_data = TRUE;
-        continue;
-      }
-
       end_time = GST_BUFFER_DURATION (buf);
 
       if (end_time == -1) {
@@ -1006,8 +999,14 @@ gst_videoaggregator_fill_queues (GstVideoAggregator * vagg,
             gst_segment_to_running_time (&segment, GST_FORMAT_TIME, start_time);
 
         if (start_time >= output_end_time) {
-          GST_DEBUG_OBJECT (pad, "buffer duration is -1, start_time >= "
-              "output_end_time.  Keeping previous buffer");
+          if (pad->buffer) {
+            GST_DEBUG_OBJECT (pad, "buffer duration is -1, start_time >= "
+                "output_end_time. Keeping previous buffer");
+          } else {
+            GST_DEBUG_OBJECT (pad, "buffer duration is -1, start_time >= "
+                "output_end_time. No previous buffer, need more data");
+            need_more_data = TRUE;
+          }
           gst_buffer_unref (buf);
           continue;
         } else if (start_time < output_start_time) {

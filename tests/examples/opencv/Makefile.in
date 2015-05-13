@@ -14,7 +14,6 @@
 
 @SET_MAKE@
 
-
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -84,7 +83,7 @@ noinst_PROGRAMS = gstmotioncells_dynamic_test$(EXEEXT) \
 	gsthanddetect_test$(EXEEXT)
 subdir = tests/examples/opencv
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp $(noinst_HEADERS)
+	$(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/as-auto-alt.m4 \
@@ -139,8 +138,7 @@ gsthanddetect_test_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(gsthanddetect_test_CFLAGS) $(CFLAGS) \
 	$(gsthanddetect_test_LDFLAGS) $(LDFLAGS) -o $@
-am_gstmotioncells_dynamic_test_OBJECTS = gstmotioncells_dynamic_test-gstmotioncells_dynamic_test.$(OBJEXT) \
-	gstmotioncells_dynamic_test-gst_element_print_properties.$(OBJEXT)
+am_gstmotioncells_dynamic_test_OBJECTS = gstmotioncells_dynamic_test-gstmotioncells_dynamic_test.$(OBJEXT)
 gstmotioncells_dynamic_test_OBJECTS =  \
 	$(am_gstmotioncells_dynamic_test_OBJECTS)
 gstmotioncells_dynamic_test_LDADD = $(LDADD)
@@ -191,7 +189,6 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-HEADERS = $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -718,19 +715,12 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
-gstmotioncells_dynamic_test_SOURCES = \
-	gstmotioncells_dynamic_test.c	\
-	gst_element_print_properties.c
-
+gstmotioncells_dynamic_test_SOURCES = gstmotioncells_dynamic_test.c
 gsthanddetect_test_SOURCES = gsthanddetect_test.c
 gstmotioncells_dynamic_test_CFLAGS = $(GST_CFLAGS) $(GST_BASE_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS)
 gstmotioncells_dynamic_test_LDFLAGS = $(GST_LIBS) $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GSTPB_BASE_LIBS)
 gsthanddetect_test_CFLAGS = $(GST_CFLAGS) $(GST_BASE_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS)
 gsthanddetect_test_LDFLAGS = $(GST_LIBS) $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GSTPB_BASE_LIBS)
-noinst_HEADERS = \
-	gstmotioncells_dynamic_test.h	\
-	gst_element_print_properties.h
-
 all: all-am
 
 .SUFFIXES:
@@ -790,7 +780,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gsthanddetect_test-gsthanddetect_test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gstmotioncells_dynamic_test-gst_element_print_properties.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gstmotioncells_dynamic_test-gstmotioncells_dynamic_test.Po@am__quote@
 
 .c.o:
@@ -844,20 +833,6 @@ gstmotioncells_dynamic_test-gstmotioncells_dynamic_test.obj: gstmotioncells_dyna
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstmotioncells_dynamic_test.c' object='gstmotioncells_dynamic_test-gstmotioncells_dynamic_test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gstmotioncells_dynamic_test_CFLAGS) $(CFLAGS) -c -o gstmotioncells_dynamic_test-gstmotioncells_dynamic_test.obj `if test -f 'gstmotioncells_dynamic_test.c'; then $(CYGPATH_W) 'gstmotioncells_dynamic_test.c'; else $(CYGPATH_W) '$(srcdir)/gstmotioncells_dynamic_test.c'; fi`
-
-gstmotioncells_dynamic_test-gst_element_print_properties.o: gst_element_print_properties.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gstmotioncells_dynamic_test_CFLAGS) $(CFLAGS) -MT gstmotioncells_dynamic_test-gst_element_print_properties.o -MD -MP -MF $(DEPDIR)/gstmotioncells_dynamic_test-gst_element_print_properties.Tpo -c -o gstmotioncells_dynamic_test-gst_element_print_properties.o `test -f 'gst_element_print_properties.c' || echo '$(srcdir)/'`gst_element_print_properties.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/gstmotioncells_dynamic_test-gst_element_print_properties.Tpo $(DEPDIR)/gstmotioncells_dynamic_test-gst_element_print_properties.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gst_element_print_properties.c' object='gstmotioncells_dynamic_test-gst_element_print_properties.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gstmotioncells_dynamic_test_CFLAGS) $(CFLAGS) -c -o gstmotioncells_dynamic_test-gst_element_print_properties.o `test -f 'gst_element_print_properties.c' || echo '$(srcdir)/'`gst_element_print_properties.c
-
-gstmotioncells_dynamic_test-gst_element_print_properties.obj: gst_element_print_properties.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gstmotioncells_dynamic_test_CFLAGS) $(CFLAGS) -MT gstmotioncells_dynamic_test-gst_element_print_properties.obj -MD -MP -MF $(DEPDIR)/gstmotioncells_dynamic_test-gst_element_print_properties.Tpo -c -o gstmotioncells_dynamic_test-gst_element_print_properties.obj `if test -f 'gst_element_print_properties.c'; then $(CYGPATH_W) 'gst_element_print_properties.c'; else $(CYGPATH_W) '$(srcdir)/gst_element_print_properties.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/gstmotioncells_dynamic_test-gst_element_print_properties.Tpo $(DEPDIR)/gstmotioncells_dynamic_test-gst_element_print_properties.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gst_element_print_properties.c' object='gstmotioncells_dynamic_test-gst_element_print_properties.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gstmotioncells_dynamic_test_CFLAGS) $(CFLAGS) -c -o gstmotioncells_dynamic_test-gst_element_print_properties.obj `if test -f 'gst_element_print_properties.c'; then $(CYGPATH_W) 'gst_element_print_properties.c'; else $(CYGPATH_W) '$(srcdir)/gst_element_print_properties.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -949,7 +924,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS) $(HEADERS)
+all-am: Makefile $(PROGRAMS)
 installdirs:
 install: install-am
 install-exec: install-exec-am

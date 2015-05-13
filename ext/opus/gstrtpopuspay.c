@@ -48,11 +48,14 @@ GST_STATIC_PAD_TEMPLATE ("src",
         "media = (string) \"audio\", "
         "payload = (int) " GST_RTP_PAYLOAD_DYNAMIC_STRING ", "
         "clock-rate = (int) 48000, "
+        "encoding-params = (string) \"2\", "
         "encoding-name = (string) { \"OPUS\", \"X-GST-OPUS-DRAFT-SPITTKA-00\" }")
     );
 
 static gboolean gst_rtp_opus_pay_setcaps (GstRTPBasePayload * payload,
     GstCaps * caps);
+static GstCaps *gst_rtp_opus_pay_getcaps (GstRTPBasePayload * payload,
+    GstPad * pad, GstCaps * filter);
 static GstFlowReturn gst_rtp_opus_pay_handle_buffer (GstRTPBasePayload *
     payload, GstBuffer * buffer);
 
@@ -68,6 +71,7 @@ gst_rtp_opus_pay_class_init (GstRtpOPUSPayClass * klass)
   element_class = GST_ELEMENT_CLASS (klass);
 
   gstbasertppayload_class->set_caps = gst_rtp_opus_pay_setcaps;
+  gstbasertppayload_class->get_caps = gst_rtp_opus_pay_getcaps;
   gstbasertppayload_class->handle_buffer = gst_rtp_opus_pay_handle_buffer;
 
   gst_element_class_add_pad_template (element_class,
@@ -97,6 +101,9 @@ gst_rtp_opus_pay_setcaps (GstRTPBasePayload * payload, GstCaps * caps)
   GstCaps *src_caps;
   GstStructure *s;
   char *encoding_name;
+  gint channels, rate;
+  const char *sprop_stereo = NULL;
+  char *sprop_maxcapturerate = NULL;
 
   src_caps = gst_pad_get_allowed_caps (GST_RTP_BASE_PAYLOAD_SRCPAD (payload));
   if (src_caps) {
@@ -110,10 +117,45 @@ gst_rtp_opus_pay_setcaps (GstRTPBasePayload * payload, GstCaps * caps)
     encoding_name = g_strdup ("X-GST-OPUS-DRAFT-SPITTKA-00");
   }
 
+  s = gst_caps_get_structure (caps, 0);
+  if (gst_structure_get_int (s, "channels", &channels)) {
+    if (channels > 2) {
+      GST_ERROR_OBJECT (payload,
+          "More than 2 channels with multistream=FALSE is invalid");
+      return FALSE;
+    } else if (channels == 2) {
+      sprop_stereo = "1";
+    } else {
+      sprop_stereo = "0";
+    }
+  }
+
+  if (gst_structure_get_int (s, "rate", &rate)) {
+    sprop_maxcapturerate = g_strdup_printf ("%d", rate);
+  }
+
   gst_rtp_base_payload_set_options (payload, "audio", FALSE,
       encoding_name, 48000);
   g_free (encoding_name);
-  res = gst_rtp_base_payload_set_outcaps (payload, NULL);
+
+  if (sprop_maxcapturerate && sprop_stereo) {
+    res =
+        gst_rtp_base_payload_set_outcaps (payload, "sprop-maxcapturerate",
+        G_TYPE_STRING, sprop_maxcapturerate, "sprop-stereo", G_TYPE_STRING,
+        sprop_stereo, NULL);
+  } else if (sprop_maxcapturerate) {
+    res =
+        gst_rtp_base_payload_set_outcaps (payload, "sprop-maxcapturerate",
+        G_TYPE_STRING, sprop_maxcapturerate, NULL);
+  } else if (sprop_stereo) {
+    res =
+        gst_rtp_base_payload_set_outcaps (payload, "sprop-stereo",
+        G_TYPE_STRING, sprop_stereo, NULL);
+  } else {
+    res = gst_rtp_base_payload_set_outcaps (payload, NULL);
+  }
+
+  g_free (sprop_maxcapturerate);
 
   return res;
 }
@@ -138,4 +180,63 @@ gst_rtp_opus_pay_handle_buffer (GstRTPBasePayload * basepayload,
 
   /* Push out */
   return gst_rtp_base_payload_push (basepayload, outbuf);
+}
+
+static GstCaps *
+gst_rtp_opus_pay_getcaps (GstRTPBasePayload * payload,
+    GstPad * pad, GstCaps * filter)
+{
+  GstCaps *caps, *peercaps, *tcaps;
+  GstStructure *s;
+  const gchar *stereo;
+
+  if (pad == GST_RTP_BASE_PAYLOAD_SRCPAD (payload))
+    return
+        GST_RTP_BASE_PAYLOAD_CLASS (gst_rtp_opus_pay_parent_class)->get_caps
+        (payload, pad, filter);
+
+  tcaps = gst_pad_get_pad_template_caps (GST_RTP_BASE_PAYLOAD_SRCPAD (payload));
+  peercaps = gst_pad_peer_query_caps (GST_RTP_BASE_PAYLOAD_SRCPAD (payload),
+      tcaps);
+  gst_caps_unref (tcaps);
+  if (!peercaps)
+    return
+        GST_RTP_BASE_PAYLOAD_CLASS (gst_rtp_opus_pay_parent_class)->get_caps
+        (payload, pad, filter);
+
+  if (gst_caps_is_empty (peercaps))
+    return peercaps;
+
+  caps = gst_pad_get_pad_template_caps (GST_RTP_BASE_PAYLOAD_SINKPAD (payload));
+
+  s = gst_caps_get_structure (peercaps, 0);
+  stereo = gst_structure_get_string (s, "stereo");
+  if (stereo != NULL) {
+    caps = gst_caps_make_writable (caps);
+
+    if (!strcmp (stereo, "1")) {
+      GstCaps *caps2 = gst_caps_copy (caps);
+
+      gst_caps_set_simple (caps, "channels", G_TYPE_INT, 2, NULL);
+      gst_caps_set_simple (caps2, "channels", G_TYPE_INT, 1, NULL);
+      caps = gst_caps_merge (caps, caps2);
+    } else if (!strcmp (stereo, "0")) {
+      GstCaps *caps2 = gst_caps_copy (caps);
+
+      gst_caps_set_simple (caps, "channels", G_TYPE_INT, 1, NULL);
+      gst_caps_set_simple (caps2, "channels", G_TYPE_INT, 2, NULL);
+      caps = gst_caps_merge (caps, caps2);
+    }
+  }
+  gst_caps_unref (peercaps);
+
+  if (filter) {
+    GstCaps *tmp = gst_caps_intersect_full (caps, filter,
+        GST_CAPS_INTERSECT_FIRST);
+    gst_caps_unref (caps);
+    caps = tmp;
+  }
+
+  GST_DEBUG_OBJECT (payload, "Returning caps: %" GST_PTR_FORMAT, caps);
+  return caps;
 }

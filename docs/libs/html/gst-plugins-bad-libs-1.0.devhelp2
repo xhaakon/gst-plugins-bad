@@ -390,6 +390,7 @@
     <keyword type="function" name="gst_aggregator_finish_buffer ()" link="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-finish-buffer"/>
     <keyword type="function" name="gst_aggregator_set_src_caps ()" link="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-set-src-caps"/>
     <keyword type="function" name="gst_aggregator_iterate_sinkpads ()" link="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-iterate-sinkpads"/>
+    <keyword type="function" name="gst_aggregator_get_latency ()" link="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-get-latency"/>
     <keyword type="struct" name="struct GstAggregator" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregator"/>
     <keyword type="struct" name="struct GstAggregatorClass" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass"/>
     <keyword type="function" name="gst_aggregator_pad_steal_buffer ()" link="gst-plugins-bad-libs-GstAggregatorPad.html#gst-aggregator-pad-steal-buffer"/>

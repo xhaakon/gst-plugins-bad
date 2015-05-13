@@ -80,10 +80,8 @@ static void gst_gl_test_src_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
 static void gst_gl_test_src_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
-static void gst_gl_test_src_dispose (GObject * object);
 
 static gboolean gst_gl_test_src_setcaps (GstBaseSrc * bsrc, GstCaps * caps);
-static GstCaps *gst_gl_test_src_getcaps (GstBaseSrc * bsrc, GstCaps * filter);
 static GstCaps *gst_gl_test_src_fixate (GstBaseSrc * bsrc, GstCaps * caps);
 
 static gboolean gst_gl_test_src_is_seekable (GstBaseSrc * psrc);
@@ -156,7 +154,6 @@ gst_gl_test_src_class_init (GstGLTestSrcClass * klass)
 
   gobject_class->set_property = gst_gl_test_src_set_property;
   gobject_class->get_property = gst_gl_test_src_get_property;
-  gobject_class->dispose = gst_gl_test_src_dispose;
 
   g_object_class_install_property (gobject_class, PROP_PATTERN,
       g_param_spec_enum ("pattern", "Pattern",
@@ -183,7 +180,6 @@ gst_gl_test_src_class_init (GstGLTestSrcClass * klass)
   element_class->change_state = gst_gl_test_src_change_state;
 
   gstbasesrc_class->set_caps = gst_gl_test_src_setcaps;
-  gstbasesrc_class->get_caps = gst_gl_test_src_getcaps;
   gstbasesrc_class->is_seekable = gst_gl_test_src_is_seekable;
   gstbasesrc_class->do_seek = gst_gl_test_src_do_seek;
   gstbasesrc_class->query = gst_gl_test_src_query;
@@ -387,18 +383,6 @@ gst_gl_test_src_set_pattern (GstGLTestSrc * gltestsrc, gint pattern_type)
 }
 
 static void
-gst_gl_test_src_dispose (GObject * object)
-{
-  GstGLTestSrc *src = GST_GL_TEST_SRC (object);
-
-  if (src->other_context)
-    gst_object_unref (src->other_context);
-  src->other_context = NULL;
-
-  G_OBJECT_CLASS (parent_class)->dispose (object);
-}
-
-static void
 gst_gl_test_src_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
@@ -463,24 +447,6 @@ wrong_caps:
     GST_WARNING ("wrong caps");
     return FALSE;
   }
-}
-
-static GstCaps *
-gst_gl_test_src_getcaps (GstBaseSrc * bsrc, GstCaps * filter)
-{
-  GstCaps *tmp = NULL;
-  GstCaps *result =
-      gst_caps_from_string ("video/x-raw(memory:GLMemory),format=RGBA");
-
-  if (filter) {
-    tmp = gst_caps_intersect_full (filter, result, GST_CAPS_INTERSECT_FIRST);
-    gst_caps_unref (result);
-    result = tmp;
-  }
-
-  GST_DEBUG_OBJECT (bsrc, "returning caps: %" GST_PTR_FORMAT, result);
-
-  return result;
 }
 
 static void
@@ -749,11 +715,6 @@ gst_gl_test_src_stop (GstBaseSrc * basesrc)
     src->context = NULL;
   }
 
-  if (src->display) {
-    gst_object_unref (src->display);
-    src->display = NULL;
-  }
-
   return TRUE;
 }
 
@@ -816,6 +777,7 @@ gst_gl_test_src_decide_allocation (GstBaseSrc * basesrc, GstQuery * query)
   _find_local_gl_context (src);
 
   if (!src->context) {
+    GST_OBJECT_LOCK (src->display);
     do {
       if (src->context)
         gst_object_unref (src->context);
@@ -828,6 +790,7 @@ gst_gl_test_src_decide_allocation (GstBaseSrc * basesrc, GstQuery * query)
           goto context_error;
       }
     } while (!gst_gl_display_add_context (src->display, src->context));
+    GST_OBJECT_UNLOCK (src->display);
   }
 
   out_width = GST_VIDEO_INFO_WIDTH (&src->out_info);
@@ -932,6 +895,17 @@ gst_gl_test_src_change_state (GstElement * element, GstStateChange transition)
     return ret;
 
   switch (transition) {
+    case GST_STATE_CHANGE_READY_TO_NULL:
+      if (src->other_context) {
+        gst_object_unref (src->other_context);
+        src->other_context = NULL;
+      }
+
+      if (src->display) {
+        gst_object_unref (src->display);
+        src->display = NULL;
+      }
+      break;
     default:
       break;
   }

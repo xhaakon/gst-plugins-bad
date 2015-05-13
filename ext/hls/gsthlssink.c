@@ -85,6 +85,8 @@ static void gst_hls_sink_reset (GstHlsSink * sink);
 static GstStateChangeReturn
 gst_hls_sink_change_state (GstElement * element, GstStateChange trans);
 static gboolean schedule_next_key_unit (GstHlsSink * sink);
+static GstFlowReturn gst_hls_sink_chain_list (GstPad * pad, GstObject * parent,
+    GstBufferList * list);
 
 static void
 gst_hls_sink_dispose (GObject * object)
@@ -180,6 +182,7 @@ gst_hls_sink_init (GstHlsSink * sink)
       gst_hls_sink_ghost_event_probe, sink, NULL);
   gst_pad_add_probe (sink->ghostpad, GST_PAD_PROBE_TYPE_BUFFER,
       gst_hls_sink_ghost_buffer_probe, sink, NULL);
+  gst_pad_set_chain_list_function (sink->ghostpad, gst_hls_sink_chain_list);
 
   sink->location = g_strdup (DEFAULT_LOCATION);
   sink->playlist_location = g_strdup (DEFAULT_PLAYLIST_LOCATION);
@@ -250,6 +253,25 @@ missing_element:
 }
 
 static void
+gst_hls_sink_write_playlist (GstHlsSink * sink)
+{
+  char *playlist_content;
+  GError *error = NULL;
+
+  playlist_content = gst_m3u8_playlist_render (sink->playlist);
+  if (!g_file_set_contents (sink->playlist_location,
+          playlist_content, -1, &error)) {
+    GST_ERROR ("Failed to write playlist: %s", error->message);
+    GST_ELEMENT_ERROR (sink, RESOURCE, OPEN_WRITE,
+        (("Failed to write playlist '%s'."), error->message), (NULL));
+    g_error_free (error);
+    error = NULL;
+  }
+  g_free (playlist_content);
+
+}
+
+static void
 gst_hls_sink_handle_message (GstBin * bin, GstMessage * message)
 {
   GstHlsSink *sink = GST_HLS_SINK_CAST (bin);
@@ -258,10 +280,8 @@ gst_hls_sink_handle_message (GstBin * bin, GstMessage * message)
     case GST_MESSAGE_ELEMENT:
     {
       const char *filename;
-      char *playlist_content;
       GstClockTime running_time, duration;
       gboolean discont = FALSE;
-      GError *error = NULL;
       gchar *entry_location;
       const GstStructure *structure;
 
@@ -286,16 +306,8 @@ gst_hls_sink_handle_message (GstBin * bin, GstMessage * message)
       gst_m3u8_playlist_add_entry (sink->playlist, entry_location,
           NULL, duration, sink->index, discont);
       g_free (entry_location);
-      playlist_content = gst_m3u8_playlist_render (sink->playlist);
-      if (!g_file_set_contents (sink->playlist_location,
-              playlist_content, -1, &error)) {
-        GST_ERROR ("Failed to write playlist: %s", error->message);
-        GST_ELEMENT_ERROR (sink, RESOURCE, OPEN_WRITE,
-            (("Failed to write playlist '%s'."), error->message), (NULL));
-        g_error_free (error);
-        error = NULL;
-      }
-      g_free (playlist_content);
+
+      gst_hls_sink_write_playlist (sink);
 
       /* multifilesink is starting a new file. It means that upstream sent a key
        * unit and we can schedule the next key unit now.
@@ -308,6 +320,11 @@ gst_hls_sink_handle_message (GstBin * bin, GstMessage * message)
       GST_DEBUG_OBJECT (bin, "dropping message %" GST_PTR_FORMAT, message);
       gst_message_unref (message);
       message = NULL;
+      break;
+    }
+    case GST_MESSAGE_EOS:{
+      sink->playlist->end_list = TRUE;
+      gst_hls_sink_write_playlist (sink);
       break;
     }
     default:
@@ -499,6 +516,19 @@ out:
   return res;
 }
 
+static void
+gst_hls_sink_check_schedule_next_key_unit (GstHlsSink * sink, GstBuffer * buf)
+{
+  GstClockTime timestamp;
+
+  timestamp = GST_BUFFER_TIMESTAMP (buf);
+  if (!GST_CLOCK_TIME_IS_VALID (timestamp))
+    return;
+
+  sink->last_running_time = gst_segment_to_running_time (&sink->segment,
+      GST_FORMAT_TIME, timestamp);
+  schedule_next_key_unit (sink);
+}
 
 static GstPadProbeReturn
 gst_hls_sink_ghost_buffer_probe (GstPad * pad, GstPadProbeInfo * info,
@@ -506,17 +536,43 @@ gst_hls_sink_ghost_buffer_probe (GstPad * pad, GstPadProbeInfo * info,
 {
   GstHlsSink *sink = GST_HLS_SINK_CAST (data);
   GstBuffer *buffer = gst_pad_probe_info_get_buffer (info);
-  GstClockTime timestamp;
 
-  timestamp = GST_BUFFER_TIMESTAMP (buffer);
-  if (sink->target_duration == 0 || !GST_CLOCK_TIME_IS_VALID (timestamp)
-      || sink->waiting_fku)
+  if (sink->target_duration == 0 || sink->waiting_fku)
     return GST_PAD_PROBE_OK;
 
-  sink->last_running_time = gst_segment_to_running_time (&sink->segment,
-      GST_FORMAT_TIME, timestamp);
-  schedule_next_key_unit (sink);
+  gst_hls_sink_check_schedule_next_key_unit (sink, buffer);
   return GST_PAD_PROBE_OK;
+}
+
+static GstFlowReturn
+gst_hls_sink_chain_list (GstPad * pad, GstObject * parent, GstBufferList * list)
+{
+  guint i, len;
+  GstBuffer *buffer;
+  GstFlowReturn ret;
+  GstHlsSink *sink = GST_HLS_SINK_CAST (parent);
+
+  if (sink->target_duration == 0 || sink->waiting_fku)
+    return gst_proxy_pad_chain_list_default (pad, parent, list);
+
+  GST_DEBUG_OBJECT (pad, "chaining each group in list as a merged buffer");
+
+  len = gst_buffer_list_length (list);
+
+  ret = GST_FLOW_OK;
+  for (i = 0; i < len; i++) {
+    buffer = gst_buffer_list_get (list, i);
+
+    if (!sink->waiting_fku)
+      gst_hls_sink_check_schedule_next_key_unit (sink, buffer);
+
+    ret = gst_pad_chain (pad, gst_buffer_ref (buffer));
+    if (ret != GST_FLOW_OK)
+      break;
+  }
+  gst_buffer_list_unref (list);
+
+  return ret;
 }
 
 gboolean

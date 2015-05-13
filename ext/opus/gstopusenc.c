@@ -44,7 +44,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
-#include <opus/opus.h>
+#include <opus.h>
 
 #include <gst/gsttagsetter.h>
 #include <gst/audio/audio.h>
@@ -387,8 +387,6 @@ gst_opus_enc_start (GstAudioEncoder * benc)
   GstOpusEnc *enc = GST_OPUS_ENC (benc);
 
   GST_DEBUG_OBJECT (enc, "start");
-  enc->tags = gst_tag_list_new_empty ();
-  enc->header_sent = FALSE;
   enc->encoded_samples = 0;
 
   return TRUE;
@@ -400,16 +398,10 @@ gst_opus_enc_stop (GstAudioEncoder * benc)
   GstOpusEnc *enc = GST_OPUS_ENC (benc);
 
   GST_DEBUG_OBJECT (enc, "stop");
-  enc->header_sent = FALSE;
   if (enc->state) {
     opus_multistream_encoder_destroy (enc->state);
     enc->state = NULL;
   }
-  gst_tag_list_unref (enc->tags);
-  enc->tags = NULL;
-  g_slist_foreach (enc->headers, (GFunc) gst_buffer_unref, NULL);
-  g_slist_free (enc->headers);
-  enc->headers = NULL;
   gst_tag_setter_reset_tags (GST_TAG_SETTER (enc));
 
   return TRUE;
@@ -701,6 +693,8 @@ static gboolean
 gst_opus_enc_setup (GstOpusEnc * enc)
 {
   int error = OPUS_OK;
+  GstCaps *caps;
+  gboolean ret;
 
 #ifndef GST_DISABLE_GST_DEBUG
   GST_DEBUG_OBJECT (enc,
@@ -740,7 +734,18 @@ gst_opus_enc_setup (GstOpusEnc * enc)
 
   GST_LOG_OBJECT (enc, "we have frame size %d", enc->frame_size);
 
-  return TRUE;
+  gst_opus_header_create_caps (&caps, NULL, enc->n_channels,
+      enc->n_stereo_streams, enc->sample_rate, enc->channel_mapping_family,
+      enc->decoding_channel_mapping,
+      gst_tag_setter_get_tag_list (GST_TAG_SETTER (enc)));
+
+  /* negotiate with these caps */
+  GST_DEBUG_OBJECT (enc, "here are the caps: %" GST_PTR_FORMAT, caps);
+
+  ret = gst_audio_encoder_set_output_format (GST_AUDIO_ENCODER (enc), caps);
+  gst_caps_unref (caps);
+
+  return ret;
 
 encoder_creation_failed:
   GST_ERROR_OBJECT (enc, "Encoder creation failed");
@@ -913,7 +918,9 @@ gst_opus_enc_encode (GstOpusEnc * enc, GstBuffer * buf)
 
   g_assert (size == bytes);
 
-  outbuf = gst_buffer_new_and_alloc (max_payload_size * enc->n_channels);
+  outbuf =
+      gst_audio_encoder_allocate_output_buffer (GST_AUDIO_ENCODER (enc),
+      max_payload_size * enc->n_channels);
   if (!outbuf)
     goto done;
 
@@ -970,29 +977,6 @@ gst_opus_enc_handle_frame (GstAudioEncoder * benc, GstBuffer * buf)
 
   enc = GST_OPUS_ENC (benc);
   GST_DEBUG_OBJECT (enc, "handle_frame");
-
-  if (!enc->header_sent) {
-    GstCaps *caps;
-
-    g_slist_foreach (enc->headers, (GFunc) gst_buffer_unref, NULL);
-    g_slist_free (enc->headers);
-    enc->headers = NULL;
-
-    gst_opus_header_create_caps (&caps, &enc->headers, enc->n_channels,
-        enc->n_stereo_streams, enc->sample_rate, enc->channel_mapping_family,
-        enc->decoding_channel_mapping,
-        gst_tag_setter_get_tag_list (GST_TAG_SETTER (enc)));
-
-
-    /* negotiate with these caps */
-    GST_DEBUG_OBJECT (enc, "here are the caps: %" GST_PTR_FORMAT, caps);
-
-    gst_audio_encoder_set_output_format (benc, caps);
-    gst_caps_unref (caps);
-
-    enc->header_sent = TRUE;
-  }
-
   GST_DEBUG_OBJECT (enc, "received buffer %p of %" G_GSIZE_FORMAT " bytes", buf,
       buf ? gst_buffer_get_size (buf) : 0);
 
@@ -1037,6 +1021,7 @@ gst_opus_enc_get_property (GObject * object, guint prop_id, GValue * value,
           ("constrained-vbr property is deprecated; use bitrate-type instead");
       g_value_set_boolean (value,
           enc->bitrate_type == BITRATE_TYPE_CONSTRAINED_VBR);
+      break;
     case PROP_BITRATE_TYPE:
       g_value_set_enum (value, enc->bitrate_type);
       break;

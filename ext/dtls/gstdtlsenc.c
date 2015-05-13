@@ -182,12 +182,11 @@ gst_dtls_enc_init (GstDtlsEnc * self)
 
   self->is_client = DEFAULT_IS_CLIENT;
 
-  self->encodgst_key = NULL;
+  self->encoder_key = NULL;
   self->srtp_cipher = DEFAULT_SRTP_CIPHER;
   self->srtp_auth = DEFAULT_SRTP_AUTH;
 
-  self->queue = g_ptr_array_sized_new (INITIAL_QUEUE_SIZE);
-
+  g_queue_init (&self->queue);
   g_mutex_init (&self->queue_lock);
   g_cond_init (&self->queue_cond_add);
 
@@ -205,17 +204,14 @@ gst_dtls_enc_finalize (GObject * object)
 {
   GstDtlsEnc *self = GST_DTLS_ENC (object);
 
-  if (self->encodgst_key) {
-    gst_buffer_unref (self->encodgst_key);
-    self->encodgst_key = NULL;
+  if (self->encoder_key) {
+    gst_buffer_unref (self->encoder_key);
+    self->encoder_key = NULL;
   }
 
   g_mutex_lock (&self->queue_lock);
-
-  g_ptr_array_set_free_func (self->queue, (GDestroyNotify) gst_buffer_unref);
-  g_ptr_array_unref (self->queue);
-  self->queue = NULL;
-
+  g_queue_foreach (&self->queue, (GFunc) gst_buffer_unref, NULL);
+  g_queue_clear (&self->queue);
   g_mutex_unlock (&self->queue_lock);
 
   g_mutex_clear (&self->queue_lock);
@@ -258,7 +254,7 @@ gst_dtls_enc_get_property (GObject * object, guint prop_id, GValue * value,
       g_value_set_boolean (value, self->is_client);
       break;
     case PROP_ENCODER_KEY:
-      g_value_set_boxed (value, self->encodgst_key);
+      g_value_set_boxed (value, self->encoder_key);
       break;
     case PROP_SRTP_CIPHER:
       g_value_set_uint (value, self->srtp_cipher);
@@ -300,15 +296,8 @@ gst_dtls_enc_change_state (GstElement * element, GstStateChange transition)
         return GST_STATE_CHANGE_FAILURE;
       }
       break;
-    case GST_STATE_CHANGE_READY_TO_PAUSED:
-      GST_DEBUG_OBJECT (self, "starting connection %s", self->connection_id);
-      gst_dtls_connection_start (self->connection, self->is_client);
-
-      gst_pad_set_active (self->src, TRUE);
-      break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:
       GST_DEBUG_OBJECT (self, "stopping connection %s", self->connection_id);
-      gst_pad_set_active (self->src, FALSE);
 
       gst_dtls_connection_stop (self->connection);
       break;
@@ -327,6 +316,15 @@ gst_dtls_enc_change_state (GstElement * element, GstStateChange transition)
   }
 
   ret = GST_ELEMENT_CLASS (parent_class)->change_state (element, transition);
+
+  switch (transition) {
+    case GST_STATE_CHANGE_READY_TO_PAUSED:
+      GST_DEBUG_OBJECT (self, "starting connection %s", self->connection_id);
+      gst_dtls_connection_start (self->connection, self->is_client);
+      break;
+    default:
+      break;
+  }
 
   return ret;
 }
@@ -370,6 +368,7 @@ src_activate_mode (GstPad * pad, GstObject * parent, GstPadMode mode,
   if (active) {
     GST_DEBUG_OBJECT (self, "src pad activating in push mode");
 
+    self->flushing = FALSE;
     self->send_initial_events = TRUE;
     success =
         gst_pad_start_task (pad, (GstTaskFunction) src_task_loop, self->src,
@@ -381,7 +380,9 @@ src_activate_mode (GstPad * pad, GstObject * parent, GstPadMode mode,
     GST_DEBUG_OBJECT (self, "deactivating src pad");
 
     g_mutex_lock (&self->queue_lock);
-    GST_PAD_MODE (pad) = GST_PAD_MODE_NONE;
+    g_queue_foreach (&self->queue, (GFunc) gst_buffer_unref, NULL);
+    g_queue_clear (&self->queue);
+    self->flushing = TRUE;
     g_cond_signal (&self->queue_cond_add);
     g_mutex_unlock (&self->queue_lock);
     success = gst_pad_stop_task (pad);
@@ -398,26 +399,26 @@ src_task_loop (GstPad * pad)
 {
   GstDtlsEnc *self = GST_DTLS_ENC (GST_PAD_PARENT (pad));
   GstFlowReturn ret;
-  GstPad *peer;
-  gboolean pegst_is_active;
+  GstBuffer *buffer;
+  gboolean check_connection_timeout = FALSE;
 
   GST_TRACE_OBJECT (self, "src loop: acquiring lock");
   g_mutex_lock (&self->queue_lock);
   GST_TRACE_OBJECT (self, "src loop: acquired lock");
 
-  if (!gst_pad_is_active (pad)) {
+  if (self->flushing) {
     GST_LOG_OBJECT (self, "src task loop entered on inactive pad");
     GST_TRACE_OBJECT (self, "src loop: releasing lock");
     g_mutex_unlock (&self->queue_lock);
     return;
   }
 
-  while (!self->queue->len) {
+  while (g_queue_is_empty (&self->queue)) {
     GST_TRACE_OBJECT (self, "src loop: queue empty, waiting for add");
     g_cond_wait (&self->queue_cond_add, &self->queue_lock);
     GST_TRACE_OBJECT (self, "src loop: add signaled");
 
-    if (!gst_pad_is_active (pad)) {
+    if (self->flushing) {
       GST_LOG_OBJECT (self, "pad inactive, task returning");
       GST_TRACE_OBJECT (self, "src loop: releasing lock");
       g_mutex_unlock (&self->queue_lock);
@@ -426,47 +427,35 @@ src_task_loop (GstPad * pad)
   }
   GST_TRACE_OBJECT (self, "src loop: queue has element");
 
-  peer = gst_pad_get_peer (pad);
-  pegst_is_active = gst_pad_is_active (peer);
-  gst_object_unref (peer);
+  buffer = g_queue_pop_head (&self->queue);
+  g_mutex_unlock (&self->queue_lock);
 
-  if (pegst_is_active) {
-    GstBuffer *buffer;
-    gboolean start_connection_timeout = FALSE;
+  if (self->send_initial_events) {
+    GstSegment segment;
+    gchar s_id[32];
+    GstCaps *caps;
 
-    if (self->send_initial_events) {
-      GstSegment segment;
-      gchar s_id[32];
-      GstCaps *caps;
+    self->send_initial_events = FALSE;
 
-      g_snprintf (s_id, sizeof (s_id), "dtlsenc-%08x", g_random_int ());
-      gst_pad_push_event (self->src, gst_event_new_stream_start (s_id));
-      caps = gst_caps_new_empty_simple ("application/x-dtls");
-      gst_pad_push_event (self->src, gst_event_new_caps (caps));
-      gst_caps_unref (caps);
-      gst_segment_init (&segment, GST_FORMAT_BYTES);
-      gst_pad_push_event (self->src, gst_event_new_segment (&segment));
-      self->send_initial_events = FALSE;
-      start_connection_timeout = TRUE;
-    }
+    g_snprintf (s_id, sizeof (s_id), "dtlsenc-%08x", g_random_int ());
+    gst_pad_push_event (self->src, gst_event_new_stream_start (s_id));
+    caps = gst_caps_new_empty_simple ("application/x-dtls");
+    gst_pad_push_event (self->src, gst_event_new_caps (caps));
+    gst_caps_unref (caps);
+    gst_segment_init (&segment, GST_FORMAT_BYTES);
+    gst_pad_push_event (self->src, gst_event_new_segment (&segment));
+    check_connection_timeout = TRUE;
+  }
 
-    buffer = g_ptr_array_remove_index (self->queue, 0);
+  GST_TRACE_OBJECT (self, "src loop: releasing lock");
 
-    GST_TRACE_OBJECT (self, "src loop: releasing lock");
-    g_mutex_unlock (&self->queue_lock);
+  ret = gst_pad_push (self->src, buffer);
+  if (check_connection_timeout)
+    gst_dtls_connection_check_timeout (self->connection);
 
-    ret = gst_pad_push (self->src, buffer);
-    if (start_connection_timeout)
-      gst_dtls_connection_start_timeout (self->connection);
-
-    if (G_UNLIKELY (ret != GST_FLOW_OK)) {
-      GST_WARNING_OBJECT (self, "failed to push buffer on src pad: %s",
-          gst_flow_get_name (ret));
-    }
-  } else {
-    g_warn_if_reached ();
-    GST_TRACE_OBJECT (self, "src loop: releasing lock");
-    g_mutex_unlock (&self->queue_lock);
+  if (G_UNLIKELY (ret != GST_FLOW_OK)) {
+    GST_WARNING_OBJECT (self, "failed to push buffer on src pad: %s",
+        gst_flow_get_name (ret));
   }
 }
 
@@ -511,7 +500,7 @@ on_key_received (GstDtlsConnection * connection, gpointer key, guint cipher,
   self->srtp_auth = auth;
 
   key_dup = g_memdup (key, GST_DTLS_SRTP_MASTER_KEY_LENGTH);
-  self->encodgst_key =
+  self->encoder_key =
       gst_buffer_new_wrapped (key_dup, GST_DTLS_SRTP_MASTER_KEY_LENGTH);
 
   key_str = g_base64_encode (key, GST_DTLS_SRTP_MASTER_KEY_LENGTH);
@@ -536,7 +525,7 @@ on_send_data (GstDtlsConnection * connection, gconstpointer data, gint length,
   g_mutex_lock (&self->queue_lock);
   GST_TRACE_OBJECT (self, "send data: acquired lock");
 
-  g_ptr_array_add (self->queue, buffer);
+  g_queue_push_tail (&self->queue, buffer);
 
   GST_TRACE_OBJECT (self, "send data: signaling add");
   g_cond_signal (&self->queue_cond_add);

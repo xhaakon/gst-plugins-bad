@@ -37,10 +37,17 @@ static GstStaticPadTemplate sink_template = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_STATIC_CAPS_ANY);
 
 static GstStaticPadTemplate rtp_src_template =
-    GST_STATIC_PAD_TEMPLATE ("rtp_src",
+GST_STATIC_PAD_TEMPLATE ("rtp_src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("application/x-rtp;application/x-rtcp")
+    GST_STATIC_CAPS ("application/x-rtp")
+    );
+
+static GstStaticPadTemplate rtcp_src_template =
+GST_STATIC_PAD_TEMPLATE ("rtcp_src",
+    GST_PAD_SRC,
+    GST_PAD_ALWAYS,
+    GST_STATIC_CAPS ("application/x-rtcp")
     );
 
 static GstStaticPadTemplate data_src_template =
@@ -77,17 +84,14 @@ static void gst_dtls_srtp_dec_get_property (GObject *, guint prop_id,
 
 static GstPad *gst_dtls_srtp_dec_request_new_pad (GstElement *,
     GstPadTemplate *, const gchar * name, const GstCaps *);
-static GstCaps *on_decodgst_request_key (GstElement * srtp_decoder, guint ssrc,
+static GstCaps *on_decoder_request_key (GstElement * srtp_decoder, guint ssrc,
     GstDtlsSrtpBin *);
-static void on_pegst_pem (GstElement * srtp_decoder, GParamSpec * pspec,
+static void on_peer_pem (GstElement * srtp_decoder, GParamSpec * pspec,
     GstDtlsSrtpDec * self);
 
 static void gst_dtls_srtp_dec_remove_dtls_element (GstDtlsSrtpBin *);
-static GstPadProbeReturn remove_dtls_decodgst_probe_callback (GstPad *,
+static GstPadProbeReturn remove_dtls_decoder_probe_callback (GstPad *,
     GstPadProbeInfo *, GstElement *);
-
-static GstPadProbeReturn drop_funnel_rtcp_caps (GstPad *, GstPadProbeInfo *,
-    gpointer);
 
 static void
 gst_dtls_srtp_dec_class_init (GstDtlsSrtpDecClass * klass)
@@ -130,6 +134,8 @@ gst_dtls_srtp_dec_class_init (GstDtlsSrtpDecClass * klass)
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&rtp_src_template));
   gst_element_class_add_pad_template (element_class,
+      gst_static_pad_template_get (&rtcp_src_template));
+  gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&data_src_template));
 
   gst_element_class_set_static_metadata (element_class,
@@ -144,19 +150,19 @@ gst_dtls_srtp_dec_init (GstDtlsSrtpDec * self)
 {
   GstElementClass *klass = GST_ELEMENT_GET_CLASS (GST_ELEMENT (self));
   GstPadTemplate *templ;
-  GstPad *target_pad, *ghost_pad, *pad;
+  GstPad *target_pad, *ghost_pad;
   gboolean ret;
 
 /*
-                                 +--------------------+
-            +--------------+  .-o|       dtlsdec      |o-R----------data
-            |          dtls|o-'  +--------------------+
+                                 +-----------+
+            +--------------+  .-o|  dtlsdec  |o-R----data
+            |          dtls|o-'  +-----------+
     sink---o|  dtlsdemux   |
-            |       srt(c)p|o-.  +-----------+     +-----------+
-            +--------------+  '-o|srtp    rtp|o---o|rtp        |
-                                 |  srtpdec  |     |   funnel  |o---rt(c)p
-                                o|srtcp  rtcp|o---o|rtcp       |
-                                 +-----------+     +-----------+
+            |       srt(c)p|o-.  +-----------+
+            +--------------+  '-o|srtp    rtp|o------rtp
+                                 |  srtpdec  |
+                                o|srtcp  rtcp|o------rtcp
+                                 +-----------+
 */
 
   self->srtp_dec = gst_element_factory_make ("srtpdec", "srtp-decoder");
@@ -176,15 +182,9 @@ gst_dtls_srtp_dec_init (GstDtlsSrtpDec * self)
     GST_ERROR_OBJECT (self, "failed to create dtls_dec");
     return;
   }
-  self->funnel = gst_element_factory_make ("funnel", "funnel");
-  if (!self->funnel) {
-    GST_ERROR_OBJECT (self, "failed to create funnel");
-    return;
-  }
 
   gst_bin_add_many (GST_BIN (self),
-      self->dtls_srtp_demux,
-      self->bin.dtls_element, self->srtp_dec, self->funnel, NULL);
+      self->dtls_srtp_demux, self->bin.dtls_element, self->srtp_dec, NULL);
 
   ret =
       gst_element_link_pads (self->dtls_srtp_demux, "dtls_src",
@@ -194,22 +194,19 @@ gst_dtls_srtp_dec_init (GstDtlsSrtpDec * self)
       gst_element_link_pads (self->dtls_srtp_demux, "rtp_src", self->srtp_dec,
       "rtp_sink");
   g_return_if_fail (ret);
-  ret =
-      gst_element_link_pads (self->srtp_dec, "rtp_src", self->funnel, "sink_0");
-  g_return_if_fail (ret);
-  ret =
-      gst_element_link_pads (self->srtp_dec, "rtcp_src", self->funnel,
-      "sink_1");
-  g_return_if_fail (ret);
-
-  pad = gst_element_get_static_pad (self->funnel, "sink_1");
-  gst_pad_add_probe (pad, GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM,
-      drop_funnel_rtcp_caps, NULL, NULL);
-  gst_object_unref (pad);
 
   templ = gst_element_class_get_pad_template (klass, "rtp_src");
-  target_pad = gst_element_get_static_pad (self->funnel, "src");
+  target_pad = gst_element_get_static_pad (self->srtp_dec, "rtp_src");
   ghost_pad = gst_ghost_pad_new_from_template ("rtp_src", target_pad, templ);
+  gst_object_unref (target_pad);
+  g_return_if_fail (ghost_pad);
+
+  ret = gst_element_add_pad (GST_ELEMENT (self), ghost_pad);
+  g_return_if_fail (ret);
+
+  templ = gst_element_class_get_pad_template (klass, "rtcp_src");
+  target_pad = gst_element_get_static_pad (self->srtp_dec, "rtcp_src");
+  ghost_pad = gst_ghost_pad_new_from_template ("rtcp_src", target_pad, templ);
   gst_object_unref (target_pad);
   g_return_if_fail (ghost_pad);
 
@@ -226,9 +223,9 @@ gst_dtls_srtp_dec_init (GstDtlsSrtpDec * self)
   g_return_if_fail (ret);
 
   g_signal_connect (self->srtp_dec, "request-key",
-      G_CALLBACK (on_decodgst_request_key), self);
+      G_CALLBACK (on_decoder_request_key), self);
   g_signal_connect (self->bin.dtls_element, "notify::peer-pem",
-      G_CALLBACK (on_pegst_pem), self);
+      G_CALLBACK (on_peer_pem), self);
 }
 
 static void
@@ -318,7 +315,7 @@ gst_dtls_srtp_dec_request_new_pad (GstElement * element,
 }
 
 static GstCaps *
-on_decodgst_request_key (GstElement * srtp_decoder,
+on_decoder_request_key (GstElement * srtp_decoder,
     guint ssrc, GstDtlsSrtpBin * bin)
 {
   GstCaps *key_caps;
@@ -385,13 +382,15 @@ on_decodgst_request_key (GstElement * srtp_decoder,
     }
 
     return key_caps;
+  } else {
+    GST_WARNING_OBJECT (bin, "no srtp key available yet");
   }
 
   return NULL;
 }
 
 static void
-on_pegst_pem (GstElement * srtp_decoder, GParamSpec * pspec,
+on_peer_pem (GstElement * srtp_decoder, GParamSpec * pspec,
     GstDtlsSrtpDec * self)
 {
   g_return_if_fail (self);
@@ -412,7 +411,7 @@ gst_dtls_srtp_dec_remove_dtls_element (GstDtlsSrtpBin * bin)
   demux_pad = gst_element_get_static_pad (self->dtls_srtp_demux, "dtls_src");
 
   id = gst_pad_add_probe (demux_pad, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
-      (GstPadProbeCallback) remove_dtls_decodgst_probe_callback,
+      (GstPadProbeCallback) remove_dtls_decoder_probe_callback,
       bin->dtls_element, NULL);
   g_return_if_fail (id);
   bin->dtls_element = NULL;
@@ -425,50 +424,13 @@ gst_dtls_srtp_dec_remove_dtls_element (GstDtlsSrtpBin * bin)
 }
 
 static GstPadProbeReturn
-remove_dtls_decodgst_probe_callback (GstPad * pad,
+remove_dtls_decoder_probe_callback (GstPad * pad,
     GstPadProbeInfo * info, GstElement * element)
 {
   gst_pad_remove_probe (pad, GST_PAD_PROBE_INFO_ID (info));
 
   gst_element_set_state (GST_ELEMENT (element), GST_STATE_NULL);
   gst_bin_remove (GST_BIN (GST_ELEMENT_PARENT (element)), element);
-
-  return GST_PAD_PROBE_OK;
-}
-
-static GstPadProbeReturn
-drop_funnel_rtcp_caps (GstPad * pad, GstPadProbeInfo * info, gpointer data)
-{
-  /* FIXME: This is needed for setting the proper caps until
-   * GStreamer supports MIXED caps or another mechanism to
-   * prevent renegotiation all the time when two different caps
-   * are going over the same pad
-   */
-  if (GST_EVENT_TYPE (info->data) == GST_EVENT_CAPS) {
-    GstCaps *caps, *peercaps;
-    GstStructure *s;
-
-    gst_event_parse_caps (GST_EVENT (info->data), &caps);
-    s = gst_caps_get_structure (caps, 0);
-    if (gst_structure_has_name (s, "application/x-rtcp")) {
-      peercaps = gst_pad_query_caps (pad, NULL);
-
-      /* If the peer does not accept RTCP, we are linked to
-       * the RTP sinkpad of rtpbin. In that case we have to
-       * drop the RTCP caps and assume that we sent RTP caps
-       * before here, which is very likely but not guaranteed
-       * if for some reason we receive RTCP before any RTP.
-       * In that unlikely case we will get event misordering
-       * warnings later, instead of getting them always as
-       * happens now.
-       */
-      if (peercaps && !gst_caps_is_subset (caps, peercaps)) {
-        gst_caps_unref (peercaps);
-        return GST_PAD_PROBE_DROP;
-      }
-      gst_caps_replace (&peercaps, NULL);
-    }
-  }
 
   return GST_PAD_PROBE_OK;
 }

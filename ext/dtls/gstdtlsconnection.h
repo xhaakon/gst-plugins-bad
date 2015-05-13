@@ -85,7 +85,7 @@ struct _GstDtlsConnectionClass {
 GType gst_dtls_connection_get_type(void) G_GNUC_CONST;
 
 void gst_dtls_connection_start(GstDtlsConnection *, gboolean is_client);
-void gst_dtls_connection_start_timeout(GstDtlsConnection *);
+void gst_dtls_connection_check_timeout(GstDtlsConnection *);
 
 /*
  * Stops the connections, it is not required to call this function.
@@ -102,7 +102,7 @@ void gst_dtls_connection_close(GstDtlsConnection *);
  * Sets the closure that will be called whenever data needs to be sent.
  *
  * The closure will get called with the following arguments:
- * void cb(GstDtlsConnection *, gpointer data, gint length, gpointer usgst_data)
+ * void cb(GstDtlsConnection *, gpointer data, gint length, gpointer user_data)
  */
 void gst_dtls_connection_set_send_callback(GstDtlsConnection *, GClosure *);
 
