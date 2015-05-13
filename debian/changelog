@@ -1,3 +1,9 @@
+gst-plugins-bad1.0 (1.5.0.1+git20150513-1) experimental; urgency=medium
+
+  * New upstream GIT snapshot.
+
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 13 May 2015 15:48:32 +0300
+
 gst-plugins-bad1.0 (1.5.0.1+git20150316-2) experimental; urgency=medium
 
   * debian/libgstreamer-plugins-bad-dev.install:

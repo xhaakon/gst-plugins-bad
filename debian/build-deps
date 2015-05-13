@@ -1,5 +1,5 @@
-autoconf (>= 2.62)
-automake (>= 1.11)
+autoconf (>= 2.69)
+automake (>= 1.14)
 autopoint (>= 0.17)
 autotools-dev
 cdbs (>= 0.4.93)
@@ -42,7 +42,7 @@ libglu1-mesa-dev
 libgme-dev
 libgnutls28-dev (>= 2.11.3)
 libgsm1-dev
-libgstreamer-plugins-base@GST_ABI@-dev (>= 1.5.0.1+git20150316)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 1.5.0.1+git20150513)
 libgtk2.0-dev (>= 2.14.0)
 libiptcdata0-dev (>= 1.0.2)
 libjasper-dev
