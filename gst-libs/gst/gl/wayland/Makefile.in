@@ -127,6 +127,7 @@ CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libgstgl_wayland_la_LIBADD =
 am_libgstgl_wayland_la_OBJECTS =  \
+	libgstgl_wayland_la-gstgldisplay_wayland.lo \
 	libgstgl_wayland_la-gstglwindow_wayland_egl.lo \
 	libgstgl_wayland_la-wayland_event_source.lo
 libgstgl_wayland_la_OBJECTS = $(am_libgstgl_wayland_la_OBJECTS)
@@ -708,10 +709,12 @@ top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 noinst_LTLIBRARIES = libgstgl-wayland.la
 libgstgl_wayland_la_SOURCES = \
+	gstgldisplay_wayland.c \
 	gstglwindow_wayland_egl.c \
 	wayland_event_source.c
 
 noinst_HEADERS = \
+	gstgldisplay_wayland.h \
 	gstglwindow_wayland_egl.h \
 	wayland_event_source.h
 
@@ -782,6 +785,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_wayland_la-gstgldisplay_wayland.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_wayland_la-gstglwindow_wayland_egl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_wayland_la-wayland_event_source.Plo@am__quote@
 
@@ -808,6 +812,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
+libgstgl_wayland_la-gstgldisplay_wayland.lo: gstgldisplay_wayland.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_wayland_la_CFLAGS) $(CFLAGS) -MT libgstgl_wayland_la-gstgldisplay_wayland.lo -MD -MP -MF $(DEPDIR)/libgstgl_wayland_la-gstgldisplay_wayland.Tpo -c -o libgstgl_wayland_la-gstgldisplay_wayland.lo `test -f 'gstgldisplay_wayland.c' || echo '$(srcdir)/'`gstgldisplay_wayland.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgl_wayland_la-gstgldisplay_wayland.Tpo $(DEPDIR)/libgstgl_wayland_la-gstgldisplay_wayland.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgldisplay_wayland.c' object='libgstgl_wayland_la-gstgldisplay_wayland.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_wayland_la_CFLAGS) $(CFLAGS) -c -o libgstgl_wayland_la-gstgldisplay_wayland.lo `test -f 'gstgldisplay_wayland.c' || echo '$(srcdir)/'`gstgldisplay_wayland.c
 
 libgstgl_wayland_la-gstglwindow_wayland_egl.lo: gstglwindow_wayland_egl.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_wayland_la_CFLAGS) $(CFLAGS) -MT libgstgl_wayland_la-gstglwindow_wayland_egl.lo -MD -MP -MF $(DEPDIR)/libgstgl_wayland_la-gstglwindow_wayland_egl.Tpo -c -o libgstgl_wayland_la-gstglwindow_wayland_egl.lo `test -f 'gstglwindow_wayland_egl.c' || echo '$(srcdir)/'`gstglwindow_wayland_egl.c

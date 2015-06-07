@@ -72,6 +72,8 @@ static void gst_gl_filter_get_property (GObject * object, guint prop_id,
 
 static GstCaps *gst_gl_filter_transform_caps (GstBaseTransform * bt,
     GstPadDirection direction, GstCaps * caps, GstCaps * filter);
+static GstCaps *default_transform_internal_caps (GstGLFilter * filter,
+    GstPadDirection direction, GstCaps * caps, GstCaps * filter_caps);
 static GstCaps *gst_gl_filter_fixate_caps (GstBaseTransform * bt,
     GstPadDirection direction, GstCaps * caps, GstCaps * othercaps);
 static void gst_gl_filter_reset (GstGLFilter * filter);
@@ -115,6 +117,8 @@ gst_gl_filter_class_init (GstGLFilterClass * klass)
 
   GST_GL_BASE_FILTER_CLASS (klass)->gl_start = gst_gl_filter_gl_start;
   GST_GL_BASE_FILTER_CLASS (klass)->gl_stop = gst_gl_filter_gl_stop;
+
+  klass->transform_internal_caps = default_transform_internal_caps;
 
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&gst_gl_filter_src_pad_template));
@@ -237,6 +241,11 @@ gst_gl_filter_gl_stop (GstGLBaseFilter * base_filter)
   if (filter->vertex_buffer) {
     gl->DeleteBuffers (1, &filter->vertex_buffer);
     filter->vertex_buffer = 0;
+  }
+
+  if (filter->vbo_indices) {
+    gl->DeleteBuffers (1, &filter->vbo_indices);
+    filter->vbo_indices = 0;
   }
 
   if (filter->fbo != 0) {
@@ -596,7 +605,14 @@ gst_gl_filter_caps_remove_size (GstCaps * caps)
       continue;
 
     st = gst_structure_copy (st);
-    gst_structure_remove_fields (st, "width", "height", NULL);
+    gst_structure_set (st, "width", GST_TYPE_INT_RANGE, 1, G_MAXINT,
+        "height", GST_TYPE_INT_RANGE, 1, G_MAXINT, NULL);
+
+    /* if pixel aspect ratio, make a range of it */
+    if (gst_structure_has_field (st, "pixel-aspect-ratio")) {
+      gst_structure_set (st, "pixel-aspect-ratio",
+          GST_TYPE_FRACTION_RANGE, 1, G_MAXINT, G_MAXINT, 1, NULL);
+    }
 
     gst_caps_append_structure_full (res, st, gst_caps_features_copy (f));
   }
@@ -614,15 +630,25 @@ gst_gl_filter_set_caps_features (const GstCaps * caps,
 }
 
 static GstCaps *
+default_transform_internal_caps (GstGLFilter * filter,
+    GstPadDirection direction, GstCaps * caps, GstCaps * filter_caps)
+{
+  GstCaps *tmp = gst_gl_filter_caps_remove_size (caps);
+
+  GST_DEBUG_OBJECT (filter, "size removal returned caps %" GST_PTR_FORMAT, tmp);
+  return tmp;
+}
+
+static GstCaps *
 gst_gl_filter_transform_caps (GstBaseTransform * bt,
     GstPadDirection direction, GstCaps * caps, GstCaps * filter_caps)
 {
+  GstGLFilter *filter = GST_GL_FILTER (bt);
   GstCaps *tmp = NULL;
   GstCaps *result = NULL;
 
-  result = gst_gl_filter_caps_remove_size (caps);
-  tmp = result;
-  GST_DEBUG_OBJECT (bt, "size removal returned caps %" GST_PTR_FORMAT, tmp);
+  tmp = GST_GL_FILTER_GET_CLASS (filter)->transform_internal_caps (filter,
+      direction, caps, NULL);
 
   result =
       gst_gl_filter_set_caps_features (tmp, GST_CAPS_FEATURE_MEMORY_GL_MEMORY);
@@ -678,8 +704,10 @@ gst_gl_filter_set_caps (GstBaseTransform * bt, GstCaps * incaps,
 
   gst_caps_replace (&filter->out_caps, outcaps);
 
-  GST_DEBUG ("set_caps %dx%d", GST_VIDEO_INFO_WIDTH (&filter->out_info),
-      GST_VIDEO_INFO_HEIGHT (&filter->out_info));
+  GST_DEBUG_OBJECT (filter, "set_caps %dx%d in %" GST_PTR_FORMAT
+      " out %" GST_PTR_FORMAT,
+      GST_VIDEO_INFO_WIDTH (&filter->out_info),
+      GST_VIDEO_INFO_HEIGHT (&filter->out_info), incaps, outcaps);
 
   return TRUE;
 
@@ -896,6 +924,7 @@ gst_gl_filter_transform (GstBaseTransform * bt, GstBuffer * inbuf,
   GstGLDisplay *display = GST_GL_BASE_FILTER (bt)->display;
   GstGLContext *context = GST_GL_BASE_FILTER (bt)->context;
   GstGLSyncMeta *out_sync_meta, *in_sync_meta;
+  gboolean ret;
 
   if (!display)
     return GST_FLOW_NOT_NEGOTIATED;
@@ -907,15 +936,15 @@ gst_gl_filter_transform (GstBaseTransform * bt, GstBuffer * inbuf,
     gst_gl_sync_meta_wait (in_sync_meta, context);
 
   if (filter_class->filter)
-    filter_class->filter (filter, inbuf, outbuf);
-  else if (filter_class->filter_texture)
-    gst_gl_filter_filter_texture (filter, inbuf, outbuf);
+    ret = filter_class->filter (filter, inbuf, outbuf);
+  else
+    ret = gst_gl_filter_filter_texture (filter, inbuf, outbuf);
 
   out_sync_meta = gst_buffer_get_gl_sync_meta (outbuf);
   if (out_sync_meta)
     gst_gl_sync_meta_set_sync_point (out_sync_meta, context);
 
-  return GST_FLOW_OK;
+  return ret ? GST_FLOW_OK : GST_FLOW_ERROR;
 }
 
 struct glcb2
@@ -1057,6 +1086,8 @@ static const GLfloat vertices[] = {
    1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
   -1.0f,  1.0f, 0.0f, 0.0f, 1.0f
 };
+
+static const GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
 /* *INDENT-ON* */
 
 static void
@@ -1065,6 +1096,7 @@ _bind_buffer (GstGLFilter * filter)
   GstGLContext *context = GST_GL_BASE_FILTER (filter)->context;
   const GstGLFuncs *gl = context->gl_vtable;
 
+  gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, filter->vbo_indices);
   gl->BindBuffer (GL_ARRAY_BUFFER, filter->vertex_buffer);
 
   _get_attributes (filter);
@@ -1087,6 +1119,7 @@ _unbind_buffer (GstGLFilter * filter)
   GstGLContext *context = GST_GL_BASE_FILTER (filter)->context;
   const GstGLFuncs *gl = context->gl_vtable;
 
+  gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
   gl->BindBuffer (GL_ARRAY_BUFFER, 0);
 
   gl->DisableVertexAttribArray (filter->draw_attr_position_loc);
@@ -1125,16 +1158,13 @@ gst_gl_filter_draw_texture (GstGLFilter * filter, GLuint texture,
     };
 
     gl->ActiveTexture (GL_TEXTURE0);
-
-    gl->Enable (GL_TEXTURE_2D);
     gl->BindTexture (GL_TEXTURE_2D, texture);
 
-    gl->ClientActiveTexture (GL_TEXTURE0);
-
     gl->EnableClientState (GL_VERTEX_ARRAY);
-    gl->EnableClientState (GL_TEXTURE_COORD_ARRAY);
-
     gl->VertexPointer (2, GL_FLOAT, 0, &verts);
+
+    gl->ClientActiveTexture (GL_TEXTURE0);
+    gl->EnableClientState (GL_TEXTURE_COORD_ARRAY);
     gl->TexCoordPointer (2, GL_FLOAT, 0, &texcoords);
 
     gl->DrawArrays (GL_TRIANGLE_FAN, 0, 4);
@@ -1145,8 +1175,6 @@ gst_gl_filter_draw_texture (GstGLFilter * filter, GLuint texture,
 #endif
   if (gst_gl_context_get_gl_api (context) & (GST_GL_API_GLES2 |
           GST_GL_API_OPENGL3)) {
-    GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
-
     if (!filter->vertex_buffer) {
       if (gl->GenVertexArrays) {
         gl->GenVertexArrays (1, &filter->vao);
@@ -1158,10 +1186,18 @@ gst_gl_filter_draw_texture (GstGLFilter * filter, GLuint texture,
       gl->BufferData (GL_ARRAY_BUFFER, 4 * 5 * sizeof (GLfloat), vertices,
           GL_STATIC_DRAW);
 
+      gl->GenBuffers (1, &filter->vbo_indices);
+      gl->BindBuffer (GL_ARRAY_BUFFER, filter->vbo_indices);
+      gl->BufferData (GL_ARRAY_BUFFER, sizeof (indices), indices,
+          GL_STATIC_DRAW);
+
       if (gl->GenVertexArrays) {
         _bind_buffer (filter);
-        gl->BindBuffer (GL_ARRAY_BUFFER, 0);
+        gl->BindVertexArray (0);
       }
+
+      gl->BindBuffer (GL_ARRAY_BUFFER, 0);
+      gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     if (gl->GenVertexArrays)
@@ -1169,7 +1205,7 @@ gst_gl_filter_draw_texture (GstGLFilter * filter, GLuint texture,
     else
       _bind_buffer (filter);
 
-    gl->DrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
+    gl->DrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
     if (gl->GenVertexArrays)
       gl->BindVertexArray (0);

@@ -180,7 +180,7 @@ libgstgl_@GST_API_VERSION@_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) $(am__append_2) \
 	$(am__append_4) $(am__append_6) $(am__append_8) \
 	$(am__append_10) $(am__append_12) $(am__append_14) \
-	$(am__append_16)
+	$(am__append_16) gpuprocess/libgstgl-gpuprocess.la
 am_libgstgl_@GST_API_VERSION@_la_OBJECTS =  \
 	libgstgl_@GST_API_VERSION@_la-gstgldisplay.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglcontext.lo \
@@ -824,8 +824,8 @@ wayland_scanner = @wayland_scanner@
 lib_LTLIBRARIES = libgstgl-@GST_API_VERSION@.la
 SUBDIRS = glprototypes $(am__append_1) $(am__append_3) $(am__append_5) \
 	$(am__append_7) $(am__append_9) $(am__append_11) \
-	$(am__append_13) $(am__append_15)
-DIST_SUBDIRS = glprototypes android x11 win32 cocoa wayland dispmanx egl eagl
+	$(am__append_13) $(am__append_15) gpuprocess
+DIST_SUBDIRS = glprototypes android x11 win32 cocoa wayland dispmanx egl eagl gpuprocess
 noinst_HEADERS = 
 built_sys_header_configure = gstglconfig.h
 libgstgl_@GST_API_VERSION@_la_SOURCES = \
@@ -876,7 +876,7 @@ libgstgl_@GST_API_VERSION@_la_LIBADD = $(GMODULE_NO_EXPORT_LIBS) \
 	$(GST_BASE_LIBS) $(GST_LIBS) $(GL_LIBS) $(am__append_2) \
 	$(am__append_4) $(am__append_6) $(am__append_8) \
 	$(am__append_10) $(am__append_12) $(am__append_14) \
-	$(am__append_16)
+	$(am__append_16) gpuprocess/libgstgl-gpuprocess.la
 configexecincludedir = $(libdir)/gstreamer-@GST_API_VERSION@/include/gst/gl
 nodist_configexecinclude_HEADERS = $(built_sys_header_configure)
 libgstgl_@GST_API_VERSION@_la_CFLAGS = \

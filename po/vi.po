@@ -6,10 +6,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad-1.3.90\n"
+"Project-Id-Version: gst-plugins-bad-1.4.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2015-05-13 13:05+0300\n"
-"PO-Revision-Date: 2014-06-30 08:59+0700\n"
+"POT-Creation-Date: 2015-06-07 10:59+0200\n"
+"PO-Revision-Date: 2014-08-29 15:09+0700\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: Vietnamese <translation-team-vi@lists.sourceforge.net>\n"
 "Language: vi\n"
@@ -24,83 +24,96 @@ msgstr ""
 "X-Poedit-Country: VIET NAM\n"
 
 msgid "format wasn't negotiated before get function"
-msgstr ""
+msgstr "định dạng không được dàn xếp trước hàm"
 
 msgid "default GStreamer sound events audiosink"
-msgstr ""
+msgstr "các sự kiện âm thanh GStreamer mặc định cho “audiosink”"
 
+#, fuzzy
 msgid ""
 "GStreamer can play audio using any number of output elements. Some possible "
 "choices are osssink, pulsesink and alsasink. The audiosink can be a partial "
 "pipeline instead of just one element."
 msgstr ""
+"GStreamer có thể chạy nhạc với bất kỳ số lượng phần tử đầu ra nào. Một số có "
+"thể chọn lựa là osssink, pulsesink và alsasink. “audiosink” có thể là đường "
+"ống đặc biệt thay vì chỉ một phần tử."
 
 msgid "description for default GStreamer sound events audiosink"
-msgstr ""
+msgstr "mô tả cho các sự kiện âm thanh GStreamer mặc định dành cho “audiosink”"
 
 msgid "Describes the selected audiosink element."
-msgstr ""
+msgstr "Mô tả về phần tử “audiosink” đã chọn."
 
 msgid "default GStreamer audiosink for Audio/Video Conferencing"
-msgstr ""
+msgstr "“GStreamer audiosink” mặc định dành cho Hội nghị Nhạc/Phim"
 
 msgid ""
 "description for default GStreamer audiosink for Audio/Video Conferencing"
-msgstr ""
+msgstr "mô tả cho GStreamer audiosink mặc định dành cho Hội nghị Nhạc/Phim"
 
 msgid "default GStreamer audiosink for Music and Movies"
-msgstr ""
+msgstr "GStreamer audiosink mặc định dành cho Âm nhạc và Phim"
 
 msgid "description for default GStreamer audiosink for Music and Movies"
-msgstr ""
+msgstr "mô tả cho GStreamer audiosink mặc định dành cho Âm nhạc và Phim"
 
 msgid "default GStreamer videosink"
-msgstr ""
+msgstr "GStreamer videosink mặc định"
 
 msgid ""
 "GStreamer can play video using any number of output elements. Some possible "
 "choices are xvimagesink, ximagesink, sdlvideosink and aasink. The videosink "
 "can be a partial pipeline instead of just one element."
 msgstr ""
+"GStreamer có thể chạy phim với bất kỳ số lượng phần tử đầu ra nào. Một số có "
+"thể chọn lựa là xvimagesink, ximagesink, sdlvideosink và aasink. “videosink” "
+"có thể là đường ống đặc biệt thay vì chỉ một phần tử."
 
 msgid "description for default GStreamer videosink"
-msgstr ""
+msgstr "mô tả phần tử nguồn hình ảnh GStreamer mặc định"
 
 msgid "Describes the selected videosink element."
-msgstr ""
+msgstr "Mô tả phần tử videosink đã chọn."
 
 msgid "default GStreamer audiosrc"
-msgstr ""
+msgstr "nguồn âm thanh GStreamer mặc định"
 
 msgid ""
 "GStreamer can record audio using any number of input elements. Some possible "
 "choices are osssrc, pulsesrc and alsasrc. The audio source can be a partial "
 "pipeline instead of just one element."
 msgstr ""
+"GStreamer có thể ghi âm thanh dùng bao nhiêu phần tử đầu vào cũng được. Một "
+"số lựa chọn là osssrc, plusesrc và alsasrc. Nguồn âm thanh có thể là các "
+"đường ống cục bộ nào đó thay vì chỉ một phần tử nguồn."
 
 msgid "description for default GStreamer audiosrc"
-msgstr ""
+msgstr "mô tả phần tử nguồn âm thanh GStreamer mặc định"
 
 msgid "Describes the selected audiosrc element."
-msgstr ""
+msgstr "Mô tả phần tử nguồn âm thanh đã chọn."
 
 msgid "default GStreamer videosrc"
-msgstr ""
+msgstr "nguồn hình ảnh GStreamer mặc định"
 
 msgid ""
 "GStreamer can record video from any number of input elements. Some possible "
 "choices are v4lsrc, v4l2src and videotestsrc. The video source can be a "
 "partial pipeline instead of just one element."
 msgstr ""
+"GStreamer có thể chạy phim với bất kỳ số lượng phần tử đầu vào nào. Một số "
+"có thể chọn lựa là v4lsrc, v4l2src và videotestsrc. Nguồn hình có thể là "
+"đường ống đặc biệt thay vì chỉ một phần tử."
 
 msgid "description for default GStreamer videosrc"
-msgstr ""
+msgstr "mô tả cho nguồn hình GStreamer mặc định"
 
 msgid "Describes the selected videosrc element."
-msgstr ""
+msgstr "Mô tả phần tử nguồn hình ảnh đã chọn."
 
 msgid "default GStreamer visualization"
-msgstr ""
+msgstr "hiện hình GStreamer mặc định"
 
 msgid ""
 "GStreamer can put visualization plugins in a pipeline to transform audio "
@@ -108,12 +121,16 @@ msgid ""
 "synaesthesia. The visualization plugin can be a partial pipeline instead of "
 "just one element."
 msgstr ""
+"GStreamer có thể đặt phần bổ xung hiện hình trong một đường ống để mà chuyển "
+"dạng luồng dữ liệu âm thanh trong khung hình phim. Một số có thể chọn lựa là "
+"goom, goom2k1 và synaesthesia. Phần bổ xung hiện hình có thể là đường ống "
+"đặc biệt thay vì chỉ một phần tử."
 
 msgid "description for default GStreamer visualization"
-msgstr ""
+msgstr "mô tả về hiện hình GStreamer mặc định"
 
 msgid "Describes the selected visualization element."
-msgstr ""
+msgstr "Mô tả về phần tử hiện hình đã chọn."
 
 msgid "OpenCV failed to load template image"
 msgstr ""
@@ -165,7 +182,7 @@ msgstr ""
 
 #, c-format
 msgid "Missing element '%s' - check your GStreamer installation."
-msgstr "Thiếu phần tử “%s” — hãy kiểm tra lại cài đặt GStreamer."
+msgstr "Thiếu phần tử “%s” — hãy kiểm tra lại phần cài đặt GStreamer."
 
 msgid "File location is set to NULL, please set it to a valid filename"
 msgstr ""

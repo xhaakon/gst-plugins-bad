@@ -31,7 +31,7 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch souphttpsrc location=http://devimages.apple.com/iphone/samples/bipbop/gear4/prog_index.m3u8 ! hlsdemux ! decodebin2 ! videoconvert ! videoscale ! autovideosink
+ * gst-launch-1.0 souphttpsrc location=http://devimages.apple.com/iphone/samples/bipbop/gear4/prog_index.m3u8 ! hlsdemux ! decodebin ! videoconvert ! videoscale ! autovideosink
  * ]|
  * </refsect2>
  */
@@ -330,7 +330,6 @@ gst_hls_demux_seek (GstAdaptiveDemux * demux, GstEvent * seek)
       return FALSE;
     }
     //hlsdemux->discont = TRUE;
-    hlsdemux->new_playlist = TRUE;
     hlsdemux->do_typefind = TRUE;
 
     gst_hls_demux_change_playlist (hlsdemux, bitrate / ABS (rate), NULL);
@@ -349,7 +348,6 @@ gst_hls_demux_seek (GstAdaptiveDemux * demux, GstEvent * seek)
       return FALSE;
     }
     //hlsdemux->discont = TRUE;
-    hlsdemux->new_playlist = TRUE;
     hlsdemux->do_typefind = TRUE;
     /* TODO why not continue using the same? that was being used up to now? */
     gst_hls_demux_change_playlist (hlsdemux, bitrate, NULL);
@@ -439,7 +437,6 @@ gst_hls_demux_process_manifest (GstAdaptiveDemux * demux, GstBuffer * buf)
     GstM3U8 *child = NULL;
     GError *err = NULL;
 
-    /* TODO seems like something that could be simplified */
     if (demux->connection_speed == 0) {
       GST_M3U8_CLIENT_LOCK (hlsdemux->client);
       child = hlsdemux->client->main->current_variant->data;
@@ -578,12 +575,6 @@ gst_hls_demux_handle_buffer (GstAdaptiveDemux * demux,
     GST_DEBUG_OBJECT (hlsdemux, "Typefind result: %" GST_PTR_FORMAT " prob:%d",
         caps, prob);
 
-    if (!hlsdemux->input_caps
-        || !gst_caps_is_equal (caps, hlsdemux->input_caps)) {
-      gst_caps_replace (&hlsdemux->input_caps, caps);
-      GST_INFO_OBJECT (demux, "Input source caps: %" GST_PTR_FORMAT,
-          hlsdemux->input_caps);
-    }
     gst_adaptive_demux_stream_set_caps (stream, caps);
     hlsdemux->do_typefind = FALSE;
   }
@@ -787,11 +778,6 @@ gst_hls_demux_reset (GstAdaptiveDemux * ademux)
   if (demux->key_fragment)
     g_object_unref (demux->key_fragment);
   demux->key_fragment = NULL;
-
-  if (demux->input_caps) {
-    gst_caps_unref (demux->input_caps);
-    demux->input_caps = NULL;
-  }
 
   if (demux->client) {
     gst_m3u8_client_free (demux->client);
@@ -1065,7 +1051,6 @@ retry_failover_protection:
   GST_INFO_OBJECT (demux, "Client was on %dbps, max allowed is %dbps, switching"
       " to bitrate %dbps", old_bandwidth, max_bitrate, new_bandwidth);
   stream->discont = TRUE;
-  demux->new_playlist = TRUE;
 
   if (gst_hls_demux_update_playlist (demux, FALSE, NULL)) {
     gchar *uri;

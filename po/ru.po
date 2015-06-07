@@ -6,10 +6,10 @@
 # Yuri Kozlov <yuray@komyakino.ru>, 2011, 2013, 2014.
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.3.2\n"
+"Project-Id-Version: gst-plugins-bad 1.4.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2015-05-13 13:05+0300\n"
-"PO-Revision-Date: 2014-05-22 19:59+0400\n"
+"POT-Creation-Date: 2015-06-07 10:59+0200\n"
+"PO-Revision-Date: 2014-09-06 10:56+0400\n"
 "Last-Translator: Yuri Kozlov <yuray@komyakino.ru>\n"
 "Language-Team: Russian <gnu@mx.ru>\n"
 "Language: ru\n"
@@ -21,83 +21,96 @@ msgstr ""
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 msgid "format wasn't negotiated before get function"
-msgstr ""
+msgstr "перед функцией получения не был согласован формат"
 
 msgid "default GStreamer sound events audiosink"
-msgstr ""
+msgstr "GStreamer audiosink по умолчанию для звуковых событий"
 
+#, fuzzy
 msgid ""
 "GStreamer can play audio using any number of output elements. Some possible "
 "choices are osssink, pulsesink and alsasink. The audiosink can be a partial "
 "pipeline instead of just one element."
 msgstr ""
+"GStreamer может воспроизводить аудио через любой выходной элемент. Некоторые "
+"варианты: osssink, pulsesink и alsasink. Аudiosink может быть конвейером, а "
+"не одиночным элементом."
 
 msgid "description for default GStreamer sound events audiosink"
-msgstr ""
+msgstr "описание GStreamer audiosink по умолчанию для звуковых событий"
 
 msgid "Describes the selected audiosink element."
-msgstr ""
+msgstr "Описывает выбранный элемент audiosink."
 
 msgid "default GStreamer audiosink for Audio/Video Conferencing"
-msgstr ""
+msgstr "GStreamer audiosink по умолчанию для аудио-видео конференций"
 
 msgid ""
 "description for default GStreamer audiosink for Audio/Video Conferencing"
-msgstr ""
+msgstr "описание GStreamer audiosink по умолчанию для аудио-видео конференций"
 
 msgid "default GStreamer audiosink for Music and Movies"
-msgstr ""
+msgstr "GStreamer audiosink по умолчанию для музыки и фильмов"
 
 msgid "description for default GStreamer audiosink for Music and Movies"
-msgstr ""
+msgstr "описание GStreamer audiosink по умолчанию для музыки и фильмов"
 
 msgid "default GStreamer videosink"
-msgstr ""
+msgstr "GStreamer videosink по умолчанию"
 
 msgid ""
 "GStreamer can play video using any number of output elements. Some possible "
 "choices are xvimagesink, ximagesink, sdlvideosink and aasink. The videosink "
 "can be a partial pipeline instead of just one element."
 msgstr ""
+"GStreamer может воспроизводить видео через любой выходной элемент. Некоторые "
+"варианты: xvimagesink, ximagesink, sdlvideosink и aasink. Videosink может "
+"быть конвейером, а не одиночным элементом."
 
 msgid "description for default GStreamer videosink"
-msgstr ""
+msgstr "описание GStreamer videosink по умолчанию"
 
 msgid "Describes the selected videosink element."
-msgstr ""
+msgstr "Описывает выбранный элемент videosink."
 
 msgid "default GStreamer audiosrc"
-msgstr ""
+msgstr "GStreamer audiosrc по умолчанию"
 
 msgid ""
 "GStreamer can record audio using any number of input elements. Some possible "
 "choices are osssrc, pulsesrc and alsasrc. The audio source can be a partial "
 "pipeline instead of just one element."
 msgstr ""
+"GStreamer может записывать аудио с любого входного элемента. Некоторые "
+"варианты: osssrc, pulsesrc и alsasrc. Источником аудио может быть конвейер, "
+"а не одиночный элемент."
 
 msgid "description for default GStreamer audiosrc"
-msgstr ""
+msgstr "описание GStreamer audiosrc по умолчанию"
 
 msgid "Describes the selected audiosrc element."
-msgstr ""
+msgstr "Описывает выбранный элемент audiosrc."
 
 msgid "default GStreamer videosrc"
-msgstr ""
+msgstr "GStreamer videosrc по умолчанию"
 
 msgid ""
 "GStreamer can record video from any number of input elements. Some possible "
 "choices are v4lsrc, v4l2src and videotestsrc. The video source can be a "
 "partial pipeline instead of just one element."
 msgstr ""
+"GStreamer может записывать видео с любого входного элемента. Некоторые "
+"варианты: v4lsrc, v4l2src и videotestsrc. Источником видео может быть "
+"конвейер, а не одиночный элемент."
 
 msgid "description for default GStreamer videosrc"
-msgstr ""
+msgstr "описание GStreamer videosrc по умолчанию"
 
 msgid "Describes the selected videosrc element."
-msgstr ""
+msgstr "Описывает выбранный элемент videosrc."
 
 msgid "default GStreamer visualization"
-msgstr ""
+msgstr "GStreamer visualization по умолчанию"
 
 msgid ""
 "GStreamer can put visualization plugins in a pipeline to transform audio "
@@ -105,12 +118,15 @@ msgid ""
 "synaesthesia. The visualization plugin can be a partial pipeline instead of "
 "just one element."
 msgstr ""
+"GStreamer может помещать модули визуализации для преобразования аудио "
+"потоков видео фрагментов. Некоторые варианты: goom, goom2k1 и synaesthesia. "
+"Модуль визуализации может быть конвейером, а не одиночным элементом."
 
 msgid "description for default GStreamer visualization"
-msgstr ""
+msgstr "описание GStreamer visualization по умолчанию"
 
 msgid "Describes the selected visualization element."
-msgstr ""
+msgstr "Описывает выбранный элемент visualization."
 
 msgid "OpenCV failed to load template image"
 msgstr ""

@@ -209,6 +209,11 @@ gst_dtls_enc_finalize (GObject * object)
     self->encoder_key = NULL;
   }
 
+  if (self->connection_id) {
+    g_free (self->connection_id);
+    self->connection_id = NULL;
+  }
+
   g_mutex_lock (&self->queue_lock);
   g_queue_foreach (&self->queue, (GFunc) gst_buffer_unref, NULL);
   g_queue_clear (&self->queue);
@@ -230,6 +235,10 @@ gst_dtls_enc_set_property (GObject * object, guint prop_id,
 
   switch (prop_id) {
     case PROP_CONNECTION_ID:
+      if (self->connection_id != NULL) {
+        g_free (self->connection_id);
+        self->connection_id = NULL;
+      }
       self->connection_id = g_value_dup_string (value);
       break;
     case PROP_IS_CLIENT:
@@ -500,6 +509,12 @@ on_key_received (GstDtlsConnection * connection, gpointer key, guint cipher,
   self->srtp_auth = auth;
 
   key_dup = g_memdup (key, GST_DTLS_SRTP_MASTER_KEY_LENGTH);
+
+  if (self->encoder_key) {
+    gst_buffer_unref (self->encoder_key);
+    self->encoder_key = NULL;
+  }
+
   self->encoder_key =
       gst_buffer_new_wrapped (key_dup, GST_DTLS_SRTP_MASTER_KEY_LENGTH);
 

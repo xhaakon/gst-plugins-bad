@@ -1894,12 +1894,13 @@ gst_adaptive_demux_stream_download_fragment (GstAdaptiveDemuxStream * stream)
     GST_DEBUG_OBJECT (stream->pad, "Fragment download result: %d %s",
         stream->last_ret, gst_flow_get_name (stream->last_ret));
     if (ret != GST_FLOW_OK) {
-      GST_INFO_OBJECT (demux, "No fragment downloaded");
       /* TODO check if we are truly stoping */
       if (ret != GST_FLOW_ERROR && gst_adaptive_demux_is_live (demux)) {
-        /* looks like there is no way of knowing when a live stream has ended
-         * Have to assume we are falling behind and cause a manifest reload */
-        return GST_FLOW_EOS;
+        if (++stream->download_error_count <= MAX_DOWNLOAD_ERROR_COUNT) {
+          /* looks like there is no way of knowing when a live stream has ended
+           * Have to assume we are falling behind and cause a manifest reload */
+          return GST_FLOW_EOS;
+        }
       }
     }
   }
@@ -1984,11 +1985,14 @@ gst_adaptive_demux_stream_download_loop (GstAdaptiveDemuxStream * stream)
       /* query other pads as some faulty element in the pad's branch might
        * reject position queries. This should be better than using the
        * demux segment position that can be much ahead */
-      for (GList * iter = demux->streams; iter != NULL;
-          iter = g_list_next (iter)) {
-        GstAdaptiveDemuxStream *cur_stream = (GstAdaptiveDemuxStream *)iter->data;
+      GList *iter;
 
-        if (gst_pad_peer_query_position (cur_stream->pad, GST_FORMAT_TIME, &pos)) {
+      for (iter = demux->streams; iter != NULL; iter = g_list_next (iter)) {
+        GstAdaptiveDemuxStream *cur_stream =
+            (GstAdaptiveDemuxStream *) iter->data;
+
+        if (gst_pad_peer_query_position (cur_stream->pad, GST_FORMAT_TIME,
+                &pos)) {
           ts = (GstClockTime) pos;
           GST_DEBUG_OBJECT (stream->pad, "Downstream position: %"
               GST_TIME_FORMAT, GST_TIME_ARGS (ts));
@@ -2038,11 +2042,12 @@ gst_adaptive_demux_stream_download_loop (GstAdaptiveDemuxStream * stream)
     if (live) {
       gint64 wait_time =
           gst_adaptive_demux_stream_get_fragment_waiting_time (demux, stream);
+      GST_MANIFEST_UNLOCK (demux);
       if (wait_time > 0)
         gst_adaptive_demux_stream_download_wait (stream, wait_time);
+    } else {
+      GST_MANIFEST_UNLOCK (demux);
     }
-
-    GST_MANIFEST_UNLOCK (demux);
 
     GST_OBJECT_LOCK (demux);
     if (demux->cancelled) {

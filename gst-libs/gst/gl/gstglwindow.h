@@ -32,7 +32,7 @@ G_BEGIN_DECLS
 
 #define GST_GL_TYPE_WINDOW         (gst_gl_window_get_type())
 #define GST_GL_WINDOW(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), GST_GL_TYPE_WINDOW, GstGLWindow))
-#define GST_GL_WINDOW_CLASS(k)     (G_TYPE_CHECK_CLASS((k), GST_GL_TYPE_WINDOW, GstGLWindowClass))
+#define GST_GL_WINDOW_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), GST_GL_TYPE_WINDOW, GstGLWindowClass))
 #define GST_GL_IS_WINDOW(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), GST_GL_TYPE_WINDOW))
 #define GST_GL_IS_WINDOW_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_GL_TYPE_WINDOW))
 #define GST_GL_WINDOW_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), GST_GL_TYPE_WINDOW, GstGLWindowClass))
@@ -142,6 +142,7 @@ struct _GstGLWindowClass {
   void     (*handle_events)      (GstGLWindow *window, gboolean handle_events);
   void     (*set_preferred_size) (GstGLWindow *window, gint width, gint height);
   void     (*show)               (GstGLWindow *window);
+  gboolean (*set_render_rectangle)(GstGLWindow *window, gint x, gint y, gint width, gint height);
 
   /*< private >*/
   gpointer _reserved[GST_PADDING];
@@ -221,6 +222,11 @@ void     gst_gl_window_set_preferred_size   (GstGLWindow * window,
 void     gst_gl_window_get_surface_dimensions (GstGLWindow * window,
                                                guint * width,
                                                guint * height);
+gboolean gst_gl_window_set_render_rectangle   (GstGLWindow * window,
+                                               gint x,
+                                               gint y,
+                                               gint width,
+                                               gint height);
 
 GstGLContext * gst_gl_window_get_context    (GstGLWindow *window);
 guintptr       gst_gl_window_get_display    (GstGLWindow *window);

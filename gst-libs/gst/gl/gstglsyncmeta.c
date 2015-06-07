@@ -64,13 +64,14 @@ _set_sync_point (GstGLContext * context, GstGLSyncMeta * sync_meta)
   const GstGLFuncs *gl = context->gl_vtable;
 
   if (gl->FenceSync) {
-    if (sync_meta->glsync)
+    if (sync_meta->glsync) {
+      GST_LOG ("deleting sync object %p", sync_meta->glsync);
       gl->DeleteSync (sync_meta->glsync);
+    }
     sync_meta->glsync = gl->FenceSync (GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
     GST_LOG ("setting sync object %p", sync_meta->glsync);
-  } else {
-    gl->Flush ();
   }
+  gl->Flush ();
 }
 
 void
@@ -100,9 +101,6 @@ _wait (GstGLContext * context, GstGLSyncMeta * sync_meta)
 void
 gst_gl_sync_meta_wait (GstGLSyncMeta * sync_meta, GstGLContext * context)
 {
-  if (sync_meta->context == context)
-    return;
-
   if (sync_meta->glsync) {
     gst_gl_context_thread_add (context,
         (GstGLContextThreadFunc) _wait, sync_meta);
@@ -127,9 +125,12 @@ _gst_gl_sync_meta_transform (GstBuffer * dest, GstMeta * meta,
       if (!dmeta)
         return FALSE;
 
-      GST_DEBUG ("copy gl sync metadata");
+      GST_LOG ("copy sync object %p from meta %p to %p", smeta->glsync,
+          smeta, dmeta);
 
-      dmeta->glsync = smeta->glsync;
+      /* Setting a sync point here relies on GstBuffer copying
+       * metas after data */
+      gst_gl_sync_meta_set_sync_point (dmeta, smeta->context);
     }
   }
   return TRUE;
@@ -140,9 +141,11 @@ _free_gl_sync_meta (GstGLContext * context, GstGLSyncMeta * sync_meta)
 {
   const GstGLFuncs *gl = context->gl_vtable;
 
-  if (sync_meta->glsync)
+  if (sync_meta->glsync) {
+    GST_LOG ("deleting sync object %p", sync_meta->glsync);
     gl->DeleteSync (sync_meta->glsync);
-  sync_meta->glsync = NULL;
+    sync_meta->glsync = NULL;
+  }
 }
 
 static void
