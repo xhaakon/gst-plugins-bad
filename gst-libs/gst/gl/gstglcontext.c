@@ -142,6 +142,8 @@ G_DEFINE_ABSTRACT_TYPE (GstGLContext, gst_gl_context, GST_TYPE_OBJECT);
 #define GST_GL_CONTEXT_GET_PRIVATE(o) \
   (G_TYPE_INSTANCE_GET_PRIVATE((o), GST_GL_TYPE_CONTEXT, GstGLContextPrivate))
 
+static void _init_debug (void);
+
 static gpointer gst_gl_context_create_thread (GstGLContext * context);
 static gpointer _default_get_proc_address (GstGLContext * context,
     const gchar * name);
@@ -242,6 +244,8 @@ gst_gl_context_class_init (GstGLContextClass * klass)
   klass->get_proc_address = GST_DEBUG_FUNCPTR (_default_get_proc_address);
 
   G_OBJECT_CLASS (klass)->finalize = gst_gl_context_finalize;
+
+  _init_debug ();
 }
 
 static void
@@ -407,7 +411,7 @@ gst_gl_context_new_wrapped (GstGLDisplay * display, guintptr handle,
 
 /**
  * gst_gl_context_get_current_gl_context:
- * @context_type: a #GstGLPlatform specifying the type of context to retreive
+ * @context_type: a #GstGLPlatform specifying the type of context to retrieve
  *
  * Returns: The OpenGL context handle current in the calling thread or %NULL
  *
@@ -442,7 +446,7 @@ gst_gl_context_get_current_gl_context (GstGLPlatform context_type)
 #endif
 
   if (!handle)
-    GST_WARNING ("Could not retreive current context");
+    GST_WARNING ("Could not retrieve current context");
 
   return handle;
 }
@@ -707,7 +711,7 @@ _default_get_proc_address (GstGLContext * context, const gchar * name)
  * specific function does not exist, NULL is returned instead.
  *
  * Platform specfic functions (names starting 'egl', 'glX', 'wgl', etc) can also
- * be retreived using this method.
+ * be retrieved using this method.
  *
  * Returns: a function pointer or NULL
  *
@@ -1101,7 +1105,8 @@ _create_context_info (GstGLContext * context, GstGLAPI gl_api, gint * gl_major,
 
   gl = context->gl_vtable;
 
-  if (!gl->GetString || !gl->GetString (GL_VERSION)) {
+  if (!gl->GetString || !gl->GetString (GL_VERSION)
+      || !gl->GetString (GL_SHADING_LANGUAGE_VERSION)) {
     g_set_error (error, GST_GL_CONTEXT_ERROR, GST_GL_CONTEXT_ERROR_FAILED,
         "glGetString not defined or returned invalid value");
     return FALSE;
@@ -1313,7 +1318,10 @@ gst_gl_context_create_thread (GstGLContext * context)
   g_free (display_api_s);
 
   GST_DEBUG_OBJECT (context, "Filling info");
-  gst_gl_context_fill_info (context, error);
+  if (!gst_gl_context_fill_info (context, error)) {
+    g_assert (error == NULL || *error != NULL);
+    goto failure;
+  }
 
   context->priv->alive = TRUE;
 
@@ -1544,6 +1552,25 @@ gst_gl_context_get_display (GstGLContext * context)
   g_return_val_if_fail (GST_GL_IS_CONTEXT (context), NULL);
 
   return gst_object_ref (context->priv->display);
+}
+
+/**
+ * gst_gl_context_set_display:
+ * @context: a #GstGLContext:
+ * @display: a #GstGLDisplay:
+ *
+ * Ref @display and unref previous display if exists.
+ *
+ * Since: 1.6
+ */
+void
+gst_gl_context_set_display (GstGLContext * context, GstGLDisplay * display)
+{
+  g_return_if_fail (GST_GL_IS_CONTEXT (context));
+  g_return_if_fail (GST_IS_GL_DISPLAY (display));
+
+  gst_object_replace ((GstObject **) & context->priv->display,
+      (GstObject *) display);
 }
 
 typedef struct

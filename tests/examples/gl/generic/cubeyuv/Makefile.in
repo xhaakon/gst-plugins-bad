@@ -128,7 +128,8 @@ PROGRAMS = $(noinst_PROGRAMS)
 am_cubeyuv_OBJECTS = cubeyuv-main.$(OBJEXT)
 cubeyuv_OBJECTS = $(am_cubeyuv_OBJECTS)
 am__DEPENDENCIES_1 =
-cubeyuv_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+cubeyuv_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -705,9 +706,9 @@ top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 cubeyuv_SOURCES = main.cpp
 cubeyuv_CXXFLAGS = -I$(top_srcdir)/gst-libs -I$(top_builddir)/gst-libs \
-	$(GST_CXXFLAGS) $(GL_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS)
+	$(GST_PLUGINS_BASE_CFLAGS) $(GST_CXXFLAGS) $(GL_CFLAGS)
 
-cubeyuv_LDADD = $(GST_LIBS) $(GL_LIBS) -lgstvideo-$(GST_API_VERSION)
+cubeyuv_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) $(GST_LIBS) $(GL_LIBS)
 all: all-am
 
 .SUFFIXES:

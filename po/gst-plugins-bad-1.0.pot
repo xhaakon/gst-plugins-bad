@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.5.0.1\n"
+"Project-Id-Version: gst-plugins-bad 1.5.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2015-05-13 13:05+0300\n"
+"POT-Creation-Date: 2015-06-07 10:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -215,18 +215,18 @@ msgstr ""
 msgid "Subpicture format was not configured before data flow"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:1912
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:1913
 msgid "Failed to get fragment URL."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2096
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2260
-#: gst/mpegtsdemux/mpegtsbase.c:1335 gst/mpegtsdemux/mpegtsbase.c:1339
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2101
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2265
+#: gst/mpegtsdemux/mpegtsbase.c:1337 gst/mpegtsdemux/mpegtsbase.c:1341
 #: gst/nuvdemux/gstnuvdemux.c:736
 msgid "Internal data stream error."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2197
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2202
 msgid "Couldn't download fragments"
 msgstr ""
 

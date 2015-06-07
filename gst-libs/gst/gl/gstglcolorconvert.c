@@ -829,7 +829,9 @@ _RGB_pixel_order (const gchar * expected, const gchar * wanted)
 {
   GString *ret = g_string_sized_new (4);
   gchar *expect, *want;
+  gchar *orig_want;
   int len;
+  gboolean discard_output = TRUE;
 
   if (g_ascii_strcasecmp (expected, wanted) == 0) {
     g_string_free (ret, TRUE);
@@ -837,7 +839,7 @@ _RGB_pixel_order (const gchar * expected, const gchar * wanted)
   }
 
   expect = g_ascii_strdown (expected, -1);
-  want = g_ascii_strdown (wanted, -1);
+  orig_want = want = g_ascii_strdown (wanted, -1);
 
   if (strcmp (expect, "rgb16") == 0 || strcmp (expect, "bgr16") == 0) {
     gchar *temp = expect;
@@ -847,7 +849,7 @@ _RGB_pixel_order (const gchar * expected, const gchar * wanted)
 
   if (strcmp (want, "rgb16") == 0 || strcmp (want, "bgr16") == 0) {
     gchar *temp = want;
-    want = g_strndup (temp, 3);
+    orig_want = want = g_strndup (temp, 3);
     g_free (temp);
   }
 
@@ -859,7 +861,7 @@ _RGB_pixel_order (const gchar * expected, const gchar * wanted)
       len++;
     }
     g_free (want);
-    want = new_want;
+    orig_want = want = new_want;
   }
 
   /* pad expect with 'a's */
@@ -884,7 +886,7 @@ _RGB_pixel_order (const gchar * expected, const gchar * wanted)
 
     if (!(val = strchr (expect, needle))
         && needle == 'a' && !(val = strchr (expect, 'x')))
-      goto fail;
+      goto out;
 
     idx = (gint) (val - expect);
 
@@ -892,11 +894,12 @@ _RGB_pixel_order (const gchar * expected, const gchar * wanted)
     want = &want[1];
   }
 
-  return g_string_free (ret, FALSE);
+  discard_output = FALSE;
+out:
+  g_free (orig_want);
+  g_free (expect);
 
-fail:
-  g_string_free (ret, TRUE);
-  return NULL;
+  return g_string_free (ret, discard_output);
 }
 
 static void
@@ -1219,6 +1222,7 @@ _bind_buffer (GstGLColorConvert * convert)
 {
   const GstGLFuncs *gl = convert->context->gl_vtable;
 
+  gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, convert->priv->vbo_indices);
   gl->BindBuffer (GL_ARRAY_BUFFER, convert->priv->vertex_buffer);
 
   /* Load the vertex position */
@@ -1238,6 +1242,7 @@ _unbind_buffer (GstGLColorConvert * convert)
 {
   const GstGLFuncs *gl = convert->context->gl_vtable;
 
+  gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
   gl->BindBuffer (GL_ARRAY_BUFFER, 0);
 
   gl->DisableVertexAttribArray (convert->priv->attr_position);
@@ -1378,22 +1383,19 @@ _init_convert (GstGLColorConvert * convert)
     gl->BufferData (GL_ARRAY_BUFFER, 4 * 5 * sizeof (GLfloat), vertices,
         GL_STATIC_DRAW);
 
+    gl->GenBuffers (1, &convert->priv->vbo_indices);
+    gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, convert->priv->vbo_indices);
+    gl->BufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof (indices), indices,
+        GL_STATIC_DRAW);
+
     if (gl->GenVertexArrays) {
       _bind_buffer (convert);
       gl->BindVertexArray (0);
     }
 
     gl->BindBuffer (GL_ARRAY_BUFFER, 0);
+    gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
   }
-
-  if (!convert->priv->vbo_indices) {
-    gl->GenBuffers (1, &convert->priv->vbo_indices);
-    gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, convert->priv->vbo_indices);
-    gl->BufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof (indices), indices,
-        GL_STATIC_DRAW);
-    gl->BindBuffer (GL_ARRAY_BUFFER, 0);
-  }
-
 
   gl->BindTexture (GL_TEXTURE_2D, 0);
 
@@ -1430,6 +1432,7 @@ _init_convert_fbo (GstGLColorConvert * convert)
   GstGLFuncs *gl;
   guint out_width, out_height;
   GLuint fake_texture = 0;      /* a FBO must hava texture to init */
+  GLenum internal_format;
 
   gl = convert->context->gl_vtable;
 
@@ -1453,8 +1456,6 @@ _init_convert_fbo (GstGLColorConvert * convert)
   gl->GenRenderbuffers (1, &convert->depth_buffer);
   gl->BindRenderbuffer (GL_RENDERBUFFER, convert->depth_buffer);
   if (USING_OPENGL (convert->context) || USING_OPENGL3 (convert->context)) {
-    gl->RenderbufferStorage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT,
-        out_width, out_height);
     gl->RenderbufferStorage (GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
         out_width, out_height);
   }
@@ -1466,8 +1467,11 @@ _init_convert_fbo (GstGLColorConvert * convert)
   /* a fake texture is attached to the convert FBO (cannot init without it) */
   gl->GenTextures (1, &fake_texture);
   gl->BindTexture (GL_TEXTURE_2D, fake_texture);
-  gl->TexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, out_width, out_height,
-      0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  internal_format =
+      gst_gl_sized_gl_format_from_gl_format_type (convert->context, GL_RGBA,
+      GL_UNSIGNED_BYTE);
+  gl->TexImage2D (GL_TEXTURE_2D, 0, internal_format, out_width, out_height, 0,
+      GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -1737,7 +1741,6 @@ _do_convert_draw (GstGLContext * context, GstGLColorConvert * convert)
     g_free (scale_name);
   }
 
-  gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, convert->priv->vbo_indices);
   gl->DrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
   if (gl->BindVertexArray)
@@ -1747,8 +1750,6 @@ _do_convert_draw (GstGLContext * context, GstGLColorConvert * convert)
 
   if (gl->DrawBuffer)
     gl->DrawBuffer (GL_NONE);
-
-  gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
 
   /* we are done with the shader */
   gst_gl_context_clear_shader (context);

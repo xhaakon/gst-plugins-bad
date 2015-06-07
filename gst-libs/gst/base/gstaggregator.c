@@ -681,7 +681,7 @@ gst_aggregator_aggregate_func (GstAggregator * self)
     }
     GST_OBJECT_UNLOCK (self);
 
-    if (flow_return == GST_FLOW_EOS) {
+    if (flow_return == GST_FLOW_EOS || flow_return == GST_FLOW_ERROR) {
       gst_aggregator_push_eos (self);
     }
 
@@ -1591,7 +1591,7 @@ gst_aggregator_finalize (GObject * object)
 /*
  * gst_aggregator_set_latency_property:
  * @agg: a #GstAggregator
- * @latency: the new latency value.
+ * @latency: the new latency value (in nanoseconds).
  *
  * Sets the new latency value to @latency. This value is used to limit the
  * amount of time a pad waits for data to appear before considering the pad
@@ -1737,7 +1737,7 @@ gst_aggregator_class_init (GstAggregatorClass * klass)
       g_param_spec_int64 ("latency", "Buffer latency",
           "Additional latency in live mode to allow upstream "
           "to take longer to produce buffers for the current "
-          "position", 0,
+          "position (in nanoseconds)", 0,
           (G_MAXLONG == G_MAXINT64) ? G_MAXINT64 : (G_MAXLONG * GST_SECOND - 1),
           DEFAULT_LATENCY, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 

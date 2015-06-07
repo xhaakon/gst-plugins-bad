@@ -129,10 +129,10 @@ CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libgstgl_win32_la_LIBADD =
 am__libgstgl_win32_la_SOURCES_DIST = gstglwindow_win32.c \
-	gstglcontext_wgl.c
+	win32_message_source.c gstglcontext_wgl.c
 @USE_WGL_TRUE@am__objects_1 = libgstgl_win32_la-gstglcontext_wgl.lo
 am_libgstgl_win32_la_OBJECTS = libgstgl_win32_la-gstglwindow_win32.lo \
-	$(am__objects_1)
+	libgstgl_win32_la-win32_message_source.lo $(am__objects_1)
 libgstgl_win32_la_OBJECTS = $(am_libgstgl_win32_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -183,7 +183,8 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__noinst_HEADERS_DIST = gstglwindow_win32.h gstglcontext_wgl.h
+am__noinst_HEADERS_DIST = gstglwindow_win32.h win32_message_source.h \
+	gstglcontext_wgl.h
 HEADERS = $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -712,8 +713,10 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 noinst_LTLIBRARIES = libgstgl-win32.la
-libgstgl_win32_la_SOURCES = gstglwindow_win32.c $(am__append_1)
-noinst_HEADERS = gstglwindow_win32.h $(am__append_2)
+libgstgl_win32_la_SOURCES = gstglwindow_win32.c win32_message_source.c \
+	$(am__append_1)
+noinst_HEADERS = gstglwindow_win32.h win32_message_source.h \
+	$(am__append_2)
 #if USE_EGL
 #libgstgl_win32_la_SOURCES += gstglwindow_win32_egl.c
 #noinst_HEADERS += gstglwindow_win32_egl.h
@@ -787,6 +790,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_win32_la-gstglcontext_wgl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_win32_la-gstglwindow_win32.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_win32_la-win32_message_source.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -818,6 +822,13 @@ libgstgl_win32_la-gstglwindow_win32.lo: gstglwindow_win32.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglwindow_win32.c' object='libgstgl_win32_la-gstglwindow_win32.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_win32_la_CFLAGS) $(CFLAGS) -c -o libgstgl_win32_la-gstglwindow_win32.lo `test -f 'gstglwindow_win32.c' || echo '$(srcdir)/'`gstglwindow_win32.c
+
+libgstgl_win32_la-win32_message_source.lo: win32_message_source.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_win32_la_CFLAGS) $(CFLAGS) -MT libgstgl_win32_la-win32_message_source.lo -MD -MP -MF $(DEPDIR)/libgstgl_win32_la-win32_message_source.Tpo -c -o libgstgl_win32_la-win32_message_source.lo `test -f 'win32_message_source.c' || echo '$(srcdir)/'`win32_message_source.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgl_win32_la-win32_message_source.Tpo $(DEPDIR)/libgstgl_win32_la-win32_message_source.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='win32_message_source.c' object='libgstgl_win32_la-win32_message_source.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_win32_la_CFLAGS) $(CFLAGS) -c -o libgstgl_win32_la-win32_message_source.lo `test -f 'win32_message_source.c' || echo '$(srcdir)/'`win32_message_source.c
 
 libgstgl_win32_la-gstglcontext_wgl.lo: gstglcontext_wgl.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_win32_la_CFLAGS) $(CFLAGS) -MT libgstgl_win32_la-gstglcontext_wgl.lo -MD -MP -MF $(DEPDIR)/libgstgl_win32_la-gstglcontext_wgl.Tpo -c -o libgstgl_win32_la-gstglcontext_wgl.lo `test -f 'gstglcontext_wgl.c' || echo '$(srcdir)/'`gstglcontext_wgl.c

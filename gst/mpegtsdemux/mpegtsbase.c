@@ -856,6 +856,7 @@ mpegts_base_apply_pmt (MpegTSBase * base, GstMpegtsSection * section)
   if (old_program->active) {
     old_program = mpegts_base_steal_program (base, program_number);
     program = mpegts_base_new_program (base, program_number, section->pid);
+    program->patcount = old_program->patcount;
     g_hash_table_insert (base->programs,
         GINT_TO_POINTER (program_number), program);
 
@@ -1038,6 +1039,7 @@ mpegts_base_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
   gboolean res = TRUE;
   gboolean hard;
   MpegTSBase *base = GST_MPEGTS_BASE (parent);
+  gboolean is_sticky = GST_EVENT_IS_STICKY (event);
 
   GST_DEBUG_OBJECT (base, "Got event %s",
       gst_event_type_get_name (GST_EVENT_TYPE (event)));
@@ -1077,7 +1079,7 @@ mpegts_base_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
   }
 
   /* Always return TRUE for sticky events */
-  if (GST_EVENT_IS_STICKY (event))
+  if (is_sticky)
     res = TRUE;
 
   return res;

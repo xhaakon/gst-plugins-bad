@@ -2,21 +2,20 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>GStreamer Bad Plugins 1.0 Plugins Reference Manual: faac</title>
+<title>faac: GStreamer Bad Plugins 1.0 Plugins Reference Manual</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-edgedetect.html" title="edgedetect">
 <link rel="next" href="gst-plugins-bad-plugins-faad.html" title="faad">
-<meta name="generator" content="GTK-Doc V1.21 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-faac.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-faac.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_interfaces">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-faac.description" class="shortcut">Description</a></span><span id="nav_interfaces">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-faac.implemented-interfaces" class="shortcut">Implemented Interfaces</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-faac.properties" class="shortcut">Properties</a></span>
 </td>
@@ -86,7 +85,7 @@
 </tbody>
 </table></div>
 </div>
-<a name="GstFaac"></a><div class="refsect1">
+<div class="refsect1">
 <a name="gst-plugins-bad-plugins-faac.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
@@ -95,19 +94,9 @@
 </colgroup>
 <tbody><tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-faac.html#GstFaac-struct" title="struct GstFaac">GstFaac</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-faac.html#GstFaac" title="struct GstFaac">GstFaac</a></td>
 </tr></tbody>
 </table></div>
-</div>
-<div class="refsect1">
-<a name="gst-plugins-bad-plugins-faac.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
-    <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-        <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
-            <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
-                <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstaudioencoder.html#GstAudioEncoder">GstAudioEncoder</a>
-                    <span class="lineart">╰──</span> GstFaac
-</pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-faac.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
@@ -120,7 +109,7 @@ GstFaac implements
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.32.8.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.32.6.2.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -146,7 +135,7 @@ GstFaac implements
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.32.8.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.32.6.2.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -206,12 +195,38 @@ GstFaac implements
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-faac.functions_details"></a><h2>Functions</h2>
+<p></p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-faac.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstFaac-struct"></a><h3>struct GstFaac</h3>
-<pre class="programlisting">struct GstFaac;</pre>
+<a name="GstFaac"></a><h3>struct GstFaac</h3>
+<pre class="programlisting">struct GstFaac {
+  GstAudioEncoder element;
+
+  /* input format */
+  gint format;
+  /* input frame size */
+  gint samples;
+  /* required output buffer size */
+  gint bytes;
+
+  /* negotiated */
+  gint mpegversion, outputformat;
+
+  /* properties */
+  gint bitrate,
+       profile,
+       quality,
+       brtype,
+       shortctl;
+  gboolean tns,
+           midside;
+
+  /* FAAC object */
+  faacEncHandle handle;
+};
+</pre>
 <p>
 </p>
 </div>
@@ -286,7 +301,6 @@ GstFaac implements
 </div>
 </div>
 <div class="footer">
-<hr>
-          Generated by GTK-Doc V1.21</div>
+<hr>Generated by GTK-Doc V1.24</div>
 </body>
 </html>

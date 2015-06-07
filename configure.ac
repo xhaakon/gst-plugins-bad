@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, cvs and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.5.0.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.5.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,8 +51,8 @@ dnl sets GST_LT_LDFLAGS
 AS_LIBTOOL(GST, 501, 0, 501)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.5.0.1
-GSTPB_REQ=1.5.0.1
+GST_REQ=1.5.1
+GSTPB_REQ=1.5.1
 
 dnl *** autotools stuff ****
 
@@ -1812,7 +1812,7 @@ AG_GST_CHECK_FEATURE(CHROMAPRINT, [chromaprint], chromaprint, [
 dnl *** Curl ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_CURL, true)
 AG_GST_CHECK_FEATURE(CURL, [Curl plugin], curl, [
-  PKG_CHECK_MODULES(CURL, libcurl >= 7.21.0, [
+  PKG_CHECK_MODULES(CURL, libcurl >= 7.35.0, [
     HAVE_CURL="yes"
     AC_CHECK_HEADERS([unistd.h sys/socket.h sys/types.h netinet/in.h netinet/ip.h netinet/tcp.h fcntl.h], [ ], [
       AC_CHECK_HEADERS([unistd.h sys/types.h winsock2.h ws2tcpip.h fcntl.h], [ ], [HAVE_CURL="no"])
@@ -2008,9 +2008,9 @@ AG_GST_CHECK_FEATURE(FAAD, [AAC decoder plug-in], faad, [
       AC_MSG_CHECKING([Checking FAAD2 version in $faad_hdr])
       for minor in 10 9 8 7 6 5 0; do
         if test x$faad2_minor_version = "x"; then
-          AC_EGREP_CPP([GST_CHECK_FAAD_VERSION \"2\.$minor\"], [
+          AC_EGREP_CPP([\"2\.$minor\"$], [
               #include <$faad_hdr>
-              GST_CHECK_FAAD_VERSION FAAD2_VERSION
+              FAAD2_VERSION
             ], [
               faad2_minor_version=$minor
             ])
@@ -3206,6 +3206,7 @@ gst-libs/gst/gl/dispmanx/Makefile
 gst-libs/gst/gl/glprototypes/Makefile
 gst-libs/gst/gl/eagl/Makefile
 gst-libs/gst/gl/egl/Makefile
+gst-libs/gst/gl/gpuprocess/Makefile
 gst-libs/gst/gl/wayland/Makefile
 gst-libs/gst/gl/win32/Makefile
 gst-libs/gst/gl/x11/Makefile

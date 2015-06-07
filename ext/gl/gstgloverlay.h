@@ -57,7 +57,6 @@ struct _GstGLOverlay
   GstGLMemory  *image_memory;
 
   gboolean      location_has_changed;
-  gint          type_file;               // 0 = No; 1 = PNG and 2 = JPEG
   gint          window_width, window_height;
   gint          image_width, image_height;
 
@@ -67,6 +66,7 @@ struct _GstGLOverlay
   GLuint        overlay_vao;
   GLuint        vbo;
   GLuint        overlay_vbo;
+  GLuint        vbo_indices;
   GLuint        attr_position;
   GLuint        attr_texture;
 };
