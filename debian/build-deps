@@ -27,18 +27,20 @@ libexempi-dev
 libexif-dev (>= 0.6.16)
 libfaad-dev
 libfluidsynth-dev (>= 1.0)
-libgl1-mesa-dev
+libgl1-mesa-dev [!armhf]
 libgles2-mesa-dev
 libglib2.0-dev (>= 2.32)
-libglu1-mesa-dev
+libglu1-mesa-dev [!armhf]
 libgme-dev
 libgnutls28-dev (>= 2.11.3)
 libgsm1-dev
 libgstreamer-plugins-base@GST_ABI@-dev (>= 1.4.0)
+libgstreamer-plugins-good@GST_ABI@-dev (>= 1.4.0)
 libgtk2.0-dev (>= 2.14.0)
 libiptcdata0-dev (>= 1.0.2)
 libjasper-dev
 libkate-dev (>= 0.1.7)
+libmedia-dev (>= 0.1.0+git20131207+e452e83-0ubuntu3) [i386 armhf]
 libmimic-dev (>= 1.0)
 libmjpegtools-dev
 libmms-dev (>= 0.4)
@@ -52,6 +54,7 @@ libopenexr-dev
 libopenjpeg-dev
 libopus-dev (>= 0.9.4)
 liborc-0.4-dev (>= 1:0.4.17)
+libplatform-api1-dev [i386 armhf]
 libpng-dev
 librsvg2-dev (>= 2.36)
 librtmp-dev

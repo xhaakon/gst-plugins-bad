@@ -69,10 +69,12 @@ EXTRA_PLUGINS +=
 
 PLUGINS += plugins-bad $(EXTRA_PLUGINS)
 ifeq ($(DEB_HOST_ARCH_OS),linux)
-PLUGINS +=
+PLUGINS += hybris
 endif
 VERSIONIZE= \
 	plugins-bad-doc.install \
+	plugins-bad-videoparsers.install \
+	plugins-bad-faad.install
 
 #debug package
 DEB_DH_STRIP_ARGS := --dbg-package=$(gst_pkgname)-plugins-bad-dbg
@@ -80,6 +82,13 @@ DEB_DH_STRIP_ARGS := --dbg-package=$(gst_pkgname)-plugins-bad-dbg
 # enable the real plugin on x86
 ifeq ($(DEB_HOST_ARCH_CPU), i386)
 real = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstreal.so
+endif
+
+# miralloc is just enabled for i386 and armhf (need android for the other archs)
+android_hybris_archs := i386 armhf
+ifeq ($(DEB_HOST_ARCH_CPU), $(findstring $(DEB_HOST_ARCH_CPU), $(android_hybris_archs)))
+miralloc = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libgstmiralloc-$(gst_abi).so.*
+mirallocdev = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libgstmiralloc-$(gst_abi).so
 endif
 
 ifeq ($(DEB_HOST_ARCH_OS),linux)
@@ -151,9 +160,12 @@ pre-build::
 	done
 
 	sed -e 's/@GST_ABI@/$(gst_abi)/g' -e 's,@wayland@,$(wayland),g' \
+			-e 's,@miralloc@,$(miralloc),g' \
 			debian/libgstreamer-plugins-bad.install \
 			> debian/libgstreamer-plugins-bad$(gst_deb_abi).install
-	sed 's/@GST_ABI@/$(gst_abi)/g' debian/libgstreamer-plugins-bad-dev.install \
+	sed -e 's/@GST_ABI@/$(gst_abi)/g' \
+			-e 's,@mirallocdev@,$(mirallocdev),g' \
+			debian/libgstreamer-plugins-bad-dev.install \
 			> debian/libgstreamer-plugins-bad$(gst_abi)-dev.install
 
 maint: debian/control

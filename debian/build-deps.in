@@ -1,6 +1,7 @@
 @GST_LIB_DEV_DEP@
 @GST_EXTRA_BUILD_DEPENDS@
 libgstreamer-plugins-base@GST_ABI@-dev (>= 1.4.0)
+libgstreamer-plugins-good@GST_ABI@-dev (>= 1.4.0)
 autotools-dev
 dh-autoreconf
 automake (>= 1.11)
@@ -39,6 +40,8 @@ libass-dev (>= 0.9.4)
 libmodplug-dev
 libkate-dev (>= 0.1.7)
 libschroedinger-dev (>= 1.0.7)
+libmedia-dev (>= 0.1.0+git20131207+e452e83-0ubuntu3) [i386 armhf]
+libplatform-api1-dev [i386 armhf]
 libmimic-dev (>= 1.0)
 libgme-dev
 librsvg2-dev (>= 2.36)
@@ -59,10 +62,10 @@ libzvbi-dev
 libspandsp-dev
 libopus-dev (>= 0.9.4)
 libmpg123-dev (>= 1.13)
-libgl1-mesa-dev
+libgl1-mesa-dev [!armhf]
 libegl1-mesa-dev
 libgles2-mesa-dev
-libglu1-mesa-dev
+libglu1-mesa-dev [!armhf]
 libxml2-dev (>= 2.4)
 libfluidsynth-dev (>= 1.0)
 libsrtp0-dev

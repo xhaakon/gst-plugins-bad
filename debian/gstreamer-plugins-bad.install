@@ -11,7 +11,6 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstautoconvert.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstbayer.so
 @bluez@
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstbz2.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcamerabin2.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstchromaprint.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcoloreffects.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcompositor.so
@@ -19,10 +18,10 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcurl.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdashdemux.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdataurisrc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdebugutilsbad.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdfbvideosink.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdtsdec.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdvbsuboverlay.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdvdspu.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfaad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfestival.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfieldanalysis.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfragmented.so
@@ -41,7 +40,6 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstinterlace.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstivfparse.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstivtc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstkate.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstjpegformat.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstjp2kdecimator.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstladspa.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstliveadder.so
@@ -87,7 +85,6 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsrtp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgststereo.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsubenc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideofiltersbad.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideoparsersbad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideosignal.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvmnc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvoaacenc.so
