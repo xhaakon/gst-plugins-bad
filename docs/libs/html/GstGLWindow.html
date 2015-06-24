@@ -248,22 +248,12 @@
 <tr>
 <td class="signal_type"><span class="returnvalue">void</span></td>
 <td class="signal_name"><a class="link" href="GstGLWindow.html#GstGLWindow-key-event" title="The “key-event” signal">key-event</a></td>
-<td class="signal_flags">Run Last</td>
+<td class="signal_flags"><a href="https://developer.gnome.org/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></td>
 </tr>
 <tr>
 <td class="signal_type"><span class="returnvalue">void</span></td>
 <td class="signal_name"><a class="link" href="GstGLWindow.html#GstGLWindow-mouse-event" title="The “mouse-event” signal">mouse-event</a></td>
-<td class="signal_flags">Run Last</td>
-</tr>
-<tr>
-<td class="signal_type"><span class="returnvalue">void</span></td>
-<td class="signal_name"><a class="link" href="GstGLWindow.html#GstGLWindow-key-event" title="The “key-event” signal">key-event</a></td>
-<td class="signal_flags">Run Last</td>
-</tr>
-<tr>
-<td class="signal_type"><span class="returnvalue">void</span></td>
-<td class="signal_name"><a class="link" href="GstGLWindow.html#GstGLWindow-mouse-event" title="The “mouse-event” signal">mouse-event</a></td>
-<td class="signal_flags">Run Last</td>
+<td class="signal_flags"><a href="https://developer.gnome.org/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></td>
 </tr>
 </tbody>
 </table></div>
@@ -1170,7 +1160,7 @@ user_function (<a class="link" href="GstGLWindow.html" title="GstGLWindow"><span
 </tbody>
 </table></div>
 </div>
-<p>Flags: Run Last</p>
+<p>Flags: <a href="https://developer.gnome.org/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></p>
 <p class="since">Since: 1.6</p>
 </div>
 <hr>
@@ -1226,107 +1216,7 @@ user_function (<a class="link" href="GstGLWindow.html" title="GstGLWindow"><span
 </tbody>
 </table></div>
 </div>
-<p>Flags: Run Last</p>
-<p class="since">Since: 1.6</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GstGLWindow-key-event"></a><h3>The <code class="literal">“key-event”</code> signal</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>
-user_function (<a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> *object,
-               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>       *id,
-               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>       *key,
-               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>     user_data)</pre>
-<p>Will be emitted when a key event is received by the GstGLwindow.</p>
-<div class="refsect3">
-<a name="id-1.2.9.23.10.4.5"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>object</p></td>
-<td class="parameter_description"><p>the <a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>id</p></td>
-<td class="parameter_description"><p>the name of the event</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>key</p></td>
-<td class="parameter_description"><p>the id of the key pressed</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>user_data</p></td>
-<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<p>Flags: Run Last</p>
-<p class="since">Since: 1.6</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GstGLWindow-mouse-event"></a><h3>The <code class="literal">“mouse-event”</code> signal</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>
-user_function (<a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> *object,
-               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>       *id,
-               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a>         button,
-               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a>      x,
-               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a>      y,
-               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>     user_data)</pre>
-<p>Will be emitted when a mouse event is received by the GstGLwindow.</p>
-<div class="refsect3">
-<a name="id-1.2.9.23.10.5.5"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>object</p></td>
-<td class="parameter_description"><p>the <a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>id</p></td>
-<td class="parameter_description"><p>the name of the event</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>button</p></td>
-<td class="parameter_description"><p>the id of the button</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>x</p></td>
-<td class="parameter_description"><p>the x coordinate of the mouse event</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>y</p></td>
-<td class="parameter_description"><p>the y coordinate of the mouse event</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>user_data</p></td>
-<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<p>Flags: Run Last</p>
+<p>Flags: <a href="https://developer.gnome.org/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></p>
 <p class="since">Since: 1.6</p>
 </div>
 </div>

@@ -43,6 +43,9 @@
 /* The GIO modules directory. */
 #undef GIO_MODULE_DIR
 
+/* The GIO install prefix. */
+#undef GIO_PREFIX
+
 /* Define if GSM header in gsm/ subdir */
 #undef GSM_HEADER_IN_SUBDIR
 
@@ -297,6 +300,12 @@
 
 /* Define to enable GSM library (used by gsmenc gsmdec). */
 #undef HAVE_GSM
+
+/* Define to enable Gtk+ elements (used by gtk). */
+#undef HAVE_GTK3
+
+/* Define if Gtk+ 3.0 GL is installed */
+#undef HAVE_GTK3_GL
 
 /* Define if gudev is installed */
 #undef HAVE_GUDEV

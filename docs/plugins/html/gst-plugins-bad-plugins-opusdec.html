@@ -15,7 +15,8 @@
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-opusdec.description" class="shortcut">Description</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-opusdec.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-opusdec.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-opusdec.properties" class="shortcut">Properties</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
@@ -28,7 +29,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-bad-plugins-opusdec.top_of_page"></a>opusdec</span></h2>
-<p>opusdec — decode opus streams to audio</p>
+<p>opusdec</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -54,7 +55,7 @@
 </tbody>
 </table></div>
 </div>
-<div class="refsect1">
+<a name="GstOpenalSrc"></a><a name="GstOpencvTextOverlay"></a><a name="GstOpusDec"></a><div class="refsect1">
 <a name="gst-plugins-bad-plugins-opusdec.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
@@ -63,16 +64,26 @@
 </colgroup>
 <tbody><tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-opusdec.html#GstOpusDec" title="struct GstOpusDec">GstOpusDec</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-opusdec.html#GstOpusDec-struct" title="struct GstOpusDec">GstOpusDec</a></td>
 </tr></tbody>
 </table></div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-opusdec.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
+            <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
+                <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstaudiodecoder.html#GstAudioDecoder">GstAudioDecoder</a>
+                    <span class="lineart">╰──</span> GstOpusDec
+</pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-opusdec.description"></a><h2>Description</h2>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.57.5.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.57.9.2.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -98,7 +109,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.57.5.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.57.9.2.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -149,8 +160,6 @@
 </table></div>
 </div>
 </div>
-<p>
-</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-opusdec.functions_details"></a><h2>Functions</h2>
@@ -159,40 +168,8 @@
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-opusdec.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstOpusDec"></a><h3>struct GstOpusDec</h3>
-<pre class="programlisting">struct GstOpusDec {
-  GstAudioDecoder       element;
-
-  OpusMSDecoder        *state;
-
-  guint64               packetno;
-
-  GstBuffer            *streamheader;
-  GstBuffer            *vorbiscomment;
-
-  int sample_rate;
-  int n_channels;
-  guint32 pre_skip;
-  gint16 r128_gain;
-
-  GstAudioChannelPosition opus_pos[64];
-  GstAudioInfo info;
-
-  guint8 n_streams;
-  guint8 n_stereo_streams;
-  guint8 channel_mapping_family;
-  guint8 channel_mapping[256];
-
-  gboolean apply_gain;
-  double r128_gain_volume;
-
-  gboolean use_inband_fec;
-  GstBuffer *last_buffer;
-  gboolean primed;
-};
-</pre>
-<p>
-</p>
+<a name="GstOpusDec-struct"></a><h3>struct GstOpusDec</h3>
+<pre class="programlisting">struct GstOpusDec;</pre>
 </div>
 </div>
 <div class="refsect1">

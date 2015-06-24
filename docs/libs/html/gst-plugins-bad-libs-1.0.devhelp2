@@ -5,6 +5,7 @@
       <sub name="Compiling" link="compiling.html"/>
       <sub name="Bitstream parsing Library" link="codecparsers.html">
         <sub name="h264parser" link="gst-plugins-bad-libs-h264parser.html"/>
+        <sub name="jpegparser" link="gst-plugins-bad-libs-jpegparser.html"/>
         <sub name="mpegvideoparser" link="gst-plugins-bad-libs-mpegvideoparser.html"/>
         <sub name="mpeg4parser" link="gst-plugins-bad-libs-mpeg4parser.html"/>
         <sub name="vc1parser" link="gst-plugins-bad-libs-vc1parser.html"/>
@@ -114,6 +115,33 @@
     <keyword type="struct" name="struct GstH264PicTiming" link="gst-plugins-bad-libs-h264parser.html#GstH264PicTiming"/>
     <keyword type="struct" name="struct GstH264BufferingPeriod" link="gst-plugins-bad-libs-h264parser.html#GstH264BufferingPeriod"/>
     <keyword type="struct" name="struct GstH264SEIMessage" link="gst-plugins-bad-libs-h264parser.html#GstH264SEIMessage"/>
+    <keyword type="function" name="gst_jpeg_parse ()" link="gst-plugins-bad-libs-jpegparser.html#gst-jpeg-parse" since="1.6"/>
+    <keyword type="function" name="gst_jpeg_segment_parse_frame_header ()" link="gst-plugins-bad-libs-jpegparser.html#gst-jpeg-segment-parse-frame-header" since="1.6"/>
+    <keyword type="function" name="gst_jpeg_segment_parse_scan_header ()" link="gst-plugins-bad-libs-jpegparser.html#gst-jpeg-segment-parse-scan-header" since="1.6"/>
+    <keyword type="function" name="gst_jpeg_segment_parse_huffman_table ()" link="gst-plugins-bad-libs-jpegparser.html#gst-jpeg-segment-parse-huffman-table" since="1.6"/>
+    <keyword type="function" name="gst_jpeg_segment_parse_quantization_table ()" link="gst-plugins-bad-libs-jpegparser.html#gst-jpeg-segment-parse-quantization-table" since="1.6"/>
+    <keyword type="function" name="gst_jpeg_segment_parse_restart_interval ()" link="gst-plugins-bad-libs-jpegparser.html#gst-jpeg-segment-parse-restart-interval" since="1.6"/>
+    <keyword type="function" name="gst_jpeg_get_default_quantization_tables ()" link="gst-plugins-bad-libs-jpegparser.html#gst-jpeg-get-default-quantization-tables"/>
+    <keyword type="function" name="gst_jpeg_get_default_huffman_tables ()" link="gst-plugins-bad-libs-jpegparser.html#gst-jpeg-get-default-huffman-tables" since="1.6"/>
+    <keyword type="macro" name="GST_JPEG_MAX_FRAME_COMPONENTS" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-MAX-FRAME-COMPONENTS:CAPS" since="1.6"/>
+    <keyword type="macro" name="GST_JPEG_MAX_SCAN_COMPONENTS" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-MAX-SCAN-COMPONENTS:CAPS" since="1.6"/>
+    <keyword type="macro" name="GST_JPEG_MAX_QUANT_ELEMENTS" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-MAX-QUANT-ELEMENTS:CAPS" since="1.6"/>
+    <keyword type="macro" name="GST_JPEG_MARKER_SOF_MIN" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-MARKER-SOF-MIN:CAPS"/>
+    <keyword type="macro" name="GST_JPEG_MARKER_SOF_MAX" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-MARKER-SOF-MAX:CAPS"/>
+    <keyword type="macro" name="GST_JPEG_MARKER_APP_MIN" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-MARKER-APP-MIN:CAPS"/>
+    <keyword type="macro" name="GST_JPEG_MARKER_APP_MAX" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-MARKER-APP-MAX:CAPS"/>
+    <keyword type="macro" name="GST_JPEG_MARKER_RST_MIN" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-MARKER-RST-MIN:CAPS"/>
+    <keyword type="macro" name="GST_JPEG_MARKER_RST_MAX" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-MARKER-RST-MAX:CAPS"/>
+    <keyword type="enum" name="enum GstJpegEntropyCodingMode" link="gst-plugins-bad-libs-jpegparser.html#GstJpegEntropyCodingMode" since="1.6"/>
+    <keyword type="enum" name="enum GstJpegProfile" link="gst-plugins-bad-libs-jpegparser.html#GstJpegProfile" since="1.6"/>
+    <keyword type="struct" name="struct GstJpegSegment" link="gst-plugins-bad-libs-jpegparser.html#GstJpegSegment" since="1.6"/>
+    <keyword type="struct" name="struct GstJpegFrameHdr" link="gst-plugins-bad-libs-jpegparser.html#GstJpegFrameHdr" since="1.6"/>
+    <keyword type="struct" name="struct GstJpegFrameComponent" link="gst-plugins-bad-libs-jpegparser.html#GstJpegFrameComponent" since="1.6"/>
+    <keyword type="struct" name="struct GstJpegScanHdr" link="gst-plugins-bad-libs-jpegparser.html#GstJpegScanHdr" since="1.6"/>
+    <keyword type="struct" name="struct GstJpegScanComponent" link="gst-plugins-bad-libs-jpegparser.html#GstJpegScanComponent" since="1.6"/>
+    <keyword type="struct" name="struct GstJpegHuffmanTables" link="gst-plugins-bad-libs-jpegparser.html#GstJpegHuffmanTables" since="1.6"/>
+    <keyword type="struct" name="struct GstJpegHuffmanTable" link="gst-plugins-bad-libs-jpegparser.html#GstJpegHuffmanTable" since="1.6"/>
+    <keyword type="struct" name="struct GstJpegQuantTable" link="gst-plugins-bad-libs-jpegparser.html#GstJpegQuantTable" since="1.6"/>
     <keyword type="function" name="gst_mpeg_video_parse ()" link="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse"/>
     <keyword type="function" name="gst_mpeg_video_parse_sequence_header ()" link="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-sequence-header" deprecated="Use gst_mpeg_video_packet_parse_sequence_header() instead."/>
     <keyword type="function" name="gst_mpeg_video_parse_picture_header ()" link="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-picture-header" deprecated="Use gst_mpeg_video_packet_parse_picture_header() instead."/>
@@ -482,6 +510,7 @@
     <keyword type="macro" name="GST_GL_DISPLAY_CONTEXT_TYPE" link="GstGLDisplay.html#GST-GL-DISPLAY-CONTEXT-TYPE:CAPS"/>
     <keyword type="enum" name="enum GstGLDisplayType" link="GstGLDisplay.html#GstGLDisplayType"/>
     <keyword type="struct" name="GstGLDisplay" link="GstGLDisplay.html#GstGLDisplay-struct"/>
+    <keyword type="signal" name="The “create-context” signal" link="GstGLDisplay.html#GstGLDisplay-create-context"/>
     <keyword type="function" name="gst_gl_download_new ()" link="GstGLDownload.html#gst-gl-download-new"/>
     <keyword type="function" name="gst_gl_download_set_format ()" link="GstGLDownload.html#gst-gl-download-set-format"/>
     <keyword type="function" name="gst_gl_download_transform_caps ()" link="GstGLDownload.html#gst-gl-download-transform-caps"/>
@@ -511,10 +540,6 @@
     <keyword type="function" name="gst_gl_framebuffer_use_v2 ()" link="GstGLFramebuffer.html#gst-gl-framebuffer-use-v2"/>
     <keyword type="struct" name="struct GstGLFramebuffer" link="GstGLFramebuffer.html#GstGLFramebuffer-struct"/>
     <keyword type="struct" name="struct GstGLFramebufferClass" link="GstGLFramebuffer.html#GstGLFramebufferClass"/>
-    <keyword type="macro" name="GST_GL_MEMORY_FLAGS()" link="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAGS:CAPS"/>
-    <keyword type="macro" name="GST_GL_MEMORY_FLAG_IS_SET()" link="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAG-IS-SET:CAPS"/>
-    <keyword type="macro" name="GST_GL_MEMORY_FLAG_SET()" link="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAG-SET:CAPS"/>
-    <keyword type="macro" name="GST_GL_MEMORY_FLAG_UNSET()" link="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAG-UNSET:CAPS"/>
     <keyword type="function" name="gst_gl_memory_init ()" link="gst-plugins-bad-libs-gstglmemory.html#gst-gl-memory-init"/>
     <keyword type="function" name="gst_gl_memory_alloc ()" link="gst-plugins-bad-libs-gstglmemory.html#gst-gl-memory-alloc"/>
     <keyword type="function" name="gst_gl_memory_wrapped ()" link="gst-plugins-bad-libs-gstglmemory.html#gst-gl-memory-wrapped"/>
@@ -526,9 +551,7 @@
     <keyword type="function" name="gst_is_gl_memory ()" link="gst-plugins-bad-libs-gstglmemory.html#gst-is-gl-memory"/>
     <keyword type="struct" name="GstGLAllocator" link="gst-plugins-bad-libs-gstglmemory.html#GstGLAllocator-struct"/>
     <keyword type="struct" name="GstGLAllocatorClass" link="gst-plugins-bad-libs-gstglmemory.html#GstGLAllocatorClass"/>
-    <keyword type="macro" name="GST_MAP_GL" link="gst-plugins-bad-libs-gstglmemory.html#GST-MAP-GL:CAPS"/>
     <keyword type="macro" name="GST_GL_MEMORY_ALLOCATOR" link="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-ALLOCATOR:CAPS"/>
-    <keyword type="enum" name="enum GstGLMemoryFlags" link="gst-plugins-bad-libs-gstglmemory.html#GstGLMemoryFlags"/>
     <keyword type="struct" name="GstGLMemory" link="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory"/>
     <keyword type="function" name="gst_gl_shader_error_quark ()" link="gst-plugins-bad-libs-gstglshader.html#gst-gl-shader-error-quark"/>
     <keyword type="macro" name="GST_GL_SHADER_ERROR" link="gst-plugins-bad-libs-gstglshader.html#GST-GL-SHADER-ERROR:CAPS"/>
@@ -656,8 +679,6 @@
     <keyword type="enum" name="enum GstGLWindowError" link="GstGLWindow.html#GstGLWindowError"/>
     <keyword type="struct" name="GstGLWindow" link="GstGLWindow.html#GstGLWindow-struct"/>
     <keyword type="struct" name="GstGLWindowClass" link="GstGLWindow.html#GstGLWindowClass"/>
-    <keyword type="signal" name="The “key-event” signal" link="GstGLWindow.html#GstGLWindow-key-event"/>
-    <keyword type="signal" name="The “mouse-event” signal" link="GstGLWindow.html#GstGLWindow-mouse-event"/>
     <keyword type="signal" name="The “key-event” signal" link="GstGLWindow.html#GstGLWindow-key-event"/>
     <keyword type="signal" name="The “mouse-event” signal" link="GstGLWindow.html#GstGLWindow-mouse-event"/>
     <keyword type="function" name="gst_gl_window_android_egl_new ()" link="gst-plugins-bad-libs-GstGLWindowAndroid.html#gst-gl-window-android-egl-new"/>
@@ -789,6 +810,12 @@
     <keyword type="constant" name="GST_H264_S_I_SLICE" link="gst-plugins-bad-libs-h264parser.html#GST-H264-S-I-SLICE:CAPS"/>
     <keyword type="constant" name="GST_H264_S_SP_SLICE" link="gst-plugins-bad-libs-h264parser.html#GST-H264-S-SP-SLICE:CAPS"/>
     <keyword type="constant" name="GST_H264_S_SI_SLICE" link="gst-plugins-bad-libs-h264parser.html#GST-H264-S-SI-SLICE:CAPS"/>
+    <keyword type="constant" name="GST_JPEG_ENTROPY_CODING_HUFFMAN" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-ENTROPY-CODING-HUFFMAN:CAPS"/>
+    <keyword type="constant" name="GST_JPEG_ENTROPY_CODING_ARITHMETIC" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-ENTROPY-CODING-ARITHMETIC:CAPS"/>
+    <keyword type="constant" name="GST_JPEG_PROFILE_BASELINE" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-PROFILE-BASELINE:CAPS"/>
+    <keyword type="constant" name="GST_JPEG_PROFILE_EXTENDED" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-PROFILE-EXTENDED:CAPS"/>
+    <keyword type="constant" name="GST_JPEG_PROFILE_PROGRESSIVE" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-PROFILE-PROGRESSIVE:CAPS"/>
+    <keyword type="constant" name="GST_JPEG_PROFILE_LOSSLESS" link="gst-plugins-bad-libs-jpegparser.html#GST-JPEG-PROFILE-LOSSLESS:CAPS"/>
     <keyword type="constant" name="GST_MPEG_VIDEO_PACKET_PICTURE" link="gst-plugins-bad-libs-mpegvideoparser.html#GST-MPEG-VIDEO-PACKET-PICTURE:CAPS"/>
     <keyword type="constant" name="GST_MPEG_VIDEO_PACKET_SLICE_MIN" link="gst-plugins-bad-libs-mpegvideoparser.html#GST-MPEG-VIDEO-PACKET-SLICE-MIN:CAPS"/>
     <keyword type="constant" name="GST_MPEG_VIDEO_PACKET_SLICE_MAX" link="gst-plugins-bad-libs-mpegvideoparser.html#GST-MPEG-VIDEO-PACKET-SLICE-MAX:CAPS"/>
@@ -1419,7 +1446,6 @@
     <keyword type="constant" name="GST_GL_PLATFORM_WGL" link="gst-plugins-bad-libs-GstGLAPI.html#GST-GL-PLATFORM-WGL:CAPS"/>
     <keyword type="constant" name="GST_GL_PLATFORM_CGL" link="gst-plugins-bad-libs-GstGLAPI.html#GST-GL-PLATFORM-CGL:CAPS"/>
     <keyword type="constant" name="GST_GL_PLATFORM_EAGL" link="gst-plugins-bad-libs-GstGLAPI.html#GST-GL-PLATFORM-EAGL:CAPS"/>
-    <keyword type="constant" name="GST_GL_PLATFORM_GPU_PROCESS" link="gst-plugins-bad-libs-GstGLAPI.html#GST-GL-PLATFORM-GPU-PROCESS:CAPS"/>
     <keyword type="constant" name="GST_GL_PLATFORM_ANY" link="gst-plugins-bad-libs-GstGLAPI.html#GST-GL-PLATFORM-ANY:CAPS"/>
     <keyword type="constant" name="GST_GL_CONTEXT_ERROR_FAILED" link="GstGLContext.html#GST-GL-CONTEXT-ERROR-FAILED:CAPS"/>
     <keyword type="constant" name="GST_GL_CONTEXT_ERROR_WRONG_CONFIG" link="GstGLContext.html#GST-GL-CONTEXT-ERROR-WRONG-CONFIG:CAPS"/>
@@ -1435,10 +1461,6 @@
     <keyword type="constant" name="GST_GL_DISPLAY_TYPE_DISPMANX" link="GstGLDisplay.html#GST-GL-DISPLAY-TYPE-DISPMANX:CAPS"/>
     <keyword type="constant" name="GST_GL_DISPLAY_TYPE_EGL" link="GstGLDisplay.html#GST-GL-DISPLAY-TYPE-EGL:CAPS"/>
     <keyword type="constant" name="GST_GL_DISPLAY_TYPE_ANY" link="GstGLDisplay.html#GST-GL-DISPLAY-TYPE-ANY:CAPS"/>
-    <keyword type="constant" name="GST_GL_MEMORY_FLAG_DOWNLOAD_INITTED" link="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAG-DOWNLOAD-INITTED:CAPS"/>
-    <keyword type="constant" name="GST_GL_MEMORY_FLAG_UPLOAD_INITTED" link="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAG-UPLOAD-INITTED:CAPS"/>
-    <keyword type="constant" name="GST_GL_MEMORY_FLAG_NEED_DOWNLOAD" link="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAG-NEED-DOWNLOAD:CAPS"/>
-    <keyword type="constant" name="GST_GL_MEMORY_FLAG_NEED_UPLOAD" link="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAG-NEED-UPLOAD:CAPS"/>
     <keyword type="constant" name="GST_GL_SHADER_ERROR_COMPILE" link="gst-plugins-bad-libs-gstglshader.html#GST-GL-SHADER-ERROR-COMPILE:CAPS"/>
     <keyword type="constant" name="GST_GL_SHADER_ERROR_LINK" link="gst-plugins-bad-libs-gstglshader.html#GST-GL-SHADER-ERROR-LINK:CAPS"/>
     <keyword type="constant" name="GST_GL_SHADER_ERROR_PROGRAM" link="gst-plugins-bad-libs-gstglshader.html#GST-GL-SHADER-ERROR-PROGRAM:CAPS"/>

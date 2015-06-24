@@ -15,7 +15,8 @@
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-zbar.description" class="shortcut">Description</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-zbar.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-zbar.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-zbar.properties" class="shortcut">Properties</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
@@ -28,7 +29,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-bad-plugins-zbar.top_of_page"></a>zbar</span></h2>
-<p>zbar — Detect bar codes in the video streams</p>
+<p>zbar</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -51,10 +52,15 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-zbar.html#GstZBar--cache" title="The “cache” property">cache</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-zbar.html#GstZBar--attach-frame" title="The “attach-frame” property">attach-frame</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
 </tbody>
 </table></div>
 </div>
-<div class="refsect1">
+<a name="GstZBar"></a><div class="refsect1">
 <a name="gst-plugins-bad-plugins-zbar.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
@@ -63,16 +69,27 @@
 </colgroup>
 <tbody><tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-zbar.html#GstZBar" title="struct GstZBar">GstZBar</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-zbar.html#GstZBar-struct" title="struct GstZBar">GstZBar</a></td>
 </tr></tbody>
 </table></div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-zbar.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
+            <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
+                <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html">GstBaseTransform</a>
+                    <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideofilter.html#GstVideoFilter">GstVideoFilter</a>
+                        <span class="lineart">╰──</span> GstZBar
+</pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-zbar.description"></a><h2>Description</h2>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.85.5.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.85.7.2.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -98,7 +115,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.85.5.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.85.7.2.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -119,7 +136,7 @@
 </tr>
 <tr>
 <td><p><span class="term">details</span></p></td>
-<td>video/x-raw, format=(string){ Y800, I420, YV12, NV12, NV21, Y41B, Y42B }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
+<td>video/x-raw, format=(string){ Y800, I420, YV12, NV12, NV21, Y41B, Y42B, YUV9, YVU9 }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
 </tr>
 </tbody>
 </table></div>
@@ -143,14 +160,12 @@
 </tr>
 <tr>
 <td><p><span class="term">details</span></p></td>
-<td>video/x-raw, format=(string){ Y800, I420, YV12, NV12, NV21, Y41B, Y42B }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
+<td>video/x-raw, format=(string){ Y800, I420, YV12, NV12, NV21, Y41B, Y42B, YUV9, YVU9 }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
 </tr>
 </tbody>
 </table></div>
 </div>
 </div>
-<p>
-</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-zbar.functions_details"></a><h2>Functions</h2>
@@ -159,12 +174,8 @@
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-zbar.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstZBar"></a><h3>struct GstZBar</h3>
-<pre class="programlisting">struct GstZBar {
-};
-</pre>
-<p>
-</p>
+<a name="GstZBar-struct"></a><h3>struct GstZBar</h3>
+<pre class="programlisting">struct GstZBar;</pre>
 </div>
 </div>
 <div class="refsect1">
@@ -181,6 +192,14 @@
 <a name="GstZBar--cache"></a><h3>The <code class="literal">“cache”</code> property</h3>
 <pre class="programlisting">  “cache”                    <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
 <p>Enable or disable the inter-image result cache.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstZBar--attach-frame"></a><h3>The <code class="literal">“attach-frame”</code> property</h3>
+<pre class="programlisting">  “attach-frame”             <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Attach a frame dump to each barcode message.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: FALSE</p>
 </div>

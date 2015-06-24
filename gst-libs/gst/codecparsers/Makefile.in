@@ -172,6 +172,7 @@ am_libgstcodecparsers_@GST_API_VERSION@_la_OBJECTS =  \
 	libgstcodecparsers_@GST_API_VERSION@_la-nalutils.lo \
 	libgstcodecparsers_@GST_API_VERSION@_la-dboolhuff.lo \
 	libgstcodecparsers_@GST_API_VERSION@_la-vp8utils.lo \
+	libgstcodecparsers_@GST_API_VERSION@_la-gstjpegparser.lo \
 	libgstcodecparsers_@GST_API_VERSION@_la-gstmpegvideometa.lo
 libgstcodecparsers_@GST_API_VERSION@_la_OBJECTS =  \
 	$(am_libgstcodecparsers_@GST_API_VERSION@_la_OBJECTS)
@@ -426,6 +427,8 @@ GST_TOOLS_DIR = @GST_TOOLS_DIR@
 GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
 GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
+GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
+GTK3_GL_LIBS = @GTK3_GL_LIBS@
 GTK3_LIBS = @GTK3_LIBS@
 GTKDOC_CHECK = @GTKDOC_CHECK@
 GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
@@ -476,6 +479,7 @@ INTROSPECTION_CFLAGS = @INTROSPECTION_CFLAGS@
 INTROSPECTION_COMPILER = @INTROSPECTION_COMPILER@
 INTROSPECTION_GENERATE = @INTROSPECTION_GENERATE@
 INTROSPECTION_GIRDIR = @INTROSPECTION_GIRDIR@
+INTROSPECTION_INIT = @INTROSPECTION_INIT@
 INTROSPECTION_LIBS = @INTROSPECTION_LIBS@
 INTROSPECTION_MAKEFILE = @INTROSPECTION_MAKEFILE@
 INTROSPECTION_SCANNER = @INTROSPECTION_SCANNER@
@@ -758,6 +762,7 @@ libgstcodecparsers_@GST_API_VERSION@_la_SOURCES = \
 	gstmpegvideoparser.c gsth264parser.c gstvc1parser.c gstmpeg4parser.c \
 	gsth265parser.c gstvp8parser.c gstvp8rangedecoder.c \
 	parserutils.c nalutils.c dboolhuff.c vp8utils.c \
+	gstjpegparser.c \
 	gstmpegvideometa.c
 
 libgstcodecparsers_@GST_API_VERSION@includedir = \
@@ -767,6 +772,7 @@ noinst_HEADERS = parserutils.h nalutils.h dboolhuff.h vp8utils.h
 libgstcodecparsers_@GST_API_VERSION@include_HEADERS = \
 	gstmpegvideoparser.h gsth264parser.h gstvc1parser.h gstmpeg4parser.h \
 	gsth265parser.h gstvp8parser.h gstvp8rangedecoder.h \
+	gstjpegparser.h \
 	gstmpegvideometa.h
 
 libgstcodecparsers_@GST_API_VERSION@_la_CFLAGS = \
@@ -870,6 +876,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-dboolhuff.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gsth264parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gsth265parser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstjpegparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstmpeg4parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstmpegvideometa.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstmpegvideoparser.Plo@am__quote@
@@ -980,6 +987,13 @@ libgstcodecparsers_@GST_API_VERSION@_la-vp8utils.lo: vp8utils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='vp8utils.c' object='libgstcodecparsers_@GST_API_VERSION@_la-vp8utils.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcodecparsers_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstcodecparsers_@GST_API_VERSION@_la-vp8utils.lo `test -f 'vp8utils.c' || echo '$(srcdir)/'`vp8utils.c
+
+libgstcodecparsers_@GST_API_VERSION@_la-gstjpegparser.lo: gstjpegparser.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcodecparsers_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstcodecparsers_@GST_API_VERSION@_la-gstjpegparser.lo -MD -MP -MF $(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstjpegparser.Tpo -c -o libgstcodecparsers_@GST_API_VERSION@_la-gstjpegparser.lo `test -f 'gstjpegparser.c' || echo '$(srcdir)/'`gstjpegparser.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstjpegparser.Tpo $(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstjpegparser.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstjpegparser.c' object='libgstcodecparsers_@GST_API_VERSION@_la-gstjpegparser.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcodecparsers_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstcodecparsers_@GST_API_VERSION@_la-gstjpegparser.lo `test -f 'gstjpegparser.c' || echo '$(srcdir)/'`gstjpegparser.c
 
 libgstcodecparsers_@GST_API_VERSION@_la-gstmpegvideometa.lo: gstmpegvideometa.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcodecparsers_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstcodecparsers_@GST_API_VERSION@_la-gstmpegvideometa.lo -MD -MP -MF $(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstmpegvideometa.Tpo -c -o libgstcodecparsers_@GST_API_VERSION@_la-gstmpegvideometa.lo `test -f 'gstmpegvideometa.c' || echo '$(srcdir)/'`gstmpegvideometa.c

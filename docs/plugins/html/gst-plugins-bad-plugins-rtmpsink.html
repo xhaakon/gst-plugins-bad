@@ -15,7 +15,8 @@
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-rtmpsink.description" class="shortcut">Description</a></span><span id="nav_interfaces">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-rtmpsink.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-rtmpsink.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_interfaces">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-rtmpsink.implemented-interfaces" class="shortcut">Implemented Interfaces</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-rtmpsink.properties" class="shortcut">Properties</a></span>
 </td>
@@ -29,7 +30,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-bad-plugins-rtmpsink.top_of_page"></a>rtmpsink</span></h2>
-<p>rtmpsink — Sends FLV content to a server via RTMP</p>
+<p>rtmpsink</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -49,7 +50,7 @@
 </tr></tbody>
 </table></div>
 </div>
-<div class="refsect1">
+<a name="GstRTMPSink"></a><div class="refsect1">
 <a name="gst-plugins-bad-plugins-rtmpsink.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
@@ -58,9 +59,19 @@
 </colgroup>
 <tbody><tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-rtmpsink.html#GstRTMPSink" title="struct GstRTMPSink">GstRTMPSink</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-rtmpsink.html#GstRTMPSink-struct" title="struct GstRTMPSink">GstRTMPSink</a></td>
 </tr></tbody>
 </table></div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-rtmpsink.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
+            <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
+                <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseSink.html">GstBaseSink</a>
+                    <span class="lineart">╰──</span> GstRTMPSink
+</pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-rtmpsink.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
@@ -73,7 +84,7 @@ GstRTMPSink implements
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.66.6.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.66.8.2.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -99,7 +110,7 @@ GstRTMPSink implements
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.66.6.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.66.8.2.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -126,8 +137,6 @@ GstRTMPSink implements
 </table></div>
 </div>
 </div>
-<p>
-</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-rtmpsink.functions_details"></a><h2>Functions</h2>
@@ -136,13 +145,8 @@ GstRTMPSink implements
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-rtmpsink.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstRTMPSink"></a><h3>struct GstRTMPSink</h3>
-<pre class="programlisting">struct GstRTMPSink {
-  GstBaseSink parent;
-};
-</pre>
-<p>
-</p>
+<a name="GstRTMPSink-struct"></a><h3>struct GstRTMPSink</h3>
+<pre class="programlisting">struct GstRTMPSink;</pre>
 </div>
 </div>
 <div class="refsect1">
