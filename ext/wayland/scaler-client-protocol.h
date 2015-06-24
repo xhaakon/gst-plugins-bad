@@ -38,6 +38,7 @@ struct wl_client;
 struct wl_resource;
 
 struct wl_scaler;
+struct wl_surface;
 struct wl_viewport;
 
 extern const struct wl_interface wl_scaler_interface;

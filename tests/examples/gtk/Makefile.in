@@ -14,7 +14,6 @@
 
 @SET_MAKE@
 
-
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -80,10 +79,11 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-subdir = gst-libs/gst/gl/gpuprocess
+noinst_PROGRAMS = gtksink$(EXEEXT) $(am__EXEEXT_1)
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@am__append_1 = gtkglsink
+subdir = tests/examples/gtk
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp $(libgstgl_gpuprocessinclude_HEADERS) \
-	$(noinst_HEADERS)
+	$(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/as-auto-alt.m4 \
@@ -125,20 +125,30 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-LTLIBRARIES = $(noinst_LTLIBRARIES)
-libgstgl_gpuprocess_la_LIBADD =
-am_libgstgl_gpuprocess_la_OBJECTS =  \
-	libgstgl_gpuprocess_la-gstglcontext_gpu_process.lo \
-	libgstgl_gpuprocess_la-gstglwindow_gpu_process.lo
-libgstgl_gpuprocess_la_OBJECTS = $(am_libgstgl_gpuprocess_la_OBJECTS)
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@am__EXEEXT_1 = gtkglsink$(EXEEXT)
+PROGRAMS = $(noinst_PROGRAMS)
+am__gtkglsink_SOURCES_DIST = gtkglsink.c
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@am_gtkglsink_OBJECTS =  \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	gtkglsink-gtkglsink.$(OBJEXT)
+gtkglsink_OBJECTS = $(am_gtkglsink_OBJECTS)
+am__DEPENDENCIES_1 =
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@gtkglsink_DEPENDENCIES =  \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(am__DEPENDENCIES_1) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(am__DEPENDENCIES_1) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-libgstgl_gpuprocess_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(libgstgl_gpuprocess_la_CFLAGS) $(CFLAGS) \
-	$(libgstgl_gpuprocess_la_LDFLAGS) $(LDFLAGS) -o $@
+gtkglsink_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(gtkglsink_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_gtksink_OBJECTS = gtksink-gtksink.$(OBJEXT)
+gtksink_OBJECTS = $(am_gtksink_OBJECTS)
+gtksink_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+gtksink_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(gtksink_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -173,42 +183,13 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libgstgl_gpuprocess_la_SOURCES)
-DIST_SOURCES = $(libgstgl_gpuprocess_la_SOURCES)
+SOURCES = $(gtkglsink_SOURCES) $(gtksink_SOURCES)
+DIST_SOURCES = $(am__gtkglsink_SOURCES_DIST) $(gtksink_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
-am__install_max = 40
-am__nobase_strip_setup = \
-  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
-am__nobase_strip = \
-  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
-am__nobase_list = $(am__nobase_strip_setup); \
-  for p in $$list; do echo "$$p $$p"; done | \
-  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
-  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
-    if (++n[$$2] == $(am__install_max)) \
-      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
-    END { for (dir in files) print dir, files[dir] }'
-am__base_list = \
-  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
-  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__uninstall_files_from_dir = { \
-  test -z "$$files" \
-    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
-    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
-         $(am__cd) "$$dir" && rm -f $$files; }; \
-  }
-am__installdirs = "$(DESTDIR)$(libgstgl_gpuprocessincludedir)"
-HEADERS = $(libgstgl_gpuprocessinclude_HEADERS) $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -408,6 +389,8 @@ GST_TOOLS_DIR = @GST_TOOLS_DIR@
 GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
 GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
+GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
+GTK3_GL_LIBS = @GTK3_GL_LIBS@
 GTK3_LIBS = @GTK3_LIBS@
 GTKDOC_CHECK = @GTKDOC_CHECK@
 GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
@@ -458,6 +441,7 @@ INTROSPECTION_CFLAGS = @INTROSPECTION_CFLAGS@
 INTROSPECTION_COMPILER = @INTROSPECTION_COMPILER@
 INTROSPECTION_GENERATE = @INTROSPECTION_GENERATE@
 INTROSPECTION_GIRDIR = @INTROSPECTION_GIRDIR@
+INTROSPECTION_INIT = @INTROSPECTION_INIT@
 INTROSPECTION_LIBS = @INTROSPECTION_LIBS@
 INTROSPECTION_MAKEFILE = @INTROSPECTION_MAKEFILE@
 INTROSPECTION_SCANNER = @INTROSPECTION_SCANNER@
@@ -735,28 +719,23 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
-noinst_LTLIBRARIES = libgstgl-gpuprocess.la
-libgstgl_gpuprocess_la_SOURCES = \
-	gstglcontext_gpu_process.c \
-	gstglwindow_gpu_process.c
-
-noinst_HEADERS = gstglwindow_gpu_process.h
-libgstgl_gpuprocessincludedir = $(includedir)/gstreamer-@GST_API_VERSION@/gst/gl/gpuprocess
-libgstgl_gpuprocessinclude_HEADERS = \
-	gstglcontext_gpu_process.h \
-	gstglwindow_gpu_process.h
-
-libgstgl_gpuprocess_la_CFLAGS = \
-	-I$(top_srcdir)/gst-libs \
-	-I$(top_builddir)/gst-libs \
-	$(GL_CFLAGS) \
-	$(GST_PLUGINS_BASE_CFLAGS) \
-	$(GST_BASE_CFLAGS) \
+gtksink_SOURCES = gtksink.c
+gtksink_CFLAGS = $(GTK3_CFLAGS) \
 	$(GST_CFLAGS)
 
-libgstgl_gpuprocess_la_LDFLAGS = \
-	$(GST_LIB_LDFLAGS) \
-	$(GST_ALL_LDFLAGS)
+gtksink_LDADD = $(GTK3_LIBS) \
+	$(GST_LIBS)
+
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@gtkglsink_SOURCES = gtkglsink.c
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@gtkglsink_CFLAGS = $(GTK3_CFLAGS) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GST_PLUGINS_BAD_CFLAGS) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GST_PLUGINS_BASE_CFLAGS) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GST_CFLAGS) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GL_CFLAGS)
+
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@gtkglsink_LDADD = $(GTK3_LIBS) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GST_LIBS) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GL_LIBS)
 
 all: all-am
 
@@ -771,9 +750,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu gst-libs/gst/gl/gpuprocess/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu tests/examples/gtk/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu gst-libs/gst/gl/gpuprocess/Makefile
+	  $(AUTOMAKE) --gnu tests/examples/gtk/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -793,19 +772,22 @@ $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
-clean-noinstLTLIBRARIES:
-	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
-	@list='$(noinst_LTLIBRARIES)'; \
-	locs=`for p in $$list; do echo $$p; done | \
-	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
-	      sort -u`; \
-	test -z "$$locs" || { \
-	  echo rm -f $${locs}; \
-	  rm -f $${locs}; \
-	}
+clean-noinstPROGRAMS:
+	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
 
-libgstgl-gpuprocess.la: $(libgstgl_gpuprocess_la_OBJECTS) $(libgstgl_gpuprocess_la_DEPENDENCIES) $(EXTRA_libgstgl_gpuprocess_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libgstgl_gpuprocess_la_LINK)  $(libgstgl_gpuprocess_la_OBJECTS) $(libgstgl_gpuprocess_la_LIBADD) $(LIBS)
+gtkglsink$(EXEEXT): $(gtkglsink_OBJECTS) $(gtkglsink_DEPENDENCIES) $(EXTRA_gtkglsink_DEPENDENCIES) 
+	@rm -f gtkglsink$(EXEEXT)
+	$(AM_V_CCLD)$(gtkglsink_LINK) $(gtkglsink_OBJECTS) $(gtkglsink_LDADD) $(LIBS)
+
+gtksink$(EXEEXT): $(gtksink_OBJECTS) $(gtksink_DEPENDENCIES) $(EXTRA_gtksink_DEPENDENCIES) 
+	@rm -f gtksink$(EXEEXT)
+	$(AM_V_CCLD)$(gtksink_LINK) $(gtksink_OBJECTS) $(gtksink_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -813,8 +795,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_gpuprocess_la-gstglcontext_gpu_process.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_gpuprocess_la-gstglwindow_gpu_process.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gtkglsink-gtkglsink.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gtksink-gtksink.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -840,46 +822,39 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-libgstgl_gpuprocess_la-gstglcontext_gpu_process.lo: gstglcontext_gpu_process.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_gpuprocess_la_CFLAGS) $(CFLAGS) -MT libgstgl_gpuprocess_la-gstglcontext_gpu_process.lo -MD -MP -MF $(DEPDIR)/libgstgl_gpuprocess_la-gstglcontext_gpu_process.Tpo -c -o libgstgl_gpuprocess_la-gstglcontext_gpu_process.lo `test -f 'gstglcontext_gpu_process.c' || echo '$(srcdir)/'`gstglcontext_gpu_process.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgl_gpuprocess_la-gstglcontext_gpu_process.Tpo $(DEPDIR)/libgstgl_gpuprocess_la-gstglcontext_gpu_process.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglcontext_gpu_process.c' object='libgstgl_gpuprocess_la-gstglcontext_gpu_process.lo' libtool=yes @AMDEPBACKSLASH@
+gtkglsink-gtkglsink.o: gtkglsink.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gtkglsink_CFLAGS) $(CFLAGS) -MT gtkglsink-gtkglsink.o -MD -MP -MF $(DEPDIR)/gtkglsink-gtkglsink.Tpo -c -o gtkglsink-gtkglsink.o `test -f 'gtkglsink.c' || echo '$(srcdir)/'`gtkglsink.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/gtkglsink-gtkglsink.Tpo $(DEPDIR)/gtkglsink-gtkglsink.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkglsink.c' object='gtkglsink-gtkglsink.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_gpuprocess_la_CFLAGS) $(CFLAGS) -c -o libgstgl_gpuprocess_la-gstglcontext_gpu_process.lo `test -f 'gstglcontext_gpu_process.c' || echo '$(srcdir)/'`gstglcontext_gpu_process.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gtkglsink_CFLAGS) $(CFLAGS) -c -o gtkglsink-gtkglsink.o `test -f 'gtkglsink.c' || echo '$(srcdir)/'`gtkglsink.c
 
-libgstgl_gpuprocess_la-gstglwindow_gpu_process.lo: gstglwindow_gpu_process.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_gpuprocess_la_CFLAGS) $(CFLAGS) -MT libgstgl_gpuprocess_la-gstglwindow_gpu_process.lo -MD -MP -MF $(DEPDIR)/libgstgl_gpuprocess_la-gstglwindow_gpu_process.Tpo -c -o libgstgl_gpuprocess_la-gstglwindow_gpu_process.lo `test -f 'gstglwindow_gpu_process.c' || echo '$(srcdir)/'`gstglwindow_gpu_process.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgl_gpuprocess_la-gstglwindow_gpu_process.Tpo $(DEPDIR)/libgstgl_gpuprocess_la-gstglwindow_gpu_process.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglwindow_gpu_process.c' object='libgstgl_gpuprocess_la-gstglwindow_gpu_process.lo' libtool=yes @AMDEPBACKSLASH@
+gtkglsink-gtkglsink.obj: gtkglsink.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gtkglsink_CFLAGS) $(CFLAGS) -MT gtkglsink-gtkglsink.obj -MD -MP -MF $(DEPDIR)/gtkglsink-gtkglsink.Tpo -c -o gtkglsink-gtkglsink.obj `if test -f 'gtkglsink.c'; then $(CYGPATH_W) 'gtkglsink.c'; else $(CYGPATH_W) '$(srcdir)/gtkglsink.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/gtkglsink-gtkglsink.Tpo $(DEPDIR)/gtkglsink-gtkglsink.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkglsink.c' object='gtkglsink-gtkglsink.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_gpuprocess_la_CFLAGS) $(CFLAGS) -c -o libgstgl_gpuprocess_la-gstglwindow_gpu_process.lo `test -f 'gstglwindow_gpu_process.c' || echo '$(srcdir)/'`gstglwindow_gpu_process.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gtkglsink_CFLAGS) $(CFLAGS) -c -o gtkglsink-gtkglsink.obj `if test -f 'gtkglsink.c'; then $(CYGPATH_W) 'gtkglsink.c'; else $(CYGPATH_W) '$(srcdir)/gtkglsink.c'; fi`
+
+gtksink-gtksink.o: gtksink.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gtksink_CFLAGS) $(CFLAGS) -MT gtksink-gtksink.o -MD -MP -MF $(DEPDIR)/gtksink-gtksink.Tpo -c -o gtksink-gtksink.o `test -f 'gtksink.c' || echo '$(srcdir)/'`gtksink.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/gtksink-gtksink.Tpo $(DEPDIR)/gtksink-gtksink.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtksink.c' object='gtksink-gtksink.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gtksink_CFLAGS) $(CFLAGS) -c -o gtksink-gtksink.o `test -f 'gtksink.c' || echo '$(srcdir)/'`gtksink.c
+
+gtksink-gtksink.obj: gtksink.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gtksink_CFLAGS) $(CFLAGS) -MT gtksink-gtksink.obj -MD -MP -MF $(DEPDIR)/gtksink-gtksink.Tpo -c -o gtksink-gtksink.obj `if test -f 'gtksink.c'; then $(CYGPATH_W) 'gtksink.c'; else $(CYGPATH_W) '$(srcdir)/gtksink.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/gtksink-gtksink.Tpo $(DEPDIR)/gtksink-gtksink.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtksink.c' object='gtksink-gtksink.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gtksink_CFLAGS) $(CFLAGS) -c -o gtksink-gtksink.obj `if test -f 'gtksink.c'; then $(CYGPATH_W) 'gtksink.c'; else $(CYGPATH_W) '$(srcdir)/gtksink.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-libgstgl_gpuprocessincludeHEADERS: $(libgstgl_gpuprocessinclude_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(libgstgl_gpuprocessinclude_HEADERS)'; test -n "$(libgstgl_gpuprocessincludedir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(libgstgl_gpuprocessincludedir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(libgstgl_gpuprocessincludedir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libgstgl_gpuprocessincludedir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libgstgl_gpuprocessincludedir)" || exit $$?; \
-	done
-
-uninstall-libgstgl_gpuprocessincludeHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(libgstgl_gpuprocessinclude_HEADERS)'; test -n "$(libgstgl_gpuprocessincludedir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(libgstgl_gpuprocessincludedir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -965,11 +940,8 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-am: Makefile $(PROGRAMS)
 installdirs:
-	for dir in "$(DESTDIR)$(libgstgl_gpuprocessincludedir)"; do \
-	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
-	done
 install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
@@ -1002,7 +974,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
+clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -1023,7 +995,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-libgstgl_gpuprocessincludeHEADERS
+install-data-am:
 
 install-dvi: install-dvi-am
 
@@ -1069,24 +1041,23 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-libgstgl_gpuprocessincludeHEADERS
+uninstall-am:
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstLTLIBRARIES cscopelist-am ctags \
+	clean-libtool clean-noinstPROGRAMS cscopelist-am ctags \
 	ctags-am distclean distclean-compile distclean-generic \
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
-	install-info-am install-libgstgl_gpuprocessincludeHEADERS \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-libgstgl_gpuprocessincludeHEADERS
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-am
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

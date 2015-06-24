@@ -79,7 +79,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-noinst_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3)
+noinst_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2)
 subdir = tests/icles
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
@@ -126,7 +126,6 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 @USE_SOUNDTOUCH_TRUE@am__EXEEXT_1 = pitch-test$(EXEEXT)
 am__EXEEXT_2 =
-am__EXEEXT_3 = vp8parser-test$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am__pitch_test_SOURCES_DIST = pitch-test.c
 @USE_SOUNDTOUCH_TRUE@am_pitch_test_OBJECTS =  \
@@ -141,14 +140,6 @@ am__v_lt_1 =
 pitch_test_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(pitch_test_CFLAGS) \
 	$(CFLAGS) $(pitch_test_LDFLAGS) $(LDFLAGS) -o $@
-am_vp8parser_test_OBJECTS = vp8parser_test-vp8parser-test.$(OBJEXT)
-vp8parser_test_OBJECTS = $(am_vp8parser_test_OBJECTS)
-vp8parser_test_DEPENDENCIES = $(top_builddir)/gst-libs/gst/codecparsers/libgstcodecparsers-@GST_API_VERSION@.la \
-	$(am__DEPENDENCIES_1)
-vp8parser_test_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(vp8parser_test_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o \
-	$@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -183,9 +174,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(pitch_test_SOURCES) $(vp8parser_test_SOURCES)
-DIST_SOURCES = $(am__pitch_test_SOURCES_DIST) \
-	$(vp8parser_test_SOURCES)
+SOURCES = $(pitch_test_SOURCES)
+DIST_SOURCES = $(am__pitch_test_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -390,6 +380,8 @@ GST_TOOLS_DIR = @GST_TOOLS_DIR@
 GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
 GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
+GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
+GTK3_GL_LIBS = @GTK3_GL_LIBS@
 GTK3_LIBS = @GTK3_LIBS@
 GTKDOC_CHECK = @GTKDOC_CHECK@
 GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
@@ -440,6 +432,7 @@ INTROSPECTION_CFLAGS = @INTROSPECTION_CFLAGS@
 INTROSPECTION_COMPILER = @INTROSPECTION_COMPILER@
 INTROSPECTION_GENERATE = @INTROSPECTION_GENERATE@
 INTROSPECTION_GIRDIR = @INTROSPECTION_GIRDIR@
+INTROSPECTION_INIT = @INTROSPECTION_INIT@
 INTROSPECTION_LIBS = @INTROSPECTION_LIBS@
 INTROSPECTION_MAKEFILE = @INTROSPECTION_MAKEFILE@
 INTROSPECTION_SCANNER = @INTROSPECTION_SCANNER@
@@ -723,10 +716,6 @@ wayland_scanner = @wayland_scanner@
 @USE_SOUNDTOUCH_TRUE@pitch_test_CFLAGS = $(GST_CONTROLLER_CFLAGS)
 @USE_SOUNDTOUCH_TRUE@pitch_test_LDADD = $(GST_CONTROLLER_LIBS)
 @USE_SOUNDTOUCH_TRUE@pitch_test_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-GST_VP8PARSER_TESTS = vp8parser-test
-vp8parser_test_SOURCES = vp8parser-test.c
-vp8parser_test_CFLAGS = -I$(top_srcdir)/gst-libs $(GST_CFLAGS)
-vp8parser_test_LDADD = $(top_builddir)/gst-libs/gst/codecparsers/libgstcodecparsers-@GST_API_VERSION@.la $(GST_LIBS)
 
 # needs porting
 #if HAVE_GTK
@@ -788,10 +777,6 @@ pitch-test$(EXEEXT): $(pitch_test_OBJECTS) $(pitch_test_DEPENDENCIES) $(EXTRA_pi
 	@rm -f pitch-test$(EXEEXT)
 	$(AM_V_CCLD)$(pitch_test_LINK) $(pitch_test_OBJECTS) $(pitch_test_LDADD) $(LIBS)
 
-vp8parser-test$(EXEEXT): $(vp8parser_test_OBJECTS) $(vp8parser_test_DEPENDENCIES) $(EXTRA_vp8parser_test_DEPENDENCIES) 
-	@rm -f vp8parser-test$(EXEEXT)
-	$(AM_V_CCLD)$(vp8parser_test_LINK) $(vp8parser_test_OBJECTS) $(vp8parser_test_LDADD) $(LIBS)
-
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -799,7 +784,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pitch_test-pitch-test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vp8parser_test-vp8parser-test.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -838,20 +822,6 @@ pitch_test-pitch-test.obj: pitch-test.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pitch-test.c' object='pitch_test-pitch-test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pitch_test_CFLAGS) $(CFLAGS) -c -o pitch_test-pitch-test.obj `if test -f 'pitch-test.c'; then $(CYGPATH_W) 'pitch-test.c'; else $(CYGPATH_W) '$(srcdir)/pitch-test.c'; fi`
-
-vp8parser_test-vp8parser-test.o: vp8parser-test.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vp8parser_test_CFLAGS) $(CFLAGS) -MT vp8parser_test-vp8parser-test.o -MD -MP -MF $(DEPDIR)/vp8parser_test-vp8parser-test.Tpo -c -o vp8parser_test-vp8parser-test.o `test -f 'vp8parser-test.c' || echo '$(srcdir)/'`vp8parser-test.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vp8parser_test-vp8parser-test.Tpo $(DEPDIR)/vp8parser_test-vp8parser-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='vp8parser-test.c' object='vp8parser_test-vp8parser-test.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vp8parser_test_CFLAGS) $(CFLAGS) -c -o vp8parser_test-vp8parser-test.o `test -f 'vp8parser-test.c' || echo '$(srcdir)/'`vp8parser-test.c
-
-vp8parser_test-vp8parser-test.obj: vp8parser-test.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vp8parser_test_CFLAGS) $(CFLAGS) -MT vp8parser_test-vp8parser-test.obj -MD -MP -MF $(DEPDIR)/vp8parser_test-vp8parser-test.Tpo -c -o vp8parser_test-vp8parser-test.obj `if test -f 'vp8parser-test.c'; then $(CYGPATH_W) 'vp8parser-test.c'; else $(CYGPATH_W) '$(srcdir)/vp8parser-test.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vp8parser_test-vp8parser-test.Tpo $(DEPDIR)/vp8parser_test-vp8parser-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='vp8parser-test.c' object='vp8parser_test-vp8parser-test.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vp8parser_test_CFLAGS) $(CFLAGS) -c -o vp8parser_test-vp8parser-test.obj `if test -f 'vp8parser-test.c'; then $(CYGPATH_W) 'vp8parser-test.c'; else $(CYGPATH_W) '$(srcdir)/vp8parser-test.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

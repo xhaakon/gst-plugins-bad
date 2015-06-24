@@ -180,10 +180,11 @@ libgstgl_@GST_API_VERSION@_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) $(am__append_2) \
 	$(am__append_4) $(am__append_6) $(am__append_8) \
 	$(am__append_10) $(am__append_12) $(am__append_14) \
-	$(am__append_16) gpuprocess/libgstgl-gpuprocess.la
+	$(am__append_16)
 am_libgstgl_@GST_API_VERSION@_la_OBJECTS =  \
 	libgstgl_@GST_API_VERSION@_la-gstgldisplay.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglcontext.lo \
+	libgstgl_@GST_API_VERSION@_la-gstglbasebuffer.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglmemory.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglbufferpool.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglfilter.lo \
@@ -199,7 +200,8 @@ am_libgstgl_@GST_API_VERSION@_la_OBJECTS =  \
 	libgstgl_@GST_API_VERSION@_la-gstglfeature.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglutils.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglframebuffer.lo \
-	libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.lo
+	libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.lo \
+	libgstgl_@GST_API_VERSION@_la-gstglviewconvert.lo
 libgstgl_@GST_API_VERSION@_la_OBJECTS =  \
 	$(am_libgstgl_@GST_API_VERSION@_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -494,6 +496,8 @@ GST_TOOLS_DIR = @GST_TOOLS_DIR@
 GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
 GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
+GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
+GTK3_GL_LIBS = @GTK3_GL_LIBS@
 GTK3_LIBS = @GTK3_LIBS@
 GTKDOC_CHECK = @GTKDOC_CHECK@
 GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
@@ -544,6 +548,7 @@ INTROSPECTION_CFLAGS = @INTROSPECTION_CFLAGS@
 INTROSPECTION_COMPILER = @INTROSPECTION_COMPILER@
 INTROSPECTION_GENERATE = @INTROSPECTION_GENERATE@
 INTROSPECTION_GIRDIR = @INTROSPECTION_GIRDIR@
+INTROSPECTION_INIT = @INTROSPECTION_INIT@
 INTROSPECTION_LIBS = @INTROSPECTION_LIBS@
 INTROSPECTION_MAKEFILE = @INTROSPECTION_MAKEFILE@
 INTROSPECTION_SCANNER = @INTROSPECTION_SCANNER@
@@ -824,13 +829,14 @@ wayland_scanner = @wayland_scanner@
 lib_LTLIBRARIES = libgstgl-@GST_API_VERSION@.la
 SUBDIRS = glprototypes $(am__append_1) $(am__append_3) $(am__append_5) \
 	$(am__append_7) $(am__append_9) $(am__append_11) \
-	$(am__append_13) $(am__append_15) gpuprocess
-DIST_SUBDIRS = glprototypes android x11 win32 cocoa wayland dispmanx egl eagl gpuprocess
+	$(am__append_13) $(am__append_15)
+DIST_SUBDIRS = glprototypes android x11 win32 cocoa wayland dispmanx egl eagl
 noinst_HEADERS = 
 built_sys_header_configure = gstglconfig.h
 libgstgl_@GST_API_VERSION@_la_SOURCES = \
 	gstgldisplay.c \
 	gstglcontext.c \
+	gstglbasebuffer.c \
 	gstglmemory.c \
 	gstglbufferpool.c \
 	gstglfilter.c \
@@ -846,13 +852,15 @@ libgstgl_@GST_API_VERSION@_la_SOURCES = \
         gstglfeature.c \
         gstglutils.c \
         gstglframebuffer.c \
-        gstglsyncmeta.c
+        gstglsyncmeta.c \
+        gstglviewconvert.c
 
 libgstgl_@GST_API_VERSION@includedir = $(includedir)/gstreamer-@GST_API_VERSION@/gst/gl
 libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gstglwindow.h \
 	gstgldisplay.h \
 	gstglcontext.h \
+	gstglbasebuffer.h \
 	gstglmemory.h \
 	gstglbufferpool.h \
 	gstglfilter.h \
@@ -868,6 +876,7 @@ libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gstglutils.h \
 	gstglframebuffer.h \
 	gstglsyncmeta.h \
+	gstglviewconvert.h \
 	gstgl_fwd.h \
 	gl.h
 
@@ -876,7 +885,7 @@ libgstgl_@GST_API_VERSION@_la_LIBADD = $(GMODULE_NO_EXPORT_LIBS) \
 	$(GST_BASE_LIBS) $(GST_LIBS) $(GL_LIBS) $(am__append_2) \
 	$(am__append_4) $(am__append_6) $(am__append_8) \
 	$(am__append_10) $(am__append_12) $(am__append_14) \
-	$(am__append_16) gpuprocess/libgstgl-gpuprocess.la
+	$(am__append_16)
 configexecincludedir = $(libdir)/gstreamer-@GST_API_VERSION@/include/gst/gl
 nodist_configexecinclude_HEADERS = $(built_sys_header_configure)
 libgstgl_@GST_API_VERSION@_la_CFLAGS = \
@@ -987,6 +996,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglapi.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglbasebuffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglbasefilter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglbufferpool.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglcolorconvert.Plo@am__quote@
@@ -1003,6 +1013,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglupload.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstgluploadmeta.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglutils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglviewconvert.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglwindow.Plo@am__quote@
 
 .c.o:
@@ -1042,6 +1053,13 @@ libgstgl_@GST_API_VERSION@_la-gstglcontext.lo: gstglcontext.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglcontext.c' object='libgstgl_@GST_API_VERSION@_la-gstglcontext.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstgl_@GST_API_VERSION@_la-gstglcontext.lo `test -f 'gstglcontext.c' || echo '$(srcdir)/'`gstglcontext.c
+
+libgstgl_@GST_API_VERSION@_la-gstglbasebuffer.lo: gstglbasebuffer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstgl_@GST_API_VERSION@_la-gstglbasebuffer.lo -MD -MP -MF $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglbasebuffer.Tpo -c -o libgstgl_@GST_API_VERSION@_la-gstglbasebuffer.lo `test -f 'gstglbasebuffer.c' || echo '$(srcdir)/'`gstglbasebuffer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglbasebuffer.Tpo $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglbasebuffer.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglbasebuffer.c' object='libgstgl_@GST_API_VERSION@_la-gstglbasebuffer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstgl_@GST_API_VERSION@_la-gstglbasebuffer.lo `test -f 'gstglbasebuffer.c' || echo '$(srcdir)/'`gstglbasebuffer.c
 
 libgstgl_@GST_API_VERSION@_la-gstglmemory.lo: gstglmemory.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstgl_@GST_API_VERSION@_la-gstglmemory.lo -MD -MP -MF $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglmemory.Tpo -c -o libgstgl_@GST_API_VERSION@_la-gstglmemory.lo `test -f 'gstglmemory.c' || echo '$(srcdir)/'`gstglmemory.c
@@ -1154,6 +1172,13 @@ libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.lo: gstglsyncmeta.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglsyncmeta.c' object='libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstgl_@GST_API_VERSION@_la-gstglsyncmeta.lo `test -f 'gstglsyncmeta.c' || echo '$(srcdir)/'`gstglsyncmeta.c
+
+libgstgl_@GST_API_VERSION@_la-gstglviewconvert.lo: gstglviewconvert.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstgl_@GST_API_VERSION@_la-gstglviewconvert.lo -MD -MP -MF $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglviewconvert.Tpo -c -o libgstgl_@GST_API_VERSION@_la-gstglviewconvert.lo `test -f 'gstglviewconvert.c' || echo '$(srcdir)/'`gstglviewconvert.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglviewconvert.Tpo $(DEPDIR)/libgstgl_@GST_API_VERSION@_la-gstglviewconvert.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglviewconvert.c' object='libgstgl_@GST_API_VERSION@_la-gstglviewconvert.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstgl_@GST_API_VERSION@_la-gstglviewconvert.lo `test -f 'gstglviewconvert.c' || echo '$(srcdir)/'`gstglviewconvert.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

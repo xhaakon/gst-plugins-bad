@@ -15,7 +15,8 @@
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-rtmpsrc.description" class="shortcut">Description</a></span><span id="nav_interfaces">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-rtmpsrc.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-rtmpsrc.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_interfaces">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-rtmpsrc.implemented-interfaces" class="shortcut">Implemented Interfaces</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-rtmpsrc.properties" class="shortcut">Properties</a></span>
 </td>
@@ -29,7 +30,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-bad-plugins-rtmpsrc.top_of_page"></a>rtmpsrc</span></h2>
-<p>rtmpsrc — Read RTMP streams</p>
+<p>rtmpsrc</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -49,7 +50,7 @@
 </tr></tbody>
 </table></div>
 </div>
-<div class="refsect1">
+<a name="GstRTMPSrc"></a><div class="refsect1">
 <a name="gst-plugins-bad-plugins-rtmpsrc.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
@@ -58,9 +59,20 @@
 </colgroup>
 <tbody><tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-rtmpsrc.html#GstRTMPSrc" title="struct GstRTMPSrc">GstRTMPSrc</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-rtmpsrc.html#GstRTMPSrc-struct" title="struct GstRTMPSrc">GstRTMPSrc</a></td>
 </tr></tbody>
 </table></div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-rtmpsrc.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
+            <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
+                <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseSrc.html">GstBaseSrc</a>
+                    <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstPushSrc.html">GstPushSrc</a>
+                        <span class="lineart">╰──</span> GstRTMPSrc
+</pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-rtmpsrc.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
@@ -73,7 +85,7 @@ GstRTMPSrc implements
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.67.6.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.67.8.2.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -99,7 +111,7 @@ GstRTMPSrc implements
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.67.6.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.67.8.2.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -126,8 +138,6 @@ GstRTMPSrc implements
 </table></div>
 </div>
 </div>
-<p>
-</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-rtmpsrc.functions_details"></a><h2>Functions</h2>
@@ -136,13 +146,8 @@ GstRTMPSrc implements
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-rtmpsrc.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstRTMPSrc"></a><h3>struct GstRTMPSrc</h3>
-<pre class="programlisting">struct GstRTMPSrc {
-  GstPushSrc parent;
-};
-</pre>
-<p>
-</p>
+<a name="GstRTMPSrc-struct"></a><h3>struct GstRTMPSrc</h3>
+<pre class="programlisting">struct GstRTMPSrc;</pre>
 </div>
 </div>
 <div class="refsect1">

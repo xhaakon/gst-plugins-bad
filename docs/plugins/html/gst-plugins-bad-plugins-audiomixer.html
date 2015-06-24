@@ -30,7 +30,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-bad-plugins-audiomixer.top_of_page"></a>audiomixer</span></h2>
-<p>audiomixer — Mixes multiple audio streams</p>
+<p>audiomixer</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -106,8 +106,7 @@ GstAudioMixer implements
 <a name="gst-plugins-bad-plugins-audiomixer.description"></a><h2>Description</h2>
 <p>The audiomixer allows to mix several streams into one by adding the data.
 Mixed data is clamped to the min/max values of the data format.</p>
-<p>The audiomixer currently mixes all data received on the sinkpads as soon as
-possible without trying to synchronize the streams.</p>
+<p>Unlike the adder element audiomixer properly synchronises all input streams.</p>
 <p>The input pads are from a GstPad subclass and have additional
 properties to mute each pad individually and set the volume:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
@@ -212,8 +211,6 @@ properties to mute each pad individually and set the volume:</p>
 </table></div>
 </div>
 </div>
-<p>
-</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-audiomixer.functions_details"></a><h2>Functions</h2>

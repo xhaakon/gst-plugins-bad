@@ -157,7 +157,7 @@ am__DEPENDENCIES_1 =
 libgstdashdemux_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/uridownloader/libgsturidownloader-@GST_API_VERSION@.la \
 	$(top_builddir)/gst-libs/gst/adaptivedemux/libgstadaptivedemux-@GST_API_VERSION@.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_libgstdashdemux_la_OBJECTS = libgstdashdemux_la-gstmpdparser.lo \
 	libgstdashdemux_la-gstdashdemux.lo \
 	libgstdashdemux_la-gstisoff.lo libgstdashdemux_la-gstplugin.lo
@@ -411,6 +411,8 @@ GST_TOOLS_DIR = @GST_TOOLS_DIR@
 GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
 GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
+GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
+GTK3_GL_LIBS = @GTK3_GL_LIBS@
 GTK3_LIBS = @GTK3_LIBS@
 GTKDOC_CHECK = @GTKDOC_CHECK@
 GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
@@ -461,6 +463,7 @@ INTROSPECTION_CFLAGS = @INTROSPECTION_CFLAGS@
 INTROSPECTION_COMPILER = @INTROSPECTION_COMPILER@
 INTROSPECTION_GENERATE = @INTROSPECTION_GENERATE@
 INTROSPECTION_GIRDIR = @INTROSPECTION_GIRDIR@
+INTROSPECTION_INIT = @INTROSPECTION_INIT@
 INTROSPECTION_LIBS = @INTROSPECTION_LIBS@
 INTROSPECTION_MAKEFILE = @INTROSPECTION_MAKEFILE@
 INTROSPECTION_SCANNER = @INTROSPECTION_SCANNER@
@@ -764,6 +767,7 @@ libgstdashdemux_la_CFLAGS = $(GST_PLUGINS_BAD_CFLAGS) \
 libgstdashdemux_la_LIBADD = \
 	$(top_builddir)/gst-libs/gst/uridownloader/libgsturidownloader-@GST_API_VERSION@.la \
 	$(top_builddir)/gst-libs/gst/adaptivedemux/libgstadaptivedemux-@GST_API_VERSION@.la \
+	$(GST_PLUGINS_BASE_LIBS) \
 	-lgsttag-$(GST_API_VERSION) \
 	$(GST_BASE_LIBS) \
 	$(GST_LIBS) \

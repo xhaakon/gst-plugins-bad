@@ -156,7 +156,7 @@ LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstopensles_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
-am_libgstopensles_la_OBJECTS =  \
+am_libgstopensles_la_OBJECTS = libgstopensles_la-openslescommon.lo \
 	libgstopensles_la-openslesringbuffer.lo \
 	libgstopensles_la-openslessink.lo \
 	libgstopensles_la-openslessrc.lo libgstopensles_la-opensles.lo
@@ -410,6 +410,8 @@ GST_TOOLS_DIR = @GST_TOOLS_DIR@
 GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
 GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
+GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
+GTK3_GL_LIBS = @GTK3_GL_LIBS@
 GTK3_LIBS = @GTK3_LIBS@
 GTKDOC_CHECK = @GTKDOC_CHECK@
 GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
@@ -460,6 +462,7 @@ INTROSPECTION_CFLAGS = @INTROSPECTION_CFLAGS@
 INTROSPECTION_COMPILER = @INTROSPECTION_COMPILER@
 INTROSPECTION_GENERATE = @INTROSPECTION_GENERATE@
 INTROSPECTION_GIRDIR = @INTROSPECTION_GIRDIR@
+INTROSPECTION_INIT = @INTROSPECTION_INIT@
 INTROSPECTION_LIBS = @INTROSPECTION_LIBS@
 INTROSPECTION_MAKEFILE = @INTROSPECTION_MAKEFILE@
 INTROSPECTION_SCANNER = @INTROSPECTION_SCANNER@
@@ -738,7 +741,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstopensles.la
-libgstopensles_la_SOURCES = openslesringbuffer.c \
+libgstopensles_la_SOURCES = openslescommon.c     \
+                            openslesringbuffer.c \
                             openslessink.c       \
                             openslessrc.c        \
                             opensles.c
@@ -754,7 +758,8 @@ libgstopensles_la_LIBADD = \
 
 libgstopensles_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) -lOpenSLES
 libgstopensles_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
-noinst_HEADERS = openslesringbuffer.h \
+noinst_HEADERS = openslescommon.h     \
+                 openslesringbuffer.h \
                  openslessink.h       \
                  openslessrc.h
 
@@ -838,6 +843,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopensles_la-opensles.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopensles_la-openslescommon.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopensles_la-openslesringbuffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopensles_la-openslessink.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopensles_la-openslessrc.Plo@am__quote@
@@ -865,6 +871,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
+libgstopensles_la-openslescommon.lo: openslescommon.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopensles_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopensles_la_CFLAGS) $(CFLAGS) -MT libgstopensles_la-openslescommon.lo -MD -MP -MF $(DEPDIR)/libgstopensles_la-openslescommon.Tpo -c -o libgstopensles_la-openslescommon.lo `test -f 'openslescommon.c' || echo '$(srcdir)/'`openslescommon.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopensles_la-openslescommon.Tpo $(DEPDIR)/libgstopensles_la-openslescommon.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='openslescommon.c' object='libgstopensles_la-openslescommon.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopensles_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopensles_la_CFLAGS) $(CFLAGS) -c -o libgstopensles_la-openslescommon.lo `test -f 'openslescommon.c' || echo '$(srcdir)/'`openslescommon.c
 
 libgstopensles_la-openslesringbuffer.lo: openslesringbuffer.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopensles_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopensles_la_CFLAGS) $(CFLAGS) -MT libgstopensles_la-openslesringbuffer.lo -MD -MP -MF $(DEPDIR)/libgstopensles_la-openslesringbuffer.Tpo -c -o libgstopensles_la-openslesringbuffer.lo `test -f 'openslesringbuffer.c' || echo '$(srcdir)/'`openslesringbuffer.c

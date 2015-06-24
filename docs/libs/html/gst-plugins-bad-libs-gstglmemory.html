@@ -41,30 +41,6 @@
 </colgroup>
 <tbody>
 <tr>
-<td class="define_keyword">#define</td>
-<td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAGS:CAPS" title="GST_GL_MEMORY_FLAGS()">GST_GL_MEMORY_FLAGS</a><span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="define_keyword">#define</td>
-<td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAG-IS-SET:CAPS" title="GST_GL_MEMORY_FLAG_IS_SET()">GST_GL_MEMORY_FLAG_IS_SET</a><span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="define_keyword">#define</td>
-<td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAG-SET:CAPS" title="GST_GL_MEMORY_FLAG_SET()">GST_GL_MEMORY_FLAG_SET</a><span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="define_keyword">#define</td>
-<td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-FLAG-UNSET:CAPS" title="GST_GL_MEMORY_FLAG_UNSET()">GST_GL_MEMORY_FLAG_UNSET</a><span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
 <td class="function_type">
 <span class="returnvalue">void</span>
 </td>
@@ -157,15 +133,7 @@
 </tr>
 <tr>
 <td class="define_keyword">#define</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GST-MAP-GL:CAPS" title="GST_MAP_GL">GST_MAP_GL</a></td>
-</tr>
-<tr>
-<td class="define_keyword">#define</td>
 <td class="function_name"><a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GST-GL-MEMORY-ALLOCATOR:CAPS" title="GST_GL_MEMORY_ALLOCATOR">GST_GL_MEMORY_ALLOCATOR</a></td>
-</tr>
-<tr>
-<td class="datatype_keyword">enum</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemoryFlags" title="enum GstGLMemoryFlags">GstGLMemoryFlags</a></td>
 </tr>
 <tr>
 <td class="datatype_keyword"> </td>
@@ -180,12 +148,13 @@
     <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
         <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
             <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstAllocator.html">GstAllocator</a>
-                <span class="lineart">╰──</span> GstGLAllocator
+                <span class="lineart">╰──</span> GstGLBaseBufferAllocator
+                    <span class="lineart">╰──</span> GstGLAllocator
 </pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-gstglmemory.description"></a><h2>Description</h2>
-<p>GstGLMemory is a <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstMemory.html"><span class="type">GstMemory</span></a> subclass providing support for the mapping of
+<p>GstGLMemory is a <span class="type">GstGLBaseBuffer</span> subclass providing support for the mapping of
 GL textures.  </p>
 <p><a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> is created through <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#gst-gl-memory-alloc" title="gst_gl_memory_alloc ()"><code class="function">gst_gl_memory_alloc()</code></a> or system memory can
 be wrapped through <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#gst-gl-memory-wrapped" title="gst_gl_memory_wrapped ()"><code class="function">gst_gl_memory_wrapped()</code></a>.</p>
@@ -193,122 +162,6 @@ be wrapped through <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#g
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-gstglmemory.functions_details"></a><h2>Functions</h2>
-<div class="refsect2">
-<a name="GST-GL-MEMORY-FLAGS:CAPS"></a><h3>GST_GL_MEMORY_FLAGS()</h3>
-<pre class="programlisting">#define GST_GL_MEMORY_FLAGS(mem) GST_MEMORY_FLAGS(mem)
-</pre>
-<p>Get the currently set flags on <em class="parameter"><code>mem</code></em>
-</p>
-<div class="refsect3">
-<a name="id-1.2.9.17.8.2.5"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody><tr>
-<td class="parameter_name"><p>mem</p></td>
-<td class="parameter_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GST-GL-MEMORY-FLAG-IS-SET:CAPS"></a><h3>GST_GL_MEMORY_FLAG_IS_SET()</h3>
-<pre class="programlisting">#define GST_GL_MEMORY_FLAG_IS_SET(mem,flag) GST_MEMORY_FLAG_IS_SET(mem,flag)
-</pre>
-<p>Whether <em class="parameter"><code>flag</code></em>
- is set on <em class="parameter"><code>mem</code></em>
-</p>
-<div class="refsect3">
-<a name="id-1.2.9.17.8.3.5"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>mem</p></td>
-<td class="parameter_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>flag</p></td>
-<td class="parameter_description"><p>a flag</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GST-GL-MEMORY-FLAG-SET:CAPS"></a><h3>GST_GL_MEMORY_FLAG_SET()</h3>
-<pre class="programlisting">#define GST_GL_MEMORY_FLAG_SET(mem,flag) GST_MINI_OBJECT_FLAG_SET(mem,flag)
-</pre>
-<p>Set <em class="parameter"><code>flag</code></em>
- on <em class="parameter"><code>mem</code></em>
-</p>
-<div class="refsect3">
-<a name="id-1.2.9.17.8.4.5"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>mem</p></td>
-<td class="parameter_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>flag</p></td>
-<td class="parameter_description"><p>a flag</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GST-GL-MEMORY-FLAG-UNSET:CAPS"></a><h3>GST_GL_MEMORY_FLAG_UNSET()</h3>
-<pre class="programlisting">#define GST_GL_MEMORY_FLAG_UNSET(mem,flag) GST_MEMORY_FLAG_UNSET(mem,flag)
-</pre>
-<p>Unset <em class="parameter"><code>flag</code></em>
- on <em class="parameter"><code>mem</code></em>
-</p>
-<div class="refsect3">
-<a name="id-1.2.9.17.8.5.5"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>mem</p></td>
-<td class="parameter_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>flag</p></td>
-<td class="parameter_description"><p>a flag</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-</div>
-<hr>
 <div class="refsect2">
 <a name="gst-gl-memory-init"></a><h3>gst_gl_memory_init ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
@@ -327,7 +180,7 @@ gst_gl_memory_alloc (<em class="parameter"><code><a class="link" href="GstGLCont
                      <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideo.html#GstVideoAlignment"><span class="type">GstVideoAlignment</span></a> *valign</code></em>);</pre>
 <p>Allocated a new <span class="type">GstGlMemory</span>.</p>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.7.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.17.8.3.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -365,7 +218,7 @@ gst_gl_memory_alloc (<em class="parameter"><code><a class="link" href="GstGLCont
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.7.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.17.8.3.6"></a><h4>Returns</h4>
 <p> a <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstMemory.html"><span class="type">GstMemory</span></a> object with a GL texture specified by <em class="parameter"><code>vinfo</code></em>
 from <em class="parameter"><code>context</code></em>
 </p>
@@ -387,7 +240,7 @@ gst_gl_memory_wrapped (<em class="parameter"><code><a class="link" href="GstGLCo
 added to the allocation and expressed through <em class="parameter"><code>valign</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.8.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.17.8.4.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -438,7 +291,7 @@ needs to be freed</p></td>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.8.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.17.8.4.6"></a><h4>Returns</h4>
 <p> a <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> object with a GL texture specified by <em class="parameter"><code>v_info</code></em>
 from <em class="parameter"><code>context</code></em>
 and contents specified by <em class="parameter"><code>data</code></em>
@@ -459,7 +312,7 @@ gst_gl_memory_wrapped_texture (<em class="parameter"><code><a class="link" href=
                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> notify</code></em>);</pre>
 <p>Wraps a texture handle into a <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a>.</p>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.9.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.17.8.5.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -506,7 +359,7 @@ gst_gl_memory_wrapped_texture (<em class="parameter"><code><a class="link" href=
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.9.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.17.8.5.6"></a><h4>Returns</h4>
 <p> a newly allocated <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p>
 </div>
 </div>
@@ -541,7 +394,7 @@ output as the RGBA texture.</p>
 using glCopyTexImage.  See the OpenGL specification for details on the
 mappings between texture formats.</p>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.10.7"></a><h4>Parameters</h4>
+<a name="id-1.2.9.17.8.6.7"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -590,7 +443,7 @@ mappings between texture formats.</p>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.10.8"></a><h4>Returns</h4>
+<a name="id-1.2.9.17.8.6.8"></a><h4>Returns</h4>
 <p> Whether the copy suceeded</p>
 </div>
 </div>
@@ -609,7 +462,7 @@ gst_gl_memory_setup_buffer (<em class="parameter"><code><a class="link" href="Gs
 . This version handles padding through <em class="parameter"><code>valign</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.11.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.17.8.7.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -647,7 +500,7 @@ gst_gl_memory_setup_buffer (<em class="parameter"><code><a class="link" href="Gs
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.11.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.17.8.7.6"></a><h4>Returns</h4>
 <p> whether the memory's were sucessfully added.</p>
 </div>
 </div>
@@ -667,7 +520,7 @@ gst_gl_memory_setup_wrapped (<em class="parameter"><code><a class="link" href="G
  and padding from <em class="parameter"><code>valign</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.12.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.17.8.8.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -704,7 +557,7 @@ gst_gl_memory_setup_wrapped (<em class="parameter"><code><a class="link" href="G
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.12.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.17.8.8.6"></a><h4>Returns</h4>
 <p> whether the memory's were sucessfully created.</p>
 </div>
 </div>
@@ -722,7 +575,7 @@ gst_gl_texture_type_from_format (<em class="parameter"><code><a class="link" hre
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_is_gl_memory (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstMemory.html"><span class="type">GstMemory</span></a> *mem</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.14.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.17.8.10.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -737,7 +590,7 @@ gst_is_gl_memory (<em class="parameter"><code><a href="http://gstreamer.freedesk
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.17.8.14.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.17.8.10.5"></a><h4>Returns</h4>
 <p> whether the memory at <em class="parameter"><code>mem</code></em>
 is a <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p>
 </div>
@@ -754,72 +607,24 @@ is a <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" ti
 <div class="refsect2">
 <a name="GstGLAllocatorClass"></a><h3>GstGLAllocatorClass</h3>
 <pre class="programlisting">typedef struct {
-  GstAllocatorClass parent_class;
+  GstGLBaseBufferAllocatorClass parent_class;
 } GstGLAllocatorClass;
 </pre>
 <p>The <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLAllocatorClass" title="GstGLAllocatorClass"><span class="type">GstGLAllocatorClass</span></a> only contains private data</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="GST-MAP-GL:CAPS"></a><h3>GST_MAP_GL</h3>
-<pre class="programlisting">#define GST_MAP_GL GST_MAP_FLAG_LAST &lt;&lt; 1
-</pre>
-<p>Flag indicating that we should map the GL object instead of to system memory.</p>
-<p>Combining <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GST-MAP-GL:CAPS" title="GST_MAP_GL"><span class="type">GST_MAP_GL</span></a> with <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstMemory.html#GST-MAP-WRITE:CAPS"><span class="type">GST_MAP_WRITE</span></a> has the same semantics as though
-you are writing to OpenGL. Conversely, combining <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GST-MAP-GL:CAPS" title="GST_MAP_GL"><span class="type">GST_MAP_GL</span></a> with
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstMemory.html#GST-MAP-READ:CAPS"><span class="type">GST_MAP_READ</span></a> has the same semantics as though you are reading from OpenGL.</p>
-</div>
-<hr>
-<div class="refsect2">
 <a name="GST-GL-MEMORY-ALLOCATOR:CAPS"></a><h3>GST_GL_MEMORY_ALLOCATOR</h3>
 <pre class="programlisting">#define GST_GL_MEMORY_ALLOCATOR   "GLMemory"
 </pre>
-<p>The name of the GL memore allocator</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GstGLMemoryFlags"></a><h3>enum GstGLMemoryFlags</h3>
-<p>Flags indicating the current state of a <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p>
-<div class="refsect3">
-<a name="id-1.2.9.17.9.6.4"></a><h4>Members</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="300px" class="enum_members_name">
-<col class="enum_members_description">
-<col width="200px" class="enum_members_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="enum_member_name"><p><a name="GST-GL-MEMORY-FLAG-DOWNLOAD-INITTED:CAPS"></a>GST_GL_MEMORY_FLAG_DOWNLOAD_INITTED</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="enum_member_name"><p><a name="GST-GL-MEMORY-FLAG-UPLOAD-INITTED:CAPS"></a>GST_GL_MEMORY_FLAG_UPLOAD_INITTED</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="enum_member_name"><p><a name="GST-GL-MEMORY-FLAG-NEED-DOWNLOAD:CAPS"></a>GST_GL_MEMORY_FLAG_NEED_DOWNLOAD</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="enum_member_name"><p><a name="GST-GL-MEMORY-FLAG-NEED-UPLOAD:CAPS"></a>GST_GL_MEMORY_FLAG_NEED_UPLOAD</p></td>
-<td> </td>
-<td> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
+<p>The name of the GL memory allocator</p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="GstGLMemory"></a><h3>GstGLMemory</h3>
 <pre class="programlisting">typedef struct {
-  GstMemory                    mem;
+  GstGLBaseBuffer       mem;
 
-  GstGLContext         *context;
   guint                 tex_id;
   guint                 tex_target;
   GstVideoGLTextureType tex_type;
@@ -831,7 +636,7 @@ you are writing to OpenGL. Conversely, combining <a class="link" href="gst-plugi
 </pre>
 <p>Represents information about a GL texture</p>
 <div class="refsect3">
-<a name="id-1.2.9.17.9.7.5"></a><h4>Members</h4>
+<a name="id-1.2.9.17.9.5.5"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -840,49 +645,46 @@ you are writing to OpenGL. Conversely, combining <a class="link" href="gst-plugi
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstMemory.html"><span class="type">GstMemory</span></a> <em class="structfield"><code><a name="GstGLMemory.mem"></a>mem</code></em>;</p></td>
+<td class="struct_member_name"><p><span class="type">GstGLBaseBuffer</span> <em class="structfield"><code><a name="GstGLMemory.mem"></a>mem</code></em>;</p></td>
 <td class="struct_member_description"><p>the parent object</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *<em class="structfield"><code><a name="GstGLMemory.context"></a>context</code></em>;</p></td>
-<td class="struct_member_description"><p>the <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> to use for GL operations</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
 <td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstGLMemory.tex-id"></a>tex_id</code></em>;</p></td>
-<td class="struct_member_description"><p>the texture id for this memory</p></td>
+<td class="struct_member_description"><p>the GL texture id for this memory</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstGLMemory.tex-target"></a>tex_target</code></em>;</p></td>
-<td> </td>
-<td> </td>
+<td class="struct_member_description"><p>the GL texture target for this memory</p></td>
+<td class="struct_member_annotations"> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><span class="type">GstVideoGLTextureType</span> <em class="structfield"><code><a name="GstGLMemory.tex-type"></a>tex_type</code></em>;</p></td>
-<td> </td>
-<td> </td>
+<td class="struct_member_description"><p>the texture type</p></td>
+<td class="struct_member_annotations"> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideo.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a> <em class="structfield"><code><a name="GstGLMemory.info"></a>info</code></em>;</p></td>
-<td> </td>
-<td> </td>
+<td class="struct_member_description"><p>the texture's <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideo.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a></p></td>
+<td class="struct_member_annotations"> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideo.html#GstVideoAlignment"><span class="type">GstVideoAlignment</span></a> <em class="structfield"><code><a name="GstGLMemory.valign"></a>valign</code></em>;</p></td>
-<td> </td>
-<td> </td>
+<td class="struct_member_description"><p>data alignment for system memory mapping</p></td>
+<td class="struct_member_annotations"> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstGLMemory.plane"></a>plane</code></em>;</p></td>
-<td> </td>
-<td> </td>
+<td class="struct_member_description"><p>data plane in <em class="parameter"><code>info</code></em>
+</p></td>
+<td class="struct_member_annotations"> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gfloat"><span class="type">gfloat</span></a> <em class="structfield"><code><a name="GstGLMemory.tex-scaling"></a>tex_scaling</code></em>[2];</p></td>
-<td> </td>
-<td> </td>
+<td class="struct_member_description"><p>GL shader scaling parameters for <em class="parameter"><code>valign</code></em>
+and/or width/height</p></td>
+<td class="struct_member_annotations"> </td>
 </tr>
 </tbody>
 </table></div>
