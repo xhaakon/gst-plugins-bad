@@ -42,6 +42,7 @@ libjasper-dev
 libkate-dev (>= 0.1.7)
 libmedia-dev (>= 0.1.0+git20131207+e452e83-0ubuntu3) [i386 armhf]
 libmimic-dev (>= 1.0)
+libmirclient-dev [i386 armhf]
 libmjpegtools-dev
 libmms-dev (>= 0.4)
 libmodplug-dev

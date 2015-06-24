@@ -10,7 +10,7 @@ Index: gst-plugins-bad1.0-1.4.5/configure.ac
 ===================================================================
 --- gst-plugins-bad1.0-1.4.5.orig/configure.ac
 +++ gst-plugins-bad1.0-1.4.5/configure.ac
-@@ -1632,6 +1632,14 @@ AG_GST_CHECK_FEATURE(ANDROID_MEDIA, [And
+@@ -1632,6 +1632,18 @@
    esac
  ])
  
@@ -19,13 +19,17 @@ Index: gst-plugins-bad1.0-1.4.5/configure.ac
 +HAVE_ANDROID_MEDIA_HYBRIS="no"
 +dnl Check for the presence of Hybris (Ubuntu Touch)
 +AG_GST_CHECK_FEATURE(ANDROID_MEDIA_HYBRIS, [Android Media Hybris], androidmediahybris, [
-+  AC_CHECK_HEADER(hybris/media/media_codec_layer.h, HAVE_ANDROID_MEDIA_HYBRIS="yes", HAVE_ANDROID_MEDIA_HYBRIS="no")
++  AC_CHECK_HEADER(hybris/media/media_codec_layer.h,
++      [PKG_CHECK_MODULES(UBUNTU_PLATFORM, ubuntu-platform-api,
++              [HAVE_ANDROID_MEDIA_HYBRIS="yes"],
++              [HAVE_ANDROID_MEDIA_HYBRIS="no"]
++      )], HAVE_ANDROID_MEDIA_HYBRIS="no")
 +])
 +
  dnl *** AppleMedia (OS X and iOS) ***
  translit(dnm, m, l) AM_CONDITIONAL(USE_APPLE_MEDIA, true)
  HAVE_APPLE_MEDIA="no"
-@@ -2981,6 +2989,7 @@ AM_CONDITIONAL(DECKLINK_OSX, false)
+@@ -2981,6 +2993,7 @@
  AM_CONDITIONAL(USE_DIRECTFB, false)
  AM_CONDITIONAL(USE_WAYLAND, false)
  AM_CONDITIONAL(USE_DAALA, false)
@@ -33,7 +37,7 @@ Index: gst-plugins-bad1.0-1.4.5/configure.ac
  AM_CONDITIONAL(USE_DTS, false)
  AM_CONDITIONAL(USE_EXIF, false)
  AM_CONDITIONAL(USE_RESINDVD, false)
-@@ -3206,6 +3215,7 @@ gst-libs/gst/gl/egl/Makefile
+@@ -3206,6 +3219,7 @@
  gst-libs/gst/gl/wayland/Makefile
  gst-libs/gst/gl/win32/Makefile
  gst-libs/gst/gl/x11/Makefile
@@ -41,7 +45,7 @@ Index: gst-plugins-bad1.0-1.4.5/configure.ac
  gst-libs/gst/insertbin/Makefile
  gst-libs/gst/interfaces/Makefile
  gst-libs/gst/codecparsers/Makefile
-@@ -3283,6 +3293,7 @@ ext/dc1394/Makefile
+@@ -3283,6 +3297,7 @@
  ext/directfb/Makefile
  ext/wayland/Makefile
  ext/daala/Makefile
@@ -53,7 +57,7 @@ Index: gst-plugins-bad1.0-1.4.5/ext/Makefile.am
 ===================================================================
 --- gst-plugins-bad1.0-1.4.5.orig/ext/Makefile.am
 +++ gst-plugins-bad1.0-1.4.5/ext/Makefile.am
-@@ -70,6 +70,12 @@ else
+@@ -70,6 +70,12 @@
  DAALA_DIR=
  endif
  
@@ -66,7 +70,7 @@ Index: gst-plugins-bad1.0-1.4.5/ext/Makefile.am
  if USE_DTS
  DTS_DIR=dts
  else
-@@ -424,6 +430,7 @@ SUBDIRS=\
+@@ -424,6 +430,7 @@
  	$(LIBFAME_DIR) \
  	$(LIBMMS_DIR) \
  	$(LIBVISUAL_DIR) \
@@ -74,7 +78,7 @@ Index: gst-plugins-bad1.0-1.4.5/ext/Makefile.am
  	$(MODPLUG_DIR) \
  	$(MPEG2ENC_DIR) \
  	$(MPG123_DIR) \
-@@ -471,6 +478,7 @@ DIST_SUBDIRS = \
+@@ -471,6 +478,7 @@
  	dc1394 \
  	directfb \
  	wayland \
@@ -86,11 +90,12 @@ Index: gst-plugins-bad1.0-1.4.5/ext/mir/Makefile.am
 ===================================================================
 --- /dev/null
 +++ gst-plugins-bad1.0-1.4.5/ext/mir/Makefile.am
-@@ -0,0 +1,16 @@
+@@ -0,0 +1,17 @@
 +plugin_LTLIBRARIES = libgstmirsink.la
 +
 +libgstmirsink_la_SOURCES = gstmirsink.c mirpool.c
 +libgstmirsink_la_CFLAGS = $(GST_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
++                               $(UBUNTU_PLATFORM_CFLAGS) \
 +                               $(MIR_CFLAGS) \
 +                               -I../../gst-libs/
 +libgstmirsink_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) \
@@ -1013,10 +1018,10 @@ Index: gst-plugins-bad1.0-1.4.5/ext/mir/gstmirsink.h
 +#include <gst/video/gstvideosink.h>
 +#include <gst/video/gstvideometa.h>
 +
-+#include <ubuntu/application/ui/window.h>
-+#include <ubuntu/application/ui/options.h>
-+#include <ubuntu/application/ui/display.h>
-+#include <ubuntu/application/ui/session.h>
++#include <application/ui/window.h>
++#include <application/ui/options.h>
++#include <application/ui/display.h>
++#include <application/ui/session.h>
 +
 +#include <hybris/media/surface_texture_client_hybris.h>
 +//#include <gst/mir/gstmircontext.h>
@@ -2313,7 +2318,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/Makefile.am
 ===================================================================
 --- gst-plugins-bad1.0-1.4.5.orig/sys/Makefile.am
 +++ gst-plugins-bad1.0-1.4.5/sys/Makefile.am
-@@ -10,6 +10,12 @@ else
+@@ -10,6 +10,12 @@
  ANDROID_MEDIA_DIR=
  endif
  
@@ -2350,7 +2355,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/Makefile.am
  
  noinst_HEADERS = \
  	gstamc.h \
-@@ -14,18 +22,22 @@ noinst_HEADERS = \
+@@ -14,18 +22,23 @@
  	gstamcvideoenc.h
  
  libgstandroidmedia_la_CFLAGS = \
@@ -2358,6 +2363,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/Makefile.am
  	$(GST_PLUGINS_BASE_CFLAGS) \
  	$(GST_BASE_CFLAGS) \
  	$(GST_CFLAGS) \
++	$(UBUNTU_PLATFORM_CFLAGS) \
  	$(ORC_CFLAGS)
  libgstandroidmedia_la_LIBADD = \
 +	$(GST_PLUGINS_BAD_LIBS) \
@@ -2374,7 +2380,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/Makefile.am
  libgstandroidmedia_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
  libgstandroidmedia_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
  
-@@ -36,7 +48,7 @@ Android.mk: Makefile.am $(BUILT_SOURCES)
+@@ -36,7 +49,7 @@
           -:REL_TOP $(top_srcdir) -:ABS_TOP $(abs_top_srcdir) \
  	 -:SOURCES $(libgstandroidmedia_la_SOURCES) \
  	           $(nodist_libgstandroidmedia_la_SOURCES) \
@@ -2387,7 +2393,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc-constants.h
 ===================================================================
 --- gst-plugins-bad1.0-1.4.5.orig/sys/androidmedia/gstamc-constants.h
 +++ gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc-constants.h
-@@ -93,6 +93,8 @@ enum
+@@ -93,6 +93,8 @@
    COLOR_Format24BitARGB6666 = 42,
    COLOR_Format24BitABGR6666 = 43,
    COLOR_FormatAndroidOpaque = 0x7F000789,
@@ -2396,7 +2402,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc-constants.h
    COLOR_TI_FormatYUV420PackedSemiPlanar = 0x7f000100,
    COLOR_QCOM_FormatYUV420SemiPlanar = 0x7fa30c00,
    COLOR_QCOM_FormatYUV420PackedSemiPlanar64x32Tile2m8ka = 0x7fa30c03,
-@@ -100,12 +102,17 @@ enum
+@@ -100,12 +102,17 @@
    COLOR_QCOM_FormatYVU420SemiPlanar32m = 0x7fa30c04,
    /* From hardware/ti/omap4xxx/domx/omx_core/inc/OMX_TI_IVCommon.h */
    COLOR_TI_FormatYUV420PackedSemiPlanarInterlaced = 0x7f000001,
@@ -2431,10 +2437,10 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc.h
 +#include <hybris/media/media_codec_layer.h>
 +#include <hybris/media/media_format_layer.h>
 +
-+#include <ubuntu/application/ui/window.h>
-+#include <ubuntu/application/ui/options.h>
-+#include <ubuntu/application/ui/display.h>
-+#include <ubuntu/application/ui/session.h>
++#include <application/ui/window.h>
++#include <application/ui/options.h>
++#include <application/ui/display.h>
++#include <application/ui/session.h>
 +#endif
 +
 +#ifndef HAVE_ANDROID_MEDIA_HYBRIS
@@ -2480,7 +2486,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc.h
  typedef struct _GstAmcCodecInfo GstAmcCodecInfo;
  typedef struct _GstAmcCodecType GstAmcCodecType;
  typedef struct _GstAmcCodec GstAmcCodec;
-@@ -57,19 +107,34 @@ struct _GstAmcCodecInfo {
+@@ -57,19 +107,34 @@
  };
  
  struct _GstAmcBuffer {
@@ -2515,7 +2521,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc.h
  };
  
  struct _GstAmcBufferInfo {
-@@ -81,44 +146,62 @@ struct _GstAmcBufferInfo {
+@@ -81,44 +146,62 @@
  
  extern GQuark gst_amc_codec_info_quark;
  
@@ -5989,7 +5995,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcvideodec.h
  #include "gstamc.h"
  
  G_BEGIN_DECLS
-@@ -57,6 +61,11 @@ struct _GstAmcVideoDec
+@@ -57,6 +61,11 @@
    GstVideoCodecState *input_state;
    gboolean input_state_changed;
  
@@ -6001,7 +6007,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcvideodec.h
    /* Output format of the codec */
    GstVideoFormat format;
    GstAmcColorFormatInfo color_format_info;
-@@ -68,6 +77,10 @@ struct _GstAmcVideoDec
+@@ -68,6 +77,10 @@
    gboolean started;
    gboolean flushing;
  
@@ -6012,7 +6018,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcvideodec.h
    GstClockTime last_upstream_ts;
  
    /* Draining state */
-@@ -80,6 +93,16 @@ struct _GstAmcVideoDec
+@@ -80,6 +93,16 @@
    gboolean eos;
  
    GstFlowReturn downstream_flow_ret;
@@ -8365,7 +8371,7 @@ Index: gst-plugins-bad1.0-1.4.5/tests/check/Makefile.am
 ===================================================================
 --- gst-plugins-bad1.0-1.4.5.orig/tests/check/Makefile.am
 +++ gst-plugins-bad1.0-1.4.5/tests/check/Makefile.am
-@@ -184,6 +184,12 @@ else
+@@ -184,6 +184,12 @@
  check_gl=
  endif
  
@@ -8378,7 +8384,7 @@ Index: gst-plugins-bad1.0-1.4.5/tests/check/Makefile.am
  VALGRIND_TO_FIX = \
  	elements/mpeg2enc \
  	elements/mplex    \
-@@ -240,6 +246,7 @@ check_PROGRAMS = \
+@@ -240,6 +246,7 @@
  	elements/mxfmux \
  	elements/id3mux \
  	pipelines/mxf \
@@ -8994,7 +9000,7 @@ Index: gst-plugins-bad1.0-1.4.5/gst-libs/gst/Makefile.am
 ===================================================================
 --- gst-plugins-bad1.0-1.4.5.orig/gst-libs/gst/Makefile.am
 +++ gst-plugins-bad1.0-1.4.5/gst-libs/gst/Makefile.am
-@@ -6,12 +6,16 @@ if USE_GLES2
+@@ -6,12 +6,16 @@
  GL_DIR = gl
  endif
  

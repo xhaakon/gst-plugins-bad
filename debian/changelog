@@ -1,9 +1,19 @@
-gst-plugins-bad1.0 (1.4.5-1ubuntu5) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.4.5-1ubuntu6) wily; urgency=medium
 
-  * debian/control{,.in}: Update Vcs-* for Ubuntu
-  * debian/watch: Update for new URL scheme
+  * debian/patches/mirclient-requires.patch, debian/build-deps.in: Explicitly
+    include mirclient's CFLAGS and LIBS even though they are only indirectly
+    (by platform-api) required. Resolves FTBFS and can be removed once bug
+    #1465958 is fixed.
 
- -- Iain Lane <iain.lane@canonical.com>  Mon, 15 Jun 2015 16:57:14 +0100
+ -- Iain Lane <iain@orangesquash.org.uk>  Wed, 24 Jun 2015 17:48:12 +0100
+
+gst-plugins-bad1.0 (1.4.5-1ubuntu5) wily; urgency=medium
+
+  * adding-mirsink-and-android-media-over-hybris-support.patch: use
+    ubuntu-platform-api pkg-config information for building sources that
+    need to be able to find mir headers.  LP: #1465958.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 17 Jun 2015 10:36:00 -0700
 
 gst-plugins-bad1.0 (1.4.5-1ubuntu4) wily; urgency=medium
 
