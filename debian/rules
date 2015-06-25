@@ -56,7 +56,7 @@ gst_extra_build_depends += , libcdaudio-dev [linux-any]
 gst_extra_build_depends += , libdc1394-22-dev (>= 2.0.0) [linux-any]
 gst_extra_build_depends += , libgudev-1.0-dev (>= 143) [linux-any]
 gst_extra_build_depends += , libusb-1.0-0-dev [linux-any]
-gst_extra_build_depends += , libbluetooth-dev (>= 5) [linux-any]
+#gst_extra_build_depends += , libbluetooth-dev (>= 5) [linux-any]
 gst_extra_build_depends += , libsbc-dev (>= 1.1) [linux-any]
 gst_extra_build_depends += , libwayland-dev (>= 1.0) [linux-any]
 
@@ -95,7 +95,7 @@ dc1394 = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstdc1
 decklink = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstdecklink.so
 linsys = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstlinsys.so
 uvch264 = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstuvch264.so
-bluez = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstbluez.so
+#bluez = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstbluez.so
 sbc = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstsbc.so
 waylandsink = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstwaylandsink.so
 wayland = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libgstwayland-$(gst_abi).so.*
