@@ -45,7 +45,7 @@ gst_abi=$(gst_major).$(gst_minor)
 gst_lib=libgstreamer$(gst_abi)-0
 gst_lib_dev=libgstreamer$(gst_abi)-dev
 # what gstreamer version is needed
-gst_lib_dev_dep=$(gst_lib_dev) (>= 1.4.0)
+gst_lib_dev_dep=$(gst_lib_dev) (>= 1.5.2)
 
 gst_pkgname=gstreamer$(gst_abi)
 gst_deb_abi=$(gst_abi)-0
@@ -56,7 +56,7 @@ gst_extra_build_depends += , libcdaudio-dev [linux-any]
 gst_extra_build_depends += , libdc1394-22-dev (>= 2.0.0) [linux-any]
 gst_extra_build_depends += , libgudev-1.0-dev (>= 143) [linux-any]
 gst_extra_build_depends += , libusb-1.0-0-dev [linux-any]
-#gst_extra_build_depends += , libbluetooth-dev (<< 5) [linux-any]
+gst_extra_build_depends += , libbluetooth-dev (>= 5) [linux-any]
 gst_extra_build_depends += , libsbc-dev (>= 1.1) [linux-any]
 gst_extra_build_depends += , libwayland-dev (>= 1.0) [linux-any]
 
@@ -79,11 +79,6 @@ VERSIONIZE= \
 #debug package
 DEB_DH_STRIP_ARGS := --dbg-package=$(gst_pkgname)-plugins-bad-dbg
 
-# enable the real plugin on x86
-ifeq ($(DEB_HOST_ARCH_CPU), i386)
-real = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstreal.so
-endif
-
 # miralloc is just enabled for i386 and armhf (need android for the other archs)
 android_hybris_archs := i386 armhf
 ifeq ($(DEB_HOST_ARCH_CPU), $(findstring $(DEB_HOST_ARCH_CPU), $(android_hybris_archs)))
@@ -100,7 +95,7 @@ dc1394 = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstdc1
 decklink = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstdecklink.so
 linsys = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstlinsys.so
 uvch264 = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstuvch264.so
-#bluez = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstbluez.so
+bluez = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstbluez.so
 sbc = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstsbc.so
 waylandsink = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstwaylandsink.so
 wayland = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libgstwayland-$(gst_abi).so.*
@@ -136,7 +131,6 @@ pre-build::
 	for p in $(PLUGINS); do \
 		rm -f debian/$(gst_pkgname)-$$p.install; \
 		sed \
-			-e 's,@real@,$(real),g' \
 			-e 's,@dvb@,$(dvb),g' \
 			-e 's,@decklink@,$(decklink),g' \
 			-e 's,@linsys@,$(linsys),g' \
@@ -167,6 +161,8 @@ pre-build::
 			-e 's,@mirallocdev@,$(mirallocdev),g' \
 			debian/libgstreamer-plugins-bad-dev.install \
 			> debian/libgstreamer-plugins-bad$(gst_abi)-dev.install
+	cp debian/gir1.2-gst-plugins-bad.install \
+			debian/gir1.2-gst-plugins-bad-$(gst_abi).install
 
 maint: debian/control
 

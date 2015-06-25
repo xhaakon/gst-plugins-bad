@@ -66,8 +66,7 @@ enum
 {
   PROP_0,
   PROP_DROP,
-  PROP_CONFIG_INTERVAL,
-  PROP_LAST
+  PROP_CONFIG_INTERVAL
 };
 
 #define gst_mpeg4vparse_parent_class parent_class
@@ -509,7 +508,6 @@ next:
         mp4vparse->last_sc = size - 3;
       }
       goto out;
-      break;
     default:
       /* decide whether this startcode ends a frame */
       ret = gst_mpeg4vparse_process_sc (mp4vparse, &packet, size);

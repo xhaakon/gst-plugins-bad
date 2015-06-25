@@ -34,9 +34,17 @@
 #include "../x11/gstglwindow_x11.h"
 #include <gst/gl/x11/gstgldisplay_x11.h>
 #endif
+#if GST_GL_HAVE_WINDOW_WAYLAND
+#include "../wayland/gstglwindow_wayland_egl.h"
+#endif
 #if GST_GL_HAVE_WINDOW_WIN32
 #include "../win32/gstglwindow_win32.h"
 #endif
+#if GST_GL_HAVE_WINDOW_DISPMANX
+#include "../dispmanx/gstglwindow_dispmanx_egl.h"
+#endif
+
+#define GST_CAT_DEFAULT gst_gl_context_debug
 
 static gboolean gst_gl_context_egl_create_context (GstGLContext * context,
     GstGLAPI gl_api, GstGLContext * other_context, GError ** error);
@@ -51,8 +59,6 @@ static guintptr gst_gl_context_egl_get_gl_context (GstGLContext * context);
 static GstGLAPI gst_gl_context_egl_get_gl_api (GstGLContext * context);
 static GstGLPlatform gst_gl_context_egl_get_gl_platform (GstGLContext *
     context);
-static gpointer gst_gl_context_egl_get_proc_address (GstGLContext * context,
-    const gchar * name);
 static gboolean gst_gl_context_egl_check_feature (GstGLContext * context,
     const gchar * feature);
 
@@ -82,6 +88,8 @@ gst_gl_context_egl_class_init (GstGLContextEGLClass * klass)
       GST_DEBUG_FUNCPTR (gst_gl_context_egl_get_proc_address);
   context_class->check_feature =
       GST_DEBUG_FUNCPTR (gst_gl_context_egl_check_feature);
+  context_class->get_current_context =
+      GST_DEBUG_FUNCPTR (gst_gl_context_egl_get_current_context);
 }
 
 static void
@@ -179,16 +187,19 @@ gst_gl_context_egl_choose_config (GstGLContextEGL * egl,
   else
     config_attrib[i++] = EGL_OPENGL_BIT;
 #if defined(USE_EGL_RPI) && GST_GL_HAVE_WINDOW_WAYLAND
-  /* The configurations r=5 g=6 b=5 seems to be buggy whereas
+  /* The configurations with a=0 seems to be buggy whereas
    * it works when using dispmanx directly */
-  config_attrib[i++] = EGL_BUFFER_SIZE;
-  config_attrib[i++] = 24;
-  /* same with a=0 */
   config_attrib[i++] = EGL_ALPHA_SIZE;
   config_attrib[i++] = 1;
 #endif
   config_attrib[i++] = EGL_DEPTH_SIZE;
   config_attrib[i++] = 16;
+  config_attrib[i++] = EGL_RED_SIZE;
+  config_attrib[i++] = 1;
+  config_attrib[i++] = EGL_GREEN_SIZE;
+  config_attrib[i++] = 1;
+  config_attrib[i++] = EGL_BLUE_SIZE;
+  config_attrib[i++] = 1;
   config_attrib[i++] = EGL_NONE;
 
   if (eglChooseConfig (egl->egl_display, config_attrib,
@@ -216,7 +227,7 @@ gst_gl_context_egl_create_context (GstGLContext * context,
   GstGLWindow *window = NULL;
   EGLNativeWindowType window_handle = (EGLNativeWindowType) 0;
   gint i = 0;
-  EGLint context_attrib[3];
+  EGLint context_attrib[5];
   EGLint majorVersion;
   EGLint minorVersion;
   const gchar *egl_exts;
@@ -226,6 +237,8 @@ gst_gl_context_egl_create_context (GstGLContext * context,
 
   egl = GST_GL_CONTEXT_EGL (context);
   window = gst_gl_context_get_window (context);
+
+  GST_DEBUG_OBJECT (context, "Creating EGL context");
 
   if (other_context) {
     if (gst_gl_context_get_gl_platform (other_context) != GST_GL_PLATFORM_EGL) {
@@ -328,17 +341,42 @@ gst_gl_context_egl_create_context (GstGLContext * context,
     goto failure;
   }
 
-  GST_DEBUG ("about to create gl context\n");
+  egl_exts = eglQueryString (egl->egl_display, EGL_EXTENSIONS);
+
+  GST_DEBUG ("about to create gl context");
 
   if (egl->gl_api & GST_GL_API_GLES2) {
     context_attrib[i++] = EGL_CONTEXT_CLIENT_VERSION;
     context_attrib[i++] = 2;
   }
+#if !defined(GST_DISABLE_GST_DEBUG) && defined(EGL_KHR_create_context)
+  if (gst_gl_check_extension ("EGL_KHR_create_context", egl_exts)) {
+    context_attrib[i++] = EGL_CONTEXT_FLAGS_KHR;
+    context_attrib[i++] = EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
+  }
+#endif
   context_attrib[i++] = EGL_NONE;
 
   egl->egl_context =
       eglCreateContext (egl->egl_display, egl->egl_config,
       (EGLContext) external_gl_context, context_attrib);
+
+#ifdef EGL_KHR_create_context
+  if (egl->egl_context == EGL_NO_CONTEXT && egl->gl_api & GST_GL_API_GLES2
+      && eglGetError () != EGL_SUCCESS) {
+    /* try without EGL_CONTEXT_FLAGS flags as it was added to
+     * EGL_KHR_create_context for gles contexts */
+    int i;
+    for (i = 0; i < G_N_ELEMENTS (context_attrib); i++) {
+      if (context_attrib[i] == EGL_CONTEXT_FLAGS_KHR ||
+          context_attrib[i] == EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR)
+        context_attrib[i] = EGL_NONE;
+    }
+    egl->egl_context =
+        eglCreateContext (egl->egl_display, egl->egl_config,
+        (EGLContext) external_gl_context, context_attrib);
+  }
+#endif
 
   if (egl->egl_context != EGL_NO_CONTEXT) {
     GST_INFO ("gl context created: %" G_GUINTPTR_FORMAT,
@@ -351,8 +389,6 @@ gst_gl_context_egl_create_context (GstGLContext * context,
     goto failure;
   }
 
-  egl_exts = eglQueryString (egl->egl_display, EGL_EXTENSIONS);
-
   if (other_context == NULL) {
     /* FIXME do we want a window vfunc ? */
 #if GST_GL_HAVE_WINDOW_X11
@@ -360,9 +396,21 @@ gst_gl_context_egl_create_context (GstGLContext * context,
       gst_gl_window_x11_create_window ((GstGLWindowX11 *) context->window);
     }
 #endif
+#if GST_GL_HAVE_WINDOW_WAYLAND
+    if (GST_GL_IS_WINDOW_WAYLAND_EGL (context->window)) {
+      gst_gl_window_wayland_egl_create_window ((GstGLWindowWaylandEGL *)
+          context->window);
+    }
+#endif
 #if GST_GL_HAVE_WINDOW_WIN32
     if (GST_GL_IS_WINDOW_WIN32 (context->window)) {
       gst_gl_window_win32_create_window ((GstGLWindowWin32 *) context->window);
+    }
+#endif
+#if GST_GL_HAVE_WINDOW_DISPMANX
+    if (GST_GL_IS_WINDOW_DISPMANX_EGL (context->window)) {
+      gst_gl_window_dispmanx_egl_create_window ((GstGLWindowDispmanxEGL *)
+          context->window);
     }
 #endif
   }
@@ -372,13 +420,18 @@ gst_gl_context_egl_create_context (GstGLContext * context,
         (EGLNativeWindowType) gst_gl_window_get_window_handle (window);
 
   if (window_handle) {
+    GST_DEBUG ("Creating EGLSurface from window_handle %p",
+        (void *) window_handle);
     egl->egl_surface =
         eglCreateWindowSurface (egl->egl_display, egl->egl_config,
         window_handle, NULL);
+    /* Store window handle for later comparision */
+    egl->window_handle = window_handle;
   } else if (!gst_gl_check_extension ("EGL_KHR_surfaceless_context", egl_exts)) {
     EGLint surface_attrib[7];
     gint j = 0;
 
+    GST_DEBUG ("Surfaceless context, creating PBufferSurface");
     /* FIXME: Width/height doesn't seem to matter but we can't leave them
      * at 0, otherwise X11 complains about BadValue */
     surface_attrib[j++] = EGL_WIDTH;
@@ -393,6 +446,7 @@ gst_gl_context_egl_create_context (GstGLContext * context,
         eglCreatePbufferSurface (egl->egl_display, egl->egl_config,
         surface_attrib);
   } else {
+    GST_DEBUG ("No surface/handle !");
     egl->egl_surface = EGL_NO_SURFACE;
     need_surface = FALSE;
   }
@@ -446,11 +500,16 @@ gst_gl_context_egl_destroy_context (GstGLContext * context)
 
   gst_gl_context_egl_activate (context, FALSE);
 
-  if (egl->egl_surface)
+  if (egl->egl_surface) {
     eglDestroySurface (egl->egl_display, egl->egl_surface);
+    egl->egl_surface = EGL_NO_SURFACE;
+  }
 
-  if (egl->egl_context)
+  if (egl->egl_context) {
     eglDestroyContext (egl->egl_display, egl->egl_context);
+    egl->egl_context = NULL;
+  }
+  egl->window_handle = 0;
 
   eglReleaseThread ();
 }
@@ -463,13 +522,52 @@ gst_gl_context_egl_activate (GstGLContext * context, gboolean activate)
 
   egl = GST_GL_CONTEXT_EGL (context);
 
-  if (activate)
+  if (activate) {
+    GstGLWindow *window = gst_gl_context_get_window (context);
+    EGLNativeWindowType handle = 0;
+    /* Check if the backing handle changed */
+    if (window) {
+      handle = (EGLNativeWindowType) gst_gl_window_get_window_handle (window);
+      gst_object_unref (window);
+    }
+    if (handle && handle != egl->window_handle) {
+      GST_DEBUG_OBJECT (context,
+          "Handle changed (have:%p, now:%p), switching surface",
+          (void *) egl->window_handle, (void *) handle);
+      if (egl->egl_surface) {
+        result = eglDestroySurface (egl->egl_display, egl->egl_surface);
+        egl->egl_surface = EGL_NO_SURFACE;
+        if (!result) {
+          GST_ERROR_OBJECT (context, "Failed to destroy old window surface: %s",
+              gst_gl_context_egl_get_error_string ());
+          goto done;
+        }
+      }
+      egl->egl_surface =
+          eglCreateWindowSurface (egl->egl_display, egl->egl_config, handle,
+          NULL);
+      egl->window_handle = handle;
+
+      if (egl->egl_surface == EGL_NO_SURFACE) {
+        GST_ERROR_OBJECT (context, "Failed to create window surface: %s",
+            gst_gl_context_egl_get_error_string ());
+        result = FALSE;
+        goto done;
+      }
+    }
     result = eglMakeCurrent (egl->egl_display, egl->egl_surface,
         egl->egl_surface, egl->egl_context);
-  else
+  } else
     result = eglMakeCurrent (egl->egl_display, EGL_NO_SURFACE,
         EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
+  if (!result) {
+    GST_ERROR_OBJECT (context,
+        "Failed to bind context to the current rendering thread: %s",
+        gst_gl_context_egl_get_error_string ());
+  }
+
+done:
   return result;
 }
 
@@ -522,13 +620,14 @@ load_egl_module (gpointer user_data)
   return NULL;
 }
 
-static gpointer
+gpointer
 gst_gl_context_egl_get_proc_address (GstGLContext * context, const gchar * name)
 {
   gpointer result = NULL;
   static GOnce g_once = G_ONCE_INIT;
+  GstGLAPI gl_api = gst_gl_context_get_gl_api (context);
 
-  result = gst_gl_context_default_get_proc_address (context, name);
+  result = gst_gl_context_default_get_proc_address (gl_api, name);
 
   g_once (&g_once, load_egl_module, NULL);
 
@@ -559,4 +658,10 @@ gst_gl_context_egl_check_feature (GstGLContext * context, const gchar * feature)
   }
 
   return FALSE;
+}
+
+guintptr
+gst_gl_context_egl_get_current_context (void)
+{
+  return (guintptr) eglGetCurrentContext ();
 }

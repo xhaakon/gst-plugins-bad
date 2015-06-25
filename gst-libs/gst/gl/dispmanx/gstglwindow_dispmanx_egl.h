@@ -48,8 +48,10 @@ struct _GstGLWindowDispmanxEGL {
   uint32_t dp_width;
   EGL_DISPMANX_WINDOW_T native;
 
-  GMainContext *main_context;
-  GMainLoop *loop;
+  gint preferred_width;
+  gint preferred_height;
+
+  gboolean visible;
 
   gpointer _reserved[GST_PADDING];
 };
@@ -65,6 +67,7 @@ struct _GstGLWindowDispmanxEGLClass {
 GType gst_gl_window_dispmanx_egl_get_type     (void);
 
 GstGLWindowDispmanxEGL * gst_gl_window_dispmanx_egl_new  (void);
+gboolean gst_gl_window_dispmanx_egl_create_window (GstGLWindowDispmanxEGL * window_egl);
 
 G_END_DECLS
 

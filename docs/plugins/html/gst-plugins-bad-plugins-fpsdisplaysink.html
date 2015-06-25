@@ -2,13 +2,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>GStreamer Bad Plugins 1.0 Plugins Reference Manual: fpsdisplaysink</title>
+<title>fpsdisplaysink: GStreamer Bad Plugins 1.0 Plugins Reference Manual</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-fisheye.html" title="fisheye">
 <link rel="next" href="gst-plugins-bad-plugins-gaussianblur.html" title="gaussianblur">
-<meta name="generator" content="GTK-Doc V1.21 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -31,7 +31,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-bad-plugins-fpsdisplaysink.top_of_page"></a>fpsdisplaysink</span></h2>
-<p>fpsdisplaysink — Shows the current frame-rate and drop-rate of the videosink as overlay or text on stdout</p>
+<p>fpsdisplaysink</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -115,7 +115,7 @@
 <tbody><tr>
 <td class="signal_type"><span class="returnvalue">void</span></td>
 <td class="signal_name"><a class="link" href="gst-plugins-bad-plugins-fpsdisplaysink.html#GstFPSDisplaySink-fps-measurements" title="The “fps-measurements” signal">fps-measurements</a></td>
-<td class="signal_flags">Run Last</td>
+<td class="signal_flags"><a href="https://developer.gnome.org/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></td>
 </tr></tbody>
 </table></div>
 </div>
@@ -152,7 +152,7 @@ GstFPSDisplaySink implements
 <a name="gst-plugins-bad-plugins-fpsdisplaysink.description"></a><h2>Description</h2>
 <p>Can display the current and average framerate as a testoverlay or on stdout.</p>
 <div class="refsect2">
-<a name="id-1.2.35.9.3"></a><h3>Example launch lines</h3>
+<a name="id-1.2.38.9.3"></a><h3>Example launch lines</h3>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -163,7 +163,7 @@ GstFPSDisplaySink implements
 4</pre></td>
         <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch videotestsrc <span class="gtkdoc opt">!</span> fpsdisplaysink
 gst<span class="gtkdoc opt">-</span>launch videotestsrc <span class="gtkdoc opt">!</span> fpsdisplaysink text<span class="gtkdoc opt">-</span>overlay<span class="gtkdoc opt">=</span><span class="keyword">false</span>
-gst<span class="gtkdoc opt">-</span>launch filesrc location<span class="gtkdoc opt">=</span>video<span class="gtkdoc opt">.</span>avi <span class="gtkdoc opt">!</span> decodebin2 name<span class="gtkdoc opt">=</span>d <span class="gtkdoc opt">!</span> queue <span class="gtkdoc opt">!</span> fpsdisplaysink d<span class="gtkdoc opt">. !</span> queue <span class="gtkdoc opt">!</span> fakesink sync<span class="gtkdoc opt">=</span><span class="keyword">true</span>
+gst<span class="gtkdoc opt">-</span>launch filesrc location<span class="gtkdoc opt">=</span>video<span class="gtkdoc opt">.</span>avi <span class="gtkdoc opt">!</span> decodebin name<span class="gtkdoc opt">=</span>d <span class="gtkdoc opt">!</span> queue <span class="gtkdoc opt">!</span> fpsdisplaysink d<span class="gtkdoc opt">. !</span> queue <span class="gtkdoc opt">!</span> fakesink sync<span class="gtkdoc opt">=</span><span class="keyword">true</span>
 gst<span class="gtkdoc opt">-</span>launch playbin uri<span class="gtkdoc opt">=</span>file<span class="gtkdoc opt">:</span><span class="gtkdoc slc">///path/to/video.avi video-sink=&quot;fpsdisplaysink&quot; audio-sink=fakesink</span></pre></td>
       </tr>
     </tbody>
@@ -174,7 +174,7 @@ gst<span class="gtkdoc opt">-</span>launch playbin uri<span class="gtkdoc opt">=
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.35.9.4.1"></a><h3>Element Information</h3>
+<a name="id-1.2.38.9.4.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -200,7 +200,7 @@ gst<span class="gtkdoc opt">-</span>launch playbin uri<span class="gtkdoc opt">=
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.35.9.4.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.38.9.4.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -227,19 +227,16 @@ gst<span class="gtkdoc opt">-</span>launch playbin uri<span class="gtkdoc opt">=
 </table></div>
 </div>
 </div>
-<p>
-</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-fpsdisplaysink.functions_details"></a><h2>Functions</h2>
+<p></p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-fpsdisplaysink.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
 <a name="GstFPSDisplaySink-struct"></a><h3>struct GstFPSDisplaySink</h3>
 <pre class="programlisting">struct GstFPSDisplaySink;</pre>
-<p>
-</p>
 </div>
 </div>
 <div class="refsect1">
@@ -346,7 +343,7 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-fpsdisplaysink.html
                <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>           user_data)</pre>
 <p>Signals the application about the measured fps</p>
 <div class="refsect3">
-<a name="id-1.2.35.13.2.5"></a><h4>Parameters</h4>
+<a name="id-1.2.38.13.2.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -382,13 +379,12 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-fpsdisplaysink.html
 </tbody>
 </table></div>
 </div>
-<p>Flags: Run Last</p>
-<p class="since">Since 0.10.20</p>
+<p>Flags: <a href="https://developer.gnome.org/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></p>
+<p class="since">Since: 0.10.20</p>
 </div>
 </div>
 </div>
 <div class="footer">
-<hr>
-          Generated by GTK-Doc V1.21</div>
+<hr>Generated by GTK-Doc V1.24</div>
 </body>
 </html>

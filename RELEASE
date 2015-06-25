@@ -1,27 +1,17 @@
 
-Release notes for GStreamer Bad Plugins 1.4.5
-
-The GStreamer team is pleased to announce a bugfix release of the stable
-1.4 release series. The 1.4 release series is adding new features on top
-of the 1.2 series and is part of the API and ABI-stable 1.x release
-series of the GStreamer multimedia framework that contains new features.
-The 1.4.x bugfix releases only contain important bugfixes compared to 1.4.0.
+Release notes for GStreamer Bad Plugins 1.5.2
 
 
-Binaries for Android, iOS, Mac OS X and Windows are provided by the
-GStreamer project for this release.
+The GStreamer team is pleased to announce the second release of the unstable
+1.5 release series. The 1.5 release series is adding new features on top of
+the 1.0, 1.2 and 1.4 series and is part of the API and ABI-stable 1.x release
+series of the GStreamer multimedia framework. The unstable 1.5 release series
+will lead to the stable 1.6 release series in the next weeks, and newly added
+API can still change until that point.
 
 
-The 1.x series is a stable series targeted at end users. It is not API
-or ABI compatible with the 0.10.x series. It can, however, be installed
-in parallel with the 0.10.x series and will not affect an existing
-0.10.x installation.
-
-
-The stable 1.4.x release series is API and ABI compatible with 1.0.x and
-any other 1.x release series in the future. Compared to 1.0.x it contains
-some new features and more intrusive changes that were considered too
-risky as a bugfix.
+Binaries for Android, iOS, Mac OS X and Windows will be provided separately
+during the unstable 1.5 release series.
 
 
 
@@ -73,14 +63,44 @@ contains a set of codecs plugins based on libav (formerly gst-ffmpeg)
 
 Bugs fixed in this release
      
-      * 722764 : rawparse: fix SEEKING query handling
-      * 729768 : mpegtsbase: Raise limit to read more bytes initially to find PCR
-      * 739152 : gl/cocoa: build with GNUStep fails
-      * 740191 : dvbbasesink: segfaults on 32-bit (rpi)
-      * 740201 : gl/cocoa: Does not compile on OSX < 10.7 anymore
-      * 740451 : srtpdec: leaks rtp/rtcp sink events
-      * 740953 : configure.ac: unportable test(1) comparison operator
-      * 741321 : opusparse: fix header parsing esp. of encoded output of libopus
+      * 751101 : glimagesink: Broken on iOS
+      * 673925 : [API] codecparsers: add JPEG baseline parser
+      * 735653 : mpegts: return early if packetizing short section
+      * 739345 : codecparsers: mpeg4: fix ignored increment of return value
+      * 744459 : opensles: Allow setting stream type
+      * 745748 : liveadder: Fix memory leak
+      * 746765 : mpegtsmux: Remove arbitrary constraint on prog-map program ids
+      * 748922 : vtdec: duplicating input frame's metas (inc. source H264 sample buffer)
+      * 748946 : videoaggregator: add " ignore-eos " property to input pads to ignore EOS
+      * 748947 : playout: New example for seamless audio/video playback
+      * 749856 : d3dvideosink: avoid frame rendering while window handle is hidden
+      * 750098 : New element to convert GST_FLOW_ERROR into GST_FLOW_OK
+      * 750185 : gl: Not showing any video on Android (skip glDrawElements, PowerVR SGX 544MP)
+      * 750390 : tests: dashdemux: add unit tests for checking the parsing of MPD element
+      * 750601 : uvch264: FTBFS because of uninitialized variables
+      * 750619 : cannot build dash against an uninstalled GStreamer
+      * 750635 : vtenc: add alignment=au to sink caps
+      * 750638 : avfassetsrc: fix huge memory leak
+      * 750668 : vtenc: gst_vtenc_frame_free on error
+      * 750669 : vtenc: always enqueue frames, even on error
+      * 750671 : vtenc: free input buffer ASAP
+      * 750685 : h263parse: Wrong mask use in the find_psc function.
+      * 750797 : dashdemux: period duration is not validated
+      * 750804 : dashdemux: incorrectly calculates presentationTimeOffset if the value is larger than 2^32
+      * 750863 : tests: dashdemux: added unit tests for parsing period element
+      * 750866 : dashdemux: xml parser will segfault if there is no default namespace
+      * 750881 : glmixerbin: correctly free input chain on pad release
+      * 750961 : mpegtsmux: fix build error
+      * 750992 : opusenc: Add bitrate to the tags
+      * 751003 : glimagesink: Windows are sharing their events
+      * 751048 : avfvideosrc: caps should indicate frame rate range
+      * 751087 : nalutils: trivial cleanup
+      * 751149 : dashdemux: add warning messages
+      * 751153 : dashdemux: wrong representation index returned when max_bandwidth is 0
+      * 751221 : motioncells: Fix the build on FreeBSD
+      * 751228 : texParameterf missing?
+      * 751255 : videoaggregator: simplifies and improves sink_get_caps.
+      * 751305 : bad: fix some issues found using static analysis tools
 
 ==== Download ====
 
@@ -117,17 +137,34 @@ subscribe to the gstreamer-devel list.
         
 Contributors to this release
     
-      * Aleix Conchillo Flaqué
       * Alessandro Decina
+      * Alex Ashley
+      * Arun Raghavan
+      * Chris Clayton
+      * Edward Hervey
+      * Fabio Cetrini
+      * Florin Apostol
       * Gwenole Beauchesne
+      * Ilya Konstantinov
+      * Jan Schmidt
+      * Jesper Larsen
+      * John Ludwig
+      * Julien Isorce
+      * Luis de Bethencourt
       * Mathieu Duponchelle
       * Matthew Waters
+      * Mersad Jelacic
+      * Nicolas Dufresne
+      * Nirbheek Chauhan
+      * Santiago Carot-Nemesio
       * Sebastian Dröge
-      * Sudip Jain
+      * Stefan Sauer
+      * Thiago Santos
       * Thibault Saunier
-      * Thomas Klausner
       * Tim-Philipp Müller
-      * Vincent Penquerc'h
+      * Vineeth TM
+      * Vivia Nikolaidou
       * Wim Taymans
-      * Wonchul Lee
+      * Wind Yuan
+      * Yanko Kaneti
  

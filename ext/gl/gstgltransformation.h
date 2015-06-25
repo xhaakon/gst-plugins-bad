@@ -22,7 +22,7 @@
 #define _GST_GL_TRANSFORMATION_H_
 
 #include <gst/gl/gstglfilter.h>
-#include <graphene-1.0/graphene.h>
+#include <graphene.h>
 
 G_BEGIN_DECLS
 
@@ -41,6 +41,11 @@ struct _GstGLTransformation
     GstGLFilter filter;
 
     GstGLShader *shader;
+    GLuint       vao;
+    GLuint       vbo_indices;
+    GLuint       vertex_buffer;
+    GLint        attr_position;
+    GLint        attr_texture;
 
     guint in_tex;
 
@@ -56,13 +61,15 @@ struct _GstGLTransformation
     gfloat ztranslation;
 
     /* perspective */
-    gfloat fovy;
+    gfloat fov;
     gfloat aspect;
     gfloat znear;
     gfloat zfar;
     gboolean ortho;
 
     graphene_matrix_t mvp_matrix;
+
+    gboolean caps_change;
 };
 
 struct _GstGLTransformationClass

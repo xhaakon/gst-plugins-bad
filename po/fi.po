@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 0.10.13.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2014-12-18 12:07+0100\n"
+"POT-Creation-Date: 2015-06-24 22:59+0200\n"
 "PO-Revision-Date: 2009-08-12 22:13+0300\n"
 "Last-Translator: Tommi Vainikainen <Tommi.Vainikainen@iki.fi>\n"
 "Language-Team: Finnish <translation-team-fi@lists.sourceforge.net>\n"
@@ -22,9 +22,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: KBabel 1.11.2\n"
 
-msgid "Internal data stream error."
-msgstr "Sisäisen tietovirran virhe."
-
 msgid "format wasn't negotiated before get function"
 msgstr ""
 
@@ -34,7 +31,7 @@ msgstr ""
 msgid ""
 "GStreamer can play audio using any number of output elements. Some possible "
 "choices are osssink, pulsesink and alsasink. The audiosink can be a partial "
-"pipeline instea of just one element."
+"pipeline instead of just one element."
 msgstr ""
 
 msgid "description for default GStreamer sound events audiosink"
@@ -117,6 +114,9 @@ msgstr ""
 msgid "Describes the selected visualization element."
 msgstr ""
 
+msgid "OpenCV failed to load template image"
+msgstr ""
+
 msgid "Could not read title information for DVD."
 msgstr "DVD:n otsikkotietoja ei voitu lukea."
 
@@ -137,15 +137,6 @@ msgid "Could not read DVD."
 msgstr "DVD:n otsikkotietoja ei voitu lukea."
 
 msgid "This file contains no playable streams."
-msgstr ""
-
-msgid "Couldn't get the Manifest's URI"
-msgstr ""
-
-msgid "Failed to get fragment URL."
-msgstr ""
-
-msgid "Couldn't download fragments"
 msgstr ""
 
 #, fuzzy
@@ -179,7 +170,19 @@ msgstr ""
 msgid "File location is set to NULL, please set it to a valid filename"
 msgstr ""
 
+msgid "Digitalzoom element cound't be created"
+msgstr ""
+
 msgid "Subpicture format was not configured before data flow"
+msgstr ""
+
+msgid "Failed to get fragment URL."
+msgstr ""
+
+msgid "Internal data stream error."
+msgstr "Sisäisen tietovirran virhe."
+
+msgid "Couldn't download fragments"
 msgstr ""
 
 msgid "No file name specified for writing."

@@ -604,19 +604,15 @@ static gboolean
 gst_live_adder_query_pos_dur (GstLiveAdder * adder, GstFormat format,
     gboolean position, gint64 * outvalue)
 {
+  GValue item = { 0 };
   gint64 max = G_MININT64;
   gboolean res = TRUE;
   GstIterator *it;
   gboolean done = FALSE;
 
-
   it = gst_element_iterate_sink_pads (GST_ELEMENT_CAST (adder));
   while (!done) {
-    GstIteratorResult ires;
-    GValue item = { 0 };
-
-    ires = gst_iterator_next (it, &item);
-    switch (ires) {
+    switch (gst_iterator_next (it, &item)) {
       case GST_ITERATOR_DONE:
         done = TRUE;
         break;
@@ -647,6 +643,7 @@ gst_live_adder_query_pos_dur (GstLiveAdder * adder, GstFormat format,
             max = value;
           }
         }
+        g_value_reset (&item);
         break;
       }
       case GST_ITERATOR_RESYNC:
@@ -659,6 +656,8 @@ gst_live_adder_query_pos_dur (GstLiveAdder * adder, GstFormat format,
         break;
     }
   }
+
+  g_value_unset (&item);
   gst_iterator_free (it);
 
   if (res)
@@ -728,57 +727,15 @@ gst_live_adder_src_query (GstPad * pad, GstObject * parent, GstQuery * query)
     {
       /* We need to send the query upstream and add the returned latency to our
        * own */
-      GstClockTime min_latency = 0, max_latency = G_MAXUINT64;
-      GValue item = { 0 };
-      GstIterator *iter = NULL;
-      gboolean done = FALSE;
-
-      iter = gst_element_iterate_sink_pads (GST_ELEMENT (adder));
-
-      while (!done) {
-        switch (gst_iterator_next (iter, &item)) {
-          case GST_ITERATOR_OK:
-          {
-            GstPad *sinkpad = GST_PAD (g_value_get_object (&item));
-            GstClockTime pad_min_latency, pad_max_latency;
-            gboolean pad_us_live;
-
-            if (gst_pad_peer_query (sinkpad, query)) {
-              gst_query_parse_latency (query, &pad_us_live, &pad_min_latency,
-                  &pad_max_latency);
-
-              res = TRUE;
-
-              GST_DEBUG_OBJECT (adder, "Peer latency for pad %s: min %"
-                  GST_TIME_FORMAT " max %" GST_TIME_FORMAT,
-                  GST_PAD_NAME (sinkpad),
-                  GST_TIME_ARGS (pad_min_latency),
-                  GST_TIME_ARGS (pad_max_latency));
-
-              min_latency = MAX (pad_min_latency, min_latency);
-              max_latency = MIN (pad_max_latency, max_latency);
-            }
-          }
-            break;
-          case GST_ITERATOR_RESYNC:
-            min_latency = 0;
-            max_latency = G_MAXUINT64;
-
-            gst_iterator_resync (iter);
-            break;
-          case GST_ITERATOR_ERROR:
-            GST_ERROR_OBJECT (adder, "Error looping sink pads");
-            done = TRUE;
-            break;
-          case GST_ITERATOR_DONE:
-            done = TRUE;
-            break;
-        }
-      }
-      gst_iterator_free (iter);
+      res = gst_pad_query_default (pad, parent, query);
 
       if (res) {
         GstClockTime my_latency = adder->latency_ms * GST_MSECOND;
+        GstClockTime min_latency, max_latency;
+        gboolean live;
+
+        gst_query_parse_latency (query, &live, &min_latency, &max_latency);
+
         GST_OBJECT_LOCK (adder);
         adder->peer_latency = min_latency;
         min_latency += my_latency;
@@ -1396,11 +1353,7 @@ gst_live_adder_request_new_pad (GstElement * element, GstPadTemplate * templ,
   adder = GST_LIVE_ADDER (element);
 
   /* increment pad counter */
-#if GLIB_CHECK_VERSION(2,29,5)
   padcount = g_atomic_int_add (&adder->padcount, 1);
-#else
-  padcount = g_atomic_int_exchange_and_add (&adder->padcount, 1);
-#endif
 
   name = g_strdup_printf ("sink_%u", padcount);
   newpad = gst_pad_new_from_template (templ, name);

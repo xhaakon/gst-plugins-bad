@@ -1,22 +1,19 @@
 # Polish translation for gst-plugins-bad.
 # This file is distributed under the same license as the gst-plugins-bad package.
-# Jakub Bogusz <qboosh@pld-linux.org>, 2007-2014.
+# Jakub Bogusz <qboosh@pld-linux.org>, 2007-2015.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.4.1\n"
+"Project-Id-Version: gst-plugins-bad 1.5.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2014-12-18 12:07+0100\n"
-"PO-Revision-Date: 2014-08-29 15:47+0200\n"
+"POT-Creation-Date: 2015-06-24 22:59+0200\n"
+"PO-Revision-Date: 2015-06-10 22:06+0200\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
-msgid "Internal data stream error."
-msgstr "Błąd wewnętrzny strumienia danych."
 
 msgid "format wasn't negotiated before get function"
 msgstr "format nie został wynegocjowany przed funkcją pobrania"
@@ -27,7 +24,7 @@ msgstr "domyślny element GStreamera pochłaniający zdarzenia dźwiękowe"
 msgid ""
 "GStreamer can play audio using any number of output elements. Some possible "
 "choices are osssink, pulsesink and alsasink. The audiosink can be a partial "
-"pipeline instea of just one element."
+"pipeline instead of just one element."
 msgstr ""
 "GStreamer może odtwarzać dźwięk przy użyciu dowolnej liczby elementów "
 "wyjściowych. Niektóre z możliwości to osssink, pulsesink oraz alsasink. "
@@ -132,6 +129,9 @@ msgstr "opis domyślego elementu wizualizującego GStreamera"
 msgid "Describes the selected visualization element."
 msgstr "Opisuje wybrany element wizualizujący."
 
+msgid "OpenCV failed to load template image"
+msgstr "Odczyt obrazu wzorca przez OpenCV nie powiódł się"
+
 msgid "Could not read title information for DVD."
 msgstr "Nie udało się odczytać informacji o tytułach dla DVD."
 
@@ -154,15 +154,6 @@ msgstr "Nie udało się odczytać DVD."
 
 msgid "This file contains no playable streams."
 msgstr "Ten plik nie zawiera strumieni do odtworzenia."
-
-msgid "Couldn't get the Manifest's URI"
-msgstr "Nie udało się uzyskać URI Manifestu"
-
-msgid "Failed to get fragment URL."
-msgstr "Nie udało się uzyskać URL-a fragmentu."
-
-msgid "Couldn't download fragments"
-msgstr "Nie udało się pobrać fragmentów"
 
 msgid "Could not open sndfile stream for reading."
 msgstr "Nie udało się otworzyć strumienia sndfile do odczytu."
@@ -194,8 +185,20 @@ msgid "File location is set to NULL, please set it to a valid filename"
 msgstr ""
 "Położenie pliku ustawiono na NULL, proszę ustawić na poprawną nazwę pliku"
 
+msgid "Digitalzoom element cound't be created"
+msgstr "Nie udało się utworzyć elementu Digitalzoom"
+
 msgid "Subpicture format was not configured before data flow"
 msgstr "Format podobrazu nie został skonfigurowany przed przepływem danych"
+
+msgid "Failed to get fragment URL."
+msgstr "Nie udało się uzyskać URL-a fragmentu."
+
+msgid "Internal data stream error."
+msgstr "Błąd wewnętrzny strumienia danych."
+
+msgid "Couldn't download fragments"
+msgstr "Nie udało się pobrać fragmentów"
 
 msgid "No file name specified for writing."
 msgstr "Nie określono nazwy pliku do zapisu."
@@ -244,6 +247,3 @@ msgstr "Plik konfiguracyjny kanałów DVB nie zawiera żadnych kanałów"
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr "Nie udało się odnaleźć szczegółów dla kanału DVB %s"
-
-#~ msgid "Could not write to file \"%s\"."
-#~ msgstr "Nie udało się zapisać danych do pliku \"%s\"."

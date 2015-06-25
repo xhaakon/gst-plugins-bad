@@ -52,7 +52,7 @@
  * packets (encryption and authentication) and out RTP and RTCP. It
  * receives packet of type 'application/x-srtp' or 'application/x-srtcp'
  * on its sink pad, and outs packets of type 'application/x-rtp' or
- * 'application/x-rtcp' on its sink pad.
+ * 'application/x-rtcp' on its source pad.
  *
  * For each packet received, it checks if the internal SSRC is in the list
  * of streams already in use. If this is not the case, it sends a signal to
@@ -142,6 +142,22 @@ enum
   PROP_0
 };
 
+typedef struct _ValidateBufferItData
+{
+  GstSrtpDecSsrcStream **stream;
+  GstSrtpDec *filter;
+  guint32 *ssrc;
+  gboolean *is_rtcp;
+} ValidateBufferItData;
+
+typedef struct _DecodeBufferItData
+{
+  GstSrtpDec *filter;
+  GstPad *pad;
+  guint32 ssrc;
+  gboolean is_rtcp;
+} DecodeBufferItData;
+
 /* the capabilities of the inputs and outputs.
  *
  * describe the real formats here.
@@ -201,6 +217,11 @@ static GstFlowReturn gst_srtp_dec_chain_rtp (GstPad * pad,
     GstObject * parent, GstBuffer * buf);
 static GstFlowReturn gst_srtp_dec_chain_rtcp (GstPad * pad,
     GstObject * parent, GstBuffer * buf);
+
+static GstFlowReturn gst_srtp_dec_chain_list_rtp (GstPad * pad,
+    GstObject * parent, GstBufferList * buf_list);
+static GstFlowReturn gst_srtp_dec_chain_list_rtcp (GstPad * pad,
+    GstObject * parent, GstBufferList * buf_list);
 
 static GstStateChangeReturn gst_srtp_dec_change_state (GstElement * element,
     GstStateChange transition);
@@ -347,6 +368,8 @@ gst_srtp_dec_init (GstSrtpDec * filter)
       GST_DEBUG_FUNCPTR (gst_srtp_dec_iterate_internal_links_rtp));
   gst_pad_set_chain_function (filter->rtp_sinkpad,
       GST_DEBUG_FUNCPTR (gst_srtp_dec_chain_rtp));
+  gst_pad_set_chain_list_function (filter->rtp_sinkpad,
+      GST_DEBUG_FUNCPTR (gst_srtp_dec_chain_list_rtp));
 
   filter->rtp_srcpad =
       gst_pad_new_from_static_template (&rtp_src_template, "rtp_src");
@@ -370,6 +393,8 @@ gst_srtp_dec_init (GstSrtpDec * filter)
       GST_DEBUG_FUNCPTR (gst_srtp_dec_iterate_internal_links_rtcp));
   gst_pad_set_chain_function (filter->rtcp_sinkpad,
       GST_DEBUG_FUNCPTR (gst_srtp_dec_chain_rtcp));
+  gst_pad_set_chain_list_function (filter->rtcp_sinkpad,
+      GST_DEBUG_FUNCPTR (gst_srtp_dec_chain_list_rtcp));
 
   filter->rtcp_srcpad =
       gst_pad_new_from_static_template (&rtcp_src_template, "rtcp_src");
@@ -560,20 +585,18 @@ validate_buffer (GstSrtpDec * filter, GstBuffer * buf, guint32 * ssrc,
     gboolean * is_rtcp)
 {
   GstSrtpDecSsrcStream *stream = NULL;
+  GstRTPBuffer rtpbuf = GST_RTP_BUFFER_INIT;
 
-  if (!(*is_rtcp)) {
-    GstRTPBuffer rtpbuf = GST_RTP_BUFFER_INIT;
+  if (gst_rtp_buffer_map (buf, GST_MAP_READ, &rtpbuf)) {
+    if (gst_rtp_buffer_get_payload_type (&rtpbuf) < 64
+        || gst_rtp_buffer_get_payload_type (&rtpbuf) > 80) {
+      *ssrc = gst_rtp_buffer_get_ssrc (&rtpbuf);
 
-    if (gst_rtp_buffer_map (buf, GST_MAP_READ, &rtpbuf)) {
-      if (gst_rtp_buffer_get_payload_type (&rtpbuf) < 64
-          || gst_rtp_buffer_get_payload_type (&rtpbuf) > 80) {
-        *ssrc = gst_rtp_buffer_get_ssrc (&rtpbuf);
-
-        gst_rtp_buffer_unmap (&rtpbuf);
-        goto have_ssrc;
-      }
       gst_rtp_buffer_unmap (&rtpbuf);
+      *is_rtcp = FALSE;
+      goto have_ssrc;
     }
+    gst_rtp_buffer_unmap (&rtpbuf);
   }
 
   if (rtcp_buffer_get_ssrc (buf, ssrc)) {
@@ -703,6 +726,9 @@ request_key_with_signal (GstSrtpDec * filter, guint32 ssrc, gint signal)
     else
       GST_WARNING_OBJECT (filter, "Could not set stream with SSRC %u", ssrc);
     gst_caps_unref (caps);
+  } else {
+    GST_WARNING_OBJECT (filter, "Could not get caps for stream with SSRC %u",
+        ssrc);
   }
 
   return stream;
@@ -770,6 +796,14 @@ gst_srtp_dec_sink_event_rtp (GstPad * pad, GstObject * parent, GstEvent * event)
       gst_event_unref (event);
       return ret;
     case GST_EVENT_SEGMENT:
+      /* Make sure to send a caps event downstream before the segment event,
+       * even if upstream didn't */
+      if (!gst_pad_has_current_caps (filter->rtp_srcpad)) {
+        GstCaps *caps = gst_caps_new_empty_simple ("application/x-rtp");
+
+        gst_pad_set_caps (filter->rtp_srcpad, caps);
+        gst_caps_unref (caps);
+      }
       filter->rtp_has_segment = TRUE;
       break;
     case GST_EVENT_FLUSH_STOP:
@@ -797,6 +831,14 @@ gst_srtp_dec_sink_event_rtcp (GstPad * pad, GstObject * parent,
       gst_event_unref (event);
       return ret;
     case GST_EVENT_SEGMENT:
+      /* Make sure to send a caps event downstream before the segment event,
+       * even if upstream didn't */
+      if (!gst_pad_has_current_caps (filter->rtcp_srcpad)) {
+        GstCaps *caps = gst_caps_new_empty_simple ("application/x-rtcp");
+
+        gst_pad_set_caps (filter->rtcp_srcpad, caps);
+        gst_caps_unref (caps);
+      }
       filter->rtcp_has_segment = TRUE;
       break;
     case GST_EVENT_FLUSH_STOP:
@@ -1005,33 +1047,16 @@ gst_srtp_dec_push_early_events (GstSrtpDec * filter, GstPad * pad,
 
 }
 
-static GstFlowReturn
-gst_srtp_dec_chain (GstPad * pad, GstObject * parent, GstBuffer * buf,
-    gboolean is_rtcp)
+/*
+ * This function should be called while holding the filter lock
+ */
+static gboolean
+gst_srtp_dec_decode_buffer (GstSrtpDec * filter, GstPad * pad, GstBuffer * buf,
+    gboolean is_rtcp, guint32 ssrc)
 {
-  GstSrtpDec *filter = GST_SRTP_DEC (parent);
-  GstPad *otherpad;
-  err_status_t err = err_status_ok;
-  GstSrtpDecSsrcStream *stream = NULL;
-  GstFlowReturn ret = GST_FLOW_OK;
-  gint size;
-  guint32 ssrc = 0;
   GstMapInfo map;
-
-  GST_OBJECT_LOCK (filter);
-
-  /* Check if this stream exists, if not create a new stream */
-
-  if (!(stream = validate_buffer (filter, buf, &ssrc, &is_rtcp))) {
-    GST_OBJECT_UNLOCK (filter);
-    GST_WARNING_OBJECT (filter, "Invalid buffer, dropping");
-    goto drop_buffer;
-  }
-
-  if (!STREAM_HAS_CRYPTO (stream)) {
-    GST_OBJECT_UNLOCK (filter);
-    goto push_out;
-  }
+  err_status_t err;
+  gint size;
 
   GST_LOG_OBJECT (pad, "Received %s buffer of size %" G_GSIZE_FORMAT
       " with SSRC = %u", is_rtcp ? "RTCP" : "RTP", gst_buffer_get_size (buf),
@@ -1040,10 +1065,10 @@ gst_srtp_dec_chain (GstPad * pad, GstObject * parent, GstBuffer * buf,
   /* Change buffer to remove protection */
   buf = gst_buffer_make_writable (buf);
 
-unprotect:
-
   gst_buffer_map (buf, &map, GST_MAP_READWRITE);
   size = map.size;
+
+unprotect:
 
   gst_srtp_init_event_reporter ();
 
@@ -1075,8 +1100,6 @@ unprotect:
     }
     err = srtp_unprotect (filter->session, map.data, &size);
   }
-
-  gst_buffer_unmap (buf, &map);
 
   GST_OBJECT_UNLOCK (filter);
 
@@ -1115,10 +1138,50 @@ unprotect:
         break;
     }
 
+    gst_buffer_unmap (buf, &map);
+
+    GST_OBJECT_LOCK (filter);
+    return FALSE;
+  }
+
+  gst_buffer_unmap (buf, &map);
+
+  gst_buffer_set_size (buf, size);
+
+  GST_OBJECT_LOCK (filter);
+  return TRUE;
+}
+
+static GstFlowReturn
+gst_srtp_dec_chain (GstPad * pad, GstObject * parent, GstBuffer * buf,
+    gboolean is_rtcp)
+{
+  GstSrtpDec *filter = GST_SRTP_DEC (parent);
+  GstPad *otherpad;
+  GstSrtpDecSsrcStream *stream = NULL;
+  GstFlowReturn ret = GST_FLOW_OK;
+  guint32 ssrc = 0;
+
+  GST_OBJECT_LOCK (filter);
+
+  /* Check if this stream exists, if not create a new stream */
+  if (!(stream = validate_buffer (filter, buf, &ssrc, &is_rtcp))) {
+    GST_OBJECT_UNLOCK (filter);
+    GST_WARNING_OBJECT (filter, "Invalid buffer, dropping");
     goto drop_buffer;
   }
 
-  gst_buffer_set_size (buf, size);
+  if (!STREAM_HAS_CRYPTO (stream)) {
+    GST_OBJECT_UNLOCK (filter);
+    goto push_out;
+  }
+
+  if (!gst_srtp_dec_decode_buffer (filter, pad, buf, is_rtcp, ssrc)) {
+    GST_OBJECT_UNLOCK (filter);
+    goto drop_buffer;
+  }
+
+  GST_OBJECT_UNLOCK (filter);
 
   /* If all is well, we may have reached soft limit */
   if (gst_srtp_get_soft_limit_reached ())
@@ -1149,6 +1212,107 @@ drop_buffer:
   return ret;
 }
 
+static gboolean
+validate_buffer_it (GstBuffer ** buffer, guint index, gpointer user_data)
+{
+  ValidateBufferItData *data = user_data;
+
+  if (!(*data->stream =
+          validate_buffer (data->filter, *buffer, data->ssrc, data->is_rtcp))) {
+    GST_WARNING_OBJECT (data->filter, "Invalid buffer, dropping");
+    gst_buffer_replace (buffer, NULL);
+  }
+
+  return TRUE;
+}
+
+static gboolean
+decode_buffer_it (GstBuffer ** buffer, guint index, gpointer user_data)
+{
+  DecodeBufferItData *data = user_data;
+
+  if (!gst_srtp_dec_decode_buffer (data->filter, data->pad, *buffer,
+          data->is_rtcp, data->ssrc)) {
+    GST_WARNING_OBJECT (data->filter, "Error decoding buffer, dropping");
+    gst_buffer_replace (buffer, NULL);
+  }
+
+  return TRUE;
+}
+
+static GstFlowReturn
+gst_srtp_dec_chain_list (GstPad * pad, GstObject * parent,
+    GstBufferList * buf_list, gboolean is_rtcp)
+{
+  GstSrtpDec *filter = GST_SRTP_DEC (parent);
+  GstPad *otherpad;
+  GstSrtpDecSsrcStream *stream = NULL;
+  GstFlowReturn ret = GST_FLOW_OK;
+  guint32 ssrc = 0;
+  ValidateBufferItData validate_data;
+  DecodeBufferItData decode_data;
+
+  validate_data.stream = &stream;
+  validate_data.filter = filter;
+  validate_data.ssrc = &ssrc;
+  validate_data.is_rtcp = &is_rtcp;
+
+  decode_data.filter = filter;
+  decode_data.pad = pad;
+
+  GST_OBJECT_LOCK (filter);
+
+  /* Check if this stream exists, if not create a new stream */
+  gst_buffer_list_foreach (buf_list, validate_buffer_it, &validate_data);
+
+  if (!gst_buffer_list_length (buf_list)) {
+    GST_OBJECT_LOCK (filter);
+    gst_buffer_list_unref (buf_list);
+    return GST_FLOW_OK;
+  }
+
+  if (!STREAM_HAS_CRYPTO (stream)) {
+    GST_OBJECT_UNLOCK (filter);
+    goto push_out;
+  }
+
+  decode_data.ssrc = ssrc;
+  decode_data.is_rtcp = is_rtcp;
+
+  gst_buffer_list_foreach (buf_list, decode_buffer_it, &decode_data);
+
+  GST_OBJECT_UNLOCK (filter);
+
+  if (!gst_buffer_list_length (buf_list)) {
+    gst_buffer_list_unref (buf_list);
+    return GST_FLOW_OK;
+  }
+
+  /* If all is well, we may have reached soft limit */
+  if (gst_srtp_get_soft_limit_reached ())
+    request_key_with_signal (filter, ssrc, SIGNAL_SOFT_LIMIT);
+
+push_out:
+  /* Push buffer list to source pad */
+  if (is_rtcp) {
+    otherpad = filter->rtcp_srcpad;
+    if (!filter->rtcp_has_segment)
+      gst_srtp_dec_push_early_events (filter, filter->rtcp_srcpad,
+          filter->rtp_srcpad, TRUE);
+  } else {
+    otherpad = filter->rtp_srcpad;
+    if (!filter->rtp_has_segment)
+      gst_srtp_dec_push_early_events (filter, filter->rtp_srcpad,
+          filter->rtcp_srcpad, FALSE);
+  }
+
+  GST_LOG_OBJECT (pad, "Pushing buffer chain of %d",
+      gst_buffer_list_length (buf_list));
+  ret = gst_pad_push_list (otherpad, buf_list);
+
+  return ret;
+}
+
 static GstFlowReturn
 gst_srtp_dec_chain_rtp (GstPad * pad, GstObject * parent, GstBuffer * buf)
 {
@@ -1160,6 +1324,21 @@ gst_srtp_dec_chain_rtcp (GstPad * pad, GstObject * parent, GstBuffer * buf)
 {
   return gst_srtp_dec_chain (pad, parent, buf, TRUE);
 }
+
+static GstFlowReturn
+gst_srtp_dec_chain_list_rtp (GstPad * pad, GstObject * parent,
+    GstBufferList * buf_list)
+{
+  return gst_srtp_dec_chain_list (pad, parent, buf_list, FALSE);
+}
+
+static GstFlowReturn
+gst_srtp_dec_chain_list_rtcp (GstPad * pad, GstObject * parent,
+    GstBufferList * buf_list)
+{
+  return gst_srtp_dec_chain_list (pad, parent, buf_list, TRUE);
+}
+
 
 static GstStateChangeReturn
 gst_srtp_dec_change_state (GstElement * element, GstStateChange transition)

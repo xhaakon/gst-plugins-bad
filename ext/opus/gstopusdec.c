@@ -56,7 +56,7 @@ GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS ("audio/x-raw, "
-        "format = (string) { " GST_AUDIO_NE (S16) " }, "
+        "format = (string) " GST_AUDIO_NE (S16) ", "
         "layout = (string) interleaved, "
         "rate = (int) { 48000, 24000, 16000, 12000, 8000 }, "
         "channels = (int) [ 1, 8 ] ")
@@ -181,8 +181,11 @@ gst_opus_dec_start (GstAudioDecoder * dec)
   gst_audio_decoder_set_plc_aware (dec, TRUE);
 
   if (odec->use_inband_fec) {
-    gst_audio_decoder_set_latency (dec, 2 * GST_MSECOND + GST_MSECOND / 2,
-        120 * GST_MSECOND);
+    /* opusdec outputs samples directly from an input buffer, except if
+     * FEC is on, in which case it buffers one buffer in case one buffer
+     * goes missing.
+     */
+    gst_audio_decoder_set_latency (dec, 120 * GST_MSECOND, 120 * GST_MSECOND);
   }
 
   return TRUE;
@@ -221,12 +224,30 @@ gst_opus_dec_negotiate (GstOpusDec * dec, const GstAudioChannelPosition * pos)
     caps = gst_caps_truncate (caps);
     caps = gst_caps_make_writable (caps);
     s = gst_caps_get_structure (caps, 0);
-    gst_structure_fixate_field_nearest_int (s, "rate", 48000);
+
+    if (gst_structure_has_field (s, "rate"))
+      gst_structure_fixate_field_nearest_int (s, "rate", dec->sample_rate);
+    else
+      gst_structure_set (s, "rate", G_TYPE_INT, dec->sample_rate, NULL);
     gst_structure_get_int (s, "rate", &dec->sample_rate);
-    gst_structure_fixate_field_nearest_int (s, "channels", dec->n_channels);
+
+    if (gst_structure_has_field (s, "channels"))
+      gst_structure_fixate_field_nearest_int (s, "channels", dec->n_channels);
+    else
+      gst_structure_set (s, "channels", G_TYPE_INT, dec->n_channels, NULL);
     gst_structure_get_int (s, "channels", &dec->n_channels);
+
     gst_caps_unref (caps);
-  } else {
+  }
+
+  if (dec->n_channels == 0) {
+    GST_DEBUG_OBJECT (dec, "Using a default of 2 channels");
+    dec->n_channels = 2;
+    pos = NULL;
+  }
+
+  if (dec->sample_rate == 0) {
+    GST_DEBUG_OBJECT (dec, "Using a default of 48kHz sample rate");
     dec->sample_rate = 48000;
   }
 
@@ -279,6 +300,7 @@ gst_opus_dec_parse_header (GstOpusDec * dec, GstBuffer * buf)
   }
 
   dec->n_channels = data[9];
+  dec->sample_rate = GST_READ_UINT32_LE (data + 12);
   dec->pre_skip = GST_READ_UINT16_LE (data + 10);
   dec->r128_gain = GST_READ_UINT16_LE (data + 16);
   dec->r128_gain_volume = gst_opus_dec_get_r128_volume (dec->r128_gain);
@@ -429,7 +451,9 @@ opus_dec_chain_parse_data (GstOpusDec * dec, GstBuffer * buffer)
   samples = 120 * dec->sample_rate / 1000;
   packet_size = samples * dec->n_channels * 2;
 
-  outbuf = gst_buffer_new_and_alloc (packet_size);
+  outbuf =
+      gst_audio_decoder_allocate_output_buffer (GST_AUDIO_DECODER (dec),
+      packet_size);
   if (!outbuf) {
     goto buffer_failed;
   }
@@ -539,8 +563,21 @@ gst_opus_dec_set_format (GstAudioDecoder * bdec, GstCaps * caps)
   gboolean ret = TRUE;
   GstStructure *s;
   const GValue *streamheader;
+  GstCaps *old_caps;
 
   GST_DEBUG_OBJECT (dec, "set_format: %" GST_PTR_FORMAT, caps);
+
+  if ((old_caps = gst_pad_get_current_caps (GST_AUDIO_DECODER_SINK_PAD (bdec)))) {
+    if (gst_caps_is_equal (caps, old_caps)) {
+      gst_caps_unref (old_caps);
+      GST_DEBUG_OBJECT (dec, "caps didn't change");
+      goto done;
+    }
+
+    GST_DEBUG_OBJECT (dec, "caps have changed, resetting decoder");
+    gst_opus_dec_reset (dec);
+    gst_caps_unref (old_caps);
+  }
 
   s = gst_caps_get_structure (caps, 0);
   if ((streamheader = gst_structure_get_value (s, "streamheader")) &&
@@ -567,6 +604,22 @@ gst_opus_dec_set_format (GstAudioDecoder * bdec, GstCaps * caps)
         goto done;
       gst_buffer_replace (&dec->vorbiscomment, buf);
     }
+  } else {
+    /* defaults if not in the caps */
+    dec->n_channels = 2;
+    dec->sample_rate = 48000;
+
+    gst_structure_get_int (s, "channels", &dec->n_channels);
+    gst_structure_get_int (s, "rate", &dec->sample_rate);
+
+    /* default stereo mapping */
+    dec->channel_mapping_family = 0;
+    dec->channel_mapping[0] = 0;
+    dec->channel_mapping[1] = 1;
+    dec->n_streams = 1;
+    dec->n_stereo_streams = 1;
+
+    gst_opus_dec_negotiate (dec, NULL);
   }
 
 done:

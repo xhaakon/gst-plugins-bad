@@ -3,13 +3,13 @@
 # This file is distributed under the same license as the gst-plugins-bad package.
 #
 # Maxim V. Dziumanenko <dziumanenko@gmail.com>, 2004-2007.
-# Yuri Chornoivan <yurchor@ukr.net>, 2011, 2013, 2014.
+# Yuri Chornoivan <yurchor@ukr.net>, 2011, 2013, 2014, 2015.
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.4.1\n"
+"Project-Id-Version: gst-plugins-bad 1.5.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2014-12-18 12:07+0100\n"
-"PO-Revision-Date: 2014-08-29 08:35+0300\n"
+"POT-Creation-Date: 2015-06-24 22:59+0200\n"
+"PO-Revision-Date: 2015-06-10 22:48+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation-team-uk@lists.sourceforge.net>\n"
 "Language: uk\n"
@@ -20,9 +20,6 @@ msgstr ""
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Lokalize 1.5\n"
 
-msgid "Internal data stream error."
-msgstr "Помилка внутрішнього потоку даних."
-
 msgid "format wasn't negotiated before get function"
 msgstr "формат не було узгоджено до виклику функції get"
 
@@ -32,12 +29,12 @@ msgstr "типовий приймач звукових подій GStreamer"
 msgid ""
 "GStreamer can play audio using any number of output elements. Some possible "
 "choices are osssink, pulsesink and alsasink. The audiosink can be a partial "
-"pipeline instea of just one element."
+"pipeline instead of just one element."
 msgstr ""
 "У GStreamer передбачено можливість відтворення звукових даних за допомогою "
 "довільної кількості елементів виведення. Серед можливих варіантів osssink, "
-"pulsesink та alsasink. Звуковий приймач може бути окремим каналом з "
-"декількох обробників, а не одним елементом."
+"pulsesink та alsasink. Звуковий приймач може бути окремим каналом, а не "
+"одним елементом."
 
 msgid "description for default GStreamer sound events audiosink"
 msgstr "опис типового приймача звукових подій GStreamer"
@@ -136,6 +133,9 @@ msgstr "опис типової візуалізації GStreamer"
 msgid "Describes the selected visualization element."
 msgstr "Описує вибраний елемент візуалізації."
 
+msgid "OpenCV failed to load template image"
+msgstr "OpenCV не вдалося завантажити зображення шаблону"
+
 msgid "Could not read title information for DVD."
 msgstr "Не вдалося прочитати дані щодо записів на DVD."
 
@@ -158,15 +158,6 @@ msgstr "Не вдалося прочитати DVD."
 
 msgid "This file contains no playable streams."
 msgstr "Файл не містить потоків, які можна відтворити."
-
-msgid "Couldn't get the Manifest's URI"
-msgstr "Не вдалося отримати адреси Manifest"
-
-msgid "Failed to get fragment URL."
-msgstr "Не вдалося отримати адреси фрагмента."
-
-msgid "Couldn't download fragments"
-msgstr "Не вдалося отримати фрагменти"
 
 msgid "Could not open sndfile stream for reading."
 msgstr "Не вдалося відкрити потік sndfile для читання."
@@ -201,8 +192,20 @@ msgstr ""
 "Значенням розташування файла є NULL. Будь ласка, встановіть чинне значення "
 "назви файла."
 
+msgid "Digitalzoom element cound't be created"
+msgstr "Не вдалося створити елемент цифрового масштабування"
+
 msgid "Subpicture format was not configured before data flow"
 msgstr "Формат підзображення не було налаштовано до створення потоку даних"
+
+msgid "Failed to get fragment URL."
+msgstr "Не вдалося отримати адреси фрагмента."
+
+msgid "Internal data stream error."
+msgstr "Помилка внутрішнього потоку даних."
+
+msgid "Couldn't download fragments"
+msgstr "Не вдалося отримати фрагменти"
 
 msgid "No file name specified for writing."
 msgstr "Не вказано назви файла для запису."
@@ -252,6 +255,9 @@ msgstr "У файлі налаштувань каналів DVB не місти�
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr "Не вдалося знайти параметрів каналу DVB %s"
+
+#~ msgid "Couldn't get the Manifest's URI"
+#~ msgstr "Не вдалося отримати адреси Manifest"
 
 #~ msgid "Could not write to file \"%s\"."
 #~ msgstr "Спроба запису до файла «%s» завершилася невдало"

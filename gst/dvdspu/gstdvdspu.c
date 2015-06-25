@@ -32,10 +32,6 @@
 #  include <config.h>
 #endif
 
-/* FIXME 0.11: suppress warnings for deprecated API such as GStaticRecMutex
- * with newer GLib versions (>= 2.31.0) */
-#define GLIB_DISABLE_DEPRECATION_WARNINGS
-
 #include <gst/gst-i18n-plugin.h>
 #include <gst/video/video.h>
 
@@ -830,6 +826,9 @@ gst_dvd_spu_check_still_updates (GstDVDSpu * dvdspu)
 
   if (dvdspu->spu_state.flags & SPU_STATE_STILL_FRAME) {
 
+    if (dvdspu->video_seg.format != GST_FORMAT_TIME)
+      return;                   /* No video segment or frames yet */
+
     vid_ts = gst_segment_to_running_time (&dvdspu->video_seg,
         GST_FORMAT_TIME, dvdspu->video_seg.position);
     sub_ts = gst_segment_to_running_time (&dvdspu->subp_seg,
@@ -1170,7 +1169,6 @@ gst_dvd_spu_subpic_event (GstPad * pad, GstObject * parent, GstEvent * event)
        * video might still continue, though */
       gst_event_unref (event);
       goto done;
-      break;
     default:
       res = gst_pad_event_default (pad, parent, event);
       break;

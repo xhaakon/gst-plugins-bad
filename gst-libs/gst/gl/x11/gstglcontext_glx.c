@@ -57,8 +57,6 @@ static gboolean gst_gl_context_glx_choose_format (GstGLContext *
 GstGLAPI gst_gl_context_glx_get_gl_api (GstGLContext * context);
 static GstGLPlatform gst_gl_context_glx_get_gl_platform (GstGLContext *
     context);
-static gpointer gst_gl_context_glx_get_proc_address (GstGLContext * context,
-    const gchar * name);
 
 struct _GstGLContextGLXPrivate
 {
@@ -96,6 +94,8 @@ gst_gl_context_glx_class_init (GstGLContextGLXClass * klass)
       GST_DEBUG_FUNCPTR (gst_gl_context_glx_get_gl_platform);
   context_class->get_proc_address =
       GST_DEBUG_FUNCPTR (gst_gl_context_glx_get_proc_address);
+  context_class->get_current_context =
+      GST_DEBUG_FUNCPTR (gst_gl_context_glx_get_current_context);
 }
 
 static void
@@ -107,9 +107,9 @@ gst_gl_context_glx_init (GstGLContextGLX * context)
 GstGLContextGLX *
 gst_gl_context_glx_new (void)
 {
-  GstGLContextGLX *window = g_object_new (GST_GL_TYPE_CONTEXT_GLX, NULL);
+  GstGLContextGLX *context = g_object_new (GST_GL_TYPE_CONTEXT_GLX, NULL);
 
-  return window;
+  return context;
 }
 
 static inline void
@@ -145,7 +145,7 @@ gst_gl_context_glx_create_context (GstGLContext * context,
   GstGLDisplay *display;
   gboolean create_context;
   const char *glx_exts;
-  int x_error;
+  int x_error = 0;
   Display *device;
   guintptr external_gl_context = 0;
 
@@ -176,8 +176,11 @@ gst_gl_context_glx_create_context (GstGLContext * context,
   if (create_context && context_glx->priv->glXCreateContextAttribsARB) {
     int context_attribs_3[] = {
       GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
-      GLX_CONTEXT_MINOR_VERSION_ARB, 0,
-      //GLX_CONTEXT_FLAGS_ARB        , GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+      GLX_CONTEXT_MINOR_VERSION_ARB, 1,
+      GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+#if !defined(GST_DISABLE_GST_DEBUG)
+      GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB,
+#endif
       None
     };
 
@@ -187,17 +190,23 @@ gst_gl_context_glx_create_context (GstGLContext * context,
       None
     };
 
-    gst_gl_window_x11_trap_x_errors ();
-    context_glx->glx_context =
-        context_glx->priv->glXCreateContextAttribsARB (device,
-        context_glx->priv->fbconfigs[0], (GLXContext) external_gl_context, True,
-        context_attribs_3);
+    if (gl_api & GST_GL_API_OPENGL3) {
+      GST_DEBUG_OBJECT (window, "trying to create a GL 3.1 core context");
+      gst_gl_window_x11_trap_x_errors ();
+      context_glx->glx_context =
+          context_glx->priv->glXCreateContextAttribsARB (device,
+          context_glx->priv->fbconfigs[0], (GLXContext) external_gl_context,
+          True, context_attribs_3);
 
-    x_error = gst_gl_window_x11_untrap_x_errors ();
-    context_glx->priv->context_api = GST_GL_API_OPENGL3 | GST_GL_API_OPENGL;
+      x_error = gst_gl_window_x11_untrap_x_errors ();
 
-    if (!context_glx->glx_context || x_error != 0) {
-      GST_DEBUG ("Failed to create an Opengl 3 context. trying a legacy one");
+      if (x_error != 0)
+        context_glx->glx_context = NULL;
+      context_glx->priv->context_api = GST_GL_API_OPENGL3;
+    }
+
+    if (gl_api & GST_GL_API_OPENGL && context_glx->glx_context == NULL) {
+      GST_DEBUG_OBJECT (window, "trying to create a GL 1.4 context");
 
       gst_gl_window_x11_trap_x_errors ();
       context_glx->glx_context =
@@ -416,14 +425,21 @@ gst_gl_context_glx_get_gl_platform (GstGLContext * context)
   return GST_GL_PLATFORM_GLX;
 }
 
-static gpointer
+gpointer
 gst_gl_context_glx_get_proc_address (GstGLContext * context, const gchar * name)
 {
   gpointer result;
+  GstGLAPI gl_api = gst_gl_context_get_gl_api (context);
 
-  if (!(result = gst_gl_context_default_get_proc_address (context, name))) {
+  if (!(result = gst_gl_context_default_get_proc_address (gl_api, name))) {
     result = glXGetProcAddressARB ((const GLubyte *) name);
   }
 
   return result;
+}
+
+guintptr
+gst_gl_context_glx_get_current_context (void)
+{
+  return (guintptr) glXGetCurrentContext ();
 }
