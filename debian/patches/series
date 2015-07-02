@@ -1,6 +1,5 @@
 01_fix-modplug-linking.patch
 02_opencv-linking.patch
 adding-mirsink-and-android-media-over-hybris-support.patch
-mirclient-requires.patch
 pcfile-requires-plugins-good
 androidmedia-support-COLOR_QCOM_FormatYVU420SemiPlanar32m.patch

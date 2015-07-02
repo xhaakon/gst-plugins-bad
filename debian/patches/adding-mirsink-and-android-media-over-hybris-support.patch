@@ -6,11 +6,9 @@ Author: Jim Hodapp <jim.hodapp@canonical.com>
 Origin: vendor
 Forwarded: no
 
-Index: gst-plugins-bad1.0-1.4.5/configure.ac
-===================================================================
---- gst-plugins-bad1.0-1.4.5.orig/configure.ac
-+++ gst-plugins-bad1.0-1.4.5/configure.ac
-@@ -1632,6 +1632,18 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -1632,6 +1632,18 @@ AG_GST_CHECK_FEATURE(ANDROID_MEDIA, [And
    esac
  ])
  
@@ -29,7 +27,7 @@ Index: gst-plugins-bad1.0-1.4.5/configure.ac
  dnl *** AppleMedia (OS X and iOS) ***
  translit(dnm, m, l) AM_CONDITIONAL(USE_APPLE_MEDIA, true)
  HAVE_APPLE_MEDIA="no"
-@@ -2981,6 +2993,7 @@
+@@ -2981,6 +2993,7 @@ AM_CONDITIONAL(DECKLINK_OSX, false)
  AM_CONDITIONAL(USE_DIRECTFB, false)
  AM_CONDITIONAL(USE_WAYLAND, false)
  AM_CONDITIONAL(USE_DAALA, false)
@@ -37,7 +35,7 @@ Index: gst-plugins-bad1.0-1.4.5/configure.ac
  AM_CONDITIONAL(USE_DTS, false)
  AM_CONDITIONAL(USE_EXIF, false)
  AM_CONDITIONAL(USE_RESINDVD, false)
-@@ -3206,6 +3219,7 @@
+@@ -3206,6 +3219,7 @@ gst-libs/gst/gl/egl/Makefile
  gst-libs/gst/gl/wayland/Makefile
  gst-libs/gst/gl/win32/Makefile
  gst-libs/gst/gl/x11/Makefile
@@ -45,7 +43,7 @@ Index: gst-plugins-bad1.0-1.4.5/configure.ac
  gst-libs/gst/insertbin/Makefile
  gst-libs/gst/interfaces/Makefile
  gst-libs/gst/codecparsers/Makefile
-@@ -3283,6 +3297,7 @@
+@@ -3283,6 +3297,7 @@ ext/dc1394/Makefile
  ext/directfb/Makefile
  ext/wayland/Makefile
  ext/daala/Makefile
@@ -53,11 +51,9 @@ Index: gst-plugins-bad1.0-1.4.5/configure.ac
  ext/dts/Makefile
  ext/gl/Makefile
  ext/faac/Makefile
-Index: gst-plugins-bad1.0-1.4.5/ext/Makefile.am
-===================================================================
---- gst-plugins-bad1.0-1.4.5.orig/ext/Makefile.am
-+++ gst-plugins-bad1.0-1.4.5/ext/Makefile.am
-@@ -70,6 +70,12 @@
+--- a/ext/Makefile.am
++++ b/ext/Makefile.am
+@@ -70,6 +70,12 @@ else
  DAALA_DIR=
  endif
  
@@ -70,7 +66,7 @@ Index: gst-plugins-bad1.0-1.4.5/ext/Makefile.am
  if USE_DTS
  DTS_DIR=dts
  else
-@@ -424,6 +430,7 @@
+@@ -424,6 +430,7 @@ SUBDIRS=\
  	$(LIBFAME_DIR) \
  	$(LIBMMS_DIR) \
  	$(LIBVISUAL_DIR) \
@@ -78,7 +74,7 @@ Index: gst-plugins-bad1.0-1.4.5/ext/Makefile.am
  	$(MODPLUG_DIR) \
  	$(MPEG2ENC_DIR) \
  	$(MPG123_DIR) \
-@@ -471,6 +478,7 @@
+@@ -471,6 +478,7 @@ DIST_SUBDIRS = \
  	dc1394 \
  	directfb \
  	wayland \
@@ -86,10 +82,8 @@ Index: gst-plugins-bad1.0-1.4.5/ext/Makefile.am
  	faac \
  	faad \
  	flite \
-Index: gst-plugins-bad1.0-1.4.5/ext/mir/Makefile.am
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/ext/mir/Makefile.am
++++ b/ext/mir/Makefile.am
 @@ -0,0 +1,17 @@
 +plugin_LTLIBRARIES = libgstmirsink.la
 +
@@ -108,10 +102,8 @@ Index: gst-plugins-bad1.0-1.4.5/ext/mir/Makefile.am
 +libgstmirsink_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 +include_HEADERS = mirpool.h gstmirsink.h
 +noinst_HEADERS =
-Index: gst-plugins-bad1.0-1.4.5/ext/mir/gstmirsink.c
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/ext/mir/gstmirsink.c
++++ b/ext/mir/gstmirsink.c
 @@ -0,0 +1,859 @@
 +/*
 + * GStreamer Mir video sink
@@ -972,11 +964,9 @@ Index: gst-plugins-bad1.0-1.4.5/ext/mir/gstmirsink.c
 +    mirsink,
 +    "Mir Video Sink", plugin_init, VERSION, "LGPL", GST_PACKAGE_NAME,
 +    GST_PACKAGE_ORIGIN)
-Index: gst-plugins-bad1.0-1.4.5/ext/mir/gstmirsink.h
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/ext/mir/gstmirsink.h
-@@ -0,0 +1,130 @@
++++ b/ext/mir/gstmirsink.h
+@@ -0,0 +1,135 @@
 +/*
 + * GStreamer Mir video sink
 + * Copyright (C) 2013 Canonical Ltd
@@ -1018,10 +1008,10 @@ Index: gst-plugins-bad1.0-1.4.5/ext/mir/gstmirsink.h
 +#include <gst/video/gstvideosink.h>
 +#include <gst/video/gstvideometa.h>
 +
-+#include <application/ui/window.h>
-+#include <application/ui/options.h>
-+#include <application/ui/display.h>
-+#include <application/ui/session.h>
++#include <application/description.h>
++#include <application/instance.h>
++#include <application/options.h>
++#include <application/lifecycle_delegate.h>
 +
 +#include <hybris/media/surface_texture_client_hybris.h>
 +//#include <gst/mir/gstmircontext.h>
@@ -1046,9 +1036,10 @@ Index: gst-plugins-bad1.0-1.4.5/ext/mir/gstmirsink.h
 +
 +struct session
 +{
++#if 0
 +  UAUiSession *session;
 +  UAUiSessionProperties *properties;
-+
++#endif
 +  UApplicationDescription *app_description;
 +  UApplicationOptions *app_options;
 +  UApplicationInstance *app_instance;
@@ -1057,7 +1048,9 @@ Index: gst-plugins-bad1.0-1.4.5/ext/mir/gstmirsink.h
 +
 +struct display
 +{
++#if 0
 +  UAUiDisplay *display;
++#endif
 +  int width;
 +  int height;
 +  uint32_t formats;
@@ -1068,8 +1061,10 @@ Index: gst-plugins-bad1.0-1.4.5/ext/mir/gstmirsink.h
 +  struct display *display;
 +  int width;
 +  int height;
++#if 0
 +  UAUiWindow *window;
 +  UAUiWindowProperties *properties;
++#endif
 +  EGLNativeWindowType egl_native_window;
 +};
 +
@@ -1107,10 +1102,8 @@ Index: gst-plugins-bad1.0-1.4.5/ext/mir/gstmirsink.h
 +G_END_DECLS
 +
 +#endif /* __GST_MIR_VIDEO_SINK_H__ */
-Index: gst-plugins-bad1.0-1.4.5/ext/mir/mirpool.c
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/ext/mir/mirpool.c
++++ b/ext/mir/mirpool.c
 @@ -0,0 +1,434 @@
 +/*
 + * GStreamer Mir buffer pool
@@ -1546,10 +1539,8 @@ Index: gst-plugins-bad1.0-1.4.5/ext/mir/mirpool.c
 +
 +  G_OBJECT_CLASS (gst_mir_buffer_pool_parent_class)->finalize (object);
 +}
-Index: gst-plugins-bad1.0-1.4.5/ext/mir/mirpool.h
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/ext/mir/mirpool.h
++++ b/ext/mir/mirpool.h
 @@ -0,0 +1,91 @@
 +/*
 + * GStreamer Mir buffer pool
@@ -1642,10 +1633,8 @@ Index: gst-plugins-bad1.0-1.4.5/ext/mir/mirpool.h
 +G_END_DECLS
 +
 +#endif /*__GST_MIR_BUFFER_POOL_H__*/
-Index: gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/Makefile.am
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/Makefile.am
++++ b/gst-libs/gst/mir/Makefile.am
 @@ -0,0 +1,26 @@
 +lib_LTLIBRARIES = libgstmiralloc-@GST_API_VERSION@.la
 +
@@ -1673,10 +1662,8 @@ Index: gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/Makefile.am
 +	$(GST_LIB_LDFLAGS) \
 +	$(GST_ALL_LDFLAGS) \
 +	$(GST_LT_LDFLAGS)
-Index: gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/gstmircontext.c
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/gstmircontext.c
++++ b/gst-libs/gst/mir/gstmircontext.c
 @@ -0,0 +1,216 @@
 +/*
 + * Provides a struct for transfering context between elements
@@ -1894,10 +1881,8 @@ Index: gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/gstmircontext.c
 +
 +  return NULL;
 +}
-Index: gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/gstmircontext.h
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/gstmircontext.h
++++ b/gst-libs/gst/mir/gstmircontext.h
 @@ -0,0 +1,64 @@
 +/*
 + * Provides a struct for transfering context between elements
@@ -1963,10 +1948,8 @@ Index: gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/gstmircontext.h
 +G_END_DECLS
 +
 +#endif /* __GST_MIR_COMMON_H__ */
-Index: gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/mirallocator.c
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/mirallocator.c
++++ b/gst-libs/gst/mir/mirallocator.c
 @@ -0,0 +1,272 @@
 +/*
 + * Mir GstMemory allocator
@@ -2240,10 +2223,8 @@ Index: gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/mirallocator.c
 +
 +  return GST_MEMORY_CAST (mem);
 +}
-Index: gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/mirallocator.h
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/mirallocator.h
++++ b/gst-libs/gst/mir/mirallocator.h
 @@ -0,0 +1,69 @@
 +/*
 + * Mir GstMemory allocator
@@ -2314,11 +2295,9 @@ Index: gst-plugins-bad1.0-1.4.5/gst-libs/gst/mir/mirallocator.h
 +    gpointer user_data, GDestroyNotify user_data_destroy);
 +
 +#endif /* __GST_MIR_ALLOCATOR_H__ */
-Index: gst-plugins-bad1.0-1.4.5/sys/Makefile.am
-===================================================================
---- gst-plugins-bad1.0-1.4.5.orig/sys/Makefile.am
-+++ gst-plugins-bad1.0-1.4.5/sys/Makefile.am
-@@ -10,6 +10,12 @@
+--- a/sys/Makefile.am
++++ b/sys/Makefile.am
+@@ -10,6 +10,12 @@ else
  ANDROID_MEDIA_DIR=
  endif
  
@@ -2331,10 +2310,8 @@ Index: gst-plugins-bad1.0-1.4.5/sys/Makefile.am
  if USE_APPLE_MEDIA
  APPLE_MEDIA_DIR=applemedia applemedia-nonpublic
  else
-Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/Makefile.am
-===================================================================
---- gst-plugins-bad1.0-1.4.5.orig/sys/androidmedia/Makefile.am
-+++ gst-plugins-bad1.0-1.4.5/sys/androidmedia/Makefile.am
+--- a/sys/androidmedia/Makefile.am
++++ b/sys/androidmedia/Makefile.am
 @@ -1,10 +1,18 @@
  plugin_LTLIBRARIES = libgstandroidmedia.la
  
@@ -2355,7 +2332,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/Makefile.am
  
  noinst_HEADERS = \
  	gstamc.h \
-@@ -14,18 +22,23 @@
+@@ -14,18 +22,23 @@ noinst_HEADERS = \
  	gstamcvideoenc.h
  
  libgstandroidmedia_la_CFLAGS = \
@@ -2380,7 +2357,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/Makefile.am
  libgstandroidmedia_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
  libgstandroidmedia_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
  
-@@ -36,7 +49,7 @@
+@@ -36,7 +49,7 @@ Android.mk: Makefile.am $(BUILT_SOURCES)
           -:REL_TOP $(top_srcdir) -:ABS_TOP $(abs_top_srcdir) \
  	 -:SOURCES $(libgstandroidmedia_la_SOURCES) \
  	           $(nodist_libgstandroidmedia_la_SOURCES) \
@@ -2389,11 +2366,9 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/Makefile.am
  	 -:LDFLAGS $(libgstandroidmedia_la_LDFLAGS) \
  	           $(libgstandroidmedia_la_LIBADD) \
  	           -ldl \
-Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc-constants.h
-===================================================================
---- gst-plugins-bad1.0-1.4.5.orig/sys/androidmedia/gstamc-constants.h
-+++ gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc-constants.h
-@@ -93,6 +93,8 @@
+--- a/sys/androidmedia/gstamc-constants.h
++++ b/sys/androidmedia/gstamc-constants.h
+@@ -93,6 +93,8 @@ enum
    COLOR_Format24BitARGB6666 = 42,
    COLOR_Format24BitABGR6666 = 43,
    COLOR_FormatAndroidOpaque = 0x7F000789,
@@ -2402,7 +2377,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc-constants.h
    COLOR_TI_FormatYUV420PackedSemiPlanar = 0x7f000100,
    COLOR_QCOM_FormatYUV420SemiPlanar = 0x7fa30c00,
    COLOR_QCOM_FormatYUV420PackedSemiPlanar64x32Tile2m8ka = 0x7fa30c03,
-@@ -100,12 +102,17 @@
+@@ -100,12 +102,17 @@ enum
    COLOR_QCOM_FormatYVU420SemiPlanar32m = 0x7fa30c04,
    /* From hardware/ti/omap4xxx/domx/omx_core/inc/OMX_TI_IVCommon.h */
    COLOR_TI_FormatYUV420PackedSemiPlanarInterlaced = 0x7f000001,
@@ -2421,11 +2396,9 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc-constants.h
  };
  
  enum
-Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc.h
-===================================================================
---- gst-plugins-bad1.0-1.4.5.orig/sys/androidmedia/gstamc.h
-+++ gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc.h
-@@ -24,10 +24,60 @@
+--- a/sys/androidmedia/gstamc.h
++++ b/sys/androidmedia/gstamc.h
+@@ -24,10 +24,66 @@
  #include <gst/gst.h>
  #include <gst/video/video.h>
  #include <gst/audio/audio.h>
@@ -2437,10 +2410,11 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc.h
 +#include <hybris/media/media_codec_layer.h>
 +#include <hybris/media/media_format_layer.h>
 +
-+#include <application/ui/window.h>
-+#include <application/ui/options.h>
-+#include <application/ui/display.h>
-+#include <application/ui/session.h>
++#include <application/description.h>
++#include <application/instance.h>
++#include <application/options.h>
++#include <application/lifecycle_delegate.h>
++
 +#endif
 +
 +#ifndef HAVE_ANDROID_MEDIA_HYBRIS
@@ -2454,9 +2428,10 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc.h
 +#ifdef HAVE_ANDROID_MEDIA_HYBRIS
 +struct ua_session
 +{
++#if 0
 +  UAUiSession *session;
 +  UAUiSessionProperties *properties;
-+
++#endif
 +  UApplicationDescription *app_description;
 +  UApplicationOptions *app_options;
 +  UApplicationId *app_id;
@@ -2466,7 +2441,9 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc.h
 +
 +struct ua_display
 +{
++#if 0
 +  UAUiDisplay *display;
++#endif
 +  int width;
 +  int height;
 +  uint32_t formats;
@@ -2477,8 +2454,10 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc.h
 +  struct ua_display *display;
 +  int width;
 +  int height;
++#if 0
 +  UAUiWindow *window;
 +  UAUiWindowProperties *properties;
++#endif
 +  EGLNativeWindowType egl_native_window;
 +};
 +#endif
@@ -2486,7 +2465,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc.h
  typedef struct _GstAmcCodecInfo GstAmcCodecInfo;
  typedef struct _GstAmcCodecType GstAmcCodecType;
  typedef struct _GstAmcCodec GstAmcCodec;
-@@ -57,19 +107,34 @@
+@@ -57,19 +113,34 @@ struct _GstAmcCodecInfo {
  };
  
  struct _GstAmcBuffer {
@@ -2521,7 +2500,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc.h
  };
  
  struct _GstAmcBufferInfo {
-@@ -81,44 +146,62 @@
+@@ -81,44 +152,62 @@ struct _GstAmcBufferInfo {
  
  extern GQuark gst_amc_codec_info_quark;
  
@@ -2612,10 +2591,8 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamc.h
  
  GstVideoFormat gst_amc_color_format_to_video_format (const GstAmcCodecInfo * codec_info, const gchar * mime, gint color_format);
  gint gst_amc_video_format_to_color_format (const GstAmcCodecInfo * codec_info, const gchar * mime, GstVideoFormat video_format);
-Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcaudiodechybris.c
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcaudiodechybris.c
++++ b/sys/androidmedia/gstamcaudiodechybris.c
 @@ -0,0 +1,1280 @@
 +/*
 + * Initially based on gst-omx/omx/gstomxvideodec.c
@@ -3897,10 +3874,8 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcaudiodechybris.c
 +
 +  return ret;
 +}
-Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamchybris.c
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamchybris.c
++++ b/sys/androidmedia/gstamchybris.c
 @@ -0,0 +1,2078 @@
 +/*
 + * Initially based on gstamc.c
@@ -5980,10 +5955,8 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamchybris.c
 +    "Android Media Hybris plugin",
 +    plugin_init,
 +    PACKAGE_VERSION, GST_LICENSE, GST_PACKAGE_NAME, GST_PACKAGE_ORIGIN)
-Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcvideodec.h
-===================================================================
---- gst-plugins-bad1.0-1.4.5.orig/sys/androidmedia/gstamcvideodec.h
-+++ gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcvideodec.h
+--- a/sys/androidmedia/gstamcvideodec.h
++++ b/sys/androidmedia/gstamcvideodec.h
 @@ -25,6 +25,10 @@
  
  #include <gst/video/gstvideodecoder.h>
@@ -5995,7 +5968,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcvideodec.h
  #include "gstamc.h"
  
  G_BEGIN_DECLS
-@@ -57,6 +61,11 @@
+@@ -57,6 +61,11 @@ struct _GstAmcVideoDec
    GstVideoCodecState *input_state;
    gboolean input_state_changed;
  
@@ -6007,7 +5980,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcvideodec.h
    /* Output format of the codec */
    GstVideoFormat format;
    GstAmcColorFormatInfo color_format_info;
-@@ -68,6 +77,10 @@
+@@ -68,6 +77,10 @@ struct _GstAmcVideoDec
    gboolean started;
    gboolean flushing;
  
@@ -6018,7 +5991,7 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcvideodec.h
    GstClockTime last_upstream_ts;
  
    /* Draining state */
-@@ -80,6 +93,16 @@
+@@ -80,6 +93,16 @@ struct _GstAmcVideoDec
    gboolean eos;
  
    GstFlowReturn downstream_flow_ret;
@@ -6035,10 +6008,8 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcvideodec.h
  };
  
  struct _GstAmcVideoDecClass
-Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcvideodechybris.c
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcvideodechybris.c
++++ b/sys/androidmedia/gstamcvideodechybris.c
 @@ -0,0 +1,2327 @@
 +/*
 + * Initially based on gstamcvideodec.c
@@ -8367,11 +8338,9 @@ Index: gst-plugins-bad1.0-1.4.5/sys/androidmedia/gstamcvideodechybris.c
 +
 +  return TRUE;
 +}
-Index: gst-plugins-bad1.0-1.4.5/tests/check/Makefile.am
-===================================================================
---- gst-plugins-bad1.0-1.4.5.orig/tests/check/Makefile.am
-+++ gst-plugins-bad1.0-1.4.5/tests/check/Makefile.am
-@@ -184,6 +184,12 @@
+--- a/tests/check/Makefile.am
++++ b/tests/check/Makefile.am
+@@ -184,6 +184,12 @@ else
  check_gl=
  endif
  
@@ -8384,7 +8353,7 @@ Index: gst-plugins-bad1.0-1.4.5/tests/check/Makefile.am
  VALGRIND_TO_FIX = \
  	elements/mpeg2enc \
  	elements/mplex    \
-@@ -240,6 +246,7 @@
+@@ -240,6 +246,7 @@ check_PROGRAMS = \
  	elements/mxfmux \
  	elements/id3mux \
  	pipelines/mxf \
@@ -8392,10 +8361,8 @@ Index: gst-plugins-bad1.0-1.4.5/tests/check/Makefile.am
  	$(check_mimic) \
  	libs/mpegvideoparser \
  	libs/mpegts \
-Index: gst-plugins-bad1.0-1.4.5/tests/check/pipelines/gstamcvideodec.c
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/tests/check/pipelines/gstamcvideodec.c
++++ b/tests/check/pipelines/gstamcvideodec.c
 @@ -0,0 +1,538 @@
 +/*
 + * Unit and functional tests for gstamcvideodec
@@ -8935,10 +8902,8 @@ Index: gst-plugins-bad1.0-1.4.5/tests/check/pipelines/gstamcvideodec.c
 +}
 +
 +GST_CHECK_MAIN (gstamcvideodec);
-Index: gst-plugins-bad1.0-1.4.5/tests/check/pipelines/gstamcvideodec_egl.c
-===================================================================
 --- /dev/null
-+++ gst-plugins-bad1.0-1.4.5/tests/check/pipelines/gstamcvideodec_egl.c
++++ b/tests/check/pipelines/gstamcvideodec_egl.c
 @@ -0,0 +1,56 @@
 +/*
 + * EGL functionality for gstamcvideodec
@@ -8996,11 +8961,9 @@ Index: gst-plugins-bad1.0-1.4.5/tests/check/pipelines/gstamcvideodec_egl.c
 +      context_attribs);
 +  fail_if (egl_context == EGL_NO_CONTEXT);
 +}
-Index: gst-plugins-bad1.0-1.4.5/gst-libs/gst/Makefile.am
-===================================================================
---- gst-plugins-bad1.0-1.4.5.orig/gst-libs/gst/Makefile.am
-+++ gst-plugins-bad1.0-1.4.5/gst-libs/gst/Makefile.am
-@@ -6,12 +6,16 @@
+--- a/gst-libs/gst/Makefile.am
++++ b/gst-libs/gst/Makefile.am
+@@ -6,12 +6,16 @@ if USE_GLES2
  GL_DIR = gl
  endif
  
