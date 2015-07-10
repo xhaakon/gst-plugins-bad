@@ -61,6 +61,15 @@ gst-plugins-bad1.0 (1.5.0.1+git20150316-1) experimental; urgency=medium
 
  -- Sebastian Dröge <slomo@debian.org>  Tue, 17 Mar 2015 09:42:54 +0100
 
+gst-plugins-bad1.0 (1.4.5-1ubuntu7) wily; urgency=medium
+
+  [ Alberto Aguirre ]
+  * Refreshing adding-mirsink-and-android-media-over-hybris-support.patch:
+    + Remove non-existant headers/types as platform-api 3 ua_ui_xxx apis
+      have been deprecated and removed
+
+ -- Iain Lane <iain.lane@canonical.com>  Thu, 02 Jul 2015 11:32:19 +0100
+
 gst-plugins-bad1.0 (1.4.5-1ubuntu6) wily; urgency=medium
 
   * debian/patches/mirclient-requires.patch, debian/build-deps.in: Explicitly
