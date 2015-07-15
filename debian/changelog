@@ -1,5 +1,6 @@
 gst-plugins-bad1.0 (1.5.2-1ubuntu1) UNRELEASED; urgency=medium
 
+  [ Iain Lane ]
   * Merge with Debian experimental; remaining changes:
     + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
     moved to -good.
@@ -21,6 +22,10 @@ gst-plugins-bad1.0 (1.5.2-1ubuntu1) UNRELEASED; urgency=medium
   * debian/control{,.in}: Update Vcs-* for Ubuntu
   * debian/watch: Update Vcs-* for new URL scheme
   * Disable bluez support - requires bluez 5
+
+  [ Alfonso Sanchez-Beato ]
+  * Update d/p/adding-mirsink-and-android-media-over-hybris-support.patch to
+    apply on this version.
 
  -- Iain Lane <iain.lane@canonical.com>  Thu, 25 Jun 2015 11:42:23 +0100
 

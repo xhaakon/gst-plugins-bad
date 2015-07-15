@@ -1,14 +1,61 @@
-Description: Adding mirsink and Android media over hybris support,
+From: Alfonso Sanchez-Beato <alfonso.sanchez-beato@canonical.com>
+Date: Tue, 14 Jul 2015 10:41:17 +0000
+Subject: adding-mirsink-and-android-media-over-hybris-support
+
 for hardware accelerated decode using libstagefright and the hybris
 compat layer.
 Author: Jim Hodapp <jim.hodapp@canonical.com>
 
 Origin: vendor
 Forwarded: no
+---
+ configure.ac                               |   15 +
+ ext/Makefile.am                            |    8 +
+ ext/mir/Makefile.am                        |   17 +
+ ext/mir/gstmirsink.c                       |  859 ++++++++++
+ ext/mir/gstmirsink.h                       |  135 ++
+ ext/mir/mirpool.c                          |  434 ++++++
+ ext/mir/mirpool.h                          |   91 ++
+ gst-libs/gst/Makefile.am                   |    8 +-
+ gst-libs/gst/mir/Makefile.am               |   26 +
+ gst-libs/gst/mir/gstmircontext.c           |  216 +++
+ gst-libs/gst/mir/gstmircontext.h           |   64 +
+ gst-libs/gst/mir/mirallocator.c            |  272 ++++
+ gst-libs/gst/mir/mirallocator.h            |   69 +
+ sys/Makefile.am                            |    6 +
+ sys/androidmedia/Makefile.am               |   16 +-
+ sys/androidmedia/gstamc-constants.h        |    7 +
+ sys/androidmedia/gstamc.h                  |  162 +-
+ sys/androidmedia/gstamcaudiodec.h          |    8 +
+ sys/androidmedia/gstamcaudiodechybris.c    | 1278 +++++++++++++++
+ sys/androidmedia/gstamchybris.c            | 2137 +++++++++++++++++++++++++
+ sys/androidmedia/gstamcvideodec.h          |   30 +
+ sys/androidmedia/gstamcvideodechybris.c    | 2327 ++++++++++++++++++++++++++++
+ tests/check/Makefile.am                    |    7 +
+ tests/check/pipelines/gstamcvideodec.c     |  538 +++++++
+ tests/check/pipelines/gstamcvideodec_egl.c |   56 +
+ 25 files changed, 8750 insertions(+), 36 deletions(-)
+ create mode 100644 ext/mir/Makefile.am
+ create mode 100644 ext/mir/gstmirsink.c
+ create mode 100644 ext/mir/gstmirsink.h
+ create mode 100644 ext/mir/mirpool.c
+ create mode 100644 ext/mir/mirpool.h
+ create mode 100644 gst-libs/gst/mir/Makefile.am
+ create mode 100644 gst-libs/gst/mir/gstmircontext.c
+ create mode 100644 gst-libs/gst/mir/gstmircontext.h
+ create mode 100644 gst-libs/gst/mir/mirallocator.c
+ create mode 100644 gst-libs/gst/mir/mirallocator.h
+ create mode 100644 sys/androidmedia/gstamcaudiodechybris.c
+ create mode 100644 sys/androidmedia/gstamchybris.c
+ create mode 100644 sys/androidmedia/gstamcvideodechybris.c
+ create mode 100644 tests/check/pipelines/gstamcvideodec.c
+ create mode 100644 tests/check/pipelines/gstamcvideodec_egl.c
 
+diff --git a/configure.ac b/configure.ac
+index 59566d4..96c0152 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1632,6 +1632,18 @@ AG_GST_CHECK_FEATURE(ANDROID_MEDIA, [And
+@@ -1591,6 +1591,18 @@ AG_GST_CHECK_FEATURE(ANDROID_MEDIA, [Android Media], androidmedia, [
    esac
  ])
  
@@ -27,7 +74,7 @@ Forwarded: no
  dnl *** AppleMedia (OS X and iOS) ***
  translit(dnm, m, l) AM_CONDITIONAL(USE_APPLE_MEDIA, true)
  HAVE_APPLE_MEDIA="no"
-@@ -2981,6 +2993,7 @@ AM_CONDITIONAL(DECKLINK_OSX, false)
+@@ -3000,6 +3012,7 @@ AM_CONDITIONAL(DECKLINK_OSX, false)
  AM_CONDITIONAL(USE_DIRECTFB, false)
  AM_CONDITIONAL(USE_WAYLAND, false)
  AM_CONDITIONAL(USE_DAALA, false)
@@ -35,7 +82,7 @@ Forwarded: no
  AM_CONDITIONAL(USE_DTS, false)
  AM_CONDITIONAL(USE_EXIF, false)
  AM_CONDITIONAL(USE_RESINDVD, false)
-@@ -3206,6 +3219,7 @@ gst-libs/gst/gl/egl/Makefile
+@@ -3232,6 +3245,7 @@ gst-libs/gst/gl/egl/Makefile
  gst-libs/gst/gl/wayland/Makefile
  gst-libs/gst/gl/win32/Makefile
  gst-libs/gst/gl/x11/Makefile
@@ -43,17 +90,19 @@ Forwarded: no
  gst-libs/gst/insertbin/Makefile
  gst-libs/gst/interfaces/Makefile
  gst-libs/gst/codecparsers/Makefile
-@@ -3283,6 +3297,7 @@ ext/dc1394/Makefile
+@@ -3311,6 +3325,7 @@ ext/dc1394/Makefile
  ext/directfb/Makefile
  ext/wayland/Makefile
  ext/daala/Makefile
 +ext/mir/Makefile
  ext/dts/Makefile
  ext/gl/Makefile
- ext/faac/Makefile
+ ext/gtk/Makefile
+diff --git a/ext/Makefile.am b/ext/Makefile.am
+index 66dccd6..e403264 100644
 --- a/ext/Makefile.am
 +++ b/ext/Makefile.am
-@@ -70,6 +70,12 @@ else
+@@ -76,6 +76,12 @@ else
  DAALA_DIR=
  endif
  
@@ -66,7 +115,7 @@ Forwarded: no
  if USE_DTS
  DTS_DIR=dts
  else
-@@ -424,6 +430,7 @@ SUBDIRS=\
+@@ -457,6 +463,7 @@ SUBDIRS=\
  	$(LIBFAME_DIR) \
  	$(LIBMMS_DIR) \
  	$(LIBVISUAL_DIR) \
@@ -74,7 +123,7 @@ Forwarded: no
  	$(MODPLUG_DIR) \
  	$(MPEG2ENC_DIR) \
  	$(MPG123_DIR) \
-@@ -471,6 +478,7 @@ DIST_SUBDIRS = \
+@@ -507,6 +514,7 @@ DIST_SUBDIRS = \
  	dc1394 \
  	directfb \
  	wayland \
@@ -82,17 +131,20 @@ Forwarded: no
  	faac \
  	faad \
  	flite \
+diff --git a/ext/mir/Makefile.am b/ext/mir/Makefile.am
+new file mode 100644
+index 0000000..d588fc7
 --- /dev/null
 +++ b/ext/mir/Makefile.am
 @@ -0,0 +1,17 @@
 +plugin_LTLIBRARIES = libgstmirsink.la
 +
 +libgstmirsink_la_SOURCES = gstmirsink.c mirpool.c
-+libgstmirsink_la_CFLAGS = $(GST_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
++libgstmirsink_la_CFLAGS = $(GST_CFLAGS) $(GST_BASE_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
 +                               $(UBUNTU_PLATFORM_CFLAGS) \
 +                               $(MIR_CFLAGS) \
 +                               -I../../gst-libs/
-+libgstmirsink_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) \
++libgstmirsink_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) \
 +                               -lgstvideo-$(GST_API_VERSION) \
 +                               $(top_builddir)/gst-libs/gst/mir/libgstmiralloc-$(GST_API_VERSION).la \
 +                               -lmedia \
@@ -102,6 +154,9 @@ Forwarded: no
 +libgstmirsink_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 +include_HEADERS = mirpool.h gstmirsink.h
 +noinst_HEADERS =
+diff --git a/ext/mir/gstmirsink.c b/ext/mir/gstmirsink.c
+new file mode 100644
+index 0000000..1c620ed
 --- /dev/null
 +++ b/ext/mir/gstmirsink.c
 @@ -0,0 +1,859 @@
@@ -964,6 +1019,9 @@ Forwarded: no
 +    mirsink,
 +    "Mir Video Sink", plugin_init, VERSION, "LGPL", GST_PACKAGE_NAME,
 +    GST_PACKAGE_ORIGIN)
+diff --git a/ext/mir/gstmirsink.h b/ext/mir/gstmirsink.h
+new file mode 100644
+index 0000000..af608b4
 --- /dev/null
 +++ b/ext/mir/gstmirsink.h
 @@ -0,0 +1,135 @@
@@ -1102,6 +1160,9 @@ Forwarded: no
 +G_END_DECLS
 +
 +#endif /* __GST_MIR_VIDEO_SINK_H__ */
+diff --git a/ext/mir/mirpool.c b/ext/mir/mirpool.c
+new file mode 100644
+index 0000000..85b3334
 --- /dev/null
 +++ b/ext/mir/mirpool.c
 @@ -0,0 +1,434 @@
@@ -1319,7 +1380,7 @@ Forwarded: no
 +    case GST_VIDEO_FORMAT_Y41B:{
 +
 +      GST_WARNING_OBJECT (m_pool,
-+          "Allocating new Mir image, height: %d, width: %d, size: %d", height,
++          "Allocating new Mir image, height: %d, width: %d, size: %zu", height,
 +          width, size);
 +
 +      /* A fallback to make sure we have a size (taken from OMXCodec.cpp
@@ -1331,11 +1392,11 @@ Forwarded: no
 +      stride = size / height;
 +      size = stride * height;
 +
-+      GST_WARNING_OBJECT (m_pool, "stride: %d, size: %d", stride, size);
++      GST_WARNING_OBJECT (m_pool, "stride: %d, size: %zu", stride, size);
 +
 +      buffer_id = 0;
 +
-+      GST_WARNING_OBJECT (m_pool, "Allocating new buffer memory of size: %d",
++      GST_WARNING_OBJECT (m_pool, "Allocating new buffer memory of size: %zu",
 +          size);
 +      mem =
 +          gst_mir_image_allocator_wrap (allocator, m_pool->codec_delegate,
@@ -1428,11 +1489,11 @@ Forwarded: no
 +
 +  GST_DEBUG_OBJECT (pool, "mem: %p", mem);
 +  GST_DEBUG_OBJECT (pool, "gst_mir_image_memory_get_codec (mem): %p", delegate);
-+  GST_DEBUG_OBJECT (pool, "gst_mir_image_memory_get_buffer_index (mem): %d",
++  GST_DEBUG_OBJECT (pool, "gst_mir_image_memory_get_buffer_index (mem): %zu",
 +      gst_mir_image_memory_get_buffer_index (mem));
-+  GST_DEBUG_OBJECT (pool, "Rendering buffer: %d",
++  GST_DEBUG_OBJECT (pool, "Rendering buffer: %zu",
 +      gst_mir_image_memory_get_buffer_index (mem));
-+  GST_DEBUG_OBJECT (pool, "Releasing output buffer index: %d",
++  GST_DEBUG_OBJECT (pool, "Releasing output buffer index: %zu",
 +      gst_mir_image_memory_get_buffer_index (mem));
 +
 +  /* Render and release the output buffer back to the decoder */
@@ -1539,6 +1600,9 @@ Forwarded: no
 +
 +  G_OBJECT_CLASS (gst_mir_buffer_pool_parent_class)->finalize (object);
 +}
+diff --git a/ext/mir/mirpool.h b/ext/mir/mirpool.h
+new file mode 100644
+index 0000000..3853aa8
 --- /dev/null
 +++ b/ext/mir/mirpool.h
 @@ -0,0 +1,91 @@
@@ -1633,6 +1697,40 @@ Forwarded: no
 +G_END_DECLS
 +
 +#endif /*__GST_MIR_BUFFER_POOL_H__*/
+diff --git a/gst-libs/gst/Makefile.am b/gst-libs/gst/Makefile.am
+index a7380f8..fcb3901 100644
+--- a/gst-libs/gst/Makefile.am
++++ b/gst-libs/gst/Makefile.am
+@@ -6,12 +6,16 @@ if USE_GLES2
+ GL_DIR = gl
+ endif
+ 
++if USE_ANDROID_MEDIA_HYBRIS
++MIR_DIR = mir
++endif
++
+ if USE_WAYLAND
+ WAYLAND_DIR=wayland
+ endif
+ 
+ SUBDIRS = uridownloader adaptivedemux interfaces basecamerabinsrc codecparsers \
+-	 insertbin mpegts base video $(GL_DIR) $(WAYLAND_DIR)
++	 insertbin mpegts base video $(GL_DIR) $(WAYLAND_DIR) $(MIR_DIR)
+ 
+ noinst_HEADERS = gst-i18n-plugin.h gettext.h glib-compat-private.h
+ DIST_SUBDIRS = uridownloader adaptivedemux interfaces gl basecamerabinsrc \
+@@ -24,7 +28,7 @@ adaptivedemux: uridownloader
+ 
+ INDEPENDENT_SUBDIRS = \
+ 	interfaces basecamerabinsrc codecparsers insertbin uridownloader \
+-	mpegts base $(GL_DIR) $(WAYLAND_DIR)
++	mpegts base $(GL_DIR) $(WAYLAND_DIR) $(MIR_DIR)
+ 
+ .PHONY: independent-subdirs $(INDEPENDENT_SUBDIRS)
+ 
+diff --git a/gst-libs/gst/mir/Makefile.am b/gst-libs/gst/mir/Makefile.am
+new file mode 100644
+index 0000000..a2bfe9b
 --- /dev/null
 +++ b/gst-libs/gst/mir/Makefile.am
 @@ -0,0 +1,26 @@
@@ -1662,6 +1760,9 @@ Forwarded: no
 +	$(GST_LIB_LDFLAGS) \
 +	$(GST_ALL_LDFLAGS) \
 +	$(GST_LT_LDFLAGS)
+diff --git a/gst-libs/gst/mir/gstmircontext.c b/gst-libs/gst/mir/gstmircontext.c
+new file mode 100644
+index 0000000..dbabcd7
 --- /dev/null
 +++ b/gst-libs/gst/mir/gstmircontext.c
 @@ -0,0 +1,216 @@
@@ -1881,6 +1982,9 @@ Forwarded: no
 +
 +  return NULL;
 +}
+diff --git a/gst-libs/gst/mir/gstmircontext.h b/gst-libs/gst/mir/gstmircontext.h
+new file mode 100644
+index 0000000..11655fb
 --- /dev/null
 +++ b/gst-libs/gst/mir/gstmircontext.h
 @@ -0,0 +1,64 @@
@@ -1948,6 +2052,9 @@ Forwarded: no
 +G_END_DECLS
 +
 +#endif /* __GST_MIR_COMMON_H__ */
+diff --git a/gst-libs/gst/mir/mirallocator.c b/gst-libs/gst/mir/mirallocator.c
+new file mode 100644
+index 0000000..ac6e766
 --- /dev/null
 +++ b/gst-libs/gst/mir/mirallocator.c
 @@ -0,0 +1,272 @@
@@ -2203,7 +2310,7 @@ Forwarded: no
 +  GstMirImageMemory *mem;
 +
 +  GST_WARNING ("%s", __PRETTY_FUNCTION__);
-+  GST_WARNING ("size: %d", size);
++  GST_WARNING ("size: %zu", size);
 +  GST_WARNING ("delegate: %p", delegate);
 +
 +  if (!allocator) {
@@ -2223,6 +2330,9 @@ Forwarded: no
 +
 +  return GST_MEMORY_CAST (mem);
 +}
+diff --git a/gst-libs/gst/mir/mirallocator.h b/gst-libs/gst/mir/mirallocator.h
+new file mode 100644
+index 0000000..efe3fe0
 --- /dev/null
 +++ b/gst-libs/gst/mir/mirallocator.h
 @@ -0,0 +1,69 @@
@@ -2295,6 +2405,8 @@ Forwarded: no
 +    gpointer user_data, GDestroyNotify user_data_destroy);
 +
 +#endif /* __GST_MIR_ALLOCATOR_H__ */
+diff --git a/sys/Makefile.am b/sys/Makefile.am
+index 1051ce5..23a8623 100644
 --- a/sys/Makefile.am
 +++ b/sys/Makefile.am
 @@ -10,6 +10,12 @@ else
@@ -2310,9 +2422,11 @@ Forwarded: no
  if USE_APPLE_MEDIA
  APPLE_MEDIA_DIR=applemedia applemedia-nonpublic
  else
+diff --git a/sys/androidmedia/Makefile.am b/sys/androidmedia/Makefile.am
+index 5fcfb8f..2628a8a 100644
 --- a/sys/androidmedia/Makefile.am
 +++ b/sys/androidmedia/Makefile.am
-@@ -1,10 +1,18 @@
+@@ -1,11 +1,18 @@
  plugin_LTLIBRARIES = libgstandroidmedia.la
  
 -libgstandroidmedia_la_SOURCES = \
@@ -2326,14 +2440,14 @@ Forwarded: no
  	gstamc.c \
  	gstamcaudiodec.c \
  	gstamcvideodec.c \
- 	gstamcvideoenc.c
+ 	gstamcvideoenc.c \
+ 	gstjniutils.c
 +endif
-+
  
  noinst_HEADERS = \
  	gstamc.h \
-@@ -14,18 +22,23 @@ noinst_HEADERS = \
- 	gstamcvideoenc.h
+@@ -16,17 +23,22 @@ noinst_HEADERS = \
+ 	gstjniutils.h
  
  libgstandroidmedia_la_CFLAGS = \
 +	$(GST_PLUGINS_BAD_CFLAGS) \
@@ -2356,16 +2470,8 @@ Forwarded: no
 +	$(top_builddir)/gst-libs/gst/mir/libgstmiralloc-@GST_API_VERSION@.la
  libgstandroidmedia_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
  libgstandroidmedia_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
- 
-@@ -36,7 +49,7 @@ Android.mk: Makefile.am $(BUILT_SOURCES)
-          -:REL_TOP $(top_srcdir) -:ABS_TOP $(abs_top_srcdir) \
- 	 -:SOURCES $(libgstandroidmedia_la_SOURCES) \
- 	           $(nodist_libgstandroidmedia_la_SOURCES) \
--	 -:CFLAGS $(DEFS) $(DEFAULT_INCLUDES) $(libgstandroidmedia_la_CFLAGS) \
-+	 -:CPPFLAGS $(DEFS) $(DEFAULT_INCLUDES) $(libgstandroidmedia_la_CFLAGS) \
- 	 -:LDFLAGS $(libgstandroidmedia_la_LDFLAGS) \
- 	           $(libgstandroidmedia_la_LIBADD) \
- 	           -ldl \
+diff --git a/sys/androidmedia/gstamc-constants.h b/sys/androidmedia/gstamc-constants.h
+index ae52464..f5bb86f 100644
 --- a/sys/androidmedia/gstamc-constants.h
 +++ b/sys/androidmedia/gstamc-constants.h
 @@ -93,6 +93,8 @@ enum
@@ -2375,35 +2481,34 @@ Forwarded: no
 +  /* From hardware/ti/omap4xxx/domx/omx_core/inc/OMX_TI_IVCommon.h */
 +  COLOR_TI_COLOR_FormatYUV420PackedSemiPlanar = 0x100,
    COLOR_TI_FormatYUV420PackedSemiPlanar = 0x7f000100,
-   COLOR_QCOM_FormatYUV420SemiPlanar = 0x7fa30c00,
-   COLOR_QCOM_FormatYUV420PackedSemiPlanar64x32Tile2m8ka = 0x7fa30c03,
-@@ -100,12 +102,17 @@ enum
-   COLOR_QCOM_FormatYVU420SemiPlanar32m = 0x7fa30c04,
-   /* From hardware/ti/omap4xxx/domx/omx_core/inc/OMX_TI_IVCommon.h */
-   COLOR_TI_FormatYUV420PackedSemiPlanarInterlaced = 0x7f000001,
-+  COLOR_EXYNOS_FormatNV12Tiled = 0x7fc00002,
-+  COLOR_EXYNOS_FormatNV21Linear = 0x7f000011,
-   /* This format is Exynos specific from the OMX vendor-specific
-    * numeric range, but is defined in the Android OMX headers, so
-    * we shouldn't find incompatible usage and crash horribly... right?
+   COLOR_INTEL_FormatYUV420PackedSemiPlanar = 0x7fa00e00,
+   COLOR_INTEL_FormatYUV420PackedSemiPlanar_Tiled = 0x7fa00f00,
+@@ -112,8 +114,13 @@ enum
     * FIXME: Not actually implemented in the video decoder, it will just error out
     * The format seems to be equiv to V4L2_PIX_FMT_NV12MT_16X16 */
--  COLOR_OMX_SEC_FormatNV12Tiled = 0x7fc00002
-+  COLOR_OMX_SEC_FormatNV12Tiled = 0x7fc00002,
+   COLOR_OMX_SEC_FormatNV12Tiled = 0x7fc00002,
++  COLOR_EXYNOS_FormatNV12Tiled = 0x7fc00002,
++  COLOR_EXYNOS_FormatNV21Linear = 0x7f000011,
+   /* YV12: http://developer.android.com/reference/android/graphics/ImageFormat.html#YV12 */
+   COLOR_FormatYV12 = 0x32315659,
 +  /* MTK formats. FormatYV12 is used by VP8/9. */
 +  COLOR_MTK_FormatYV12 = 0x7f000200,
 +  COLOR_MTK_FormatBitStream = 0x7f000300
  };
  
  enum
+diff --git a/sys/androidmedia/gstamc.h b/sys/androidmedia/gstamc.h
+index 88d49fb..2fddc05 100644
 --- a/sys/androidmedia/gstamc.h
 +++ b/sys/androidmedia/gstamc.h
-@@ -24,10 +24,66 @@
+@@ -24,12 +24,73 @@
  #include <gst/gst.h>
  #include <gst/video/video.h>
  #include <gst/audio/audio.h>
 +#ifdef HAVE_ANDROID_MEDIA
  #include <jni.h>
+-
+ #include "gstjniutils.h"
 +#endif
 +
 +#ifdef HAVE_ANDROID_MEDIA_HYBRIS
@@ -2415,6 +2520,12 @@ Forwarded: no
 +#include <application/options.h>
 +#include <application/lifecycle_delegate.h>
 +
++typedef struct _GstAmcBuffer GstAmcBuffer;
++
++struct _GstAmcBuffer {
++  guint8 *data;
++  gsize size;
++};
 +#endif
 +
 +#ifndef HAVE_ANDROID_MEDIA_HYBRIS
@@ -2465,15 +2576,7 @@ Forwarded: no
  typedef struct _GstAmcCodecInfo GstAmcCodecInfo;
  typedef struct _GstAmcCodecType GstAmcCodecType;
  typedef struct _GstAmcCodec GstAmcCodec;
-@@ -57,19 +113,34 @@ struct _GstAmcCodecInfo {
- };
- 
- struct _GstAmcBuffer {
-+#ifdef HAVE_ANDROID_MEDIA
-   jobject object; /* global reference */
-+#endif
-   guint8 *data;
-   gsize size;
+@@ -58,16 +119,29 @@ struct _GstAmcCodecInfo {
  };
  
  struct _GstAmcFormat {
@@ -2488,6 +2591,9 @@ Forwarded: no
 +#ifdef HAVE_ANDROID_MEDIA
    /* < private > */
    jobject object; /* global reference */
+ 
+   GstAmcBuffer *input_buffers, *output_buffers;
+   gsize n_input_buffers, n_output_buffers;
 +#endif
 +#ifdef HAVE_ANDROID_MEDIA_HYBRIS
 +  MediaCodecDelegate *codec_delegate;
@@ -2500,7 +2606,7 @@ Forwarded: no
  };
  
  struct _GstAmcBufferInfo {
-@@ -81,44 +152,62 @@ struct _GstAmcBufferInfo {
+@@ -79,43 +153,67 @@ struct _GstAmcBufferInfo {
  
  extern GQuark gst_amc_codec_info_quark;
  
@@ -2510,6 +2616,24 @@ Forwarded: no
  
 -gboolean gst_amc_codec_configure (GstAmcCodec * codec, GstAmcFormat * format, gint flags, GError **err);
 -GstAmcFormat * gst_amc_codec_get_output_format (GstAmcCodec * codec, GError **err);
+-
+-gboolean gst_amc_codec_start (GstAmcCodec * codec, GError **err);
+-gboolean gst_amc_codec_stop (GstAmcCodec * codec, GError **err);
+-gboolean gst_amc_codec_flush (GstAmcCodec * codec, GError **err);
+-gboolean gst_amc_codec_release (GstAmcCodec * codec, GError **err);
+-
+-GstAmcBuffer * gst_amc_codec_get_output_buffer (GstAmcCodec * codec, gint index, GError **err);
+-GstAmcBuffer * gst_amc_codec_get_input_buffer (GstAmcCodec * codec, gint index, GError **err);
+-
+-gint gst_amc_codec_dequeue_input_buffer (GstAmcCodec * codec, gint64 timeoutUs, GError **err);
+-gint gst_amc_codec_dequeue_output_buffer (GstAmcCodec * codec, GstAmcBufferInfo *info, gint64 timeoutUs, GError **err);
+-
+-gboolean gst_amc_codec_queue_input_buffer (GstAmcCodec * codec, gint index, const GstAmcBufferInfo *info, GError **err);
+-gboolean gst_amc_codec_release_output_buffer (GstAmcCodec * codec, gint index, GError **err);
+-
+-
+-GstAmcFormat * gst_amc_format_new_audio (const gchar *mime, gint sample_rate, gint channels, GError **err);
+-GstAmcFormat * gst_amc_format_new_video (const gchar *mime, gint width, gint height, GError **err);
 +#ifdef HAVE_ANDROID_MEDIA_HYBRIS
 +gboolean gst_amc_codec_configure (GstAmcCodec * codec, GstAmcFormat * format, SurfaceTextureClientHybris stc, gint flags);
 +gboolean gst_amc_codec_set_surface_texture_client (GstAmcCodec * codec, SurfaceTextureClientHybris stc);
@@ -2524,29 +2648,19 @@ Forwarded: no
 +gboolean gst_amc_codec_stop (GstAmcCodec * codec MAYBE_GERROR);
 +gboolean gst_amc_codec_flush (GstAmcCodec * codec MAYBE_GERROR);
 +gboolean gst_amc_codec_release (GstAmcCodec * codec MAYBE_GERROR);
- 
--gboolean gst_amc_codec_start (GstAmcCodec * codec, GError **err);
--gboolean gst_amc_codec_stop (GstAmcCodec * codec, GError **err);
--gboolean gst_amc_codec_flush (GstAmcCodec * codec, GError **err);
--gboolean gst_amc_codec_release (GstAmcCodec * codec, GError **err);
--
--GstAmcBuffer * gst_amc_codec_get_output_buffers (GstAmcCodec * codec, gsize * n_buffers, GError **err);
--GstAmcBuffer * gst_amc_codec_get_input_buffers (GstAmcCodec * codec, gsize * n_buffers, GError **err);
-+GstAmcBuffer * gst_amc_codec_get_output_buffers (GstAmcCodec * codec, gsize * n_buffers MAYBE_GERROR);
-+GstAmcBuffer * gst_amc_codec_get_input_buffers (GstAmcCodec * codec, gsize * n_buffers MAYBE_GERROR);
- void gst_amc_codec_free_buffers (GstAmcBuffer * buffers, gsize n_buffers);
- 
--gint gst_amc_codec_dequeue_input_buffer (GstAmcCodec * codec, gint64 timeoutUs, GError **err);
--gint gst_amc_codec_dequeue_output_buffer (GstAmcCodec * codec, GstAmcBufferInfo *info, gint64 timeoutUs, GError **err);
--
--gboolean gst_amc_codec_queue_input_buffer (GstAmcCodec * codec, gint index, const GstAmcBufferInfo *info, GError **err);
--gboolean gst_amc_codec_release_output_buffer (GstAmcCodec * codec, gint index, GError **err);
--
++
++#ifdef HAVE_ANDROID_MEDIA_HYBRIS
++GstAmcBuffer * gst_amc_codec_get_output_buffers (GstAmcCodec * codec, gsize * n_buffers);
++GstAmcBuffer * gst_amc_codec_get_input_buffers (GstAmcCodec * codec, gsize * n_buffers);
++#endif
++
++GstAmcBuffer * gst_amc_codec_get_output_buffer (GstAmcCodec * codec, gint index MAYBE_GERROR);
++GstAmcBuffer * gst_amc_codec_get_input_buffer (GstAmcCodec * codec, gint index MAYBE_GERROR);
++void gst_amc_codec_free_buffers (GstAmcBuffer * buffers, gsize n_buffers);
++
 +gint gst_amc_codec_dequeue_input_buffer (GstAmcCodec * codec, gint64 timeoutUs MAYBE_GERROR);
 +gint gst_amc_codec_dequeue_output_buffer (GstAmcCodec * codec, GstAmcBufferInfo *info, gint64 timeoutUs MAYBE_GERROR);
- 
--GstAmcFormat * gst_amc_format_new_audio (const gchar *mime, gint sample_rate, gint channels, GError **err);
--GstAmcFormat * gst_amc_format_new_video (const gchar *mime, gint width, gint height, GError **err);
++
 +gboolean gst_amc_codec_queue_input_buffer (GstAmcCodec * codec, gint index, const GstAmcBufferInfo *info MAYBE_GERROR);
 +#ifdef HAVE_ANDROID_MEDIA_HYBRIS
 +gboolean gst_amc_codec_release_output_buffer (GstAmcCodec * codec, gint index, gboolean render);
@@ -2564,36 +2678,65 @@ Forwarded: no
  
 -gchar * gst_amc_format_to_string (GstAmcFormat * format, GError **err);
 +gchar * gst_amc_format_to_string (GstAmcFormat * format MAYBE_GERROR);
- 
--gboolean gst_amc_format_contains_key (GstAmcFormat *format, const gchar *key, GError **err);
++
 +gboolean gst_amc_format_contains_key (GstAmcFormat *format, const gchar *key MAYBE_GERROR);
  
--gboolean gst_amc_format_get_float (GstAmcFormat *format, const gchar *key, gfloat *value, GError **err);
--void gst_amc_format_set_float (GstAmcFormat *format, const gchar *key, gfloat value, GError **err);
--gboolean gst_amc_format_get_int (GstAmcFormat *format, const gchar *key, gint *value, GError **err);
--void gst_amc_format_set_int (GstAmcFormat *format, const gchar *key, gint value, GError **err);
--gboolean gst_amc_format_get_string (GstAmcFormat *format, const gchar *key, gchar **value, GError **err);
--void gst_amc_format_set_string (GstAmcFormat *format, const gchar *key, const gchar *value, GError **err);
--gboolean gst_amc_format_get_buffer (GstAmcFormat *format, const gchar *key, guint8 **data, gsize *size, GError **err);
--void gst_amc_format_set_buffer (GstAmcFormat *format, const gchar *key, guint8 *data, gsize size, GError **err);
+-gboolean gst_amc_format_contains_key (GstAmcFormat *format, const gchar *key, GError **err);
 +gboolean gst_amc_format_get_float (GstAmcFormat *format, const gchar *key, gfloat *value MAYBE_GERROR);
-+void gst_amc_format_set_float (GstAmcFormat *format, const gchar *key, gfloat value MAYBE_GERROR);
++gboolean gst_amc_format_set_float (GstAmcFormat *format, const gchar *key, gfloat value MAYBE_GERROR);
 +gboolean gst_amc_format_get_int (GstAmcFormat *format, const gchar *key, gint *value MAYBE_GERROR);
-+void gst_amc_format_set_int (GstAmcFormat *format, const gchar *key, gint value MAYBE_GERROR);
++gboolean gst_amc_format_set_int (GstAmcFormat *format, const gchar *key, gint value MAYBE_GERROR);
 +gboolean gst_amc_format_get_string (GstAmcFormat *format, const gchar *key, gchar **value MAYBE_GERROR);
-+void gst_amc_format_set_string (GstAmcFormat *format, const gchar *key, const gchar *value MAYBE_GERROR);
++gboolean gst_amc_format_set_string (GstAmcFormat *format, const gchar *key, const gchar *value MAYBE_GERROR);
 +gboolean gst_amc_format_get_buffer (GstAmcFormat *format, const gchar *key, guint8 **data, gsize *size MAYBE_GERROR);
-+void gst_amc_format_set_buffer (GstAmcFormat *format, const gchar *key, guint8 *data, gsize size MAYBE_GERROR);
-+
++gboolean gst_amc_format_set_buffer (GstAmcFormat *format, const gchar *key, guint8 *data, gsize size MAYBE_GERROR);
+ 
+-gboolean gst_amc_format_get_float (GstAmcFormat *format, const gchar *key, gfloat *value, GError **err);
+-gboolean gst_amc_format_set_float (GstAmcFormat *format, const gchar *key, gfloat value, GError **err);
+-gboolean gst_amc_format_get_int (GstAmcFormat *format, const gchar *key, gint *value, GError **err);
+-gboolean gst_amc_format_set_int (GstAmcFormat *format, const gchar *key, gint value, GError **err);
+-gboolean gst_amc_format_get_string (GstAmcFormat *format, const gchar *key, gchar **value, GError **err);
+-gboolean gst_amc_format_set_string (GstAmcFormat *format, const gchar *key, const gchar *value, GError **err);
+-gboolean gst_amc_format_get_buffer (GstAmcFormat *format, const gchar *key, guint8 **data, gsize *size, GError **err);
+-gboolean gst_amc_format_set_buffer (GstAmcFormat *format, const gchar *key, guint8 *data, gsize size, GError **err);
 +#ifdef HAVE_ANDROID_MEDIA_HYBRIS
 +void gst_amc_surface_texture_client_set_hardware_rendering (SurfaceTextureClientHybris stc, gboolean hardware_rendering);
 +#endif
  
  GstVideoFormat gst_amc_color_format_to_video_format (const GstAmcCodecInfo * codec_info, const gchar * mime, gint color_format);
  gint gst_amc_video_format_to_color_format (const GstAmcCodecInfo * codec_info, const gchar * mime, GstVideoFormat video_format);
+diff --git a/sys/androidmedia/gstamcaudiodec.h b/sys/androidmedia/gstamcaudiodec.h
+index 04e9734..72d68fc 100644
+--- a/sys/androidmedia/gstamcaudiodec.h
++++ b/sys/androidmedia/gstamcaudiodec.h
+@@ -51,6 +51,10 @@ struct _GstAmcAudioDec
+ 
+   /* < private > */
+   GstAmcCodec *codec;
++#ifdef HAVE_ANDROID_MEDIA_HYBRIS
++  GstAmcBuffer *input_buffers, *output_buffers;
++  gsize n_input_buffers, n_output_buffers;
++#endif
+ 
+   GstCaps *input_caps;
+   GList *codec_datas;
+@@ -81,6 +85,10 @@ struct _GstAmcAudioDec
+   gboolean draining;
+   /* TRUE if the component is drained currently */
+   gboolean drained;
++#ifdef HAVE_ANDROID_MEDIA_HYBRIS
++  /* TRUE if upstream is EOS */
++  gboolean eos;
++#endif
+ 
+   GstFlowReturn downstream_flow_ret;
+ };
+diff --git a/sys/androidmedia/gstamcaudiodechybris.c b/sys/androidmedia/gstamcaudiodechybris.c
+new file mode 100644
+index 0000000..fae2930
 --- /dev/null
 +++ b/sys/androidmedia/gstamcaudiodechybris.c
-@@ -0,0 +1,1280 @@
+@@ -0,0 +1,1278 @@
 +/*
 + * Initially based on gst-omx/omx/gstomxvideodec.c
 + *
@@ -3203,7 +3346,6 @@ Forwarded: no
 +  is_eos = ! !(buffer_info.flags & BUFFER_FLAG_END_OF_STREAM);
 +
 +  if (buffer_info.size > 0) {
-+    GstAmcAudioDecClass *klass = GST_AMC_AUDIO_DEC_GET_CLASS (self);
 +    GstBuffer *outbuf;
 +    GstAmcBuffer *buf;
 +    GstMapInfo minfo;
@@ -3251,7 +3393,6 @@ Forwarded: no
 +        gst_audio_decoder_finish_frame (GST_AUDIO_DECODER (self), outbuf, 1);
 +  }
 +
-+done:
 +  if (!gst_amc_codec_release_output_buffer (self->codec, idx, TRUE))
 +    goto failed_release;
 +
@@ -3354,7 +3495,7 @@ Forwarded: no
 +invalid_buffer_index:
 +  {
 +    GST_ELEMENT_ERROR (self, LIBRARY, FAILED, (NULL),
-+        ("Invalid input buffer index %d of %d", idx, self->n_input_buffers));
++        ("Invalid input buffer index %d of %zu", idx, self->n_input_buffers));
 +    gst_pad_push_event (GST_AUDIO_DECODER_SRC_PAD (self), gst_event_new_eos ());
 +    gst_pad_pause_task (GST_AUDIO_DECODER_SRC_PAD (self));
 +    self->downstream_flow_ret = GST_FLOW_ERROR;
@@ -3771,7 +3912,7 @@ Forwarded: no
 +invalid_buffer_index:
 +  {
 +    GST_ELEMENT_ERROR (self, LIBRARY, FAILED, (NULL),
-+        ("Invalid input buffer index %d of %d", idx, self->n_input_buffers));
++        ("Invalid input buffer index %d of %zu", idx, self->n_input_buffers));
 +    if (minfo.data)
 +      gst_buffer_unmap (inbuf, &minfo);
 +    if (inbuf)
@@ -3864,7 +4005,7 @@ Forwarded: no
 +    g_mutex_unlock (&self->drain_lock);
 +    GST_AUDIO_DECODER_STREAM_LOCK (self);
 +  } else if (idx >= self->n_input_buffers) {
-+    GST_ERROR_OBJECT (self, "Invalid input buffer index %d of %d",
++    GST_ERROR_OBJECT (self, "Invalid input buffer index %d of %zu",
 +        idx, self->n_input_buffers);
 +    ret = GST_FLOW_ERROR;
 +  } else {
@@ -3874,9 +4015,12 @@ Forwarded: no
 +
 +  return ret;
 +}
+diff --git a/sys/androidmedia/gstamchybris.c b/sys/androidmedia/gstamchybris.c
+new file mode 100644
+index 0000000..16fdacc
 --- /dev/null
 +++ b/sys/androidmedia/gstamchybris.c
-@@ -0,0 +1,2078 @@
+@@ -0,0 +1,2137 @@
 +/*
 + * Initially based on gstamc.c
 + *
@@ -3914,6 +4058,7 @@ Forwarded: no
 +#include <gst/video/video.h>
 +#include <gst/audio/audio.h>
 +#include <string.h>
++#include <inttypes.h>
 +
 +#include <hybris/media/media_compatibility_layer.h>
 +#include <hybris/media/media_codec_list.h>
@@ -4413,7 +4558,7 @@ Forwarded: no
 +    GST_ERROR ("Failed to get output buffers array length");
 +    goto done;
 +  }
-+  GST_DEBUG ("n_output_buffers: %u", n_output_buffers);
++  GST_DEBUG ("n_output_buffers: %zu", n_output_buffers);
 +
 +  *n_buffers = n_output_buffers;
 +  ret = g_new0 (GstAmcBuffer, n_output_buffers);
@@ -4424,14 +4569,37 @@ Forwarded: no
 +    // MediaCodec with v4.4+ doesn't return the buffer address when doing hardware
 +    // rendering
 +    if (!ret[i].data)
-+      GST_DEBUG ("Output buffer address is NULL for buffer #%d", i);
++      GST_DEBUG ("Output buffer address is NULL for buffer #%zu", i);
 +
 +    ret[i].size =
 +        media_codec_get_nth_output_buffer_capacity (codec->codec_delegate, i);
-+    GST_DEBUG ("output buffer[%d] size: %d", i, ret[i].size);
++    GST_DEBUG ("output buffer[%zu] size: %zu", i, ret[i].size);
 +  }
 +
 +done:
++  return ret;
++}
++
++GstAmcBuffer *
++gst_amc_codec_get_output_buffer (GstAmcCodec * codec, gint index)
++{
++  GstAmcBuffer *ret = NULL;
++
++  g_return_val_if_fail (codec != NULL, NULL);
++  g_return_val_if_fail (index >= 0, NULL);
++
++  GST_DEBUG ("%s", __PRETTY_FUNCTION__);
++
++  ret = g_new0 (GstAmcBuffer, 1);
++
++  ret->data = media_codec_get_nth_output_buffer (codec->codec_delegate, index);
++  if (!ret->data)
++    GST_DEBUG ("Output buffer address is NULL for buffer #%d", index);
++
++  ret->size =
++      media_codec_get_nth_output_buffer_capacity (codec->codec_delegate, index);
++  GST_DEBUG ("output buffer[%d] size: %zu", index, ret->size);
++
 +  return ret;
 +}
 +
@@ -4453,7 +4621,7 @@ Forwarded: no
 +    GST_ERROR ("Failed to get input buffers array length");
 +    goto done;
 +  }
-+  GST_DEBUG ("n_input_buffers: %u", n_input_buffers);
++  GST_DEBUG ("n_input_buffers: %zu", n_input_buffers);
 +
 +  *n_buffers = n_input_buffers;
 +  ret = g_new0 (GstAmcBuffer, n_input_buffers);
@@ -4461,12 +4629,12 @@ Forwarded: no
 +  for (i = 0; i < n_input_buffers; i++) {
 +    ret[i].data = media_codec_get_nth_input_buffer (codec->codec_delegate, i);
 +    if (!ret[i].data) {
-+      GST_ERROR ("Failed to get input buffer address %d", i);
++      GST_ERROR ("Failed to get input buffer address %zu", i);
 +      goto error;
 +    }
 +    ret[i].size =
 +        media_codec_get_nth_input_buffer_capacity (codec->codec_delegate, i);
-+    GST_DEBUG ("input buffer[%d] size: %d", i, ret[i].size);
++    GST_DEBUG ("input buffer[%zu] size: %zu", i, ret[i].size);
 +  }
 +
 +done:
@@ -4478,6 +4646,34 @@ Forwarded: no
 +  ret = NULL;
 +  *n_buffers = 0;
 +  goto done;
++}
++
++GstAmcBuffer *
++gst_amc_codec_get_input_buffer (GstAmcCodec * codec, gint index)
++{
++  GstAmcBuffer *ret = NULL;
++
++  g_return_val_if_fail (codec != NULL, NULL);
++  g_return_val_if_fail (index >= 0, NULL);
++
++  ret = g_new0 (GstAmcBuffer, 1);
++
++  ret->data = media_codec_get_nth_input_buffer (codec->codec_delegate, index);
++  if (!ret->data) {
++    GST_ERROR ("Failed to get input buffer address %d", index);
++    goto error;
++  }
++
++  ret->size =
++      media_codec_get_nth_input_buffer_capacity (codec->codec_delegate, index);
++
++  GST_DEBUG ("input buffer[%d] size: %zu", index, ret->size);
++
++  return ret;
++
++error:
++  g_free (ret);
++  return NULL;
 +}
 +
 +gint
@@ -4501,7 +4697,7 @@ Forwarded: no
 +  }
 +  ret = index;
 +
-+  GST_DEBUG ("Dequeued input buffer #%d", index);
++  GST_DEBUG ("Dequeued input buffer #%zu", index);
 +
 +done:
 +  return ret;
@@ -4520,7 +4716,7 @@ Forwarded: no
 +
 +  ret =
 +      media_codec_dequeue_output_buffer (codec->codec_delegate, &priv_info,
-+      timeoutUs);
++          timeoutUs);
 +  GST_DEBUG ("dequeue output buffer ret: %d", ret);
 +  if (ret == INFO_TRY_AGAIN_LATER) {
 +    GST_DEBUG ("media_codec_dequeue_output_buffer timed out, trying again");
@@ -4545,7 +4741,7 @@ Forwarded: no
 +  GST_DEBUG ("info->flags: %d", info->flags);
 +  GST_DEBUG ("info->offset: %d", info->offset);
 +  GST_DEBUG ("info->size: %d", info->size);
-+  GST_DEBUG ("info->presentation_time_us: %lld", info->presentation_time_us);
++  GST_DEBUG ("info->presentation_time_us: %"PRId64, info->presentation_time_us);
 +
 +done:
 +  return ret;
@@ -4569,10 +4765,10 @@ Forwarded: no
 +  buf_info.size = info->size;
 +  buf_info.presentation_time_us = info->presentation_time_us;
 +  buf_info.flags = info->flags;
-+  GST_DEBUG ("buf_info.index: %d", buf_info.index);
-+  GST_DEBUG ("buf_info.offset %d", buf_info.offset);
-+  GST_DEBUG ("buf_info.size %d", buf_info.size);
-+  GST_DEBUG ("buf_info.presentation_time_us %lld",
++  GST_DEBUG ("buf_info.index: %zu", buf_info.index);
++  GST_DEBUG ("buf_info.offset %zu", buf_info.offset);
++  GST_DEBUG ("buf_info.size %zu", buf_info.size);
++  GST_DEBUG ("buf_info.presentation_time_us %"PRId64,
 +      buf_info.presentation_time_us);
 +  GST_DEBUG ("buf_info.flags %d", buf_info.flags);
 +
@@ -4737,10 +4933,11 @@ Forwarded: no
 +  return FALSE;
 +}
 +
-+void
++gboolean
 +gst_amc_format_set_float (GstAmcFormat * format, const gchar * key,
 +    gfloat value)
 +{
++  return FALSE;
 +}
 +
 +gboolean
@@ -4749,9 +4946,10 @@ Forwarded: no
 +  return FALSE;
 +}
 +
-+void
++gboolean
 +gst_amc_format_set_int (GstAmcFormat * format, const gchar * key, gint value)
 +{
++  return FALSE;
 +}
 +
 +gboolean
@@ -4761,10 +4959,11 @@ Forwarded: no
 +  return FALSE;
 +}
 +
-+void
++gboolean
 +gst_amc_format_set_string (GstAmcFormat * format, const gchar * key,
 +    const gchar * value)
 +{
++  return FALSE;
 +}
 +
 +gboolean
@@ -4774,11 +4973,12 @@ Forwarded: no
 +  return FALSE;
 +}
 +
-+void
++gboolean
 +gst_amc_format_set_buffer (GstAmcFormat * format, const gchar * key,
 +    guint8 * data, gsize size)
 +{
 +  gchar *key_str = NULL;
++  gboolean ret = FALSE;
 +
 +  g_return_if_fail (format != NULL);
 +  g_return_if_fail (key != NULL);
@@ -4792,11 +4992,14 @@ Forwarded: no
 +    goto done;
 +
 +  media_format_set_byte_buffer (format->format, key, data, size);
++  ret = TRUE;
 +
 +done:
 +  if (key_str)
 +    g_free (key_str);
 +  key_str = NULL;
++
++  return ret;
 +}
 +
 +void gst_amc_surface_texture_client_set_hardware_rendering
@@ -4979,7 +5182,7 @@ Forwarded: no
 +
 +    n_supported_types = media_codec_list_get_num_supported_types (i);
 +
-+    GST_INFO ("Codec '%s' has %d supported types", name_str, n_supported_types);
++    GST_INFO ("Codec '%s' has %zu supported types", name_str, n_supported_types);
 +
 +    gst_codec_info->supported_types =
 +        g_new0 (GstAmcCodecType, n_supported_types);
@@ -5006,7 +5209,7 @@ Forwarded: no
 +      supported_type_str = g_malloc (len);
 +      err = media_codec_list_get_nth_supported_type (i, supported_type_str, j);
 +      if (err > 0 || !supported_type_str) {
-+        GST_ERROR ("Failed to get %d-th supported type", j);
++        GST_ERROR ("Failed to get %zu-th supported type", j);
 +        valid_codec = FALSE;
 +        goto next_supported_type;
 +      }
@@ -5023,7 +5226,7 @@ Forwarded: no
 +      gst_codec_type->mime = g_strdup (mime);
 +
 +      n_elems = media_codec_list_get_num_color_formats (i, mime);
-+      GST_INFO ("Type '%s' has %d supported color formats", mime, n_elems);
++      GST_INFO ("Type '%s' has %zu supported color formats", mime, n_elems);
 +      if (n_elems == 0) {
 +        GST_INFO ("Zero supported color formats for type '%s'", mime);
 +        valid_codec = FALSE;
@@ -5043,7 +5246,7 @@ Forwarded: no
 +      }
 +
 +      for (k = 0; k < n_elems; k++) {
-+        GST_INFO ("Color format %d: %d", k, color_formats_elems[k]);
++        GST_INFO ("Color format %zu: %d", k, color_formats_elems[k]);
 +        gst_codec_type->color_formats[k] = color_formats_elems[k];
 +      }
 +
@@ -5064,7 +5267,7 @@ Forwarded: no
 +      }
 +
 +      n_elems = media_codec_list_get_num_profile_levels (i, mime);
-+      GST_INFO ("Type '%s' has %d supported profile levels", mime, n_elems);
++      GST_INFO ("Type '%s' has %zu supported profile levels", mime, n_elems);
 +      gst_codec_type->n_profile_levels = n_elems;
 +      gst_codec_type->profile_levels =
 +          g_malloc0 (sizeof (gst_codec_type->profile_levels[0]) * n_elems);
@@ -5077,7 +5280,7 @@ Forwarded: no
 +            media_codec_list_get_nth_codec_profile_level (i, mime, &pro_level,
 +            k);
 +        if (err > 0) {
-+          GST_ERROR ("Failed to get %d-th profile/level", k);
++          GST_ERROR ("Failed to get %zu-th profile/level", k);
 +          valid_codec = FALSE;
 +          goto next_profile_level;
 +        }
@@ -5085,10 +5288,10 @@ Forwarded: no
 +        level = pro_level.level;
 +        profile = pro_level.profile;
 +
-+        GST_INFO ("Level %d: 0x%08x", k, level);
++        GST_INFO ("Level %zu: 0x%08x", k, level);
 +        gst_codec_type->profile_levels[k].level = level;
 +
-+        GST_INFO ("Profile %d: 0x%08x", k, profile);
++        GST_INFO ("Profile %zu: 0x%08x", k, profile);
 +        gst_codec_type->profile_levels[k].profile = profile;
 +
 +      next_profile_level:
@@ -5955,6 +6158,8 @@ Forwarded: no
 +    "Android Media Hybris plugin",
 +    plugin_init,
 +    PACKAGE_VERSION, GST_LICENSE, GST_PACKAGE_NAME, GST_PACKAGE_ORIGIN)
+diff --git a/sys/androidmedia/gstamcvideodec.h b/sys/androidmedia/gstamcvideodec.h
+index c6c2b4f..53fdb27 100644
 --- a/sys/androidmedia/gstamcvideodec.h
 +++ b/sys/androidmedia/gstamcvideodec.h
 @@ -25,6 +25,10 @@
@@ -5968,7 +6173,15 @@ Forwarded: no
  #include "gstamc.h"
  
  G_BEGIN_DECLS
-@@ -57,6 +61,11 @@ struct _GstAmcVideoDec
+@@ -51,10 +55,19 @@ struct _GstAmcVideoDec
+ 
+   /* < private > */
+   GstAmcCodec *codec;
++#ifdef HAVE_ANDROID_MEDIA_HYBRIS
++  GstAmcBuffer *input_buffers, *output_buffers;
++  gsize n_input_buffers, n_output_buffers;
++#endif
+ 
    GstVideoCodecState *input_state;
    gboolean input_state_changed;
  
@@ -5980,7 +6193,7 @@ Forwarded: no
    /* Output format of the codec */
    GstVideoFormat format;
    GstAmcColorFormatInfo color_format_info;
-@@ -68,6 +77,10 @@ struct _GstAmcVideoDec
+@@ -66,6 +79,10 @@ struct _GstAmcVideoDec
    gboolean started;
    gboolean flushing;
  
@@ -5991,8 +6204,13 @@ Forwarded: no
    GstClockTime last_upstream_ts;
  
    /* Draining state */
-@@ -80,6 +93,16 @@ struct _GstAmcVideoDec
-   gboolean eos;
+@@ -75,8 +92,21 @@ struct _GstAmcVideoDec
+   gboolean draining;
+   /* TRUE if the component is drained currently */
+   gboolean drained;
++#ifdef HAVE_ANDROID_MEDIA_HYBRIS
++  gboolean eos;
++#endif
  
    GstFlowReturn downstream_flow_ret;
 +
@@ -6008,6 +6226,9 @@ Forwarded: no
  };
  
  struct _GstAmcVideoDecClass
+diff --git a/sys/androidmedia/gstamcvideodechybris.c b/sys/androidmedia/gstamcvideodechybris.c
+new file mode 100644
+index 0000000..49a0203
 --- /dev/null
 +++ b/sys/androidmedia/gstamcvideodechybris.c
 @@ -0,0 +1,2327 @@
@@ -6955,7 +7176,7 @@ Forwarded: no
 +  GST_DEBUG_OBJECT (self, "%s", __PRETTY_FUNCTION__);
 +
 +  if (idx >= self->n_output_buffers) {
-+    GST_ERROR_OBJECT (self, "Invalid output buffer index %d of %d",
++    GST_ERROR_OBJECT (self, "Invalid output buffer index %d of %zu",
 +        idx, self->n_output_buffers);
 +    goto done;
 +  }
@@ -6967,7 +7188,7 @@ Forwarded: no
 +  }
 +
 +  GST_DEBUG_OBJECT (self,
-+      "buffer_info->size: %d, gst_buffer_get_size (outbuf): %d",
++      "buffer_info->size: %d, gst_buffer_get_size (outbuf): %zu",
 +      buffer_info->size, gst_buffer_get_size (outbuf));
 +
 +  if (gst_buffer_n_memory (outbuf) >= 1 &&
@@ -7823,7 +8044,7 @@ Forwarded: no
 +  self->codec_data = codec_data;
 +  self->codec_data_size = codec_data_size;
 +
-+  GST_DEBUG_OBJECT (self, "codec_data_size: %d", codec_data_size);
++  GST_DEBUG_OBJECT (self, "codec_data_size: %zu", codec_data_size);
 +
 +  mime = get_caps_data (state->caps, &buffsize);
 +  if (!mime) {
@@ -8136,7 +8357,7 @@ Forwarded: no
 +  {
 +    GST_ERROR_OBJECT (self, "handle_frame, invalid_buffer_index");
 +    GST_ELEMENT_ERROR (self, LIBRARY, FAILED, (NULL),
-+        ("Invalid input buffer index %d of %d", idx, self->n_input_buffers));
++        ("Invalid input buffer index %d of %zu", idx, self->n_input_buffers));
 +    if (minfo.data)
 +      gst_buffer_unmap (frame->input_buffer, &minfo);
 +    gst_video_codec_frame_unref (frame);
@@ -8249,7 +8470,7 @@ Forwarded: no
 +    g_mutex_unlock (&self->drain_lock);
 +    GST_VIDEO_DECODER_STREAM_LOCK (self);
 +  } else if (idx >= self->n_input_buffers) {
-+    GST_ERROR_OBJECT (self, "Invalid input buffer index %d of %d",
++    GST_ERROR_OBJECT (self, "Invalid input buffer index %d of %zu",
 +        idx, self->n_input_buffers);
 +    ret = GST_FLOW_ERROR;
 +  } else {
@@ -8338,9 +8559,11 @@ Forwarded: no
 +
 +  return TRUE;
 +}
+diff --git a/tests/check/Makefile.am b/tests/check/Makefile.am
+index 295791b..1d42491 100644
 --- a/tests/check/Makefile.am
 +++ b/tests/check/Makefile.am
-@@ -184,6 +184,12 @@ else
+@@ -211,6 +211,12 @@ else
  check_gl=
  endif
  
@@ -8353,14 +8576,17 @@ Forwarded: no
  VALGRIND_TO_FIX = \
  	elements/mpeg2enc \
  	elements/mplex    \
-@@ -240,6 +246,7 @@ check_PROGRAMS = \
- 	elements/mxfmux \
+@@ -268,6 +274,7 @@ check_PROGRAMS = \
+ 	elements/rtponvif \
  	elements/id3mux \
  	pipelines/mxf \
 +	pipelines/gstamcvideodec \
  	$(check_mimic) \
  	libs/mpegvideoparser \
  	libs/mpegts \
+diff --git a/tests/check/pipelines/gstamcvideodec.c b/tests/check/pipelines/gstamcvideodec.c
+new file mode 100644
+index 0000000..eb6d9e9
 --- /dev/null
 +++ b/tests/check/pipelines/gstamcvideodec.c
 @@ -0,0 +1,538 @@
@@ -8902,6 +9128,9 @@ Forwarded: no
 +}
 +
 +GST_CHECK_MAIN (gstamcvideodec);
+diff --git a/tests/check/pipelines/gstamcvideodec_egl.c b/tests/check/pipelines/gstamcvideodec_egl.c
+new file mode 100644
+index 0000000..56b70ed
 --- /dev/null
 +++ b/tests/check/pipelines/gstamcvideodec_egl.c
 @@ -0,0 +1,56 @@
@@ -8961,23 +9190,3 @@ Forwarded: no
 +      context_attribs);
 +  fail_if (egl_context == EGL_NO_CONTEXT);
 +}
---- a/gst-libs/gst/Makefile.am
-+++ b/gst-libs/gst/Makefile.am
-@@ -6,12 +6,16 @@ if USE_GLES2
- GL_DIR = gl
- endif
- 
-+if USE_ANDROID_MEDIA_HYBRIS
-+MIR_DIR = mir
-+endif
-+
- if USE_WAYLAND
- WAYLAND_DIR=wayland
- endif
- 
- SUBDIRS = interfaces basecamerabinsrc codecparsers \
--	 insertbin uridownloader mpegts base video $(GL_DIR) $(WAYLAND_DIR)
-+	 insertbin uridownloader mpegts base video $(GL_DIR) $(WAYLAND_DIR) $(MIR_DIR)
- 
- noinst_HEADERS = gst-i18n-plugin.h gettext.h glib-compat-private.h
- DIST_SUBDIRS = interfaces gl basecamerabinsrc codecparsers \
