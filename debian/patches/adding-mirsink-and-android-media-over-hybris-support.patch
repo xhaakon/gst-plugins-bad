@@ -12,14 +12,14 @@ Forwarded: no
  configure.ac                               |   15 +
  ext/Makefile.am                            |    8 +
  ext/mir/Makefile.am                        |   17 +
- ext/mir/gstmirsink.c                       |  859 ++++++++++
- ext/mir/gstmirsink.h                       |  135 ++
+ ext/mir/gstmirsink.c                       |  848 ++++++++++
+ ext/mir/gstmirsink.h                       |  134 ++
  ext/mir/mirpool.c                          |  434 ++++++
  ext/mir/mirpool.h                          |   91 ++
  gst-libs/gst/Makefile.am                   |    8 +-
  gst-libs/gst/mir/Makefile.am               |   26 +
- gst-libs/gst/mir/gstmircontext.c           |  216 +++
- gst-libs/gst/mir/gstmircontext.h           |   64 +
+ gst-libs/gst/mir/gstmircontext.c           |  155 ++
+ gst-libs/gst/mir/gstmircontext.h           |   43 +
  gst-libs/gst/mir/mirallocator.c            |  272 ++++
  gst-libs/gst/mir/mirallocator.h            |   69 +
  sys/Makefile.am                            |    6 +
@@ -34,7 +34,7 @@ Forwarded: no
  tests/check/Makefile.am                    |    7 +
  tests/check/pipelines/gstamcvideodec.c     |  538 +++++++
  tests/check/pipelines/gstamcvideodec_egl.c |   56 +
- 25 files changed, 8750 insertions(+), 36 deletions(-)
+ 25 files changed, 8656 insertions(+), 36 deletions(-)
  create mode 100644 ext/mir/Makefile.am
  create mode 100644 ext/mir/gstmirsink.c
  create mode 100644 ext/mir/gstmirsink.h
@@ -156,10 +156,10 @@ index 0000000..d588fc7
 +noinst_HEADERS =
 diff --git a/ext/mir/gstmirsink.c b/ext/mir/gstmirsink.c
 new file mode 100644
-index 0000000..1c620ed
+index 0000000..987117e
 --- /dev/null
 +++ b/ext/mir/gstmirsink.c
-@@ -0,0 +1,859 @@
+@@ -0,0 +1,848 @@
 +/*
 + * GStreamer Mir video sink
 + * Copyright (C) 2013 Canonical Ltd
@@ -224,7 +224,6 @@ index 0000000..1c620ed
 +{
 +  PROP_0,
 +  PROP_MIR_TEXTURE_ID,
-+  PROP_MIR_STCH,
 +  PROP_MIR_VIDEO_HEIGHT,
 +  PROP_MIR_VIDEO_WIDTH
 +};
@@ -335,11 +334,6 @@ index 0000000..1c620ed
 +          "Texture ID to render video to, created by the application", 0,
 +          UINT_MAX, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 +
-+  g_object_class_install_property (gobject_class, PROP_MIR_STCH,
-+      g_param_spec_pointer ("surface", "Surface",
-+          "A void* Surface pointer that represents the texture to stream/render to",
-+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-+
 +  g_object_class_install_property (gobject_class, PROP_MIR_VIDEO_HEIGHT,
 +      g_param_spec_uint ("height", "Video Height",
 +          "Height of each video frame", 0,
@@ -358,9 +352,6 @@ index 0000000..1c620ed
 +  sink->pool = NULL;
 +
 +  g_mutex_init (&sink->mir_lock);
-+
-+  sink->context = NULL;
-+
 +}
 +
 +static void
@@ -372,9 +363,6 @@ index 0000000..1c620ed
 +  switch (prop_id) {
 +    case PROP_MIR_TEXTURE_ID:
 +      g_value_set_uint (value, sink->texture_id);
-+      break;
-+    case PROP_MIR_STCH:
-+      g_value_set_pointer (value, (gpointer) sink->surface_texture_client);
 +      break;
 +    case PROP_MIR_VIDEO_HEIGHT:
 +      g_value_set_uint (value, sink->video_height);
@@ -420,12 +408,6 @@ index 0000000..1c620ed
 +      sink->texture_id = g_value_get_uint (value);
 +      GST_WARNING_OBJECT (object, "texture_id: %d", sink->texture_id);
 +      gst_mir_sink_create_surface_texture (object);
-+      break;
-+    case PROP_MIR_STCH:
-+      sink->surface_texture_client =
-+          (SurfaceTextureClientHybris) g_value_get_pointer (value);
-+      GST_WARNING_OBJECT (object, "surface_texture_client: 0x%p",
-+          sink->surface_texture_client);
 +      break;
 +    default:
 +      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -495,7 +477,17 @@ index 0000000..1c620ed
 +static void
 +gst_mir_sink_set_context (GstElement * element, GstContext * context)
 +{
++  GstMirSink *sink = GST_MIR_SINK (element);
++  SurfaceTextureClientHybris stc;
++
 +  GST_DEBUG_OBJECT (element, "%s", __PRETTY_FUNCTION__);
++
++  stc = gst_context_get_surface_texture_client (context);
++  if (stc)
++    sink->surface_texture_client = stc;
++  else
++    GST_ERROR_OBJECT (element,
++        "Failed to get SurfaceTextureClient instance. Hardware video rendering will not function");
 +}
 +
 +static gboolean
@@ -508,19 +500,16 @@ index 0000000..1c620ed
 +  switch (GST_QUERY_TYPE (query)) {
 +    case GST_QUERY_CONTEXT:{
 +      const gchar *context_type;
-+      GstMirContext *gst_mir_context;
++      GstContext *context;
 +
 +      if (gst_query_parse_context_type (query, &context_type) &&
-+          strcmp (context_type, GST_MIR_CONTEXT_TYPE) == 0 &&
-+          sink->surface_texture_client) {
-+        GST_DEBUG_OBJECT (sink, "GST_MIR_CONTEXT_TYPE");
++              strcmp (context_type, GST_MIR_CONTEXT_TYPE) == 0 &&
++              sink->surface_texture_client) {
 +
-+        gst_mir_context = gst_mir_context_new (GST_ELEMENT_CAST (sink),
-+            sink->surface_texture_client);
-+        sink->context = gst_mir_context_new_with_stc (gst_mir_context);
++        GST_DEBUG_OBJECT (sink, "GST_MIR_CONTEXT_TYPE");
++        context = gst_mir_context_new_with_stc (sink->surface_texture_client);
 +        GST_INFO_OBJECT (sink, "Setting context on the sink");
-+        gst_query_set_context (query, sink->context);
-+        gst_context_unref (sink->context);
++        gst_query_set_context (query, context);
 +
 +        return TRUE;
 +      } else {
@@ -1021,10 +1010,10 @@ index 0000000..1c620ed
 +    GST_PACKAGE_ORIGIN)
 diff --git a/ext/mir/gstmirsink.h b/ext/mir/gstmirsink.h
 new file mode 100644
-index 0000000..af608b4
+index 0000000..e8158a7
 --- /dev/null
 +++ b/ext/mir/gstmirsink.h
-@@ -0,0 +1,135 @@
+@@ -0,0 +1,134 @@
 +/*
 + * GStreamer Mir video sink
 + * Copyright (C) 2013 Canonical Ltd
@@ -1130,7 +1119,6 @@ index 0000000..af608b4
 +{
 +  GstVideoSink parent;
 +
-+  GstContext * context;
 +  SurfaceTextureClientHybris surface_texture_client;
 +
 +  struct session *session;
@@ -1762,10 +1750,10 @@ index 0000000..a2bfe9b
 +	$(GST_LT_LDFLAGS)
 diff --git a/gst-libs/gst/mir/gstmircontext.c b/gst-libs/gst/mir/gstmircontext.c
 new file mode 100644
-index 0000000..dbabcd7
+index 0000000..c4ba833
 --- /dev/null
 +++ b/gst-libs/gst/mir/gstmircontext.c
-@@ -0,0 +1,216 @@
+@@ -0,0 +1,155 @@
 +/*
 + * Provides a struct for transfering context between elements
 + * Copyright (C) 2013 Collabora Ltd.
@@ -1792,81 +1780,22 @@ index 0000000..dbabcd7
 +#include <gst/gst.h>
 +#include <string.h>
 +
-+#define GST_MIR_TYPE_CONTEXT \
-+    gst_mir_context_get_type()
-+
-+GType
-+gst_mir_stc_get_type (void)
-+    G_GNUC_CONST;
-+
-+G_DEFINE_BOXED_TYPE (GstMirContext, gst_mir_context,
-+    (GBoxedCopyFunc) gst_mir_context_ref,
-+    (GBoxedFreeFunc) gst_mir_context_unref)
-+
-+     GstMirContext *gst_mir_context_new (GstElement * element,
-+    SurfaceTextureClientHybris surface_texture_client)
-+{
-+  GstMirContext *ctx = g_new0 (GstMirContext, 1);
-+
-+  ctx->element = gst_object_ref (element);
-+  ctx->surface_texture_client = surface_texture_client;
-+
-+  GST_DEBUG_OBJECT (element, "ctx->surface_texture_client: %p",
-+      ctx->surface_texture_client);
-+
-+  return ctx;
-+}
-+
 +GstContext *
-+gst_mir_context_new_with_stc (GstMirContext * gst_mir_context)
++gst_mir_context_new_with_stc (SurfaceTextureClientHybris surface_texture_client)
 +{
 +  GstContext *context;
 +  GstStructure *structure;
 +
-+  GST_DEBUG_OBJECT (gst_mir_context,
-+      "gst_mir_context->surface_texture_client: %p",
-+      gst_mir_context->surface_texture_client);
-+
 +  /* Create a new GstContext, not persistent */
 +  context = gst_context_new (GST_MIR_CONTEXT_TYPE, TRUE);
 +  structure = gst_context_writable_structure (context);
-+  gst_structure_set (structure, "gst_mir_context", GST_MIR_TYPE_CONTEXT,
-+      gst_mir_context, NULL);
++  gst_structure_set (structure, "gst_mir_context", G_TYPE_POINTER,
++      surface_texture_client, NULL);
++
++  GST_DEBUG_OBJECT (context,
++      "surface_texture_client: %p", surface_texture_client);
++
 +  return context;
-+}
-+
-+void
-+gst_mir_context_free (GstMirContext * ctx)
-+{
-+  gst_object_unref (ctx->element);
-+  g_free (ctx);
-+}
-+
-+gboolean
-+gst_is_mir_context (GstContext * ctx)
-+{
-+  g_return_val_if_fail (ctx != NULL, FALSE);
-+  return g_strcmp0 (gst_context_get_context_type (ctx),
-+      GST_MIR_CONTEXT_TYPE) == 0;
-+}
-+
-+GstMirContext *
-+gst_mir_context_ref (GstMirContext * context)
-+{
-+  g_return_val_if_fail (context != NULL, NULL);
-+
-+  g_atomic_int_inc (&context->ref_count);
-+  return context;
-+}
-+
-+void
-+gst_mir_context_unref (GstMirContext * context)
-+{
-+  g_return_if_fail (context != NULL);
-+  g_return_if_fail (context->ref_count > 0);
-+
-+  if (g_atomic_int_dec_and_test (&context->ref_count))
-+    gst_mir_context_free (context);
 +}
 +
 +static gboolean
@@ -1916,7 +1845,7 @@ index 0000000..dbabcd7
 +  return g_value_get_boolean (&res);
 +}
 +
-+void
++static void
 +gst_mir_do_context_query (gpointer element)
 +{
 +  GstQuery *query;
@@ -1956,11 +1885,9 @@ index 0000000..dbabcd7
 +}
 +
 +SurfaceTextureClientHybris
-+gst_context_get_surface_texture_client (GstContext * context)   //,
-+//    SurfaceTextureClientHybris * surface_texture_client)
++gst_context_get_surface_texture_client (GstContext * context)
 +{
 +  const GstStructure *s;
-+  const GstMirContext *gst_mir_context;
 +  SurfaceTextureClientHybris surface_texture_client;
 +
 +  GST_WARNING_OBJECT (context, "%s", __PRETTY_FUNCTION__);
@@ -1970,13 +1897,13 @@ index 0000000..dbabcd7
 +          GST_MIR_CONTEXT_TYPE) == 0, FALSE);
 +
 +  s = gst_context_get_structure (context);
-+  if (gst_structure_get (s, "gst_mir_context", GST_MIR_TYPE_CONTEXT,
-+          &gst_mir_context, NULL)) {
-+    surface_texture_client = gst_mir_context->surface_texture_client;
-+    GST_DEBUG_OBJECT (context, "gst_mir_context->surface_texture_client: %p",
-+        gst_mir_context->surface_texture_client);
++
++  if (gst_structure_get (s, "gst_mir_context", G_TYPE_POINTER,
++          &surface_texture_client, NULL)) {
++
 +    GST_DEBUG_OBJECT (context, "surface_texture_client: %p",
 +        surface_texture_client);
++
 +    return surface_texture_client;
 +  }
 +
@@ -1984,10 +1911,10 @@ index 0000000..dbabcd7
 +}
 diff --git a/gst-libs/gst/mir/gstmircontext.h b/gst-libs/gst/mir/gstmircontext.h
 new file mode 100644
-index 0000000..11655fb
+index 0000000..2226684
 --- /dev/null
 +++ b/gst-libs/gst/mir/gstmircontext.h
-@@ -0,0 +1,64 @@
+@@ -0,0 +1,43 @@
 +/*
 + * Provides a struct for transfering context between elements
 + * Copyright (C) 2013 Collabora Ltd.
@@ -2020,34 +1947,13 @@ index 0000000..11655fb
 +
 +#define GST_MIR_CONTEXT_TYPE "gst.mir.MirContext"
 +
-+
-+typedef struct _GstMirContext GstMirContext;
-+
-+struct _GstMirContext
-+{
-+  GstElement *element;
-+  volatile gint       ref_count;
-+
-+  SurfaceTextureClientHybris *surface_texture_client;
-+};
-+
-+#define GST_MIR_CONTEXT(ctx) ((GstMirContext*)(ctx))
-+
-+GType
-+gst_mir_context_get_type(void) G_GNUC_CONST;
-+
-+GstMirContext * gst_mir_context_new (GstElement * element,
++GstContext *gst_mir_context_new_with_stc (
 +    SurfaceTextureClientHybris surface_texture_client);
-+GstContext * gst_mir_context_new_with_stc (GstMirContext * gst_mir_context);
-+void gst_mir_context_free (GstMirContext * ctx);
-+gboolean gst_is_mir_context (GstContext * ctx);
-+GstMirContext * gst_mir_context_ref(GstMirContext *context);
-+void gst_mir_context_unref(GstMirContext *context);
 +
 +/** Gets a context from upstream/downstream peers or from the app **/
-+void gst_mir_do_context_query (gpointer element);
 +gboolean gst_mir_ensure_surface_texture_client (gpointer element);
-+SurfaceTextureClientHybris gst_context_get_surface_texture_client (GstContext * context);
++SurfaceTextureClientHybris
++gst_context_get_surface_texture_client (GstContext * context);
 +
 +G_END_DECLS
 +
