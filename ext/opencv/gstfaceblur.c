@@ -71,7 +71,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_face_blur_debug);
 #define GST_CAT_DEFAULT gst_face_blur_debug
 
 #define DEFAULT_PROFILE OPENCV_PREFIX G_DIR_SEPARATOR_S "share" \
-    G_DIR_SEPARATOR_S "opencv" G_DIR_SEPARATOR_S "haarcascades" \
+    G_DIR_SEPARATOR_S OPENCV_PATH_NAME G_DIR_SEPARATOR_S "haarcascades" \
     G_DIR_SEPARATOR_S "haarcascade_frontalface_default.xml"
 #define DEFAULT_SCALE_FACTOR 1.25
 #define DEFAULT_FLAGS CV_HAAR_DO_CANNY_PRUNING
@@ -365,11 +365,8 @@ gst_face_blur_transform_ip (GstOpencvVideoFilter * transform,
   faces =
       cvHaarDetectObjects (filter->cvGray, filter->cvCascade,
       filter->cvStorage, filter->scale_factor, filter->min_neighbors,
-      filter->flags, cvSize (filter->min_size_width, filter->min_size_height)
-#if (CV_MAJOR_VERSION >= 2) && (CV_MINOR_VERSION >= 2)
-      , cvSize (filter->min_size_width + 2, filter->min_size_height + 2)
-#endif
-      );
+      filter->flags, cvSize (filter->min_size_width, filter->min_size_height),
+      cvSize (filter->min_size_width + 2, filter->min_size_height + 2));
 
   for (i = 0; i < (faces ? faces->total : 0); i++) {
     CvRect *r = (CvRect *) cvGetSeqElem (faces, i);

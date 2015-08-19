@@ -778,8 +778,10 @@
     <keyword type="constant" name="GST_H264_NAL_SPS_EXT" link="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SPS-EXT:CAPS"/>
     <keyword type="constant" name="GST_H264_NAL_PREFIX_UNIT" link="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-PREFIX-UNIT:CAPS"/>
     <keyword type="constant" name="GST_H264_NAL_SUBSET_SPS" link="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SUBSET-SPS:CAPS"/>
+    <keyword type="constant" name="GST_H264_NAL_DEPTH_SPS" link="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-DEPTH-SPS:CAPS"/>
     <keyword type="constant" name="GST_H264_NAL_SLICE_AUX" link="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE-AUX:CAPS"/>
     <keyword type="constant" name="GST_H264_NAL_SLICE_EXT" link="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE-EXT:CAPS"/>
+    <keyword type="constant" name="GST_H264_NAL_SLICE_DEPTH" link="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE-DEPTH:CAPS"/>
     <keyword type="constant" name="GST_H264_PARSER_OK" link="gst-plugins-bad-libs-h264parser.html#GST-H264-PARSER-OK:CAPS"/>
     <keyword type="constant" name="GST_H264_PARSER_BROKEN_DATA" link="gst-plugins-bad-libs-h264parser.html#GST-H264-PARSER-BROKEN-DATA:CAPS"/>
     <keyword type="constant" name="GST_H264_PARSER_BROKEN_LINK" link="gst-plugins-bad-libs-h264parser.html#GST-H264-PARSER-BROKEN-LINK:CAPS"/>

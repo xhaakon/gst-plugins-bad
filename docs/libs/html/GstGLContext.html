@@ -811,7 +811,8 @@ gst_gl_context_get_current_gl_context (<em class="parameter"><code><a class="lin
 <div class="refsect2">
 <a name="gst-gl-context-get-current-gl-api"></a><h3>gst_gl_context_get_current_gl_api ()</h3>
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="returnvalue">GstGLAPI</span></a>
-gst_gl_context_get_current_gl_api (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *major</code></em>,
+gst_gl_context_get_current_gl_api (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLPlatform" title="enum GstGLPlatform"><span class="type">GstGLPlatform</span></a> platform</code></em>,
+                                   <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *major</code></em>,
                                    <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *minor</code></em>);</pre>
 <p>If an error occurs, <em class="parameter"><code>major</code></em>
  and <em class="parameter"><code>minor</code></em>
@@ -826,6 +827,11 @@ returned.</p>
 <col width="200px" class="parameters_annotations">
 </colgroup>
 <tbody>
+<tr>
+<td class="parameter_name"><p>platform</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLPlatform" title="enum GstGLPlatform"><span class="type">GstGLPlatform</span></a> to retreive the API for</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
 <tr>
 <td class="parameter_name"><p>major</p></td>
 <td class="parameter_description"><p> (allow-none): the major version. </p></td>
@@ -880,8 +886,9 @@ is current in or NULL. </p>
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_gl_context_can_share (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>,
                           <em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *other_context</code></em>);</pre>
+<p>Note: This will always fail for two wrapped <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a>'s</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.22.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.5.7.22.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -903,7 +910,7 @@ gst_gl_context_can_share (<em class="parameter"><code><a class="link" href="GstG
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.22.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.5.7.22.6"></a><h4>Returns</h4>
 <p> whether <em class="parameter"><code>context</code></em>
 and <em class="parameter"><code>other_context</code></em>
 are able to share OpenGL

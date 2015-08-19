@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.5.2\n"
+"Project-Id-Version: gst-plugins-bad 1.5.90\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2015-06-24 22:59+0200\n"
+"POT-Creation-Date: 2015-08-19 12:49+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -165,7 +165,7 @@ msgid "Could not read DVD."
 msgstr ""
 
 #: ext/smoothstreaming/gstmssdemux.c:380
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:520
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:524
 msgid "This file contains no playable streams."
 msgstr ""
 
@@ -193,7 +193,7 @@ msgstr ""
 msgid "Internal data flow error."
 msgstr ""
 
-#: gst/asfmux/gstasfmux.c:1803
+#: gst/asfmux/gstasfmux.c:1832
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 
@@ -208,25 +208,25 @@ msgid "File location is set to NULL, please set it to a valid filename"
 msgstr ""
 
 #: gst/camerabin2/gstwrappercamerabinsrc.c:584
-msgid "Digitalzoom element cound't be created"
+msgid "Digitalzoom element couldn't be created"
 msgstr ""
 
-#: gst/dvdspu/gstdvdspu.c:1036
+#: gst/dvdspu/gstdvdspu.c:1040
 msgid "Subpicture format was not configured before data flow"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:1931
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:1980
 msgid "Failed to get fragment URL."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2121
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2285
-#: gst/mpegtsdemux/mpegtsbase.c:1337 gst/mpegtsdemux/mpegtsbase.c:1341
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2174
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2338
+#: gst/mpegtsdemux/mpegtsbase.c:1342 gst/mpegtsdemux/mpegtsbase.c:1346
 #: gst/nuvdemux/gstnuvdemux.c:736
 msgid "Internal data stream error."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2222
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2275
 msgid "Couldn't download fragments"
 msgstr ""
 

@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.5.2],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.5.90],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -48,11 +48,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 502, 0, 502)
+AS_LIBTOOL(GST, 590, 0, 590)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.5.2
-GSTPB_REQ=1.5.2
+GST_REQ=1.5.90
+GSTPB_REQ=1.5.90
 
 dnl *** autotools stuff ****
 
@@ -805,14 +805,14 @@ if test "x$HAVE_GL" = "xyes" -a "x$HAVE_GLES2" = "xyes"; then
 #ifndef GL_GLEXT_PROTOTYPES
 #define GL_GLEXT_PROTOTYPES 1
 #endif
-# ifdef __APPLE__
+# ifdef HAVE_IOS
 #  include <OpenGLES/ES2/gl.h>
 #  include <OpenGLES/ES2/glext.h>
 # else
 #  include <GLES2/gl2.h>
 #  include <GLES2/gl2ext.h>
 # endif
-# if __APPLE__
+# ifdef __APPLE__
 #  include <OpenGL/OpenGL.h>
 #  include <OpenGL/gl.h>
 #  if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
@@ -999,12 +999,6 @@ case $host in
       if test "x$NEED_WGL" = "xyes"; then
         AC_MSG_ERROR([WGL is not available on Mac OS X])
       fi
-      if test "x$NEED_EGL" = "xyes"; then
-        AC_MSG_ERROR([EGL is not available on Mac OS X])
-      fi
-      if test "x$NEED_GLES2" = "xyes"; then
-        AC_MSG_ERROR([OpenGL|ES 2.0 is not supported on your platform yet])
-      fi
 
       if test "x$NEED_COCOA" != "xno"; then
         GL_LIBS="$LIBS -framework OpenGL -framework Cocoa -framework QuartzCore -framework CoreFoundation"
@@ -1028,6 +1022,24 @@ case $host in
             GL_LIBS="$GL_LIBS -lGL"
           fi
           USE_OPENGL=yes
+        fi
+      fi
+
+      if test "x$HAVE_EGL" = "xyes"; then
+        if test "x$NEED_EGL" != "xno"; then
+          if test "x$HAVE_WINDOW_X11" = "xyes"; then
+            GL_LIBS="$GL_LIBS -lEGL $EGL_LIBS"
+            GL_CFLAGS="$GL_CFLAGS $EGL_CFLAGS"
+            USE_EGL=yes
+          fi
+        fi
+      fi
+
+      dnl OpenGL|ES 2.0
+      if test "x$HAVE_GLES2" = "xyes"; then
+        if test "x$NEED_GLES2" != "xno"; then
+          GL_LIBS="$GL_LIBS -lGLESv2"
+          USE_GLES2=yes
         fi
       fi
     fi
@@ -1237,7 +1249,7 @@ if test "x$USE_GLES2" = "xyes"; then
 #ifndef GL_GLEXT_PROTOTYPES
 #define GL_GLEXT_PROTOTYPES 1
 #endif
-# ifdef __APPLE__
+# ifdef HAVE_IOS
 #  include <OpenGLES/ES2/gl.h>
 #  include <OpenGLES/ES2/glext.h>
 # else
@@ -1249,7 +1261,7 @@ fi
 
 if test "x$USE_OPENGL" = "xyes"; then
   GL_INCLUDES="$GL_INCLUDES
-# if __APPLE__
+# ifdef __APPLE__
 #  include <OpenGL/OpenGL.h>
 #  include <OpenGL/gl.h>
 # else
@@ -1615,20 +1627,16 @@ esac
 dnl *** bluez ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_BLUEZ, true)
 AG_GST_CHECK_FEATURE(BLUEZ, [Bluez], bluez, [
-  PKG_CHECK_MODULES([BLUEZ4], [bluez < 5.0], [
-    HAVE_BLUEZ=yes
-    AC_DEFINE(HAVE_BLUEZ4,[1],[Old bluez detected])
-  ], [
-    PKG_CHECK_MODULES([BLUEZ5], [bluez >= 5.0], [
+  PKG_CHECK_MODULES([BLUEZ5], [bluez >= 5.0], [
+    PKG_CHECK_MODULES([GIO_UNIX], gio-unix-2.0 > 2.24, [
+      AC_CHECK_PROG([GDBUS_CODEGEN],[gdbus-codegen],[gdbus-codegen])
       HAVE_BLUEZ=yes
-      AC_DEFINE(HAVE_BLUEZ5,[1],[Current bluez detected])
+      AC_DEFINE(HAVE_BLUEZ5,[1],[Bluez5 detected])
     ], [
       HAVE_BLUEZ=no
     ])
-  ])
-  AS_IF([ test x$HAVE_BLUEZ = xyes ],[
-    dnl FIXME: we should be able to replace this with the GLib DBus stuff
-    PKG_CHECK_MODULES([DBUS], [dbus-1], [HAVE_BLUEZ=yes], [HAVE_BLUEZ=no])
+  ], [
+    HAVE_BLUEZ=no
   ])
 ])
 
@@ -1838,7 +1846,7 @@ AG_GST_CHECK_FEATURE(CURL, [Curl plugin], curl, [
 dnl **** DASH ****
 translit(dnm, m, l) AM_CONDITIONAL(USE_DASH, true)
 AG_GST_CHECK_FEATURE(DASH, [DASH plug-in], dash, [
-  PKG_CHECK_MODULES(LIBXML2, libxml-2.0 >= 2.4, [HAVE_LIBXML2="yes"
+  PKG_CHECK_MODULES(LIBXML2, libxml-2.0 >= 2.8, [HAVE_LIBXML2="yes"
     HAVE_DASH="yes"], [HAVE_LIBXML2="no"
     HAVE_DASH="no"])
   AC_SUBST(LIBXML2_CFLAGS)
@@ -2445,7 +2453,7 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
   dnl a new version and the no-backward-compatibility define. (There doesn't
   dnl seem to be a switch to suppress the warnings the cvcompat.h header
   dnl causes.)
-  PKG_CHECK_MODULES(OPENCV, opencv >= 2.0.0 opencv < 2.5.0 , [
+  PKG_CHECK_MODULES(OPENCV, opencv >= 2.3.0 opencv < 2.5.0 , [
     AC_PROG_CXX
     AC_LANG([C++])
     OLD_CPPFLAGS=$CPPFLAGS
@@ -2479,6 +2487,9 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
   AC_SUBST(OPENCV_PREFIX)
   AC_SUBST(OPENCV_CFLAGS)
   AC_SUBST(OPENCV_LIBS)
+  AC_CHECK_FILE([$OPENCV_PREFIX/share/opencv/],
+              [AC_DEFINE_UNQUOTED(OPENCV_PATH_NAME, ["opencv"], [OpenCV path name])],
+              [AC_DEFINE_UNQUOTED(OPENCV_PATH_NAME, ["OpenCV"], [OpenCV path name])])
 ])
 
 dnl *** OpenEXR ***
@@ -2605,6 +2616,33 @@ AG_GST_CHECK_FEATURE(GTK3, [Gtk+ elements], gtk, [
   ])
 ])
 AM_CONDITIONAL(USE_GTK3_GL, test "x$HAVE_GTK3_GL" = "xyes")
+
+dnl *** Qt ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_QT, true)
+AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
+  PKG_CHECK_MODULES(QT, Qt5Core Qt5Gui Qt5Quick, [
+      QT_PATH=`$PKG_CONFIG --variable=exec_prefix Qt5Core`
+      QT_HOST_PATH=`$PKG_CONFIG --variable=host_bins Qt5Core`
+      AC_PATH_PROGS(MOC, [moc-qt5 moc], moc, ["${QT_HOST_PATH}" "${QT_PATH}/bin"])
+      AC_PATH_PROGS(RCC, [rcc-qt5 rcc], rcc, ["${QT_HOST_PATH}" "${QT_PATH}/bin"])
+      AC_PATH_PROGS(UIC, [uic-qt5 uic], uic, ["${QT_HOST_PATH}" "${QT_PATH}/bin"])
+      if test "x$MOC" = "x" || test "x$UIC" = "x" || test "x$RCC" = "x"; then
+        AC_MSG_WARN([One of the required qt build programs was not found])
+        HAVE_QT="no"
+      else
+        HAVE_QT="yes"
+        PKG_CHECK_MODULES(QT_X11, Qt5X11Extras, [
+	AC_DEFINE([HAVE_QT_X11], [], [Define if Qt X11 integration is installed])
+	    QT_CFLAGS="$QT_CFLAGS $QT_X11_CFLAGS"
+            QT_LIBS="$QT_LIBS $QT_X11_LIBS"
+            AC_SUBST([QT_CFLAGS])
+            AC_SUBST([QT_LIBS])
+        ], [AC_MSG_NOTICE([Could not find Qt X11 integration])])
+      fi
+  ], [
+      HAVE_QT="no"
+  ])
+])
 
 dnl *** libvisual ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_LIBVISUAL, true)
@@ -3036,6 +3074,7 @@ AM_CONDITIONAL(USE_OPENJPEG, false)
 AM_CONDITIONAL(USE_OPENNI2, false)
 AM_CONDITIONAL(USE_OPUS, false)
 AM_CONDITIONAL(USE_PVR, false)
+AM_CONDITIONAL(USE_QT, false)
 AM_CONDITIONAL(USE_LIBVISUAL, false)
 AM_CONDITIONAL(USE_TIMIDITY, false)
 AM_CONDITIONAL(USE_WILDMIDI, false)
@@ -3343,6 +3382,7 @@ ext/openh264/Makefile
 ext/openjpeg/Makefile
 ext/openni2/Makefile
 ext/opus/Makefile
+ext/qt/Makefile
 ext/rsvg/Makefile
 ext/resindvd/Makefile
 ext/rtmp/Makefile

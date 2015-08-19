@@ -512,13 +512,17 @@ gst_gl_memory_setup_wrapped (<em class="parameter"><code><a class="link" href="G
                              <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideo.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a> *info</code></em>,
                              <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideo.html#GstVideoAlignment"><span class="type">GstVideoAlignment</span></a> *valign</code></em>,
                              <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data[GST_VIDEO_MAX_PLANES]</code></em>,
-                             <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> *textures[GST_VIDEO_MAX_PLANES]</code></em>);</pre>
+                             <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> *textures[GST_VIDEO_MAX_PLANES]</code></em>,
+                             <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>,
+                             <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> notify</code></em>);</pre>
 <p>Wraps per plane data pointer in <em class="parameter"><code>data</code></em>
  into the corresponding entry in
 <em class="parameter"><code>textures</code></em>
  based on <em class="parameter"><code>info</code></em>
  and padding from <em class="parameter"><code>valign</code></em>
-.</p>
+. Note that the <em class="parameter"><code>notify</code></em>
+
+will be called as many time as there is planes.</p>
 <div class="refsect3">
 <a name="id-1.2.9.17.8.8.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
@@ -552,6 +556,16 @@ gst_gl_memory_setup_wrapped (<em class="parameter"><code><a class="link" href="G
 <td class="parameter_name"><p>textures</p></td>
 <td class="parameter_description"><p> a list of <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a>. </p></td>
 <td class="parameter_annotations"><span class="annotation">[transfer out]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>user data for the destroy function</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>notify</p></td>
+<td class="parameter_description"><p>A function called each time a memory is freed</p></td>
+<td class="parameter_annotations"> </td>
 </tr>
 </tbody>
 </table></div>

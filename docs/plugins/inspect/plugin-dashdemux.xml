@@ -3,11 +3,11 @@
   <description>DASH demuxer plugin</description>
   <filename>../../ext/dash/.libs/libgstdashdemux.so</filename>
   <basename>libgstdashdemux.so</basename>
-  <version>1.5.2</version>
+  <version>1.5.90</version>
   <license>LGPL</license>
   <source>gst-plugins-bad</source>
   <package>GStreamer Bad Plug-ins</package>
-  <origin>http://www.gstreamer.org/</origin>
+  <origin>Unknown package origin</origin>
   <elements>
     <element>
       <name>dashdemux</name>

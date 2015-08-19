@@ -55,13 +55,15 @@ static GstStaticPadTemplate gst_gl_color_convert_element_src_pad_template =
 GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (GST_GL_COLOR_CONVERT_VIDEO_CAPS));
+    GST_STATIC_CAPS (GST_GL_COLOR_CONVERT_VIDEO_CAPS ";"
+        GST_GL_COLOR_CONVERT_VIDEO_OVERLAY_COMPOSITION_CAPS));
 
 static GstStaticPadTemplate gst_gl_color_convert_element_sink_pad_template =
 GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (GST_GL_COLOR_CONVERT_VIDEO_CAPS));
+    GST_STATIC_CAPS (GST_GL_COLOR_CONVERT_VIDEO_CAPS ";"
+        GST_GL_COLOR_CONVERT_VIDEO_OVERLAY_COMPOSITION_CAPS));
 
 static gboolean
 gst_gl_color_convert_element_stop (GstBaseTransform * bt)
@@ -197,13 +199,17 @@ gst_gl_color_convert_element_prepare_output_buffer (GstBaseTransform * bt,
     return GST_FLOW_NOT_NEGOTIATED;
 
   *outbuf = gst_gl_color_convert_perform (convert->convert, inbuf);
+  if (!*outbuf) {
+    GST_ELEMENT_ERROR (bt, RESOURCE, NOT_FOUND,
+        ("%s", "Failed to convert video buffer"), (NULL));
+    return GST_FLOW_ERROR;
+  }
 
   /* basetransform doesn't unref if they're the same */
   if (inbuf == *outbuf)
     gst_buffer_unref (*outbuf);
-  if (*outbuf)
-    gst_buffer_copy_into (*outbuf, inbuf,
-        GST_BUFFER_COPY_FLAGS | GST_BUFFER_COPY_TIMESTAMPS, 0, -1);
+  gst_buffer_copy_into (*outbuf, inbuf,
+      GST_BUFFER_COPY_FLAGS | GST_BUFFER_COPY_TIMESTAMPS, 0, -1);
 
   return GST_FLOW_OK;
 }
