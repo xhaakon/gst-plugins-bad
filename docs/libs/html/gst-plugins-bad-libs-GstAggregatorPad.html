@@ -200,6 +200,8 @@ gst_aggregator_pad_is_eos (<em class="parameter"><code><a class="link" href="gst
 
   /* Protected by the OBJECT_LOCK */
   GstSegment segment;
+  /* Segment to use in the clip function, before the queue */
+  GstSegment clip_segment;
 
   /* &lt; Private &gt; */
   GstAggregatorPadPrivate   *  priv;
@@ -226,6 +228,11 @@ gst_aggregator_pad_is_eos (<em class="parameter"><code><a class="link" href="gst
 <td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstSegment.html"><span class="type">GstSegment</span></a> <em class="structfield"><code><a name="GstAggregatorPad.segment"></a>segment</code></em>;</p></td>
 <td class="struct_member_description"><p>last segment received.</p></td>
 <td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstSegment.html"><span class="type">GstSegment</span></a> <em class="structfield"><code><a name="GstAggregatorPad.clip-segment"></a>clip_segment</code></em>;</p></td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><span class="type">GstAggregatorPadPrivate</span> *<em class="structfield"><code><a name="GstAggregatorPad.priv"></a>priv</code></em>;</p></td>

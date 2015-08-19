@@ -480,13 +480,15 @@ gst_pcap_parse_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
             GstBuffer *out_buf;
             guintptr offset = payload_data - data;
 
-            self->cur_packet_size -= offset;
-            self->cur_packet_size -= payload_size;
-
             gst_adapter_unmap (self->adapter);
             gst_adapter_flush (self->adapter, offset);
-            out_buf = gst_adapter_take_buffer_fast (self->adapter,
-                payload_size);
+            /* we don't use _take_buffer_fast() on purpose here, we need a
+             * buffer with a single memory, since the RTP depayloaders expect
+             * the complete RTP header to be in the first memory if there are
+             * multiple ones and we can't guarantee that with _fast() */
+            out_buf = gst_adapter_take_buffer (self->adapter, payload_size);
+            gst_adapter_flush (self->adapter,
+                self->cur_packet_size - offset - payload_size);
 
             if (GST_CLOCK_TIME_IS_VALID (self->cur_ts)) {
               if (!GST_CLOCK_TIME_IS_VALID (self->base_ts))
@@ -588,7 +590,7 @@ gst_pcap_parse_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
       if (self->caps)
         gst_pad_set_caps (self->src_pad, self->caps);
       gst_segment_init (&segment, GST_FORMAT_TIME);
-      segment.start = self->cur_ts;
+      segment.start = self->base_ts;
       gst_pad_push_event (self->src_pad, gst_event_new_segment (&segment));
       self->newsegment_sent = TRUE;
     }

@@ -126,6 +126,8 @@
 GST_DEBUG_CATEGORY_STATIC (gst_srtp_dec_debug);
 #define GST_CAT_DEFAULT gst_srtp_dec_debug
 
+#define DEFAULT_REPLAY_WINDOW_SIZE 128
+
 /* Filter signals and args */
 enum
 {
@@ -139,24 +141,9 @@ enum
 
 enum
 {
-  PROP_0
+  PROP_0,
+  PROP_REPLAY_WINDOW_SIZE
 };
-
-typedef struct _ValidateBufferItData
-{
-  GstSrtpDecSsrcStream **stream;
-  GstSrtpDec *filter;
-  guint32 *ssrc;
-  gboolean *is_rtcp;
-} ValidateBufferItData;
-
-typedef struct _DecodeBufferItData
-{
-  GstSrtpDec *filter;
-  GstPad *pad;
-  guint32 ssrc;
-  gboolean is_rtcp;
-} DecodeBufferItData;
 
 /* the capabilities of the inputs and outputs.
  *
@@ -194,6 +181,11 @@ static guint gst_srtp_dec_signals[LAST_SIGNAL] = { 0 };
 
 G_DEFINE_TYPE (GstSrtpDec, gst_srtp_dec, GST_TYPE_ELEMENT);
 
+static void gst_srtp_dec_set_property (GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec);
+static void gst_srtp_dec_get_property (GObject * object, guint prop_id,
+    GValue * value, GParamSpec * pspec);
+
 static void gst_srtp_dec_clear_streams (GstSrtpDec * filter);
 static void gst_srtp_dec_remove_stream (GstSrtpDec * filter, guint ssrc);
 
@@ -217,11 +209,6 @@ static GstFlowReturn gst_srtp_dec_chain_rtp (GstPad * pad,
     GstObject * parent, GstBuffer * buf);
 static GstFlowReturn gst_srtp_dec_chain_rtcp (GstPad * pad,
     GstObject * parent, GstBuffer * buf);
-
-static GstFlowReturn gst_srtp_dec_chain_list_rtp (GstPad * pad,
-    GstObject * parent, GstBufferList * buf_list);
-static GstFlowReturn gst_srtp_dec_chain_list_rtcp (GstPad * pad,
-    GstObject * parent, GstBufferList * buf_list);
 
 static GstStateChangeReturn gst_srtp_dec_change_state (GstElement * element,
     GstStateChange transition);
@@ -252,9 +239,14 @@ struct _GstSrtpDecSsrcStream
 static void
 gst_srtp_dec_class_init (GstSrtpDecClass * klass)
 {
+  GObjectClass *gobject_class;
   GstElementClass *gstelement_class;
 
+  gobject_class = (GObjectClass *) klass;
   gstelement_class = (GstElementClass *) klass;
+
+  gobject_class->set_property = gst_srtp_dec_set_property;
+  gobject_class->get_property = gst_srtp_dec_get_property;
 
   gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&rtp_src_template));
@@ -276,6 +268,13 @@ gst_srtp_dec_class_init (GstSrtpDecClass * klass)
 
   klass->clear_streams = GST_DEBUG_FUNCPTR (gst_srtp_dec_clear_streams);
   klass->remove_stream = GST_DEBUG_FUNCPTR (gst_srtp_dec_remove_stream);
+
+  /* Install properties */
+  g_object_class_install_property (gobject_class, PROP_REPLAY_WINDOW_SIZE,
+      g_param_spec_uint ("replay-window-size", "Replay window size",
+          "Size of the replay protection window",
+          64, 0x8000, DEFAULT_REPLAY_WINDOW_SIZE,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   /* Install signals */
   /**
@@ -358,6 +357,8 @@ gst_srtp_dec_class_init (GstSrtpDecClass * klass)
 static void
 gst_srtp_dec_init (GstSrtpDec * filter)
 {
+  filter->replay_window_size = DEFAULT_REPLAY_WINDOW_SIZE;
+
   filter->rtp_sinkpad =
       gst_pad_new_from_static_template (&rtp_sink_template, "rtp_sink");
   gst_pad_set_event_function (filter->rtp_sinkpad,
@@ -368,8 +369,6 @@ gst_srtp_dec_init (GstSrtpDec * filter)
       GST_DEBUG_FUNCPTR (gst_srtp_dec_iterate_internal_links_rtp));
   gst_pad_set_chain_function (filter->rtp_sinkpad,
       GST_DEBUG_FUNCPTR (gst_srtp_dec_chain_rtp));
-  gst_pad_set_chain_list_function (filter->rtp_sinkpad,
-      GST_DEBUG_FUNCPTR (gst_srtp_dec_chain_list_rtp));
 
   filter->rtp_srcpad =
       gst_pad_new_from_static_template (&rtp_src_template, "rtp_src");
@@ -393,8 +392,6 @@ gst_srtp_dec_init (GstSrtpDec * filter)
       GST_DEBUG_FUNCPTR (gst_srtp_dec_iterate_internal_links_rtcp));
   gst_pad_set_chain_function (filter->rtcp_sinkpad,
       GST_DEBUG_FUNCPTR (gst_srtp_dec_chain_rtcp));
-  gst_pad_set_chain_list_function (filter->rtcp_sinkpad,
-      GST_DEBUG_FUNCPTR (gst_srtp_dec_chain_list_rtcp));
 
   filter->rtcp_srcpad =
       gst_pad_new_from_static_template (&rtcp_src_template, "rtcp_src");
@@ -409,6 +406,46 @@ gst_srtp_dec_init (GstSrtpDec * filter)
 
   filter->first_session = TRUE;
   filter->roc_changed = FALSE;
+}
+
+static void
+gst_srtp_dec_set_property (GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec)
+{
+  GstSrtpDec *filter = GST_SRTP_DEC (object);
+
+  GST_OBJECT_LOCK (filter);
+
+  switch (prop_id) {
+    case PROP_REPLAY_WINDOW_SIZE:
+      filter->replay_window_size = g_value_get_uint (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+
+  GST_OBJECT_UNLOCK (filter);
+}
+
+static void
+gst_srtp_dec_get_property (GObject * object, guint prop_id,
+    GValue * value, GParamSpec * pspec)
+{
+  GstSrtpDec *filter = GST_SRTP_DEC (object);
+
+  GST_OBJECT_LOCK (filter);
+
+  switch (prop_id) {
+    case PROP_REPLAY_WINDOW_SIZE:
+      g_value_set_uint (value, filter->replay_window_size);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+
+  GST_OBJECT_UNLOCK (filter);
 }
 
 static void
@@ -545,6 +582,7 @@ init_session_stream (GstSrtpDec * filter, guint32 ssrc,
 
   policy.ssrc.value = ssrc;
   policy.ssrc.type = ssrc_specific;
+  policy.window_size = filter->replay_window_size;
   policy.next = NULL;
 
   /* If it is the first stream, create the session
@@ -1165,6 +1203,7 @@ gst_srtp_dec_chain (GstPad * pad, GstObject * parent, GstBuffer * buf,
   GST_OBJECT_LOCK (filter);
 
   /* Check if this stream exists, if not create a new stream */
+
   if (!(stream = validate_buffer (filter, buf, &ssrc, &is_rtcp))) {
     GST_OBJECT_UNLOCK (filter);
     GST_WARNING_OBJECT (filter, "Invalid buffer, dropping");
@@ -1212,107 +1251,6 @@ drop_buffer:
   return ret;
 }
 
-static gboolean
-validate_buffer_it (GstBuffer ** buffer, guint index, gpointer user_data)
-{
-  ValidateBufferItData *data = user_data;
-
-  if (!(*data->stream =
-          validate_buffer (data->filter, *buffer, data->ssrc, data->is_rtcp))) {
-    GST_WARNING_OBJECT (data->filter, "Invalid buffer, dropping");
-    gst_buffer_replace (buffer, NULL);
-  }
-
-  return TRUE;
-}
-
-static gboolean
-decode_buffer_it (GstBuffer ** buffer, guint index, gpointer user_data)
-{
-  DecodeBufferItData *data = user_data;
-
-  if (!gst_srtp_dec_decode_buffer (data->filter, data->pad, *buffer,
-          data->is_rtcp, data->ssrc)) {
-    GST_WARNING_OBJECT (data->filter, "Error decoding buffer, dropping");
-    gst_buffer_replace (buffer, NULL);
-  }
-
-  return TRUE;
-}
-
-static GstFlowReturn
-gst_srtp_dec_chain_list (GstPad * pad, GstObject * parent,
-    GstBufferList * buf_list, gboolean is_rtcp)
-{
-  GstSrtpDec *filter = GST_SRTP_DEC (parent);
-  GstPad *otherpad;
-  GstSrtpDecSsrcStream *stream = NULL;
-  GstFlowReturn ret = GST_FLOW_OK;
-  guint32 ssrc = 0;
-  ValidateBufferItData validate_data;
-  DecodeBufferItData decode_data;
-
-  validate_data.stream = &stream;
-  validate_data.filter = filter;
-  validate_data.ssrc = &ssrc;
-  validate_data.is_rtcp = &is_rtcp;
-
-  decode_data.filter = filter;
-  decode_data.pad = pad;
-
-  GST_OBJECT_LOCK (filter);
-
-  /* Check if this stream exists, if not create a new stream */
-  gst_buffer_list_foreach (buf_list, validate_buffer_it, &validate_data);
-
-  if (!gst_buffer_list_length (buf_list)) {
-    GST_OBJECT_LOCK (filter);
-    gst_buffer_list_unref (buf_list);
-    return GST_FLOW_OK;
-  }
-
-  if (!STREAM_HAS_CRYPTO (stream)) {
-    GST_OBJECT_UNLOCK (filter);
-    goto push_out;
-  }
-
-  decode_data.ssrc = ssrc;
-  decode_data.is_rtcp = is_rtcp;
-
-  gst_buffer_list_foreach (buf_list, decode_buffer_it, &decode_data);
-
-  GST_OBJECT_UNLOCK (filter);
-
-  if (!gst_buffer_list_length (buf_list)) {
-    gst_buffer_list_unref (buf_list);
-    return GST_FLOW_OK;
-  }
-
-  /* If all is well, we may have reached soft limit */
-  if (gst_srtp_get_soft_limit_reached ())
-    request_key_with_signal (filter, ssrc, SIGNAL_SOFT_LIMIT);
-
-push_out:
-  /* Push buffer list to source pad */
-  if (is_rtcp) {
-    otherpad = filter->rtcp_srcpad;
-    if (!filter->rtcp_has_segment)
-      gst_srtp_dec_push_early_events (filter, filter->rtcp_srcpad,
-          filter->rtp_srcpad, TRUE);
-  } else {
-    otherpad = filter->rtp_srcpad;
-    if (!filter->rtp_has_segment)
-      gst_srtp_dec_push_early_events (filter, filter->rtp_srcpad,
-          filter->rtcp_srcpad, FALSE);
-  }
-
-  GST_LOG_OBJECT (pad, "Pushing buffer chain of %d",
-      gst_buffer_list_length (buf_list));
-  ret = gst_pad_push_list (otherpad, buf_list);
-
-  return ret;
-}
-
 static GstFlowReturn
 gst_srtp_dec_chain_rtp (GstPad * pad, GstObject * parent, GstBuffer * buf)
 {
@@ -1324,21 +1262,6 @@ gst_srtp_dec_chain_rtcp (GstPad * pad, GstObject * parent, GstBuffer * buf)
 {
   return gst_srtp_dec_chain (pad, parent, buf, TRUE);
 }
-
-static GstFlowReturn
-gst_srtp_dec_chain_list_rtp (GstPad * pad, GstObject * parent,
-    GstBufferList * buf_list)
-{
-  return gst_srtp_dec_chain_list (pad, parent, buf_list, FALSE);
-}
-
-static GstFlowReturn
-gst_srtp_dec_chain_list_rtcp (GstPad * pad, GstObject * parent,
-    GstBufferList * buf_list)
-{
-  return gst_srtp_dec_chain_list (pad, parent, buf_list, TRUE);
-}
-
 
 static GstStateChangeReturn
 gst_srtp_dec_change_state (GstElement * element, GstStateChange transition)

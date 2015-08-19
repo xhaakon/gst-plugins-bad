@@ -48,8 +48,10 @@
 <ANCHOR id="GST-H264-NAL-SPS-EXT:CAPS" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SPS-EXT:CAPS">
 <ANCHOR id="GST-H264-NAL-PREFIX-UNIT:CAPS" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-PREFIX-UNIT:CAPS">
 <ANCHOR id="GST-H264-NAL-SUBSET-SPS:CAPS" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SUBSET-SPS:CAPS">
+<ANCHOR id="GST-H264-NAL-DEPTH-SPS:CAPS" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-DEPTH-SPS:CAPS">
 <ANCHOR id="GST-H264-NAL-SLICE-AUX:CAPS" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE-AUX:CAPS">
 <ANCHOR id="GST-H264-NAL-SLICE-EXT:CAPS" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE-EXT:CAPS">
+<ANCHOR id="GST-H264-NAL-SLICE-DEPTH:CAPS" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE-DEPTH:CAPS">
 <ANCHOR id="GstH264ParserResult" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-h264parser.html#GstH264ParserResult">
 <ANCHOR id="GST-H264-PARSER-OK:CAPS" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-h264parser.html#GST-H264-PARSER-OK:CAPS">
 <ANCHOR id="GST-H264-PARSER-BROKEN-DATA:CAPS" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-h264parser.html#GST-H264-PARSER-BROKEN-DATA:CAPS">
