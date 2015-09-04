@@ -1,3 +1,11 @@
+gst-plugins-bad1.0 (1.4.5-3) unstable; urgency=medium
+
+  * debian/patches/03_fix-faad2-version-check.patch:
+    + Fix faad2 version check, which caused wrong function prototypes to be
+      used and as a result caused stack corruption (Closes: #797227, #788708).
+
+ -- Sebastian Dröge <slomo@debian.org>  Fri, 04 Sep 2015 16:58:00 +0300
+
 gst-plugins-bad1.0 (1.4.5-2) unstable; urgency=medium
 
   * Upload to unstable.
