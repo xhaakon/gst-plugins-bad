@@ -604,12 +604,11 @@ gst_videoaggregator_src_setcaps (GstVideoAggregator * vagg, GstCaps * caps)
   if (GST_VIDEO_INFO_FPS_N (&vagg->info) != GST_VIDEO_INFO_FPS_N (&info) ||
       GST_VIDEO_INFO_FPS_D (&vagg->info) != GST_VIDEO_INFO_FPS_D (&info)) {
     if (agg->segment.position != -1) {
-      vagg->priv->ts_offset = agg->segment.position - agg->segment.start;
       vagg->priv->nframes = 0;
+      /* The timestamp offset will be updated based on the
+       * segment position the next time we aggregate */
       GST_DEBUG_OBJECT (vagg,
-          "Updating timestamp offset to %" GST_TIME_FORMAT " for segment %"
-          GST_SEGMENT_FORMAT, GST_TIME_ARGS (vagg->priv->ts_offset),
-          &agg->segment);
+          "Resetting frame counter because of framerate change");
     }
     gst_videoaggregator_reset_qos (vagg);
   }
@@ -866,7 +865,7 @@ gst_videoaggregator_pad_sink_getcaps (GstPad * pad, GstVideoAggregator * vagg,
         "framerate", GST_TYPE_FRACTION_RANGE, 0, 1, G_MAXINT, 1, NULL);
 
     gst_structure_remove_fields (s, "colorimetry", "chroma-site", "format",
-        NULL);
+        "pixel-aspect-ratio", NULL);
   }
 
   if (filter) {
@@ -1368,6 +1367,11 @@ gst_videoaggregator_aggregate (GstAggregator * agg, gboolean timeout)
   }
 
   output_start_time = gst_videoaggregator_get_next_time (agg);
+  if (vagg->priv->nframes == 0) {
+    vagg->priv->ts_offset = output_start_time;
+    GST_DEBUG_OBJECT (vagg, "New ts offset %" GST_TIME_FORMAT,
+        GST_TIME_ARGS (output_start_time));
+  }
 
   if (GST_VIDEO_INFO_FPS_N (&vagg->info) == 0)
     output_end_time = -1;
@@ -1376,7 +1380,7 @@ gst_videoaggregator_aggregate (GstAggregator * agg, gboolean timeout)
         vagg->priv->ts_offset +
         gst_util_uint64_scale_round (vagg->priv->nframes + 1,
         GST_SECOND * GST_VIDEO_INFO_FPS_D (&vagg->info),
-        GST_VIDEO_INFO_FPS_N (&vagg->info)) + agg->segment.start;
+        GST_VIDEO_INFO_FPS_N (&vagg->info));
 
   if (agg->segment.stop != -1)
     output_end_time = MIN (output_end_time, agg->segment.stop);
@@ -1617,68 +1621,6 @@ gst_videoaggregator_src_event (GstAggregator * agg, GstEvent * event)
 }
 
 static GstFlowReturn
-gst_videoaggregator_sink_clip (GstAggregator * agg,
-    GstAggregatorPad * bpad, GstBuffer * buf, GstBuffer ** outbuf)
-{
-  GstVideoAggregatorPad *pad = GST_VIDEO_AGGREGATOR_PAD (bpad);
-  GstClockTime start_time, end_time;
-  GstBuffer *pbuf;
-
-  start_time = GST_BUFFER_TIMESTAMP (buf);
-  if (start_time == -1) {
-    GST_WARNING_OBJECT (pad, "Timestamped buffers required!");
-    gst_buffer_unref (buf);
-    *outbuf = NULL;
-    return GST_FLOW_ERROR;
-  }
-
-  end_time = GST_BUFFER_DURATION (buf);
-  if (end_time == -1 && GST_VIDEO_INFO_FPS_N (&pad->info) != 0)
-    end_time =
-        gst_util_uint64_scale_int_round (GST_SECOND,
-        GST_VIDEO_INFO_FPS_D (&pad->info), GST_VIDEO_INFO_FPS_N (&pad->info));
-  if (end_time == -1) {
-    *outbuf = buf;
-    return GST_FLOW_OK;
-  }
-
-  GST_OBJECT_LOCK (bpad);
-
-  start_time = MAX (start_time, bpad->segment.start);
-  start_time =
-      gst_segment_to_running_time (&bpad->segment, GST_FORMAT_TIME, start_time);
-
-  end_time += GST_BUFFER_TIMESTAMP (buf);
-  if (bpad->segment.stop != -1)
-    end_time = MIN (end_time, bpad->segment.stop);
-  end_time =
-      gst_segment_to_running_time (&bpad->segment, GST_FORMAT_TIME, end_time);
-
-  /* Convert to the output segment rate */
-  if (ABS (agg->segment.rate) != 1.0) {
-    end_time *= ABS (agg->segment.rate);
-  }
-
-  pbuf = gst_aggregator_pad_get_buffer (bpad);
-  if (pbuf != NULL) {
-    gst_buffer_unref (pbuf);
-
-    if (end_time < pad->priv->end_time) {
-      gst_buffer_unref (buf);
-      *outbuf = NULL;
-      goto done;
-    }
-  }
-
-  *outbuf = buf;
-
-done:
-
-  GST_OBJECT_UNLOCK (bpad);
-  return GST_FLOW_OK;
-}
-
-static GstFlowReturn
 gst_videoaggregator_flush (GstAggregator * agg)
 {
   GList *l;
@@ -1894,7 +1836,7 @@ gst_videoaggregator_pad_sink_acceptcaps (GstPad * pad,
         "framerate", GST_TYPE_FRACTION_RANGE, 0, 1, G_MAXINT, 1, NULL);
 
     gst_structure_remove_fields (s, "colorimetry", "chroma-site", "format",
-        NULL);
+        "pixel-aspect-ratio", NULL);
   }
 
   modified_caps = gst_caps_intersect (accepted_caps, template_caps);
@@ -2021,7 +1963,6 @@ gst_videoaggregator_class_init (GstVideoAggregatorClass * klass)
   agg_class->sink_query = gst_videoaggregator_sink_query;
   agg_class->sink_event = gst_videoaggregator_sink_event;
   agg_class->flush = gst_videoaggregator_flush;
-  agg_class->clip = gst_videoaggregator_sink_clip;
   agg_class->aggregate = gst_videoaggregator_aggregate;
   agg_class->src_event = gst_videoaggregator_src_event;
   agg_class->src_query = gst_videoaggregator_src_query;

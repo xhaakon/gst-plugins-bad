@@ -115,10 +115,7 @@
 /* Define to enable Bluez (used by bluez). */
 #undef HAVE_BLUEZ
 
-/* Old bluez detected */
-#undef HAVE_BLUEZ4
-
-/* Current bluez detected */
+/* Bluez5 detected */
 #undef HAVE_BLUEZ5
 
 /* Define to enable bs2b (used by bs2b). */
@@ -498,6 +495,12 @@
 /* Define to enable pvrvideosink (used by pvr). */
 #undef HAVE_PVR
 
+/* Define to enable Qt elements (used by qt). */
+#undef HAVE_QT
+
+/* Define if Qt X11 integration is installed */
+#undef HAVE_QT_X11
+
 /* Define if RDTSC is available */
 #undef HAVE_RDTSC
 
@@ -687,6 +690,9 @@
 
 /* Define if the old MusePack API is used */
 #undef MPC_IS_OLD_API
+
+/* OpenCV path name */
+#undef OPENCV_PATH_NAME
 
 /* opencv install prefix */
 #undef OPENCV_PREFIX

@@ -159,11 +159,6 @@ static void
 gst_gl_filter_reset (GstGLFilter * filter)
 {
   gst_caps_replace (&filter->out_caps, NULL);
-
-  if (filter->pool) {
-    gst_object_unref (filter->pool);
-    filter->pool = NULL;
-  }
 }
 
 static gboolean
@@ -729,7 +724,6 @@ gst_gl_filter_propose_allocation (GstBaseTransform * trans,
 {
   GstGLFilter *filter = GST_GL_FILTER (trans);
   GstGLContext *context = GST_GL_BASE_FILTER (filter)->context;
-  GstStructure *config;
   GstCaps *caps;
   guint size;
   gboolean need_pool;
@@ -740,43 +734,29 @@ gst_gl_filter_propose_allocation (GstBaseTransform * trans,
     goto no_caps;
 
   if (need_pool) {
-    if (filter->pool) {
-      GstCaps *pcaps;
+    GstBufferPool *pool;
+    GstStructure *config;
+    GstVideoInfo info;
 
-      /* we had a pool, check caps */
-      GST_DEBUG_OBJECT (filter, "check existing pool caps");
-      config = gst_buffer_pool_get_config (filter->pool);
-      gst_buffer_pool_config_get_params (config, &pcaps, &size, NULL, NULL);
+    if (!gst_video_info_from_caps (&info, caps))
+      goto invalid_caps;
 
-      if (!gst_caps_is_equal (caps, pcaps)) {
-        GST_DEBUG_OBJECT (filter, "pool has different caps");
-        /* different caps, we can't use this pool */
-        gst_object_unref (filter->pool);
-        filter->pool = NULL;
-      }
-      gst_structure_free (config);
+    /* the normal size of a frame */
+    size = info.size;
+
+    GST_DEBUG_OBJECT (filter, "create new pool");
+    pool = gst_gl_buffer_pool_new (context);
+
+    config = gst_buffer_pool_get_config (pool);
+    gst_buffer_pool_config_set_params (config, caps, size, 0, 0);
+
+    if (!gst_buffer_pool_set_config (pool, config)) {
+      g_object_unref (pool);
+      goto config_failed;
     }
 
-    if (filter->pool == NULL) {
-      GstVideoInfo info;
-
-      if (!gst_video_info_from_caps (&info, caps))
-        goto invalid_caps;
-
-      /* the normal size of a frame */
-      size = info.size;
-
-      GST_DEBUG_OBJECT (filter, "create new pool");
-      filter->pool = gst_gl_buffer_pool_new (context);
-
-      config = gst_buffer_pool_get_config (filter->pool);
-      gst_buffer_pool_config_set_params (config, caps, size, 0, 0);
-
-      if (!gst_buffer_pool_set_config (filter->pool, config))
-        goto config_failed;
-    }
-
-    gst_query_add_allocation_pool (query, filter->pool, size, 1, 0);
+    gst_query_add_allocation_pool (query, pool, size, 1, 0);
+    g_object_unref (pool);
   }
 
   if (context->gl_vtable->FenceSync)
@@ -1144,37 +1124,7 @@ gst_gl_filter_draw_texture (GstGLFilter * filter, GLuint texture,
 
   GST_DEBUG ("drawing texture:%u dimensions:%ux%u", texture, width, height);
 
-#if GST_GL_HAVE_OPENGL
-  if (gst_gl_context_get_gl_api (context) & GST_GL_API_OPENGL) {
-    GLfloat verts[] = { -1.0f, -1.0f,
-      1.0f, -1.0f,
-      1.0f, 1.0f,
-      -1.0f, 1.0f
-    };
-    GLfloat texcoords[] = { 0.0f, 0.0f,
-      1.0f, 0.0f,
-      1.0f, 1.0f,
-      0.0f, 1.0f
-    };
-
-    gl->ActiveTexture (GL_TEXTURE0);
-    gl->BindTexture (GL_TEXTURE_2D, texture);
-
-    gl->EnableClientState (GL_VERTEX_ARRAY);
-    gl->VertexPointer (2, GL_FLOAT, 0, &verts);
-
-    gl->ClientActiveTexture (GL_TEXTURE0);
-    gl->EnableClientState (GL_TEXTURE_COORD_ARRAY);
-    gl->TexCoordPointer (2, GL_FLOAT, 0, &texcoords);
-
-    gl->DrawArrays (GL_TRIANGLE_FAN, 0, 4);
-
-    gl->DisableClientState (GL_VERTEX_ARRAY);
-    gl->DisableClientState (GL_TEXTURE_COORD_ARRAY);
-  }
-#endif
-  if (gst_gl_context_get_gl_api (context) & (GST_GL_API_GLES2 |
-          GST_GL_API_OPENGL3)) {
+  {
     if (!filter->vertex_buffer) {
       if (gl->GenVertexArrays) {
         gl->GenVertexArrays (1, &filter->vao);

@@ -1,3 +1,9 @@
+gst-plugins-bad1.0 (1.5.90-1) experimental; urgency=medium
+
+  * New upstream release candidate.
+
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 19 Aug 2015 13:35:43 +0300
+
 gst-plugins-bad1.0 (1.5.2-1ubuntu2) wily; urgency=medium
 
   * Send error messages to the gstreamer client when an error happens in

@@ -519,8 +519,11 @@ gst_m3u8_update (GstM3U8Client * client, GstM3U8 * self, gchar * data,
         goto next_line;
       }
       duration = fval * (gdouble) GST_SECOND;
-      if (duration > self->targetduration)
-        GST_WARNING ("EXTINF duration > TARGETDURATION");
+      if (self->targetduration > 0 && duration > self->targetduration) {
+        GST_WARNING ("EXTINF duration (%" GST_TIME_FORMAT
+            ") > TARGETDURATION (%" GST_TIME_FORMAT ")",
+            GST_TIME_ARGS (duration), GST_TIME_ARGS (self->targetduration));
+      }
       if (!data || *data != ',')
         goto next_line;
       data = g_utf8_next_char (data);
@@ -1104,7 +1107,7 @@ alternate_advance (GstM3U8Client * client, gboolean forward)
       break;
   }
   if (tmp == NULL) {
-    GST_ERROR ("Can't find next fragment");
+    GST_WARNING ("Can't find next fragment");
     return;
   }
   client->current_file = tmp;

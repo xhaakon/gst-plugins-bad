@@ -35,6 +35,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgdp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgeometrictransform.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgme.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgsm.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgtksink.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstid3tag.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstinter.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstinterlace.so
@@ -59,7 +60,6 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmplex.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmxf.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstofa.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenal.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopencv.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopengl.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenexr.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenjpeg.so
