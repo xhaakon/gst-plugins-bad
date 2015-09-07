@@ -218,6 +218,10 @@ ifeq (,$(findstring $(DEB_HOST_ARCH),m68k arm))
 DEB_CONFIGURE_EXTRA_FLAGS += --enable-gtk-doc
 endif
 
+ifneq (,$(findstring $(DEB_HOST_ARCH),armhf))
+DEB_CONFIGURE_EXTRA_FLAGS += --disable-opengl
+endif
+
 common-binary-fixup-arch::
 	LD_LIBRARY_PATH=debian/libgstreamer-plugins-bad1.0-0/usr/lib/$(DEB_HOST_MULTIARCH):$(LD_LIBRARY_PATH) \
 		dh_gstscancodecs
