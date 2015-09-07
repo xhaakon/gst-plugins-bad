@@ -67,6 +67,7 @@ libgl1-mesa-dev [!armhf]
 libegl1-mesa-dev
 libgles2-mesa-dev
 libglu1-mesa-dev [!armhf]
+mesa-common-dev
 libxml2-dev (>= 2.8)
 libfluidsynth-dev (>= 1.0)
 libsrtp0-dev
