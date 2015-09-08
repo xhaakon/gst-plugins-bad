@@ -1,3 +1,4 @@
+0001-gl-Define-GL_GLEXT_LEGACY-and-GLX_GLXEXT_LEGACY.patch
 01_fix-modplug-linking.patch
 02_opencv-linking.patch
 03_gtk-gl-Use-our-GL-function-table-instead-of-directly.patch

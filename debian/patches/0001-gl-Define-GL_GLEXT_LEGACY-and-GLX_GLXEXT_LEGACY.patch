@@ -1,0 +1,69 @@
+From b5f58c0a34a5e942563e887ea624b0569008abe5 Mon Sep 17 00:00:00 2001
+From: Iain Lane <iain@orangesquash.org.uk>
+Date: Tue, 8 Sep 2015 13:05:54 +0100
+Subject: [PATCH] gl: Define GL_GLEXT_LEGACY and GLX_GLXEXT_LEGACY
+
+To prevent conflicting declarations of OpenGL types, e.g.
+
+  In file included from /usr/include/GL/gl.h:2055:0,
+                   from /usr/include/GL/glx.h:32,
+                   from ../../gst-libs/gst/gl/x11/gstglcontext_glx.h:26,
+                   from gtkgstglwidget.c:33:
+  /usr/include/GL/glext.h:468:19: error: conflicting types for 'GLsizeiptr'
+   typedef ptrdiff_t GLsizeiptr;
+
+  In file included from ../../gst-libs/gst/gl/gstglapi.h:35:0,
+                   from ../../gst-libs/gst/gl/gstgl_fwd.h:26,
+                   from ../../gst-libs/gst/gl/gl.h:29,
+                   from gtkgstglwidget.h:26,
+                   from gtkgstglwidget.c:27:
+  /usr/include/GLES2/gl2.h:69:25: note: previous declaration of 'GLsizeiptr' was here
+   typedef khronos_ssize_t GLsizeiptr;
+
+Once this is in place, we get a linker failure relating to
+"glBindTexture" - we need to link libqtsink to gl (or gles) to avoid
+this.
+---
+ ext/qt/Makefile.am                     | 4 +++-
+ gst-libs/gst/gl/x11/gstglcontext_glx.h | 4 ++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/ext/qt/Makefile.am b/ext/qt/Makefile.am
+index 059ee7b..cf1e57c 100644
+--- a/ext/qt/Makefile.am
++++ b/ext/qt/Makefile.am
+@@ -28,12 +28,14 @@ libqtsink_la_CXXFLAGS = \
+ 	$(GST_CXXFLAGS) \
+ 	$(GST_BASE_CFLAGS) \
+ 	$(GST_PLUGINS_BASE_CFLAGS) \
+-	$(QT_CFLAGS)
++	$(QT_CFLAGS) \
++	$(GL_CFLAGS)
+ 
+ libqtsink_la_LIBADD = \
+ 	$(GST_BASE_LIBS) \
+ 	$(GST_PLUGINS_BASE_LIBS) \
+ 	$(QT_LIBS) \
++	$(GL_LIBS) \
+ 	$(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la \
+ 	-lgstvideo-$(GST_API_VERSION)
+ 
+diff --git a/gst-libs/gst/gl/x11/gstglcontext_glx.h b/gst-libs/gst/gl/x11/gstglcontext_glx.h
+index e015108..e5b1c03 100644
+--- a/gst-libs/gst/gl/x11/gstglcontext_glx.h
++++ b/gst-libs/gst/gl/x11/gstglcontext_glx.h
+@@ -23,7 +23,11 @@
+ 
+ #include "gstglwindow_x11.h"
+ 
++#define GL_GLEXT_LEGACY
++#define GLX_GLXEXT_LEGACY
++
+ #include <GL/glx.h>
++#include <GL/glxext.h>
+ 
+ G_BEGIN_DECLS
+ 
+-- 
+2.5.0
+

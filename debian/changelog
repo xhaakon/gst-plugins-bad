@@ -3,6 +3,9 @@ gst-plugins-bad1.0 (1.5.90-1ubuntu2) UNRELEASED; urgency=medium
   * Build-Depend on mesa-common-dev since we need glx.h everywhere.
   * Really disable (via a build switch) opengl on armhf, to build properly in
     unclean environments.
+  * debian/patches/0001-gl-Define-GL_GLEXT_LEGACY-and-GLX_GLXEXT_LEGACY.patch:
+    Define GL_GLEXT_LEGACY and GLX_GLXECT_LEGACY to avoid FTBFS on armhf due
+    to conflicting definitions of GL types.
 
  -- Iain Lane <iain.lane@canonical.com>  Mon, 07 Sep 2015 10:58:51 +0100
 
