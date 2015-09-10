@@ -1,0 +1,54 @@
+From bca1fd1040ab085b63895b92720eb448df438bfa Mon Sep 17 00:00:00 2001
+From: Matthew Waters <matthew@centricular.com>
+Date: Thu, 10 Sep 2015 00:00:11 +1000
+Subject: [PATCH 2/4] qt: use our function table instead of directly calling gl
+ functions
+
+Otherwise when building with --as-needed we would need to link to
+a GL or GLES library.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=754732
+---
+ ext/qt/gstqsgtexture.cc | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/ext/qt/gstqsgtexture.cc b/ext/qt/gstqsgtexture.cc
+index a9be90c..12810fa 100644
+--- a/ext/qt/gstqsgtexture.cc
++++ b/ext/qt/gstqsgtexture.cc
+@@ -81,6 +81,7 @@ GstQSGTexture::setBuffer (GstBuffer * buffer)
+ void
+ GstQSGTexture::bind ()
+ {
++  const GstGLFuncs *gl;
+   GstGLContext *context;
+   GstGLSyncMeta *sync_meta;
+   GstMemory *mem;
+@@ -95,6 +96,9 @@ GstQSGTexture::bind ()
+   if (!this->mem_)
+     return;
+ 
++  g_assert (this->qt_context_);
++  gl = this->qt_context_->gl_vtable;
++
+   /* FIXME: should really lock the memory to prevent write access */
+   if (!gst_video_frame_map (&this->v_frame, &this->v_info, this->buffer_,
+         (GstMapFlags) (GST_MAP_READ | GST_MAP_GL))) {
+@@ -113,13 +117,12 @@ GstQSGTexture::bind ()
+ 
+   gst_gl_sync_meta_set_sync_point (sync_meta, context);
+ 
+-  g_assert (this->qt_context_);
+   gst_gl_sync_meta_wait (sync_meta, this->qt_context_);
+ 
+   tex_id = *(guint *) this->v_frame.data[0];
+   GST_LOG ("%p binding Qt texture %u", this, tex_id);
+ 
+-  glBindTexture (GL_TEXTURE_2D, tex_id);
++  gl->BindTexture (GL_TEXTURE_2D, tex_id);
+ 
+   gst_video_frame_unmap (&this->v_frame);
+ }
+-- 
+2.5.0
+

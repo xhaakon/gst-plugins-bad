@@ -1,0 +1,169 @@
+From 38d360675c450ca8f89af6c42d1d0a2e85434437 Mon Sep 17 00:00:00 2001
+From: Matthew Waters <matthew@centricular.com>
+Date: Thu, 10 Sep 2015 00:07:18 +1000
+Subject: [PATCH 4/4] gtk, qt: more specifically define the compile time
+ requirements
+
+Otherwise we could include headers/configurations that will
+never been installed.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=754732
+---
+ configure.ac             | 51 +++++++++++++++++++++++++++++++++---------------
+ ext/gtk/gtkgstglwidget.c | 12 ++++++------
+ ext/qt/qtitem.cc         |  4 ++--
+ 3 files changed, 43 insertions(+), 24 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 4242b35..bb41c15 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2617,16 +2617,31 @@ HAVE_GTK3_GL="no"
+ translit(dnm, m, l) AM_CONDITIONAL(USE_GTK3, true)
+ AG_GST_CHECK_FEATURE(GTK3, [Gtk+ elements], gtk, [
+   PKG_CHECK_MODULES(GTK3, gtk+-3.0, [
+-      AC_DEFINE([HAVE_GTK3], 1, [Define if Gtk+ 3.0 is installed])
+-      HAVE_GTK3="yes"
++    AC_DEFINE([HAVE_GTK3], 1, [Define if Gtk+ 3.0 is installed])
++    HAVE_GTK3="yes"
+   ], [
+-      HAVE_GTK3="no"
++    HAVE_GTK3="no"
+   ])
+   PKG_CHECK_MODULES(GTK3_GL, gtk+-3.0 >= 3.15.0, [
++    GDK_WINDOWING="no"
++    if test "x$GST_GL_HAVE_WINDOW_X11" = "x1" -a "x$GST_GL_HAVE_PLATFORM_GLX" = "x1"; then
++      PKG_CHECK_MODULES(GTK3_X11, gtk+-x11-3.0, [
++        GTK3_CFLAGS="$GTK3_CFLAGS $GTK3_X11_CFLAGS"
++        GTK3_LIBS="$GTK3_LIBS $GTK3_X11_LIBS"
++        GDK_WINDOWING="yes"
++      ], [AC_MSG_NOTICE([Could not find Gtk X11 integration])])
++    fi
++    if test "x$GST_GL_HAVE_WINDOW_WAYLAND" = "x1" -a "x$GST_GL_HAVE_PLATFORM_EGL" = "x1"; then
++      PKG_CHECK_MODULES(GTK3_WAYLAND, gtk+-wayland-3.0, [
++        GTK3_CFLAGS="$GTK3_CFLAGS $GTK3_WAYLAND_CFLAGS"
++        GTK3_LIBS="$GTK3_LIBS $GTK3_WAYLAND_LIBS"
++        GDK_WINDOWING="yes"
++      ], [AC_MSG_NOTICE([Could not find Gtk Wayland integration])])
++    fi
++    if test "x$GDK_WINDOWING" = "xyes"; then
+       AC_DEFINE([HAVE_GTK3_GL], 1, [Define if Gtk+ 3.0 GL is installed])
+-      if test "x$HAVE_GL" = "xyes"; then
+-        HAVE_GTK3_GL="yes"
+-      fi
++      HAVE_GTK3_GL="yes"
++    fi
+   ], [
+       HAVE_GTK3_GL="no"
+   ])
+@@ -2648,19 +2663,23 @@ AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
+       else
+         HAVE_QT="yes"
+         HAVE_QT_WINDOWING="no"
+-        PKG_CHECK_MODULES(QT_X11, Qt5X11Extras, [
+-          AC_DEFINE([HAVE_QT_X11], [], [Define if Qt X11 integration is installed])
++        if test "x$GST_GL_HAVE_WINDOW_X11" = "x1" -a "x$GST_GL_HAVE_PLATFORM_GLX" = "x1"; then
++          PKG_CHECK_MODULES(QT_X11, Qt5X11Extras, [
++            AC_DEFINE([HAVE_QT_X11], [], [Define if Qt X11 integration is installed])
+             QT_CFLAGS="$QT_CFLAGS $QT_X11_CFLAGS"
+             QT_LIBS="$QT_LIBS $QT_X11_LIBS"
+             HAVE_QT_WINDOWING="yes"
+-        ], [AC_MSG_NOTICE([Could not find Qt X11 integration])])
+-        PKG_CHECK_MODULES(QT_WAYLAND, Qt5WaylandClient, [
+-          AC_DEFINE([HAVE_QT_WAYLAND], [],
+-              [Define if Qt Wayland integration is installed])
+-          QT_CFLAGS="$QT_CFLAGS $QT_WAYLAND_CFLAGS"
+-          QT_LIBS="$QT_LIBS $QT_WAYLAND_LIBS"
+-          HAVE_QT_WINDOWING="yes"
+-        ], [AC_MSG_NOTICE([Could not find Qt Wayland integration])])
++          ], [AC_MSG_NOTICE([Could not find Qt X11 integration])])
++        fi
++        if test "x$GST_GL_HAVE_WINDOW_WAYLAND" = "x1" -a "x$GST_GL_HAVE_PLATFORM_EGL" = "x1"; then
++          PKG_CHECK_MODULES(QT_WAYLAND, Qt5WaylandClient, [
++            AC_DEFINE([HAVE_QT_WAYLAND], [],
++                [Define if Qt Wayland integration is installed])
++            QT_CFLAGS="$QT_CFLAGS $QT_WAYLAND_CFLAGS"
++            QT_LIBS="$QT_LIBS $QT_WAYLAND_LIBS"
++            HAVE_QT_WINDOWING="yes"
++          ], [AC_MSG_NOTICE([Could not find Qt Wayland integration])])
++        fi
+         if test "x$HAVE_QT_WINDOWING" = "xno"; then
+           AC_MSG_WARN([Could not find any Qt Windowing integration])
+           HAVE_QT="no"
+diff --git a/ext/gtk/gtkgstglwidget.c b/ext/gtk/gtkgstglwidget.c
+index 79599b4..164fca3 100644
+--- a/ext/gtk/gtkgstglwidget.c
++++ b/ext/gtk/gtkgstglwidget.c
+@@ -27,13 +27,13 @@
+ #include "gtkgstglwidget.h"
+ #include <gst/video/video.h>
+ 
+-#if GST_GL_HAVE_WINDOW_X11 && defined (GDK_WINDOWING_X11)
++#if GST_GL_HAVE_WINDOW_X11 && GST_GL_HAVE_PLATFORM_GLX && defined (GDK_WINDOWING_X11)
+ #include <gdk/gdkx.h>
+ #include <gst/gl/x11/gstgldisplay_x11.h>
+ #include <gst/gl/x11/gstglcontext_glx.h>
+ #endif
+ 
+-#if GST_GL_HAVE_WINDOW_WAYLAND && defined (GDK_WINDOWING_WAYLAND)
++#if GST_GL_HAVE_WINDOW_WAYLAND && GST_GL_HAVE_PLATFORM_EGL && defined (GDK_WINDOWING_WAYLAND)
+ #include <gdk/gdkwayland.h>
+ #include <gst/gl/wayland/gstgldisplay_wayland.h>
+ #endif
+@@ -418,13 +418,13 @@ gtk_gst_gl_widget_init (GtkGstGLWidget * gst_widget)
+ 
+   display = gdk_display_get_default ();
+ 
+-#if GST_GL_HAVE_WINDOW_X11 && defined (GDK_WINDOWING_X11)
++#if GST_GL_HAVE_WINDOW_X11 && GST_GL_HAVE_PLATFORM_GLX && defined (GDK_WINDOWING_X11)
+   if (GDK_IS_X11_DISPLAY (display))
+     priv->display = (GstGLDisplay *)
+         gst_gl_display_x11_new_with_display (gdk_x11_display_get_xdisplay
+         (display));
+ #endif
+-#if GST_GL_HAVE_WINDOW_WAYLAND && defined (GDK_WINDOWING_WAYLAND)
++#if GST_GL_HAVE_WINDOW_WAYLAND && GST_GL_HAVE_PLATFORM_EGL && defined (GDK_WINDOWING_WAYLAND)
+   if (GDK_IS_WAYLAND_DISPLAY (display)) {
+     struct wl_display *wayland_display =
+         gdk_wayland_display_get_wl_display (display);
+@@ -468,7 +468,7 @@ _get_gl_context (GtkGstGLWidget * gst_widget)
+ 
+   gdk_gl_context_make_current (priv->gdk_context);
+ 
+-#if GST_GL_HAVE_WINDOW_X11 && defined (GDK_WINDOWING_X11)
++#if GST_GL_HAVE_WINDOW_X11 && GST_GL_HAVE_PLATFORM_GLX && defined (GDK_WINDOWING_X11)
+   if (GST_IS_GL_DISPLAY_X11 (priv->display)) {
+     platform = GST_GL_PLATFORM_GLX;
+     gl_api = gst_gl_context_get_current_gl_api (platform, NULL, NULL);
+@@ -479,7 +479,7 @@ _get_gl_context (GtkGstGLWidget * gst_widget)
+           platform, gl_api);
+   }
+ #endif
+-#if GST_GL_HAVE_WINDOW_WAYLAND && defined (GDK_WINDOWING_WAYLAND)
++#if GST_GL_HAVE_WINDOW_WAYLAND && GST_GL_HAVE_PLATFORM_EGL && defined (GDK_WINDOWING_WAYLAND)
+   if (GST_IS_GL_DISPLAY_WAYLAND (priv->display)) {
+     platform = GST_GL_PLATFORM_EGL;
+     gl_api = gst_gl_context_get_current_gl_api (platform, NULL, NULL);
+diff --git a/ext/qt/qtitem.cc b/ext/qt/qtitem.cc
+index 6f22000..7c53979 100644
+--- a/ext/qt/qtitem.cc
++++ b/ext/qt/qtitem.cc
+@@ -31,13 +31,13 @@
+ #include "qtitem.h"
+ #include "gstqsgtexture.h"
+ 
+-#if GST_GL_HAVE_WINDOW_X11 && defined (HAVE_QT_X11)
++#if GST_GL_HAVE_WINDOW_X11 && GST_GL_HAVE_PLATFORM_GLX && defined (HAVE_QT_X11)
+ #include <QX11Info>
+ #include <gst/gl/x11/gstgldisplay_x11.h>
+ #include <gst/gl/x11/gstglcontext_glx.h>
+ #endif
+ 
+-#if GST_GL_HAVE_WINDOW_WAYLAND && defined (HAVE_QT_WAYLAND)
++#if GST_GL_HAVE_WINDOW_WAYLAND && GST_GL_HAVE_PLATFORM_EGL && defined (HAVE_QT_WAYLAND)
+ #include <gst/gl/wayland/gstgldisplay_wayland.h>
+ #endif
+ 
+-- 
+2.5.0
+

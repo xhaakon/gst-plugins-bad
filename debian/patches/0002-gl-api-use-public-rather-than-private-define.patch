@@ -1,0 +1,30 @@
+From 591494ff5470033907e12dc695ced2c84b060aa8 Mon Sep 17 00:00:00 2001
+From: Matthew Waters <matthew@centricular.com>
+Date: Wed, 9 Sep 2015 23:53:57 +1000
+Subject: [PATCH 1/4] gl/api: use public rather than private define
+
+HAVE_IOS is only defined for the build of this module so
+attempting to use gstgl in iOS would result in incorrect GL
+includes.
+Use GST_GL_HAVE_PLATFORM_EAGL instead for choosing the iOS GL
+header.
+---
+ gst-libs/gst/gl/gstglapi.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/gst-libs/gst/gl/gstglapi.h b/gst-libs/gst/gl/gstglapi.h
+index 5ef1c65..dd44b45 100644
+--- a/gst-libs/gst/gl/gstglapi.h
++++ b/gst-libs/gst/gl/gstglapi.h
+@@ -28,7 +28,7 @@
+ #ifndef GL_GLEXT_PROTOTYPES
+ #define GL_GLEXT_PROTOTYPES 1
+ #endif
+-# ifdef HAVE_IOS
++# if GST_GL_HAVE_PLATFORM_EAGL
+ #  include <OpenGLES/ES2/gl.h>
+ #  include <OpenGLES/ES2/glext.h>
+ # else
+-- 
+2.5.0
+

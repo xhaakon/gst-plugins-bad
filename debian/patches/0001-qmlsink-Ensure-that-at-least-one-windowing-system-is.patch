@@ -1,0 +1,72 @@
+From 77f68f6e108c9712792f92d8a9b92e66efc4a4fb Mon Sep 17 00:00:00 2001
+From: Nirbheek Chauhan <nirbheek@centricular.com>
+Date: Fri, 7 Aug 2015 17:27:48 +0530
+Subject: [PATCH] qmlsink: Ensure that at least one windowing system is
+ available
+
+Otherwise, we'll just crash at runtime because the gl context is NULL
+
+https://bugzilla.gnome.org/show_bug.cgi?id=754108
+---
+ configure.ac     | 17 +++++++++++++++--
+ ext/qt/qtitem.cc |  4 ++--
+ 2 files changed, 17 insertions(+), 4 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index d8d0109..caaf3ec 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2647,13 +2647,26 @@ AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
+         HAVE_QT="no"
+       else
+         HAVE_QT="yes"
++        HAVE_QT_WINDOWING="no"
+         PKG_CHECK_MODULES(QT_X11, Qt5X11Extras, [
+ 	AC_DEFINE([HAVE_QT_X11], [], [Define if Qt X11 integration is installed])
+ 	    QT_CFLAGS="$QT_CFLAGS $QT_X11_CFLAGS"
+             QT_LIBS="$QT_LIBS $QT_X11_LIBS"
+-            AC_SUBST([QT_CFLAGS])
+-            AC_SUBST([QT_LIBS])
++            HAVE_QT_WINDOWING="yes"
+         ], [AC_MSG_NOTICE([Could not find Qt X11 integration])])
++        PKG_CHECK_MODULES(QT_WAYLAND, Qt5WaylandClient, [
++	AC_DEFINE([HAVE_QT_WAYLAND], [],
++              [Define if Qt Wayland integration is installed])
++	    QT_CFLAGS="$QT_CFLAGS $QT_WAYLAND_CFLAGS"
++            QT_LIBS="$QT_LIBS $QT_WAYLAND_LIBS"
++            HAVE_QT_WINDOWING="yes"
++        ], [AC_MSG_NOTICE([Could not find Qt Wayland integration])])
++        if test "x$HAVE_QT_WINDOWING" = "xno"; then
++          AC_MSG_WARN([Could not find any Qt Windowing integration])
++          HAVE_QT="no"
++        fi
++        AC_SUBST([QT_CFLAGS])
++        AC_SUBST([QT_LIBS])
+       fi
+   ], [
+       HAVE_QT="no"
+diff --git a/ext/qt/qtitem.cc b/ext/qt/qtitem.cc
+index 9e9e287..6f22000 100644
+--- a/ext/qt/qtitem.cc
++++ b/ext/qt/qtitem.cc
+@@ -37,7 +37,7 @@
+ #include <gst/gl/x11/gstglcontext_glx.h>
+ #endif
+ 
+-#if GST_GL_HAVE_WINDOW_WAYLAND
++#if GST_GL_HAVE_WINDOW_WAYLAND && defined (HAVE_QT_WAYLAND)
+ #include <gst/gl/wayland/gstgldisplay_wayland.h>
+ #endif
+ 
+@@ -273,7 +273,7 @@ QtGLVideoItem::onSceneGraphInitialized ()
+           platform, gl_api);
+   }
+ #endif
+-#if GST_GL_HAVE_WINDOW_WAYLAND
++#if GST_GL_HAVE_WINDOW_WAYLAND && defined (HAVE_QT_WAYLAND)
+   if (GST_IS_GL_DISPLAY_WAYLAND (this->priv->display)) {
+     platform = GST_GL_PLATFORM_EGL;
+     gl_api = gst_gl_context_get_current_gl_api (platform, NULL, NULL);
+-- 
+2.5.0
+
