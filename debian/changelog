@@ -1,3 +1,12 @@
+gst-plugins-bad1.0 (1.5.90-1ubuntu3) wily; urgency=medium
+
+  * [4bb077f] Revert "Define GL_GLEXT_LEGACY and GLX_GLXECT_LEGACY"
+  * [d32f945] Disable glx when we're disabling opengl too, per upstream.
+  * [7412cd2] Cherry-pick a bunch of patches from upstream to properly fix
+    building without opengl.  This supersedes our previous distro patch.
+
+ -- Iain Lane <iain.lane@canonical.com>  Thu, 10 Sep 2015 16:28:40 +0100
+
 gst-plugins-bad1.0 (1.5.90-1ubuntu2) wily; urgency=medium
 
   * Build-Depend on mesa-common-dev since we need glx.h everywhere.
