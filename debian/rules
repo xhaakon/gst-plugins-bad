@@ -219,7 +219,7 @@ DEB_CONFIGURE_EXTRA_FLAGS += --enable-gtk-doc
 endif
 
 ifneq (,$(findstring $(DEB_HOST_ARCH),armhf))
-DEB_CONFIGURE_EXTRA_FLAGS += --disable-opengl
+DEB_CONFIGURE_EXTRA_FLAGS += --disable-opengl --disable-glx
 endif
 
 common-binary-fixup-arch::
