@@ -117,6 +117,8 @@ srcpad caps.</p></td>
                                                    gboolean           *  at_least_one_alpha);
 
   gboolean           preserve_update_caps_result;
+
+  GstCaps           *sink_non_alpha_caps;
 };
 </pre>
 <div class="refsect3">
@@ -172,6 +174,11 @@ Lets subclasses decide of the best common format to use.</p></td>
 of the <code class="function">update_caps()</code> method should not be further modified
 by GstVideoAggregator by removing fields.</p></td>
 <td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> *<em class="structfield"><code><a name="GstVideoAggregatorClass.sink-non-alpha-caps"></a>sink_non_alpha_caps</code></em>;</p></td>
+<td> </td>
+<td> </td>
 </tr>
 </tbody>
 </table></div>

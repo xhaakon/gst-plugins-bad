@@ -167,7 +167,6 @@ am__DEPENDENCIES_1 =
 libgstuvch264_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(top_builddir)/gst-libs/gst/basecamerabinsrc/libgstbasecamerabinsrc-@GST_API_VERSION@.la
 am_libgstuvch264_la_OBJECTS = libgstuvch264_la-gstuvch264.lo \
 	libgstuvch264_la-gstuvch264_mjpgdemux.lo \
@@ -420,12 +419,14 @@ GST_PLUGIN_LIBTOOLFLAGS = @GST_PLUGIN_LIBTOOLFLAGS@
 GST_PREFIX = @GST_PREFIX@
 GST_REVISION = @GST_REVISION@
 GST_TOOLS_DIR = @GST_TOOLS_DIR@
-GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
-GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
 GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
 GTK3_GL_LIBS = @GTK3_GL_LIBS@
 GTK3_LIBS = @GTK3_LIBS@
+GTK3_WAYLAND_CFLAGS = @GTK3_WAYLAND_CFLAGS@
+GTK3_WAYLAND_LIBS = @GTK3_WAYLAND_LIBS@
+GTK3_X11_CFLAGS = @GTK3_X11_CFLAGS@
+GTK3_X11_LIBS = @GTK3_X11_LIBS@
 GTKDOC_CHECK = @GTKDOC_CHECK@
 GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
 GTKDOC_DEPS_LIBS = @GTKDOC_DEPS_LIBS@
@@ -608,6 +609,8 @@ PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_VERSION = @PYTHON_VERSION@
 QT_CFLAGS = @QT_CFLAGS@
 QT_LIBS = @QT_LIBS@
+QT_WAYLAND_CFLAGS = @QT_WAYLAND_CFLAGS@
+QT_WAYLAND_LIBS = @QT_WAYLAND_LIBS@
 QT_X11_CFLAGS = @QT_X11_CFLAGS@
 QT_X11_LIBS = @QT_X11_LIBS@
 RANLIB = @RANLIB@
@@ -747,6 +750,7 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 pyexecdir = @pyexecdir@
 pythondir = @pythondir@
+runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -769,7 +773,6 @@ libgstuvch264_la_SOURCES = gstuvch264.c \
 libgstuvch264_la_CFLAGS = $(GST_PLUGINS_BAD_CFLAGS) \
 			    $(GST_PLUGINS_BASE_CFLAGS) \
 	  		    $(GST_BASE_CFLAGS) \
-			    $(GST_VIDEO_CFLAGS) \
 			    $(GST_CFLAGS) \
 			    $(G_UDEV_CFLAGS) \
 			    $(LIBUSB_CFLAGS) \
@@ -778,9 +781,8 @@ libgstuvch264_la_CFLAGS = $(GST_PLUGINS_BAD_CFLAGS) \
 libgstuvch264_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstuvch264_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 libgstuvch264_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) \
+			    -lgstvideo-$(GST_API_VERSION) \
 			    $(GST_BASE_LIBS) \
-			    $(GST_PLUGINS_BASE_LIBS) \
-			    $(GST_VIDEO_LIBS) \
 			    $(GST_LIBS) \
 			    $(G_UDEV_LIBS) \
 			    $(LIBUSB_LIBS) \
