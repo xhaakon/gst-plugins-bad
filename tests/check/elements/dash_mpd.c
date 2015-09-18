@@ -1272,6 +1272,109 @@ GST_START_TEST
 GST_END_TEST;
 
 /*
+ * Test parsing ContentProtection element that has no value attribute
+ */
+GST_START_TEST (dash_mpdparser_contentProtection_no_value)
+{
+  GstPeriodNode *periodNode;
+  GstAdaptationSetNode *adaptationSet;
+  GstRepresentationBaseType *representationBase;
+  GstDescriptorType *contentProtection;
+  const gchar *xml =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+      "<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\""
+      "     profiles=\"urn:mpeg:dash:profile:isoff-main:2011\">"
+      "  <Period>"
+      "    <AdaptationSet>"
+      "      <ContentProtection schemeIdUri=\"urn:mpeg:dash:mp4protection:2011\" value=\"cenc\"/>"
+      "      <ContentProtection xmlns:mas=\"urn:marlin:mas:1-0:services:schemas:mpd\" schemeIdUri=\"urn:uuid:5e629af5-38da-4063-8977-97ffbd9902d4\">"
+      "	      <mas:MarlinContentIds>"
+      "	        <mas:MarlinContentId>urn:marlin:kid:02020202020202020202020202020202</mas:MarlinContentId>"
+      "       </mas:MarlinContentIds>"
+      "     </ContentProtection>" "</AdaptationSet></Period></MPD>";
+
+  gboolean ret;
+  GstMpdClient *mpdclient = gst_mpd_client_new ();
+  gchar *str;
+
+  ret = gst_mpd_parse (mpdclient, xml, (gint) strlen (xml));
+  assert_equals_int (ret, TRUE);
+
+  periodNode = (GstPeriodNode *) mpdclient->mpd_node->Periods->data;
+  adaptationSet = (GstAdaptationSetNode *) periodNode->AdaptationSets->data;
+  representationBase = adaptationSet->RepresentationBase;
+  assert_equals_int (g_list_length (representationBase->ContentProtection), 2);
+  contentProtection =
+      (GstDescriptorType *) g_list_nth (representationBase->ContentProtection,
+      1)->data;
+  assert_equals_string (contentProtection->schemeIdUri,
+      "urn:uuid:5e629af5-38da-4063-8977-97ffbd9902d4");
+  fail_if (contentProtection->value == NULL);
+  /* We can't do a simple compare of value (which should be an XML dump
+     of the ContentProtection element), because the whitespace
+     formatting from xmlDump might differ between versions of libxml */
+  str = strstr (contentProtection->value, "<ContentProtection");
+  fail_if (str == NULL);
+  str = strstr (contentProtection->value, "<mas:MarlinContentIds>");
+  fail_if (str == NULL);
+  str = strstr (contentProtection->value, "<mas:MarlinContentId>");
+  fail_if (str == NULL);
+  str =
+      strstr (contentProtection->value,
+      "urn:marlin:kid:02020202020202020202020202020202");
+  fail_if (str == NULL);
+  str = strstr (contentProtection->value, "</ContentProtection>");
+  fail_if (str == NULL);
+  gst_mpd_client_free (mpdclient);
+}
+
+GST_END_TEST;
+
+/*
+ * Test parsing ContentProtection element that has no value attribute
+ * nor an XML encoding
+ */
+GST_START_TEST (dash_mpdparser_contentProtection_no_value_no_encoding)
+{
+  GstPeriodNode *periodNode;
+  GstAdaptationSetNode *adaptationSet;
+  GstRepresentationBaseType *representationBase;
+  GstDescriptorType *contentProtection;
+  const gchar *xml =
+      "<?xml version=\"1.0\"?>"
+      "<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\""
+      "     profiles=\"urn:mpeg:dash:profile:isoff-main:2011\">"
+      "  <Period>"
+      "    <AdaptationSet>"
+      "      <ContentProtection schemeIdUri=\"urn:mpeg:dash:mp4protection:2011\" value=\"cenc\"/>"
+      "      <ContentProtection xmlns:mas=\"urn:marlin:mas:1-0:services:schemas:mpd\" schemeIdUri=\"urn:uuid:5e629af5-38da-4063-8977-97ffbd9902d4\">"
+      "	      <mas:MarlinContentIds>"
+      "	        <mas:MarlinContentId>urn:marlin:kid:02020202020202020202020202020202</mas:MarlinContentId>"
+      "       </mas:MarlinContentIds>"
+      "     </ContentProtection>" "</AdaptationSet></Period></MPD>";
+
+  gboolean ret;
+  GstMpdClient *mpdclient = gst_mpd_client_new ();
+
+  ret = gst_mpd_parse (mpdclient, xml, (gint) strlen (xml));
+  assert_equals_int (ret, TRUE);
+
+  periodNode = (GstPeriodNode *) mpdclient->mpd_node->Periods->data;
+  adaptationSet = (GstAdaptationSetNode *) periodNode->AdaptationSets->data;
+  representationBase = adaptationSet->RepresentationBase;
+  assert_equals_int (g_list_length (representationBase->ContentProtection), 2);
+  contentProtection =
+      (GstDescriptorType *) g_list_nth (representationBase->ContentProtection,
+      1)->data;
+  assert_equals_string (contentProtection->schemeIdUri,
+      "urn:uuid:5e629af5-38da-4063-8977-97ffbd9902d4");
+  fail_if (contentProtection->value == NULL);
+  gst_mpd_client_free (mpdclient);
+}
+
+GST_END_TEST;
+
+/*
  * Test parsing Period AdaptationSet Accessibility attributes
  *
  */
@@ -3612,6 +3715,7 @@ GST_START_TEST (dash_mpdparser_fragments)
   GstClockTime nextFragmentDuration;
   GstClockTime nextFragmentTimestamp;
   GstClockTime nextFragmentTimestampEnd;
+  GstClockTime periodStartTime;
   GstClockTime expectedDuration;
   GstClockTime expectedTimestamp;
   GstClockTime expectedTimestampEnd;
@@ -3651,8 +3755,8 @@ GST_START_TEST (dash_mpdparser_fragments)
 
   /* expected duration of the next fragment */
   expectedDuration = duration_to_ms (0, 0, 0, 3, 3, 20, 0);
-  expectedTimestamp = duration_to_ms (0, 0, 0, 0, 0, 10, 0);
-  expectedTimestampEnd = duration_to_ms (0, 0, 0, 3, 3, 30, 0);
+  expectedTimestamp = duration_to_ms (0, 0, 0, 0, 0, 0, 0);
+  expectedTimestampEnd = duration_to_ms (0, 0, 0, 3, 3, 20, 0);
 
   ret = gst_mpd_client_get_next_fragment (mpdclient, 0, &fragment);
   assert_equals_int (ret, TRUE);
@@ -3662,6 +3766,9 @@ GST_START_TEST (dash_mpdparser_fragments)
   assert_equals_uint64 (fragment.duration, expectedDuration * GST_MSECOND);
   assert_equals_uint64 (fragment.timestamp, expectedTimestamp * GST_MSECOND);
   gst_media_fragment_info_clear (&fragment);
+
+  periodStartTime = gst_mpd_parser_get_period_start_time (mpdclient);
+  assert_equals_uint64 (periodStartTime, 10 * GST_SECOND);
 
   nextFragmentDuration =
       gst_mpd_client_get_next_fragment_duration (mpdclient, activeStream);
@@ -3799,7 +3906,7 @@ GST_START_TEST (dash_mpdparser_inherited_segmentURL)
    * We expect duration to be 110
    */
   expectedDuration = duration_to_ms (0, 0, 0, 0, 0, 110, 0);
-  expectedTimestamp = duration_to_ms (0, 0, 0, 0, 0, 10, 0);
+  expectedTimestamp = duration_to_ms (0, 0, 0, 0, 0, 0, 0);
 
   /* the representation contains 2 segments
    *  - one inherited from AdaptationSet (duration 100)
@@ -3904,7 +4011,7 @@ GST_START_TEST (dash_mpdparser_segment_list)
    * We expect it to be limited to period duration.
    */
   expectedDuration = duration_to_ms (0, 0, 0, 3, 3, 20, 0);
-  expectedTimestamp = duration_to_ms (0, 0, 0, 0, 0, 10, 0);
+  expectedTimestamp = duration_to_ms (0, 0, 0, 0, 0, 0, 0);
 
   ret = gst_mpd_client_get_next_fragment (mpdclient, 0, &fragment);
   assert_equals_int (ret, TRUE);
@@ -3936,6 +4043,7 @@ GST_START_TEST (dash_mpdparser_segment_template)
   GstMediaFragmentInfo fragment;
   GstClockTime expectedDuration;
   GstClockTime expectedTimestamp;
+  GstClockTime periodStartTime;
   const gchar *xml =
       "<?xml version=\"1.0\"?>"
       "<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\""
@@ -3979,7 +4087,14 @@ GST_START_TEST (dash_mpdparser_segment_template)
    * We expect it to not be limited to period duration.
    */
   expectedDuration = duration_to_ms (0, 0, 0, 0, 0, 12000, 0);
-  expectedTimestamp = duration_to_ms (0, 0, 0, 0, 0, 10, 0);
+
+  /* while the period starts at 10ms, the fragment timestamp is supposed to be
+   * 0ms. timestamps are starting from 0 at every period, and only the overall
+   * composition of periods should consider the period start timestamp. In
+   * dashdemux this is done by mapping the 0 fragment timestamp to a stream
+   * time equal to the period start time.
+   */
+  expectedTimestamp = duration_to_ms (0, 0, 0, 0, 0, 0, 0);
 
   ret = gst_mpd_client_get_next_fragment (mpdclient, 0, &fragment);
   assert_equals_int (ret, TRUE);
@@ -3992,6 +4107,9 @@ GST_START_TEST (dash_mpdparser_segment_template)
   assert_equals_int64 (fragment.index_range_end, -1);
   assert_equals_uint64 (fragment.duration, expectedDuration * GST_MSECOND);
   assert_equals_uint64 (fragment.timestamp, expectedTimestamp * GST_MSECOND);
+
+  periodStartTime = gst_mpd_parser_get_period_start_time (mpdclient);
+  assert_equals_uint64 (periodStartTime, 10 * GST_SECOND);
 
   gst_media_fragment_info_clear (&fragment);
 
@@ -4067,7 +4185,7 @@ GST_START_TEST (dash_mpdparser_segment_timeline)
 
   /* expected duration of the next fragment */
   expectedDuration = duration_to_ms (0, 0, 0, 0, 0, 2, 0);
-  expectedTimestamp = duration_to_ms (0, 0, 0, 0, 0, 13, 0);
+  expectedTimestamp = duration_to_ms (0, 0, 0, 0, 0, 3, 0);
 
   ret = gst_mpd_client_get_next_fragment (mpdclient, 0, &fragment);
   assert_equals_int (ret, TRUE);
@@ -4099,11 +4217,9 @@ GST_START_TEST (dash_mpdparser_segment_timeline)
   flow = gst_mpd_client_advance_segment (mpdclient, activeStream, TRUE);
   assert_equals_int (flow, GST_FLOW_OK);
 
-  /* third segment has a small gap after the second ends  (t=10)
-   * We also need to take into consideration period's start (10)
-   */
+  /* third segment has a small gap after the second ends  (t=10) */
   expectedDuration = duration_to_ms (0, 0, 0, 0, 0, 3, 0);
-  expectedTimestamp = duration_to_ms (0, 0, 0, 0, 0, 20, 0);
+  expectedTimestamp = duration_to_ms (0, 0, 0, 0, 0, 10, 0);
 
   /* check third segment */
   ret = gst_mpd_client_get_next_fragment (mpdclient, 0, &fragment);
@@ -4344,6 +4460,9 @@ dash_suite (void)
       dash_mpdparser_period_adaptationSet_representationBase_audioChannelConfiguration);
   tcase_add_test (tc_simpleMPD,
       dash_mpdparser_period_adaptationSet_representationBase_contentProtection);
+  tcase_add_test (tc_simpleMPD, dash_mpdparser_contentProtection_no_value);
+  tcase_add_test (tc_simpleMPD,
+      dash_mpdparser_contentProtection_no_value_no_encoding);
   tcase_add_test (tc_simpleMPD,
       dash_mpdparser_period_adaptationSet_accessibility);
   tcase_add_test (tc_simpleMPD, dash_mpdparser_period_adaptationSet_role);

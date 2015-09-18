@@ -110,7 +110,7 @@
 </tbody>
 </table></div>
 </div>
-<a name="GstOpenalSrc"></a><a name="GstOpusDec"></a><a name="GstOpusEnc"></a><div class="refsect1">
+<a name="GstOpenalSrc"></a><a name="GstOpencvTextOverlay"></a><a name="GstOpusDec"></a><a name="GstOpusEnc"></a><div class="refsect1">
 <a name="gst-plugins-bad-plugins-opusenc.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
@@ -138,7 +138,7 @@
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.58.9.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.58.10.2.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -164,7 +164,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.58.9.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.58.10.2.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -232,7 +232,7 @@
 <div class="refsect2">
 <a name="GstOpusEnc--audio"></a><h3>The <code class="literal">“audio”</code> property</h3>
 <pre class="programlisting">  “audio”                    <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
-<p>Audio or voice (obsolete, use audio-type).</p>
+<p>Audio or voice (DEPRECATED: use audio-type).</p>
 <p>Flags: Read / Write</p>
 <p>Default value: TRUE</p>
 </div>
@@ -257,7 +257,7 @@
 <div class="refsect2">
 <a name="GstOpusEnc--cbr"></a><h3>The <code class="literal">“cbr”</code> property</h3>
 <pre class="programlisting">  “cbr”                      <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
-<p>Constant bit rate.</p>
+<p>Constant bit rate (DEPRECATED: use bitrate-type).</p>
 <p>Flags: Read / Write</p>
 <p>Default value: TRUE</p>
 </div>
@@ -274,7 +274,7 @@
 <div class="refsect2">
 <a name="GstOpusEnc--constrained-vbr"></a><h3>The <code class="literal">“constrained-vbr”</code> property</h3>
 <pre class="programlisting">  “constrained-vbr”          <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
-<p>Constrained VBR.</p>
+<p>Constrained VBR (DEPRECATED: use bitrate-type).</p>
 <p>Flags: Read / Write</p>
 <p>Default value: TRUE</p>
 </div>
