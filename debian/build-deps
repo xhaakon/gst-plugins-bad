@@ -84,6 +84,5 @@ libxml2-dev (>= 2.8)
 libxvidcore-dev
 libzbar-dev (>= 0.9)
 libzvbi-dev
-mesa-common-dev
 nettle-dev
 pkg-config (>= 0.11.0)
