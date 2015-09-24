@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.5.90],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.5.91],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -33,6 +33,9 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])],
   [AM_DEFAULT_VERBOSITY=1
    AC_SUBST(AM_DEFAULT_VERBOSITY)])
 
+dnl PKG_CONFIG_SYSROOT_DIR is a valid environment variable
+m4_pattern_allow(PKG_CONFIG_SYSROOT_DIR)
+
 dnl our libraries and install dirs use GST_API_VERSION in the filename
 dnl to allow side-by-side installation of different API versions
 GST_API_VERSION=1.0
@@ -48,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 590, 0, 590)
+AS_LIBTOOL(GST, 591, 0, 591)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.5.90
-GSTPB_REQ=1.5.90
+GST_REQ=1.5.91
+GSTPB_REQ=1.5.91
 
 dnl *** autotools stuff ****
 
@@ -1702,7 +1705,6 @@ dnl *** UVC H264 ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_UVCH264, true)
 AG_GST_CHECK_FEATURE(UVCH264, [UVC H264], uvch264, [
   AC_CHECK_HEADER(linux/uvcvideo.h, HAVE_UVCVIDEO_H=yes, HAVE_UVCVIDEO_H=no)
-  AG_GST_PKG_CHECK_MODULES(GST_VIDEO, gstreamer-video-1.0)
   PKG_CHECK_MODULES(G_UDEV, gudev-1.0 , [
           AC_DEFINE([HAVE_GUDEV], 1, [Define if gudev is installed])
           HAVE_GUDEV="yes" ],
@@ -1822,9 +1824,17 @@ translit(dnm, m, l) AM_CONDITIONAL(USE_CURL, true)
 AG_GST_CHECK_FEATURE(CURL, [Curl plugin], curl, [
   PKG_CHECK_MODULES(CURL, libcurl >= 7.35.0, [
     HAVE_CURL="yes"
-    AC_CHECK_HEADERS([unistd.h sys/socket.h sys/types.h netinet/in.h netinet/ip.h netinet/tcp.h fcntl.h], [ ], [
+    AC_CHECK_HEADERS([unistd.h sys/socket.h sys/types.h netinet/in.h netinet/tcp.h fcntl.h], [ ], [
       AC_CHECK_HEADERS([unistd.h sys/types.h winsock2.h ws2tcpip.h fcntl.h], [ ], [HAVE_CURL="no"])
     ])
+    AC_CHECK_HEADERS([netinet/ip.h], [], [HAVE_CURL="no"],
+    [[#ifdef HAVE_SYS_TYPES_H
+     # include <sys/types.h>
+     #endif
+     #ifdef HAVE_NETINET_IN_H
+     # include <netinet/in.h>
+     #endif
+    ]])
     AC_MSG_CHECKING([for socket support needed by curlsink])
     AC_MSG_RESULT($HAVE_CURL)
   ], [
@@ -2487,9 +2497,15 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
   AC_SUBST(OPENCV_PREFIX)
   AC_SUBST(OPENCV_CFLAGS)
   AC_SUBST(OPENCV_LIBS)
-  AC_CHECK_FILE([$OPENCV_PREFIX/share/opencv/],
-              [AC_DEFINE_UNQUOTED(OPENCV_PATH_NAME, ["opencv"], [OpenCV path name])],
-              [AC_DEFINE_UNQUOTED(OPENCV_PATH_NAME, ["OpenCV"], [OpenCV path name])])
+  dnl the OpenCV prefix is used at runtime for some object properties, and also
+  dnl used here to detect which directory is the correct one. For the second
+  dnl case, make sure the right sysroot is used, ensuring correct behavior
+  dnl during cross compilation.
+  if test -d "$PKG_CONFIG_SYSROOT_DIR/$OPENCV_PREFIX/share/opencv/"; then
+    AC_DEFINE_UNQUOTED(OPENCV_PATH_NAME, ["opencv"], [OpenCV path name])
+  else
+    AC_DEFINE_UNQUOTED(OPENCV_PATH_NAME, ["OpenCV"], [OpenCV path name])
+  fi
 ])
 
 dnl *** OpenEXR ***
@@ -2601,16 +2617,31 @@ HAVE_GTK3_GL="no"
 translit(dnm, m, l) AM_CONDITIONAL(USE_GTK3, true)
 AG_GST_CHECK_FEATURE(GTK3, [Gtk+ elements], gtk, [
   PKG_CHECK_MODULES(GTK3, gtk+-3.0, [
-      AC_DEFINE([HAVE_GTK3], 1, [Define if Gtk+ 3.0 is installed])
-      HAVE_GTK3="yes"
+    AC_DEFINE([HAVE_GTK3], 1, [Define if Gtk+ 3.0 is installed])
+    HAVE_GTK3="yes"
   ], [
-      HAVE_GTK3="no"
+    HAVE_GTK3="no"
   ])
   PKG_CHECK_MODULES(GTK3_GL, gtk+-3.0 >= 3.15.0, [
+    GDK_WINDOWING="no"
+    if test "x$GST_GL_HAVE_WINDOW_X11" = "x1" -a "x$GST_GL_HAVE_PLATFORM_GLX" = "x1"; then
+      PKG_CHECK_MODULES(GTK3_X11, gtk+-x11-3.0, [
+        GTK3_CFLAGS="$GTK3_CFLAGS $GTK3_X11_CFLAGS"
+        GTK3_LIBS="$GTK3_LIBS $GTK3_X11_LIBS"
+        GDK_WINDOWING="yes"
+      ], [AC_MSG_NOTICE([Could not find Gtk X11 integration])])
+    fi
+    if test "x$GST_GL_HAVE_WINDOW_WAYLAND" = "x1" -a "x$GST_GL_HAVE_PLATFORM_EGL" = "x1"; then
+      PKG_CHECK_MODULES(GTK3_WAYLAND, gtk+-wayland-3.0, [
+        GTK3_CFLAGS="$GTK3_CFLAGS $GTK3_WAYLAND_CFLAGS"
+        GTK3_LIBS="$GTK3_LIBS $GTK3_WAYLAND_LIBS"
+        GDK_WINDOWING="yes"
+      ], [AC_MSG_NOTICE([Could not find Gtk Wayland integration])])
+    fi
+    if test "x$GDK_WINDOWING" = "xyes"; then
       AC_DEFINE([HAVE_GTK3_GL], 1, [Define if Gtk+ 3.0 GL is installed])
-      if test "x$HAVE_GL" = "xyes"; then
-        HAVE_GTK3_GL="yes"
-      fi
+      HAVE_GTK3_GL="yes"
+    fi
   ], [
       HAVE_GTK3_GL="no"
   ])
@@ -2620,7 +2651,7 @@ AM_CONDITIONAL(USE_GTK3_GL, test "x$HAVE_GTK3_GL" = "xyes")
 dnl *** Qt ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_QT, true)
 AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
-  PKG_CHECK_MODULES(QT, Qt5Core Qt5Gui Qt5Quick, [
+  PKG_CHECK_MODULES(QT, Qt5Core Qt5Gui Qt5Quick >= 5.4.0, [
       QT_PATH=`$PKG_CONFIG --variable=exec_prefix Qt5Core`
       QT_HOST_PATH=`$PKG_CONFIG --variable=host_bins Qt5Core`
       AC_PATH_PROGS(MOC, [moc-qt5 moc], moc, ["${QT_HOST_PATH}" "${QT_PATH}/bin"])
@@ -2631,13 +2662,30 @@ AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
         HAVE_QT="no"
       else
         HAVE_QT="yes"
-        PKG_CHECK_MODULES(QT_X11, Qt5X11Extras, [
-	AC_DEFINE([HAVE_QT_X11], [], [Define if Qt X11 integration is installed])
-	    QT_CFLAGS="$QT_CFLAGS $QT_X11_CFLAGS"
+        HAVE_QT_WINDOWING="no"
+        if test "x$GST_GL_HAVE_WINDOW_X11" = "x1" -a "x$GST_GL_HAVE_PLATFORM_GLX" = "x1"; then
+          PKG_CHECK_MODULES(QT_X11, Qt5X11Extras, [
+            AC_DEFINE([HAVE_QT_X11], [], [Define if Qt X11 integration is installed])
+            QT_CFLAGS="$QT_CFLAGS $QT_X11_CFLAGS"
             QT_LIBS="$QT_LIBS $QT_X11_LIBS"
-            AC_SUBST([QT_CFLAGS])
-            AC_SUBST([QT_LIBS])
-        ], [AC_MSG_NOTICE([Could not find Qt X11 integration])])
+            HAVE_QT_WINDOWING="yes"
+          ], [AC_MSG_NOTICE([Could not find Qt X11 integration])])
+        fi
+        if test "x$GST_GL_HAVE_WINDOW_WAYLAND" = "x1" -a "x$GST_GL_HAVE_PLATFORM_EGL" = "x1"; then
+          PKG_CHECK_MODULES(QT_WAYLAND, Qt5WaylandClient, [
+            AC_DEFINE([HAVE_QT_WAYLAND], [],
+                [Define if Qt Wayland integration is installed])
+            QT_CFLAGS="$QT_CFLAGS $QT_WAYLAND_CFLAGS"
+            QT_LIBS="$QT_LIBS $QT_WAYLAND_LIBS"
+            HAVE_QT_WINDOWING="yes"
+          ], [AC_MSG_NOTICE([Could not find Qt Wayland integration])])
+        fi
+        if test "x$HAVE_QT_WINDOWING" = "xno"; then
+          AC_MSG_WARN([Could not find any Qt Windowing integration])
+          HAVE_QT="no"
+        fi
+        AC_SUBST([QT_CFLAGS])
+        AC_SUBST([QT_LIBS])
       fi
   ], [
       HAVE_QT="no"
