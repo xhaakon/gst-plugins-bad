@@ -3,7 +3,7 @@
   <description>Video filters in gst-plugins-bad</description>
   <filename>../../gst/videofilters/.libs/libgstvideofiltersbad.so</filename>
   <basename>libgstvideofiltersbad.so</basename>
-  <version>1.4.5</version>
+  <version>1.5.91</version>
   <license>LGPL</license>
   <source>gst-plugins-bad</source>
   <package>GStreamer Bad Plug-ins</package>
@@ -62,13 +62,13 @@
           <name>sink</name>
           <direction>sink</direction>
           <presence>always</presence>
-          <details>video/x-raw, format=(string){ I420, Y444, Y42B, Y41B, YUY2, UYVY, AYUV }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</details>
+          <details>video/x-raw, format=(string){ I420, Y444, Y42B, Y41B, YUY2, UYVY, AYUV, NV12, NV21, YV12 }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</details>
         </caps>
         <caps>
           <name>src</name>
           <direction>source</direction>
           <presence>always</presence>
-          <details>video/x-raw, format=(string){ I420, Y444, Y42B, Y41B, YUY2, UYVY, AYUV }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</details>
+          <details>video/x-raw, format=(string){ I420, Y444, Y42B, Y41B, YUY2, UYVY, AYUV, NV12, NV21, YV12 }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</details>
         </caps>
       </pads>
     </element>

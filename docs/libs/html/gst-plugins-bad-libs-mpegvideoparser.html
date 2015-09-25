@@ -2,13 +2,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>GStreamer Bad Plugins 1.0 Library Reference Manual: mpegvideoparser</title>
+<title>mpegvideoparser: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="codecparsers.html" title="Bitstream parsing Library">
-<link rel="prev" href="gst-plugins-bad-libs-h264parser.html" title="h264parser">
+<link rel="prev" href="gst-plugins-bad-libs-jpegparser.html" title="jpegparser">
 <link rel="next" href="gst-plugins-bad-libs-mpeg4parser.html" title="mpeg4parser">
-<meta name="generator" content="GTK-Doc V1.21 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -19,7 +19,7 @@
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="codecparsers.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
-<td><a accesskey="p" href="gst-plugins-bad-libs-h264parser.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="p" href="gst-plugins-bad-libs-jpegparser.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
 <td><a accesskey="n" href="gst-plugins-bad-libs-mpeg4parser.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
@@ -198,7 +198,7 @@ bitstream parsing.</p>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-mpegvideoparser.description"></a><h2>Description</h2>
 <div class="refsect2">
-<a name="id-1.2.4.4.6.2"></a><p>
+<a name="id-1.2.4.5.6.2"></a><p>
 Provides useful functions for mpeg videos bitstream parsing.
 </p>
 </div>
@@ -218,7 +218,7 @@ offset, and if known also the size, in <em class="parameter"><code>packet</code>
 . This function will scan
 the data to find the next packet if needed.</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.2.5"></a><h4>Parameters</h4>
+<a name="id-1.2.4.5.7.2.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -252,9 +252,8 @@ next packet found</p></td>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.2.6"></a><h4>Returns</h4>
+<a name="id-1.2.4.5.7.2.6"></a><h4>Returns</h4>
 <p> TRUE if a packet start code was found, otherwise FALSE.</p>
-<p></p>
 </div>
 </div>
 <hr>
@@ -273,7 +272,7 @@ gst_mpeg_video_parse_sequence_header (<em class="parameter"><code><a class="link
  Mpeg Video Sequence Header structure members from <em class="parameter"><code>data</code></em>
 </p>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.3.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.5.7.3.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -307,9 +306,8 @@ gst_mpeg_video_parse_sequence_header (<em class="parameter"><code><a class="link
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.3.7"></a><h4>Returns</h4>
+<a name="id-1.2.4.5.7.3.7"></a><h4>Returns</h4>
 <p> <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the seqhdr could be parsed correctly, <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize.</p>
-<p></p>
 </div>
 </div>
 <hr>
@@ -328,7 +326,7 @@ gst_mpeg_video_parse_picture_header (<em class="parameter"><code><a class="link"
  Mpeg Video Picture Header structure members from <em class="parameter"><code>data</code></em>
 </p>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.4.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.5.7.4.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -361,10 +359,9 @@ gst_mpeg_video_parse_picture_header (<em class="parameter"><code><a class="link"
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.4.7"></a><h4>Returns</h4>
+<a name="id-1.2.4.5.7.4.7"></a><h4>Returns</h4>
 <p> <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the picture sequence could be parsed correctly, <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>
 otherwize.</p>
-<p></p>
 </div>
 </div>
 <hr>
@@ -384,7 +381,7 @@ gst_mpeg_video_parse_picture_extension
  Mpeg Video Picture Extension structure members from <em class="parameter"><code>data</code></em>
 </p>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.5.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.5.7.5.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -417,10 +414,9 @@ gst_mpeg_video_parse_picture_extension
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.5.7"></a><h4>Returns</h4>
+<a name="id-1.2.4.5.7.5.7"></a><h4>Returns</h4>
 <p> <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the picture extension could be parsed correctly,
 <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize.</p>
-<p></p>
 </div>
 </div>
 <hr>
@@ -439,7 +435,7 @@ gst_mpeg_video_parse_gop (<em class="parameter"><code><a class="link" href="gst-
  Mpeg Video Group of Picture structure members from <em class="parameter"><code>data</code></em>
 </p>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.6.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.5.7.6.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -472,9 +468,8 @@ gst_mpeg_video_parse_gop (<em class="parameter"><code><a class="link" href="gst-
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.6.7"></a><h4>Returns</h4>
+<a name="id-1.2.4.5.7.6.7"></a><h4>Returns</h4>
 <p> <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the gop could be parsed correctly, <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize.</p>
-<p></p>
 </div>
 </div>
 <hr>
@@ -494,7 +489,7 @@ gst_mpeg_video_parse_sequence_extension
  Mpeg Video Sequence Extension structure members from <em class="parameter"><code>data</code></em>
 </p>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.7.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.5.7.7.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -528,9 +523,8 @@ gst_mpeg_video_parse_sequence_extension
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.7.7"></a><h4>Returns</h4>
+<a name="id-1.2.4.5.7.7.7"></a><h4>Returns</h4>
 <p> <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the seqext could be parsed correctly, <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize.</p>
-<p></p>
 </div>
 </div>
 <hr>
@@ -562,7 +556,7 @@ gst_mpeg_video_parse_quant_matrix_extension
 <em class="parameter"><code>data</code></em>
 </p>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.9.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.5.7.9.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -595,10 +589,9 @@ gst_mpeg_video_parse_quant_matrix_extension
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.9.7"></a><h4>Returns</h4>
+<a name="id-1.2.4.5.7.9.7"></a><h4>Returns</h4>
 <p> <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the quant matrix extension could be parsed correctly,
 <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize.</p>
-<p></p>
 </div>
 </div>
 <hr>
@@ -626,7 +619,7 @@ raster scan order and store the resulting factors into <em class="parameter"><co
 <em class="parameter"><code>out_quant</code></em>
  arguments.</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.11.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.5.7.11.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -647,7 +640,7 @@ raster scan order and store the resulting factors into <em class="parameter"><co
 </tbody>
 </table></div>
 </div>
-<p class="since">Since 1.2</p>
+<p class="since">Since: 1.2</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -665,7 +658,7 @@ zigzag scan order and store the resulting factors into <em class="parameter"><co
 <em class="parameter"><code>out_quant</code></em>
  arguments.</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.7.12.6"></a><h4>Parameters</h4>
+<a name="id-1.2.4.5.7.12.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -686,7 +679,7 @@ zigzag scan order and store the resulting factors into <em class="parameter"><co
 </tbody>
 </table></div>
 </div>
-<p class="since">Since 1.2</p>
+<p class="since">Since: 1.2</p>
 </div>
 </div>
 <div class="refsect1">
@@ -695,7 +688,7 @@ zigzag scan order and store the resulting factors into <em class="parameter"><co
 <a name="GstMpegVideoPacketTypeCode"></a><h3>enum GstMpegVideoPacketTypeCode</h3>
 <p>Indicates the type of MPEG packet</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.8.2.4"></a><h4>Members</h4>
+<a name="id-1.2.4.5.8.2.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -777,7 +770,7 @@ zigzag scan order and store the resulting factors into <em class="parameter"><co
 exclusive though - ie, sequence packs are accumulated separately. GOP &amp;
 Picture may occur together or separately.</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.8.3.4"></a><h4>Members</h4>
+<a name="id-1.2.4.5.8.3.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -829,7 +822,7 @@ Picture may occur together or separately.</p>
 <a name="GstMpegVideoLevel"></a><h3>enum GstMpegVideoLevel</h3>
 <p>Mpeg-2 Levels.</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.8.4.4"></a><h4>Members</h4>
+<a name="id-1.2.4.5.8.4.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -874,7 +867,7 @@ Picture may occur together or separately.</p>
 <a name="GstMpegVideoProfile"></a><h3>enum GstMpegVideoProfile</h3>
 <p>Mpeg-2 Profiles.</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.8.5.4"></a><h4>Members</h4>
+<a name="id-1.2.4.5.8.5.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -933,7 +926,7 @@ Picture may occur together or separately.</p>
 <a name="GstMpegVideoPictureType"></a><h3>enum GstMpegVideoPictureType</h3>
 <p>Picture type.</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.8.6.4"></a><h4>Members</h4>
+<a name="id-1.2.4.5.8.6.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -978,7 +971,7 @@ Picture may occur together or separately.</p>
 <a name="GstMpegVideoPictureStructure"></a><h3>enum GstMpegVideoPictureStructure</h3>
 <p>Picture structure type.</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.8.7.4"></a><h4>Members</h4>
+<a name="id-1.2.4.5.8.7.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -1034,7 +1027,7 @@ Picture may occur together or separately.</p>
 </pre>
 <p>The Mpeg2 Video Sequence Header structure.</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.8.8.5"></a><h4>Members</h4>
+<a name="id-1.2.4.5.8.8.5"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -1138,7 +1131,7 @@ Picture may occur together or separately.</p>
 </pre>
 <p>The Mpeg2 Video Sequence Extension structure.</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.8.9.5"></a><h4>Members</h4>
+<a name="id-1.2.4.5.8.9.5"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -1220,7 +1213,7 @@ otherwise</p></td>
 </pre>
 <p>The Mpeg2 Video Picture Header structure.</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.8.10.5"></a><h4>Members</h4>
+<a name="id-1.2.4.5.8.10.5"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -1273,7 +1266,7 @@ of the frame: 0 or 1.</p></td>
 </pre>
 <p>The Mpeg Video Group of Picture structure.</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.8.11.5"></a><h4>Members</h4>
+<a name="id-1.2.4.5.8.11.5"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -1347,7 +1340,7 @@ of the frame: 0 or 1.</p></td>
 </pre>
 <p>The Mpeg2 Video Picture Extension structure.</p>
 <div class="refsect3">
-<a name="id-1.2.4.4.8.12.5"></a><h4>Members</h4>
+<a name="id-1.2.4.5.8.12.5"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -1470,7 +1463,6 @@ order.</p>
 </div>
 </div>
 <div class="footer">
-<hr>
-          Generated by GTK-Doc V1.21</div>
+<hr>Generated by GTK-Doc V1.24</div>
 </body>
 </html>

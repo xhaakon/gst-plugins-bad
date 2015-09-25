@@ -58,6 +58,10 @@ struct _GstWlDisplay
   gboolean own_display;
   GThread *thread;
   GstPoll *wl_fd_poll;
+
+  GMutex buffers_mutex;
+  GHashTable *buffers;
+  gboolean shutting_down;
 };
 
 struct _GstWlDisplayClass
@@ -70,6 +74,10 @@ GType gst_wl_display_get_type (void);
 GstWlDisplay *gst_wl_display_new (const gchar * name, GError ** error);
 GstWlDisplay *gst_wl_display_new_existing (struct wl_display * display,
     gboolean take_ownership, GError ** error);
+
+/* see wlbuffer.c for explanation */
+void gst_wl_display_register_buffer (GstWlDisplay * self, gpointer buf);
+void gst_wl_display_unregister_buffer (GstWlDisplay * self, gpointer buf);
 
 G_END_DECLS
 

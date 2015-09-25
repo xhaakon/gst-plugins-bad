@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad-1.4.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2014-12-18 12:07+0100\n"
+"POT-Creation-Date: 2015-09-18 19:27+0200\n"
 "PO-Revision-Date: 2014-08-29 11:28+0200\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
@@ -17,19 +17,17 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "Internal data stream error."
-msgstr "Intern datastrømfejl."
-
 msgid "format wasn't negotiated before get function"
 msgstr "format blev ikke forhandlet før hent funktion"
 
 msgid "default GStreamer sound events audiosink"
 msgstr "standardlydkanal for GStreamers lydhændelser"
 
+#, fuzzy
 msgid ""
 "GStreamer can play audio using any number of output elements. Some possible "
 "choices are osssink, pulsesink and alsasink. The audiosink can be a partial "
-"pipeline instea of just one element."
+"pipeline instead of just one element."
 msgstr ""
 "GStreamer kan afspille lyd via et antal udgangselementer. Nogle mulige valg "
 "er osssink, pulsesink og alsasink. Lydudgangen kan være en delvis datakanal "
@@ -128,6 +126,9 @@ msgstr "beskrivelse for standardvisualisering til GStreamer"
 msgid "Describes the selected visualization element."
 msgstr "Beskriver det valgte visualiseringselement."
 
+msgid "OpenCV failed to load template image"
+msgstr ""
+
 msgid "Could not read title information for DVD."
 msgstr "Kunne ikke læse titelinformation for dvd."
 
@@ -150,15 +151,6 @@ msgstr "Kunne ikke læse dvd."
 
 msgid "This file contains no playable streams."
 msgstr "Denne fil indeholder ingen spilbare strømme."
-
-msgid "Couldn't get the Manifest's URI"
-msgstr "Kunne ikke indhente Manifestens adresse"
-
-msgid "Failed to get fragment URL."
-msgstr "Kunne ikke indhente fragmentadresse."
-
-msgid "Couldn't download fragments"
-msgstr "Kunne ikke hente fragmenter"
 
 msgid "Could not open sndfile stream for reading."
 msgstr "Kunne ikke åbne sndfile-strøm for læsning."
@@ -190,8 +182,20 @@ msgstr "Manglende element »%s« - kontroller din GStreamer-installation."
 msgid "File location is set to NULL, please set it to a valid filename"
 msgstr "Filplacering er sat til NULL, sæt den venligst til et gyldigt filnavn"
 
+msgid "Digitalzoom element couldn't be created"
+msgstr ""
+
 msgid "Subpicture format was not configured before data flow"
 msgstr "Format for underbillede blev ikke konfigureret før datastrøm"
+
+msgid "Failed to get fragment URL."
+msgstr "Kunne ikke indhente fragmentadresse."
+
+msgid "Internal data stream error."
+msgstr "Intern datastrømfejl."
+
+msgid "Couldn't download fragments"
+msgstr "Kunne ikke hente fragmenter"
 
 msgid "No file name specified for writing."
 msgstr "Intet filnavn er angivet til skrivning."
@@ -238,6 +242,9 @@ msgstr "DVB-kanalens konfigurationsfil indeholder ikke nogen kanaler"
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr "Kunne ikke finde detaljer for DVB-kanalen %s"
+
+#~ msgid "Couldn't get the Manifest's URI"
+#~ msgstr "Kunne ikke indhente Manifestens adresse"
 
 #~ msgid "Could not write to file \"%s\"."
 #~ msgstr "Kunne ikke skrive til fil »%s«."
