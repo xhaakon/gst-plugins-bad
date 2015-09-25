@@ -3,7 +3,7 @@
   <description>x265-based H265 plugins</description>
   <filename>../../ext/x265/.libs/libgstx265.so</filename>
   <basename>libgstx265.so</basename>
-  <version>1.5.91</version>
+  <version>1.6.0</version>
   <license>GPL</license>
   <source>gst-plugins-bad</source>
   <package>GStreamer Bad Plug-ins source release</package>
@@ -26,7 +26,7 @@
           <name>src</name>
           <direction>source</direction>
           <presence>always</presence>
-          <details>video/x-h265, framerate=(fraction)[ 0/1, 2147483647/1 ], width=(int)[ 4, 2147483647 ], height=(int)[ 4, 2147483647 ], stream-format=(string){ avc, byte-stream }, alignment=(string)au, profile=(string){ main }</details>
+          <details>video/x-h265, framerate=(fraction)[ 0/1, 2147483647/1 ], width=(int)[ 4, 2147483647 ], height=(int)[ 4, 2147483647 ], stream-format=(string)byte-stream, alignment=(string)au, profile=(string){ main }</details>
         </caps>
       </pads>
     </element>
