@@ -1,27 +1,16 @@
 
-Release notes for GStreamer Bad Plugins 1.4.5
-
-The GStreamer team is pleased to announce a bugfix release of the stable
-1.4 release series. The 1.4 release series is adding new features on top
-of the 1.2 series and is part of the API and ABI-stable 1.x release
-series of the GStreamer multimedia framework that contains new features.
-The 1.4.x bugfix releases only contain important bugfixes compared to 1.4.0.
+Release notes for GStreamer Bad Plugins 1.5.91
 
 
-Binaries for Android, iOS, Mac OS X and Windows are provided by the
-GStreamer project for this release.
+The GStreamer team is pleased to announce the second release candidate for the
+stable 1.6 release series. The 1.6 release series is adding new features on top of
+the 1.0, 1.2 and 1.4 series and is part of the API and ABI-stable 1.x release
+series of the GStreamer multimedia framework. The final 1.6.0 release is planned
+in the next few days unless any major bugs are found.
 
 
-The 1.x series is a stable series targeted at end users. It is not API
-or ABI compatible with the 0.10.x series. It can, however, be installed
-in parallel with the 0.10.x series and will not affect an existing
-0.10.x installation.
-
-
-The stable 1.4.x release series is API and ABI compatible with 1.0.x and
-any other 1.x release series in the future. Compared to 1.0.x it contains
-some new features and more intrusive changes that were considered too
-risky as a bugfix.
+Binaries for Android, iOS, Mac OS X and Windows will be provided separately by
+the GStreamer project.
 
 
 
@@ -73,14 +62,54 @@ contains a set of codecs plugins based on libav (formerly gst-ffmpeg)
 
 Bugs fixed in this release
      
-      * 722764 : rawparse: fix SEEKING query handling
-      * 729768 : mpegtsbase: Raise limit to read more bytes initially to find PCR
-      * 739152 : gl/cocoa: build with GNUStep fails
-      * 740191 : dvbbasesink: segfaults on 32-bit (rpi)
-      * 740201 : gl/cocoa: Does not compile on OSX < 10.7 anymore
-      * 740451 : srtpdec: leaks rtp/rtcp sink events
-      * 740953 : configure.ac: unportable test(1) comparison operator
-      * 741321 : opusparse: fix header parsing esp. of encoded output of libopus
+      * 751508 : tsdemux: jerky sound on some multicast streams (regression)
+      * 752480 : dashdemux: negative values for r attribute in S node are not supported
+      * 753152 : pcapparse wrong magic when used with identity sync=1
+      * 753196 : audio/videoaggregator:  Assumes that running time starts at seeking position after a seek (but it starts at 0 for flushing seeks)
+      * 753344 : hlsdemux: Fix playback of live streams
+      * 753758 : ios: Does not shut down context and navigation GMainLoop
+      * 753805 : compositor/videoaggregator: Crashes because of invalid video info
+      * 753812 : qt: Checks for Qt5 don't require new enough version.
+      * 753813 : dashdemux: replace use of xmlNodeDump as it is described as a deprecated function
+      * 753818 : hlsdemux: deadlock on stop
+      * 753820 : video-bad: fix build failure
+      * 753822 : assrender: do not crash when video frame mapping fails
+      * 753837 : dtsdec: overwritten init value
+      * 753881 : hls/m3u8: make check fails for hlsdemux_m3u8 due to floating point rounding error
+      * 753905 : android emulator returns NULL for GL_SHADING_LANGUAGE_VERSION
+      * 753913 : caopengllayersink: Don't chain up to parent's query handling twice for DRAIN query
+      * 753915 : audiomixer: Remove duplicated word in comment
+      * 753937 : dashdemux: don't meddle with the class struct from an instance
+      * 753944 : curl: configure check for netinet/ip.h doesn't work on FreeBSD
+      * 754024 : codecparsers: Various HEVC codecparser fixes
+      * 754047 : glupload: Loses overlay meta when using raw uploader
+      * 754107 : compositor: Inputs are " obscured " when they aren't
+      * 754108 : qmlsink: Ensure that at least one windowing system is available
+      * 754122 : h265parse/h264parse: Crashes instead of returning not-negotiated
+      * 754222 : adaptivedemux: Timestamping of multi-period streams is not correct
+      * 754291 : videoaggregator: Compositor fails with " reason not-negotiated " when changing the pixel-aspect-ratio during runtime
+      * 754465 : compositor: Negotiation failure with ARGB64
+      * 754504 : vtdec: invalid colorimetry and generating greenish output
+      * 754528 : decklinkvideosink: Properly handle pipelines where the running time does not start around 0
+      * 754576 : compositor: input stream is wrongly considered obscured in some cases (regression)
+      * 754666 : decklinkvideosink: Consider pipeline latency when scheduling frames
+      * 754668 : mpdparser: fix incorrect start value scaling
+      * 754686 : adaptivedemux: statistics message name macro is unprefixed
+      * 754732 : gl: (ubuntu) error: conflicting types for 'GLsizeiptr' ( & more)
+      * 754756 : directsoundsrc: Compiler warning with 64bit Windows MinGW, cast from pointer to integer of different size
+      * 754757 : gl/eagl: Don't make context uncurrent just to make it current again in the next line
+      * 754819 : opusenc: critical/warning when dumping dots
+      * 754834 : codecparsers: hevc:  Fixes in scaling list value and NumPocTocalCurr value calculation
+      * 754851 : aggregator: Use the whole aggregator latency for the queue size, not just the latency property
+      * 755042 : dashdemux: sidx parsing crashes at end of stream
+      * 755047 : mssdemux/dashdemux: live playback regression
+      * 755049 : intervideosrc doesn't render the preroll frame (in paused state)
+      * 755059 : opusdec: negotiation regression
+      * 755111 : Regression: glimagesink 3D video handling
+      * 755113 : Regression: dvbsuboverlay negotiates invalid caps
+      * 755140 : gstgl: Fix GError leaks during failures
+      * 755142 : avdtputil: fix GError memory leak during failures
+      * 755156 : vtdec: resizing glimagesink results in a not-negotiated error
 
 ==== Download ====
 
@@ -117,17 +146,31 @@ subscribe to the gstreamer-devel list.
         
 Contributors to this release
     
-      * Aleix Conchillo Flaqué
-      * Alessandro Decina
-      * Gwenole Beauchesne
-      * Mathieu Duponchelle
+      * Alex Ashley
+      * Arnaud Vrac
+      * Athanasios Oikonomou
+      * Ben Browitt
+      * Carlos Rafael Giani
+      * Jan Schmidt
+      * Justin Kim
+      * Koop Mast
+      * Kouhei Sutou
+      * Luis de Bethencourt
       * Matthew Waters
+      * Miguel París Díaz
+      * Nicolas Dufresne
+      * Nirbheek Chauhan
+      * Olivier Crête
+      * Philippe Normand
       * Sebastian Dröge
-      * Sudip Jain
+      * Sreerenj Balachandran
+      * Thiago Santos
       * Thibault Saunier
-      * Thomas Klausner
       * Tim-Philipp Müller
+      * Vanessa Chipirrás Navalón
       * Vincent Penquerc'h
-      * Wim Taymans
-      * Wonchul Lee
+      * Vineeth T M
+      * XuGuangxin
+      * hoonhee.lee
+      * lyb
  

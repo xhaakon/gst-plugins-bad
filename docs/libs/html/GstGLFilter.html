@@ -2,13 +2,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>GStreamer Bad Plugins 1.0 Library Reference Manual: GstGLFilter</title>
+<title>GstGLFilter: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
-<link rel="prev" href="gst-plugins-bad-libs-GstEGLImageMemory.html" title="GstEGLImageMemory">
-<link rel="next" href="gst-plugins-bad-libs-GstGLFramebuffer.html" title="GstGLFramebuffer">
-<meta name="generator" content="GTK-Doc V1.21 (XML mode)">
+<link rel="prev" href="GstGLBaseFilter.html" title="GstGLBaseFilter">
+<link rel="next" href="GstGLFramebuffer.html" title="GstGLFramebuffer">
+<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -16,13 +16,12 @@
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
                   <a href="#GstGLFilter.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
-                  <a href="#GstGLFilter.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
-                  <a href="#GstGLFilter.properties" class="shortcut">Properties</a></span>
+                  <a href="#GstGLFilter.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="gl.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
-<td><a accesskey="p" href="gst-plugins-bad-libs-GstEGLImageMemory.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
-<td><a accesskey="n" href="gst-plugins-bad-libs-GstGLFramebuffer.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+<td><a accesskey="p" href="GstGLBaseFilter.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="GstGLFramebuffer.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
 <a name="GstGLFilter"></a><div class="titlepage"></div>
@@ -77,22 +76,6 @@
 </table></div>
 </div>
 <div class="refsect1">
-<a name="GstGLFilter.properties"></a><h2>Properties</h2>
-<div class="informaltable"><table border="0">
-<colgroup>
-<col width="150px" class="properties_type">
-<col width="300px" class="properties_name">
-<col width="200px" class="properties_flags">
-</colgroup>
-<tbody><tr>
-<td class="property_type">
-<a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *</td>
-<td class="property_name"><a class="link" href="GstGLFilter.html#GstGLFilter--other-context" title="The “other-context” property">other-context</a></td>
-<td class="property_flags">Read / Write</td>
-</tr></tbody>
-</table></div>
-</div>
-<div class="refsect1">
 <a name="GstGLFilter.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
@@ -101,12 +84,12 @@
 </colgroup>
 <tbody>
 <tr>
-<td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="GstGLFilter.html#GstGLFilter-struct" title="struct GstGLFilter">GstGLFilter</a></td>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="GstGLFilter.html#GstGLFilter-struct" title="GstGLFilter">GstGLFilter</a></td>
 </tr>
 <tr>
-<td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="GstGLFilter.html#GstGLFilterClass" title="struct GstGLFilterClass">GstGLFilterClass</a></td>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="GstGLFilter.html#GstGLFilterClass" title="GstGLFilterClass">GstGLFilterClass</a></td>
 </tr>
 </tbody>
 </table></div>
@@ -118,7 +101,8 @@
         <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
             <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
                 <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html">GstBaseTransform</a>
-                    <span class="lineart">╰──</span> GstGLFilter
+                    <span class="lineart">╰──</span> <a class="link" href="GstGLBaseFilter.html" title="GstGLBaseFilter">GstGLBaseFilter</a>
+                        <span class="lineart">╰──</span> GstGLFilter
 </pre>
 </div>
 <div class="refsect1">
@@ -138,7 +122,7 @@ gst_gl_filter_draw_texture (<em class="parameter"><code><a class="link" href="Gs
  and <em class="parameter"><code>height</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.9.13.8.2.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.15.7.2.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -190,7 +174,7 @@ only ever be <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Ma
  is the input texture of <em class="parameter"><code>filter</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.9.13.8.3.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.15.7.3.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -257,7 +241,7 @@ only ever be <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Ma
 .</p>
 <p>See also: <a class="link" href="GstGLFilter.html#gst-gl-filter-render-to-target" title="gst_gl_filter_render_to_target ()"><code class="function">gst_gl_filter_render_to_target()</code></a></p>
 <div class="refsect3">
-<a name="id-1.2.9.13.8.4.6"></a><h4>Parameters</h4>
+<a name="id-1.2.9.15.7.4.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -305,7 +289,7 @@ gst_gl_filter_filter_texture (<em class="parameter"><code><a class="link" href="
 <p>Perform automatic upload if needed, call filter_texture vfunc and then an
 automatic download if needed.</p>
 <div class="refsect3">
-<a name="id-1.2.9.13.8.5.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.15.7.5.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -332,22 +316,21 @@ automatic download if needed.</p>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.13.8.5.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.15.7.5.6"></a><h4>Returns</h4>
 <p> whether the transformation succeeded</p>
-<p></p>
 </div>
 </div>
 </div>
 <div class="refsect1">
 <a name="GstGLFilter.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstGLFilter-struct"></a><h3>struct GstGLFilter</h3>
-<pre class="programlisting">struct GstGLFilter;</pre>
+<a name="GstGLFilter-struct"></a><h3>GstGLFilter</h3>
+<pre class="programlisting">typedef struct _GstGLFilter GstGLFilter;</pre>
 <p><a class="link" href="GstGLFilter.html" title="GstGLFilter"><span class="type">GstGLFilter</span></a> is a base class that provides the logic of getting the GL context
 from downstream and automatic upload/download for non-<a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a>
 <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBuffer.html"><span class="type">GstBuffer</span></a>s.</p>
 <div class="refsect3">
-<a name="id-1.2.9.13.9.2.5"></a><h4>Members</h4>
+<a name="id-1.2.9.15.8.2.5"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -360,26 +343,25 @@ from downstream and automatic upload/download for non-<a class="link" href="gst-
 </div>
 <hr>
 <div class="refsect2">
-<a name="GstGLFilterClass"></a><h3>struct GstGLFilterClass</h3>
-<pre class="programlisting">struct GstGLFilterClass {
-  GstBaseTransformClass base_transform_class;
+<a name="GstGLFilterClass"></a><h3>GstGLFilterClass</h3>
+<pre class="programlisting">typedef struct {
+  GstGLBaseFilterClass parent_class;
 
   gboolean (*set_caps)          (GstGLFilter* filter, GstCaps* incaps, GstCaps* outcaps);
   gboolean (*filter)            (GstGLFilter *filter, GstBuffer *inbuf, GstBuffer *outbuf);
   gboolean (*filter_texture)    (GstGLFilter *filter, guint in_tex, guint out_tex);
-  gboolean (*onInitFBO)         (GstGLFilter *filter);
+  gboolean (*init_fbo)          (GstGLFilter *filter);
 
-  void (*onStart)               (GstGLFilter *filter);
-  void (*onStop)                (GstGLFilter *filter);
-  void (*onReset)               (GstGLFilter *filter);
+  GstCaps *(*transform_internal_caps) (GstGLFilter *filter,
+    GstPadDirection direction, GstCaps * caps, GstCaps * filter_caps);
 
   /* useful to init and cleanup custom gl resources */
   void (*display_init_cb)       (GstGLFilter *filter);
   void (*display_reset_cb)      (GstGLFilter *filter);
-};
+} GstGLFilterClass;
 </pre>
 <div class="refsect3">
-<a name="id-1.2.9.13.9.3.4"></a><h4>Members</h4>
+<a name="id-1.2.9.15.8.3.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -388,9 +370,9 @@ from downstream and automatic upload/download for non-<a class="link" href="gst-
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html#GstBaseTransformClass"><span class="type">GstBaseTransformClass</span></a> <em class="structfield"><code><a name="GstGLFilterClass.base-transform-class"></a>base_transform_class</code></em>;</p></td>
-<td class="struct_member_description"><p>parent class</p></td>
-<td class="struct_member_annotations"> </td>
+<td class="struct_member_name"><p><a class="link" href="GstGLBaseFilter.html#GstGLBaseFilterClass" title="GstGLBaseFilterClass"><span class="type">GstGLBaseFilterClass</span></a> <em class="structfield"><code><a name="GstGLFilterClass.parent-class"></a>parent_class</code></em>;</p></td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.set-caps"></a>set_caps</code></em> ()</p></td>
@@ -417,24 +399,14 @@ exists</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.onInitFBO"></a>onInitFBO</code></em> ()</p></td>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.init-fbo"></a>init_fbo</code></em> ()</p></td>
 <td class="struct_member_description"><p>perform initialization when the Framebuffer object is created</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.onStart"></a>onStart</code></em> ()</p></td>
-<td class="struct_member_description"><p>called when element activates see also <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html"><span class="type">GstBaseTransform</span></a></p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.onStop"></a>onStop</code></em> ()</p></td>
-<td class="struct_member_description"><p>called when the element deactivates e also <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html"><span class="type">GstBaseTransform</span></a></p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.onReset"></a>onReset</code></em> ()</p></td>
-<td class="struct_member_description"><p>called on inizialation and after <em class="parameter"><code>onStop</code></em>
-</p></td>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.transform-internal-caps"></a>transform_internal_caps</code></em> ()</p></td>
+<td class="struct_member_description"><p>Perform sub-class specific modifications of the
+caps to be processed between upload on input and before download for output.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
@@ -452,18 +424,8 @@ exists</p></td>
 </div>
 </div>
 </div>
-<div class="refsect1">
-<a name="GstGLFilter.property-details"></a><h2>Property Details</h2>
-<div class="refsect2">
-<a name="GstGLFilter--other-context"></a><h3>The <code class="literal">“other-context”</code> property</h3>
-<pre class="programlisting">  “other-context”            <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *</pre>
-<p>Give an external OpenGL context with which to share textures.</p>
-<p>Flags: Read / Write</p>
-</div>
-</div>
 </div>
 <div class="footer">
-<hr>
-          Generated by GTK-Doc V1.21</div>
+<hr>Generated by GTK-Doc V1.24</div>
 </body>
 </html>

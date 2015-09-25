@@ -1,16 +1,51 @@
-gst-plugins-bad1.0 (1.4.5-3) unstable; urgency=medium
+gst-plugins-bad1.0 (1.5.91-1) experimental; urgency=medium
 
-  * debian/patches/03_fix-faad2-version-check.patch:
-    + Fix faad2 version check, which caused wrong function prototypes to be
-      used and as a result caused stack corruption (Closes: #797227, #788708).
+  * New upstream release candidate.
 
- -- Sebastian Dröge <slomo@debian.org>  Fri, 04 Sep 2015 16:58:00 +0300
+ -- Sebastian Dröge <slomo@debian.org>  Fri, 18 Sep 2015 19:39:16 +0200
 
-gst-plugins-bad1.0 (1.4.5-2) unstable; urgency=medium
+gst-plugins-bad1.0 (1.5.90-1) experimental; urgency=medium
 
-  * Upload to unstable.
+  * New upstream release candidate.
 
- -- Sebastian Dröge <slomo@debian.org>  Wed, 13 May 2015 12:27:42 +0300
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 19 Aug 2015 13:35:43 +0300
+
+gst-plugins-bad1.0 (1.5.2-1) experimental; urgency=medium
+
+  * New unstable upstream release.
+
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 24 Jun 2015 23:29:59 +0200
+
+gst-plugins-bad1.0 (1.5.1-1) experimental; urgency=medium
+
+  * New unstable upstream release.
+
+ -- Sebastian Dröge <slomo@debian.org>  Sun, 07 Jun 2015 11:03:58 +0200
+
+gst-plugins-bad1.0 (1.5.0.1+git20150513-1) experimental; urgency=medium
+
+  * New upstream GIT snapshot.
+
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 13 May 2015 15:48:32 +0300
+
+gst-plugins-bad1.0 (1.5.0.1+git20150316-2) experimental; urgency=medium
+
+  * debian/libgstreamer-plugins-bad-dev.install:
+    + Include platform dependent GL headers.
+  * debian/libgstreamer-plugins-bad-dev.install,
+    debian/rules,
+    debian/build-deps.in:
+    + Include GObject-Introspection files for the libraries.
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 23 Mar 2015 10:04:25 +0100
+
+gst-plugins-bad1.0 (1.5.0.1+git20150316-1) experimental; urgency=medium
+
+  * New upstream GIT snapshot:
+    + Add new bs2b, de265, x265, dtls, rtp plugins.
+    + Add ported vcd and bluez5 plugins.
+
+ -- Sebastian Dröge <slomo@debian.org>  Tue, 17 Mar 2015 09:42:54 +0100
 
 gst-plugins-bad1.0 (1.4.5-1) experimental; urgency=medium
 

@@ -30,6 +30,7 @@
 #ifdef HAVE_AVFOUNDATION
 #include "avfvideosrc.h"
 #include "avfassetsrc.h"
+#include "avsamplevideosink.h"
 #endif
 #ifdef HAVE_VIDEOTOOLBOX
 #include "vtdec.h"
@@ -77,17 +78,20 @@ plugin_init (GstPlugin * plugin)
       GST_TYPE_AVF_VIDEO_SRC);
   res &= gst_element_register (plugin, "avfassetsrc", AV_RANK,
       GST_TYPE_AVF_ASSET_SRC);
+  res &= gst_element_register (plugin, "avsamplebufferlayersink",
+      GST_RANK_NONE, GST_TYPE_AV_SAMPLE_VIDEO_SINK);
 #endif
 
   res &= gst_element_register (plugin, "atdec", GST_RANK_MARGINAL, GST_TYPE_ATDEC);
 
 #ifdef HAVE_VIDEOTOOLBOX
   /* Check if the framework actually exists at runtime */
-  if (VTCompressionSessionCreate != NULL) {
-    res &= gst_element_register (plugin, "vtdec", GST_RANK_PRIMARY, GST_TYPE_VTDEC);
+  if (&VTCompressionSessionCreate != NULL) {
+    gst_vtdec_register_elements (plugin);
     gst_vtenc_register_elements (plugin);
   }
 #endif
+
 
   return res;
 }

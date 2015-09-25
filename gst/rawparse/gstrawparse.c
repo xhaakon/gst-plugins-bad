@@ -29,10 +29,6 @@
 
 #include <string.h>
 
-/* FIXME 0.11: suppress warnings for deprecated API such as GStaticRecMutex
- * with newer GLib versions (>= 2.31.0) */
-#define GLIB_DISABLE_DEPRECATION_WARNINGS
-
 #include <gst/gst.h>
 #include <gst/base/gstbasetransform.h>
 #include <gst/base/gstadapter.h>
@@ -814,13 +810,12 @@ gst_raw_parse_handle_seek_pull (GstRawParse * rp, GstEvent * event)
 
     GST_DEBUG_OBJECT (rp, "converted start - stop to time");
 
-    format = GST_FORMAT_TIME;
-
     gst_event_unref (event);
   } else {
-    format = GST_FORMAT_TIME;
     flags = 0;
   }
+
+  format = GST_FORMAT_TIME;
 
   flush = ((flags & GST_SEEK_FLAG_FLUSH) != 0);
 

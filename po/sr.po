@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad-1.4.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2014-12-18 12:07+0100\n"
+"POT-Creation-Date: 2015-09-18 19:27+0200\n"
 "PO-Revision-Date: 2014-09-13 10:39+0200\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
@@ -18,19 +18,17 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-msgid "Internal data stream error."
-msgstr "Унутрашња грешка тока података."
-
 msgid "format wasn't negotiated before get function"
 msgstr "запис није договорен пре функције добављања (get)"
 
 msgid "default GStreamer sound events audiosink"
 msgstr "основни аудио усклађивач звучних догађаја Гстримера"
 
+#, fuzzy
 msgid ""
 "GStreamer can play audio using any number of output elements. Some possible "
 "choices are osssink, pulsesink and alsasink. The audiosink can be a partial "
-"pipeline instea of just one element."
+"pipeline instead of just one element."
 msgstr ""
 "Гстример може да пушта аудио користећи било који број излазних елемената. "
 "Неки могући избори су „osssink“, „pulsesink“ и „alsasink“. Аудио усклађивач "
@@ -130,6 +128,9 @@ msgstr "опис основног приказивања Гстримера"
 msgid "Describes the selected visualization element."
 msgstr "Описује изабрани елемент приказивања."
 
+msgid "OpenCV failed to load template image"
+msgstr ""
+
 msgid "Could not read title information for DVD."
 msgstr "Не могу да прочитам информације о наслову ДВД-а."
 
@@ -152,15 +153,6 @@ msgstr "Не могу да читам ДВД."
 
 msgid "This file contains no playable streams."
 msgstr "Ова датотека не садржи токове за пуштање."
-
-msgid "Couldn't get the Manifest's URI"
-msgstr "Не могу да добавим путању Манифеста"
-
-msgid "Failed to get fragment URL."
-msgstr "Нисам успео да добијем адресу одломка."
-
-msgid "Couldn't download fragments"
-msgstr "Не могу да преузмем одломке"
 
 msgid "Could not open sndfile stream for reading."
 msgstr "Не могу да отворим ток датотеке звука за читање."
@@ -191,8 +183,20 @@ msgid "File location is set to NULL, please set it to a valid filename"
 msgstr ""
 "Место датотеке је подешено на НИШТА, подесите га на исправан назив датотеке"
 
+msgid "Digitalzoom element couldn't be created"
+msgstr ""
+
 msgid "Subpicture format was not configured before data flow"
 msgstr "Запис подслике није подешен пре протока података"
+
+msgid "Failed to get fragment URL."
+msgstr "Нисам успео да добијем адресу одломка."
+
+msgid "Internal data stream error."
+msgstr "Унутрашња грешка тока података."
+
+msgid "Couldn't download fragments"
+msgstr "Не могу да преузмем одломке"
 
 msgid "No file name specified for writing."
 msgstr "Није наведен назив датотеке за упис."
@@ -240,6 +244,9 @@ msgstr "Датотека подешавања ДВБ канала не садр�
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr "Не могу да пронађем податке за ДВБ канал „%s“"
+
+#~ msgid "Couldn't get the Manifest's URI"
+#~ msgstr "Не могу да добавим путању Манифеста"
 
 #~ msgid "Could not write to file \"%s\"."
 #~ msgstr "Не могу да пишем у датотеку „%s“."
