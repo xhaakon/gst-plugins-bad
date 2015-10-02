@@ -140,7 +140,7 @@ Depends: ${gir:Depends},
          ${shlibs:Depends},
          ${misc:Depends},
          ${gir:Depends}
-Description: Description: GObject introspection data for the GStreamer libraries from the "bad" set
+Description: GObject introspection data for the GStreamer libraries from the "bad" set
  GStreamer is a streaming media framework, based on graphs of filters
  which operate on media data.  Applications using this library can do
  anything from real-time sound processing to playing videos, and just
