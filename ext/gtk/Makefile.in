@@ -171,14 +171,14 @@ libgstgtksink_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 am__libgstgtksink_la_SOURCES_DIST = gtkgstbasewidget.c \
 	gtkgstbasewidget.h gtkgstwidget.c gtkgstwidget.h \
 	gstgtkbasesink.c gstgtkbasesink.h gstgtksink.c gstgtksink.h \
-	gstplugin.c gstgtkglsink.c gstgtkglsink.h gtkgstglwidget.c \
-	gtkgstglwidget.h
+	gstgtkutils.c gstgtkutils.h gstplugin.c gstgtkglsink.c \
+	gstgtkglsink.h gtkgstglwidget.c gtkgstglwidget.h
 am__objects_1 =
 am__objects_2 = libgstgtksink_la-gtkgstbasewidget.lo \
 	libgstgtksink_la-gtkgstwidget.lo \
 	libgstgtksink_la-gstgtkbasesink.lo \
-	libgstgtksink_la-gstgtksink.lo libgstgtksink_la-gstplugin.lo \
-	$(am__objects_1)
+	libgstgtksink_la-gstgtksink.lo libgstgtksink_la-gstgtkutils.lo \
+	libgstgtksink_la-gstplugin.lo $(am__objects_1)
 @USE_GL_TRUE@@USE_GTK3_GL_TRUE@am__objects_3 = libgstgtksink_la-gstgtkglsink.lo \
 @USE_GL_TRUE@@USE_GTK3_GL_TRUE@	libgstgtksink_la-gtkgstglwidget.lo
 am_libgstgtksink_la_OBJECTS = $(am__objects_2) $(am__objects_3)
@@ -792,6 +792,8 @@ sources = \
 	gstgtkbasesink.h \
 	gstgtksink.c \
 	gstgtksink.h \
+	gstgtkutils.c \
+	gstgtkutils.h \
 	gstplugin.c \
 	$(NULL)
 
@@ -927,6 +929,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gstgtkbasesink.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gstgtkglsink.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gstgtksink.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gstgtkutils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gstplugin.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gtkgstbasewidget.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gtkgstglwidget.Plo@am__quote@
@@ -983,6 +986,13 @@ libgstgtksink_la-gstgtksink.lo: gstgtksink.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgtksink.c' object='libgstgtksink_la-gstgtksink.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -c -o libgstgtksink_la-gstgtksink.lo `test -f 'gstgtksink.c' || echo '$(srcdir)/'`gstgtksink.c
+
+libgstgtksink_la-gstgtkutils.lo: gstgtkutils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -MT libgstgtksink_la-gstgtkutils.lo -MD -MP -MF $(DEPDIR)/libgstgtksink_la-gstgtkutils.Tpo -c -o libgstgtksink_la-gstgtkutils.lo `test -f 'gstgtkutils.c' || echo '$(srcdir)/'`gstgtkutils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtksink_la-gstgtkutils.Tpo $(DEPDIR)/libgstgtksink_la-gstgtkutils.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgtkutils.c' object='libgstgtksink_la-gstgtkutils.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -c -o libgstgtksink_la-gstgtkutils.lo `test -f 'gstgtkutils.c' || echo '$(srcdir)/'`gstgtkutils.c
 
 libgstgtksink_la-gstplugin.lo: gstplugin.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -MT libgstgtksink_la-gstplugin.lo -MD -MP -MF $(DEPDIR)/libgstgtksink_la-gstplugin.Tpo -c -o libgstgtksink_la-gstplugin.lo `test -f 'gstplugin.c' || echo '$(srcdir)/'`gstplugin.c
