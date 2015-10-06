@@ -12,7 +12,7 @@ Forwarded: no
  configure.ac                               |   15 +
  ext/Makefile.am                            |    8 +
  ext/mir/Makefile.am                        |   17 +
- ext/mir/gstmirsink.c                       |  848 ++++++++++
+ ext/mir/gstmirsink.c                       |  854 ++++++++++
  ext/mir/gstmirsink.h                       |  134 ++
  ext/mir/mirpool.c                          |  434 +++++
  ext/mir/mirpool.h                          |   91 ++
@@ -34,7 +34,7 @@ Forwarded: no
  tests/check/Makefile.am                    |    7 +
  tests/check/pipelines/gstamcvideodec.c     |  538 +++++++
  tests/check/pipelines/gstamcvideodec_egl.c |   56 +
- 25 files changed, 8751 insertions(+), 6 deletions(-)
+ 25 files changed, 8757 insertions(+), 6 deletions(-)
  create mode 100644 ext/mir/Makefile.am
  create mode 100644 ext/mir/gstmirsink.c
  create mode 100644 ext/mir/gstmirsink.h
@@ -52,10 +52,10 @@ Forwarded: no
  create mode 100644 tests/check/pipelines/gstamcvideodec_egl.c
 
 diff --git a/configure.ac b/configure.ac
-index 59566d4..96c0152 100644
+index 1c06bed..54c2852 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1591,6 +1591,18 @@ AG_GST_CHECK_FEATURE(ANDROID_MEDIA, [Android Media], androidmedia, [
+@@ -1606,6 +1606,18 @@ AG_GST_CHECK_FEATURE(ANDROID_MEDIA, [Android Media], androidmedia, [
    esac
  ])
  
@@ -74,7 +74,7 @@ index 59566d4..96c0152 100644
  dnl *** AppleMedia (OS X and iOS) ***
  translit(dnm, m, l) AM_CONDITIONAL(USE_APPLE_MEDIA, true)
  HAVE_APPLE_MEDIA="no"
-@@ -3000,6 +3012,7 @@ AM_CONDITIONAL(DECKLINK_OSX, false)
+@@ -3086,6 +3098,7 @@ AM_CONDITIONAL(DECKLINK_OSX, false)
  AM_CONDITIONAL(USE_DIRECTFB, false)
  AM_CONDITIONAL(USE_WAYLAND, false)
  AM_CONDITIONAL(USE_DAALA, false)
@@ -82,7 +82,7 @@ index 59566d4..96c0152 100644
  AM_CONDITIONAL(USE_DTS, false)
  AM_CONDITIONAL(USE_EXIF, false)
  AM_CONDITIONAL(USE_RESINDVD, false)
-@@ -3232,6 +3245,7 @@ gst-libs/gst/gl/egl/Makefile
+@@ -3319,6 +3332,7 @@ gst-libs/gst/gl/egl/Makefile
  gst-libs/gst/gl/wayland/Makefile
  gst-libs/gst/gl/win32/Makefile
  gst-libs/gst/gl/x11/Makefile
@@ -90,7 +90,7 @@ index 59566d4..96c0152 100644
  gst-libs/gst/insertbin/Makefile
  gst-libs/gst/interfaces/Makefile
  gst-libs/gst/codecparsers/Makefile
-@@ -3311,6 +3325,7 @@ ext/dc1394/Makefile
+@@ -3398,6 +3412,7 @@ ext/dc1394/Makefile
  ext/directfb/Makefile
  ext/wayland/Makefile
  ext/daala/Makefile
@@ -99,7 +99,7 @@ index 59566d4..96c0152 100644
  ext/gl/Makefile
  ext/gtk/Makefile
 diff --git a/ext/Makefile.am b/ext/Makefile.am
-index 66dccd6..e403264 100644
+index 33ddba7..ee47a92 100644
 --- a/ext/Makefile.am
 +++ b/ext/Makefile.am
 @@ -76,6 +76,12 @@ else
@@ -115,7 +115,7 @@ index 66dccd6..e403264 100644
  if USE_DTS
  DTS_DIR=dts
  else
-@@ -457,6 +463,7 @@ SUBDIRS=\
+@@ -464,6 +470,7 @@ SUBDIRS=\
  	$(LIBFAME_DIR) \
  	$(LIBMMS_DIR) \
  	$(LIBVISUAL_DIR) \
@@ -123,7 +123,7 @@ index 66dccd6..e403264 100644
  	$(MODPLUG_DIR) \
  	$(MPEG2ENC_DIR) \
  	$(MPG123_DIR) \
-@@ -507,6 +514,7 @@ DIST_SUBDIRS = \
+@@ -514,6 +521,7 @@ DIST_SUBDIRS = \
  	dc1394 \
  	directfb \
  	wayland \
@@ -156,10 +156,10 @@ index 0000000..d588fc7
 +noinst_HEADERS =
 diff --git a/ext/mir/gstmirsink.c b/ext/mir/gstmirsink.c
 new file mode 100644
-index 0000000..987117e
+index 0000000..ca88ae3
 --- /dev/null
 +++ b/ext/mir/gstmirsink.c
-@@ -0,0 +1,848 @@
+@@ -0,0 +1,854 @@
 +/*
 + * GStreamer Mir video sink
 + * Copyright (C) 2013 Canonical Ltd
@@ -790,6 +790,12 @@ index 0000000..987117e
 +  GstMirSink *sink = (GstMirSink *) bsink;
 +
 +  GST_DEBUG_OBJECT (sink, "stop");
++
++  /* The pool is not re-used so must be destroyed here */
++  if (sink->pool) {
++    gst_object_unref (sink->pool);
++    sink->pool = NULL;
++  }
 +
 +  /* MediaCodec (hybris layer) will destroy the underlying
 +   * SurfaceTextureClientHybris instance, * so set it to NULL here so that
@@ -2377,7 +2383,7 @@ index 5fcfb8f..2628a8a 100644
  libgstandroidmedia_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
  libgstandroidmedia_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 diff --git a/sys/androidmedia/gstamc-constants.h b/sys/androidmedia/gstamc-constants.h
-index ae52464..f5bb86f 100644
+index cc43f61..8984f5a 100644
 --- a/sys/androidmedia/gstamc-constants.h
 +++ b/sys/androidmedia/gstamc-constants.h
 @@ -93,6 +93,8 @@ enum
@@ -2404,7 +2410,7 @@ index ae52464..f5bb86f 100644
  
  enum
 diff --git a/sys/androidmedia/gstamc.h b/sys/androidmedia/gstamc.h
-index 88d49fb..567752e 100644
+index a3fb9bc..eda5278 100644
 --- a/sys/androidmedia/gstamc.h
 +++ b/sys/androidmedia/gstamc.h
 @@ -24,12 +24,67 @@
@@ -8551,10 +8557,10 @@ index 0000000..cff94c4
 +  return TRUE;
 +}
 diff --git a/tests/check/Makefile.am b/tests/check/Makefile.am
-index 295791b..1d42491 100644
+index 1e5c23a..90a2271 100644
 --- a/tests/check/Makefile.am
 +++ b/tests/check/Makefile.am
-@@ -211,6 +211,12 @@ else
+@@ -210,6 +210,12 @@ else
  check_gl=
  endif
  
