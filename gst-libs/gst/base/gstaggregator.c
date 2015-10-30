@@ -1560,11 +1560,10 @@ gst_aggregator_event_forward_func (GstPad * pad, gpointer user_data)
   }
 
   if (ret == FALSE) {
-    if (GST_EVENT_TYPE (evdata->event) == GST_EVENT_SEEK)
-      GST_ERROR_OBJECT (pad, "Event %" GST_PTR_FORMAT " failed", evdata->event);
-
     if (GST_EVENT_TYPE (evdata->event) == GST_EVENT_SEEK) {
       GstQuery *seeking = gst_query_new_seeking (GST_FORMAT_TIME);
+
+      GST_DEBUG_OBJECT (pad, "Event %" GST_PTR_FORMAT " failed", evdata->event);
 
       if (gst_pad_query (peer, seeking)) {
         gboolean seekable;
@@ -2197,8 +2196,6 @@ gst_aggregator_pad_chain_internal (GstAggregator * self,
         self->segment.position = start_time;
       else
         self->segment.position = MIN (start_time, self->segment.position);
-      self->segment.start = MIN (start_time, self->segment.start);
-      self->segment.time = MIN (start_time, self->segment.time);
 
       GST_DEBUG_OBJECT (self, "Selecting start time %" GST_TIME_FORMAT,
           GST_TIME_ARGS (start_time));
