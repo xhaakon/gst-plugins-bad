@@ -1,7 +1,8 @@
-gst-plugins-bad1.0 (1.6.0-2) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.6.1-1) unstable; urgency=medium
 
   * debian/control.in:
     + Remove duplicated word from description (Closes: #800138).
+  * New upstream bugfix release.
 
  -- Sebastian Dröge <slomo@debian.org>  Fri, 02 Oct 2015 10:13:01 +0300
 
