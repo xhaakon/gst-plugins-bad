@@ -724,6 +724,7 @@ gst_dash_demux_process_manifest (GstAdaptiveDemux * demux, GstBuffer * buf)
   if (dashdemux->client)
     gst_mpd_client_free (dashdemux->client);
   dashdemux->client = gst_mpd_client_new ();
+  gst_mpd_client_set_uri_downloader (dashdemux->client, demux->downloader);
 
   dashdemux->client->mpd_uri = g_strdup (demux->manifest_uri);
   dashdemux->client->mpd_base_uri = g_strdup (demux->manifest_base_uri);
@@ -735,7 +736,8 @@ gst_dash_demux_process_manifest (GstAdaptiveDemux * demux, GstBuffer * buf)
   if (gst_buffer_map (buf, &mapinfo, GST_MAP_READ)) {
     manifest = (gchar *) mapinfo.data;
     if (gst_mpd_parse (dashdemux->client, manifest, mapinfo.size)) {
-      if (gst_mpd_client_setup_media_presentation (dashdemux->client)) {
+      if (gst_mpd_client_setup_media_presentation (dashdemux->client, 0, 0,
+              NULL)) {
         ret = TRUE;
       } else {
         GST_ELEMENT_ERROR (demux, STREAM, DECODE,
@@ -801,6 +803,7 @@ gst_dash_demux_reset (GstAdaptiveDemux * ademux)
   gst_dash_demux_clock_drift_free (demux->clock_drift);
   demux->clock_drift = NULL;
   demux->client = gst_mpd_client_new ();
+  gst_mpd_client_set_uri_downloader (demux->client, ademux->downloader);
 
   demux->n_audio_streams = 0;
   demux->n_video_streams = 0;
@@ -911,27 +914,23 @@ gst_dash_demux_stream_update_headers_info (GstAdaptiveDemuxStream * stream)
       &path, dashstream->index,
       &stream->fragment.header_range_start, &stream->fragment.header_range_end);
 
-  if (path != NULL && strncmp (path, "http://", 7) != 0) {
+  if (path != NULL) {
     stream->fragment.header_uri =
         gst_uri_join_strings (gst_mpdparser_get_baseURL (dashdemux->client,
             dashstream->index), path);
     g_free (path);
-  } else {
-    stream->fragment.header_uri = path;
+    path = NULL;
   }
-  path = NULL;
 
   gst_mpd_client_get_next_header_index (dashdemux->client,
       &path, dashstream->index,
       &stream->fragment.index_range_start, &stream->fragment.index_range_end);
 
-  if (path != NULL && strncmp (path, "http://", 7) != 0) {
+  if (path != NULL) {
     stream->fragment.index_uri =
         gst_uri_join_strings (gst_mpdparser_get_baseURL (dashdemux->client,
             dashstream->index), path);
     g_free (path);
-  } else {
-    stream->fragment.index_uri = path;
   }
 }
 
@@ -1210,6 +1209,10 @@ gst_dash_demux_seek (GstAdaptiveDemux * demux, GstEvent * seek)
     target_pos = (GstClockTime) demux->segment.stop;
 
   /* select the requested Period in the Media Presentation */
+  if (!gst_mpd_client_setup_media_presentation (dashdemux->client, target_pos,
+          -1, NULL))
+    return FALSE;
+
   current_period = 0;
   for (list = g_list_first (dashdemux->client->periods); list;
       list = g_list_next (list)) {
@@ -1277,6 +1280,7 @@ gst_dash_demux_update_manifest_data (GstAdaptiveDemux * demux,
 
   /* parse the manifest file */
   new_client = gst_mpd_client_new ();
+  gst_mpd_client_set_uri_downloader (new_client, demux->downloader);
   new_client->mpd_uri = g_strdup (demux->manifest_uri);
   new_client->mpd_base_uri = g_strdup (demux->manifest_base_uri);
   gst_buffer_map (buffer, &mapinfo, GST_MAP_READ);
@@ -1296,7 +1300,8 @@ gst_dash_demux_update_manifest_data (GstAdaptiveDemux * demux,
     period_idx = gst_mpd_client_get_period_index (dashdemux->client);
 
     /* setup video, audio and subtitle streams, starting from current Period */
-    if (!gst_mpd_client_setup_media_presentation (new_client)) {
+    if (!gst_mpd_client_setup_media_presentation (new_client, -1,
+            (period_id ? -1 : period_idx), period_id)) {
       /* TODO */
     }
 

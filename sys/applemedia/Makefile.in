@@ -448,6 +448,8 @@ GST_LIBVERSION = @GST_LIBVERSION@
 GST_LIB_LDFLAGS = @GST_LIB_LDFLAGS@
 GST_LICENSE = @GST_LICENSE@
 GST_LT_LDFLAGS = @GST_LT_LDFLAGS@
+GST_NET_CFLAGS = @GST_NET_CFLAGS@
+GST_NET_LIBS = @GST_NET_LIBS@
 GST_OBJCFLAGS = @GST_OBJCFLAGS@
 GST_OPTION_CFLAGS = @GST_OPTION_CFLAGS@
 GST_OPTION_CXXFLAGS = @GST_OPTION_CXXFLAGS@
@@ -864,11 +866,13 @@ libgstapplemedia_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) \
 noinst_HEADERS = \
 	qtkitvideosrc.h				\
 	avfvideosrc.h				\
+	avsamplevideosink.h			\
 	vtenc.h					\
 	vtdec.h					\
 	vtutil.h				\
 	corevideobuffer.h			\
 	coremediabuffer.h			\
+	corevideotexturecache.h			\
 	atdec.h 				\
 	iosassetsrc.h				\
 	avfassetsrc.h
