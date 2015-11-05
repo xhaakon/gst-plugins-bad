@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.6.0],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.6.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 600, 0, 600)
+AS_LIBTOOL(GST, 601, 0, 601)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.6.0
-GSTPB_REQ=1.6.0
+GST_REQ=1.6.1
+GSTPB_REQ=1.6.1
 
 dnl *** autotools stuff ****
 
@@ -199,6 +199,7 @@ AG_GST_CHECK_GST($GST_API_VERSION, [$GST_REQ], yes)
 AG_GST_CHECK_GST_BASE($GST_API_VERSION, [$GST_REQ], yes)
 AG_GST_CHECK_GST_CHECK($GST_API_VERSION, [$GST_REQ], no)
 AG_GST_CHECK_GST_CONTROLLER($GST_API_VERSION, [$GST_REQ], yes)
+AG_GST_CHECK_GST_NET($GST_API_VERSION, [$GST_REQ], yes)
 AM_CONDITIONAL(HAVE_GST_CHECK, test "x$HAVE_GST_CHECK" = "xyes")
 
 AG_GST_CHECK_GST_PLUGINS_BASE($GST_API_VERSION, [$GSTPB_REQ], yes)
@@ -2162,7 +2163,7 @@ AG_GST_CHECK_FEATURE(SRTP, [srtp library], srtp, [
 dnl *** dtls ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_DTLS, true)
 AG_GST_CHECK_FEATURE(DTLS, [DTLS plugin], dtls, [
-  PKG_CHECK_MODULES(DTLS, [ openssl >= 0.9.5  libcrypto ], [
+  PKG_CHECK_MODULES(DTLS, [ openssl >= 1.0.1  libcrypto ], [
     HAVE_DTLS="yes"
     AC_SUBST(DTLS_CFLAGS)
     AC_SUBST(DTLS_LIBS)
