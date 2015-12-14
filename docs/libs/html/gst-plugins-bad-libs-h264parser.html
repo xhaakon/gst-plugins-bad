@@ -390,9 +390,9 @@ Part 10 specifications, you can download them from:</p>
 <a name="gst-h264-parser-identify-nalu"></a><h3>gst_h264_parser_identify_nalu ()</h3>
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="returnvalue">GstH264ParserResult</span></a>
 gst_h264_parser_identify_nalu (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a> *nalparser</code></em>,
-                               <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
+                               <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>,
-                               <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
+                               <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> *nalu</code></em>);</pre>
 <p>Parses <em class="parameter"><code>data</code></em>
  and fills <em class="parameter"><code>nalu</code></em>
@@ -447,10 +447,10 @@ gst_h264_parser_identify_nalu (<em class="parameter"><code><a class="link" href=
 <a name="gst-h264-parser-identify-nalu-avc"></a><h3>gst_h264_parser_identify_nalu_avc ()</h3>
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264ParserResult" title="enum GstH264ParserResult"><span class="returnvalue">GstH264ParserResult</span></a>
 gst_h264_parser_identify_nalu_avc (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a> *nalparser</code></em>,
-                                   <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
+                                   <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                                    <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>,
-                                   <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
-                                   <em class="parameter"><code><span class="type">guint8</span> nal_length_size</code></em>,
+                                   <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
+                                   <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> nal_length_size</code></em>,
                                    <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> *nalu</code></em>);</pre>
 <p>Parses <em class="parameter"><code>data</code></em>
  and sets <em class="parameter"><code>nalu</code></em>
@@ -883,8 +883,8 @@ gst_h264_pps_clear (<em class="parameter"><code><a class="link" href="gst-plugin
 <a name="gst-h264-quant-matrix-8x8-get-zigzag-from-raster"></a><h3>gst_h264_quant_matrix_8x8_get_zigzag_from_raster ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_h264_quant_matrix_8x8_get_zigzag_from_raster
-                               (<em class="parameter"><code><span class="type">guint8</span> out_quant[64]</code></em>,
-                                <em class="parameter"><code>const <span class="type">guint8</span> quant[64]</code></em>);</pre>
+                               (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> out_quant[64]</code></em>,
+                                <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> quant[64]</code></em>);</pre>
 <p>Converts quantization matrix <em class="parameter"><code>quant</code></em>
  from raster scan order to
 zigzag scan order and store the resulting factors into <em class="parameter"><code>out_quant</code></em>
@@ -922,8 +922,8 @@ zigzag scan order and store the resulting factors into <em class="parameter"><co
 <a name="gst-h264-quant-matrix-8x8-get-raster-from-zigzag"></a><h3>gst_h264_quant_matrix_8x8_get_raster_from_zigzag ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_h264_quant_matrix_8x8_get_raster_from_zigzag
-                               (<em class="parameter"><code><span class="type">guint8</span> out_quant[64]</code></em>,
-                                <em class="parameter"><code>const <span class="type">guint8</span> quant[64]</code></em>);</pre>
+                               (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> out_quant[64]</code></em>,
+                                <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> quant[64]</code></em>);</pre>
 <p>Converts quantization matrix <em class="parameter"><code>quant</code></em>
  from zigzag scan order to
 raster scan order and store the resulting factors into <em class="parameter"><code>out_quant</code></em>
@@ -961,8 +961,8 @@ raster scan order and store the resulting factors into <em class="parameter"><co
 <a name="gst-h264-quant-matrix-4x4-get-zigzag-from-raster"></a><h3>gst_h264_quant_matrix_4x4_get_zigzag_from_raster ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_h264_quant_matrix_4x4_get_zigzag_from_raster
-                               (<em class="parameter"><code><span class="type">guint8</span> out_quant[16]</code></em>,
-                                <em class="parameter"><code>const <span class="type">guint8</span> quant[16]</code></em>);</pre>
+                               (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> out_quant[16]</code></em>,
+                                <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> quant[16]</code></em>);</pre>
 <p>Converts quantization matrix <em class="parameter"><code>quant</code></em>
  from raster scan order to
 zigzag scan order and store the resulting factors into <em class="parameter"><code>out_quant</code></em>
@@ -1000,8 +1000,8 @@ zigzag scan order and store the resulting factors into <em class="parameter"><co
 <a name="gst-h264-quant-matrix-4x4-get-raster-from-zigzag"></a><h3>gst_h264_quant_matrix_4x4_get_raster_from_zigzag ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_h264_quant_matrix_4x4_get_raster_from_zigzag
-                               (<em class="parameter"><code><span class="type">guint8</span> out_quant[16]</code></em>,
-                                <em class="parameter"><code>const <span class="type">guint8</span> quant[16]</code></em>);</pre>
+                               (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> out_quant[16]</code></em>,
+                                <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> quant[16]</code></em>);</pre>
 <p>Converts quantization matrix <em class="parameter"><code>quant</code></em>
  from zigzag scan order to
 raster scan order and store the resulting factors into <em class="parameter"><code>out_quant</code></em>
@@ -1568,7 +1568,7 @@ value if available, 0 otherwise</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstH264NalUnit.ref-idc"></a>ref_idc</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstH264NalUnit.ref-idc"></a>ref_idc</code></em>;</p></td>
 <td class="struct_member_description"><p>not equal to 0 specifies that the content of the NAL unit
 contains a sequence parameter set, a sequence parameter set
 extension, a subset sequence parameter set, a picture parameter
@@ -1578,12 +1578,12 @@ reference picture.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstH264NalUnit.type"></a>type</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstH264NalUnit.type"></a>type</code></em>;</p></td>
 <td class="struct_member_description"><p>A <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnitType" title="enum GstH264NalUnitType"><span class="type">GstH264NalUnitType</span></a></p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264NalUnit.idr-pic-flag"></a>idr_pic_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264NalUnit.idr-pic-flag"></a>idr_pic_flag</code></em>;</p></td>
 <td class="struct_member_description"><p>calculated idr_pic_flag</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -1613,17 +1613,17 @@ already been parsed</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> *<em class="structfield"><code><a name="GstH264NalUnit.data"></a>data</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *<em class="structfield"><code><a name="GstH264NalUnit.data"></a>data</code></em>;</p></td>
 <td class="struct_member_description"><p>The data from which the Nalu has been parsed</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264NalUnit.header-bytes"></a>header_bytes</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264NalUnit.header-bytes"></a>header_bytes</code></em>;</p></td>
 <td class="struct_member_description"><p>The size of the NALU header in bytes (Since 1.6)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264NalUnit.extension-type"></a>extension_type</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264NalUnit.extension-type"></a>extension_type</code></em>;</p></td>
 <td class="struct_member_description"><p>the extension type (Since 1.6)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -1723,187 +1723,187 @@ already been parsed</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.profile-idc"></a>profile_idc</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.profile-idc"></a>profile_idc</code></em>;</p></td>
 <td class="struct_member_description"><p>indicate the profile to which the coded video sequence conforms</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.constraint-set0-flag"></a>constraint_set0_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.constraint-set0-flag"></a>constraint_set0_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.constraint-set1-flag"></a>constraint_set1_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.constraint-set1-flag"></a>constraint_set1_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.constraint-set2-flag"></a>constraint_set2_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.constraint-set2-flag"></a>constraint_set2_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.constraint-set3-flag"></a>constraint_set3_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.constraint-set3-flag"></a>constraint_set3_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.constraint-set4-flag"></a>constraint_set4_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.constraint-set4-flag"></a>constraint_set4_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.constraint-set5-flag"></a>constraint_set5_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.constraint-set5-flag"></a>constraint_set5_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.level-idc"></a>level_idc</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.level-idc"></a>level_idc</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.chroma-format-idc"></a>chroma_format_idc</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.chroma-format-idc"></a>chroma_format_idc</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.separate-colour-plane-flag"></a>separate_colour_plane_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.separate-colour-plane-flag"></a>separate_colour_plane_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.bit-depth-luma-minus8"></a>bit_depth_luma_minus8</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.bit-depth-luma-minus8"></a>bit_depth_luma_minus8</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.bit-depth-chroma-minus8"></a>bit_depth_chroma_minus8</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.bit-depth-chroma-minus8"></a>bit_depth_chroma_minus8</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.qpprime-y-zero-transform-bypass-flag"></a>qpprime_y_zero_transform_bypass_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.qpprime-y-zero-transform-bypass-flag"></a>qpprime_y_zero_transform_bypass_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.scaling-matrix-present-flag"></a>scaling_matrix_present_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.scaling-matrix-present-flag"></a>scaling_matrix_present_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.scaling-lists-4x4"></a>scaling_lists_4x4</code></em>[6][16];</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.scaling-lists-4x4"></a>scaling_lists_4x4</code></em>[6][16];</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.scaling-lists-8x8"></a>scaling_lists_8x8</code></em>[6][64];</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.scaling-lists-8x8"></a>scaling_lists_8x8</code></em>[6][64];</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.log2-max-frame-num-minus4"></a>log2_max_frame_num_minus4</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.log2-max-frame-num-minus4"></a>log2_max_frame_num_minus4</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.pic-order-cnt-type"></a>pic_order_cnt_type</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.pic-order-cnt-type"></a>pic_order_cnt_type</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.log2-max-pic-order-cnt-lsb-minus4"></a>log2_max_pic_order_cnt_lsb_minus4</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.log2-max-pic-order-cnt-lsb-minus4"></a>log2_max_pic_order_cnt_lsb_minus4</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.delta-pic-order-always-zero-flag"></a>delta_pic_order_always_zero_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.delta-pic-order-always-zero-flag"></a>delta_pic_order_always_zero_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">gint32</span> <em class="structfield"><code><a name="GstH264SPS.offset-for-non-ref-pic"></a>offset_for_non_ref_pic</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint32"><span class="type">gint32</span></a> <em class="structfield"><code><a name="GstH264SPS.offset-for-non-ref-pic"></a>offset_for_non_ref_pic</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">gint32</span> <em class="structfield"><code><a name="GstH264SPS.offset-for-top-to-bottom-field"></a>offset_for_top_to_bottom_field</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint32"><span class="type">gint32</span></a> <em class="structfield"><code><a name="GstH264SPS.offset-for-top-to-bottom-field"></a>offset_for_top_to_bottom_field</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.num-ref-frames-in-pic-order-cnt-cycle"></a>num_ref_frames_in_pic_order_cnt_cycle</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.num-ref-frames-in-pic-order-cnt-cycle"></a>num_ref_frames_in_pic_order_cnt_cycle</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">gint32</span> <em class="structfield"><code><a name="GstH264SPS.offset-for-ref-frame"></a>offset_for_ref_frame</code></em>[255];</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint32"><span class="type">gint32</span></a> <em class="structfield"><code><a name="GstH264SPS.offset-for-ref-frame"></a>offset_for_ref_frame</code></em>[255];</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264SPS.num-ref-frames"></a>num_ref_frames</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264SPS.num-ref-frames"></a>num_ref_frames</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.gaps-in-frame-num-value-allowed-flag"></a>gaps_in_frame_num_value_allowed_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.gaps-in-frame-num-value-allowed-flag"></a>gaps_in_frame_num_value_allowed_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264SPS.pic-width-in-mbs-minus1"></a>pic_width_in_mbs_minus1</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264SPS.pic-width-in-mbs-minus1"></a>pic_width_in_mbs_minus1</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264SPS.pic-height-in-map-units-minus1"></a>pic_height_in_map_units_minus1</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264SPS.pic-height-in-map-units-minus1"></a>pic_height_in_map_units_minus1</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.frame-mbs-only-flag"></a>frame_mbs_only_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.frame-mbs-only-flag"></a>frame_mbs_only_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.mb-adaptive-frame-field-flag"></a>mb_adaptive_frame_field_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.mb-adaptive-frame-field-flag"></a>mb_adaptive_frame_field_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.direct-8x8-inference-flag"></a>direct_8x8_inference_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.direct-8x8-inference-flag"></a>direct_8x8_inference_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.frame-cropping-flag"></a>frame_cropping_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.frame-cropping-flag"></a>frame_cropping_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264SPS.frame-crop-left-offset"></a>frame_crop_left_offset</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264SPS.frame-crop-left-offset"></a>frame_crop_left_offset</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264SPS.frame-crop-right-offset"></a>frame_crop_right_offset</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264SPS.frame-crop-right-offset"></a>frame_crop_right_offset</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264SPS.frame-crop-top-offset"></a>frame_crop_top_offset</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264SPS.frame-crop-top-offset"></a>frame_crop_top_offset</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264SPS.frame-crop-bottom-offset"></a>frame_crop_bottom_offset</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264SPS.frame-crop-bottom-offset"></a>frame_crop_bottom_offset</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.vui-parameters-present-flag"></a>vui_parameters_present_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.vui-parameters-present-flag"></a>vui_parameters_present_flag</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
@@ -1913,12 +1913,12 @@ already been parsed</p></td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.chroma-array-type"></a>chroma_array_type</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.chroma-array-type"></a>chroma_array_type</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264SPS.max-frame-num"></a>max_frame_num</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264SPS.max-frame-num"></a>max_frame_num</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
@@ -1968,7 +1968,7 @@ already been parsed</p></td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264SPS.extension-type"></a>extension_type</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264SPS.extension-type"></a>extension_type</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
@@ -2055,19 +2055,19 @@ already been parsed</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264HRDParams.cpb-cnt-minus1"></a>cpb_cnt_minus1</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264HRDParams.cpb-cnt-minus1"></a>cpb_cnt_minus1</code></em>;</p></td>
 <td class="struct_member_description"><p>plus 1 specifies the number of alternative
 CPB specifications in the bitstream</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264HRDParams.bit-rate-scale"></a>bit_rate_scale</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264HRDParams.bit-rate-scale"></a>bit_rate_scale</code></em>;</p></td>
 <td class="struct_member_description"><p>specifies the maximum input bit rate of the
 SchedSelIdx-th CPB</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264HRDParams.cpb-size-scale"></a>cpb_size_scale</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264HRDParams.cpb-size-scale"></a>cpb_size_scale</code></em>;</p></td>
 <td class="struct_member_description"><p>specifies the CPB size of the SchedSelIdx-th CPB
 <em class="parameter"><code>guint32</code></em>
 bit_rate_value_minus1: specifies the maximum input bit rate for the
@@ -2075,41 +2075,41 @@ SchedSelIdx-th CPB</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264HRDParams.bit-rate-value-minus1"></a>bit_rate_value_minus1</code></em>[32];</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264HRDParams.bit-rate-value-minus1"></a>bit_rate_value_minus1</code></em>[32];</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264HRDParams.cpb-size-value-minus1"></a>cpb_size_value_minus1</code></em>[32];</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264HRDParams.cpb-size-value-minus1"></a>cpb_size_value_minus1</code></em>[32];</p></td>
 <td class="struct_member_description"><p>is used together with cpb_size_scale to specify the
 SchedSelIdx-th CPB size</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264HRDParams.cbr-flag"></a>cbr_flag</code></em>[32];</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264HRDParams.cbr-flag"></a>cbr_flag</code></em>[32];</p></td>
 <td class="struct_member_description"><p>Specifies if running in itermediate bitrate mode or constant</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264HRDParams.initial-cpb-removal-delay-length-minus1"></a>initial_cpb_removal_delay_length_minus1</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264HRDParams.initial-cpb-removal-delay-length-minus1"></a>initial_cpb_removal_delay_length_minus1</code></em>;</p></td>
 <td class="struct_member_description"><p>specifies the length in bits of
 the cpb_removal_delay syntax element</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264HRDParams.cpb-removal-delay-length-minus1"></a>cpb_removal_delay_length_minus1</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264HRDParams.cpb-removal-delay-length-minus1"></a>cpb_removal_delay_length_minus1</code></em>;</p></td>
 <td class="struct_member_description"><p>specifies the length in bits of the
 dpb_output_delay syntax element</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264HRDParams.dpb-output-delay-length-minus1"></a>dpb_output_delay_length_minus1</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264HRDParams.dpb-output-delay-length-minus1"></a>dpb_output_delay_length_minus1</code></em>;</p></td>
 <td class="struct_member_description"><div class="blockquote"><blockquote class="blockquote"><p>0 specifies the length in bits of the time_offset syntax element.
 =0 specifies that the time_offset syntax element is not present</p></blockquote></div></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264HRDParams.time-offset-length"></a>time_offset_length</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264HRDParams.time-offset-length"></a>time_offset_length</code></em>;</p></td>
 <td class="struct_member_description"><p>Length of the time offset</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -2186,7 +2186,7 @@ dpb_output_delay syntax element</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.aspect-ratio-info-present-flag"></a>aspect_ratio_info_present_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.aspect-ratio-info-present-flag"></a>aspect_ratio_info_present_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> specifies that aspect_ratio_idc is present.
 <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> specifies that aspect_ratio_idc is not present
 <em class="parameter"><code>aspect_ratio_idc</code></em>
@@ -2198,113 +2198,113 @@ indicates the vertical size of the sample aspect ratio</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.aspect-ratio-idc"></a>aspect_ratio_idc</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.aspect-ratio-idc"></a>aspect_ratio_idc</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstH264VUIParams.sar-width"></a>sar_width</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstH264VUIParams.sar-width"></a>sar_width</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstH264VUIParams.sar-height"></a>sar_height</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstH264VUIParams.sar-height"></a>sar_height</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.overscan-info-present-flag"></a>overscan_info_present_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.overscan-info-present-flag"></a>overscan_info_present_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> overscan_appropriate_flag is present <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.overscan-appropriate-flag"></a>overscan_appropriate_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.overscan-appropriate-flag"></a>overscan_appropriate_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> indicates that the cropped decoded pictures
 output are suitable for display using overscan. <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> the cropped decoded pictures
 output contain visually important information</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.video-signal-type-present-flag"></a>video_signal_type_present_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.video-signal-type-present-flag"></a>video_signal_type_present_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> specifies that video_format, video_full_range_flag and
 colour_description_present_flag are present.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.video-format"></a>video_format</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.video-format"></a>video_format</code></em>;</p></td>
 <td class="struct_member_description"><p>indicates the representation of the picture</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.video-full-range-flag"></a>video_full_range_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.video-full-range-flag"></a>video_full_range_flag</code></em>;</p></td>
 <td class="struct_member_description"><p>indicates the black level and range of the luma and chroma signals</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.colour-description-present-flag"></a>colour_description_present_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.colour-description-present-flag"></a>colour_description_present_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> specifies that colour_primaries,
 transfer_characteristics and matrix_coefficients are present</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.colour-primaries"></a>colour_primaries</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.colour-primaries"></a>colour_primaries</code></em>;</p></td>
 <td class="struct_member_description"><p>indicates the chromaticity coordinates of the source primaries</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.transfer-characteristics"></a>transfer_characteristics</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.transfer-characteristics"></a>transfer_characteristics</code></em>;</p></td>
 <td class="struct_member_description"><p>indicates the opto-electronic transfer characteristic</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.matrix-coefficients"></a>matrix_coefficients</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.matrix-coefficients"></a>matrix_coefficients</code></em>;</p></td>
 <td class="struct_member_description"><p>describes the matrix coefficients used in deriving luma and chroma signals</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.chroma-loc-info-present-flag"></a>chroma_loc_info_present_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.chroma-loc-info-present-flag"></a>chroma_loc_info_present_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> specifies that chroma_sample_loc_type_top_field and
 chroma_sample_loc_type_bottom_field are present, <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.chroma-sample-loc-type-top-field"></a>chroma_sample_loc_type_top_field</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.chroma-sample-loc-type-top-field"></a>chroma_sample_loc_type_top_field</code></em>;</p></td>
 <td class="struct_member_description"><p>specify the location of chroma for top field
 <em class="parameter"><code>chroma_sample_loc_type_bottom_field</code></em>
 specify the location of chroma for bottom field</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.chroma-sample-loc-type-bottom-field"></a>chroma_sample_loc_type_bottom_field</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.chroma-sample-loc-type-bottom-field"></a>chroma_sample_loc_type_bottom_field</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.timing-info-present-flag"></a>timing_info_present_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.timing-info-present-flag"></a>timing_info_present_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> specifies that num_units_in_tick,
 time_scale and fixed_frame_rate_flag are present in the bitstream</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264VUIParams.num-units-in-tick"></a>num_units_in_tick</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264VUIParams.num-units-in-tick"></a>num_units_in_tick</code></em>;</p></td>
 <td class="struct_member_description"><p>is the number of time units of a clock operating at the frequency time_scale Hz
 time_scale: is the number of time units that pass in one second</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264VUIParams.time-scale"></a>time_scale</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264VUIParams.time-scale"></a>time_scale</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.fixed-frame-rate-flag"></a>fixed_frame_rate_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.fixed-frame-rate-flag"></a>fixed_frame_rate_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> indicates that the temporal distance between the HRD output times
 of any two consecutive pictures in output order is constrained as specified in the spec, <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>
 otherwize.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.nal-hrd-parameters-present-flag"></a>nal_hrd_parameters_present_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.nal-hrd-parameters-present-flag"></a>nal_hrd_parameters_present_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if nal hrd parameters present in the bitstream</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -2314,7 +2314,7 @@ otherwize.</p></td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.vcl-hrd-parameters-present-flag"></a>vcl_hrd_parameters_present_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.vcl-hrd-parameters-present-flag"></a>vcl_hrd_parameters_present_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if nal vlc hrd parameters present in the bitstream</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -2324,59 +2324,59 @@ otherwize.</p></td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.low-delay-hrd-flag"></a>low_delay_hrd_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.low-delay-hrd-flag"></a>low_delay_hrd_flag</code></em>;</p></td>
 <td class="struct_member_description"><p>specifies the HRD operational mode</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.pic-struct-present-flag"></a>pic_struct_present_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.pic-struct-present-flag"></a>pic_struct_present_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> specifies that picture timing SEI messages are present or not</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.bitstream-restriction-flag"></a>bitstream_restriction_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.bitstream-restriction-flag"></a>bitstream_restriction_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> specifies that the following coded video sequence bitstream restriction
 parameters are present</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstH264VUIParams.motion-vectors-over-pic-boundaries-flag"></a>motion_vectors_over_pic_boundaries_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.motion-vectors-over-pic-boundaries-flag"></a>motion_vectors_over_pic_boundaries_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> indicates that no sample outside the
 picture boundaries and no sample at a fractional sample position, <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> indicates that one or more
 samples outside picture boundaries may be used in inter prediction</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264VUIParams.max-bytes-per-pic-denom"></a>max_bytes_per_pic_denom</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264VUIParams.max-bytes-per-pic-denom"></a>max_bytes_per_pic_denom</code></em>;</p></td>
 <td class="struct_member_description"><p>indicates a number of bytes not exceeded by the sum of the sizes of
 the VCL NAL units associated with any coded picture in the coded video sequence.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264VUIParams.max-bits-per-mb-denom"></a>max_bits_per_mb_denom</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264VUIParams.max-bits-per-mb-denom"></a>max_bits_per_mb_denom</code></em>;</p></td>
 <td class="struct_member_description"><p>indicates the maximum number of coded bits of macroblock_layer</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264VUIParams.log2-max-mv-length-horizontal"></a>log2_max_mv_length_horizontal</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264VUIParams.log2-max-mv-length-horizontal"></a>log2_max_mv_length_horizontal</code></em>;</p></td>
 <td class="struct_member_description"><p>indicate the maximum absolute value of a decoded horizontal
 motion vector component</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264VUIParams.log2-max-mv-length-vertical"></a>log2_max_mv_length_vertical</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264VUIParams.log2-max-mv-length-vertical"></a>log2_max_mv_length_vertical</code></em>;</p></td>
 <td class="struct_member_description"><p>indicate the maximum absolute value of a decoded vertical
 motion vector component</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264VUIParams.num-reorder-frames"></a>num_reorder_frames</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264VUIParams.num-reorder-frames"></a>num_reorder_frames</code></em>;</p></td>
 <td class="struct_member_description"><p>indicates the maximum number of frames, complementary field pairs,
 or non-paired fields that precede any frame,</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstH264VUIParams.max-dec-frame-buffering"></a>max_dec_frame_buffering</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstH264VUIParams.max-dec-frame-buffering"></a>max_dec_frame_buffering</code></em>;</p></td>
 <td class="struct_member_description"><p>specifies the required size of the HRD decoded picture buffer in
 units of frame buffers.</p></td>
 <td class="struct_member_annotations"> </td>
