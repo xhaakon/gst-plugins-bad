@@ -1032,8 +1032,8 @@ gst_mpegts_descriptor_parse_dvb_teletext_idx
                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> idx</code></em>,
                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **language_code</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDVBTeletextType" title="enum GstMpegtsDVBTeletextType"><span class="type">GstMpegtsDVBTeletextType</span></a> *teletext_type</code></em>,
-                                <em class="parameter"><code><span class="type">guint8</span> *magazine_number</code></em>,
-                                <em class="parameter"><code><span class="type">guint8</span> *page_number</code></em>);</pre>
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *magazine_number</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *page_number</code></em>);</pre>
 <p>Parses teletext number <em class="parameter"><code>idx</code></em>
  in the <em class="parameter"><code>descriptor</code></em>
 . The language is in ISO639 format.</p>
@@ -1120,9 +1120,9 @@ gst_mpegts_descriptor_parse_dvb_subtitling_idx
                                (<em class="parameter"><code>const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="type">GstMpegtsDescriptor</span></a> *descriptor</code></em>,
                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> idx</code></em>,
                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **lang</code></em>,
-                                <em class="parameter"><code><span class="type">guint8</span> *type</code></em>,
-                                <em class="parameter"><code><span class="type">guint16</span> *composition_page_id</code></em>,
-                                <em class="parameter"><code><span class="type">guint16</span> *ancillary_page_id</code></em>);</pre>
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *type</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> *composition_page_id</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> *ancillary_page_id</code></em>);</pre>
 <p>Extracts the DVB subtitling informatio from specific table id in <em class="parameter"><code>descriptor</code></em>
 .</p>
 <p>Note: Use <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gsttaglanguagecodes.html#gst-tag-get-language-code"><span class="type">gst_tag_get_language_code</span></a> if you want to get the the
@@ -1207,9 +1207,9 @@ gst_mpegts_descriptor_parse_dvb_subtitling_nb
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="returnvalue">GstMpegtsDescriptor</span></a> *
 gst_mpegts_descriptor_from_dvb_subtitling
                                (<em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *lang</code></em>,
-                                <em class="parameter"><code><span class="type">guint8</span> type</code></em>,
-                                <em class="parameter"><code><span class="type">guint16</span> composition</code></em>,
-                                <em class="parameter"><code><span class="type">guint16</span> ancillary</code></em>);</pre>
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> type</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> composition</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> ancillary</code></em>);</pre>
 <div class="refsect3">
 <a name="id-1.2.5.9.8.21.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
@@ -1371,9 +1371,9 @@ gst_mpegts_descriptor_parse_dvb_linkage
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpegts_descriptor_parse_dvb_private_data_specifier
                                (<em class="parameter"><code>const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="type">GstMpegtsDescriptor</span></a> *descriptor</code></em>,
-                                <em class="parameter"><code><span class="type">guint32</span> *private_data_specifier</code></em>,
-                                <em class="parameter"><code><span class="type">guint8</span> **private_data</code></em>,
-                                <em class="parameter"><code><span class="type">guint8</span> *length</code></em>);</pre>
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *private_data_specifier</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> **private_data</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *length</code></em>);</pre>
 <p>Parses out the private data specifier from the <em class="parameter"><code>descriptor</code></em>
 .</p>
 <div class="refsect3">
@@ -1546,9 +1546,9 @@ administered by the DVB Common Scrambling Algorithm Custodian. </p></td>
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpegts_descriptor_parse_dvb_data_broadcast_id
                                (<em class="parameter"><code>const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="type">GstMpegtsDescriptor</span></a> *descriptor</code></em>,
-                                <em class="parameter"><code><span class="type">guint16</span> *data_broadcast_id</code></em>,
-                                <em class="parameter"><code><span class="type">guint8</span> **id_selector_bytes</code></em>,
-                                <em class="parameter"><code><span class="type">guint8</span> *len</code></em>);</pre>
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> *data_broadcast_id</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> **id_selector_bytes</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *len</code></em>);</pre>
 <p>Parses out the data broadcast id from the <em class="parameter"><code>descriptor</code></em>
 .</p>
 <div class="refsect3">
@@ -1630,7 +1630,7 @@ gst_mpegts_descriptor_parse_dvb_parental_rating
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpegts_descriptor_parse_dvb_stream_identifier
                                (<em class="parameter"><code>const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="type">GstMpegtsDescriptor</span></a> *descriptor</code></em>,
-                                <em class="parameter"><code><span class="type">guint8</span> *component_tag</code></em>);</pre>
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *component_tag</code></em>);</pre>
 <p>Extracts the component tag from <em class="parameter"><code>descriptor</code></em>
 .</p>
 <div class="refsect3">
@@ -1740,7 +1740,7 @@ gst_mpegts_descriptor_parse_dvb_service_list
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpegts_descriptor_parse_dvb_stuffing
                                (<em class="parameter"><code>const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="type">GstMpegtsDescriptor</span></a> *descriptor</code></em>,
-                                <em class="parameter"><code><span class="type">guint8</span> **stuffing_bytes</code></em>);</pre>
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> **stuffing_bytes</code></em>);</pre>
 <p>Parses out the stuffing bytes from the <em class="parameter"><code>descriptor</code></em>
 .</p>
 <div class="refsect3">
@@ -1916,7 +1916,7 @@ gst_mpegts_descriptor_parse_dvb_multilingual_service_name
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpegts_descriptor_parse_dvb_multilingual_component
                                (<em class="parameter"><code>const <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor"><span class="type">GstMpegtsDescriptor</span></a> *descriptor</code></em>,
-                                <em class="parameter"><code><span class="type">guint8</span> *component_tag</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *component_tag</code></em>,
                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Pointer-Arrays.html#GPtrArray"><span class="type">GPtrArray</span></a> **component_description_items</code></em>);</pre>
 <p>Parses out the multilingual component from the <em class="parameter"><code>descriptor</code></em>
 .</p>
@@ -2463,12 +2463,12 @@ type from the various DVB specifications.</p>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegtsExtendedEventDescriptor.descriptor-number"></a>descriptor_number</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegtsExtendedEventDescriptor.descriptor-number"></a>descriptor_number</code></em>;</p></td>
 <td class="struct_member_description"> </td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegtsExtendedEventDescriptor.last-descriptor-number"></a>last_descriptor_number</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegtsExtendedEventDescriptor.last-descriptor-number"></a>last_descriptor_number</code></em>;</p></td>
 <td class="struct_member_description"> </td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -2519,7 +2519,7 @@ type from the various DVB specifications.</p>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstMpegtsSatelliteDeliverySystemDescriptor.frequency"></a>frequency</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstMpegtsSatelliteDeliverySystemDescriptor.frequency"></a>frequency</code></em>;</p></td>
 <td class="struct_member_description"><p>the frequency in kHz (kiloHertz)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -2555,7 +2555,7 @@ else in the western part.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstMpegtsSatelliteDeliverySystemDescriptor.symbol-rate"></a>symbol_rate</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstMpegtsSatelliteDeliverySystemDescriptor.symbol-rate"></a>symbol_rate</code></em>;</p></td>
 <td class="struct_member_description"><p>Symbol rate (in symbols per second)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -2840,7 +2840,7 @@ else in the western part.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstMpegtsCableDeliverySystemDescriptor.frequency"></a>frequency</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstMpegtsCableDeliverySystemDescriptor.frequency"></a>frequency</code></em>;</p></td>
 <td class="struct_member_description"><p>the frequency in Hz (Hertz)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -2855,7 +2855,7 @@ else in the western part.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstMpegtsCableDeliverySystemDescriptor.symbol-rate"></a>symbol_rate</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstMpegtsCableDeliverySystemDescriptor.symbol-rate"></a>symbol_rate</code></em>;</p></td>
 <td class="struct_member_description"><p>Symbol rate (in symbols per second)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -2928,12 +2928,12 @@ else in the western part.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstMpegtsTerrestrialDeliverySystemDescriptor.frequency"></a>frequency</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstMpegtsTerrestrialDeliverySystemDescriptor.frequency"></a>frequency</code></em>;</p></td>
 <td class="struct_member_description"><p>the frequency in Hz (Hertz)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstMpegtsTerrestrialDeliverySystemDescriptor.bandwidth"></a>bandwidth</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstMpegtsTerrestrialDeliverySystemDescriptor.bandwidth"></a>bandwidth</code></em>;</p></td>
 <td class="struct_member_description"><p>the bandwidth in Hz (Hertz)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -3182,12 +3182,12 @@ else in the western part.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemCellExtension.cell-id-extension"></a>cell_id_extension</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemCellExtension.cell-id-extension"></a>cell_id_extension</code></em>;</p></td>
 <td class="struct_member_description"><p>id of the sub cell</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemCellExtension.transposer-frequency"></a>transposer_frequency</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemCellExtension.transposer-frequency"></a>transposer_frequency</code></em>;</p></td>
 <td class="struct_member_description"><p>centre frequency of the sub cell in Hz</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -3214,7 +3214,7 @@ else in the western part.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemCell.cell-id"></a>cell_id</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemCell.cell-id"></a>cell_id</code></em>;</p></td>
 <td class="struct_member_description"><p>id of the cell</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -3259,22 +3259,22 @@ else in the western part.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemDescriptor.plp-id"></a>plp_id</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemDescriptor.plp-id"></a>plp_id</code></em>;</p></td>
 <td class="struct_member_description"> </td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemDescriptor.t2-system-id"></a>t2_system_id</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemDescriptor.t2-system-id"></a>t2_system_id</code></em>;</p></td>
 <td class="struct_member_description"> </td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemDescriptor.siso-miso"></a>siso_miso</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemDescriptor.siso-miso"></a>siso_miso</code></em>;</p></td>
 <td class="struct_member_description"> </td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemDescriptor.bandwidth"></a>bandwidth</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstMpegtsT2DeliverySystemDescriptor.bandwidth"></a>bandwidth</code></em>;</p></td>
 <td class="struct_member_description"> </td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -3702,17 +3702,17 @@ else in the western part.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegtsDVBLinkageDescriptor.transport-stream-id"></a>transport_stream_id</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpegtsDVBLinkageDescriptor.transport-stream-id"></a>transport_stream_id</code></em>;</p></td>
 <td class="struct_member_description"><p>the transport id</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegtsDVBLinkageDescriptor.original-network-id"></a>original_network_id</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpegtsDVBLinkageDescriptor.original-network-id"></a>original_network_id</code></em>;</p></td>
 <td class="struct_member_description"><p>the original network id</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegtsDVBLinkageDescriptor.service-id"></a>service_id</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpegtsDVBLinkageDescriptor.service-id"></a>service_id</code></em>;</p></td>
 <td class="struct_member_description"><p>the service id</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -3722,12 +3722,12 @@ else in the western part.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegtsDVBLinkageDescriptor.private-data-length"></a>private_data_length</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegtsDVBLinkageDescriptor.private-data-length"></a>private_data_length</code></em>;</p></td>
 <td class="struct_member_description"><p>the length for <code class="literal">private_data_bytes</code></p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> *<em class="structfield"><code><a name="GstMpegtsDVBLinkageDescriptor.private-data-bytes"></a>private_data_bytes</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *<em class="structfield"><code><a name="GstMpegtsDVBLinkageDescriptor.private-data-bytes"></a>private_data_bytes</code></em>;</p></td>
 <td class="struct_member_description"><p>additional data bytes</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -3757,22 +3757,22 @@ else in the western part.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegtsDataBroadcastDescriptor.data-broadcast-id"></a>data_broadcast_id</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpegtsDataBroadcastDescriptor.data-broadcast-id"></a>data_broadcast_id</code></em>;</p></td>
 <td class="struct_member_description"><p>the data broadcast id</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegtsDataBroadcastDescriptor.component-tag"></a>component_tag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegtsDataBroadcastDescriptor.component-tag"></a>component_tag</code></em>;</p></td>
 <td class="struct_member_description"><p>the component tag</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegtsDataBroadcastDescriptor.length"></a>length</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegtsDataBroadcastDescriptor.length"></a>length</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> *<em class="structfield"><code><a name="GstMpegtsDataBroadcastDescriptor.selector-bytes"></a>selector_bytes</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *<em class="structfield"><code><a name="GstMpegtsDataBroadcastDescriptor.selector-bytes"></a>selector_bytes</code></em>;</p></td>
 <td class="struct_member_description"><p>the selector byte field</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -3879,7 +3879,7 @@ else in the western part.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegtsDVBServiceListItem.service-id"></a>service_id</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpegtsDVBServiceListItem.service-id"></a>service_id</code></em>;</p></td>
 <td class="struct_member_description"><p>the id of a service</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>

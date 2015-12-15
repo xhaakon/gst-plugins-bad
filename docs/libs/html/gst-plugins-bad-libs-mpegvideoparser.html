@@ -209,8 +209,8 @@ Provides useful functions for mpeg videos bitstream parsing.
 <a name="gst-mpeg-video-parse"></a><h3>gst_mpeg_video_parse ()</h3>
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpeg_video_parse (<em class="parameter"><code><span class="type">GstMpegVideoPacket</span> *packet</code></em>,
-                      <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
-                      <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
+                      <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
+                      <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                       <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
 <p>Parses the MPEG 1/2 video bitstream contained in <em class="parameter"><code>data</code></em>
 , and returns the
@@ -261,8 +261,8 @@ next packet found</p></td>
 <a name="gst-mpeg-video-parse-sequence-header"></a><h3>gst_mpeg_video_parse_sequence_header ()</h3>
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpeg_video_parse_sequence_header (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> *seqhdr</code></em>,
-                                      <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
-                                      <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
+                                      <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
+                                      <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                       <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
 <div class="warning">
 <p><code class="literal">gst_mpeg_video_parse_sequence_header</code> is deprecated and should not be used in newly-written code.</p>
@@ -315,8 +315,8 @@ gst_mpeg_video_parse_sequence_header (<em class="parameter"><code><a class="link
 <a name="gst-mpeg-video-parse-picture-header"></a><h3>gst_mpeg_video_parse_picture_header ()</h3>
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpeg_video_parse_picture_header (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureHdr" title="struct GstMpegVideoPictureHdr"><span class="type">GstMpegVideoPictureHdr</span></a> *hdr</code></em>,
-                                     <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
-                                     <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
+                                     <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
+                                     <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                      <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
 <div class="warning">
 <p><code class="literal">gst_mpeg_video_parse_picture_header</code> is deprecated and should not be used in newly-written code.</p>
@@ -370,8 +370,8 @@ otherwize.</p>
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpeg_video_parse_picture_extension
                                (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureExt" title="struct GstMpegVideoPictureExt"><span class="type">GstMpegVideoPictureExt</span></a> *ext</code></em>,
-                                <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
-                                <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
+                                <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
 <div class="warning">
 <p><code class="literal">gst_mpeg_video_parse_picture_extension</code> is deprecated and should not be used in newly-written code.</p>
@@ -424,8 +424,8 @@ gst_mpeg_video_parse_picture_extension
 <a name="gst-mpeg-video-parse-gop"></a><h3>gst_mpeg_video_parse_gop ()</h3>
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpeg_video_parse_gop (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoGop" title="struct GstMpegVideoGop"><span class="type">GstMpegVideoGop</span></a> *gop</code></em>,
-                          <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
-                          <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
+                          <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
+                          <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                           <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
 <div class="warning">
 <p><code class="literal">gst_mpeg_video_parse_gop</code> is deprecated and should not be used in newly-written code.</p>
@@ -478,8 +478,8 @@ gst_mpeg_video_parse_gop (<em class="parameter"><code><a class="link" href="gst-
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpeg_video_parse_sequence_extension
                                (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceExt" title="struct GstMpegVideoSequenceExt"><span class="type">GstMpegVideoSequenceExt</span></a> *seqext</code></em>,
-                                <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
-                                <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
+                                <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
 <div class="warning">
 <p><code class="literal">gst_mpeg_video_parse_sequence_extension</code> is deprecated and should not be used in newly-written code.</p>
@@ -533,8 +533,8 @@ gst_mpeg_video_parse_sequence_extension
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpeg_video_parse_sequence_display_extension
                                (<em class="parameter"><code><span class="type">GstMpegVideoSequenceDisplayExt</span> *seqdisplayext</code></em>,
-                                <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
-                                <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
+                                <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
 <div class="warning"><p><code class="literal">gst_mpeg_video_parse_sequence_display_extension</code> is deprecated and should not be used in newly-written code.</p></div>
 </div>
@@ -544,8 +544,8 @@ gst_mpeg_video_parse_sequence_display_extension
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_mpeg_video_parse_quant_matrix_extension
                                (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoQuantMatrixExt" title="struct GstMpegVideoQuantMatrixExt"><span class="type">GstMpegVideoQuantMatrixExt</span></a> *quant</code></em>,
-                                <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
-                                <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
+                                <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
+                                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
 <div class="warning">
 <p><code class="literal">gst_mpeg_video_parse_quant_matrix_extension</code> is deprecated and should not be used in newly-written code.</p>
@@ -608,8 +608,8 @@ gst_mpeg_video_finalise_mpeg2_sequence_header
 <a name="gst-mpeg-video-quant-matrix-get-raster-from-zigzag"></a><h3>gst_mpeg_video_quant_matrix_get_raster_from_zigzag ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_mpeg_video_quant_matrix_get_raster_from_zigzag
-                               (<em class="parameter"><code><span class="type">guint8</span> out_quant[64]</code></em>,
-                                <em class="parameter"><code>const <span class="type">guint8</span> quant[64]</code></em>);</pre>
+                               (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> out_quant[64]</code></em>,
+                                <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> quant[64]</code></em>);</pre>
 <p>Converts quantization matrix <em class="parameter"><code>quant</code></em>
  from zigzag scan order to
 raster scan order and store the resulting factors into <em class="parameter"><code>out_quant</code></em>
@@ -647,8 +647,8 @@ raster scan order and store the resulting factors into <em class="parameter"><co
 <a name="gst-mpeg-video-quant-matrix-get-zigzag-from-raster"></a><h3>gst_mpeg_video_quant_matrix_get_zigzag_from_raster ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_mpeg_video_quant_matrix_get_zigzag_from_raster
-                               (<em class="parameter"><code><span class="type">guint8</span> out_quant[64]</code></em>,
-                                <em class="parameter"><code>const <span class="type">guint8</span> quant[64]</code></em>);</pre>
+                               (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> out_quant[64]</code></em>,
+                                <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> quant[64]</code></em>);</pre>
 <p>Converts quantization matrix <em class="parameter"><code>quant</code></em>
  from raster scan order to
 zigzag scan order and store the resulting factors into <em class="parameter"><code>out_quant</code></em>
@@ -1036,47 +1036,47 @@ Picture may occur together or separately.</p>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.width"></a>width</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.width"></a>width</code></em>;</p></td>
 <td class="struct_member_description"><p>Width of each frame</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.height"></a>height</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.height"></a>height</code></em>;</p></td>
 <td class="struct_member_description"><p>Height of each frame</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.aspect-ratio-info"></a>aspect_ratio_info</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.aspect-ratio-info"></a>aspect_ratio_info</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.frame-rate-code"></a>frame_rate_code</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.frame-rate-code"></a>frame_rate_code</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint32</span> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.bitrate-value"></a>bitrate_value</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.bitrate-value"></a>bitrate_value</code></em>;</p></td>
 <td class="struct_member_description"><p>Value of the bitrate as is in the stream (400bps unit)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.vbv-buffer-size-value"></a>vbv_buffer_size_value</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.vbv-buffer-size-value"></a>vbv_buffer_size_value</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.constrained-parameters-flag"></a>constrained_parameters_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.constrained-parameters-flag"></a>constrained_parameters_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if this stream uses contrained parameters.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.intra-quantizer-matrix"></a>intra_quantizer_matrix</code></em>[64];</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.intra-quantizer-matrix"></a>intra_quantizer_matrix</code></em>[64];</p></td>
 <td class="struct_member_description"><p>intra-quantization table, in zigzag scan order</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.non-intra-quantizer-matrix"></a>non_intra_quantizer_matrix</code></em>[64];</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.non-intra-quantizer-matrix"></a>non_intra_quantizer_matrix</code></em>[64];</p></td>
 <td class="struct_member_description"><p>non-intra quantization table, in zigzag scan order</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -1140,58 +1140,58 @@ Picture may occur together or separately.</p>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.profile"></a>profile</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.profile"></a>profile</code></em>;</p></td>
 <td class="struct_member_description"><p>mpeg2 decoder profile</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.level"></a>level</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.level"></a>level</code></em>;</p></td>
 <td class="struct_member_description"><p>mpeg2 decoder level</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.progressive"></a>progressive</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.progressive"></a>progressive</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the frames are progressive <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.chroma-format"></a>chroma_format</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.chroma-format"></a>chroma_format</code></em>;</p></td>
 <td class="struct_member_description"><p>indicates the chrominance format</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.horiz-size-ext"></a>horiz_size_ext</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.horiz-size-ext"></a>horiz_size_ext</code></em>;</p></td>
 <td class="struct_member_description"><p>Horizontal size</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.vert-size-ext"></a>vert_size_ext</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.vert-size-ext"></a>vert_size_ext</code></em>;</p></td>
 <td class="struct_member_description"><p>Vertical size</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.bitrate-ext"></a>bitrate_ext</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.bitrate-ext"></a>bitrate_ext</code></em>;</p></td>
 <td class="struct_member_description"><p>The bitrate</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.vbv-buffer-size-extension"></a>vbv_buffer_size_extension</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.vbv-buffer-size-extension"></a>vbv_buffer_size_extension</code></em>;</p></td>
 <td class="struct_member_description"><p>VBV vuffer size</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.low-delay"></a>low_delay</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.low-delay"></a>low_delay</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the sequence doesn't contain any B-pictures, <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>
 otherwise</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.fps-n-ext"></a>fps_n_ext</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.fps-n-ext"></a>fps_n_ext</code></em>;</p></td>
 <td class="struct_member_description"><p>Framerate nominator code</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.fps-d-ext"></a>fps_d_ext</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceExt.fps-d-ext"></a>fps_d_ext</code></em>;</p></td>
 <td class="struct_member_description"><p>Framerate denominator code</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -1222,29 +1222,29 @@ otherwise</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.tsn"></a>tsn</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.tsn"></a>tsn</code></em>;</p></td>
 <td class="struct_member_description"><p>Temporal Sequence Number</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.pic-type"></a>pic_type</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.pic-type"></a>pic_type</code></em>;</p></td>
 <td class="struct_member_description"><p>Type of the frame</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.full-pel-forward-vector"></a>full_pel_forward_vector</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.full-pel-forward-vector"></a>full_pel_forward_vector</code></em>;</p></td>
 <td class="struct_member_description"><p>the full pel forward flag of
 the frame: 0 or 1.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.full-pel-backward-vector"></a>full_pel_backward_vector</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.full-pel-backward-vector"></a>full_pel_backward_vector</code></em>;</p></td>
 <td class="struct_member_description"><p>the full pel backward flag
 of the frame: 0 or 1.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.f-code"></a>f_code</code></em>[2][2];</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.f-code"></a>f_code</code></em>[2][2];</p></td>
 <td class="struct_member_description"><p>F code</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -1275,37 +1275,37 @@ of the frame: 0 or 1.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoGop.drop-frame-flag"></a>drop_frame_flag</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoGop.drop-frame-flag"></a>drop_frame_flag</code></em>;</p></td>
 <td class="struct_member_description"><p>Drop Frame Flag</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoGop.hour"></a>hour</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoGop.hour"></a>hour</code></em>;</p></td>
 <td class="struct_member_description"><p>Hour (0-23)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoGop.minute"></a>minute</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoGop.minute"></a>minute</code></em>;</p></td>
 <td class="struct_member_description"><p>Minute (O-59)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoGop.second"></a>second</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoGop.second"></a>second</code></em>;</p></td>
 <td class="struct_member_description"><p>Second (0-59)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoGop.frame"></a>frame</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoGop.frame"></a>frame</code></em>;</p></td>
 <td class="struct_member_description"><p>Frame (0-59)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoGop.closed-gop"></a>closed_gop</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoGop.closed-gop"></a>closed_gop</code></em>;</p></td>
 <td class="struct_member_description"><p>Closed Gop</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoGop.broken-link"></a>broken_link</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoGop.broken-link"></a>broken_link</code></em>;</p></td>
 <td class="struct_member_description"><p>Broken link</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -1349,92 +1349,92 @@ of the frame: 0 or 1.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.f-code"></a>f_code</code></em>[2][2];</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.f-code"></a>f_code</code></em>[2][2];</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.intra-dc-precision"></a>intra_dc_precision</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.intra-dc-precision"></a>intra_dc_precision</code></em>;</p></td>
 <td class="struct_member_description"><p>Intra DC precision</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.picture-structure"></a>picture_structure</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.picture-structure"></a>picture_structure</code></em>;</p></td>
 <td class="struct_member_description"><p>Structure of the picture</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.top-field-first"></a>top_field_first</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.top-field-first"></a>top_field_first</code></em>;</p></td>
 <td class="struct_member_description"><p>Top field first</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.frame-pred-frame-dct"></a>frame_pred_frame_dct</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.frame-pred-frame-dct"></a>frame_pred_frame_dct</code></em>;</p></td>
 <td class="struct_member_description"><p>Frame</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.concealment-motion-vectors"></a>concealment_motion_vectors</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.concealment-motion-vectors"></a>concealment_motion_vectors</code></em>;</p></td>
 <td class="struct_member_description"><p>Concealment Motion Vectors</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.q-scale-type"></a>q_scale_type</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.q-scale-type"></a>q_scale_type</code></em>;</p></td>
 <td class="struct_member_description"><p>Q Scale Type</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.intra-vlc-format"></a>intra_vlc_format</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.intra-vlc-format"></a>intra_vlc_format</code></em>;</p></td>
 <td class="struct_member_description"><p>Intra Vlc Format</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.alternate-scan"></a>alternate_scan</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.alternate-scan"></a>alternate_scan</code></em>;</p></td>
 <td class="struct_member_description"><p>Alternate Scan</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.repeat-first-field"></a>repeat_first_field</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.repeat-first-field"></a>repeat_first_field</code></em>;</p></td>
 <td class="struct_member_description"><p>Repeat First Field</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.chroma-420-type"></a>chroma_420_type</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.chroma-420-type"></a>chroma_420_type</code></em>;</p></td>
 <td class="struct_member_description"><p>Chroma 420 Type</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.progressive-frame"></a>progressive_frame</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.progressive-frame"></a>progressive_frame</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the frame is progressive <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.composite-display"></a>composite_display</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.composite-display"></a>composite_display</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.v-axis"></a>v_axis</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.v-axis"></a>v_axis</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.field-sequence"></a>field_sequence</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.field-sequence"></a>field_sequence</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.sub-carrier"></a>sub_carrier</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.sub-carrier"></a>sub_carrier</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.burst-amplitude"></a>burst_amplitude</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.burst-amplitude"></a>burst_amplitude</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstMpegVideoPictureExt.sub-carrier-phase"></a>sub_carrier_phase</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.sub-carrier-phase"></a>sub_carrier_phase</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>

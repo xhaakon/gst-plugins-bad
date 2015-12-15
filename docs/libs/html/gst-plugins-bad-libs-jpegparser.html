@@ -212,8 +212,8 @@ Provides useful functions for parsing JPEG images
 <a name="gst-jpeg-parse"></a><h3>gst_jpeg_parse ()</h3>
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_jpeg_parse (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-jpegparser.html#GstJpegSegment" title="struct GstJpegSegment"><span class="type">GstJpegSegment</span></a> *seg</code></em>,
-                <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>,
-                <em class="parameter"><code><span class="type">gsize</span> size</code></em>,
+                <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
+                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
 <p>Parses the JPEG bitstream contained in <em class="parameter"><code>data</code></em>
 , and returns the
@@ -665,7 +665,7 @@ specified by the JPEG standard.</p>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p>const <span class="type">guint8</span> *<em class="structfield"><code><a name="GstJpegSegment.data"></a>data</code></em>;</p></td>
+<td class="struct_member_name"><p>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *<em class="structfield"><code><a name="GstJpegSegment.data"></a>data</code></em>;</p></td>
 <td class="struct_member_description"><p>the data containing the jpeg segment starting at <em class="parameter"><code>offset</code></em>
 </p></td>
 <td class="struct_member_annotations"> </td>
@@ -677,7 +677,7 @@ exact start of the segment, no marker code included</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">gssize</span> <em class="structfield"><code><a name="GstJpegSegment.size"></a>size</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gssize"><span class="type">gssize</span></a> <em class="structfield"><code><a name="GstJpegSegment.size"></a>size</code></em>;</p></td>
 <td class="struct_member_description"><p>The size of the segment in bytes, or -1 if the end was not
 found. It is the exact size of the segment, without the sync byte and
 marker code but including any length bytes.</p></td>
@@ -710,22 +710,22 @@ marker code but including any length bytes.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstJpegFrameHdr.sample-precision"></a>sample_precision</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstJpegFrameHdr.sample-precision"></a>sample_precision</code></em>;</p></td>
 <td class="struct_member_description"><p>Sample precision (P)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstJpegFrameHdr.width"></a>width</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstJpegFrameHdr.width"></a>width</code></em>;</p></td>
 <td class="struct_member_description"><p>Number of samples per line (X)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstJpegFrameHdr.height"></a>height</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstJpegFrameHdr.height"></a>height</code></em>;</p></td>
 <td class="struct_member_description"><p>Number of lines (Y)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstJpegFrameHdr.num-components"></a>num_components</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstJpegFrameHdr.num-components"></a>num_components</code></em>;</p></td>
 <td class="struct_member_description"><p>Number of image components in frame (Nf)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -760,22 +760,22 @@ marker code but including any length bytes.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstJpegFrameComponent.identifier"></a>identifier</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstJpegFrameComponent.identifier"></a>identifier</code></em>;</p></td>
 <td class="struct_member_description"><p>Component identifier (Ci)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstJpegFrameComponent.horizontal-factor"></a>horizontal_factor</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstJpegFrameComponent.horizontal-factor"></a>horizontal_factor</code></em>;</p></td>
 <td class="struct_member_description"><p>Horizontal sampling factor (Hi)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstJpegFrameComponent.vertical-factor"></a>vertical_factor</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstJpegFrameComponent.vertical-factor"></a>vertical_factor</code></em>;</p></td>
 <td class="struct_member_description"><p>Vertical sampling factor (Vi)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstJpegFrameComponent.quant-table-selector"></a>quant_table_selector</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstJpegFrameComponent.quant-table-selector"></a>quant_table_selector</code></em>;</p></td>
 <td class="struct_member_description"><p>Quantization table destination selector (Tqi)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -803,7 +803,7 @@ marker code but including any length bytes.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstJpegScanHdr.num-components"></a>num_components</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstJpegScanHdr.num-components"></a>num_components</code></em>;</p></td>
 <td class="struct_member_description"><p>Number of image components in scan (Ns)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -837,17 +837,17 @@ marker code but including any length bytes.</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstJpegScanComponent.component-selector"></a>component_selector</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstJpegScanComponent.component-selector"></a>component_selector</code></em>;</p></td>
 <td class="struct_member_description"><p>Scan component selector (Csj)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstJpegScanComponent.dc-selector"></a>dc_selector</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstJpegScanComponent.dc-selector"></a>dc_selector</code></em>;</p></td>
 <td class="struct_member_description"><p>DC entropy coding table destination selector (Tdj)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstJpegScanComponent.ac-selector"></a>ac_selector</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstJpegScanComponent.ac-selector"></a>ac_selector</code></em>;</p></td>
 <td class="struct_member_description"><p>AC entropy coding table destination selector (Taj)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -910,12 +910,12 @@ decode an image.</p>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstJpegHuffmanTable.huf-bits"></a>huf_bits</code></em>[16];</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstJpegHuffmanTable.huf-bits"></a>huf_bits</code></em>[16];</p></td>
 <td class="struct_member_description"><p>Number of Huffman codes of length i + 1 (Li)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstJpegHuffmanTable.huf-values"></a>huf_values</code></em>[256];</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstJpegHuffmanTable.huf-values"></a>huf_values</code></em>[256];</p></td>
 <td> </td>
 <td> </td>
 </tr>
@@ -950,12 +950,12 @@ been parsed</p></td>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint8</span> <em class="structfield"><code><a name="GstJpegQuantTable.quant-precision"></a>quant_precision</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstJpegQuantTable.quant-precision"></a>quant_precision</code></em>;</p></td>
 <td class="struct_member_description"><p>Quantization table element precision (Pq)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">guint16</span> <em class="structfield"><code><a name="GstJpegQuantTable.quant-table"></a>quant_table</code></em>[GST_JPEG_MAX_QUANT_ELEMENTS];</p></td>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstJpegQuantTable.quant-table"></a>quant_table</code></em>[GST_JPEG_MAX_QUANT_ELEMENTS];</p></td>
 <td class="struct_member_description"><p>Quantization table elements (Qk)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
