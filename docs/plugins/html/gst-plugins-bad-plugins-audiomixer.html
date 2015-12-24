@@ -94,6 +94,7 @@
                 <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-GstAggregator.html#GstAggregator">GstAggregator</a>
                     <span class="lineart">╰──</span> GstAudioAggregator
                         <span class="lineart">╰──</span> GstAudioMixer
+                            <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad/html/gst-plugins-bad-plugins-liveadder.html#GstLiveAdder">GstLiveAdder</a>
 </pre>
 </div>
 <div class="refsect1">
@@ -124,7 +125,7 @@ properties to mute each pad individually and set the volume:</p>
     <tbody>
       <tr>
         <td class="listing_lines" align="right"><pre>1</pre></td>
-        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch audiotestsrc freq<span class="gtkdoc opt">=</span><span class="number">100</span> <span class="gtkdoc opt">!</span> audiomixer name<span class="gtkdoc opt">=</span>mix <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> alsasink audiotestsrc freq<span class="gtkdoc opt">=</span><span class="number">500</span> <span class="gtkdoc opt">!</span> mix<span class="gtkdoc opt">.</span></pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> audiotestsrc freq<span class="gtkdoc opt">=</span><span class="number">100</span> <span class="gtkdoc opt">!</span> audiomixer name<span class="gtkdoc opt">=</span>mix <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> alsasink audiotestsrc freq<span class="gtkdoc opt">=</span><span class="number">500</span> <span class="gtkdoc opt">!</span> mix<span class="gtkdoc opt">.</span></pre></td>
       </tr>
     </tbody>
   </table>

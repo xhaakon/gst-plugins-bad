@@ -600,7 +600,7 @@ static const MXFUL sound_essence_compression_mpeg1_layer1 = { {
     0x03, 0x02, 0x04, 0x00}
 };
 
-static const MXFUL sound_essence_compression_mpeg1_layer12 = { {
+static const MXFUL sound_essence_compression_mpeg1_layer23 = { {
         0x06, 0x0E, 0x2B, 0x34, 0x04, 0x01, 0x01, 0x01, 0x04, 0x02, 0x02, 0x02,
     0x03, 0x02, 0x05, 0x00}
 };
@@ -701,8 +701,9 @@ mxf_mpeg_es_create_caps (MXFMetadataTimelineTrack * track, GstTagList ** tags,
     } else if ((p->picture_essence_coding.u[13] >> 4) == 0x03) {
       /* RP 2008 */
 
-      /* TODO: What about codec_data for AVC1 streams? */
-      caps = gst_caps_new_empty_simple ("video/x-h264");
+      caps =
+          gst_caps_new_simple ("video/x-h264", "stream-format", G_TYPE_STRING,
+          "byte-stream", NULL);
       codec_name = "h.264 Video";
       t = MXF_MPEG_ESSENCE_TYPE_VIDEO_AVC;
       memcpy (mdata, &t, sizeof (MXFMPEGEssenceType));
@@ -731,7 +732,7 @@ mxf_mpeg_es_create_caps (MXFMetadataTimelineTrack * track, GstTagList ** tags,
           "layer", G_TYPE_INT, 1, NULL);
       codec_name = "MPEG-1 Layer 1 Audio";
     } else if (mxf_ul_is_equal (&s->sound_essence_compression,
-            &sound_essence_compression_mpeg1_layer12)) {
+            &sound_essence_compression_mpeg1_layer23)) {
       caps =
           gst_caps_new_simple ("audio/mpeg", "mpegversion", G_TYPE_INT, 1,
           NULL);
@@ -890,17 +891,16 @@ mxf_mpeg_create_caps (MXFMetadataTimelineTrack * track, GstTagList ** tags,
   } else if (f->essence_container.u[13] == 0x0f) {
     GST_DEBUG ("Found h264 NAL unit stream");
     /* RP 2008 */
-    /* TODO: What about codec_data? */
     caps =
         gst_caps_new_simple ("video/x-h264", "stream-format", G_TYPE_STRING,
-        "avc", NULL);
+        "byte-stream", NULL);
 
     if (!*tags)
       *tags = gst_tag_list_new_empty ();
     gst_tag_list_add (*tags, GST_TAG_MERGE_APPEND, GST_TAG_VIDEO_CODEC,
         "h.264 Video", NULL);
   } else if (f->essence_container.u[13] == 0x10) {
-    GST_DEBUG ("Found h264 byte stream stream");
+    GST_DEBUG ("Found h264 byte-stream stream");
     /* RP 2008 */
     caps =
         gst_caps_new_simple ("video/x-h264", "stream-format", G_TYPE_STRING,
@@ -979,9 +979,9 @@ mxf_mpeg_audio_get_descriptor (GstPadTemplate * tmpl, GstCaps * caps,
       if (mpegaudioversion == 1 && layer == 1)
         memcpy (&ret->sound_essence_compression,
             &sound_essence_compression_mpeg1_layer1, 16);
-      else if (mpegaudioversion == 1 && layer == 2)
+      else if (mpegaudioversion == 1 && (layer == 2 || layer == 3))
         memcpy (&ret->sound_essence_compression,
-            &sound_essence_compression_mpeg1_layer12, 16);
+            &sound_essence_compression_mpeg1_layer23, 16);
       else if (mpegaudioversion == 2 && layer == 1)
         memcpy (&ret->sound_essence_compression,
             &sound_essence_compression_mpeg2_layer1, 16);
@@ -1308,6 +1308,7 @@ mxf_mpeg_video_get_descriptor (GstPadTemplate * tmpl, GstCaps * caps,
     *mapping_data = g_new0 (MXFMPEGEssenceType, 1);
     memcpy (*mapping_data, &type, sizeof (MXFMPEGEssenceType));
     ret->parent.parent.picture_essence_coding.u[13] = 0x30;
+    ret->parent.parent.parent.essence_container.u[13] = 0x10;
   } else {
     g_assert_not_reached ();
   }
@@ -1364,6 +1365,7 @@ static MXFEssenceElementWriter mxf_mpeg_video_essence_element_writer = {
 "height = " GST_VIDEO_SIZE_RANGE ", " \
 "framerate = " GST_VIDEO_FPS_RANGE "; " \
 "video/x-h264, " \
+"stream-format = (string) byte-stream, " \
 "width = " GST_VIDEO_SIZE_RANGE ", " \
 "height = " GST_VIDEO_SIZE_RANGE ", " \
 "framerate = " GST_VIDEO_FPS_RANGE

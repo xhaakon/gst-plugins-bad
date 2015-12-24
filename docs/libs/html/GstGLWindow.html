@@ -99,14 +99,6 @@
 </tr>
 <tr>
 <td class="function_type">
-<span class="returnvalue">void</span>
-</td>
-<td class="function_name">
-<a class="link" href="GstGLWindow.html#gst-gl-window-draw-unlocked" title="gst_gl_window_draw_unlocked ()">gst_gl_window_draw_unlocked</a> <span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="function_type">
 <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
@@ -339,7 +331,7 @@ gst_gl_window_error_quark (<em class="parameter"><code><span class="type">void</
 <pre class="programlisting"><a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="returnvalue">GstGLWindow</span></a> *
 gst_gl_window_new (<em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.8.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.8.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -354,7 +346,7 @@ gst_gl_window_new (<em class="parameter"><code><a class="link" href="GstGLDispla
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.8.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.21.8.8.5"></a><h4>Returns</h4>
 <p> a new <a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> using <em class="parameter"><code>display</code></em>
 's connection. </p>
 <p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
@@ -368,30 +360,7 @@ gst_gl_window_new (<em class="parameter"><code><a class="link" href="GstGLDispla
 gst_gl_window_draw (<em class="parameter"><code><a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> *window</code></em>);</pre>
 <p>Redraw the window contents.  Implementations should invoke the draw callback.</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.9.5"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody><tr>
-<td class="parameter_name"><p>window</p></td>
-<td class="parameter_description"><p>a <a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
-<p class="since">Since: 1.4</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="gst-gl-window-draw-unlocked"></a><h3>gst_gl_window_draw_unlocked ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>
-gst_gl_window_draw_unlocked (<em class="parameter"><code><a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> *window</code></em>);</pre>
-<p>Redraw the window contents.  Implementations should invoke the draw callback.</p>
-<div class="refsect3">
-<a name="id-1.2.9.23.8.10.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.9.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -414,7 +383,7 @@ gst_gl_window_draw_unlocked (<em class="parameter"><code><a class="link" href="G
 gst_gl_window_is_running (<em class="parameter"><code><a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> *window</code></em>);</pre>
 <p>Whether the runloop is running</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.11.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.10.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -437,7 +406,7 @@ gst_gl_window_is_running (<em class="parameter"><code><a class="link" href="GstG
 gst_gl_window_quit (<em class="parameter"><code><a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> *window</code></em>);</pre>
 <p>Quit the runloop's execution.</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.12.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.11.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -460,7 +429,7 @@ gst_gl_window_quit (<em class="parameter"><code><a class="link" href="GstGLWindo
 gst_gl_window_run (<em class="parameter"><code><a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> *window</code></em>);</pre>
 <p>Start the execution of the runloop.</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.13.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.12.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -482,7 +451,7 @@ gst_gl_window_run (<em class="parameter"><code><a class="link" href="GstGLWindow
 <pre class="programlisting"><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="returnvalue">GstGLContext</span></a> *
 gst_gl_window_get_context (<em class="parameter"><code><a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> *window</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.14.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.13.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -497,7 +466,7 @@ gst_gl_window_get_context (<em class="parameter"><code><a class="link" href="Gst
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.14.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.21.8.13.5"></a><h4>Returns</h4>
 <p> the <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> associated with this <em class="parameter"><code>window</code></em>
 . </p>
 <p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
@@ -510,7 +479,7 @@ gst_gl_window_get_context (<em class="parameter"><code><a class="link" href="Gst
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guintptr"><span class="returnvalue">guintptr</span></a>
 gst_gl_window_get_display (<em class="parameter"><code><a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> *window</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.15.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.14.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -525,7 +494,7 @@ gst_gl_window_get_display (<em class="parameter"><code><a class="link" href="Gst
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.15.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.21.8.14.5"></a><h4>Returns</h4>
 <p> the windowing system display handle for this <em class="parameter"><code>window</code></em>
 </p>
 </div>
@@ -543,7 +512,7 @@ gst_gl_window_send_message (<em class="parameter"><code><a class="link" href="Gs
  is guarenteed to
 have executed when this function returns.</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.16.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.15.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -585,7 +554,7 @@ gst_gl_window_send_message_async (<em class="parameter"><code><a class="link" hr
  on the window thread.  The callback may not
 have been executed when this function returns.</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.17.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.16.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -630,7 +599,7 @@ gst_gl_window_set_close_callback (<em class="parameter"><code><a class="link" hr
                                   <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> destroy_notify</code></em>);</pre>
 <p>Sets the callback called when the window is about to close.</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.18.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.17.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -675,7 +644,7 @@ gst_gl_window_set_draw_callback (<em class="parameter"><code><a class="link" hre
                                  <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> destroy_notify</code></em>);</pre>
 <p>Sets the draw callback called everytime <a class="link" href="GstGLWindow.html#gst-gl-window-draw" title="gst_gl_window_draw ()"><code class="function">gst_gl_window_draw()</code></a> is called</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.19.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.18.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -720,7 +689,7 @@ gst_gl_window_set_resize_callback (<em class="parameter"><code><a class="link" h
                                    <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> destroy_notify</code></em>);</pre>
 <p>Sets the resize callback called everytime a resize of the window occurs.</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.20.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.19.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -765,7 +734,7 @@ gst_gl_window_set_window_handle (<em class="parameter"><code><a class="link" hre
  should render into.  Some implementations
 require this to be called with a valid handle before drawing can commence.</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.21.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.20.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -794,7 +763,7 @@ require this to be called with a valid handle before drawing can commence.</p>
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guintptr"><span class="returnvalue">guintptr</span></a>
 gst_gl_window_get_window_handle (<em class="parameter"><code><a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> *window</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.22.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.21.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -809,7 +778,7 @@ gst_gl_window_get_window_handle (<em class="parameter"><code><a class="link" hre
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.22.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.21.8.21.5"></a><h4>Returns</h4>
 <p> the window handle we are currently rendering into</p>
 </div>
 <p class="since">Since: 1.4</p>
@@ -824,7 +793,7 @@ gst_gl_window_set_preferred_size (<em class="parameter"><code><a class="link" hr
 <p>Set the preferred width and height of the window.  Implementations are free
 to ignore this information.</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.23.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.22.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -859,7 +828,7 @@ to ignore this information.</p>
 gst_gl_window_show (<em class="parameter"><code><a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> *window</code></em>);</pre>
 <p>Present the window to the screen.</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.24.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.23.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -883,7 +852,7 @@ gst_gl_window_get_surface_dimensions (<em class="parameter"><code><a class="link
                                       <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *width</code></em>,
                                       <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *height</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.25.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.24.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -925,7 +894,7 @@ for them. This method allows you to disable events handling completely
 from the <em class="parameter"><code>window</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.8.26.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.8.25.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -953,7 +922,7 @@ from the <em class="parameter"><code>window</code></em>
 <div class="refsect2">
 <a name="GstGLWindowError"></a><h3>enum GstGLWindowError</h3>
 <div class="refsect3">
-<a name="id-1.2.9.23.9.2.3"></a><h4>Members</h4>
+<a name="id-1.2.9.21.9.2.3"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -996,7 +965,6 @@ provided api.</p>
   guintptr (*get_display)        (GstGLWindow *window);
   void     (*set_window_handle)  (GstGLWindow *window, guintptr id);
   guintptr (*get_window_handle)  (GstGLWindow *window);
-  void     (*draw_unlocked)      (GstGLWindow *window);
   void     (*draw)               (GstGLWindow *window);
   void     (*run)                (GstGLWindow *window);
   void     (*quit)               (GstGLWindow *window);
@@ -1013,7 +981,7 @@ provided api.</p>
 } GstGLWindowClass;
 </pre>
 <div class="refsect3">
-<a name="id-1.2.9.23.9.4.4"></a><h4>Members</h4>
+<a name="id-1.2.9.21.9.4.4"></a><h4>Members</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -1040,11 +1008,6 @@ provided api.</p>
 <td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLWindowClass.get-window-handle"></a>get_window_handle</code></em> ()</p></td>
 <td class="struct_member_description"><p>Gets the current window that this <a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> is
 rendering into</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLWindowClass.draw-unlocked"></a>draw_unlocked</code></em> ()</p></td>
-<td class="struct_member_description"><p>redraw the window with the specified dimensions</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
@@ -1128,7 +1091,7 @@ user_function (<a class="link" href="GstGLWindow.html" title="GstGLWindow"><span
                <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>     user_data)</pre>
 <p>Will be emitted when a key event is received by the GstGLwindow.</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.10.2.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.10.2.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -1174,7 +1137,7 @@ user_function (<a class="link" href="GstGLWindow.html" title="GstGLWindow"><span
                <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>     user_data)</pre>
 <p>Will be emitted when a mouse event is received by the GstGLwindow.</p>
 <div class="refsect3">
-<a name="id-1.2.9.23.10.3.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.21.10.3.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">

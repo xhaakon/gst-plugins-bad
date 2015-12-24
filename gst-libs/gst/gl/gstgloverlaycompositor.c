@@ -344,11 +344,26 @@ gst_gl_composition_overlay_upload (GstGLCompositionOverlay * overlay,
   vinfo.stride[0] = vmeta->stride[0];
 
   if (gst_video_frame_map (comp_frame, &vinfo, comp_buffer, GST_MAP_READ)) {
+    GstGLVideoAllocationParams *params;
+    GstGLBaseMemoryAllocator *mem_allocator;
+    GstAllocator *allocator;
+
+    allocator =
+        GST_ALLOCATOR (gst_gl_memory_allocator_get_default (overlay->context));
+    mem_allocator = GST_GL_BASE_MEMORY_ALLOCATOR (allocator);
+
     gst_gl_composition_overlay_add_transformation (overlay, buf);
 
-    comp_gl_memory =
-        gst_gl_memory_wrapped (overlay->context, &comp_frame->info, 0, NULL,
+    params = gst_gl_video_allocation_params_new_wrapped_data (overlay->context,
+        NULL, &comp_frame->info, 0, NULL, GST_GL_TEXTURE_TARGET_2D,
         comp_frame->data[0], comp_frame, _video_frame_unmap_and_free);
+
+    comp_gl_memory =
+        (GstGLMemory *) gst_gl_base_memory_alloc (mem_allocator,
+        (GstGLAllocationParams *) params);
+
+    gst_gl_allocation_params_free ((GstGLAllocationParams *) params);
+    gst_object_unref (allocator);
 
     overlay_buffer = gst_buffer_new ();
     gst_buffer_append_memory (overlay_buffer, (GstMemory *) comp_gl_memory);
@@ -425,12 +440,24 @@ gst_gl_overlay_compositor_init_gl (GstGLContext * context,
 {
   GstGLOverlayCompositor *compositor =
       (GstGLOverlayCompositor *) compositor_pointer;
+  GError *error = NULL;
 
-  if (!gst_gl_shader_compile_with_default_v_and_check (compositor->shader,
-          fragment_shader, &compositor->position_attrib,
-          &compositor->texcoord_attrib)) {
-    GST_ERROR ("could not initialize shader.");
+  if (!(compositor->shader =
+          gst_gl_shader_new_link_with_stages (context, &error,
+              gst_glsl_stage_new_default_vertex (context),
+              gst_glsl_stage_new_with_string (context, GL_FRAGMENT_SHADER,
+                  GST_GLSL_VERSION_NONE,
+                  GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+                  fragment_shader), NULL))) {
+    GST_ERROR_OBJECT (compositor, "could not initialize shader: %s",
+        error->message);
+    return;
   }
+
+  compositor->position_attrib =
+      gst_gl_shader_get_attribute_location (compositor->shader, "a_position");
+  compositor->texcoord_attrib =
+      gst_gl_shader_get_attribute_location (compositor->shader, "a_texcoord");
 }
 
 GstGLOverlayCompositor *
@@ -440,8 +467,6 @@ gst_gl_overlay_compositor_new (GstGLContext * context)
       g_object_new (GST_TYPE_GL_OVERLAY_COMPOSITOR, NULL);
 
   compositor->context = gst_object_ref (context);
-
-  compositor->shader = gst_gl_shader_new (compositor->context);
 
   gst_gl_context_thread_add (compositor->context,
       gst_gl_overlay_compositor_init_gl, compositor);

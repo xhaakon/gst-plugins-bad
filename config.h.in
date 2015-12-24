@@ -52,11 +52,17 @@
 /* GStreamer API Version */
 #undef GST_API_VERSION
 
+/* Define if extra runtime checks should be enabled */
+#undef GST_ENABLE_EXTRA_CHECKS
+
 /* Extra platform specific plugin suffix */
 #undef GST_EXTRA_MODULE_SUFFIX
 
 /* Defined if gcov is enabled to force a rebuild due to config.h changing */
 #undef GST_GCOV_ENABLED
+
+/* DMABUF available for gl plugins */
+#undef GST_GL_HAVE_DMABUF
 
 /* EGL module name */
 #undef GST_GL_LIBEGL_MODULE_NAME
@@ -406,6 +412,12 @@
 /* Define if nettle is available */
 #undef HAVE_NETTLE
 
+/* Define to enable NVIDIA Encode API (used by nvenc). */
+#undef HAVE_NVENC
+
+/* NVENC GStreamer OpenGL support available */
+#undef HAVE_NVENC_GST_GL
+
 /* Define to enable ofa plugins (used by ofa). */
 #undef HAVE_OFA
 
@@ -497,6 +509,15 @@
 
 /* Define to enable Qt elements (used by qt). */
 #undef HAVE_QT
+
+/* Define if Qt Android integration is installed */
+#undef HAVE_QT_ANDROID
+
+/* Define if Qt iOS integration is installed */
+#undef HAVE_QT_IOS
+
+/* Define if Qt Mac integration is installed */
+#undef HAVE_QT_MAC
 
 /* Define if Qt Wayland integration is installed */
 #undef HAVE_QT_WAYLAND

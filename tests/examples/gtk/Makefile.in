@@ -90,7 +90,7 @@ build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
 noinst_PROGRAMS = gtksink$(EXEEXT) $(am__EXEEXT_1)
-@USE_GL_TRUE@@USE_GTK3_GL_TRUE@am__append_1 = gtkglsink
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@am__append_1 = gtkglsink glliveshader
 subdir = tests/examples/gtk
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
@@ -134,21 +134,33 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-@USE_GL_TRUE@@USE_GTK3_GL_TRUE@am__EXEEXT_1 = gtkglsink$(EXEEXT)
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@am__EXEEXT_1 = gtkglsink$(EXEEXT) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	glliveshader$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
-am__gtkglsink_SOURCES_DIST = gtkglsink.c
-@USE_GL_TRUE@@USE_GTK3_GL_TRUE@am_gtkglsink_OBJECTS =  \
-@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	gtkglsink-gtkglsink.$(OBJEXT)
-gtkglsink_OBJECTS = $(am_gtkglsink_OBJECTS)
+am__glliveshader_SOURCES_DIST = glliveshader.c
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@am_glliveshader_OBJECTS = glliveshader-glliveshader.$(OBJEXT)
+glliveshader_OBJECTS = $(am_glliveshader_OBJECTS)
 am__DEPENDENCIES_1 =
-@USE_GL_TRUE@@USE_GTK3_GL_TRUE@gtkglsink_DEPENDENCIES =  \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@glliveshader_DEPENDENCIES =  \
 @USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(am__DEPENDENCIES_1) \
 @USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(am__DEPENDENCIES_1) \
-@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(am__DEPENDENCIES_1)
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(am__DEPENDENCIES_1) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+glliveshader_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(glliveshader_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am__gtkglsink_SOURCES_DIST = gtkglsink.c
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@am_gtkglsink_OBJECTS =  \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	gtkglsink-gtkglsink.$(OBJEXT)
+gtkglsink_OBJECTS = $(am_gtkglsink_OBJECTS)
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@gtkglsink_DEPENDENCIES =  \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(am__DEPENDENCIES_1) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(am__DEPENDENCIES_1) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(am__DEPENDENCIES_1)
 gtkglsink_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(gtkglsink_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
@@ -192,8 +204,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(gtkglsink_SOURCES) $(gtksink_SOURCES)
-DIST_SOURCES = $(am__gtkglsink_SOURCES_DIST) $(gtksink_SOURCES)
+SOURCES = $(glliveshader_SOURCES) $(gtkglsink_SOURCES) \
+	$(gtksink_SOURCES)
+DIST_SOURCES = $(am__glliveshader_SOURCES_DIST) \
+	$(am__gtkglsink_SOURCES_DIST) $(gtksink_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -255,6 +269,8 @@ CLUTTER_X11_CFLAGS = @CLUTTER_X11_CFLAGS@
 CLUTTER_X11_LIBS = @CLUTTER_X11_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CUDA_CFLAGS = @CUDA_CFLAGS@
+CUDA_LIBS = @CUDA_LIBS@
 CURL_CFLAGS = @CURL_CFLAGS@
 CURL_LIBS = @CURL_LIBS@
 CXX = @CXX@
@@ -292,6 +308,8 @@ DVDNAV_LIBS = @DVDNAV_LIBS@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
+EGL_CFLAGS = @EGL_CFLAGS@
+EGL_LIBS = @EGL_LIBS@
 EGREP = @EGREP@
 ERROR_CFLAGS = @ERROR_CFLAGS@
 ERROR_CXXFLAGS = @ERROR_CXXFLAGS@
@@ -319,6 +337,8 @@ GIO_LDFLAGS = @GIO_LDFLAGS@
 GIO_LIBS = @GIO_LIBS@
 GIO_UNIX_CFLAGS = @GIO_UNIX_CFLAGS@
 GIO_UNIX_LIBS = @GIO_UNIX_LIBS@
+GLES2_CFLAGS = @GLES2_CFLAGS@
+GLES2_LIBS = @GLES2_LIBS@
 GLIB_CFLAGS = @GLIB_CFLAGS@
 GLIB_COMPILE_SCHEMAS = @GLIB_COMPILE_SCHEMAS@
 GLIB_EXTRA_CFLAGS = @GLIB_EXTRA_CFLAGS@
@@ -337,6 +357,8 @@ GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
 GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
+GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
+GNUSTL_LIBS = @GNUSTL_LIBS@
 GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
 GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
@@ -347,6 +369,8 @@ GSM_LIBS = @GSM_LIBS@
 GSTPB_PLUGINS_DIR = @GSTPB_PLUGINS_DIR@
 GSTPB_PREFIX = @GSTPB_PREFIX@
 GST_AGE = @GST_AGE@
+GST_ALLOCATORS_CFLAGS = @GST_ALLOCATORS_CFLAGS@
+GST_ALLOCATORS_LIBS = @GST_ALLOCATORS_LIBS@
 GST_ALL_LDFLAGS = @GST_ALL_LDFLAGS@
 GST_API_VERSION = @GST_API_VERSION@
 GST_BASE_CFLAGS = @GST_BASE_CFLAGS@
@@ -372,6 +396,8 @@ GST_OPTION_CXXFLAGS = @GST_OPTION_CXXFLAGS@
 GST_OPTION_OBJCFLAGS = @GST_OPTION_OBJCFLAGS@
 GST_PACKAGE_NAME = @GST_PACKAGE_NAME@
 GST_PACKAGE_ORIGIN = @GST_PACKAGE_ORIGIN@
+GST_PBUTILS_CFLAGS = @GST_PBUTILS_CFLAGS@
+GST_PBUTILS_LIBS = @GST_PBUTILS_LIBS@
 GST_PKG_CONFIG_PATH = @GST_PKG_CONFIG_PATH@
 GST_PLUGINS_ALL = @GST_PLUGINS_ALL@
 GST_PLUGINS_BAD_CFLAGS = @GST_PLUGINS_BAD_CFLAGS@
@@ -397,6 +423,8 @@ GST_PLUGIN_LIBTOOLFLAGS = @GST_PLUGIN_LIBTOOLFLAGS@
 GST_PREFIX = @GST_PREFIX@
 GST_REVISION = @GST_REVISION@
 GST_TOOLS_DIR = @GST_TOOLS_DIR@
+GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
+GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
 GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
 GTK3_GL_LIBS = @GTK3_GL_LIBS@
@@ -528,6 +556,8 @@ NETTLE_CFLAGS = @NETTLE_CFLAGS@
 NETTLE_LIBS = @NETTLE_LIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
+NVENCODE_CFLAGS = @NVENCODE_CFLAGS@
+NVENCODE_LIBS = @NVENCODE_LIBS@
 OBJC = @OBJC@
 OBJCDEPMODE = @OBJCDEPMODE@
 OBJCFLAGS = @OBJCFLAGS@
@@ -585,8 +615,12 @@ PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_VERSION = @PYTHON_VERSION@
+QT_ANDROID_CFLAGS = @QT_ANDROID_CFLAGS@
+QT_ANDROID_LIBS = @QT_ANDROID_LIBS@
 QT_CFLAGS = @QT_CFLAGS@
 QT_LIBS = @QT_LIBS@
+QT_MAC_CFLAGS = @QT_MAC_CFLAGS@
+QT_MAC_LIBS = @QT_MAC_LIBS@
 QT_WAYLAND_CFLAGS = @QT_WAYLAND_CFLAGS@
 QT_WAYLAND_LIBS = @QT_WAYLAND_LIBS@
 QT_X11_CFLAGS = @QT_X11_CFLAGS@
@@ -656,6 +690,7 @@ WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
 WINKS_LIBS = @WINKS_LIBS@
@@ -760,6 +795,20 @@ gtksink_LDADD = $(GTK3_LIBS) \
 @USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GST_LIBS) \
 @USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GL_LIBS)
 
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@glliveshader_SOURCES = glliveshader.c
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@glliveshader_CFLAGS = $(GTK3_CFLAGS) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	-I$(top_srcdir)/gst-libs \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	-I$(top_builddir)/gst-libs \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GST_PLUGINS_BAD_CFLAGS) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GST_PLUGINS_BASE_CFLAGS) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GST_CFLAGS) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GL_CFLAGS)
+
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@glliveshader_LDADD = $(GTK3_LIBS) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GST_LIBS) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(GL_LIBS) \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	$(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la
+
 all: all-am
 
 .SUFFIXES:
@@ -803,6 +852,10 @@ clean-noinstPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
+glliveshader$(EXEEXT): $(glliveshader_OBJECTS) $(glliveshader_DEPENDENCIES) $(EXTRA_glliveshader_DEPENDENCIES) 
+	@rm -f glliveshader$(EXEEXT)
+	$(AM_V_CCLD)$(glliveshader_LINK) $(glliveshader_OBJECTS) $(glliveshader_LDADD) $(LIBS)
+
 gtkglsink$(EXEEXT): $(gtkglsink_OBJECTS) $(gtkglsink_DEPENDENCIES) $(EXTRA_gtkglsink_DEPENDENCIES) 
 	@rm -f gtkglsink$(EXEEXT)
 	$(AM_V_CCLD)$(gtkglsink_LINK) $(gtkglsink_OBJECTS) $(gtkglsink_LDADD) $(LIBS)
@@ -817,6 +870,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/glliveshader-glliveshader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gtkglsink-gtkglsink.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gtksink-gtksink.Po@am__quote@
 
@@ -843,6 +897,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
+glliveshader-glliveshader.o: glliveshader.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(glliveshader_CFLAGS) $(CFLAGS) -MT glliveshader-glliveshader.o -MD -MP -MF $(DEPDIR)/glliveshader-glliveshader.Tpo -c -o glliveshader-glliveshader.o `test -f 'glliveshader.c' || echo '$(srcdir)/'`glliveshader.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/glliveshader-glliveshader.Tpo $(DEPDIR)/glliveshader-glliveshader.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='glliveshader.c' object='glliveshader-glliveshader.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(glliveshader_CFLAGS) $(CFLAGS) -c -o glliveshader-glliveshader.o `test -f 'glliveshader.c' || echo '$(srcdir)/'`glliveshader.c
+
+glliveshader-glliveshader.obj: glliveshader.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(glliveshader_CFLAGS) $(CFLAGS) -MT glliveshader-glliveshader.obj -MD -MP -MF $(DEPDIR)/glliveshader-glliveshader.Tpo -c -o glliveshader-glliveshader.obj `if test -f 'glliveshader.c'; then $(CYGPATH_W) 'glliveshader.c'; else $(CYGPATH_W) '$(srcdir)/glliveshader.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/glliveshader-glliveshader.Tpo $(DEPDIR)/glliveshader-glliveshader.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='glliveshader.c' object='glliveshader-glliveshader.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(glliveshader_CFLAGS) $(CFLAGS) -c -o glliveshader-glliveshader.obj `if test -f 'glliveshader.c'; then $(CYGPATH_W) 'glliveshader.c'; else $(CYGPATH_W) '$(srcdir)/glliveshader.c'; fi`
 
 gtkglsink-gtkglsink.o: gtkglsink.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gtkglsink_CFLAGS) $(CFLAGS) -MT gtkglsink-gtkglsink.o -MD -MP -MF $(DEPDIR)/gtkglsink-gtkglsink.Tpo -c -o gtkglsink-gtkglsink.o `test -f 'gtkglsink.c' || echo '$(srcdir)/'`gtkglsink.c

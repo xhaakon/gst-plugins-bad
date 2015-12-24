@@ -68,7 +68,7 @@ possible to stream from a network source.
 <p>
 </p>
 <pre class="programlisting">
-gst-launch filesrc location=sine.aiff ! aiffparse ! audioconvert ! alsasink
+gst-launch-1.0 filesrc location=sine.aiff ! aiffparse ! audioconvert ! alsasink
 </pre>
 <p>
 Read a aiff file and output to the soundcard using the ALSA element. The
@@ -77,7 +77,7 @@ aiff file is assumed to contain raw uncompressed samples.
 <p>
 </p>
 <pre class="programlisting">
-gst-launch souphhtpsrc location=http://www.example.org/sine.aiff ! queue ! aiffparse ! audioconvert ! alsasink
+gst-launch-1.0 souphttpsrc location=http://www.example.org/sine.aiff ! queue ! aiffparse ! audioconvert ! alsasink
 </pre>
 <p>
 Stream data from a network url.

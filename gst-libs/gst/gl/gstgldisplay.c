@@ -139,8 +139,8 @@ gst_gl_display_init (GstGLDisplay * display)
 
   GST_TRACE ("init %p", display);
 
-  gst_gl_base_buffer_init_once ();
-  gst_gl_memory_init ();
+  gst_gl_buffer_init_once ();
+  gst_gl_memory_pbo_init_once ();
 
 #if GST_GL_HAVE_PLATFORM_EGL
   gst_egl_image_memory_init ();
@@ -533,7 +533,7 @@ gst_gl_display_add_context (GstGLDisplay * display, GstGLContext * context)
   GWeakRef *ref;
 
   g_return_val_if_fail (GST_IS_GL_DISPLAY (display), FALSE);
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), FALSE);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), FALSE);
 
   context_display = gst_gl_context_get_display (context);
   g_assert (context_display == display);
