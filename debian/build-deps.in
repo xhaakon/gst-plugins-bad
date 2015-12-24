@@ -1,6 +1,6 @@
 @GST_LIB_DEV_DEP@
 @GST_EXTRA_BUILD_DEPENDS@
-libgstreamer-plugins-base@GST_ABI@-dev (>= 1.6.2)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 1.7.1)
 autotools-dev
 dh-autoreconf
 automake (>= 1.14)
@@ -12,7 +12,7 @@ debhelper (>= 9)
 dpkg-dev (>= 1.15.1)
 pkg-config (>= 0.11.0)
 gtk-doc-tools (>= 1.12)
-libglib2.0-dev (>= 2.32)
+libglib2.0-dev (>= 2.40)
 liborc-0.4-dev (>= 1:0.4.17)
 libbz2-dev
 libdca-dev
@@ -29,13 +29,13 @@ libexif-dev (>= 0.6.16)
 libexempi-dev
 libiptcdata0-dev (>= 1.0.2)
 libwildmidi-dev (>= 0.2.3)
-gstreamer@GST_ABI@-plugins-base (>= 1.6.2)
+gstreamer@GST_ABI@-plugins-base (>= 1.7.1)
 libofa0-dev (>= 0.9.3)
 libdvdnav-dev (>= 4.1.2) [!hurd-any]
 libssl-dev
 libjasper-dev
 libx11-dev
-libass-dev (>= 0.9.4)
+libass-dev (>= 0.10.4)
 libmodplug-dev
 libkate-dev (>= 0.1.7)
 libschroedinger-dev (>= 1.0.7)
@@ -82,3 +82,4 @@ gir1.2-glib-2.0
 gir1.2-freedesktop
 gir1.2-gstreamer-1.0
 gir1.2-gst-plugins-base-1.0
+libdrm-dev

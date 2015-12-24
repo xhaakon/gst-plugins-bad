@@ -1,3 +1,16 @@
+gst-plugins-bad1.0 (1.7.1-1) experimental; urgency=medium
+
+  * New upstream unstable release:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GLib >= 2.40 and GStreamer >= 1.7.1.
+      - Build-depend on libass >= 0.10.2.
+      - Build-depend on libdrm-dev.
+    + debian/gstreamer-plugins-base.install:
+      - Drop liveadder plugin and add new videoframe_audiolevel plugin.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 24 Dec 2015 14:23:55 +0100
+
 gst-plugins-bad1.0 (1.6.2-1) unstable; urgency=medium
 
   * New upstream bugfix release.
