@@ -3,7 +3,8 @@ GObject
     GstObject
       GstAllocator
         GstAllocatorSysmem
-        GstWlShmAllocator
+        GstFdAllocator
+          GstWlShmAllocator
       GstAudioRingBuffer
         GstAudioSinkRingBuffer
         GstAudioSrcRingBuffer
@@ -18,6 +19,8 @@ GObject
           GstAudioAggregator
             GstAudioInterleave
             GstAudioMixer
+              GstLiveAdder
+          GstMXFMux
           GstVideoAggregator
             GstCompositor
             GstGLBaseMixer
@@ -46,7 +49,7 @@ GObject
           GstSirenEnc
           GstVoAacEnc
           GstVoAmrWbEnc
-        GstAudioVisualizer-BadGstAudioVisualizers
+        GstAudioVisualizer-BaseExtLibvisual
           GstSpaceScope
           GstSpectraScope
           GstSynaeScope
@@ -211,10 +214,15 @@ GObject
               GstCvLaplace
               GstCvSmooth
               GstCvSobel
+              GstEdgeDetect
               GstFaceBlur
               GstFaceDetect
               GstHanddetect
+              GstMotioncells
+              GstOpencvTextOverlay
+              GstPyramidSegment
               GstSkinDetect
+              GstTemplateMatch
             GstRetinex
             GstRsvgOverlay
             GstSceneChange
@@ -265,7 +273,6 @@ GObject
         GstDtlsDec
         GstDtlsEnc
         GstDtlsSrtpDemux
-        GstEdgeDetect
         GstErrorIgnore
         GstFestival
         GstFieldAnalysis
@@ -281,20 +288,16 @@ GObject
         GstKateEnc
         GstKateParse
           GstKateTag
-        GstLiveAdder
         GstMXFDemux
         GstMidiParse
         GstMimDec
         GstMimEnc
         GstModPlug
-        GstMotioncells
         GstMpeg2enc
         GstMpegPSDemux
         GstMplex
-        GstOpencvTextOverlay
         GstPcapParse
         GstPitch
-        GstPyramidSegment
         GstRTPBaseDepayload
           GstRTPOpusDepay
           GstRtpH265Depay
@@ -317,7 +320,7 @@ GObject
         GstSrtpEnc
         GstTagMux
           GstId3Mux
-        GstTemplateMatch
+        GstTeletextDec
         GstUvcH264MjpgDemux
         GstVideoDecoder
           GstLibde265Dec
@@ -336,6 +339,7 @@ GObject
           GstSchroEnc
           GstWebpEnc
           GstX265Enc
+        GstVideoFrameAudioLevel
         GstWebvttEnc
         GstWildmidi
         GstY4mDec
@@ -345,11 +349,13 @@ GObject
           MpegTSParse2
         MpegTsMux
       GstGLContext
+      GstGLShader
       GstPad
         GstAggregatorPad
           GstAudioAggregatorPad
             GstAudioInterleavePad
             GstAudioMixerPad
+          GstMXFMuxPad
           GstVideoAggregatorPad
             GstCompositorPad
             GstGLBaseMixerPad
@@ -360,6 +366,7 @@ GObject
       GstPluginFeature
         GstDeviceProviderFactory
         GstElementFactory
+        GstTracerFactory
         GstTypeFindFactory
       GstRegistry
       GstTask

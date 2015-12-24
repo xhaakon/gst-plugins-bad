@@ -155,6 +155,19 @@ gst_gl_sync_meta_wait (<em class="parameter"><code><a class="link" href="gst-plu
 <div class="refsect2">
 <a name="GstGLSyncMeta"></a><h3>struct GstGLSyncMeta</h3>
 <pre class="programlisting">struct GstGLSyncMeta {
+  GstMeta parent;
+
+  GstGLContext *context;
+
+  gpointer      data;
+
+  void (*set_sync) (GstGLSyncMeta * sync, GstGLContext * context);
+  void (*set_sync_gl) (GstGLSyncMeta * sync, GstGLContext * context);
+  void (*wait) (GstGLSyncMeta * sync, GstGLContext * context);
+  void (*wait_gl) (GstGLSyncMeta * sync, GstGLContext * context);
+  void (*copy) (GstGLSyncMeta * src, GstBuffer * sbuffer, GstGLSyncMeta * dest, GstBuffer * dbuffer);
+  void (*free) (GstGLSyncMeta * sync, GstGLContext * context);
+  void (*free_gl) (GstGLSyncMeta * sync, GstGLContext * context);
 };
 </pre>
 </div>

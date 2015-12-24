@@ -146,6 +146,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <inttypes.h>
 #include <gio/gio.h>
 #include <gst/base/gsttypefindhelper.h>
@@ -167,6 +168,12 @@ GST_STATIC_PAD_TEMPLATE ("audio_%02u",
     GST_PAD_SOMETIMES,
     GST_STATIC_CAPS_ANY);
 
+static GstStaticPadTemplate gst_dash_demux_subtitlesrc_template =
+GST_STATIC_PAD_TEMPLATE ("subtitle_%02u",
+    GST_PAD_SRC,
+    GST_PAD_SOMETIMES,
+    GST_STATIC_CAPS_ANY);
+
 static GstStaticPadTemplate sinktemplate = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
@@ -182,6 +189,7 @@ enum
   PROP_MAX_BUFFERING_TIME,
   PROP_BANDWIDTH_USAGE,
   PROP_MAX_BITRATE,
+  PROP_PRESENTATION_DELAY,
   PROP_LAST
 };
 
@@ -189,6 +197,7 @@ enum
 #define DEFAULT_MAX_BUFFERING_TIME       30     /* in seconds */
 #define DEFAULT_BANDWIDTH_USAGE         0.8     /* 0 to 1     */
 #define DEFAULT_MAX_BITRATE        24000000     /* in bit/s  */
+#define DEFAULT_PRESENTATION_DELAY     NULL     /* zero */
 
 /* Clock drift compensation for live streams */
 #define SLOW_CLOCK_UPDATE_INTERVAL  (1000000 * 30 * 60) /* 30 minutes */
@@ -201,11 +210,9 @@ struct _GstDashDemuxClockDrift
   GMutex clock_lock;            /* used to protect access to struct */
   guint selected_url;
   gint64 next_update;
-  GCond clock_cond;             /* used for waiting until got_clock==TRUE */
   /* @clock_compensation: amount (in usecs) to add to client's idea of
      now to map it to the server's idea of now */
   GTimeSpan clock_compensation;
-  gboolean got_clock;           /* indicates time source has returned a valid clock at least once */
   GstClock *ntp_clock;
 };
 
@@ -293,6 +300,7 @@ gst_dash_demux_dispose (GObject * obj)
 
   gst_dash_demux_clock_drift_free (demux->clock_drift);
   demux->clock_drift = NULL;
+  g_free (demux->default_presentation_delay);
   G_OBJECT_CLASS (parent_class)->dispose (obj);
 }
 
@@ -303,8 +311,8 @@ gst_dash_demux_get_live_seek_range (GstAdaptiveDemux * demux, gint64 * start,
   GstDashDemux *self = GST_DASH_DEMUX (demux);
   GDateTime *now = gst_dash_demux_get_server_now_utc (self);
   GDateTime *mstart =
-      gst_date_time_to_g_date_time (self->client->
-      mpd_node->availabilityStartTime);
+      gst_date_time_to_g_date_time (self->client->mpd_node->
+      availabilityStartTime);
   GTimeSpan stream_now;
 
   stream_now = g_date_time_difference (now, mstart);
@@ -364,7 +372,7 @@ gst_dash_demux_class_init (GstDashDemuxClass * klass)
           "Percentage of the available bandwidth to use when "
           "selecting representations (deprecated)",
           0, 1, DEFAULT_BANDWIDTH_USAGE,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_DEPRECATED));
 #endif
 
   g_object_class_install_property (gobject_class, PROP_MAX_BITRATE,
@@ -373,10 +381,18 @@ gst_dash_demux_class_init (GstDashDemuxClass * klass)
           1000, G_MAXUINT, DEFAULT_MAX_BITRATE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property (gobject_class, PROP_PRESENTATION_DELAY,
+      g_param_spec_string ("presentation-delay", "Presentation delay",
+          "Default presentation delay (in seconds, milliseconds or fragments) (e.g. 12s, 2500ms, 3f)",
+          DEFAULT_PRESENTATION_DELAY,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
   gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&gst_dash_demux_audiosrc_template));
   gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&gst_dash_demux_videosrc_template));
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&gst_dash_demux_subtitlesrc_template));
 
   gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&sinktemplate));
@@ -433,6 +449,7 @@ gst_dash_demux_init (GstDashDemux * demux)
   /* Properties */
   demux->max_buffering_time = DEFAULT_MAX_BUFFERING_TIME * GST_SECOND;
   demux->max_bitrate = DEFAULT_MAX_BITRATE;
+  demux->default_presentation_delay = DEFAULT_PRESENTATION_DELAY;
 
   g_mutex_init (&demux->client_lock);
 
@@ -457,6 +474,10 @@ gst_dash_demux_set_property (GObject * object, guint prop_id,
     case PROP_MAX_BITRATE:
       demux->max_bitrate = g_value_get_uint (value);
       break;
+    case PROP_PRESENTATION_DELAY:
+      g_free (demux->default_presentation_delay);
+      demux->default_presentation_delay = g_value_dup_string (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -479,6 +500,12 @@ gst_dash_demux_get_property (GObject * object, guint prop_id, GValue * value,
       break;
     case PROP_MAX_BITRATE:
       g_value_set_uint (value, demux->max_bitrate);
+      break;
+    case PROP_PRESENTATION_DELAY:
+      if (demux->default_presentation_delay == NULL)
+        g_value_set_static_string (value, "");
+      else
+        g_value_set_string (value, demux->default_presentation_delay);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -535,11 +562,11 @@ gst_dash_demux_setup_all_streams (GstDashDemux * demux)
     active_stream = gst_mpdparser_get_active_stream_by_index (demux->client, i);
     if (active_stream == NULL)
       continue;
-    /* TODO: support 'application' mimeType */
-    if (active_stream->mimeType == GST_STREAM_APPLICATION)
-      continue;
 
     srcpad = gst_dash_demux_create_pad (demux, active_stream);
+    if (srcpad == NULL)
+      continue;
+
     caps = gst_dash_demux_get_input_caps (demux, active_stream);
     GST_LOG_OBJECT (demux, "Creating stream %d %" GST_PTR_FORMAT, i, caps);
 
@@ -548,9 +575,16 @@ gst_dash_demux_setup_all_streams (GstDashDemux * demux)
       lang = adp_set->lang;
 
       /* Fallback to the language in ContentComponent node */
-      if (lang == NULL && g_list_length (adp_set->ContentComponents) == 1) {
-        GstContentComponentNode *cc_node = adp_set->ContentComponents->data;
-        lang = cc_node->lang;
+      if (lang == NULL) {
+        GList *it;
+
+        for (it = adp_set->ContentComponents; it; it = it->next) {
+          GstContentComponentNode *cc_node = it->data;
+          if (cc_node->lang) {
+            lang = cc_node->lang;
+            break;
+          }
+        }
       }
     }
 
@@ -575,9 +609,9 @@ gst_dash_demux_setup_all_streams (GstDashDemux * demux)
         active_stream->cur_adapt_set->RepresentationBase &&
         active_stream->cur_adapt_set->RepresentationBase->ContentProtection) {
       GST_DEBUG_OBJECT (demux, "Adding ContentProtection events to source pad");
-      g_list_foreach (active_stream->cur_adapt_set->
-          RepresentationBase->ContentProtection,
-          gst_dash_demux_send_content_protection_event, stream);
+      g_list_foreach (active_stream->cur_adapt_set->RepresentationBase->
+          ContentProtection, gst_dash_demux_send_content_protection_event,
+          stream);
     }
 
     gst_isoff_sidx_parser_init (&stream->sidx_parser);
@@ -667,6 +701,13 @@ gst_dash_demux_setup_streams (GstAdaptiveDemux * demux)
     if (dashdemux->client->mpd_node->suggestedPresentationDelay != -1) {
       GstDateTime *target = gst_mpd_client_add_time_difference (now,
           dashdemux->client->mpd_node->suggestedPresentationDelay * -1000);
+      gst_date_time_unref (now);
+      now = target;
+    } else if (dashdemux->default_presentation_delay) {
+      gint64 dfp =
+          gst_mpd_client_parse_default_presentation_delay (dashdemux->client,
+          dashdemux->default_presentation_delay);
+      GstDateTime *target = gst_mpd_client_add_time_difference (now, dfp);
       gst_date_time_unref (now);
       now = target;
     }
@@ -771,6 +812,15 @@ gst_dash_demux_create_pad (GstDashDemux * demux, GstActiveStream * stream)
       name = g_strdup_printf ("video_%02u", demux->n_video_streams++);
       tmpl = gst_static_pad_template_get (&gst_dash_demux_videosrc_template);
       break;
+    case GST_STREAM_APPLICATION:
+      if (gst_mpd_client_active_stream_contains_subtitles (stream)) {
+        name = g_strdup_printf ("subtitle_%02u", demux->n_subtitle_streams++);
+        tmpl =
+            gst_static_pad_template_get (&gst_dash_demux_subtitlesrc_template);
+      } else {
+        return NULL;
+      }
+      break;
     default:
       g_assert_not_reached ();
       return NULL;
@@ -814,7 +864,8 @@ gst_dash_demux_get_video_input_caps (GstDashDemux * demux,
     GstActiveStream * stream)
 {
   guint width = 0, height = 0;
-  const gchar *mimeType = NULL;
+  gint fps_num = 0, fps_den = 1;
+  gboolean have_fps = FALSE;
   GstCaps *caps = NULL;
 
   if (stream == NULL)
@@ -824,15 +875,21 @@ gst_dash_demux_get_video_input_caps (GstDashDemux * demux,
   if (!gst_mpd_client_get_bitstream_switching_flag (stream)) {
     width = gst_mpd_client_get_video_stream_width (stream);
     height = gst_mpd_client_get_video_stream_height (stream);
+    have_fps =
+        gst_mpd_client_get_video_stream_framerate (stream, &fps_num, &fps_den);
   }
-  mimeType = gst_mpd_client_get_stream_mimeType (stream);
-  if (mimeType == NULL)
+  caps = gst_mpd_client_get_stream_caps (stream);
+  if (caps == NULL)
     return NULL;
 
-  caps = gst_caps_from_string (mimeType);
   if (width > 0 && height > 0) {
     gst_caps_set_simple (caps, "width", G_TYPE_INT, width, "height",
         G_TYPE_INT, height, NULL);
+  }
+
+  if (have_fps) {
+    gst_caps_set_simple (caps, "framerate", GST_TYPE_FRACTION, fps_num,
+        fps_den, NULL);
   }
 
   return caps;
@@ -843,7 +900,6 @@ gst_dash_demux_get_audio_input_caps (GstDashDemux * demux,
     GstActiveStream * stream)
 {
   guint rate = 0, channels = 0;
-  const gchar *mimeType;
   GstCaps *caps = NULL;
 
   if (stream == NULL)
@@ -854,11 +910,10 @@ gst_dash_demux_get_audio_input_caps (GstDashDemux * demux,
     channels = gst_mpd_client_get_audio_stream_num_channels (stream);
     rate = gst_mpd_client_get_audio_stream_rate (stream);
   }
-  mimeType = gst_mpd_client_get_stream_mimeType (stream);
-  if (mimeType == NULL)
+  caps = gst_mpd_client_get_stream_caps (stream);
+  if (caps == NULL)
     return NULL;
 
-  caps = gst_caps_from_string (mimeType);
   if (rate > 0) {
     gst_caps_set_simple (caps, "rate", G_TYPE_INT, rate, NULL);
   }
@@ -873,17 +928,14 @@ static GstCaps *
 gst_dash_demux_get_application_input_caps (GstDashDemux * demux,
     GstActiveStream * stream)
 {
-  const gchar *mimeType;
   GstCaps *caps = NULL;
 
   if (stream == NULL)
     return NULL;
 
-  mimeType = gst_mpd_client_get_stream_mimeType (stream);
-  if (mimeType == NULL)
+  caps = gst_mpd_client_get_stream_caps (stream);
+  if (caps == NULL)
     return NULL;
-
-  caps = gst_caps_from_string (mimeType);
 
   return caps;
 }
@@ -994,24 +1046,43 @@ gst_dash_demux_stream_update_fragment_info (GstAdaptiveDemuxStream * stream)
   return GST_FLOW_EOS;
 }
 
+static gint
+gst_dash_demux_index_entry_search (GstSidxBoxEntry * entry, GstClockTime * ts,
+    gpointer user_data)
+{
+  GstClockTime entry_ts = entry->pts + entry->duration;
+  if (entry_ts < *ts)
+    return -1;
+  else if (entry->pts > *ts)
+    return 1;
+  else
+    return 0;
+}
+
 static void
 gst_dash_demux_stream_sidx_seek (GstDashDemuxStream * dashstream,
     GstClockTime ts)
 {
   GstSidxBox *sidx = SIDX (dashstream);
-  gint i;
+  GstSidxBoxEntry *entry;
+  gint idx = sidx->entries_count;
 
-  /* TODO optimize to a binary search */
-  for (i = 0; i < sidx->entries_count; i++) {
-    if (sidx->entries[i].pts + sidx->entries[i].duration >= ts)
-      break;
-  }
-  sidx->entry_index = i;
-  dashstream->sidx_index = i;
-  if (i < sidx->entries_count)
-    dashstream->sidx_current_remaining = sidx->entries[i].size;
-  else
+  /* check whether ts is already past the last element or not */
+  if (sidx->entries[idx - 1].pts + sidx->entries[idx - 1].duration < ts) {
     dashstream->sidx_current_remaining = 0;
+  } else {
+    entry =
+        gst_util_array_binary_search (sidx->entries, sidx->entries_count,
+        sizeof (GstSidxBoxEntry),
+        (GCompareDataFunc) gst_dash_demux_index_entry_search,
+        GST_SEARCH_MODE_BEFORE, &ts, NULL);
+
+    idx = entry - sidx->entries;
+    dashstream->sidx_current_remaining = sidx->entries[idx].size;
+  }
+
+  sidx->entry_index = idx;
+  dashstream->sidx_index = idx;
 }
 
 static GstFlowReturn
@@ -1404,7 +1475,8 @@ gst_dash_demux_stream_get_fragment_waiting_time (GstAdaptiveDemuxStream *
     /* subtract the server's clock drift, so that if the server's
        time is behind our idea of UTC, we need to sleep for longer
        before requesting a fragment */
-    return diff - gst_dash_demux_get_clock_compensation (dashdemux);
+    return diff -
+        gst_dash_demux_get_clock_compensation (dashdemux) * GST_USECOND;
   }
   return 0;
 }
@@ -1584,7 +1656,6 @@ gst_dash_demux_clock_drift_new (void)
 
   clock_drift = g_slice_new0 (GstDashDemuxClockDrift);
   g_mutex_init (&clock_drift->clock_lock);
-  g_cond_init (&clock_drift->clock_cond);
   clock_drift->next_update = g_get_monotonic_time ();
   return clock_drift;
 }
@@ -1596,7 +1667,6 @@ gst_dash_demux_clock_drift_free (GstDashDemuxClockDrift * clock_drift)
     g_mutex_lock (&clock_drift->clock_lock);
     if (clock_drift->ntp_clock)
       g_object_unref (clock_drift->ntp_clock);
-    g_cond_clear (&clock_drift->clock_cond);
     g_mutex_unlock (&clock_drift->clock_lock);
     g_mutex_clear (&clock_drift->clock_lock);
     g_slice_free (GstDashDemuxClockDrift, clock_drift);
@@ -1956,8 +2026,6 @@ gst_dash_demux_poll_clock_drift (GstDashDemux * demux)
       g_mutex_lock (&clock_drift->clock_lock);
       clock_drift->clock_compensation =
           g_date_time_difference (server_now, client_now);
-      clock_drift->got_clock = TRUE;
-      g_cond_broadcast (&clock_drift->clock_cond);
       g_mutex_unlock (&clock_drift->clock_lock);
       GST_DEBUG_OBJECT (demux,
           "Difference between client and server clocks is %lfs",

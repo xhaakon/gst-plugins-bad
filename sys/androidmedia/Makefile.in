@@ -15,6 +15,7 @@
 @SET_MAKE@
 
 
+
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -161,16 +162,19 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(plugindir)"
+am__installdirs = "$(DESTDIR)$(plugindir)" \
+	"$(DESTDIR)$(androidmedia_java_classesdir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstandroidmedia_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+libgstandroidmedia_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_libgstandroidmedia_la_OBJECTS = libgstandroidmedia_la-gstamc.lo \
 	libgstandroidmedia_la-gstamcaudiodec.lo \
 	libgstandroidmedia_la-gstamcvideodec.lo \
 	libgstandroidmedia_la-gstamcvideoenc.lo \
+	libgstandroidmedia_la-gstamcsurface.lo \
+	libgstandroidmedia_la-gstamcsurfacetexture.lo \
 	libgstandroidmedia_la-gstjniutils.lo
 libgstandroidmedia_la_OBJECTS = $(am_libgstandroidmedia_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -222,6 +226,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+DATA = $(androidmedia_java_classes_DATA)
 HEADERS = $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -279,6 +284,8 @@ CLUTTER_X11_CFLAGS = @CLUTTER_X11_CFLAGS@
 CLUTTER_X11_LIBS = @CLUTTER_X11_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CUDA_CFLAGS = @CUDA_CFLAGS@
+CUDA_LIBS = @CUDA_LIBS@
 CURL_CFLAGS = @CURL_CFLAGS@
 CURL_LIBS = @CURL_LIBS@
 CXX = @CXX@
@@ -316,6 +323,8 @@ DVDNAV_LIBS = @DVDNAV_LIBS@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
+EGL_CFLAGS = @EGL_CFLAGS@
+EGL_LIBS = @EGL_LIBS@
 EGREP = @EGREP@
 ERROR_CFLAGS = @ERROR_CFLAGS@
 ERROR_CXXFLAGS = @ERROR_CXXFLAGS@
@@ -343,6 +352,8 @@ GIO_LDFLAGS = @GIO_LDFLAGS@
 GIO_LIBS = @GIO_LIBS@
 GIO_UNIX_CFLAGS = @GIO_UNIX_CFLAGS@
 GIO_UNIX_LIBS = @GIO_UNIX_LIBS@
+GLES2_CFLAGS = @GLES2_CFLAGS@
+GLES2_LIBS = @GLES2_LIBS@
 GLIB_CFLAGS = @GLIB_CFLAGS@
 GLIB_COMPILE_SCHEMAS = @GLIB_COMPILE_SCHEMAS@
 GLIB_EXTRA_CFLAGS = @GLIB_EXTRA_CFLAGS@
@@ -361,6 +372,8 @@ GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
 GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
+GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
+GNUSTL_LIBS = @GNUSTL_LIBS@
 GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
 GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
@@ -371,6 +384,8 @@ GSM_LIBS = @GSM_LIBS@
 GSTPB_PLUGINS_DIR = @GSTPB_PLUGINS_DIR@
 GSTPB_PREFIX = @GSTPB_PREFIX@
 GST_AGE = @GST_AGE@
+GST_ALLOCATORS_CFLAGS = @GST_ALLOCATORS_CFLAGS@
+GST_ALLOCATORS_LIBS = @GST_ALLOCATORS_LIBS@
 GST_ALL_LDFLAGS = @GST_ALL_LDFLAGS@
 GST_API_VERSION = @GST_API_VERSION@
 GST_BASE_CFLAGS = @GST_BASE_CFLAGS@
@@ -396,6 +411,8 @@ GST_OPTION_CXXFLAGS = @GST_OPTION_CXXFLAGS@
 GST_OPTION_OBJCFLAGS = @GST_OPTION_OBJCFLAGS@
 GST_PACKAGE_NAME = @GST_PACKAGE_NAME@
 GST_PACKAGE_ORIGIN = @GST_PACKAGE_ORIGIN@
+GST_PBUTILS_CFLAGS = @GST_PBUTILS_CFLAGS@
+GST_PBUTILS_LIBS = @GST_PBUTILS_LIBS@
 GST_PKG_CONFIG_PATH = @GST_PKG_CONFIG_PATH@
 GST_PLUGINS_ALL = @GST_PLUGINS_ALL@
 GST_PLUGINS_BAD_CFLAGS = @GST_PLUGINS_BAD_CFLAGS@
@@ -421,6 +438,8 @@ GST_PLUGIN_LIBTOOLFLAGS = @GST_PLUGIN_LIBTOOLFLAGS@
 GST_PREFIX = @GST_PREFIX@
 GST_REVISION = @GST_REVISION@
 GST_TOOLS_DIR = @GST_TOOLS_DIR@
+GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
+GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
 GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
 GTK3_GL_LIBS = @GTK3_GL_LIBS@
@@ -552,6 +571,8 @@ NETTLE_CFLAGS = @NETTLE_CFLAGS@
 NETTLE_LIBS = @NETTLE_LIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
+NVENCODE_CFLAGS = @NVENCODE_CFLAGS@
+NVENCODE_LIBS = @NVENCODE_LIBS@
 OBJC = @OBJC@
 OBJCDEPMODE = @OBJCDEPMODE@
 OBJCFLAGS = @OBJCFLAGS@
@@ -609,8 +630,12 @@ PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_VERSION = @PYTHON_VERSION@
+QT_ANDROID_CFLAGS = @QT_ANDROID_CFLAGS@
+QT_ANDROID_LIBS = @QT_ANDROID_LIBS@
 QT_CFLAGS = @QT_CFLAGS@
 QT_LIBS = @QT_LIBS@
+QT_MAC_CFLAGS = @QT_MAC_CFLAGS@
+QT_MAC_LIBS = @QT_MAC_LIBS@
 QT_WAYLAND_CFLAGS = @QT_WAYLAND_CFLAGS@
 QT_WAYLAND_LIBS = @QT_WAYLAND_LIBS@
 QT_X11_CFLAGS = @QT_X11_CFLAGS@
@@ -680,6 +705,7 @@ WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
 WINKS_LIBS = @WINKS_LIBS@
@@ -772,6 +798,8 @@ libgstandroidmedia_la_SOURCES = \
 	gstamcaudiodec.c \
 	gstamcvideodec.c \
 	gstamcvideoenc.c \
+	gstamcsurface.c \
+	gstamcsurfacetexture.c \
 	gstjniutils.c
 
 noinst_HEADERS = \
@@ -780,15 +808,20 @@ noinst_HEADERS = \
 	gstamcaudiodec.h \
 	gstamcvideodec.h \
 	gstamcvideoenc.h \
+	gstamcsurface.h \
+	gstamcsurfacetexture.h \
 	gstjniutils.h
 
 libgstandroidmedia_la_CFLAGS = \
+	-I$(top_srcdir)/gst-libs \
+	-I$(top_builddir)/gst-libs \
 	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_BASE_CFLAGS) \
 	$(GST_CFLAGS) \
 	$(ORC_CFLAGS)
 
 libgstandroidmedia_la_LIBADD = \
+	$(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la \
 	$(GST_PLUGINS_BASE_LIBS) \
 	-lgstaudio-@GST_API_VERSION@ \
 	-lgstpbutils-@GST_API_VERSION@ \
@@ -799,6 +832,8 @@ libgstandroidmedia_la_LIBADD = \
 
 libgstandroidmedia_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstandroidmedia_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
+androidmedia_java_classesdir = $(datadir)/gst-android/ndk-build/androidmedia/
+androidmedia_java_classes_DATA = org/freedesktop/gstreamer/androidmedia/GstAmcOnFrameAvailableListener.java
 all: all-am
 
 .SUFFIXES:
@@ -879,6 +914,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamcaudiodec.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamcsurface.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamcsurfacetexture.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamcvideodec.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamcvideoenc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstjniutils.Plo@am__quote@
@@ -935,6 +972,20 @@ libgstandroidmedia_la-gstamcvideoenc.lo: gstamcvideoenc.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstamcvideoenc.lo `test -f 'gstamcvideoenc.c' || echo '$(srcdir)/'`gstamcvideoenc.c
 
+libgstandroidmedia_la-gstamcsurface.lo: gstamcsurface.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstamcsurface.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstamcsurface.Tpo -c -o libgstandroidmedia_la-gstamcsurface.lo `test -f 'gstamcsurface.c' || echo '$(srcdir)/'`gstamcsurface.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gstamcsurface.Tpo $(DEPDIR)/libgstandroidmedia_la-gstamcsurface.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstamcsurface.c' object='libgstandroidmedia_la-gstamcsurface.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstamcsurface.lo `test -f 'gstamcsurface.c' || echo '$(srcdir)/'`gstamcsurface.c
+
+libgstandroidmedia_la-gstamcsurfacetexture.lo: gstamcsurfacetexture.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstamcsurfacetexture.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstamcsurfacetexture.Tpo -c -o libgstandroidmedia_la-gstamcsurfacetexture.lo `test -f 'gstamcsurfacetexture.c' || echo '$(srcdir)/'`gstamcsurfacetexture.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gstamcsurfacetexture.Tpo $(DEPDIR)/libgstandroidmedia_la-gstamcsurfacetexture.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstamcsurfacetexture.c' object='libgstandroidmedia_la-gstamcsurfacetexture.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstamcsurfacetexture.lo `test -f 'gstamcsurfacetexture.c' || echo '$(srcdir)/'`gstamcsurfacetexture.c
+
 libgstandroidmedia_la-gstjniutils.lo: gstjniutils.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstjniutils.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstjniutils.Tpo -c -o libgstandroidmedia_la-gstjniutils.lo `test -f 'gstjniutils.c' || echo '$(srcdir)/'`gstjniutils.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gstjniutils.Tpo $(DEPDIR)/libgstandroidmedia_la-gstjniutils.Plo
@@ -947,6 +998,27 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+install-androidmedia_java_classesDATA: $(androidmedia_java_classes_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(androidmedia_java_classes_DATA)'; test -n "$(androidmedia_java_classesdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(androidmedia_java_classesdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(androidmedia_java_classesdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(androidmedia_java_classesdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(androidmedia_java_classesdir)" || exit $$?; \
+	done
+
+uninstall-androidmedia_java_classesDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(androidmedia_java_classes_DATA)'; test -n "$(androidmedia_java_classesdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(androidmedia_java_classesdir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -1032,9 +1104,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(DATA) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(plugindir)"; do \
+	for dir in "$(DESTDIR)$(plugindir)" "$(DESTDIR)$(androidmedia_java_classesdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1090,7 +1162,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-pluginLTLIBRARIES
+install-data-am: install-androidmedia_java_classesDATA \
+	install-pluginLTLIBRARIES
 
 install-dvi: install-dvi-am
 
@@ -1136,7 +1209,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-pluginLTLIBRARIES
+uninstall-am: uninstall-androidmedia_java_classesDATA \
+	uninstall-pluginLTLIBRARIES
 
 .MAKE: install-am install-strip
 
@@ -1144,7 +1218,8 @@ uninstall-am: uninstall-pluginLTLIBRARIES
 	clean-libtool clean-pluginLTLIBRARIES cscopelist-am ctags \
 	ctags-am distclean distclean-compile distclean-generic \
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
+	html-am info info-am install install-am \
+	install-androidmedia_java_classesDATA install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
 	install-info-am install-man install-pdf install-pdf-am \
@@ -1153,6 +1228,7 @@ uninstall-am: uninstall-pluginLTLIBRARIES
 	maintainer-clean maintainer-clean-generic mostlyclean \
 	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
 	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-androidmedia_java_classesDATA \
 	uninstall-pluginLTLIBRARIES
 
 .PRECIOUS: Makefile

@@ -25,13 +25,9 @@
 #include <gst/video/gstvideometa.h>
 #include <gst/video/gstvideopool.h>
 
-#include <gst/gl/gstgl_fwd.h>
+#include <gst/gl/gl.h>
 
 G_BEGIN_DECLS
-
-typedef struct _GstGLBufferPool GstGLBufferPool;
-typedef struct _GstGLBufferPoolClass GstGLBufferPoolClass;
-typedef struct _GstGLBufferPoolPrivate GstGLBufferPoolPrivate;
 
 /* buffer pool functions */
 GType gst_gl_buffer_pool_get_type (void);
@@ -50,7 +46,6 @@ struct _GstGLBufferPool
   GstBufferPool bufferpool;
 
   GstGLContext *context;
-  GstGLUploadMeta *upload;
 
   GstGLBufferPoolPrivate *priv;
 };
@@ -68,6 +63,10 @@ struct _GstGLBufferPoolClass
 GstBufferPool *gst_gl_buffer_pool_new (GstGLContext * context);
 void gst_gl_buffer_pool_replace_last_buffer (GstGLBufferPool * pool,
     GstBuffer * buffer);
+
+GstGLAllocationParams * gst_buffer_pool_config_get_gl_allocation_params    (GstStructure * config);
+void                    gst_buffer_pool_config_set_gl_allocation_params    (GstStructure * config,
+                                                                            GstGLAllocationParams * params);
 
 G_END_DECLS
 

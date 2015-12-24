@@ -33,8 +33,8 @@ G_BEGIN_DECLS
 #define GST_GL_TYPE_WINDOW         (gst_gl_window_get_type())
 #define GST_GL_WINDOW(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), GST_GL_TYPE_WINDOW, GstGLWindow))
 #define GST_GL_WINDOW_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), GST_GL_TYPE_WINDOW, GstGLWindowClass))
-#define GST_GL_IS_WINDOW(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), GST_GL_TYPE_WINDOW))
-#define GST_GL_IS_WINDOW_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_GL_TYPE_WINDOW))
+#define GST_IS_GL_WINDOW(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), GST_GL_TYPE_WINDOW))
+#define GST_IS_GL_WINDOW_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_GL_TYPE_WINDOW))
 #define GST_GL_WINDOW_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), GST_GL_TYPE_WINDOW, GstGLWindowClass))
 
 #define GST_GL_WINDOW_LOCK(w) g_mutex_lock(&GST_GL_WINDOW(w)->lock)
@@ -67,11 +67,6 @@ struct _GstGLWindow {
   GstObject parent;
 
   GMutex        lock;
-  GMutex        nav_lock;
-  GCond         nav_create_cond;
-  GCond         nav_destroy_cond;
-  gboolean      nav_created;
-  gboolean      nav_alive;
 
   GstGLDisplay *display;
   GWeakRef      context_ref;
@@ -93,9 +88,6 @@ struct _GstGLWindow {
   gboolean              queue_resize;
 
   /*< private >*/
-  GMainContext *navigation_context;
-  GMainLoop *navigation_loop;
-
   GstGLWindowPrivate *priv;
 
   gpointer _reserved[GST_PADDING];
@@ -108,7 +100,6 @@ struct _GstGLWindow {
  * @set_window_handle: Set a window to render into
  * @get_window_handle: Gets the current window that this #GstGLWindow is
  *                     rendering into
- * @draw_unlocked: redraw the window with the specified dimensions
  * @draw: redraw the window with the specified dimensions
  * @run: run the mainloop
  * @quit: send a quit to the mainloop
@@ -131,7 +122,6 @@ struct _GstGLWindowClass {
   guintptr (*get_display)        (GstGLWindow *window);
   void     (*set_window_handle)  (GstGLWindow *window, guintptr id);
   guintptr (*get_window_handle)  (GstGLWindow *window);
-  void     (*draw_unlocked)      (GstGLWindow *window);
   void     (*draw)               (GstGLWindow *window);
   void     (*run)                (GstGLWindow *window);
   void     (*quit)               (GstGLWindow *window);
@@ -148,22 +138,6 @@ struct _GstGLWindowClass {
 
   /*< private >*/
   gpointer _reserved[GST_PADDING];
-};
-
-struct key_event
-{
-  GstGLWindow *window;
-  const char *event_type;
-  const char *key_str;
-};
-
-struct mouse_event
-{
-  GstGLWindow *window;
-  const char *event_type;
-  int button;
-  double posx;
-  double posy;
 };
 
 GQuark gst_gl_window_error_quark (void);
@@ -203,9 +177,11 @@ void     gst_gl_window_send_message_async   (GstGLWindow *window,
 /* navigation */
 void     gst_gl_window_handle_events        (GstGLWindow * window,
                                              gboolean handle_events);
-gboolean gst_gl_window_key_event_cb         (gpointer data);
-gboolean gst_gl_window_mouse_event_cb       (gpointer data);
+
 void     gst_gl_window_send_key_event       (GstGLWindow * window,
+                                             const char * event_type,
+                                             const char * key_str);
+void     gst_gl_window_send_key_event_async (GstGLWindow * window,
                                              const char * event_type,
                                              const char * key_str);
 void     gst_gl_window_send_mouse_event     (GstGLWindow * window,
@@ -213,10 +189,14 @@ void     gst_gl_window_send_mouse_event     (GstGLWindow * window,
                                              int button,
                                              double posx,
                                              double posy);
+void     gst_gl_window_send_mouse_event_async (GstGLWindow * window,
+                                             const char * event_type,
+                                             int button,
+                                             double posx,
+                                             double posy);
 
 /* surfaces/rendering */
 void     gst_gl_window_queue_resize         (GstGLWindow *window);
-void     gst_gl_window_draw_unlocked        (GstGLWindow *window);
 void     gst_gl_window_draw                 (GstGLWindow *window);
 void     gst_gl_window_show                 (GstGLWindow *window);
 void     gst_gl_window_set_preferred_size   (GstGLWindow * window,
