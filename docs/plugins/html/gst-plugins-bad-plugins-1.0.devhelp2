@@ -114,7 +114,6 @@
       <sub name="geometrictransform" link="gst-plugins-bad-plugins-plugin-geometrictransform.html"/>
       <sub name="gsm" link="gst-plugins-bad-plugins-plugin-gsm.html"/>
       <sub name="jpegformat" link="gst-plugins-bad-plugins-plugin-jpegformat.html"/>
-      <sub name="liveadder" link="gst-plugins-bad-plugins-plugin-liveadder.html"/>
       <sub name="mimic" link="gst-plugins-bad-plugins-plugin-mimic.html"/>
       <sub name="mms" link="gst-plugins-bad-plugins-plugin-mms.html"/>
       <sub name="modplug" link="gst-plugins-bad-plugins-plugin-modplug.html"/>
@@ -180,6 +179,8 @@
     <keyword type="struct" name="struct GstCvEqualizeHist" link="gst-plugins-bad-plugins-cvequalizehist.html#GstCvEqualizeHist-struct"/>
     <keyword type="struct" name="struct GstCvLaplace" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace-struct"/>
     <keyword type="property" name="The “aperture-size” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--aperture-size"/>
+    <keyword type="property" name="The “scale” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--scale"/>
+    <keyword type="property" name="The “shift” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--shift"/>
     <keyword type="struct" name="struct GstCvSmooth" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth-struct"/>
     <keyword type="property" name="The “param1” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--param1"/>
     <keyword type="property" name="The “param2” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--param2"/>
@@ -304,8 +305,6 @@
     <keyword type="property" name="The “angle” property" link="gst-plugins-bad-plugins-kaleidoscope.html#GstKaleidoscope--angle"/>
     <keyword type="property" name="The “angle2” property" link="gst-plugins-bad-plugins-kaleidoscope.html#GstKaleidoscope--angle2"/>
     <keyword type="property" name="The “sides” property" link="gst-plugins-bad-plugins-kaleidoscope.html#GstKaleidoscope--sides"/>
-    <keyword type="struct" name="struct GstLiveAdder" link="gst-plugins-bad-plugins-liveadder.html#GstLiveAdder-struct"/>
-    <keyword type="property" name="The “latency” property" link="gst-plugins-bad-plugins-liveadder.html#GstLiveAdder--latency"/>
     <keyword type="struct" name="struct GstMarble" link="gst-plugins-bad-plugins-marble.html#GstMarble-struct"/>
     <keyword type="property" name="The “amount” property" link="gst-plugins-bad-plugins-marble.html#GstMarble--amount"/>
     <keyword type="property" name="The “turbulence” property" link="gst-plugins-bad-plugins-marble.html#GstMarble--turbulence"/>

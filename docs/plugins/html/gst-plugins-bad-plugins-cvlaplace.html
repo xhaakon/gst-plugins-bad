@@ -41,11 +41,23 @@
 <col width="300px" class="properties_name">
 <col width="200px" class="properties_flags">
 </colgroup>
-<tbody><tr>
+<tbody>
+<tr>
 <td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--aperture-size" title="The “aperture-size” property">aperture-size</a></td>
 <td class="property_flags">Read / Write</td>
-</tr></tbody>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--scale" title="The “scale” property">scale</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--shift" title="The “shift” property">shift</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+</tbody>
 </table></div>
 </div>
 <a name="GstCvLaplace"></a><div class="refsect1">
@@ -176,6 +188,24 @@
 <p>Flags: Read / Write</p>
 <p>Allowed values: [1,7]</p>
 <p>Default value: 3</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstCvLaplace--scale"></a><h3>The <code class="literal">“scale”</code> property</h3>
+<pre class="programlisting">  “scale”                    <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></pre>
+<p>Scale factor.</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 1</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstCvLaplace--shift"></a><h3>The <code class="literal">“shift”</code> property</h3>
+<pre class="programlisting">  “shift”                    <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></pre>
+<p>Value added to the scaled source array elements.</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 0</p>
 </div>
 </div>
 </div>

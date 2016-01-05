@@ -352,6 +352,11 @@ will not wait for the clock.</p>
   gboolean          (*start)          (GstAggregator    *  aggregator);
 
   GstClockTime      (*get_next_time)  (GstAggregator    *  aggregator);
+
+  GstAggregatorPad * (*create_new_pad) (GstAggregator  * self,
+                                        GstPadTemplate * templ,
+                                        const gchar    * req_name,
+                                        const GstCaps  * caps);
 };
 </pre>
 <p>The aggregator base class will handle in a thread-safe way all manners of
@@ -469,6 +474,11 @@ based aggregation to occur. Defaults to returning
 GST_CLOCK_TIME_NONE causing the element to wait for buffers
 on all sink pads before aggregating.</p></td>
 <td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="GstAggregatorClass.create-new-pad"></a>create_new_pad</code></em> ()</p></td>
+<td> </td>
+<td> </td>
 </tr>
 </tbody>
 </table></div>

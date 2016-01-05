@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.6.2\n"
+"Project-Id-Version: gst-plugins-bad 1.7.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2015-12-14 19:23+0100\n"
+"POT-Creation-Date: 2015-12-24 13:55+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ext/gl/gstgltestsrc.c:673
+#: ext/gl/gstgltestsrc.c:680
 msgid "format wasn't negotiated before get function"
 msgstr ""
 
@@ -137,7 +137,7 @@ msgstr ""
 msgid "Describes the selected visualization element."
 msgstr ""
 
-#: ext/opencv/gsttemplatematch.c:442
+#: ext/opencv/gsttemplatematch.cpp:188
 msgid "OpenCV failed to load template image"
 msgstr ""
 
@@ -154,18 +154,18 @@ msgstr ""
 msgid "Failed to set PGC based seeking."
 msgstr ""
 
-#: ext/resindvd/resindvdsrc.c:1166
+#: ext/resindvd/resindvdsrc.c:1165
 msgid ""
 "Could not read DVD. This may be because the DVD is encrypted and a DVD "
 "decryption library is not installed."
 msgstr ""
 
-#: ext/resindvd/resindvdsrc.c:1171 ext/resindvd/resindvdsrc.c:1180
+#: ext/resindvd/resindvdsrc.c:1170 ext/resindvd/resindvdsrc.c:1179
 msgid "Could not read DVD."
 msgstr ""
 
-#: ext/smoothstreaming/gstmssdemux.c:381
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:525
+#: ext/smoothstreaming/gstmssdemux.c:403
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:619
 msgid "This file contains no playable streams."
 msgstr ""
 
@@ -215,18 +215,18 @@ msgstr ""
 msgid "Subpicture format was not configured before data flow"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2081
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2531
 msgid "Failed to get fragment URL."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2282
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2446
-#: gst/mpegtsdemux/mpegtsbase.c:1342 gst/mpegtsdemux/mpegtsbase.c:1346
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2761
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2955
+#: gst/mpegtsdemux/mpegtsbase.c:1371 gst/mpegtsdemux/mpegtsbase.c:1375
 #: gst/nuvdemux/gstnuvdemux.c:736
 msgid "Internal data stream error."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2383
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2873
 msgid "Couldn't download fragments"
 msgstr ""
 
@@ -269,20 +269,20 @@ msgstr ""
 msgid "Could not open file \"%s\" for reading."
 msgstr ""
 
-#: sys/dvb/parsechannels.c:168
+#: sys/dvb/parsechannels.c:165
 msgid "Couldn't find DVB channel configuration file"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:171
+#: sys/dvb/parsechannels.c:168
 #, c-format
 msgid "Couldn't load DVB channel configuration file: %s"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:180
+#: sys/dvb/parsechannels.c:175
 msgid "DVB channel configuration file doesn't contain any channels"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:456
+#: sys/dvb/parsechannels.c:449
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr ""

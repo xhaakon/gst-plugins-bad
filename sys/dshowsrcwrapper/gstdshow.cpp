@@ -125,10 +125,8 @@ gst_dshow_new_pin_mediatype_from_streamcaps (IPin * pin, gint id, IAMStreamConfi
 void
 gst_dshow_free_pins_mediatypes (GList * pins_mediatypes)
 {
-  while (pins_mediatypes != NULL) {
-    gst_dshow_free_pin_mediatype (pins_mediatypes->data);
-    pins_mediatypes = g_list_remove_link (pins_mediatypes, pins_mediatypes);
-  }
+  g_list_free_full (pins_mediatypes,
+      (GDestroyNotify) gst_dshow_free_pin_mediatype);
 }
 
 gboolean
@@ -273,14 +271,12 @@ gst_dshow_find_filter (CLSID input_majortype, CLSID input_subtype,
       filter_temp->Release ();
     }
 
-    if (friendly_name)
-      g_free (friendly_name);
+    g_free (friendly_name);
     moniker->Release ();
   }
 
 clean:
-  if (prefered_filter_upper)
-    g_free (prefered_filter_upper);
+  g_free (prefered_filter_upper);
   if (enum_moniker)
     enum_moniker->Release ();
   if (mapper)

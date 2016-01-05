@@ -274,7 +274,7 @@
 <div class="refsect2">
 <a name="GstCvSmooth--color"></a><h3>The <code class="literal">“color”</code> property</h3>
 <pre class="programlisting">  “color”                    <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></pre>
-<p>If type is gaussian, this means the standard deviation.If type is bilateral, this means the color-sigma. If zero, Default values are used.Check cvSmooth OpenCV docs: http://opencv.willowgarage.com/documentation/image_filtering.html#cvSmooth.</p>
+<p>If type is gaussian, this means the standard deviation.If type is bilateral, this means the color-sigma. If zero, Default values are used.</p>
 <p>Flags: Read / Write</p>
 <p>Allowed values: &gt;= 0</p>
 <p>Default value: 0</p>
@@ -283,16 +283,16 @@
 <div class="refsect2">
 <a name="GstCvSmooth--height"></a><h3>The <code class="literal">“height”</code> property</h3>
 <pre class="programlisting">  “height”                   <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
-<p>The aperture height, if zero, the width is used.(Must be positive and odd or zero, unuset in median and bilateral types). Check cvSmooth OpenCV docs: http://opencv.willowgarage.com/documentation/image_filtering.html#cvSmooth.</p>
+<p>The gaussian kernel height (must be positive and odd).</p>
 <p>Flags: Read / Write</p>
 <p>Allowed values: &gt;= 0</p>
-<p>Default value: 0</p>
+<p>Default value: 3</p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="GstCvSmooth--spatial"></a><h3>The <code class="literal">“spatial”</code> property</h3>
 <pre class="programlisting">  “spatial”                  <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></pre>
-<p>Only used in bilateral type, means the spatial-sigma.Check cvSmooth OpenCV docs: http://opencv.willowgarage.com/documentation/image_filtering.html#cvSmooth.</p>
+<p>Only used in bilateral type, means the spatial-sigma.</p>
 <p>Flags: Read / Write</p>
 <p>Allowed values: &gt;= 0</p>
 <p>Default value: 0</p>
@@ -301,7 +301,7 @@
 <div class="refsect2">
 <a name="GstCvSmooth--width"></a><h3>The <code class="literal">“width”</code> property</h3>
 <pre class="programlisting">  “width”                    <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
-<p>The aperture width (Must be positive and odd).Check cvSmooth OpenCV docs: http://opencv.willowgarage.com/documentation/image_filtering.html#cvSmooth.</p>
+<p>The gaussian kernel width (must be positive and odd).If type is median, this means the aperture linear size.Check OpenCV docs: http://docs.opencv.org/2.4/modules/imgproc/doc/filtering.htm.</p>
 <p>Flags: Read / Write</p>
 <p>Allowed values: &gt;= 1</p>
 <p>Default value: 3</p>

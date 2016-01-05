@@ -214,24 +214,6 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
-	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
-	$(AM_CFLAGS) $(CFLAGS)
-AM_V_CC = $(am__v_CC_@AM_V@)
-am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
-am__v_CC_0 = @echo "  CC      " $@;
-am__v_CC_1 = 
-CCLD = $(CC)
-LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-AM_V_CCLD = $(am__v_CCLD_@AM_V@)
-am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
-am__v_CCLD_0 = @echo "  CCLD    " $@;
-am__v_CCLD_1 = 
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
@@ -315,6 +297,8 @@ CLUTTER_X11_CFLAGS = @CLUTTER_X11_CFLAGS@
 CLUTTER_X11_LIBS = @CLUTTER_X11_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CUDA_CFLAGS = @CUDA_CFLAGS@
+CUDA_LIBS = @CUDA_LIBS@
 CURL_CFLAGS = @CURL_CFLAGS@
 CURL_LIBS = @CURL_LIBS@
 CXX = @CXX@
@@ -352,6 +336,8 @@ DVDNAV_LIBS = @DVDNAV_LIBS@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
+EGL_CFLAGS = @EGL_CFLAGS@
+EGL_LIBS = @EGL_LIBS@
 EGREP = @EGREP@
 ERROR_CFLAGS = @ERROR_CFLAGS@
 ERROR_CXXFLAGS = @ERROR_CXXFLAGS@
@@ -379,6 +365,8 @@ GIO_LDFLAGS = @GIO_LDFLAGS@
 GIO_LIBS = @GIO_LIBS@
 GIO_UNIX_CFLAGS = @GIO_UNIX_CFLAGS@
 GIO_UNIX_LIBS = @GIO_UNIX_LIBS@
+GLES2_CFLAGS = @GLES2_CFLAGS@
+GLES2_LIBS = @GLES2_LIBS@
 GLIB_CFLAGS = @GLIB_CFLAGS@
 GLIB_COMPILE_SCHEMAS = @GLIB_COMPILE_SCHEMAS@
 GLIB_EXTRA_CFLAGS = @GLIB_EXTRA_CFLAGS@
@@ -397,6 +385,8 @@ GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
 GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
+GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
+GNUSTL_LIBS = @GNUSTL_LIBS@
 GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
 GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
@@ -407,6 +397,8 @@ GSM_LIBS = @GSM_LIBS@
 GSTPB_PLUGINS_DIR = @GSTPB_PLUGINS_DIR@
 GSTPB_PREFIX = @GSTPB_PREFIX@
 GST_AGE = @GST_AGE@
+GST_ALLOCATORS_CFLAGS = @GST_ALLOCATORS_CFLAGS@
+GST_ALLOCATORS_LIBS = @GST_ALLOCATORS_LIBS@
 GST_ALL_LDFLAGS = @GST_ALL_LDFLAGS@
 GST_API_VERSION = @GST_API_VERSION@
 GST_BASE_CFLAGS = @GST_BASE_CFLAGS@
@@ -432,6 +424,8 @@ GST_OPTION_CXXFLAGS = @GST_OPTION_CXXFLAGS@
 GST_OPTION_OBJCFLAGS = @GST_OPTION_OBJCFLAGS@
 GST_PACKAGE_NAME = @GST_PACKAGE_NAME@
 GST_PACKAGE_ORIGIN = @GST_PACKAGE_ORIGIN@
+GST_PBUTILS_CFLAGS = @GST_PBUTILS_CFLAGS@
+GST_PBUTILS_LIBS = @GST_PBUTILS_LIBS@
 GST_PKG_CONFIG_PATH = @GST_PKG_CONFIG_PATH@
 GST_PLUGINS_ALL = @GST_PLUGINS_ALL@
 GST_PLUGINS_BAD_CFLAGS = @GST_PLUGINS_BAD_CFLAGS@
@@ -457,6 +451,8 @@ GST_PLUGIN_LIBTOOLFLAGS = @GST_PLUGIN_LIBTOOLFLAGS@
 GST_PREFIX = @GST_PREFIX@
 GST_REVISION = @GST_REVISION@
 GST_TOOLS_DIR = @GST_TOOLS_DIR@
+GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
+GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
 GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
 GTK3_GL_LIBS = @GTK3_GL_LIBS@
@@ -588,6 +584,8 @@ NETTLE_CFLAGS = @NETTLE_CFLAGS@
 NETTLE_LIBS = @NETTLE_LIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
+NVENCODE_CFLAGS = @NVENCODE_CFLAGS@
+NVENCODE_LIBS = @NVENCODE_LIBS@
 OBJC = @OBJC@
 OBJCDEPMODE = @OBJCDEPMODE@
 OBJCFLAGS = @OBJCFLAGS@
@@ -645,8 +643,12 @@ PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_VERSION = @PYTHON_VERSION@
+QT_ANDROID_CFLAGS = @QT_ANDROID_CFLAGS@
+QT_ANDROID_LIBS = @QT_ANDROID_LIBS@
 QT_CFLAGS = @QT_CFLAGS@
 QT_LIBS = @QT_LIBS@
+QT_MAC_CFLAGS = @QT_MAC_CFLAGS@
+QT_MAC_LIBS = @QT_MAC_LIBS@
 QT_WAYLAND_CFLAGS = @QT_WAYLAND_CFLAGS@
 QT_WAYLAND_LIBS = @QT_WAYLAND_LIBS@
 QT_X11_CFLAGS = @QT_X11_CFLAGS@
@@ -716,6 +718,7 @@ WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
 WINKS_LIBS = @WINKS_LIBS@
@@ -806,24 +809,24 @@ plugin_LTLIBRARIES = libgstopencv.la
 
 # sources used to compile this plug-in
 libgstopencv_la_SOURCES = gstopencv.cpp \
-			gstopencvvideofilter.c \
-			gstopencvutils.c \
-			gstcvdilate.c \
-			gstcvdilateerode.c \
-			gstcvequalizehist.c \
-			gstcverode.c \
-			gstcvlaplace.c \
-			gstcvsmooth.c \
-			gstcvsobel.c \
+			gstopencvvideofilter.cpp \
+			gstopencvutils.cpp \
+			gstcvdilate.cpp \
+			gstcvdilateerode.cpp \
+			gstcvequalizehist.cpp \
+			gstcverode.cpp \
+			gstcvlaplace.cpp \
+			gstcvsmooth.cpp \
+			gstcvsobel.cpp \
 			gstedgedetect.cpp \
 			gstfaceblur.cpp \
-			gsthanddetect.c \
-			gstpyramidsegment.c \
-			gsttemplatematch.c \
-			gsttextoverlay.c \
-			gstmotioncells.c \
-			gstskindetect.c \
-			gstretinex.c \
+			gsthanddetect.cpp \
+			gstpyramidsegment.cpp \
+			gsttemplatematch.cpp \
+			gsttextoverlay.cpp \
+			gstmotioncells.cpp \
+			gstskindetect.cpp \
+			gstretinex.cpp \
 			gstfacedetect.cpp \
 			gstsegmentation.cpp \
 			gstgrabcut.cpp \
@@ -831,7 +834,9 @@ libgstopencv_la_SOURCES = gstopencv.cpp \
 			motioncells_wrapper.cpp \
 			MotionCells.cpp
 
-libgstopencv_la_CXXFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CXXFLAGS) $(OPENCV_CFLAGS)
+libgstopencv_la_CXXFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CXXFLAGS) $(OPENCV_CFLAGS) \
+	-DGST_HAAR_CASCADES_DIR=\"$(pkgdatadir)/@GST_API_VERSION@/opencv_haarcascades\"
+
 
 # flags used to compile this facedetect
 # add other _CFLAGS and _LIBS as needed
@@ -840,7 +845,6 @@ libgstopencv_la_CXXFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_C
 # OpenCV's define isn't good enough to avoid 'unused' gcc warnings (at v2.1.0)
 libgstopencv_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) \
 	$(GST_CFLAGS) $(OPENCV_CFLAGS) \
-	-DGST_HAAR_CASCADES_DIR=\"$(pkgdatadir)/@GST_API_VERSION@/opencv_haarcascades\" \
 	-DCV_INLINE="static inline" \
 	-DCV_NO_BACKWARD_COMPATIBILITY
 
@@ -881,7 +885,7 @@ EXTRA_DIST = $(opencv_haarcascades_DATA)
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .lo .o .obj
+.SUFFIXES: .cpp .lo .o .obj
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -982,142 +986,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gsttextoverlay.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-motioncells_wrapper.Plo@am__quote@
 
-.c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
-
-.c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
-@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-.c.lo:
-@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
-@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
-
-libgstopencv_la-gstopencvvideofilter.lo: gstopencvvideofilter.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gstopencvvideofilter.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstopencvvideofilter.Tpo -c -o libgstopencv_la-gstopencvvideofilter.lo `test -f 'gstopencvvideofilter.c' || echo '$(srcdir)/'`gstopencvvideofilter.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstopencvvideofilter.Tpo $(DEPDIR)/libgstopencv_la-gstopencvvideofilter.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstopencvvideofilter.c' object='libgstopencv_la-gstopencvvideofilter.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gstopencvvideofilter.lo `test -f 'gstopencvvideofilter.c' || echo '$(srcdir)/'`gstopencvvideofilter.c
-
-libgstopencv_la-gstopencvutils.lo: gstopencvutils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gstopencvutils.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstopencvutils.Tpo -c -o libgstopencv_la-gstopencvutils.lo `test -f 'gstopencvutils.c' || echo '$(srcdir)/'`gstopencvutils.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstopencvutils.Tpo $(DEPDIR)/libgstopencv_la-gstopencvutils.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstopencvutils.c' object='libgstopencv_la-gstopencvutils.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gstopencvutils.lo `test -f 'gstopencvutils.c' || echo '$(srcdir)/'`gstopencvutils.c
-
-libgstopencv_la-gstcvdilate.lo: gstcvdilate.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gstcvdilate.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcvdilate.Tpo -c -o libgstopencv_la-gstcvdilate.lo `test -f 'gstcvdilate.c' || echo '$(srcdir)/'`gstcvdilate.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcvdilate.Tpo $(DEPDIR)/libgstopencv_la-gstcvdilate.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstcvdilate.c' object='libgstopencv_la-gstcvdilate.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gstcvdilate.lo `test -f 'gstcvdilate.c' || echo '$(srcdir)/'`gstcvdilate.c
-
-libgstopencv_la-gstcvdilateerode.lo: gstcvdilateerode.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gstcvdilateerode.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcvdilateerode.Tpo -c -o libgstopencv_la-gstcvdilateerode.lo `test -f 'gstcvdilateerode.c' || echo '$(srcdir)/'`gstcvdilateerode.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcvdilateerode.Tpo $(DEPDIR)/libgstopencv_la-gstcvdilateerode.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstcvdilateerode.c' object='libgstopencv_la-gstcvdilateerode.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gstcvdilateerode.lo `test -f 'gstcvdilateerode.c' || echo '$(srcdir)/'`gstcvdilateerode.c
-
-libgstopencv_la-gstcvequalizehist.lo: gstcvequalizehist.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gstcvequalizehist.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcvequalizehist.Tpo -c -o libgstopencv_la-gstcvequalizehist.lo `test -f 'gstcvequalizehist.c' || echo '$(srcdir)/'`gstcvequalizehist.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcvequalizehist.Tpo $(DEPDIR)/libgstopencv_la-gstcvequalizehist.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstcvequalizehist.c' object='libgstopencv_la-gstcvequalizehist.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gstcvequalizehist.lo `test -f 'gstcvequalizehist.c' || echo '$(srcdir)/'`gstcvequalizehist.c
-
-libgstopencv_la-gstcverode.lo: gstcverode.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gstcverode.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcverode.Tpo -c -o libgstopencv_la-gstcverode.lo `test -f 'gstcverode.c' || echo '$(srcdir)/'`gstcverode.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcverode.Tpo $(DEPDIR)/libgstopencv_la-gstcverode.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstcverode.c' object='libgstopencv_la-gstcverode.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gstcverode.lo `test -f 'gstcverode.c' || echo '$(srcdir)/'`gstcverode.c
-
-libgstopencv_la-gstcvlaplace.lo: gstcvlaplace.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gstcvlaplace.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcvlaplace.Tpo -c -o libgstopencv_la-gstcvlaplace.lo `test -f 'gstcvlaplace.c' || echo '$(srcdir)/'`gstcvlaplace.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcvlaplace.Tpo $(DEPDIR)/libgstopencv_la-gstcvlaplace.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstcvlaplace.c' object='libgstopencv_la-gstcvlaplace.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gstcvlaplace.lo `test -f 'gstcvlaplace.c' || echo '$(srcdir)/'`gstcvlaplace.c
-
-libgstopencv_la-gstcvsmooth.lo: gstcvsmooth.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gstcvsmooth.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcvsmooth.Tpo -c -o libgstopencv_la-gstcvsmooth.lo `test -f 'gstcvsmooth.c' || echo '$(srcdir)/'`gstcvsmooth.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcvsmooth.Tpo $(DEPDIR)/libgstopencv_la-gstcvsmooth.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstcvsmooth.c' object='libgstopencv_la-gstcvsmooth.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gstcvsmooth.lo `test -f 'gstcvsmooth.c' || echo '$(srcdir)/'`gstcvsmooth.c
-
-libgstopencv_la-gstcvsobel.lo: gstcvsobel.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gstcvsobel.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcvsobel.Tpo -c -o libgstopencv_la-gstcvsobel.lo `test -f 'gstcvsobel.c' || echo '$(srcdir)/'`gstcvsobel.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcvsobel.Tpo $(DEPDIR)/libgstopencv_la-gstcvsobel.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstcvsobel.c' object='libgstopencv_la-gstcvsobel.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gstcvsobel.lo `test -f 'gstcvsobel.c' || echo '$(srcdir)/'`gstcvsobel.c
-
-libgstopencv_la-gsthanddetect.lo: gsthanddetect.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gsthanddetect.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gsthanddetect.Tpo -c -o libgstopencv_la-gsthanddetect.lo `test -f 'gsthanddetect.c' || echo '$(srcdir)/'`gsthanddetect.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gsthanddetect.Tpo $(DEPDIR)/libgstopencv_la-gsthanddetect.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gsthanddetect.c' object='libgstopencv_la-gsthanddetect.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gsthanddetect.lo `test -f 'gsthanddetect.c' || echo '$(srcdir)/'`gsthanddetect.c
-
-libgstopencv_la-gstpyramidsegment.lo: gstpyramidsegment.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gstpyramidsegment.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstpyramidsegment.Tpo -c -o libgstopencv_la-gstpyramidsegment.lo `test -f 'gstpyramidsegment.c' || echo '$(srcdir)/'`gstpyramidsegment.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstpyramidsegment.Tpo $(DEPDIR)/libgstopencv_la-gstpyramidsegment.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstpyramidsegment.c' object='libgstopencv_la-gstpyramidsegment.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gstpyramidsegment.lo `test -f 'gstpyramidsegment.c' || echo '$(srcdir)/'`gstpyramidsegment.c
-
-libgstopencv_la-gsttemplatematch.lo: gsttemplatematch.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gsttemplatematch.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gsttemplatematch.Tpo -c -o libgstopencv_la-gsttemplatematch.lo `test -f 'gsttemplatematch.c' || echo '$(srcdir)/'`gsttemplatematch.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gsttemplatematch.Tpo $(DEPDIR)/libgstopencv_la-gsttemplatematch.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gsttemplatematch.c' object='libgstopencv_la-gsttemplatematch.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gsttemplatematch.lo `test -f 'gsttemplatematch.c' || echo '$(srcdir)/'`gsttemplatematch.c
-
-libgstopencv_la-gsttextoverlay.lo: gsttextoverlay.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gsttextoverlay.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gsttextoverlay.Tpo -c -o libgstopencv_la-gsttextoverlay.lo `test -f 'gsttextoverlay.c' || echo '$(srcdir)/'`gsttextoverlay.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gsttextoverlay.Tpo $(DEPDIR)/libgstopencv_la-gsttextoverlay.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gsttextoverlay.c' object='libgstopencv_la-gsttextoverlay.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gsttextoverlay.lo `test -f 'gsttextoverlay.c' || echo '$(srcdir)/'`gsttextoverlay.c
-
-libgstopencv_la-gstmotioncells.lo: gstmotioncells.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gstmotioncells.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstmotioncells.Tpo -c -o libgstopencv_la-gstmotioncells.lo `test -f 'gstmotioncells.c' || echo '$(srcdir)/'`gstmotioncells.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstmotioncells.Tpo $(DEPDIR)/libgstopencv_la-gstmotioncells.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstmotioncells.c' object='libgstopencv_la-gstmotioncells.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gstmotioncells.lo `test -f 'gstmotioncells.c' || echo '$(srcdir)/'`gstmotioncells.c
-
-libgstopencv_la-gstskindetect.lo: gstskindetect.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gstskindetect.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstskindetect.Tpo -c -o libgstopencv_la-gstskindetect.lo `test -f 'gstskindetect.c' || echo '$(srcdir)/'`gstskindetect.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstskindetect.Tpo $(DEPDIR)/libgstopencv_la-gstskindetect.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstskindetect.c' object='libgstopencv_la-gstskindetect.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gstskindetect.lo `test -f 'gstskindetect.c' || echo '$(srcdir)/'`gstskindetect.c
-
-libgstopencv_la-gstretinex.lo: gstretinex.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -MT libgstopencv_la-gstretinex.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstretinex.Tpo -c -o libgstopencv_la-gstretinex.lo `test -f 'gstretinex.c' || echo '$(srcdir)/'`gstretinex.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstretinex.Tpo $(DEPDIR)/libgstopencv_la-gstretinex.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstretinex.c' object='libgstopencv_la-gstretinex.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CFLAGS) $(CFLAGS) -c -o libgstopencv_la-gstretinex.lo `test -f 'gstretinex.c' || echo '$(srcdir)/'`gstretinex.c
-
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
@@ -1149,6 +1017,69 @@ libgstopencv_la-gstopencv.lo: gstopencv.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstopencv.lo `test -f 'gstopencv.cpp' || echo '$(srcdir)/'`gstopencv.cpp
 
+libgstopencv_la-gstopencvvideofilter.lo: gstopencvvideofilter.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstopencvvideofilter.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstopencvvideofilter.Tpo -c -o libgstopencv_la-gstopencvvideofilter.lo `test -f 'gstopencvvideofilter.cpp' || echo '$(srcdir)/'`gstopencvvideofilter.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstopencvvideofilter.Tpo $(DEPDIR)/libgstopencv_la-gstopencvvideofilter.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstopencvvideofilter.cpp' object='libgstopencv_la-gstopencvvideofilter.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstopencvvideofilter.lo `test -f 'gstopencvvideofilter.cpp' || echo '$(srcdir)/'`gstopencvvideofilter.cpp
+
+libgstopencv_la-gstopencvutils.lo: gstopencvutils.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstopencvutils.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstopencvutils.Tpo -c -o libgstopencv_la-gstopencvutils.lo `test -f 'gstopencvutils.cpp' || echo '$(srcdir)/'`gstopencvutils.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstopencvutils.Tpo $(DEPDIR)/libgstopencv_la-gstopencvutils.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstopencvutils.cpp' object='libgstopencv_la-gstopencvutils.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstopencvutils.lo `test -f 'gstopencvutils.cpp' || echo '$(srcdir)/'`gstopencvutils.cpp
+
+libgstopencv_la-gstcvdilate.lo: gstcvdilate.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstcvdilate.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcvdilate.Tpo -c -o libgstopencv_la-gstcvdilate.lo `test -f 'gstcvdilate.cpp' || echo '$(srcdir)/'`gstcvdilate.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcvdilate.Tpo $(DEPDIR)/libgstopencv_la-gstcvdilate.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstcvdilate.cpp' object='libgstopencv_la-gstcvdilate.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstcvdilate.lo `test -f 'gstcvdilate.cpp' || echo '$(srcdir)/'`gstcvdilate.cpp
+
+libgstopencv_la-gstcvdilateerode.lo: gstcvdilateerode.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstcvdilateerode.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcvdilateerode.Tpo -c -o libgstopencv_la-gstcvdilateerode.lo `test -f 'gstcvdilateerode.cpp' || echo '$(srcdir)/'`gstcvdilateerode.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcvdilateerode.Tpo $(DEPDIR)/libgstopencv_la-gstcvdilateerode.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstcvdilateerode.cpp' object='libgstopencv_la-gstcvdilateerode.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstcvdilateerode.lo `test -f 'gstcvdilateerode.cpp' || echo '$(srcdir)/'`gstcvdilateerode.cpp
+
+libgstopencv_la-gstcvequalizehist.lo: gstcvequalizehist.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstcvequalizehist.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcvequalizehist.Tpo -c -o libgstopencv_la-gstcvequalizehist.lo `test -f 'gstcvequalizehist.cpp' || echo '$(srcdir)/'`gstcvequalizehist.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcvequalizehist.Tpo $(DEPDIR)/libgstopencv_la-gstcvequalizehist.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstcvequalizehist.cpp' object='libgstopencv_la-gstcvequalizehist.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstcvequalizehist.lo `test -f 'gstcvequalizehist.cpp' || echo '$(srcdir)/'`gstcvequalizehist.cpp
+
+libgstopencv_la-gstcverode.lo: gstcverode.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstcverode.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcverode.Tpo -c -o libgstopencv_la-gstcverode.lo `test -f 'gstcverode.cpp' || echo '$(srcdir)/'`gstcverode.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcverode.Tpo $(DEPDIR)/libgstopencv_la-gstcverode.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstcverode.cpp' object='libgstopencv_la-gstcverode.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstcverode.lo `test -f 'gstcverode.cpp' || echo '$(srcdir)/'`gstcverode.cpp
+
+libgstopencv_la-gstcvlaplace.lo: gstcvlaplace.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstcvlaplace.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcvlaplace.Tpo -c -o libgstopencv_la-gstcvlaplace.lo `test -f 'gstcvlaplace.cpp' || echo '$(srcdir)/'`gstcvlaplace.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcvlaplace.Tpo $(DEPDIR)/libgstopencv_la-gstcvlaplace.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstcvlaplace.cpp' object='libgstopencv_la-gstcvlaplace.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstcvlaplace.lo `test -f 'gstcvlaplace.cpp' || echo '$(srcdir)/'`gstcvlaplace.cpp
+
+libgstopencv_la-gstcvsmooth.lo: gstcvsmooth.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstcvsmooth.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcvsmooth.Tpo -c -o libgstopencv_la-gstcvsmooth.lo `test -f 'gstcvsmooth.cpp' || echo '$(srcdir)/'`gstcvsmooth.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcvsmooth.Tpo $(DEPDIR)/libgstopencv_la-gstcvsmooth.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstcvsmooth.cpp' object='libgstopencv_la-gstcvsmooth.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstcvsmooth.lo `test -f 'gstcvsmooth.cpp' || echo '$(srcdir)/'`gstcvsmooth.cpp
+
+libgstopencv_la-gstcvsobel.lo: gstcvsobel.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstcvsobel.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcvsobel.Tpo -c -o libgstopencv_la-gstcvsobel.lo `test -f 'gstcvsobel.cpp' || echo '$(srcdir)/'`gstcvsobel.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstcvsobel.Tpo $(DEPDIR)/libgstopencv_la-gstcvsobel.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstcvsobel.cpp' object='libgstopencv_la-gstcvsobel.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstcvsobel.lo `test -f 'gstcvsobel.cpp' || echo '$(srcdir)/'`gstcvsobel.cpp
+
 libgstopencv_la-gstedgedetect.lo: gstedgedetect.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstedgedetect.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstedgedetect.Tpo -c -o libgstopencv_la-gstedgedetect.lo `test -f 'gstedgedetect.cpp' || echo '$(srcdir)/'`gstedgedetect.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstedgedetect.Tpo $(DEPDIR)/libgstopencv_la-gstedgedetect.Plo
@@ -1162,6 +1093,55 @@ libgstopencv_la-gstfaceblur.lo: gstfaceblur.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstfaceblur.cpp' object='libgstopencv_la-gstfaceblur.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstfaceblur.lo `test -f 'gstfaceblur.cpp' || echo '$(srcdir)/'`gstfaceblur.cpp
+
+libgstopencv_la-gsthanddetect.lo: gsthanddetect.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gsthanddetect.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gsthanddetect.Tpo -c -o libgstopencv_la-gsthanddetect.lo `test -f 'gsthanddetect.cpp' || echo '$(srcdir)/'`gsthanddetect.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gsthanddetect.Tpo $(DEPDIR)/libgstopencv_la-gsthanddetect.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gsthanddetect.cpp' object='libgstopencv_la-gsthanddetect.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gsthanddetect.lo `test -f 'gsthanddetect.cpp' || echo '$(srcdir)/'`gsthanddetect.cpp
+
+libgstopencv_la-gstpyramidsegment.lo: gstpyramidsegment.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstpyramidsegment.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstpyramidsegment.Tpo -c -o libgstopencv_la-gstpyramidsegment.lo `test -f 'gstpyramidsegment.cpp' || echo '$(srcdir)/'`gstpyramidsegment.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstpyramidsegment.Tpo $(DEPDIR)/libgstopencv_la-gstpyramidsegment.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstpyramidsegment.cpp' object='libgstopencv_la-gstpyramidsegment.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstpyramidsegment.lo `test -f 'gstpyramidsegment.cpp' || echo '$(srcdir)/'`gstpyramidsegment.cpp
+
+libgstopencv_la-gsttemplatematch.lo: gsttemplatematch.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gsttemplatematch.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gsttemplatematch.Tpo -c -o libgstopencv_la-gsttemplatematch.lo `test -f 'gsttemplatematch.cpp' || echo '$(srcdir)/'`gsttemplatematch.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gsttemplatematch.Tpo $(DEPDIR)/libgstopencv_la-gsttemplatematch.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gsttemplatematch.cpp' object='libgstopencv_la-gsttemplatematch.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gsttemplatematch.lo `test -f 'gsttemplatematch.cpp' || echo '$(srcdir)/'`gsttemplatematch.cpp
+
+libgstopencv_la-gsttextoverlay.lo: gsttextoverlay.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gsttextoverlay.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gsttextoverlay.Tpo -c -o libgstopencv_la-gsttextoverlay.lo `test -f 'gsttextoverlay.cpp' || echo '$(srcdir)/'`gsttextoverlay.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gsttextoverlay.Tpo $(DEPDIR)/libgstopencv_la-gsttextoverlay.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gsttextoverlay.cpp' object='libgstopencv_la-gsttextoverlay.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gsttextoverlay.lo `test -f 'gsttextoverlay.cpp' || echo '$(srcdir)/'`gsttextoverlay.cpp
+
+libgstopencv_la-gstmotioncells.lo: gstmotioncells.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstmotioncells.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstmotioncells.Tpo -c -o libgstopencv_la-gstmotioncells.lo `test -f 'gstmotioncells.cpp' || echo '$(srcdir)/'`gstmotioncells.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstmotioncells.Tpo $(DEPDIR)/libgstopencv_la-gstmotioncells.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstmotioncells.cpp' object='libgstopencv_la-gstmotioncells.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstmotioncells.lo `test -f 'gstmotioncells.cpp' || echo '$(srcdir)/'`gstmotioncells.cpp
+
+libgstopencv_la-gstskindetect.lo: gstskindetect.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstskindetect.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstskindetect.Tpo -c -o libgstopencv_la-gstskindetect.lo `test -f 'gstskindetect.cpp' || echo '$(srcdir)/'`gstskindetect.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstskindetect.Tpo $(DEPDIR)/libgstopencv_la-gstskindetect.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstskindetect.cpp' object='libgstopencv_la-gstskindetect.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstskindetect.lo `test -f 'gstskindetect.cpp' || echo '$(srcdir)/'`gstskindetect.cpp
+
+libgstopencv_la-gstretinex.lo: gstretinex.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstretinex.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstretinex.Tpo -c -o libgstopencv_la-gstretinex.lo `test -f 'gstretinex.cpp' || echo '$(srcdir)/'`gstretinex.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstretinex.Tpo $(DEPDIR)/libgstopencv_la-gstretinex.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstretinex.cpp' object='libgstopencv_la-gstretinex.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstretinex.lo `test -f 'gstretinex.cpp' || echo '$(srcdir)/'`gstretinex.cpp
 
 libgstopencv_la-gstfacedetect.lo: gstfacedetect.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstfacedetect.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstfacedetect.Tpo -c -o libgstopencv_la-gstfacedetect.lo `test -f 'gstfacedetect.cpp' || echo '$(srcdir)/'`gstfacedetect.cpp

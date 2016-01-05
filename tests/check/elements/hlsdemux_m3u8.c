@@ -30,7 +30,7 @@
 #include "m3u8.h"
 #include "m3u8.c"
 
-GST_DEBUG_CATEGORY (fragmented_debug);
+GST_DEBUG_CATEGORY (hls_debug);
 
 static const gchar *INVALID_PLAYLIST = "#EXTM3 UINVALID";
 
@@ -89,6 +89,16 @@ static const gchar *VARIANT_PLAYLIST = "#EXTM3U \n\
 http://example.com/low.m3u8\n\
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=256000\n\
 http://example.com/mid.m3u8\n\
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=768000\n\
+http://example.com/hi.m3u8\n\
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=65000,CODECS=\"mp4a.40.5\"\n\
+http://example.com/audio-only.m3u8";
+
+static const gchar *VARIANT_PLAYLIST_WITH_URI_MISSING = "#EXTM3U \n\
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=128000\n\
+http://example.com/low.m3u8\n\
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=256000\n\
+\n\
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=768000\n\
 http://example.com/hi.m3u8\n\
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=65000,CODECS=\"mp4a.40.5\"\n\
@@ -371,7 +381,7 @@ do_test_load_main_playlist_variant (const gchar * playlist)
   assert_equals_int (stream->bandwidth, 65000);
   assert_equals_int (stream->program_id, 1);
   assert_equals_string (stream->uri, "http://example.com/audio-only.m3u8");
-  assert_equals_string (stream->codecs, "\"mp4a.40.5\"");
+  assert_equals_string (stream->codecs, "mp4a.40.5");
 
   /* Low */
   tmp = g_list_next (tmp);
@@ -404,6 +414,17 @@ do_test_load_main_playlist_variant (const gchar * playlist)
 GST_START_TEST (test_load_main_playlist_variant)
 {
   do_test_load_main_playlist_variant (VARIANT_PLAYLIST);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_load_main_playlist_variant_with_missing_uri)
+{
+  GstM3U8Client *client;
+
+  client = load_playlist (VARIANT_PLAYLIST_WITH_URI_MISSING);
+  assert_equals_int (g_list_length (client->main->lists), 3);
+  gst_m3u8_client_free (client);
 }
 
 GST_END_TEST;
@@ -490,6 +511,8 @@ GST_START_TEST (test_live_playlist)
   GstM3U8Client *client;
   GstM3U8 *pl;
   GstM3U8MediaFile *file;
+  gint64 start = -1;
+  gint64 stop = -1;
 
   client = load_playlist (LIVE_PLAYLIST);
 
@@ -509,6 +532,9 @@ GST_START_TEST (test_live_playlist)
   assert_equals_string (file->uri,
       "https://priv.example.com/fileSequence2683.ts");
   assert_equals_int (file->sequence, 2683);
+  fail_unless (gst_m3u8_client_get_seek_range (client, &start, &stop));
+  assert_equals_int64 (start, 0);
+  assert_equals_float (stop / (double) GST_SECOND, 16.0);
 
   gst_m3u8_client_free (client);
 }
@@ -552,6 +578,8 @@ GST_START_TEST (test_playlist_with_doubles_duration)
   GstM3U8Client *client;
   GstM3U8 *pl;
   GstM3U8MediaFile *file;
+  gint64 start = -1;
+  gint64 stop = -1;
 
   client = load_playlist (DOUBLES_PLAYLIST);
 
@@ -565,6 +593,10 @@ GST_START_TEST (test_playlist_with_doubles_duration)
   assert_equals_float (file->duration / (double) GST_SECOND, 10.2344);
   file = GST_M3U8_MEDIA_FILE (g_list_nth_data (pl->files, 3));
   assert_equals_float (file->duration / (double) GST_SECOND, 9.92);
+  fail_unless (gst_m3u8_client_get_seek_range (client, &start, &stop));
+  assert_equals_int64 (start, 0);
+  assert_equals_float (stop / (double) GST_SECOND,
+      10.321 + 9.6789 + 10.2344 + 9.92);
   gst_m3u8_client_free (client);
 }
 
@@ -1301,19 +1333,62 @@ GST_START_TEST (test_simulation)
 GST_END_TEST;
 #endif
 
+GST_START_TEST (test_url_with_slash_query_param)
+{
+  static const gchar *MASTER_PLAYLIST = "#EXTM3U \n"
+      "#EXT-X-VERSION:4\n"
+      "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=1251135, CODECS=\"avc1.42001f, mp4a.40.2\", RESOLUTION=640x352\n"
+      "1251/media.m3u8?acl=/*1054559_h264_1500k.mp4\n";
+  GstM3U8Client *client;
+  GstM3U8 *media;
+
+  client = load_playlist (MASTER_PLAYLIST);
+
+  assert_equals_int (g_list_length (client->main->lists), 1);
+  media = g_list_nth_data (client->main->lists, 0);
+  assert_equals_string (media->uri,
+      "http://localhost/1251/media.m3u8?acl=/*1054559_h264_1500k.mp4");
+  gst_m3u8_client_free (client);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_stream_inf_tag)
+{
+  static const gchar *MASTER_PLAYLIST = "#EXTM3U \n"
+      "#EXT-X-VERSION:4\n"
+      "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=1251135, CODECS=\"avc1.42001f, mp4a.40.2\", RESOLUTION=640x352\n"
+      "media.m3u8\n";
+  GstM3U8Client *client;
+  GstM3U8 *media;
+
+  client = load_playlist (MASTER_PLAYLIST);
+
+  assert_equals_int (g_list_length (client->main->lists), 1);
+  media = g_list_nth_data (client->main->lists, 0);
+  assert_equals_int64 (media->program_id, 1);
+  assert_equals_int64 (media->width, 640);
+  assert_equals_int64 (media->height, 352);
+  assert_equals_int64 (media->bandwidth, 1251135);
+  assert_equals_string (media->codecs, "avc1.42001f, mp4a.40.2");
+  gst_m3u8_client_free (client);
+}
+
+GST_END_TEST;
+
 static Suite *
 hlsdemux_suite (void)
 {
   Suite *s = suite_create ("hlsdemux_m3u8");
   TCase *tc_m3u8 = tcase_create ("m3u8client");
 
-  GST_DEBUG_CATEGORY_INIT (fragmented_debug, "hlsdemux_m3u", 0,
-      "hlsdemux m3u test");
+  GST_DEBUG_CATEGORY_INIT (hls_debug, "hlsdemux_m3u", 0, "hlsdemux m3u test");
 
   suite_add_tcase (s, tc_m3u8);
   tcase_add_test (tc_m3u8, test_load_main_playlist_invalid);
   tcase_add_test (tc_m3u8, test_load_main_playlist_rendition);
   tcase_add_test (tc_m3u8, test_load_main_playlist_variant);
+  tcase_add_test (tc_m3u8, test_load_main_playlist_variant_with_missing_uri);
   tcase_add_test (tc_m3u8, test_load_windows_line_endings_variant_playlist);
   tcase_add_test (tc_m3u8, test_load_main_playlist_with_empty_lines);
   tcase_add_test (tc_m3u8, test_load_windows_main_playlist_with_empty_lines);
@@ -1341,7 +1416,8 @@ hlsdemux_suite (void)
 #endif
   tcase_add_test (tc_m3u8, test_playlist_with_doubles_duration);
   tcase_add_test (tc_m3u8, test_playlist_with_encryption);
-
+  tcase_add_test (tc_m3u8, test_url_with_slash_query_param);
+  tcase_add_test (tc_m3u8, test_stream_inf_tag);
   return s;
 }
 
