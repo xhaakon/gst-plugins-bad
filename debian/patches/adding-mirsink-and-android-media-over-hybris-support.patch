@@ -2350,7 +2350,7 @@ Index: b/sys/androidmedia/Makefile.am
  
  noinst_HEADERS = \
  	gstamc.h \
-@@ -22,19 +29,24 @@
+@@ -22,21 +29,28 @@
  libgstandroidmedia_la_CFLAGS = \
  	-I$(top_srcdir)/gst-libs \
  	-I$(top_builddir)/gst-libs \
@@ -2376,6 +2376,10 @@ Index: b/sys/androidmedia/Makefile.am
  libgstandroidmedia_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
  libgstandroidmedia_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
  
++if USE_ANDROID_MEDIA
+ androidmedia_java_classesdir = $(datadir)/gst-android/ndk-build/androidmedia/
+ androidmedia_java_classes_DATA = org/freedesktop/gstreamer/androidmedia/GstAmcOnFrameAvailableListener.java
++endif
 Index: b/sys/androidmedia/gstamc-constants.h
 ===================================================================
 --- a/sys/androidmedia/gstamc-constants.h
@@ -6080,7 +6084,14 @@ Index: b/sys/androidmedia/gstamcvideodec.h
 ===================================================================
 --- a/sys/androidmedia/gstamcvideodec.h
 +++ b/sys/androidmedia/gstamcvideodec.h
-@@ -26,6 +26,10 @@
+@@ -22,12 +22,20 @@
+ #define __GST_AMC_VIDEO_DEC_H__
+ 
+ #include <gst/gst.h>
+-#include <gst/gl/gl.h>
++#ifdef HAVE_ANDROID_MEDIA
++  #include <gst/gl/gl.h>
++#endif
  
  #include <gst/video/gstvideodecoder.h>
  
@@ -6089,9 +6100,14 @@ Index: b/sys/androidmedia/gstamcvideodec.h
 +#endif
 +
  #include "gstamc.h"
- #include "gstamcsurface.h"
+-#include "gstamcsurface.h"
++#ifdef HAVE_ANDROID_MEDIA
++  #include "gstamcsurface.h"
++#endif
  
-@@ -62,10 +66,19 @@
+ G_BEGIN_DECLS
+ 
+@@ -62,10 +70,19 @@
    /* < private > */
    GstAmcCodec *codec;
    GstAmcCodecConfig codec_config;
@@ -6111,7 +6127,7 @@ Index: b/sys/androidmedia/gstamcvideodec.h
    /* Output format of the codec */
    GstVideoFormat format;
    GstAmcColorFormatInfo color_format_info;
-@@ -81,6 +94,10 @@
+@@ -81,6 +98,10 @@
    gboolean started;
    gboolean flushing;
  
@@ -6122,7 +6138,7 @@ Index: b/sys/androidmedia/gstamcvideodec.h
    GstClockTime last_upstream_ts;
  
    /* Draining state */
-@@ -90,6 +107,9 @@
+@@ -90,18 +111,25 @@
    gboolean draining;
    /* TRUE if the component is drained currently */
    gboolean drained;
@@ -6130,9 +6146,25 @@ Index: b/sys/androidmedia/gstamcvideodec.h
 +  gboolean eos;
 +#endif
  
++#ifdef HAVE_ANDROID_MEDIA
    GstAmcSurface *surface;
  
-@@ -110,6 +130,16 @@
+   GstGLDisplay *gl_display;
+   GstGLContext *gl_context;
+   GstGLContext *other_gl_context;
++#endif
+ 
+   gboolean downstream_supports_gl;
+   GstFlowReturn downstream_flow_ret;
+ 
+   gboolean gl_mem_attached;
++#ifdef HAVE_ANDROID_MEDIA
+   GstGLMemory *oes_mem;
++#endif
+   GError *gl_error;
+   GMutex gl_lock;
+   GCond gl_cond;
+@@ -110,6 +138,16 @@
    guint gl_ready_frame_count;  /* n buffers ready for GL access */
    guint gl_released_frame_count;  /* n buffers released */
    GQueue *gl_queue;
