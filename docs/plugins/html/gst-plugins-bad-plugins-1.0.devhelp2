@@ -380,7 +380,7 @@
     <keyword type="property" name="The “system-headers” property" link="gst-plugins-bad-plugins-mplex.html#GstMplex--system-headers"/>
     <keyword type="property" name="The “vbr” property" link="gst-plugins-bad-plugins-mplex.html#GstMplex--vbr"/>
     <keyword type="struct" name="struct GstMpg123AudioDec" link="gst-plugins-bad-plugins-mpg123audiodec.html#GstMpg123AudioDec-struct"/>
-    <keyword type="struct" name="struct GstNeonhttpSrc" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc-struct"/>
+    <keyword type="struct" name="struct GstNeonhttpSrc" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc"/>
     <keyword type="property" name="The “location” property" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc--location"/>
     <keyword type="property" name="The “proxy” property" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc--proxy"/>
     <keyword type="property" name="The “uri” property" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc--uri"/>
@@ -518,7 +518,7 @@
     <keyword type="property" name="The “amplitude” property" link="gst-plugins-bad-plugins-waterripple.html#GstWaterRipple--amplitude"/>
     <keyword type="property" name="The “phase” property" link="gst-plugins-bad-plugins-waterripple.html#GstWaterRipple--phase"/>
     <keyword type="property" name="The “wavelength” property" link="gst-plugins-bad-plugins-waterripple.html#GstWaterRipple--wavelength"/>
-    <keyword type="struct" name="struct GstZBar" link="gst-plugins-bad-plugins-zbar.html#GstZBar"/>
+    <keyword type="struct" name="struct GstZBar" link="gst-plugins-bad-plugins-zbar.html#GstZBar-struct"/>
     <keyword type="property" name="The “message” property" link="gst-plugins-bad-plugins-zbar.html#GstZBar--message"/>
     <keyword type="property" name="The “cache” property" link="gst-plugins-bad-plugins-zbar.html#GstZBar--cache"/>
     <keyword type="property" name="The “attach-frame” property" link="gst-plugins-bad-plugins-zbar.html#GstZBar--attach-frame"/>
