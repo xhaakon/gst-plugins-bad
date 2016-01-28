@@ -1,0 +1,47 @@
+From: Simon Fels <simon.fels@canonical.com>
+Date: Thu, 28 Jan 2015 15:31:12 +0000
+Subject: Add additional color formats from Android
+
+Android supports some more color formats we need to properly map into
+ours. Therefor we need to extend this list over time to get all the
+needed ones listed here.
+
+Origin: vendor
+Forwarded: no
+
+Index: gst-plugins-bad1.0-1.6.1/sys/androidmedia/gstamc-constants.h
+===================================================================
+--- gst-plugins-bad1.0-1.6.1.orig/sys/androidmedia/gstamc-constants.h
++++ gst-plugins-bad1.0-1.6.1/sys/androidmedia/gstamc-constants.h
+@@ -116,6 +116,8 @@ enum
+   COLOR_OMX_SEC_FormatNV12Tiled = 0x7fc00002,
+   COLOR_EXYNOS_FormatNV12Tiled = 0x7fc00002,
+   COLOR_EXYNOS_FormatNV21Linear = 0x7f000011,
++  COLOR_EXYNOS_FormatYVU420Planar = 0x7F000012,
++  COLOR_EXYNOS_Format32bitABGR8888 = 0x7F000013,
+   /* YV12: http://developer.android.com/reference/android/graphics/ImageFormat.html#YV12 */
+   COLOR_FormatYV12 = 0x32315659,
+   /* MTK formats. FormatYV12 is used by VP8/9. */
+Index: gst-plugins-bad1.0-1.6.1/sys/androidmedia/gstamchybris.c
+===================================================================
+--- gst-plugins-bad1.0-1.6.1.orig/sys/androidmedia/gstamchybris.c
++++ gst-plugins-bad1.0-1.6.1/sys/androidmedia/gstamchybris.c
+@@ -1461,14 +1461,18 @@ static const struct
+   GstVideoFormat video_format;
+ } color_format_mapping_table[] = {
+   {
++  COLOR_FormatYUV420Flexible, GST_VIDEO_FORMAT_I420}, {
+   COLOR_FormatYUV420Planar, GST_VIDEO_FORMAT_I420}, {
+   COLOR_FormatYUV420SemiPlanar, GST_VIDEO_FORMAT_NV12}, {
++  261, GST_VIDEO_FORMAT_NV12}, {
+   COLOR_TI_FormatYUV420PackedSemiPlanar, GST_VIDEO_FORMAT_NV12}, {
+   COLOR_TI_FormatYUV420PackedSemiPlanarInterlaced, GST_VIDEO_FORMAT_NV12}, {
+   COLOR_QCOM_FormatYUV420SemiPlanar, GST_VIDEO_FORMAT_NV12}, {
+   COLOR_QCOM_FormatYUV420PackedSemiPlanar64x32Tile2m8ka, GST_VIDEO_FORMAT_NV12}, {
+   COLOR_EXYNOS_FormatNV12Tiled, GST_VIDEO_FORMAT_NV12}, {
+   COLOR_EXYNOS_FormatNV21Linear, GST_VIDEO_FORMAT_NV21}, {
++  COLOR_EXYNOS_FormatYVU420Planar, GST_VIDEO_FORMAT_YV12}, {
++  COLOR_EXYNOS_Format32bitABGR8888, GST_VIDEO_FORMAT_ABGR}, {
+   256, GST_VIDEO_FORMAT_NV12}, {
+   263, GST_VIDEO_FORMAT_NV12}, {
+   COLOR_MTK_FormatYV12, GST_VIDEO_FORMAT_YV12}, {
