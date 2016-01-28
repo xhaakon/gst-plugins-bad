@@ -1,3 +1,9 @@
+gst-plugins-bad1.0 (1.7.1-1ubuntu2) UNRELEASED; urgency=medium
+
+  * Really update Vcs-*
+
+ -- Iain Lane <iain.lane@canonical.com>  Thu, 28 Jan 2016 11:51:15 +0000
+
 gst-plugins-bad1.0 (1.7.1-1ubuntu1) xenial; urgency=medium
 
   * Merge with Debian experimental; remaining changes:
