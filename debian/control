@@ -106,7 +106,6 @@ XS-Debian-Vcs-Git: git://anonscm.debian.org/pkg-gstreamer/gst-plugins-bad1.0.git
 XS-Debian-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-gstreamer/gst-plugins-bad1.0.git;a=summary
 Vcs-Git: git://git.launchpad.net/~ubuntu-desktop/ubuntu/+source/gst-plugins-bad1.0
 Vcs-Browser: https://code.launchpad.net/~ubuntu-desktop/ubuntu/+source/gst-plugins-bad1.0/+git/gst-plugins-bad1.0
-
 Homepage: http://gstreamer.freedesktop.org/modules/gst-plugins-bad.html
 
 Package: gstreamer1.0-plugins-bad-doc
