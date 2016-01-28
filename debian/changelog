@@ -1,8 +1,14 @@
-gst-plugins-bad1.0 (1.7.1-1ubuntu2) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.7.1-1ubuntu2) xenial; urgency=medium
 
+  [ Iain Lane ]
   * Really update Vcs-*
 
- -- Iain Lane <iain.lane@canonical.com>  Thu, 28 Jan 2016 11:51:15 +0000
+  [ Simon Fels ]
+  * debian/patches/add-android-color-formats.patch
+    + Add additional patch to add more color formats from Android we need
+      to handle in gstacmhybris element.
+
+ -- Simon Fels <simon.fels@canonical.com>  Thu, 28 Jan 2016 15:43:33 +0100
 
 gst-plugins-bad1.0 (1.7.1-1ubuntu1) xenial; urgency=medium
 
