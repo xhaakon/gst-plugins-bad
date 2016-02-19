@@ -1,3 +1,18 @@
+gst-plugins-bad1.0 (1.7.2-1) experimental; urgency=medium
+
+  * New upstream unstable release:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GStreamer >= 1.7.2.
+      - Update faad dependency to >= 2.7 and rsvg to >= 2.36.2.
+    + debian/gstreamer-plugins-bad.install:
+      - Drop mpg123 (moved to -ugly) and rtpbad (moved to -good) plugins.
+      - Add new netsim plugin.
+    + debian/libgstreamer-plugins-bad*.install:
+      - Add new badaudio library.
+
+ -- Sebastian Dröge <slomo@debian.org>  Fri, 19 Feb 2016 11:29:54 +0200
+
 gst-plugins-bad1.0 (1.7.1-1) experimental; urgency=medium
 
   * New upstream unstable release:
