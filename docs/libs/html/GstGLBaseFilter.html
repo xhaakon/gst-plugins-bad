@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>GstGLBaseFilter: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
 <link rel="prev" href="gst-plugins-bad-libs-GstEGLImageMemory.html" title="GstEGLImageMemory">
@@ -35,7 +35,7 @@
 </tr></table></div>
 <div class="refsect1">
 <a name="GstGLBaseFilter.properties"></a><h2>Properties</h2>
-<div class="informaltable"><table border="0">
+<div class="informaltable"><table class="informaltable" border="0">
 <colgroup>
 <col width="150px" class="properties_type">
 <col width="300px" class="properties_name">
@@ -51,7 +51,7 @@
 </div>
 <div class="refsect1">
 <a name="GstGLBaseFilter.other"></a><h2>Types and Values</h2>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="name">
 <col class="description">
@@ -95,7 +95,7 @@
 GL context from the pipeline.</p>
 <div class="refsect3">
 <a name="id-1.2.9.13.8.2.5"></a><h4>Members</h4>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
 <col class="struct_members_description">
@@ -114,13 +114,14 @@ GL context from the pipeline.</p>
 
   gboolean (*gl_start)          (GstGLBaseFilter *filter);
   void     (*gl_stop)           (GstGLBaseFilter *filter);
+  gboolean (*gl_set_caps)       (GstGLBaseFilter *filter, GstCaps * incaps, GstCaps * outcaps);
 
   gpointer _padding[GST_PADDING];
 } GstGLBaseFilterClass;
 </pre>
 <div class="refsect3">
 <a name="id-1.2.9.13.8.3.4"></a><h4>Members</h4>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
 <col class="struct_members_description">
@@ -145,6 +146,12 @@ GL context from the pipeline.</p>
 <tr>
 <td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLBaseFilterClass.gl-stop"></a>gl_stop</code></em> ()</p></td>
 <td class="struct_member_description"><p>called in the GL thread to setup the element GL state.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLBaseFilterClass.gl-set-caps"></a>gl_set_caps</code></em> ()</p></td>
+<td class="struct_member_description"><p>called in the GL thread when caps are set on <em class="parameter"><code>filter</code></em>
+.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>

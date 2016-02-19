@@ -669,7 +669,6 @@
     <keyword type="struct" name="struct GstGLWindowX11" link="gst-plugins-bad-libs-GstGLWindowX11.html#GstGLWindowX11"/>
     <keyword type="struct" name="struct GstGLWindowX11Class" link="gst-plugins-bad-libs-GstGLWindowX11.html#GstGLWindowX11Class"/>
     <keyword type="function" name="gst_player_new ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-new"/>
-    <keyword type="function" name="gst_player_new_full ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-new-full"/>
     <keyword type="function" name="gst_player_play ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-play"/>
     <keyword type="function" name="gst_player_pause ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-pause"/>
     <keyword type="function" name="gst_player_stop ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-stop"/>
@@ -797,7 +796,7 @@
     <keyword type="function" name="gst_photography_get_flash_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-flash-mode"/>
     <keyword type="function" name="gst_photography_get_flicker_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-flicker-mode"/>
     <keyword type="function" name="gst_photography_get_focus_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-focus-mode"/>
-    <keyword type="function" name="gst_photography_get_noise_reduction ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-noise-reduction" since="0.10.21"/>
+    <keyword type="function" name="gst_photography_get_noise_reduction ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-noise-reduction"/>
     <keyword type="function" name="gst_photography_get_zoom ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-zoom"/>
     <keyword type="function" name="gst_photography_set_ev_compensation ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-ev-compensation"/>
     <keyword type="function" name="gst_photography_set_iso_speed ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-iso-speed"/>
@@ -809,7 +808,7 @@
     <keyword type="function" name="gst_photography_set_flash_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-flash-mode"/>
     <keyword type="function" name="gst_photography_set_flicker_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-flicker-mode"/>
     <keyword type="function" name="gst_photography_set_focus_mode ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-focus-mode"/>
-    <keyword type="function" name="gst_photography_set_noise_reduction ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-noise-reduction" since="0.10.21"/>
+    <keyword type="function" name="gst_photography_set_noise_reduction ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-noise-reduction"/>
     <keyword type="function" name="gst_photography_set_zoom ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-zoom"/>
     <keyword type="function" name="gst_photography_get_capabilities ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-capabilities"/>
     <keyword type="function" name="gst_photography_prepare_for_capture ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-prepare-for-capture"/>
@@ -817,7 +816,7 @@
     <keyword type="function" name="gst_photography_set_config ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-set-config"/>
     <keyword type="function" name="gst_photography_get_config ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-config"/>
     <keyword type="struct" name="GstPhotography" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotography"/>
-    <keyword type="enum" name="enum GstPhotographyNoiseReduction" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyNoiseReduction" since="0.10.21"/>
+    <keyword type="enum" name="enum GstPhotographyNoiseReduction" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyNoiseReduction"/>
     <keyword type="enum" name="enum GstPhotographyWhiteBalanceMode" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyWhiteBalanceMode"/>
     <keyword type="enum" name="enum GstPhotographyColorToneMode" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyColorToneMode"/>
     <keyword type="enum" name="enum GstPhotographySceneMode" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographySceneMode"/>

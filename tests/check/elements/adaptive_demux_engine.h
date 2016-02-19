@@ -35,6 +35,7 @@ typedef struct _GstAdaptiveDemuxTestOutputStream {
   GstPad *pad;
   /* the internal pad of adaptivedemux element used to send data to the GstAppSink element */
   GstPad *internal_pad;
+  gulong internal_pad_probe;
   /* current segment start offset */
   guint64 segment_start;
   /* the size received so far on this segment */
@@ -92,6 +93,19 @@ typedef struct _GstAdaptiveDemuxTestCallbacks
       GstAdaptiveDemuxTestOutputStream * stream, gpointer user_data);
 
   /**
+   * appsink_event: called when an event is received by appsink
+   * @engine: #GstAdaptiveDemuxTestEngine
+   * @stream: #GstAdaptiveDemuxTestOutputStream
+   * @event: the #GstEvent that was pushed in the demuxer pad
+   * @user_data: the user_data passed to gst_adaptive_demux_test_run()
+   *
+   * Can be used by a test to do some checks on the events
+   */
+  void (*appsink_event) (GstAdaptiveDemuxTestEngine *engine,
+      GstAdaptiveDemuxTestOutputStream * stream,
+      GstEvent * event, gpointer user_data);
+
+  /**
    * demux_pad_added: called each time the demux creates a new pad
    * @engine: #GstAdaptiveDemuxTestEngine
    * @stream: the #GstAdaptiveDemuxTestOutputStream that has been created
@@ -121,17 +135,6 @@ typedef struct _GstAdaptiveDemuxTestCallbacks
       GstAdaptiveDemuxTestOutputStream * stream,
       GstBuffer * buffer, gpointer user_data);
 
-  /**
-   * demux_sent_eos: called each time demux send an EOS event
-   * @engine: #GstAdaptiveDemuxTestEngine
-   * @stream: #GstAdaptiveDemuxTestOutputStream
-   * @user_data: the user_data passed to gst_adaptive_demux_test_run()
-   * Can be used by a test to perform additional operations (eg validate
-   * output data)
-   */
-  void (*demux_sent_eos) (GstAdaptiveDemuxTestEngine *engine,
-      GstAdaptiveDemuxTestOutputStream * stream, gpointer user_data);
-  
   /**
    * bus_error_message: called if an error is posted to the bus
    * @engine: #GstAdaptiveDemuxTestEngine
