@@ -77,6 +77,7 @@ gst_adaptive_demux_test_case_clear (GstAdaptiveDemuxTestCase * testData)
   testData->signal_context = NULL;
   testData->test_task_state = TEST_TASK_STATE_NOT_STARTED;
   testData->threshold_for_seek = 0;
+  gst_event_replace (&testData->seek_event, NULL);
   testData->signal_context = NULL;
 }
 
@@ -251,6 +252,7 @@ typedef struct _SeekTaskContext
 {
   GstElement *pipeline;
   GstTask *task;
+  GstEvent *seek_event;
 } SeekTaskContext;
 
 /* function to generate a seek event. Will be run in a separate thread */
@@ -262,15 +264,12 @@ testSeekTaskDoSeek (gpointer user_data)
 
   GST_DEBUG ("testSeekTaskDoSeek calling seek");
 
-  /* seek to 5ms.
-   * Because there is only one fragment, we expect the whole file to be
-   * downloaded again
-   */
-  if (!gst_element_seek_simple (GST_ELEMENT (context->pipeline),
-          GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT,
-          5 * GST_MSECOND)) {
+  fail_unless (GST_IS_EVENT (context->seek_event));
+  fail_unless (GST_EVENT_TYPE (context->seek_event) == GST_EVENT_SEEK);
+
+  if (!gst_element_send_event (GST_ELEMENT (context->pipeline),
+          context->seek_event))
     fail ("Seek failed!\n");
-  }
   GST_DEBUG ("seek ok");
   task = context->task;
   g_slice_free (SeekTaskContext, context);
@@ -300,13 +299,15 @@ testSeekAdaptiveDemuxSendsData (GstAdaptiveDemuxTestEngine * engine,
       testData->test_task == NULL &&
       (stream->total_received_size + stream->segment_received_size) >=
       testData->threshold_for_seek) {
+    GstSeekFlags seek_flags;
+
     testData->threshold_for_seek =
         stream->total_received_size + stream->segment_received_size;
 
-    /* the seek will be to the beginning of the file, so expect to receive
-     * threshold_for_seek + a whole file
-     */
-    testOutputStreamData->expected_size += testData->threshold_for_seek;
+    gst_event_parse_seek (testData->seek_event, NULL, NULL, &seek_flags, NULL,
+        NULL, NULL, NULL);
+    if (seek_flags & GST_SEEK_FLAG_FLUSH)
+      testOutputStreamData->expected_size += testData->threshold_for_seek;
 
     GST_DEBUG ("starting seek task");
 
@@ -317,6 +318,7 @@ testSeekAdaptiveDemuxSendsData (GstAdaptiveDemuxTestEngine * engine,
 
     seekContext = g_slice_new (SeekTaskContext);
     seekContext->pipeline = engine->pipeline;
+    seekContext->seek_event = gst_event_ref (testData->seek_event);
     testData->test_task = seekContext->task =
         gst_task_new ((GstTaskFunction) testSeekTaskDoSeek, seekContext, NULL);
     gst_task_set_lock (testData->test_task, &testData->test_task_lock);
@@ -324,26 +326,67 @@ testSeekAdaptiveDemuxSendsData (GstAdaptiveDemuxTestEngine * engine,
 
     GST_DEBUG ("seek task started");
 
-    g_mutex_lock (&testData->test_task_state_lock);
+    if (seek_flags & GST_SEEK_FLAG_FLUSH) {
+      g_mutex_lock (&testData->test_task_state_lock);
 
-    GST_DEBUG ("waiting for seek task to change state on testsrc");
+      GST_DEBUG ("waiting for seek task to change state on testsrc");
 
-    /* wait for test_task to run, send a flush start event to AppSink
-     * and change the testhttpsrc element state from PLAYING to PAUSED
-     */
-    while (testData->test_task_state ==
-        TEST_TASK_STATE_WAITING_FOR_TESTSRC_STATE_CHANGE) {
-      g_cond_wait (&testData->test_task_state_cond,
-          &testData->test_task_state_lock);
+      /* wait for test_task to run, send a flush start event to AppSink
+       * and change the testhttpsrc element state from PLAYING to PAUSED
+       */
+      while (testData->test_task_state ==
+          TEST_TASK_STATE_WAITING_FOR_TESTSRC_STATE_CHANGE) {
+        g_cond_wait (&testData->test_task_state_cond,
+            &testData->test_task_state_lock);
+      }
+      g_mutex_unlock (&testData->test_task_state_lock);
+      /* we can continue now, but this buffer will be rejected by AppSink
+       * because it is in flushing mode
+       */
+      GST_DEBUG ("seek task changed state on testsrc, resuming");
     }
-    g_mutex_unlock (&testData->test_task_state_lock);
-    /* we can continue now, but this buffer will be rejected by AppSink
-     * because it is in flushing mode
-     */
-    GST_DEBUG ("seek task changed state on testsrc, resuming");
   }
 
   return TRUE;
+}
+
+static void
+testSeekAdaptiveAppSinkEvent (GstAdaptiveDemuxTestEngine * engine,
+    GstAdaptiveDemuxTestOutputStream * stream,
+    GstEvent * event, gpointer user_data)
+{
+  GstAdaptiveDemuxTestCase *testData = GST_ADAPTIVE_DEMUX_TEST_CASE (user_data);
+  GstAdaptiveDemuxTestExpectedOutput *testOutputStreamData;
+  guint index = 0;
+
+  testOutputStreamData =
+      gst_adaptive_demux_test_find_test_data_by_stream (testData, stream,
+      &index);
+  fail_unless (testOutputStreamData != NULL);
+
+  if (testData->seek_event && GST_EVENT_TYPE (event) == GST_EVENT_SEGMENT
+      && testOutputStreamData->post_seek_segment.format != GST_FORMAT_UNDEFINED
+      && gst_event_get_seqnum (event) ==
+      gst_event_get_seqnum (testData->seek_event)) {
+    const GstSegment *seek_segment;
+
+
+    gst_event_parse_segment (event, &seek_segment);
+    fail_unless (seek_segment->format ==
+        testOutputStreamData->post_seek_segment.format);
+    fail_unless (seek_segment->rate ==
+        testOutputStreamData->post_seek_segment.rate);
+    fail_unless (seek_segment->start ==
+        testOutputStreamData->post_seek_segment.start);
+    fail_unless (seek_segment->stop ==
+        testOutputStreamData->post_seek_segment.stop);
+    fail_unless (seek_segment->base ==
+        testOutputStreamData->post_seek_segment.base);
+    fail_unless (seek_segment->time ==
+        testOutputStreamData->post_seek_segment.time);
+
+    testOutputStreamData->segment_verification_needed = FALSE;
+  }
 }
 
 /* callback called when main_loop detects a state changed event */
@@ -360,7 +403,7 @@ testSeekOnStateChanged (GstBus * bus, GstMessage * msg, gpointer user_data)
       gst_element_state_get_name (old_state),
       gst_element_state_get_name (new_state));
 
-  if (strstr (srcName, "bin") == srcName &&
+  if (strstr (srcName, "srcbin") == srcName &&
       old_state == GST_STATE_PLAYING && new_state == GST_STATE_PAUSED) {
     g_mutex_lock (&testData->test_task_state_lock);
     if (testData->test_task_state ==
@@ -390,6 +433,18 @@ testSeekPreTestCallback (GstAdaptiveDemuxTestEngine * engine,
   gst_bus_add_signal_watch (bus);
   g_signal_connect (bus, "message::state-changed",
       G_CALLBACK (testSeekOnStateChanged), testData);
+}
+
+static void
+testSeekPostTestCallback (GstAdaptiveDemuxTestEngine * engine,
+    gpointer user_data)
+{
+  GstAdaptiveDemuxTestCase *testData = GST_ADAPTIVE_DEMUX_TEST_CASE (user_data);
+  for (GList * walk = testData->output_streams; walk; walk = g_list_next (walk)) {
+    GstAdaptiveDemuxTestExpectedOutput *td = walk->data;
+
+    fail_if (td->segment_verification_needed);
+  }
 }
 
 /* function to check total size of data received by AppSink
@@ -429,7 +484,9 @@ gst_adaptive_demux_test_seek (const gchar * element_name,
   GstAdaptiveDemuxTestCallbacks cb = { 0 };
   cb.appsink_received_data = gst_adaptive_demux_test_check_received_data;
   cb.appsink_eos = gst_adaptive_demux_test_check_size_of_received_data;
+  cb.appsink_event = testSeekAdaptiveAppSinkEvent;
   cb.pre_test = testSeekPreTestCallback;
+  cb.post_test = testSeekPostTestCallback;
   cb.demux_sent_data = testSeekAdaptiveDemuxSendsData;
   gst_adaptive_demux_test_run (element_name, manifest_uri, &cb, testData);
   /* the call to g_object_unref of testData will clean up the seek task */

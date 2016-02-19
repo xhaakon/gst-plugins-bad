@@ -117,16 +117,15 @@ am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/gtk-doc.m4 \
 	$(top_srcdir)/common/m4/introspection.m4 \
 	$(top_srcdir)/common/m4/orc.m4 $(top_srcdir)/common/m4/pkg.m4 \
-	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/gsettings.m4 \
-	$(top_srcdir)/m4/gst-fionread.m4 $(top_srcdir)/m4/gst-sdl.m4 \
-	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intlmacosx.m4 \
-	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
-	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libgcrypt.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/nls.m4 \
-	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/progtest.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/gst-fionread.m4 \
+	$(top_srcdir)/m4/gst-sdl.m4 $(top_srcdir)/m4/iconv.m4 \
+	$(top_srcdir)/m4/intlmacosx.m4 $(top_srcdir)/m4/lib-ld.m4 \
+	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
+	$(top_srcdir)/m4/libgcrypt.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/po.m4 \
+	$(top_srcdir)/m4/progtest.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(noinst_HEADERS) \
@@ -166,15 +165,20 @@ am__installdirs = "$(DESTDIR)$(plugindir)" \
 	"$(DESTDIR)$(androidmedia_java_classesdir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstandroidmedia_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la \
+libgstandroidmedia_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/interfaces/libgstphotography-$(GST_API_VERSION).la \
+	$(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
-am_libgstandroidmedia_la_OBJECTS = libgstandroidmedia_la-gstamc.lo \
+am_libgstandroidmedia_la_OBJECTS = libgstandroidmedia_la-gstahcsrc.lo \
 	libgstandroidmedia_la-gstamcaudiodec.lo \
-	libgstandroidmedia_la-gstamcvideodec.lo \
-	libgstandroidmedia_la-gstamcvideoenc.lo \
+	libgstandroidmedia_la-gstamc.lo \
 	libgstandroidmedia_la-gstamcsurface.lo \
 	libgstandroidmedia_la-gstamcsurfacetexture.lo \
+	libgstandroidmedia_la-gstamcvideodec.lo \
+	libgstandroidmedia_la-gstamcvideoenc.lo \
+	libgstandroidmedia_la-gst-android-graphics-imageformat.lo \
+	libgstandroidmedia_la-gst-android-graphics-surfacetexture.lo \
+	libgstandroidmedia_la-gst-android-hardware-camera.lo \
 	libgstandroidmedia_la-gstjniutils.lo
 libgstandroidmedia_la_OBJECTS = $(am_libgstandroidmedia_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -333,7 +337,6 @@ EXEEXT = @EXEEXT@
 EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
 FAAC_LIBS = @FAAC_LIBS@
-FAAD_IS_NEAAC = @FAAD_IS_NEAAC@
 FAAD_LIBS = @FAAD_LIBS@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
@@ -355,7 +358,6 @@ GIO_UNIX_LIBS = @GIO_UNIX_LIBS@
 GLES2_CFLAGS = @GLES2_CFLAGS@
 GLES2_LIBS = @GLES2_LIBS@
 GLIB_CFLAGS = @GLIB_CFLAGS@
-GLIB_COMPILE_SCHEMAS = @GLIB_COMPILE_SCHEMAS@
 GLIB_EXTRA_CFLAGS = @GLIB_EXTRA_CFLAGS@
 GLIB_GENMARSHAL = @GLIB_GENMARSHAL@
 GLIB_LIBS = @GLIB_LIBS@
@@ -377,9 +379,6 @@ GNUSTL_LIBS = @GNUSTL_LIBS@
 GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
 GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
-GSETTINGS_CFLAGS = @GSETTINGS_CFLAGS@
-GSETTINGS_DISABLE_SCHEMAS_COMPILE = @GSETTINGS_DISABLE_SCHEMAS_COMPILE@
-GSETTINGS_LIBS = @GSETTINGS_LIBS@
 GSM_LIBS = @GSM_LIBS@
 GSTPB_PLUGINS_DIR = @GSTPB_PLUGINS_DIR@
 GSTPB_PREFIX = @GSTPB_PREFIX@
@@ -541,6 +540,7 @@ LRDF_LIBS = @LRDF_LIBS@
 LTLIBICONV = @LTLIBICONV@
 LTLIBINTL = @LTLIBINTL@
 LTLIBOBJS = @LTLIBOBJS@
+LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
@@ -554,8 +554,6 @@ MODPLUG_CFLAGS = @MODPLUG_CFLAGS@
 MODPLUG_LIBS = @MODPLUG_LIBS@
 MPEG2ENC_CFLAGS = @MPEG2ENC_CFLAGS@
 MPEG2ENC_LIBS = @MPEG2ENC_LIBS@
-MPG123_CFLAGS = @MPG123_CFLAGS@
-MPG123_LIBS = @MPG123_LIBS@
 MPLEX_CFLAGS = @MPLEX_CFLAGS@
 MPLEX_LDFLAGS = @MPLEX_LDFLAGS@
 MPLEX_LIBS = @MPLEX_LIBS@
@@ -642,8 +640,6 @@ QT_X11_CFLAGS = @QT_X11_CFLAGS@
 QT_X11_LIBS = @QT_X11_LIBS@
 RANLIB = @RANLIB@
 RCC = @RCC@
-RSVG_2_36_2_CFLAGS = @RSVG_2_36_2_CFLAGS@
-RSVG_2_36_2_LIBS = @RSVG_2_36_2_LIBS@
 RSVG_CFLAGS = @RSVG_CFLAGS@
 RSVG_LIBS = @RSVG_LIBS@
 RTMP_CFLAGS = @RTMP_CFLAGS@
@@ -695,6 +691,7 @@ VOAACENC_CFLAGS = @VOAACENC_CFLAGS@
 VOAACENC_LIBS = @VOAACENC_LIBS@
 VOAMRWBENC_CFLAGS = @VOAMRWBENC_CFLAGS@
 VOAMRWBENC_LIBS = @VOAMRWBENC_LIBS@
+VULKAN_LIBS = @VULKAN_LIBS@
 WARNING_CFLAGS = @WARNING_CFLAGS@
 WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
 WARNING_OBJCFLAGS = @WARNING_OBJCFLAGS@
@@ -715,6 +712,8 @@ X11_CFLAGS = @X11_CFLAGS@
 X11_LIBS = @X11_LIBS@
 X265_CFLAGS = @X265_CFLAGS@
 X265_LIBS = @X265_LIBS@
+XCB_CFLAGS = @XCB_CFLAGS@
+XCB_LIBS = @XCB_LIBS@
 XCOMPOSITE_CFLAGS = @XCOMPOSITE_CFLAGS@
 XCOMPOSITE_LIBS = @XCOMPOSITE_LIBS@
 XGETTEXT = @XGETTEXT@
@@ -752,7 +751,6 @@ datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
-gsettingsschemadir = @gsettingsschemadir@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -794,22 +792,30 @@ top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstandroidmedia.la
 libgstandroidmedia_la_SOURCES = \
-	gstamc.c \
+	gstahcsrc.c \
 	gstamcaudiodec.c \
-	gstamcvideodec.c \
-	gstamcvideoenc.c \
+	gstamc.c \
 	gstamcsurface.c \
 	gstamcsurfacetexture.c \
+	gstamcvideodec.c \
+	gstamcvideoenc.c \
+	gst-android-graphics-imageformat.c \
+	gst-android-graphics-surfacetexture.c \
+	gst-android-hardware-camera.c \
 	gstjniutils.c
 
 noinst_HEADERS = \
-	gstamc.h \
-	gstamc-constants.h \
+	gstahcsrc.h \
 	gstamcaudiodec.h \
-	gstamcvideodec.h \
-	gstamcvideoenc.h \
+	gstamc-constants.h \
+	gstamc.h \
 	gstamcsurface.h \
 	gstamcsurfacetexture.h \
+	gstamcvideodec.h \
+	gstamcvideoenc.h \
+	gst-android-graphics-imageformat.h \
+	gst-android-graphics-surfacetexture.h \
+	gst-android-hardware-camera.h \
 	gstjniutils.h
 
 libgstandroidmedia_la_CFLAGS = \
@@ -818,9 +824,11 @@ libgstandroidmedia_la_CFLAGS = \
 	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_BASE_CFLAGS) \
 	$(GST_CFLAGS) \
-	$(ORC_CFLAGS)
+	$(ORC_CFLAGS) \
+	-DGST_USE_UNSTABLE_API
 
 libgstandroidmedia_la_LIBADD = \
+	$(top_builddir)/gst-libs/gst/interfaces/libgstphotography-$(GST_API_VERSION).la \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la \
 	$(GST_PLUGINS_BASE_LIBS) \
 	-lgstaudio-@GST_API_VERSION@ \
@@ -833,7 +841,10 @@ libgstandroidmedia_la_LIBADD = \
 libgstandroidmedia_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstandroidmedia_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 androidmedia_java_classesdir = $(datadir)/gst-android/ndk-build/androidmedia/
-androidmedia_java_classes_DATA = org/freedesktop/gstreamer/androidmedia/GstAmcOnFrameAvailableListener.java
+androidmedia_java_classes_DATA = \
+	org/freedesktop/gstreamer/androidmedia/GstAhcCallback.java \
+	org/freedesktop/gstreamer/androidmedia/GstAmcOnFrameAvailableListener.java
+
 all: all-am
 
 .SUFFIXES:
@@ -912,6 +923,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gst-android-graphics-imageformat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gst-android-graphics-surfacetexture.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gst-android-hardware-camera.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstahcsrc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamcaudiodec.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamcsurface.Plo@am__quote@
@@ -944,12 +959,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-libgstandroidmedia_la-gstamc.lo: gstamc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstamc.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstamc.Tpo -c -o libgstandroidmedia_la-gstamc.lo `test -f 'gstamc.c' || echo '$(srcdir)/'`gstamc.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gstamc.Tpo $(DEPDIR)/libgstandroidmedia_la-gstamc.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstamc.c' object='libgstandroidmedia_la-gstamc.lo' libtool=yes @AMDEPBACKSLASH@
+libgstandroidmedia_la-gstahcsrc.lo: gstahcsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstahcsrc.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstahcsrc.Tpo -c -o libgstandroidmedia_la-gstahcsrc.lo `test -f 'gstahcsrc.c' || echo '$(srcdir)/'`gstahcsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gstahcsrc.Tpo $(DEPDIR)/libgstandroidmedia_la-gstahcsrc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstahcsrc.c' object='libgstandroidmedia_la-gstahcsrc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstamc.lo `test -f 'gstamc.c' || echo '$(srcdir)/'`gstamc.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstahcsrc.lo `test -f 'gstahcsrc.c' || echo '$(srcdir)/'`gstahcsrc.c
 
 libgstandroidmedia_la-gstamcaudiodec.lo: gstamcaudiodec.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstamcaudiodec.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstamcaudiodec.Tpo -c -o libgstandroidmedia_la-gstamcaudiodec.lo `test -f 'gstamcaudiodec.c' || echo '$(srcdir)/'`gstamcaudiodec.c
@@ -957,6 +972,27 @@ libgstandroidmedia_la-gstamcaudiodec.lo: gstamcaudiodec.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstamcaudiodec.c' object='libgstandroidmedia_la-gstamcaudiodec.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstamcaudiodec.lo `test -f 'gstamcaudiodec.c' || echo '$(srcdir)/'`gstamcaudiodec.c
+
+libgstandroidmedia_la-gstamc.lo: gstamc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstamc.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstamc.Tpo -c -o libgstandroidmedia_la-gstamc.lo `test -f 'gstamc.c' || echo '$(srcdir)/'`gstamc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gstamc.Tpo $(DEPDIR)/libgstandroidmedia_la-gstamc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstamc.c' object='libgstandroidmedia_la-gstamc.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstamc.lo `test -f 'gstamc.c' || echo '$(srcdir)/'`gstamc.c
+
+libgstandroidmedia_la-gstamcsurface.lo: gstamcsurface.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstamcsurface.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstamcsurface.Tpo -c -o libgstandroidmedia_la-gstamcsurface.lo `test -f 'gstamcsurface.c' || echo '$(srcdir)/'`gstamcsurface.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gstamcsurface.Tpo $(DEPDIR)/libgstandroidmedia_la-gstamcsurface.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstamcsurface.c' object='libgstandroidmedia_la-gstamcsurface.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstamcsurface.lo `test -f 'gstamcsurface.c' || echo '$(srcdir)/'`gstamcsurface.c
+
+libgstandroidmedia_la-gstamcsurfacetexture.lo: gstamcsurfacetexture.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstamcsurfacetexture.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstamcsurfacetexture.Tpo -c -o libgstandroidmedia_la-gstamcsurfacetexture.lo `test -f 'gstamcsurfacetexture.c' || echo '$(srcdir)/'`gstamcsurfacetexture.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gstamcsurfacetexture.Tpo $(DEPDIR)/libgstandroidmedia_la-gstamcsurfacetexture.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstamcsurfacetexture.c' object='libgstandroidmedia_la-gstamcsurfacetexture.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstamcsurfacetexture.lo `test -f 'gstamcsurfacetexture.c' || echo '$(srcdir)/'`gstamcsurfacetexture.c
 
 libgstandroidmedia_la-gstamcvideodec.lo: gstamcvideodec.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstamcvideodec.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstamcvideodec.Tpo -c -o libgstandroidmedia_la-gstamcvideodec.lo `test -f 'gstamcvideodec.c' || echo '$(srcdir)/'`gstamcvideodec.c
@@ -972,19 +1008,26 @@ libgstandroidmedia_la-gstamcvideoenc.lo: gstamcvideoenc.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstamcvideoenc.lo `test -f 'gstamcvideoenc.c' || echo '$(srcdir)/'`gstamcvideoenc.c
 
-libgstandroidmedia_la-gstamcsurface.lo: gstamcsurface.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstamcsurface.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstamcsurface.Tpo -c -o libgstandroidmedia_la-gstamcsurface.lo `test -f 'gstamcsurface.c' || echo '$(srcdir)/'`gstamcsurface.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gstamcsurface.Tpo $(DEPDIR)/libgstandroidmedia_la-gstamcsurface.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstamcsurface.c' object='libgstandroidmedia_la-gstamcsurface.lo' libtool=yes @AMDEPBACKSLASH@
+libgstandroidmedia_la-gst-android-graphics-imageformat.lo: gst-android-graphics-imageformat.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gst-android-graphics-imageformat.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gst-android-graphics-imageformat.Tpo -c -o libgstandroidmedia_la-gst-android-graphics-imageformat.lo `test -f 'gst-android-graphics-imageformat.c' || echo '$(srcdir)/'`gst-android-graphics-imageformat.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gst-android-graphics-imageformat.Tpo $(DEPDIR)/libgstandroidmedia_la-gst-android-graphics-imageformat.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gst-android-graphics-imageformat.c' object='libgstandroidmedia_la-gst-android-graphics-imageformat.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstamcsurface.lo `test -f 'gstamcsurface.c' || echo '$(srcdir)/'`gstamcsurface.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gst-android-graphics-imageformat.lo `test -f 'gst-android-graphics-imageformat.c' || echo '$(srcdir)/'`gst-android-graphics-imageformat.c
 
-libgstandroidmedia_la-gstamcsurfacetexture.lo: gstamcsurfacetexture.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstamcsurfacetexture.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstamcsurfacetexture.Tpo -c -o libgstandroidmedia_la-gstamcsurfacetexture.lo `test -f 'gstamcsurfacetexture.c' || echo '$(srcdir)/'`gstamcsurfacetexture.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gstamcsurfacetexture.Tpo $(DEPDIR)/libgstandroidmedia_la-gstamcsurfacetexture.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstamcsurfacetexture.c' object='libgstandroidmedia_la-gstamcsurfacetexture.lo' libtool=yes @AMDEPBACKSLASH@
+libgstandroidmedia_la-gst-android-graphics-surfacetexture.lo: gst-android-graphics-surfacetexture.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gst-android-graphics-surfacetexture.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gst-android-graphics-surfacetexture.Tpo -c -o libgstandroidmedia_la-gst-android-graphics-surfacetexture.lo `test -f 'gst-android-graphics-surfacetexture.c' || echo '$(srcdir)/'`gst-android-graphics-surfacetexture.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gst-android-graphics-surfacetexture.Tpo $(DEPDIR)/libgstandroidmedia_la-gst-android-graphics-surfacetexture.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gst-android-graphics-surfacetexture.c' object='libgstandroidmedia_la-gst-android-graphics-surfacetexture.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gstamcsurfacetexture.lo `test -f 'gstamcsurfacetexture.c' || echo '$(srcdir)/'`gstamcsurfacetexture.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gst-android-graphics-surfacetexture.lo `test -f 'gst-android-graphics-surfacetexture.c' || echo '$(srcdir)/'`gst-android-graphics-surfacetexture.c
+
+libgstandroidmedia_la-gst-android-hardware-camera.lo: gst-android-hardware-camera.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gst-android-hardware-camera.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gst-android-hardware-camera.Tpo -c -o libgstandroidmedia_la-gst-android-hardware-camera.lo `test -f 'gst-android-hardware-camera.c' || echo '$(srcdir)/'`gst-android-hardware-camera.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gst-android-hardware-camera.Tpo $(DEPDIR)/libgstandroidmedia_la-gst-android-hardware-camera.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gst-android-hardware-camera.c' object='libgstandroidmedia_la-gst-android-hardware-camera.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gst-android-hardware-camera.lo `test -f 'gst-android-hardware-camera.c' || echo '$(srcdir)/'`gst-android-hardware-camera.c
 
 libgstandroidmedia_la-gstjniutils.lo: gstjniutils.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gstjniutils.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gstjniutils.Tpo -c -o libgstandroidmedia_la-gstjniutils.lo `test -f 'gstjniutils.c' || echo '$(srcdir)/'`gstjniutils.c

@@ -119,16 +119,15 @@ am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/gtk-doc.m4 \
 	$(top_srcdir)/common/m4/introspection.m4 \
 	$(top_srcdir)/common/m4/orc.m4 $(top_srcdir)/common/m4/pkg.m4 \
-	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/gsettings.m4 \
-	$(top_srcdir)/m4/gst-fionread.m4 $(top_srcdir)/m4/gst-sdl.m4 \
-	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intlmacosx.m4 \
-	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
-	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libgcrypt.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/nls.m4 \
-	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/progtest.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/gst-fionread.m4 \
+	$(top_srcdir)/m4/gst-sdl.m4 $(top_srcdir)/m4/iconv.m4 \
+	$(top_srcdir)/m4/intlmacosx.m4 $(top_srcdir)/m4/lib-ld.m4 \
+	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
+	$(top_srcdir)/m4/libgcrypt.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/po.m4 \
+	$(top_srcdir)/m4/progtest.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
@@ -302,7 +301,6 @@ EXEEXT = @EXEEXT@
 EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
 FAAC_LIBS = @FAAC_LIBS@
-FAAD_IS_NEAAC = @FAAD_IS_NEAAC@
 FAAD_LIBS = @FAAD_LIBS@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
@@ -324,7 +322,6 @@ GIO_UNIX_LIBS = @GIO_UNIX_LIBS@
 GLES2_CFLAGS = @GLES2_CFLAGS@
 GLES2_LIBS = @GLES2_LIBS@
 GLIB_CFLAGS = @GLIB_CFLAGS@
-GLIB_COMPILE_SCHEMAS = @GLIB_COMPILE_SCHEMAS@
 GLIB_EXTRA_CFLAGS = @GLIB_EXTRA_CFLAGS@
 GLIB_GENMARSHAL = @GLIB_GENMARSHAL@
 GLIB_LIBS = @GLIB_LIBS@
@@ -346,9 +343,6 @@ GNUSTL_LIBS = @GNUSTL_LIBS@
 GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
 GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
-GSETTINGS_CFLAGS = @GSETTINGS_CFLAGS@
-GSETTINGS_DISABLE_SCHEMAS_COMPILE = @GSETTINGS_DISABLE_SCHEMAS_COMPILE@
-GSETTINGS_LIBS = @GSETTINGS_LIBS@
 GSM_LIBS = @GSM_LIBS@
 GSTPB_PLUGINS_DIR = @GSTPB_PLUGINS_DIR@
 GSTPB_PREFIX = @GSTPB_PREFIX@
@@ -510,6 +504,7 @@ LRDF_LIBS = @LRDF_LIBS@
 LTLIBICONV = @LTLIBICONV@
 LTLIBINTL = @LTLIBINTL@
 LTLIBOBJS = @LTLIBOBJS@
+LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
@@ -523,8 +518,6 @@ MODPLUG_CFLAGS = @MODPLUG_CFLAGS@
 MODPLUG_LIBS = @MODPLUG_LIBS@
 MPEG2ENC_CFLAGS = @MPEG2ENC_CFLAGS@
 MPEG2ENC_LIBS = @MPEG2ENC_LIBS@
-MPG123_CFLAGS = @MPG123_CFLAGS@
-MPG123_LIBS = @MPG123_LIBS@
 MPLEX_CFLAGS = @MPLEX_CFLAGS@
 MPLEX_LDFLAGS = @MPLEX_LDFLAGS@
 MPLEX_LIBS = @MPLEX_LIBS@
@@ -611,8 +604,6 @@ QT_X11_CFLAGS = @QT_X11_CFLAGS@
 QT_X11_LIBS = @QT_X11_LIBS@
 RANLIB = @RANLIB@
 RCC = @RCC@
-RSVG_2_36_2_CFLAGS = @RSVG_2_36_2_CFLAGS@
-RSVG_2_36_2_LIBS = @RSVG_2_36_2_LIBS@
 RSVG_CFLAGS = @RSVG_CFLAGS@
 RSVG_LIBS = @RSVG_LIBS@
 RTMP_CFLAGS = @RTMP_CFLAGS@
@@ -664,6 +655,7 @@ VOAACENC_CFLAGS = @VOAACENC_CFLAGS@
 VOAACENC_LIBS = @VOAACENC_LIBS@
 VOAMRWBENC_CFLAGS = @VOAMRWBENC_CFLAGS@
 VOAMRWBENC_LIBS = @VOAMRWBENC_LIBS@
+VULKAN_LIBS = @VULKAN_LIBS@
 WARNING_CFLAGS = @WARNING_CFLAGS@
 WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
 WARNING_OBJCFLAGS = @WARNING_OBJCFLAGS@
@@ -684,6 +676,8 @@ X11_CFLAGS = @X11_CFLAGS@
 X11_LIBS = @X11_LIBS@
 X265_CFLAGS = @X265_CFLAGS@
 X265_LIBS = @X265_LIBS@
+XCB_CFLAGS = @XCB_CFLAGS@
+XCB_LIBS = @XCB_LIBS@
 XCOMPOSITE_CFLAGS = @XCOMPOSITE_CFLAGS@
 XCOMPOSITE_LIBS = @XCOMPOSITE_LIBS@
 XGETTEXT = @XGETTEXT@
@@ -721,7 +715,6 @@ datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
-gsettingsschemadir = @gsettingsschemadir@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -767,13 +760,7 @@ wayland_scanner = @wayland_scanner@
 @USE_VOAMRWBENC_TRUE@VOAMRWBENC_DIR = voamrwbenc
 @USE_APEXSINK_FALSE@APEXSINK_DIR = 
 @USE_APEXSINK_TRUE@APEXSINK_DIR = apexsink
-
-# if USE_AUDIOFILE
-# AUDIOFILE_DIR=audiofile
-# else
-AUDIOFILE_DIR = 
 @USE_BS2B_FALSE@BS2B_DIR = 
-# endif
 @USE_BS2B_TRUE@BS2B_DIR = bs2b
 @USE_BZ2_FALSE@BZ2_DIR = 
 @USE_BZ2_TRUE@BZ2_DIR = bz2
@@ -825,13 +812,7 @@ G729_DIR =
 @USE_LV2_TRUE@LV2_DIR = lv2
 @USE_LIBDE265_FALSE@LIBDE265_DIR = 
 @USE_LIBDE265_TRUE@LIBDE265_DIR = libde265
-
-# if USE_LIBFAME
-# LIBFAME_DIR=libfame
-# else
-LIBFAME_DIR = 
 @USE_LIBMMS_FALSE@LIBMMS_DIR = 
-# endif
 @USE_LIBMMS_TRUE@LIBMMS_DIR = libmms
 @USE_LIBVISUAL_FALSE@LIBVISUAL_DIR = 
 @USE_LIBVISUAL_TRUE@LIBVISUAL_DIR = libvisual
@@ -839,8 +820,6 @@ LIBFAME_DIR =
 @USE_MODPLUG_TRUE@MODPLUG_DIR = modplug
 @USE_MPEG2ENC_FALSE@MPEG2ENC_DIR = 
 @USE_MPEG2ENC_TRUE@MPEG2ENC_DIR = mpeg2enc
-@USE_MPG123_FALSE@MPG123_DIR = 
-@USE_MPG123_TRUE@MPG123_DIR = mpg123
 @USE_MIMIC_FALSE@MIMIC_DIR = 
 @USE_MIMIC_TRUE@MIMIC_DIR = mimic
 @USE_MPLEX_FALSE@MPLEX_DIR = 
@@ -903,8 +882,6 @@ SMOOTHWAVE_DIR =
 @USE_GME_TRUE@GME_DIR = gme
 @USE_TELETEXTDEC_FALSE@TELETEXTDEC_DIR = 
 @USE_TELETEXTDEC_TRUE@TELETEXTDEC_DIR = teletextdec
-@USE_GSETTINGS_FALSE@GSETTINGS_DIR = 
-@USE_GSETTINGS_TRUE@GSETTINGS_DIR = gsettings
 @USE_XVID_FALSE@XVID_DIR = 
 @USE_XVID_TRUE@XVID_DIR = xvid
 @USE_ZBAR_FALSE@ZBAR_DIR = 
@@ -919,6 +896,8 @@ SMOOTHWAVE_DIR =
 @USE_X265_TRUE@X265_DIR = x265
 @USE_DTLS_FALSE@DTLS_DIR = 
 @USE_DTLS_TRUE@DTLS_DIR = dtls
+@USE_VULKAN_FALSE@VULKAN_DIR = 
+@USE_VULKAN_TRUE@VULKAN_DIR = vulkan
 SUBDIRS = \
 	$(VOAACENC_DIR) \
 	$(ASSRENDER_DIR) \
@@ -943,19 +922,16 @@ SUBDIRS = \
 	$(FAAD_DIR) \
 	$(FLITE_DIR) \
 	$(FLUIDSYNTH_DIR) \
-	$(GSETTINGS_DIR) \
 	$(GSM_DIR) \
 	$(G729_DIR) \
 	$(KATE_DIR) \
 	$(LADSPA_DIR) \
 	$(LV2_DIR) \
 	$(LIBDE265_DIR) \
-	$(LIBFAME_DIR) \
 	$(LIBMMS_DIR) \
 	$(LIBVISUAL_DIR) \
 	$(MODPLUG_DIR) \
 	$(MPEG2ENC_DIR) \
-	$(MPG123_DIR) \
 	$(MIMIC_DIR) \
 	$(MPLEX_DIR) \
 	$(MUSEPACK_DIR) \
@@ -990,7 +966,8 @@ SUBDIRS = \
 	$(HLS_DIR) \
 	$(WEBP_DIR) \
 	$(X265_DIR) \
-	$(DTLS_DIR)
+	$(DTLS_DIR) \
+	$(VULKAN_DIR)
 
 DIST_SUBDIRS = \
 	assrender \
@@ -1007,7 +984,6 @@ DIST_SUBDIRS = \
 	faad \
 	flite \
 	fluidsynth \
-	gsettings \
 	gsm \
 	hls \
 	ladspa \
@@ -1024,7 +1000,6 @@ DIST_SUBDIRS = \
 	modplug \
 	mimic \
 	mpeg2enc \
-	mpg123 \
 	mplex \
 	musepack \
 	nas \
@@ -1059,7 +1034,8 @@ DIST_SUBDIRS = \
 	rtmp \
 	webp \
 	x265 \
-	dtls
+	dtls \
+	vulkan
 
 all: all-recursive
 

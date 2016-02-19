@@ -353,8 +353,11 @@ gst_gl_memory_read_pixels (GstGLMemory * gl_mem, gpointer read_pointer)
     return FALSE;
   }
 
+  gst_gl_query_start_log (GST_GL_BASE_MEMORY_CAST (gl_mem)->query,
+      GST_CAT_GL_MEMORY, GST_LEVEL_LOG, NULL, "%s", "glReadPixels took");
   gl->ReadPixels (0, 0, gl_mem->tex_width, GL_MEM_HEIGHT (gl_mem), format,
       type, read_pointer);
+  gst_gl_query_end (GST_GL_BASE_MEMORY_CAST (gl_mem)->query);
 
   gl->BindFramebuffer (GL_FRAMEBUFFER, 0);
 
@@ -397,7 +400,10 @@ _gl_tex_download_get_tex_image (GstGLMemory * gl_mem, GstMapInfo * info,
 
     target = gst_gl_texture_target_to_gl (gl_mem->tex_target);
     gl->BindTexture (target, gl_mem->tex_id);
+    gst_gl_query_start_log (GST_GL_BASE_MEMORY_CAST (gl_mem)->query,
+        GST_CAT_GL_MEMORY, GST_LEVEL_LOG, NULL, "%s", "glGetTexImage took");
     gl->GetTexImage (target, 0, format, type, gl_mem->mem.data);
+    gst_gl_query_end (GST_GL_BASE_MEMORY_CAST (gl_mem)->query);
     gl->BindTexture (target, 0);
   }
 
@@ -444,6 +450,12 @@ _gl_tex_map_cpu_access (GstGLMemory * gl_mem, GstMapInfo * info, gsize size)
 static void
 _upload_cpu_write (GstGLMemory * gl_mem, GstMapInfo * info, gsize maxsize)
 {
+  gst_gl_memory_texsubimage (gl_mem, gl_mem->mem.data);
+}
+
+void
+gst_gl_memory_texsubimage (GstGLMemory * gl_mem, gpointer read_pointer)
+{
   GstGLContext *context = gl_mem->mem.context;
   const GstGLFuncs *gl;
   GLenum gl_format, gl_type, gl_target;
@@ -477,11 +489,14 @@ _upload_cpu_write (GstGLMemory * gl_mem, GstMapInfo * info, gsize maxsize)
       gst_gl_get_plane_start (&gl_mem->info, &gl_mem->valign,
       gl_mem->plane) + gl_mem->mem.mem.offset;
 
-  data = (gpointer) ((gintptr) plane_start + (gintptr) gl_mem->mem.data);
+  data = (gpointer) ((gintptr) plane_start + (gintptr) read_pointer);
 
   gl->BindTexture (gl_target, gl_mem->tex_id);
+  gst_gl_query_start_log (GST_GL_BASE_MEMORY_CAST (gl_mem)->query,
+      GST_CAT_GL_MEMORY, GST_LEVEL_LOG, NULL, "%s", "glTexSubImage took");
   gl->TexSubImage2D (gl_target, 0, 0, 0, gl_mem->tex_width,
       GL_MEM_HEIGHT (gl_mem), gl_format, gl_type, data);
+  gst_gl_query_end (GST_GL_BASE_MEMORY_CAST (gl_mem)->query);
 
   /* Reset to default values */
   if (USING_OPENGL (context) || USING_GLES3 (context)) {
@@ -587,8 +602,11 @@ gst_gl_memory_copy_teximage (GstGLMemory * src, guint tex_id,
 //    goto fbo_error;
 
   gl->BindTexture (out_tex_target, tex_id);
+  gst_gl_query_start_log (GST_GL_BASE_MEMORY_CAST (src)->query,
+      GST_CAT_GL_MEMORY, GST_LEVEL_LOG, NULL, "%s", "CopyTexImage2D took");
   gl->CopyTexImage2D (out_tex_target, 0, out_gl_format, 0, 0, out_width,
       out_height, 0);
+  gst_gl_query_end (GST_GL_BASE_MEMORY_CAST (src)->query);
 
   gl->BindTexture (out_tex_target, 0);
   gl->BindFramebuffer (GL_FRAMEBUFFER, 0);
@@ -735,15 +753,15 @@ static GstGLMemory *
 _default_gl_tex_alloc (GstGLMemoryAllocator * allocator,
     GstGLVideoAllocationParams * params)
 {
+  guint alloc_flags = params->parent.alloc_flags;
   GstGLMemory *mem;
 
-  g_return_val_if_fail (params->parent.
-      alloc_flags & GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_VIDEO, NULL);
+  g_return_val_if_fail (alloc_flags & GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_VIDEO,
+      NULL);
 
   mem = g_new0 (GstGLMemory, 1);
 
-  if (params->parent.
-      alloc_flags & GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_GPU_HANDLE) {
+  if (alloc_flags & GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_GPU_HANDLE) {
     mem->tex_id = params->parent.gl_handle;
     mem->texture_wrapped = TRUE;
   }
@@ -753,12 +771,10 @@ _default_gl_tex_alloc (GstGLMemoryAllocator * allocator,
       params->v_info, params->plane, params->valign, params->parent.user_data,
       params->parent.notify);
 
-  if (params->parent.
-      alloc_flags & GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_GPU_HANDLE) {
+  if (alloc_flags & GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_GPU_HANDLE) {
     GST_MINI_OBJECT_FLAG_SET (mem, GST_GL_BASE_MEMORY_TRANSFER_NEED_DOWNLOAD);
   }
-  if (params->parent.
-      alloc_flags & GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_SYSMEM) {
+  if (alloc_flags & GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_SYSMEM) {
     mem->mem.data = params->parent.wrapped_data;
     GST_MINI_OBJECT_FLAG_SET (mem, GST_GL_BASE_MEMORY_TRANSFER_NEED_UPLOAD);
   }
@@ -1132,15 +1148,16 @@ gst_gl_memory_setup_buffer (GstGLMemoryAllocator * allocator,
 {
   GstGLBaseMemoryAllocator *base_allocator;
   guint n_mem, i, v, views;
+  guint alloc_flags = params->parent.alloc_flags;
 
   g_return_val_if_fail (params != NULL, FALSE);
-  g_return_val_if_fail ((params->parent.
-          alloc_flags & GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_SYSMEM)
+  g_return_val_if_fail ((alloc_flags &
+          GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_SYSMEM)
       == 0, FALSE);
   g_return_val_if_fail ((params->parent.alloc_flags &
           GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_GPU_HANDLE) == 0, FALSE);
-  g_return_val_if_fail (params->parent.
-      alloc_flags & GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_VIDEO, FALSE);
+  g_return_val_if_fail (alloc_flags & GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_VIDEO,
+      FALSE);
 
   base_allocator = GST_GL_BASE_MEMORY_ALLOCATOR (allocator);
   n_mem = GST_VIDEO_INFO_N_PLANES (params->v_info);
@@ -1181,8 +1198,9 @@ gst_gl_memory_allocator_get_default (GstGLContext * context)
 
   g_return_val_if_fail (GST_IS_GL_CONTEXT (context), NULL);
 
-  if (USING_OPENGL (context) || USING_OPENGL3 (context)
-      || USING_GLES3 (context)) {
+  /* we can only use the pbo allocator with GL > 3.0 contexts */
+  if (gst_gl_context_check_gl_version (context,
+          GST_GL_API_OPENGL | GST_GL_API_OPENGL3 | GST_GL_API_GLES2, 3, 0)) {
     allocator = (GstGLMemoryAllocator *)
         gst_allocator_find (GST_GL_MEMORY_PBO_ALLOCATOR_NAME);
   } else {

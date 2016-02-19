@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>GstGLMemory: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
 <link rel="prev" href="GstGLFramebuffer.html" title="GstGLFramebuffer">
@@ -33,7 +33,7 @@
 </tr></table></div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-gstglmemory.functions"></a><h2>Functions</h2>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="functions_return">
 <col class="functions_name">
@@ -82,7 +82,7 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-gstglmemory.other"></a><h2>Types and Values</h2>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="name">
 <col class="description">
@@ -97,8 +97,8 @@
 <a name="gst-plugins-bad-libs-gstglmemory.description"></a><h2>Description</h2>
 <p>GstGLMemory is a <span class="type">GstGLBaseBuffer</span> subclass providing support for the mapping of
 GL textures.  </p>
-<p><a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> is created through <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-gstglmemory.html#gst-gl-memory-alloc"><code class="function">gst_gl_memory_alloc()</code></a> or system memory can
-be wrapped through <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-gstglmemory.html#gst-gl-memory-wrapped"><code class="function">gst_gl_memory_wrapped()</code></a>.</p>
+<p><a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> is created through <code class="function">gst_gl_memory_alloc()</code> or system memory can
+be wrapped through <code class="function">gst_gl_memory_wrapped()</code>.</p>
 <p>Data is uploaded or downloaded from the GPU as is necessary.</p>
 </div>
 <div class="refsect1">
@@ -127,7 +127,7 @@ gst_gl_memory_init (<em class="parameter"><code><a class="link" href="gst-plugin
  with the required parameters</p>
 <div class="refsect3">
 <a name="id-1.2.9.16.6.3.5"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
 <col class="parameters_description">
@@ -189,7 +189,7 @@ gst_gl_memory_setup_buffer (<em class="parameter"><code><span class="type">GstGL
                             <em class="parameter"><code><span class="type">GstGLVideoAllocationParams</span> *params</code></em>);</pre>
 <div class="refsect3">
 <a name="id-1.2.9.16.6.4.4"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
 <col class="parameters_description">
@@ -235,7 +235,7 @@ gst_gl_texture_type_from_format (<em class="parameter"><code><a class="link" hre
 gst_is_gl_memory (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstMemory.html"><span class="type">GstMemory</span></a> *mem</code></em>);</pre>
 <div class="refsect3">
 <a name="id-1.2.9.16.6.6.4"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
 <col class="parameters_description">
@@ -251,7 +251,7 @@ gst_is_gl_memory (<em class="parameter"><code><a href="http://gstreamer.freedesk
 <div class="refsect3">
 <a name="id-1.2.9.16.6.6.5"></a><h4>Returns</h4>
 <p> whether the memory at <em class="parameter"><code>mem</code></em>
-is a <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p>
+is a <span class="type">GstGLMemoryPBO</span></p>
 </div>
 </div>
 </div>
@@ -274,7 +274,7 @@ is a <a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" ti
 <p>Represents information about a GL texture</p>
 <div class="refsect3">
 <a name="id-1.2.9.16.7.2.5"></a><h4>Members</h4>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
 <col class="struct_members_description">

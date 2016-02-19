@@ -76,10 +76,14 @@ _mem_create_gl (GstGLContext * context, struct create_data *transfer)
   GstGLBaseMemoryAllocatorClass *alloc_class;
   GError *error = NULL;
 
+  GST_CAT_TRACE (GST_CAT_GL_BASE_MEMORY, "Create memory %p", transfer->mem);
+
   alloc_class =
       GST_GL_BASE_MEMORY_ALLOCATOR_GET_CLASS (transfer->mem->mem.allocator);
 
   g_return_if_fail (alloc_class->create != NULL);
+
+  transfer->mem->query = gst_gl_query_new (context, GST_GL_QUERY_TIME_ELAPSED);
 
   if ((transfer->result = alloc_class->create (transfer->mem, &error)))
     return;
@@ -418,6 +422,9 @@ _destroy_gl_objects (GstGLContext * context, GstGLBaseMemory * mem)
   g_return_if_fail (alloc_class->destroy != NULL);
 
   alloc_class->destroy (mem);
+
+  if (mem->query)
+    gst_gl_query_free (mem->query);
 }
 
 static void
@@ -442,6 +449,8 @@ _mem_free (GstAllocator * allocator, GstMemory * memory)
     mem->notify (mem->user_data);
 
   gst_object_unref (mem->context);
+
+  g_free (memory);
 }
 
 /**
@@ -526,11 +535,6 @@ gst_gl_base_memory_memcpy (GstGLBaseMemory * src, GstGLBaseMemory * dest,
 
   if (!gst_gl_base_memory_alloc_data (GST_GL_BASE_MEMORY_CAST (dest)))
     return FALSE;
-
-  if (dest == NULL) {
-    GST_CAT_WARNING (GST_CAT_GL_BASE_MEMORY, "Could not copy GL Buffer");
-    return FALSE;
-  }
 
   if (!gst_memory_map ((GstMemory *) src, &sinfo, GST_MAP_READ)) {
     GST_CAT_WARNING (GST_CAT_GL_BASE_MEMORY,
@@ -659,11 +663,9 @@ gst_gl_allocation_params_copy_data (GstGLAllocationParams * src,
     GstGLAllocationParams * dest)
 {
   gst_gl_allocation_params_init (dest, src->struct_size, src->alloc_flags,
-      src->copy, src->free, NULL, src->alloc_size, NULL, src->wrapped_data,
-      src->gl_handle, src->user_data, src->notify);
+      src->copy, src->free, src->context, src->alloc_size, NULL,
+      src->wrapped_data, src->gl_handle, src->user_data, src->notify);
 
-  if (src->context)
-    dest->context = gst_object_ref (src->context);
   if (src->alloc_params)
     dest->alloc_params = gst_allocation_params_copy (src->alloc_params);
 }

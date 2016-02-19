@@ -216,7 +216,8 @@ mxf_uuid_init (MXFUUID * uuid, GHashTable * hashtable)
   do {
     for (i = 0; i < 4; i++)
       GST_WRITE_UINT32_BE (&uuid->u[i * 4], g_random_int ());
-
+    uuid->u[6] = 0x40 | (uuid->u[6] & 0x0f);
+    uuid->u[8] = (uuid->u[8] & 0xbf) | 0x80;
   } while (hashtable && (mxf_uuid_is_zero (uuid) ||
           g_hash_table_lookup_extended (hashtable, uuid, NULL, NULL)));
 }
@@ -1585,15 +1586,14 @@ mxf_primer_pack_to_buffer (const MXFPrimerPack * pack)
   data += 8;
 
   if (pack->mappings) {
-    guint local_tag;
+    gpointer local_tag;
     MXFUL *ul;
     GHashTableIter iter;
 
     g_hash_table_iter_init (&iter, pack->mappings);
 
-    while (g_hash_table_iter_next (&iter, (gpointer) & local_tag,
-            (gpointer) & ul)) {
-      GST_WRITE_UINT16_BE (data, local_tag);
+    while (g_hash_table_iter_next (&iter, &local_tag, (gpointer) & ul)) {
+      GST_WRITE_UINT16_BE (data, GPOINTER_TO_UINT (local_tag));
       memcpy (data + 2, ul, 16);
       data += 18;
     }
