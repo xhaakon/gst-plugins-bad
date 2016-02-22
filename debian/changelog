@@ -1,3 +1,15 @@
+gst-plugins-bad1.0 (1.7.1-1ubuntu4) UNRELEASED; urgency=medium
+
+  [ Thomas Voss ]
+  * Add color formats
+  * Increase rank for androidmedia so it is preferred over v4l when present
+
+  [ Iain Lane ]
+  * Remove debian/patches/add-android-color-formats.patch since the above
+    duplicates the same changes.
+
+ -- Alfonso Sanchez-Beato (email Canonical) <alfonso.sanchez-beato@canonical.com>  Fri, 19 Feb 2016 18:12:34 +0100
+
 gst-plugins-bad1.0 (1.7.1-1ubuntu3) xenial; urgency=medium
 
   * No-change rebuild due to citrain landing process.
