@@ -52,7 +52,6 @@
       <sub name="mpegpsmux" link="gst-plugins-bad-plugins-mpegpsmux.html"/>
       <sub name="mpegtsmux" link="gst-plugins-bad-plugins-mpegtsmux.html"/>
       <sub name="mplex" link="gst-plugins-bad-plugins-mplex.html"/>
-      <sub name="mpg123audiodec" link="gst-plugins-bad-plugins-mpg123audiodec.html"/>
       <sub name="neonhttpsrc" link="gst-plugins-bad-plugins-neonhttpsrc.html"/>
       <sub name="ofa" link="gst-plugins-bad-plugins-ofa.html"/>
       <sub name="openalsrc" link="gst-plugins-bad-plugins-openalsrc.html"/>
@@ -181,6 +180,7 @@
     <keyword type="property" name="The “aperture-size” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--aperture-size"/>
     <keyword type="property" name="The “scale” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--scale"/>
     <keyword type="property" name="The “shift” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--shift"/>
+    <keyword type="property" name="The “mask” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--mask"/>
     <keyword type="struct" name="struct GstCvSmooth" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth-struct"/>
     <keyword type="property" name="The “param1” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--param1"/>
     <keyword type="property" name="The “param2” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--param2"/>
@@ -195,6 +195,7 @@
     <keyword type="property" name="The “aperture-size” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--aperture-size"/>
     <keyword type="property" name="The “x-order” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--x-order"/>
     <keyword type="property" name="The “y-order” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--y-order"/>
+    <keyword type="property" name="The “mask” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--mask"/>
     <keyword type="struct" name="struct GstDataURISrc" link="gst-plugins-bad-plugins-dataurisrc.html#GstDataURISrc-struct"/>
     <keyword type="property" name="The “uri” property" link="gst-plugins-bad-plugins-dataurisrc.html#GstDataURISrc--uri"/>
     <keyword type="struct" name="struct GstDiffuse" link="gst-plugins-bad-plugins-diffuse.html#GstDiffuse-struct"/>
@@ -378,8 +379,7 @@
     <keyword type="property" name="The “sector-size” property" link="gst-plugins-bad-plugins-mplex.html#GstMplex--sector-size"/>
     <keyword type="property" name="The “system-headers” property" link="gst-plugins-bad-plugins-mplex.html#GstMplex--system-headers"/>
     <keyword type="property" name="The “vbr” property" link="gst-plugins-bad-plugins-mplex.html#GstMplex--vbr"/>
-    <keyword type="struct" name="struct GstMpg123AudioDec" link="gst-plugins-bad-plugins-mpg123audiodec.html#GstMpg123AudioDec-struct"/>
-    <keyword type="struct" name="struct GstNeonhttpSrc" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc-struct"/>
+    <keyword type="struct" name="struct GstNeonhttpSrc" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc"/>
     <keyword type="property" name="The “location” property" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc--location"/>
     <keyword type="property" name="The “proxy” property" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc--proxy"/>
     <keyword type="property" name="The “uri” property" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc--uri"/>
@@ -513,11 +513,14 @@
     <keyword type="property" name="The “width” property" link="gst-plugins-bad-plugins-videoparse.html#GstVideoParse--width"/>
     <keyword type="property" name="The “interlaced” property" link="gst-plugins-bad-plugins-videoparse.html#GstVideoParse--interlaced"/>
     <keyword type="property" name="The “top-field-first” property" link="gst-plugins-bad-plugins-videoparse.html#GstVideoParse--top-field-first"/>
+    <keyword type="property" name="The “framesize” property" link="gst-plugins-bad-plugins-videoparse.html#GstVideoParse--framesize"/>
+    <keyword type="property" name="The “offsets” property" link="gst-plugins-bad-plugins-videoparse.html#GstVideoParse--offsets"/>
+    <keyword type="property" name="The “strides” property" link="gst-plugins-bad-plugins-videoparse.html#GstVideoParse--strides"/>
     <keyword type="struct" name="struct GstWaterRipple" link="gst-plugins-bad-plugins-waterripple.html#GstWaterRipple-struct"/>
     <keyword type="property" name="The “amplitude” property" link="gst-plugins-bad-plugins-waterripple.html#GstWaterRipple--amplitude"/>
     <keyword type="property" name="The “phase” property" link="gst-plugins-bad-plugins-waterripple.html#GstWaterRipple--phase"/>
     <keyword type="property" name="The “wavelength” property" link="gst-plugins-bad-plugins-waterripple.html#GstWaterRipple--wavelength"/>
-    <keyword type="struct" name="struct GstZBar" link="gst-plugins-bad-plugins-zbar.html#GstZBar"/>
+    <keyword type="struct" name="struct GstZBar" link="gst-plugins-bad-plugins-zbar.html#GstZBar-struct"/>
     <keyword type="property" name="The “message” property" link="gst-plugins-bad-plugins-zbar.html#GstZBar--message"/>
     <keyword type="property" name="The “cache” property" link="gst-plugins-bad-plugins-zbar.html#GstZBar--cache"/>
     <keyword type="property" name="The “attach-frame” property" link="gst-plugins-bad-plugins-zbar.html#GstZBar--attach-frame"/>

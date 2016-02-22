@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>GstGLSyncMeta: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
 <link rel="prev" href="gst-plugins-bad-libs-gstglshader.html" title="GstGLShader">
@@ -33,7 +33,7 @@
 </tr></table></div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-GstGLSyncMeta.functions"></a><h2>Functions</h2>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="functions_return">
 <col class="functions_name">
@@ -89,7 +89,7 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-GstGLSyncMeta.other"></a><h2>Types and Values</h2>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="name">
 <col class="description">
@@ -165,6 +165,8 @@ gst_gl_sync_meta_wait (<em class="parameter"><code><a class="link" href="gst-plu
   void (*set_sync_gl) (GstGLSyncMeta * sync, GstGLContext * context);
   void (*wait) (GstGLSyncMeta * sync, GstGLContext * context);
   void (*wait_gl) (GstGLSyncMeta * sync, GstGLContext * context);
+  void (*wait_cpu) (GstGLSyncMeta * sync, GstGLContext * context);
+  void (*wait_cpu_gl) (GstGLSyncMeta * sync, GstGLContext * context);
   void (*copy) (GstGLSyncMeta * src, GstBuffer * sbuffer, GstGLSyncMeta * dest, GstBuffer * dbuffer);
   void (*free) (GstGLSyncMeta * sync, GstGLContext * context);
   void (*free_gl) (GstGLSyncMeta * sync, GstGLContext * context);

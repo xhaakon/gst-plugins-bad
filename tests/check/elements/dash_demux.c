@@ -104,7 +104,6 @@ GST_START_TEST (simpleTest)
       "<MPD xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
       "     xmlns=\"urn:mpeg:DASH:schema:MPD:2011\""
       "     xsi:schemaLocation=\"urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd\""
-      "     xmlns:yt=\"http://youtube.com/yt/2012/10/10\""
       "     profiles=\"urn:mpeg:dash:profile:isoff-on-demand:2011\""
       "     type=\"static\""
       "     minBufferTime=\"PT1.500S\""
@@ -184,7 +183,6 @@ GST_START_TEST (testTwoPeriods)
       "<MPD xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
       "     xmlns=\"urn:mpeg:DASH:schema:MPD:2011\""
       "     xsi:schemaLocation=\"urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd\""
-      "     xmlns:yt=\"http://youtube.com/yt/2012/10/10\""
       "     profiles=\"urn:mpeg:dash:profile:isoff-on-demand:2011\""
       "     type=\"static\""
       "     minBufferTime=\"PT1.500S\""
@@ -376,7 +374,6 @@ GST_START_TEST (testParameters)
       "<MPD xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
       "     xmlns=\"urn:mpeg:DASH:schema:MPD:2011\""
       "     xsi:schemaLocation=\"urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd\""
-      "     xmlns:yt=\"http://youtube.com/yt/2012/10/10\""
       "     profiles=\"urn:mpeg:dash:profile:isoff-on-demand:2011\""
       "     type=\"static\""
       "     minBufferTime=\"PT1.500S\""
@@ -440,7 +437,6 @@ GST_START_TEST (testSeek)
       "<MPD xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
       "     xmlns=\"urn:mpeg:DASH:schema:MPD:2011\""
       "     xsi:schemaLocation=\"urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd\""
-      "     xmlns:yt=\"http://youtube.com/yt/2012/10/10\""
       "     profiles=\"urn:mpeg:dash:profile:isoff-on-demand:2011\""
       "     type=\"static\""
       "     minBufferTime=\"PT1.500S\""
@@ -486,10 +482,177 @@ GST_START_TEST (testSeek)
    */
   testData->threshold_for_seek = 4687 + 1;
 
+  /* seek to 5ms.
+   * Because there is only one fragment, we expect the whole file to be
+   * downloaded again
+   */
+  testData->seek_event =
+      gst_event_new_seek (1.0, GST_FORMAT_TIME,
+      GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT, GST_SEEK_TYPE_SET,
+      5 * GST_MSECOND, GST_SEEK_TYPE_NONE, 0);
+
   gst_test_http_src_install_callbacks (&http_src_callbacks, inputTestData);
   gst_adaptive_demux_test_seek (DEMUX_ELEMENT_NAME,
       "http://unit.test/test.mpd", testData);
   gst_object_unref (testData);
+}
+
+GST_END_TEST;
+
+
+static void
+run_seek_position_test (gdouble rate, GstSeekType start_type,
+    guint64 seek_start, GstSeekType stop_type, guint64 seek_stop,
+    GstSeekFlags flags, guint64 segment_start, guint64 segment_stop,
+    gint segments)
+{
+  const gchar *mpd =
+      "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+      "<MPD xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+      "     xmlns=\"urn:mpeg:DASH:schema:MPD:2011\""
+      "     xsi:schemaLocation=\"urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd\""
+      "     profiles=\"urn:mpeg:dash:profile:isoff-on-demand:2011\""
+      "     type=\"static\""
+      "     minBufferTime=\"PT1.500S\""
+      "     mediaPresentationDuration=\"PT135.743S\">"
+      "  <Period>"
+      "    <AdaptationSet "
+      "        mimeType=\"audio/mp4\" minBandwidth=\"128000\" "
+      "        maxBandwidth=\"128000\" segmentAlignment=\"true\">"
+      "      <SegmentTemplate timescale=\"48000\" "
+      "          initialization=\"init-$RepresentationID$.mp4\" "
+      "          media=\"$RepresentationID$-$Number$.mp4\" "
+      "          startNumber=\"1\">"
+      "        <SegmentTimeline>"
+      "          <S t=\"0\" d=\"48000\" /> "
+      "          <S d=\"48000\" /> "
+      "          <S d=\"48000\" /> "
+      "          <S d=\"48000\" /> "
+      "        </SegmentTimeline>"
+      "      </SegmentTemplate>"
+      "      <Representation id=\"audio\" bandwidth=\"128000\" "
+      "          codecs=\"mp4a.40.2\" audioSamplingRate=\"48000\"> "
+      "        <AudioChannelConfiguration "
+      "            schemeIdUri=\"urn:mpeg:dash:23003:3:audio_channel_configuration:2011\""
+      "            value=\"2\"> "
+      "        </AudioChannelConfiguration> "
+      "    </Representation></AdaptationSet></Period></MPD>";
+  GstDashDemuxTestInputData inputTestData[] = {
+    {"http://unit.test/test.mpd", (guint8 *) mpd, 0},
+    {"http://unit.test/init-audio.mp4", NULL, 10000},
+    {"http://unit.test/audio-1.mp4", NULL, 10000},
+    {"http://unit.test/audio-2.mp4", NULL, 10000},
+    {"http://unit.test/audio-3.mp4", NULL, 10000},
+    {"http://unit.test/audio-4.mp4", NULL, 10000},
+    {NULL, NULL, 0},
+  };
+  GstTestHTTPSrcCallbacks http_src_callbacks = { 0 };
+  GstAdaptiveDemuxTestExpectedOutput outputTestData[] = {
+    /* 1 from the init segment */
+    {"audio_00", (1 + segments) * 10000, NULL},
+  };
+  GstAdaptiveDemuxTestCase *testData;
+
+  testData = gst_adaptive_demux_test_case_new ();
+
+  http_src_callbacks.src_start = gst_dashdemux_http_src_start;
+  http_src_callbacks.src_create = gst_dashdemux_http_src_create;
+  COPY_OUTPUT_TEST_DATA (outputTestData, testData);
+
+  /* media segment starts at 4687
+   * Issue a seek request after media segment has started to be downloaded
+   * on the first pad listed in GstAdaptiveDemuxTestOutputStreamData and the
+   * first chunk of at least one byte has already arrived in AppSink
+   */
+  testData->threshold_for_seek = 4687 + 1;
+
+  /* FIXME hack to avoid having a 0 seqnum */
+  gst_util_seqnum_next ();
+
+  /* seek to 5ms.
+   * Because there is only one fragment, we expect the whole file to be
+   * downloaded again
+   */
+  testData->seek_event =
+      gst_event_new_seek (rate, GST_FORMAT_TIME, flags, start_type,
+      seek_start, stop_type, seek_stop);
+
+  gst_test_http_src_install_callbacks (&http_src_callbacks, inputTestData);
+  gst_adaptive_demux_test_seek (DEMUX_ELEMENT_NAME,
+      "http://unit.test/test.mpd", testData);
+  gst_object_unref (testData);
+}
+
+GST_START_TEST (testSeekKeyUnitPosition)
+{
+  /* Seek to 1.5s with key unit, it should go back to 1.0s. 3 segments will be
+   * pushed */
+  run_seek_position_test (1.0, GST_SEEK_TYPE_SET, 1500 * GST_MSECOND,
+      GST_SEEK_TYPE_NONE, 0, GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT,
+      1000 * GST_MSECOND, -1, 3);
+}
+
+GST_END_TEST;
+
+
+GST_START_TEST (testSeekUpdateStopPosition)
+{
+  run_seek_position_test (1.0, GST_SEEK_TYPE_NONE, 1500 * GST_MSECOND,
+      GST_SEEK_TYPE_SET, 3000 * GST_MSECOND, 0, 0, 3000 * GST_MSECOND, 3);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (testSeekPosition)
+{
+  /* Seek to 1.5s without key unit, it should keep the 1.5s, but still push
+   * from the 1st segment, so 3 segments will be
+   * pushed */
+  run_seek_position_test (1.0, GST_SEEK_TYPE_SET, 1500 * GST_MSECOND,
+      GST_SEEK_TYPE_NONE, 0, GST_SEEK_FLAG_FLUSH, 1500 * GST_MSECOND, -1, 3);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (testSeekSnapBeforePosition)
+{
+  /* Seek to 1.5s, snap before, it go to 1s */
+  run_seek_position_test (1.0, GST_SEEK_TYPE_SET, 1500 * GST_MSECOND,
+      GST_SEEK_TYPE_NONE, 0, GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SNAP_BEFORE,
+      1000 * GST_MSECOND, -1, 3);
+}
+
+GST_END_TEST;
+
+
+GST_START_TEST (testSeekSnapAfterPosition)
+{
+  /* Seek to 1.5s with snap after, it should move to 2s */
+  run_seek_position_test (1.0, GST_SEEK_TYPE_SET, 1500 * GST_MSECOND,
+      GST_SEEK_TYPE_NONE, 0, GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SNAP_AFTER,
+      2000 * GST_MSECOND, -1, 2);
+}
+
+GST_END_TEST;
+
+
+GST_START_TEST (testReverseSeekSnapBeforePosition)
+{
+  run_seek_position_test (-1.0, GST_SEEK_TYPE_SET, 1000 * GST_MSECOND,
+      GST_SEEK_TYPE_SET, 2500 * GST_MSECOND,
+      GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SNAP_BEFORE, 1000 * GST_MSECOND,
+      3000 * GST_MSECOND, 2);
+}
+
+GST_END_TEST;
+
+
+GST_START_TEST (testReverseSeekSnapAfterPosition)
+{
+  run_seek_position_test (-1.0, GST_SEEK_TYPE_SET, 1000 * GST_MSECOND,
+      GST_SEEK_TYPE_SET, 2500 * GST_MSECOND,
+      GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SNAP_AFTER, 1000 * GST_MSECOND,
+      2000 * GST_MSECOND, 1);
 }
 
 GST_END_TEST;
@@ -522,7 +685,6 @@ GST_START_TEST (testDownloadError)
       "<MPD xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
       "     xmlns=\"urn:mpeg:DASH:schema:MPD:2011\""
       "     xsi:schemaLocation=\"urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd\""
-      "     xmlns:yt=\"http://youtube.com/yt/2012/10/10\""
       "     profiles=\"urn:mpeg:dash:profile:isoff-on-demand:2011\""
       "     type=\"static\""
       "     minBufferTime=\"PT1.500S\""
@@ -645,7 +807,6 @@ GST_START_TEST (testQuery)
       "<MPD xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
       "     xmlns=\"urn:mpeg:DASH:schema:MPD:2011\""
       "     xsi:schemaLocation=\"urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd\""
-      "     xmlns:yt=\"http://youtube.com/yt/2012/10/10\""
       "     profiles=\"urn:mpeg:dash:profile:isoff-on-demand:2011\""
       "     type=\"static\""
       "     minBufferTime=\"PT1.500S\""
@@ -753,7 +914,6 @@ GST_START_TEST (testFragmentDownloadError)
       "<MPD xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
       "     xmlns=\"urn:mpeg:DASH:schema:MPD:2011\""
       "     xsi:schemaLocation=\"urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd\""
-      "     xmlns:yt=\"http://youtube.com/yt/2012/10/10\""
       "     profiles=\"urn:mpeg:dash:profile:isoff-on-demand:2011\""
       "     type=\"static\""
       "     minBufferTime=\"PT1.500S\""
@@ -817,6 +977,13 @@ dash_demux_suite (void)
   tcase_add_test (tc_basicTest, testTwoPeriods);
   tcase_add_test (tc_basicTest, testParameters);
   tcase_add_test (tc_basicTest, testSeek);
+  tcase_add_test (tc_basicTest, testSeekKeyUnitPosition);
+  tcase_add_test (tc_basicTest, testSeekPosition);
+  tcase_add_test (tc_basicTest, testSeekUpdateStopPosition);
+  tcase_add_test (tc_basicTest, testSeekSnapBeforePosition);
+  tcase_add_test (tc_basicTest, testSeekSnapAfterPosition);
+  tcase_add_test (tc_basicTest, testReverseSeekSnapBeforePosition);
+  tcase_add_test (tc_basicTest, testReverseSeekSnapAfterPosition);
   tcase_add_test (tc_basicTest, testDownloadError);
   tcase_add_test (tc_basicTest, testFragmentDownloadError);
   tcase_add_test (tc_basicTest, testQuery);

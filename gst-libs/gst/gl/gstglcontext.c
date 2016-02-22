@@ -67,9 +67,7 @@
 #include "eagl/gstglcontext_eagl.h"
 #endif
 
-extern void GSTGLAPI _gst_gl_debug_callback (GLenum source, GLenum type,
-    GLuint id, GLenum severity, GLsizei length, const gchar * message,
-    gpointer user_data);
+extern void _gst_gl_debug_enable (GstGLContext * context);
 
 static GPrivate current_context_key;
 
@@ -138,37 +136,55 @@ load_self_module (gpointer user_data)
 #error "Add module loading support for GLES3"
 #endif
 
-/* Context sharedness es tracked by a unique id stored in each context object
- * in order track complex creation/deletion scenarios.  As a result, sharedness
- * can only be successfully validated between two GstGLContext's where one is
- * not a wrapped context.
+/* Context sharedness is tracked by a refcounted pointer stored in each context
+ * object to track complex creation/deletion scenarios.  As a result,
+ * sharedness can only be successfully validated between two GstGLContext's
+ * where one is not a wrapped context.
  *
  * As there is no API at the winsys level to tell whether two OpenGL contexts
  * can share GL resources, this is the next best thing.
+ *
+ * XXX: we may need a way to associate two wrapped GstGLContext's as being
+ * shared however I have not come across a use case that requries this yet.
  */
-static volatile guint sharegroup_idx;
-
-static guint
-_new_sharegroup_id (void)
+struct ContextShareGroup
 {
-  guint current, ret;
+  volatile int refcount;
+};
 
-  do {
-    current = g_atomic_int_get (&sharegroup_idx);
-    ret = current + 1;
+static struct ContextShareGroup *
+_context_share_group_new (void)
+{
+  struct ContextShareGroup *ret = g_new0 (struct ContextShareGroup, 1);
 
-    /* 0 is special */
-    if (ret == 0)
-      ret++;
-  } while (!g_atomic_int_compare_and_exchange (&sharegroup_idx, current, ret));
-
-  GST_TRACE ("generated new share group id %u", ret);
+  ret->refcount = 1;
 
   return ret;
 }
 
+static struct ContextShareGroup *
+_context_share_group_ref (struct ContextShareGroup *share)
+{
+  g_atomic_int_inc (&share->refcount);
+  return share;
+}
+
+static void
+_context_share_group_unref (struct ContextShareGroup *share)
+{
+  if (g_atomic_int_dec_and_test (&share->refcount))
+    g_free (share);
+}
+
+static gboolean
+_context_share_group_is_shared (struct ContextShareGroup *share)
+{
+  return g_atomic_int_get (&share->refcount) > 1;
+}
+
 #define GST_CAT_DEFAULT gst_gl_context_debug
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
+GST_DEBUG_CATEGORY_STATIC (gst_gl_debug);
 
 #define gst_gl_context_parent_class parent_class
 G_DEFINE_ABSTRACT_TYPE (GstGLContext, gst_gl_context, GST_TYPE_OBJECT);
@@ -194,7 +210,7 @@ struct _GstGLContextPrivate
   gboolean alive;
 
   GWeakRef other_context_ref;
-  guint sharegroup_id;
+  struct ContextShareGroup *sharegroup;
   GError **error;
 
   gint gl_major;
@@ -286,6 +302,7 @@ _init_debug (void)
   if (g_once_init_enter (&_init)) {
     GST_DEBUG_CATEGORY_INIT (gst_gl_context_debug, "glcontext", 0,
         "glcontext element");
+    GST_DEBUG_CATEGORY_INIT (gst_gl_debug, "gldebug", 0, "OpenGL Debugging");
     g_once_init_leave (&_init, 1);
   }
 }
@@ -389,7 +406,7 @@ gst_gl_context_new_wrapped (GstGLDisplay * display, guintptr handle,
   context = (GstGLContext *) context_wrap;
 
   context->display = gst_object_ref (display);
-  context->priv->sharegroup_id = _new_sharegroup_id ();
+  context->priv->sharegroup = _context_share_group_new ();
   context_wrap->handle = handle;
   context_wrap->platform = context_type;
   context_wrap->available_apis = available_apis;
@@ -637,6 +654,9 @@ gst_gl_context_finalize (GObject * object)
     gst_gl_window_set_close_callback (context->window, NULL, NULL, NULL);
     gst_object_unref (context->window);
   }
+
+  if (context->priv->sharegroup)
+    _context_share_group_unref (context->priv->sharegroup);
 
   gst_object_unref (context->display);
 
@@ -887,8 +907,8 @@ gst_gl_context_can_share (GstGLContext * context, GstGLContext * other_context)
   g_return_val_if_fail (GST_IS_GL_CONTEXT (other_context), FALSE);
 
   /* check if the contexts are descendants or the root nodes are the same */
-  return context->priv->sharegroup_id != 0
-      && context->priv->sharegroup_id == other_context->priv->sharegroup_id;
+  return context->priv->sharegroup != NULL
+      && context->priv->sharegroup == other_context->priv->sharegroup;
 }
 
 /**
@@ -929,9 +949,10 @@ gst_gl_context_create (GstGLContext * context,
     g_weak_ref_set (&context->priv->other_context_ref, other_context);
     context->priv->error = error;
     if (other_context == NULL)
-      context->priv->sharegroup_id = _new_sharegroup_id ();
+      context->priv->sharegroup = _context_share_group_new ();
     else
-      context->priv->sharegroup_id = other_context->priv->sharegroup_id;
+      context->priv->sharegroup =
+          _context_share_group_ref (other_context->priv->sharegroup);
 
     context->priv->gl_thread = g_thread_new ("gstglcontext",
         (GThreadFunc) gst_gl_context_create_thread, context);
@@ -1033,6 +1054,7 @@ static void
 _unlock_create_thread (GstGLContext * context)
 {
   context->priv->created = TRUE;
+  GST_INFO_OBJECT (context, "gl thread running");
   g_cond_signal (&context->priv->create_cond);
   g_mutex_unlock (&context->priv->render_lock);
 }
@@ -1064,7 +1086,6 @@ gst_gl_context_create_thread (GstGLContext * context)
 {
   GstGLContextClass *context_class;
   GstGLWindowClass *window_class;
-  GstGLFuncs *gl;
   GstGLAPI compiled_api, user_api, gl_api, display_api;
   gchar *api_string;
   gchar *compiled_api_s;
@@ -1100,7 +1121,6 @@ gst_gl_context_create_thread (GstGLContext * context)
     }
   }
 
-  gl = context->gl_vtable;
   compiled_api = _compiled_api ();
   compiled_api_s = gst_gl_api_to_string (compiled_api);
 
@@ -1188,15 +1208,9 @@ gst_gl_context_create_thread (GstGLContext * context)
 
   context->priv->alive = TRUE;
 
-  if (gl->DebugMessageCallback) {
 #if !defined(GST_DISABLE_GST_DEBUG)
-    GST_INFO_OBJECT (context, "Enabling GL context debugging");
-    /* enable them all */
-    gl->DebugMessageControl (GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, 0,
-        GL_TRUE);
-    gl->DebugMessageCallback (_gst_gl_debug_callback, context);
+  _gst_gl_debug_enable (context);
 #endif
-  }
 
   if (other_context) {
     GST_DEBUG_OBJECT (context, "Unreffing other_context %" GST_PTR_FORMAT,
@@ -1467,8 +1481,10 @@ gst_gl_context_thread_add (GstGLContext * context,
   g_return_if_fail (GST_IS_GL_CONTEXT (context));
   g_return_if_fail (func != NULL);
 
-  if (GST_IS_GL_WRAPPED_CONTEXT (context)) {
+  if (GST_IS_GL_WRAPPED_CONTEXT (context))
     g_return_if_fail (context->priv->active_thread == g_thread_self ());
+
+  if (context->priv->active_thread == g_thread_self ()) {
     func (context, data);
     return;
   }
@@ -1587,6 +1603,23 @@ GstGLContext *
 gst_gl_context_get_current (void)
 {
   return g_private_get (&current_context_key);
+}
+
+/**
+ * gst_gl_context_is_shared:
+ * @context: a #GstGLContext
+ *
+ * Returns: Whether the #GstGLContext has been shared with another #GstGLContext
+ *
+ * Since: 1.8
+ */
+gboolean
+gst_gl_context_is_shared (GstGLContext * context)
+{
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), FALSE);
+  g_return_val_if_fail (context->priv->alive, FALSE);
+
+  return _context_share_group_is_shared (context->priv->sharegroup);
 }
 
 static GstGLAPI
