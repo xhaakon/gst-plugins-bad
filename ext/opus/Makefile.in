@@ -163,23 +163,21 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstopus_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+libgstopusparse_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am_libgstopus_la_OBJECTS = libgstopus_la-gstopus.lo \
-	libgstopus_la-gstopusdec.lo libgstopus_la-gstopusenc.lo \
-	libgstopus_la-gstopusparse.lo libgstopus_la-gstopusheader.lo \
-	libgstopus_la-gstopuscommon.lo libgstopus_la-gstrtpopuspay.lo \
-	libgstopus_la-gstrtpopusdepay.lo
-libgstopus_la_OBJECTS = $(am_libgstopus_la_OBJECTS)
+am_libgstopusparse_la_OBJECTS = libgstopusparse_la-gstopus.lo \
+	libgstopusparse_la-gstopusparse.lo \
+	libgstopusparse_la-gstopusheader.lo
+libgstopusparse_la_OBJECTS = $(am_libgstopusparse_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-libgstopus_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
-	$(CCLD) $(libgstopus_la_CFLAGS) $(CFLAGS) \
-	$(libgstopus_la_LDFLAGS) $(LDFLAGS) -o $@
+libgstopusparse_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(libgstopusparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
+	$(CCLD) $(libgstopusparse_la_CFLAGS) $(CFLAGS) \
+	$(libgstopusparse_la_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -214,8 +212,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libgstopus_la_SOURCES)
-DIST_SOURCES = $(libgstopus_la_SOURCES)
+SOURCES = $(libgstopusparse_la_SOURCES)
+DIST_SOURCES = $(libgstopusparse_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -780,26 +778,26 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
-plugin_LTLIBRARIES = libgstopus.la
-libgstopus_la_SOURCES = gstopus.c gstopusdec.c gstopusenc.c gstopusparse.c gstopusheader.c gstopuscommon.c gstrtpopuspay.c gstrtpopusdepay.c
-libgstopus_la_CFLAGS = \
+plugin_LTLIBRARIES = libgstopusparse.la
+libgstopusparse_la_SOURCES = gstopus.c gstopusparse.c gstopusheader.c
+libgstopusparse_la_CFLAGS = \
         -DGST_USE_UNSTABLE_API \
 	$(GST_PLUGINS_BAD_CFLAGS) \
 	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_CFLAGS) \
 	$(OPUS_CFLAGS)
 
-libgstopus_la_LIBADD = \
+libgstopusparse_la_LIBADD = \
 	$(GST_PLUGINS_BASE_LIBS) -lgstaudio-$(GST_API_VERSION) \
-	-lgsttag-$(GST_API_VERSION) -lgstrtp-$(GST_API_VERSION) \
+	-lgsttag-$(GST_API_VERSION) \
 	-lgstpbutils-$(GST_API_VERSION) \
 	$(GST_BASE_LIBS) \
 	$(GST_LIBS) \
 	$(OPUS_LIBS)
 
-libgstopus_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) $(LIBM)
-libgstopus_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
-noinst_HEADERS = gstopusenc.h gstopusdec.h gstopusparse.h gstopusheader.h gstopuscommon.h gstrtpopuspay.h gstrtpopusdepay.h
+libgstopusparse_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) $(LIBM)
+libgstopusparse_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
+noinst_HEADERS = gstopusparse.h gstopusheader.h
 all: all-am
 
 .SUFFIXES:
@@ -869,8 +867,8 @@ clean-pluginLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libgstopus.la: $(libgstopus_la_OBJECTS) $(libgstopus_la_DEPENDENCIES) $(EXTRA_libgstopus_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libgstopus_la_LINK) -rpath $(plugindir) $(libgstopus_la_OBJECTS) $(libgstopus_la_LIBADD) $(LIBS)
+libgstopusparse.la: $(libgstopusparse_la_OBJECTS) $(libgstopusparse_la_DEPENDENCIES) $(EXTRA_libgstopusparse_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libgstopusparse_la_LINK) -rpath $(plugindir) $(libgstopusparse_la_OBJECTS) $(libgstopusparse_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -878,14 +876,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopus_la-gstopus.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopus_la-gstopuscommon.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopus_la-gstopusdec.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopus_la-gstopusenc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopus_la-gstopusheader.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopus_la-gstopusparse.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopus_la-gstrtpopusdepay.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopus_la-gstrtpopuspay.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopusparse_la-gstopus.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopusparse_la-gstopusheader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopusparse_la-gstopusparse.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -911,61 +904,26 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-libgstopus_la-gstopus.lo: gstopus.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -MT libgstopus_la-gstopus.lo -MD -MP -MF $(DEPDIR)/libgstopus_la-gstopus.Tpo -c -o libgstopus_la-gstopus.lo `test -f 'gstopus.c' || echo '$(srcdir)/'`gstopus.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopus_la-gstopus.Tpo $(DEPDIR)/libgstopus_la-gstopus.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstopus.c' object='libgstopus_la-gstopus.lo' libtool=yes @AMDEPBACKSLASH@
+libgstopusparse_la-gstopus.lo: gstopus.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopusparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopusparse_la_CFLAGS) $(CFLAGS) -MT libgstopusparse_la-gstopus.lo -MD -MP -MF $(DEPDIR)/libgstopusparse_la-gstopus.Tpo -c -o libgstopusparse_la-gstopus.lo `test -f 'gstopus.c' || echo '$(srcdir)/'`gstopus.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopusparse_la-gstopus.Tpo $(DEPDIR)/libgstopusparse_la-gstopus.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstopus.c' object='libgstopusparse_la-gstopus.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -c -o libgstopus_la-gstopus.lo `test -f 'gstopus.c' || echo '$(srcdir)/'`gstopus.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopusparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopusparse_la_CFLAGS) $(CFLAGS) -c -o libgstopusparse_la-gstopus.lo `test -f 'gstopus.c' || echo '$(srcdir)/'`gstopus.c
 
-libgstopus_la-gstopusdec.lo: gstopusdec.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -MT libgstopus_la-gstopusdec.lo -MD -MP -MF $(DEPDIR)/libgstopus_la-gstopusdec.Tpo -c -o libgstopus_la-gstopusdec.lo `test -f 'gstopusdec.c' || echo '$(srcdir)/'`gstopusdec.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopus_la-gstopusdec.Tpo $(DEPDIR)/libgstopus_la-gstopusdec.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstopusdec.c' object='libgstopus_la-gstopusdec.lo' libtool=yes @AMDEPBACKSLASH@
+libgstopusparse_la-gstopusparse.lo: gstopusparse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopusparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopusparse_la_CFLAGS) $(CFLAGS) -MT libgstopusparse_la-gstopusparse.lo -MD -MP -MF $(DEPDIR)/libgstopusparse_la-gstopusparse.Tpo -c -o libgstopusparse_la-gstopusparse.lo `test -f 'gstopusparse.c' || echo '$(srcdir)/'`gstopusparse.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopusparse_la-gstopusparse.Tpo $(DEPDIR)/libgstopusparse_la-gstopusparse.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstopusparse.c' object='libgstopusparse_la-gstopusparse.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -c -o libgstopus_la-gstopusdec.lo `test -f 'gstopusdec.c' || echo '$(srcdir)/'`gstopusdec.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopusparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopusparse_la_CFLAGS) $(CFLAGS) -c -o libgstopusparse_la-gstopusparse.lo `test -f 'gstopusparse.c' || echo '$(srcdir)/'`gstopusparse.c
 
-libgstopus_la-gstopusenc.lo: gstopusenc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -MT libgstopus_la-gstopusenc.lo -MD -MP -MF $(DEPDIR)/libgstopus_la-gstopusenc.Tpo -c -o libgstopus_la-gstopusenc.lo `test -f 'gstopusenc.c' || echo '$(srcdir)/'`gstopusenc.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopus_la-gstopusenc.Tpo $(DEPDIR)/libgstopus_la-gstopusenc.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstopusenc.c' object='libgstopus_la-gstopusenc.lo' libtool=yes @AMDEPBACKSLASH@
+libgstopusparse_la-gstopusheader.lo: gstopusheader.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopusparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopusparse_la_CFLAGS) $(CFLAGS) -MT libgstopusparse_la-gstopusheader.lo -MD -MP -MF $(DEPDIR)/libgstopusparse_la-gstopusheader.Tpo -c -o libgstopusparse_la-gstopusheader.lo `test -f 'gstopusheader.c' || echo '$(srcdir)/'`gstopusheader.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopusparse_la-gstopusheader.Tpo $(DEPDIR)/libgstopusparse_la-gstopusheader.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstopusheader.c' object='libgstopusparse_la-gstopusheader.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -c -o libgstopus_la-gstopusenc.lo `test -f 'gstopusenc.c' || echo '$(srcdir)/'`gstopusenc.c
-
-libgstopus_la-gstopusparse.lo: gstopusparse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -MT libgstopus_la-gstopusparse.lo -MD -MP -MF $(DEPDIR)/libgstopus_la-gstopusparse.Tpo -c -o libgstopus_la-gstopusparse.lo `test -f 'gstopusparse.c' || echo '$(srcdir)/'`gstopusparse.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopus_la-gstopusparse.Tpo $(DEPDIR)/libgstopus_la-gstopusparse.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstopusparse.c' object='libgstopus_la-gstopusparse.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -c -o libgstopus_la-gstopusparse.lo `test -f 'gstopusparse.c' || echo '$(srcdir)/'`gstopusparse.c
-
-libgstopus_la-gstopusheader.lo: gstopusheader.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -MT libgstopus_la-gstopusheader.lo -MD -MP -MF $(DEPDIR)/libgstopus_la-gstopusheader.Tpo -c -o libgstopus_la-gstopusheader.lo `test -f 'gstopusheader.c' || echo '$(srcdir)/'`gstopusheader.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopus_la-gstopusheader.Tpo $(DEPDIR)/libgstopus_la-gstopusheader.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstopusheader.c' object='libgstopus_la-gstopusheader.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -c -o libgstopus_la-gstopusheader.lo `test -f 'gstopusheader.c' || echo '$(srcdir)/'`gstopusheader.c
-
-libgstopus_la-gstopuscommon.lo: gstopuscommon.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -MT libgstopus_la-gstopuscommon.lo -MD -MP -MF $(DEPDIR)/libgstopus_la-gstopuscommon.Tpo -c -o libgstopus_la-gstopuscommon.lo `test -f 'gstopuscommon.c' || echo '$(srcdir)/'`gstopuscommon.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopus_la-gstopuscommon.Tpo $(DEPDIR)/libgstopus_la-gstopuscommon.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstopuscommon.c' object='libgstopus_la-gstopuscommon.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -c -o libgstopus_la-gstopuscommon.lo `test -f 'gstopuscommon.c' || echo '$(srcdir)/'`gstopuscommon.c
-
-libgstopus_la-gstrtpopuspay.lo: gstrtpopuspay.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -MT libgstopus_la-gstrtpopuspay.lo -MD -MP -MF $(DEPDIR)/libgstopus_la-gstrtpopuspay.Tpo -c -o libgstopus_la-gstrtpopuspay.lo `test -f 'gstrtpopuspay.c' || echo '$(srcdir)/'`gstrtpopuspay.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopus_la-gstrtpopuspay.Tpo $(DEPDIR)/libgstopus_la-gstrtpopuspay.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstrtpopuspay.c' object='libgstopus_la-gstrtpopuspay.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -c -o libgstopus_la-gstrtpopuspay.lo `test -f 'gstrtpopuspay.c' || echo '$(srcdir)/'`gstrtpopuspay.c
-
-libgstopus_la-gstrtpopusdepay.lo: gstrtpopusdepay.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -MT libgstopus_la-gstrtpopusdepay.lo -MD -MP -MF $(DEPDIR)/libgstopus_la-gstrtpopusdepay.Tpo -c -o libgstopus_la-gstrtpopusdepay.lo `test -f 'gstrtpopusdepay.c' || echo '$(srcdir)/'`gstrtpopusdepay.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopus_la-gstrtpopusdepay.Tpo $(DEPDIR)/libgstopus_la-gstrtpopusdepay.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstrtpopusdepay.c' object='libgstopus_la-gstrtpopusdepay.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopus_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopus_la_CFLAGS) $(CFLAGS) -c -o libgstopus_la-gstrtpopusdepay.lo `test -f 'gstrtpopusdepay.c' || echo '$(srcdir)/'`gstrtpopusdepay.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopusparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopusparse_la_CFLAGS) $(CFLAGS) -c -o libgstopusparse_la-gstopusheader.lo `test -f 'gstopusheader.c' || echo '$(srcdir)/'`gstopusheader.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

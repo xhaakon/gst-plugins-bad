@@ -91,14 +91,14 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-noinst_PROGRAMS = pipelines/streamheader$(EXEEXT) $(am__EXEEXT_30)
+noinst_PROGRAMS = pipelines/streamheader$(EXEEXT) $(am__EXEEXT_29)
 check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4) \
 	$(am__EXEEXT_5) $(am__EXEEXT_6) $(am__EXEEXT_7) \
 	$(am__EXEEXT_8) $(am__EXEEXT_9) $(am__EXEEXT_10) \
 	$(am__EXEEXT_11) $(am__EXEEXT_12) $(am__EXEEXT_13) \
-	$(am__EXEEXT_14) $(am__EXEEXT_15) $(am__EXEEXT_17) \
-	$(am__EXEEXT_18) elements/aiffparse$(EXEEXT) \
+	$(am__EXEEXT_14) $(am__EXEEXT_16) $(am__EXEEXT_17) \
+	elements/aiffparse$(EXEEXT) \
 	elements/videoframe-audiolevel$(EXEEXT) \
 	elements/autoconvert$(EXEEXT) \
 	elements/autovideoconvert$(EXEEXT) \
@@ -106,21 +106,21 @@ check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	elements/asfmux$(EXEEXT) elements/camerabin$(EXEEXT) \
 	elements/dataurisrc$(EXEEXT) elements/gdppay$(EXEEXT) \
 	elements/gdpdepay$(EXEEXT) elements/compositor$(EXEEXT) \
-	$(am__EXEEXT_19) elements/jpegparse$(EXEEXT) \
+	$(am__EXEEXT_18) elements/jpegparse$(EXEEXT) \
 	elements/h263parse$(EXEEXT) elements/h264parse$(EXEEXT) \
 	elements/mpegtsmux$(EXEEXT) elements/mpegvideoparse$(EXEEXT) \
 	elements/mpeg4videoparse$(EXEEXT) elements/mxfdemux$(EXEEXT) \
 	elements/mxfmux$(EXEEXT) elements/netsim$(EXEEXT) \
 	elements/pcapparse$(EXEEXT) elements/rtponvifparse$(EXEEXT) \
 	elements/rtponviftimestamp$(EXEEXT) elements/id3mux$(EXEEXT) \
-	pipelines/mxf$(EXEEXT) $(am__EXEEXT_20) \
+	pipelines/mxf$(EXEEXT) $(am__EXEEXT_19) \
 	libs/mpegvideoparser$(EXEEXT) libs/mpegts$(EXEEXT) \
 	libs/h264parser$(EXEEXT) libs/vp8parser$(EXEEXT) \
-	libs/aggregator$(EXEEXT) $(am__EXEEXT_21) \
-	libs/vc1parser$(EXEEXT) $(am__EXEEXT_22) $(am__EXEEXT_23) \
-	elements/viewfinderbin$(EXEEXT) $(am__EXEEXT_24) \
-	$(am__EXEEXT_25) libs/insertbin$(EXEEXT) $(am__EXEEXT_26) \
-	$(am__EXEEXT_27) $(am__EXEEXT_28) $(am__EXEEXT_29)
+	libs/aggregator$(EXEEXT) $(am__EXEEXT_20) \
+	libs/vc1parser$(EXEEXT) $(am__EXEEXT_21) $(am__EXEEXT_22) \
+	elements/viewfinderbin$(EXEEXT) $(am__EXEEXT_23) \
+	$(am__EXEEXT_24) libs/insertbin$(EXEEXT) $(am__EXEEXT_25) \
+	$(am__EXEEXT_26) $(am__EXEEXT_27) $(am__EXEEXT_28)
 @WITH_GST_PLAYER_TESTS_TRUE@am__append_1 = $(PLAYER_MEDIA_FILES) libs/player_dummy.c
 subdir = tests/check
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -191,31 +191,30 @@ libparser_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 @USE_TIMIDITY_TRUE@am__EXEEXT_12 = elements/timidity$(EXEEXT)
 @USE_KATE_TRUE@am__EXEEXT_13 = elements/kate$(EXEEXT)
 @USE_OPENCV_TRUE@am__EXEEXT_14 = elements/templatematch$(EXEEXT)
-@USE_OPUS_TRUE@am__EXEEXT_15 = elements/opus$(EXEEXT)
-@USE_SSH2_TRUE@am__EXEEXT_16 = elements/curlsftpsink$(EXEEXT)
-@USE_CURL_TRUE@am__EXEEXT_17 = elements/curlhttpsink$(EXEEXT) \
+@USE_SSH2_TRUE@am__EXEEXT_15 = elements/curlsftpsink$(EXEEXT)
+@USE_CURL_TRUE@am__EXEEXT_16 = elements/curlhttpsink$(EXEEXT) \
 @USE_CURL_TRUE@	elements/curlfilesink$(EXEEXT) \
-@USE_CURL_TRUE@	elements/curlftpsink$(EXEEXT) $(am__EXEEXT_16) \
+@USE_CURL_TRUE@	elements/curlftpsink$(EXEEXT) $(am__EXEEXT_15) \
 @USE_CURL_TRUE@	elements/curlsmtpsink$(EXEEXT)
-@USE_SHM_TRUE@am__EXEEXT_18 = elements/shm$(EXEEXT)
-@USE_EXIF_TRUE@am__EXEEXT_19 = elements/jifmux$(EXEEXT)
-@USE_MIMIC_TRUE@am__EXEEXT_20 = pipelines/mimic$(EXEEXT)
-@USE_UVCH264_TRUE@am__EXEEXT_21 = elements/uvch264demux$(EXEEXT)
-@USE_SCHRO_TRUE@am__EXEEXT_22 = elements/schroenc$(EXEEXT)
-@USE_X265_TRUE@am__EXEEXT_23 = elements/x265enc$(EXEEXT)
-@USE_ZBAR_TRUE@am__EXEEXT_24 = elements/zbar$(EXEEXT)
-@HAVE_ORC_TRUE@am__EXEEXT_25 = orc/bayer$(EXEEXT) \
+@USE_SHM_TRUE@am__EXEEXT_17 = elements/shm$(EXEEXT)
+@USE_EXIF_TRUE@am__EXEEXT_18 = elements/jifmux$(EXEEXT)
+@USE_MIMIC_TRUE@am__EXEEXT_19 = pipelines/mimic$(EXEEXT)
+@USE_UVCH264_TRUE@am__EXEEXT_20 = elements/uvch264demux$(EXEEXT)
+@USE_SCHRO_TRUE@am__EXEEXT_21 = elements/schroenc$(EXEEXT)
+@USE_X265_TRUE@am__EXEEXT_22 = elements/x265enc$(EXEEXT)
+@USE_ZBAR_TRUE@am__EXEEXT_23 = elements/zbar$(EXEEXT)
+@HAVE_ORC_TRUE@am__EXEEXT_24 = orc/bayer$(EXEEXT) \
 @HAVE_ORC_TRUE@	orc/audiomixer$(EXEEXT) orc/compositor$(EXEEXT)
-@USE_GL_TRUE@am__EXEEXT_26 = libs/gstglcontext$(EXEEXT) \
+@USE_GL_TRUE@am__EXEEXT_25 = libs/gstglcontext$(EXEEXT) \
 @USE_GL_TRUE@	libs/gstglmemory$(EXEEXT) \
 @USE_GL_TRUE@	libs/gstglupload$(EXEEXT) \
 @USE_GL_TRUE@	libs/gstglcolorconvert$(EXEEXT) \
 @USE_GL_TRUE@	libs/gstglquery$(EXEEXT) libs/gstglsl$(EXEEXT) \
 @USE_GL_TRUE@	elements/glimagesink$(EXEEXT)
-@USE_HLS_TRUE@am__EXEEXT_27 = elements/hlsdemux_m3u8$(EXEEXT)
-@USE_HLS_TRUE@am__EXEEXT_28 = elements/hls_demux$(EXEEXT)
-@WITH_GST_PLAYER_TESTS_TRUE@am__EXEEXT_29 = libs/player$(EXEEXT)
-@USE_NEON_TRUE@am__EXEEXT_30 = elements/neonhttpsrc$(EXEEXT)
+@USE_HLS_TRUE@am__EXEEXT_26 = elements/hlsdemux_m3u8$(EXEEXT)
+@USE_HLS_TRUE@am__EXEEXT_27 = elements/hls_demux$(EXEEXT)
+@WITH_GST_PLAYER_TESTS_TRUE@am__EXEEXT_28 = libs/player$(EXEEXT)
+@USE_NEON_TRUE@am__EXEEXT_29 = elements/neonhttpsrc$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 elements_aiffparse_SOURCES = elements/aiffparse.c
 elements_aiffparse_OBJECTS = elements/aiffparse.$(OBJEXT)
@@ -485,10 +484,6 @@ elements_ofa_SOURCES = elements/ofa.c
 elements_ofa_OBJECTS = elements/ofa.$(OBJEXT)
 elements_ofa_LDADD = $(LDADD)
 elements_ofa_DEPENDENCIES = $(am__DEPENDENCIES_1)
-elements_opus_SOURCES = elements/opus.c
-elements_opus_OBJECTS = elements/opus.$(OBJEXT)
-elements_opus_LDADD = $(LDADD)
-elements_opus_DEPENDENCIES = $(am__DEPENDENCIES_1)
 elements_pcapparse_SOURCES = elements/pcapparse.c
 elements_pcapparse_OBJECTS = elements/pcapparse.$(OBJEXT)
 elements_pcapparse_DEPENDENCIES = libparser.la $(am__DEPENDENCIES_2)
@@ -812,22 +807,21 @@ SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/mpegtsmux.c elements/mpegvideoparse.c \
 	elements/mplex.c $(elements_mssdemux_SOURCES) \
 	elements/mxfdemux.c elements/mxfmux.c elements/neonhttpsrc.c \
-	elements/netsim.c elements/ofa.c elements/opus.c \
-	elements/pcapparse.c elements/rtponvifparse.c \
-	elements/rtponviftimestamp.c elements/schroenc.c \
-	elements/shm.c elements/templatematch.c elements/timidity.c \
-	elements/uvch264demux.c elements/videoframe-audiolevel.c \
-	elements/viewfinderbin.c elements/voaacenc.c \
-	elements/voamrwbenc.c elements/x265enc.c elements/zbar.c \
-	generic/states.c libs/aggregator.c libs/gstglcolorconvert.c \
-	libs/gstglcontext.c libs/gstglmemory.c libs/gstglquery.c \
-	libs/gstglsl.c libs/gstglupload.c libs/h264parser.c \
-	libs/insertbin.c libs/mpegts.c libs/mpegvideoparser.c \
-	$(libs_player_SOURCES) $(nodist_libs_player_SOURCES) \
-	libs/vc1parser.c libs/vp8parser.c \
-	$(nodist_orc_audiomixer_SOURCES) $(nodist_orc_bayer_SOURCES) \
-	$(nodist_orc_compositor_SOURCES) pipelines/mimic.c \
-	pipelines/mxf.c pipelines/streamheader.c
+	elements/netsim.c elements/ofa.c elements/pcapparse.c \
+	elements/rtponvifparse.c elements/rtponviftimestamp.c \
+	elements/schroenc.c elements/shm.c elements/templatematch.c \
+	elements/timidity.c elements/uvch264demux.c \
+	elements/videoframe-audiolevel.c elements/viewfinderbin.c \
+	elements/voaacenc.c elements/voamrwbenc.c elements/x265enc.c \
+	elements/zbar.c generic/states.c libs/aggregator.c \
+	libs/gstglcolorconvert.c libs/gstglcontext.c \
+	libs/gstglmemory.c libs/gstglquery.c libs/gstglsl.c \
+	libs/gstglupload.c libs/h264parser.c libs/insertbin.c \
+	libs/mpegts.c libs/mpegvideoparser.c $(libs_player_SOURCES) \
+	$(nodist_libs_player_SOURCES) libs/vc1parser.c \
+	libs/vp8parser.c $(nodist_orc_audiomixer_SOURCES) \
+	$(nodist_orc_bayer_SOURCES) $(nodist_orc_compositor_SOURCES) \
+	pipelines/mimic.c pipelines/mxf.c pipelines/streamheader.c
 DIST_SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/asfmux.c elements/assrender.c \
 	elements/audiointerleave.c elements/audiomixer.c \
@@ -846,19 +840,19 @@ DIST_SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/mpegtsmux.c elements/mpegvideoparse.c \
 	elements/mplex.c $(elements_mssdemux_SOURCES) \
 	elements/mxfdemux.c elements/mxfmux.c elements/neonhttpsrc.c \
-	elements/netsim.c elements/ofa.c elements/opus.c \
-	elements/pcapparse.c elements/rtponvifparse.c \
-	elements/rtponviftimestamp.c elements/schroenc.c \
-	elements/shm.c elements/templatematch.c elements/timidity.c \
-	elements/uvch264demux.c elements/videoframe-audiolevel.c \
-	elements/viewfinderbin.c elements/voaacenc.c \
-	elements/voamrwbenc.c elements/x265enc.c elements/zbar.c \
-	generic/states.c libs/aggregator.c libs/gstglcolorconvert.c \
-	libs/gstglcontext.c libs/gstglmemory.c libs/gstglquery.c \
-	libs/gstglsl.c libs/gstglupload.c libs/h264parser.c \
-	libs/insertbin.c libs/mpegts.c libs/mpegvideoparser.c \
-	$(libs_player_SOURCES) libs/vc1parser.c libs/vp8parser.c \
-	pipelines/mimic.c pipelines/mxf.c pipelines/streamheader.c
+	elements/netsim.c elements/ofa.c elements/pcapparse.c \
+	elements/rtponvifparse.c elements/rtponviftimestamp.c \
+	elements/schroenc.c elements/shm.c elements/templatematch.c \
+	elements/timidity.c elements/uvch264demux.c \
+	elements/videoframe-audiolevel.c elements/viewfinderbin.c \
+	elements/voaacenc.c elements/voamrwbenc.c elements/x265enc.c \
+	elements/zbar.c generic/states.c libs/aggregator.c \
+	libs/gstglcolorconvert.c libs/gstglcontext.c \
+	libs/gstglmemory.c libs/gstglquery.c libs/gstglsl.c \
+	libs/gstglupload.c libs/h264parser.c libs/insertbin.c \
+	libs/mpegts.c libs/mpegvideoparser.c $(libs_player_SOURCES) \
+	libs/vc1parser.c libs/vp8parser.c pipelines/mimic.c \
+	pipelines/mxf.c pipelines/streamheader.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -1696,8 +1690,6 @@ SUPPRESSIONS = $(top_srcdir)/common/gst.supp $(srcdir)/gst-plugins-bad.supp
 @USE_ZBAR_TRUE@check_zbar = elements/zbar
 @USE_OPENCV_FALSE@check_opencv = 
 @USE_OPENCV_TRUE@check_opencv = elements/templatematch
-@USE_OPUS_FALSE@check_opus = 
-@USE_OPUS_TRUE@check_opus = elements/opus
 @USE_SSH2_FALSE@check_curl_sftp = 
 @USE_SSH2_TRUE@check_curl_sftp = elements/curlsftpsink
 @USE_HLS_FALSE@check_hlsdemux_m3u8 = 
@@ -2378,12 +2370,6 @@ elements/ofa.$(OBJEXT): elements/$(am__dirstamp) \
 elements/ofa$(EXEEXT): $(elements_ofa_OBJECTS) $(elements_ofa_DEPENDENCIES) $(EXTRA_elements_ofa_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/ofa$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(elements_ofa_OBJECTS) $(elements_ofa_LDADD) $(LIBS)
-elements/opus.$(OBJEXT): elements/$(am__dirstamp) \
-	elements/$(DEPDIR)/$(am__dirstamp)
-
-elements/opus$(EXEEXT): $(elements_opus_OBJECTS) $(elements_opus_DEPENDENCIES) $(EXTRA_elements_opus_DEPENDENCIES) elements/$(am__dirstamp)
-	@rm -f elements/opus$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(elements_opus_OBJECTS) $(elements_opus_LDADD) $(LIBS)
 elements/pcapparse.$(OBJEXT): elements/$(am__dirstamp) \
 	elements/$(DEPDIR)/$(am__dirstamp)
 
@@ -2690,7 +2676,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/neonhttpsrc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/netsim.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/ofa.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/opus.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/pcapparse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/schroenc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/shm.Po@am__quote@
@@ -3800,13 +3785,6 @@ elements/kate.log: elements/kate$(EXEEXT)
 elements/templatematch.log: elements/templatematch$(EXEEXT)
 	@p='elements/templatematch$(EXEEXT)'; \
 	b='elements/templatematch'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-elements/opus.log: elements/opus$(EXEEXT)
-	@p='elements/opus$(EXEEXT)'; \
-	b='elements/opus'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

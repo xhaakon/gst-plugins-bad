@@ -6,6 +6,7 @@
       <sub name="aiffparse" link="gst-plugins-bad-plugins-aiffparse.html"/>
       <sub name="aiffmux" link="gst-plugins-bad-plugins-aiffmux.html"/>
       <sub name="assrender" link="gst-plugins-bad-plugins-assrender.html"/>
+      <sub name="audiointerleave" link="gst-plugins-bad-plugins-audiointerleave.html"/>
       <sub name="audiomixer" link="gst-plugins-bad-plugins-audiomixer.html"/>
       <sub name="autoconvert" link="gst-plugins-bad-plugins-autoconvert.html"/>
       <sub name="bs2b" link="gst-plugins-bad-plugins-bs2b.html"/>
@@ -56,11 +57,6 @@
       <sub name="ofa" link="gst-plugins-bad-plugins-ofa.html"/>
       <sub name="openalsrc" link="gst-plugins-bad-plugins-openalsrc.html"/>
       <sub name="openalsink" link="gst-plugins-bad-plugins-openalsink.html"/>
-      <sub name="opusdec" link="gst-plugins-bad-plugins-opusdec.html"/>
-      <sub name="opusenc" link="gst-plugins-bad-plugins-opusenc.html"/>
-      <sub name="opusparse" link="gst-plugins-bad-plugins-opusparse.html"/>
-      <sub name="rtpopuspay" link="gst-plugins-bad-plugins-rtpopuspay.html"/>
-      <sub name="rtpopusdepay" link="gst-plugins-bad-plugins-rtpopusdepay.html"/>
       <sub name="pcapparse" link="gst-plugins-bad-plugins-pcapparse.html"/>
       <sub name="pinch" link="gst-plugins-bad-plugins-pinch.html"/>
       <sub name="pyramidsegment" link="gst-plugins-bad-plugins-pyramidsegment.html"/>
@@ -124,7 +120,6 @@
       <sub name="ofa" link="gst-plugins-bad-plugins-plugin-ofa.html"/>
       <sub name="openal" link="gst-plugins-bad-plugins-plugin-openal.html"/>
       <sub name="opencv" link="gst-plugins-bad-plugins-plugin-opencv.html"/>
-      <sub name="opus" link="gst-plugins-bad-plugins-plugin-opus.html"/>
       <sub name="pcapparse" link="gst-plugins-bad-plugins-plugin-pcapparse.html"/>
       <sub name="rawparse" link="gst-plugins-bad-plugins-plugin-rawparse.html"/>
       <sub name="rfbsrc" link="gst-plugins-bad-plugins-plugin-rfbsrc.html"/>
@@ -148,6 +143,9 @@
     <keyword type="property" name="The “embeddedfonts” property" link="gst-plugins-bad-plugins-assrender.html#GstAssRender--embeddedfonts"/>
     <keyword type="property" name="The “enable” property" link="gst-plugins-bad-plugins-assrender.html#GstAssRender--enable"/>
     <keyword type="property" name="The “wait-text” property" link="gst-plugins-bad-plugins-assrender.html#GstAssRender--wait-text"/>
+    <keyword type="struct" name="struct GstAudioInterleave" link="gst-plugins-bad-plugins-audiointerleave.html#GstAudioInterleave-struct"/>
+    <keyword type="property" name="The “channel-positions” property" link="gst-plugins-bad-plugins-audiointerleave.html#GstAudioInterleave--channel-positions"/>
+    <keyword type="property" name="The “channel-positions-from-input” property" link="gst-plugins-bad-plugins-audiointerleave.html#GstAudioInterleave--channel-positions-from-input"/>
     <keyword type="struct" name="struct GstAudioMixer" link="gst-plugins-bad-plugins-audiomixer.html#GstAudioMixer-struct"/>
     <keyword type="property" name="The “alignment-threshold” property" link="gst-plugins-bad-plugins-audiomixer.html#GstAudioMixer--alignment-threshold"/>
     <keyword type="property" name="The “caps” property" link="gst-plugins-bad-plugins-audiomixer.html#GstAudioMixer--caps"/>
@@ -173,15 +171,15 @@
     <keyword type="struct" name="struct GstColorEffects" link="gst-plugins-bad-plugins-coloreffects.html#GstColorEffects-struct"/>
     <keyword type="property" name="The “preset” property" link="gst-plugins-bad-plugins-coloreffects.html#GstColorEffects--preset"/>
     <keyword type="property" name="The “background” property" link="gst-plugins-bad-plugins-compositor.html#GstCompositor--background"/>
-    <keyword type="struct" name="struct GstCvDilate" link="gst-plugins-bad-plugins-cvdilate.html#GstCvDilate-struct"/>
-    <keyword type="struct" name="struct GstCvErode" link="gst-plugins-bad-plugins-cverode.html#GstCvErode-struct"/>
-    <keyword type="struct" name="struct GstCvEqualizeHist" link="gst-plugins-bad-plugins-cvequalizehist.html#GstCvEqualizeHist-struct"/>
-    <keyword type="struct" name="struct GstCvLaplace" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace-struct"/>
+    <keyword type="struct" name="struct GstCvDilate" link="gst-plugins-bad-plugins-cvdilate.html#GstCvDilate"/>
+    <keyword type="struct" name="struct GstCvErode" link="gst-plugins-bad-plugins-cverode.html#GstCvErode"/>
+    <keyword type="struct" name="struct GstCvEqualizeHist" link="gst-plugins-bad-plugins-cvequalizehist.html#GstCvEqualizeHist"/>
+    <keyword type="struct" name="struct GstCvLaplace" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace"/>
     <keyword type="property" name="The “aperture-size” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--aperture-size"/>
     <keyword type="property" name="The “scale” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--scale"/>
     <keyword type="property" name="The “shift” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--shift"/>
     <keyword type="property" name="The “mask” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--mask"/>
-    <keyword type="struct" name="struct GstCvSmooth" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth-struct"/>
+    <keyword type="struct" name="struct GstCvSmooth" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth"/>
     <keyword type="property" name="The “param1” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--param1"/>
     <keyword type="property" name="The “param2” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--param2"/>
     <keyword type="property" name="The “param3” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--param3"/>
@@ -191,7 +189,7 @@
     <keyword type="property" name="The “height” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--height"/>
     <keyword type="property" name="The “spatial” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--spatial"/>
     <keyword type="property" name="The “width” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--width"/>
-    <keyword type="struct" name="struct GstCvSobel" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel-struct"/>
+    <keyword type="struct" name="struct GstCvSobel" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel"/>
     <keyword type="property" name="The “aperture-size” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--aperture-size"/>
     <keyword type="property" name="The “x-order” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--x-order"/>
     <keyword type="property" name="The “y-order” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--y-order"/>
@@ -399,26 +397,6 @@
     <keyword type="struct" name="struct GstOpenalSrc" link="gst-plugins-bad-plugins-openalsrc.html#GstOpenalSrc-struct"/>
     <keyword type="property" name="The “device” property" link="gst-plugins-bad-plugins-openalsrc.html#GstOpenalSrc--device"/>
     <keyword type="property" name="The “device-name” property" link="gst-plugins-bad-plugins-openalsrc.html#GstOpenalSrc--device-name"/>
-    <keyword type="struct" name="struct GstOpusDec" link="gst-plugins-bad-plugins-opusdec.html#GstOpusDec-struct"/>
-    <keyword type="property" name="The “apply-gain” property" link="gst-plugins-bad-plugins-opusdec.html#GstOpusDec--apply-gain"/>
-    <keyword type="property" name="The “use-inband-fec” property" link="gst-plugins-bad-plugins-opusdec.html#GstOpusDec--use-inband-fec"/>
-    <keyword type="struct" name="struct GstOpusEnc" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc-struct"/>
-    <keyword type="property" name="The “audio” property" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc--audio"/>
-    <keyword type="property" name="The “bandwidth” property" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc--bandwidth"/>
-    <keyword type="property" name="The “bitrate” property" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc--bitrate"/>
-    <keyword type="property" name="The “cbr” property" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc--cbr"/>
-    <keyword type="property" name="The “complexity” property" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc--complexity"/>
-    <keyword type="property" name="The “constrained-vbr” property" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc--constrained-vbr"/>
-    <keyword type="property" name="The “dtx” property" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc--dtx"/>
-    <keyword type="property" name="The “frame-size” property" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc--frame-size"/>
-    <keyword type="property" name="The “inband-fec” property" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc--inband-fec"/>
-    <keyword type="property" name="The “max-payload-size” property" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc--max-payload-size"/>
-    <keyword type="property" name="The “packet-loss-percentage” property" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc--packet-loss-percentage"/>
-    <keyword type="property" name="The “audio-type” property" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc--audio-type"/>
-    <keyword type="property" name="The “bitrate-type” property" link="gst-plugins-bad-plugins-opusenc.html#GstOpusEnc--bitrate-type"/>
-    <keyword type="struct" name="struct GstOpusParse" link="gst-plugins-bad-plugins-opusparse.html#GstOpusParse-struct"/>
-    <keyword type="struct" name="struct GstRtpOPUSPay" link="gst-plugins-bad-plugins-rtpopuspay.html#GstRtpOPUSPay-struct"/>
-    <keyword type="struct" name="struct GstRTPOpusDepay" link="gst-plugins-bad-plugins-rtpopusdepay.html#GstRTPOpusDepay-struct"/>
     <keyword type="struct" name="struct GstPcapParse" link="gst-plugins-bad-plugins-pcapparse.html#GstPcapParse-struct"/>
     <keyword type="property" name="The “dst-ip” property" link="gst-plugins-bad-plugins-pcapparse.html#GstPcapParse--dst-ip"/>
     <keyword type="property" name="The “dst-port” property" link="gst-plugins-bad-plugins-pcapparse.html#GstPcapParse--dst-port"/>
@@ -481,11 +459,11 @@
     <keyword type="property" name="The “zoom” property" link="gst-plugins-bad-plugins-square.html#GstSquare--zoom"/>
     <keyword type="struct" name="struct GstStretch" link="gst-plugins-bad-plugins-stretch.html#GstStretch-struct"/>
     <keyword type="property" name="The “intensity” property" link="gst-plugins-bad-plugins-stretch.html#GstStretch--intensity"/>
-    <keyword type="struct" name="struct GstTemplateMatch" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch-struct"/>
+    <keyword type="struct" name="struct GstTemplateMatch" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch"/>
     <keyword type="property" name="The “display” property" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch--display"/>
     <keyword type="property" name="The “method” property" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch--method"/>
     <keyword type="property" name="The “template” property" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch--template"/>
-    <keyword type="struct" name="struct GstOpencvTextOverlay" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay-struct"/>
+    <keyword type="struct" name="struct GstOpencvTextOverlay" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay"/>
     <keyword type="property" name="The “colorB” property" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay--colorB"/>
     <keyword type="property" name="The “colorG” property" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay--colorG"/>
     <keyword type="property" name="The “colorR” property" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay--colorR"/>
