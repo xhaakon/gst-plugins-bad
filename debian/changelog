@@ -1,8 +1,18 @@
-gst-plugins-bad1.0 (1.7.2-2) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.7.90-1) experimental; urgency=medium
 
+  [ Iain Lane ]
   * debian/watch: Fix to work with upstream locations
 
- -- Iain Lane <iain.lane@canonical.com>  Mon, 22 Feb 2016 10:34:10 +0000
+  [ Sebastian Dröge ]
+  * New upstream release candidate:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GStreamer >= 1.7.90.
+    + debian/gstreamer-plugins-bad.install:
+      - Ship new opusparse plugin, renamed from opus and only contains
+        the parser now.
+
+ -- Sebastian Dröge <slomo@debian.org>  Tue, 01 Mar 2016 17:25:00 +0200
 
 gst-plugins-bad1.0 (1.7.2-1) experimental; urgency=medium
 
