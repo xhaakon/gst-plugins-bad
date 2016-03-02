@@ -46,7 +46,6 @@ libgsm1-dev
 libgstreamer-plugins-base@GST_ABI@-dev (>= 1.7.90)
 libgtk-3-dev (>= 3.15.0)
 libiptcdata0-dev (>= 1.0.2)
-libjasper-dev
 libkate-dev (>= 0.1.7)
 libmimic-dev (>= 1.0)
 libmjpegtools-dev

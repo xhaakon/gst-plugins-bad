@@ -1,3 +1,10 @@
+gst-plugins-bad1.0 (1.7.90-2) UNRELEASED; urgency=medium
+
+  * debian/build-deps.in:
+    + Remove libjasper-dev. It's unused and supposed to be removed soon.
+
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 02 Mar 2016 16:45:09 +0200
+
 gst-plugins-bad1.0 (1.7.90-1) experimental; urgency=medium
 
   [ Iain Lane ]
