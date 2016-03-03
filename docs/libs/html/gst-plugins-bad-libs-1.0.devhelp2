@@ -780,6 +780,9 @@
     <keyword type="function" name="gst_player_video_overlay_video_renderer_new ()" link="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-new"/>
     <keyword type="function" name="gst_player_video_overlay_video_renderer_get_window_handle ()" link="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-get-window-handle"/>
     <keyword type="function" name="gst_player_video_overlay_video_renderer_set_window_handle ()" link="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-set-window-handle"/>
+    <keyword type="function" name="gst_player_video_overlay_video_renderer_expose ()" link="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-expose"/>
+    <keyword type="function" name="gst_player_video_overlay_video_renderer_get_render_rectangle ()" link="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-get-render-rectangle"/>
+    <keyword type="function" name="gst_player_video_overlay_video_renderer_set_render_rectangle ()" link="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-set-render-rectangle"/>
     <keyword type="function" name="gst_player_visualizations_get ()" link="gst-plugins-bad-libs-gstplayer-visualization.html#gst-player-visualizations-get"/>
     <keyword type="function" name="gst_player_visualizations_free ()" link="gst-plugins-bad-libs-gstplayer-visualization.html#gst-player-visualizations-free"/>
     <keyword type="function" name="gst_player_visualization_copy ()" link="gst-plugins-bad-libs-gstplayer-visualization.html#gst-player-visualization-copy"/>

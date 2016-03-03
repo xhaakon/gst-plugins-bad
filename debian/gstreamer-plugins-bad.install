@@ -63,7 +63,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopencv.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopengl.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenexr.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenjpeg.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopus.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopusparse.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstpcapparse.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstpnm.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrawparse.so

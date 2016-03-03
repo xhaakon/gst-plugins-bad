@@ -1771,6 +1771,9 @@
 <ANCHOR id="gst-player-video-overlay-video-renderer-new" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-new">
 <ANCHOR id="gst-player-video-overlay-video-renderer-get-window-handle" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-get-window-handle">
 <ANCHOR id="gst-player-video-overlay-video-renderer-set-window-handle" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-set-window-handle">
+<ANCHOR id="gst-player-video-overlay-video-renderer-expose" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-expose">
+<ANCHOR id="gst-player-video-overlay-video-renderer-get-render-rectangle" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-get-render-rectangle">
+<ANCHOR id="gst-player-video-overlay-video-renderer-set-render-rectangle" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-set-render-rectangle">
 <ANCHOR id="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.other_details" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.other_details">
 <ANCHOR id="gst-plugins-bad-libs-gstplayer-visualization" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-gstplayer-visualization.html">
 <ANCHOR id="gst-plugins-bad-libs-gstplayer-visualization.functions" href="gst-plugins-bad-libs-1.0/gst-plugins-bad-libs-gstplayer-visualization.html#gst-plugins-bad-libs-gstplayer-visualization.functions">
