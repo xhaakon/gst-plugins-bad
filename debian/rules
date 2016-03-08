@@ -223,6 +223,10 @@ DEB_CONFIGURE_EXTRA_FLAGS += --disable-opengl --disable-glx
 endif
 
 common-binary-fixup-arch::
+	rm -r $(CURDIR)/debian/libgstreamer-plugins-bad$(gst_abi)-dev/usr/include/*/*/basecamerabinsrc \
+		$(CURDIR)/debian/libgstreamer-plugins-bad$(gst_abi)-dev/usr/include/*/*/interfaces/photography* \
+		$(CURDIR)/debian/libgstreamer-plugins-bad$(gst_abi)-dev/usr/lib/*/libgstbasecamerabinsrc* \
+		$(CURDIR)/debian/libgstreamer-plugins-bad$(gst_abi)-dev/usr/lib/*/libgstphotography*
 	LD_LIBRARY_PATH=debian/libgstreamer-plugins-bad1.0-0/usr/lib/$(DEB_HOST_MULTIARCH):$(LD_LIBRARY_PATH) \
 		dh_gstscancodecs
 
