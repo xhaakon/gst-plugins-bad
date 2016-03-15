@@ -1,7 +1,12 @@
-gst-plugins-bad1.0 (1.7.90-2) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.7.91-1) experimental; urgency=medium
 
   * debian/build-deps.in:
     + Remove libjasper-dev. It's unused and supposed to be removed soon.
+      (Closes: #818213).
+  * New upstream release candidate:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GStreamer >= 1.7.91.
 
  -- Sebastian Dröge <slomo@debian.org>  Wed, 02 Mar 2016 16:45:09 +0200
 
