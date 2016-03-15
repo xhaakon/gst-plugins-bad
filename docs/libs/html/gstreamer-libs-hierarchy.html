@@ -26,6 +26,11 @@
     <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
     <span class="lineart">├──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
     <span class="lineart">│</span>   <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
+    <span class="lineart">│</span>       <span class="lineart">├──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstAllocator.html">GstAllocator</a>
+    <span class="lineart">│</span>       <span class="lineart">│</span>   <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocator">GstGLBaseMemoryAllocator</a>
+    <span class="lineart">│</span>       <span class="lineart">│</span>       <span class="lineart">├──</span> <a class="link" href="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocator">GstGLBufferAllocator</a>
+    <span class="lineart">│</span>       <span class="lineart">│</span>       <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemoryAllocator">GstGLMemoryAllocator</a>
+    <span class="lineart">│</span>       <span class="lineart">│</span>           <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-gstglmemorypbo.html#GstGLMemoryPBOAllocator">GstGLMemoryPBOAllocator</a>
     <span class="lineart">│</span>       <span class="lineart">├──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
     <span class="lineart">│</span>       <span class="lineart">│</span>   <span class="lineart">├──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBin.html">GstBin</a>
     <span class="lineart">│</span>       <span class="lineart">│</span>   <span class="lineart">│</span>   <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-GstInsertbin.html#GstInsertBin">GstInsertBin</a>
@@ -37,8 +42,10 @@
     <span class="lineart">│</span>       <span class="lineart">├──</span> <a class="link" href="GstGLColorConvert.html" title="GstGLColorConvert">GstGLColorConvert</a>
     <span class="lineart">│</span>       <span class="lineart">├──</span> <a class="link" href="GstGLContext.html" title="GstGLContext">GstGLContext</a>
     <span class="lineart">│</span>       <span class="lineart">├──</span> <a class="link" href="GstGLDisplay.html" title="GstGLDisplay">GstGLDisplay</a>
-    <span class="lineart">│</span>       <span class="lineart">├──</span> <a class="link" href="gst-plugins-bad-libs-gstglshader.html#GstGLShader">GstGLShader</a>
+    <span class="lineart">│</span>       <span class="lineart">├──</span> <a class="link" href="GstGLShader.html" title="GstGLShader">GstGLShader</a>
+    <span class="lineart">│</span>       <span class="lineart">├──</span> <a class="link" href=".html#GstGLSLStage">GstGLSLStage</a>
     <span class="lineart">│</span>       <span class="lineart">├──</span> <a class="link" href="GstGLUpload.html" title="GstGLUpload">GstGLUpload</a>
+    <span class="lineart">│</span>       <span class="lineart">├──</span> GstGLViewConvert
     <span class="lineart">│</span>       <span class="lineart">├──</span> <a class="link" href="GstGLWindow.html" title="GstGLWindow">GstGLWindow</a>
     <span class="lineart">│</span>       <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-gstplayer.html#GstPlayer">GstPlayer</a>
     <span class="lineart">├──</span> <a class="link" href="GstGLFramebuffer.html" title="GstGLFramebuffer">GstGLFramebuffer</a>
@@ -70,7 +77,8 @@
     <span class="lineart">├──</span> <a class="link" href="gst-plugins-bad-libs-Base-MPEG-TS-sections.html#GstMpegtsStreamType" title="enum GstMpegtsStreamType">GstMpegtsStreamType</a>
     <span class="lineart">├──</span> <a class="link" href="gst-plugins-bad-libs-gstplayer.html#GstPlayerColorBalanceType" title="enum GstPlayerColorBalanceType">GstPlayerColorBalanceType</a>
     <span class="lineart">├──</span> <a class="link" href="gst-plugins-bad-libs-gstplayer.html#GstPlayerError" title="enum GstPlayerError">GstPlayerError</a>
-    <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-gstplayer.html#GstPlayerState" title="enum GstPlayerState">GstPlayerState</a>
+    <span class="lineart">├──</span> <a class="link" href="gst-plugins-bad-libs-gstplayer.html#GstPlayerState" title="enum GstPlayerState">GstPlayerState</a>
+    <span class="lineart">╰──</span> GstGLStereoDownmix
 </pre>
 </div>
 <div class="footer">

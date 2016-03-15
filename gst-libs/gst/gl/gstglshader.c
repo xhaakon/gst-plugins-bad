@@ -27,6 +27,12 @@
 #include "gstglshader.h"
 #include "gstglsl_private.h"
 
+/**
+ * SECTION:gstglshader
+ * @short_description: object representing an OpenGL shader program
+ * @see_also: #GstGLSLStage
+ */
+
 #ifndef GLhandleARB
 #define GLhandleARB GLuint
 #endif
@@ -261,6 +267,7 @@ _new_with_stages_va_list (GstGLContext * context, GError ** error,
  * gst_gl_shader_new_link_with_stages:
  * @context: a #GstGLContext
  * @error: a #GError
+ * @...: a NULL terminated list of #GstGLSLStage's
  *
  * Each stage will attempt to be compiled and attached to @shader.  Then
  * the shader will be linked. On error, %NULL will be returned and @error will
@@ -269,6 +276,8 @@ _new_with_stages_va_list (GstGLContext * context, GError ** error,
  * Note: must be called in the GL thread
  *
  * Returns: (transfer full): a new @shader with the specified stages.
+ *
+ * Since: 1.8
  */
 GstGLShader *
 gst_gl_shader_new_link_with_stages (GstGLContext * context, GError ** error,
@@ -294,6 +303,7 @@ gst_gl_shader_new_link_with_stages (GstGLContext * context, GError ** error,
  * gst_gl_shader_new_with_stages:
  * @context: a #GstGLContext
  * @error: a #GError
+ * @...: a NULL terminated list of #GstGLSLStage's
  *
  * Each stage will attempt to be compiled and attached to @shader.  On error,
  * %NULL will be returned and @error will contain the details of the error.
@@ -301,6 +311,8 @@ gst_gl_shader_new_link_with_stages (GstGLContext * context, GError ** error,
  * Note: must be called in the GL thread
  *
  * Returns: (transfer full): a new @shader with the specified stages.
+ *
+ * Since: 1.8
  */
 GstGLShader *
 gst_gl_shader_new_with_stages (GstGLContext * context, GError ** error, ...)
@@ -332,10 +344,13 @@ gst_gl_shader_new (GstGLContext * context)
 /**
  * gst_gl_shader_new_default:
  * @context: a #GstGLContext
+ * @error: a #GError that is filled on failure
  *
  * Note: must be called in the GL thread
  *
- * Returns: (transfer full): a default @shader
+ * Returns: (transfer full): a default @shader or %NULL on failure
+ *
+ * Since: 1.8
  */
 GstGLShader *
 gst_gl_shader_new_default (GstGLContext * context, GError ** error)
@@ -352,6 +367,8 @@ gst_gl_shader_new_default (GstGLContext * context, GError ** error)
  * Note: must be called in the GL thread
  *
  * Returns: whether @shader has been successfully linked
+ *
+ * Since: 1.8
  */
 gboolean
 gst_gl_shader_is_linked (GstGLShader * shader)
@@ -382,6 +399,8 @@ _ensure_program (GstGLShader * shader)
  * @shader: a #GstGLShader
  *
  * Returns: the GL program handle for this shader
+ *
+ * Since: 1.8
  */
 int
 gst_gl_shader_get_program_handle (GstGLShader * shader)
@@ -406,6 +425,8 @@ gst_gl_shader_get_program_handle (GstGLShader * shader)
  * to @shader with gst_gl_shader_attach() or gst_gl_shader_attach_unlocked().
  *
  * Note: must be called in the GL thread
+ *
+ * Since: 1.8
  */
 void
 gst_gl_shader_detach_unlocked (GstGLShader * shader, GstGLSLStage * stage)
@@ -437,9 +458,11 @@ gst_gl_shader_detach_unlocked (GstGLShader * shader, GstGLSLStage * stage)
     return;
   }
 
-  g_assert (shader->context->gl_vtable->IsProgram (shader->priv->
-          program_handle));
-  g_assert (shader->context->gl_vtable->IsShader (stage_handle));
+  if (shader->context->gl_vtable->IsProgram)
+    g_assert (shader->context->gl_vtable->IsProgram (shader->
+            priv->program_handle));
+  if (shader->context->gl_vtable->IsShader)
+    g_assert (shader->context->gl_vtable->IsShader (stage_handle));
 
   GST_LOG_OBJECT (shader, "detaching shader %i from program %i", stage_handle,
       (int) shader->priv->program_handle);
@@ -459,6 +482,8 @@ gst_gl_shader_detach_unlocked (GstGLShader * shader, GstGLSLStage * stage)
  * to @shader with gst_gl_shader_attach() or gst_gl_shader_attach_unlocked().
  *
  * Note: must be called in the GL thread
+ *
+ * Since: 1.8
  */
 void
 gst_gl_shader_detach (GstGLShader * shader, GstGLSLStage * stage)
@@ -482,6 +507,8 @@ gst_gl_shader_detach (GstGLShader * shader, GstGLSLStage * stage)
  * Note: must be called in the GL thread
  *
  * Returns: whether @stage could be attached to @shader
+ *
+ * Since: 1.8
  */
 gboolean
 gst_gl_shader_attach_unlocked (GstGLShader * shader, GstGLSLStage * stage)
@@ -508,9 +535,11 @@ gst_gl_shader_attach_unlocked (GstGLShader * shader, GstGLSLStage * stage)
     return FALSE;
   }
 
-  g_assert (shader->context->gl_vtable->IsProgram (shader->priv->
-          program_handle));
-  g_assert (shader->context->gl_vtable->IsShader (stage_handle));
+  if (shader->context->gl_vtable->IsProgram)
+    g_assert (shader->context->gl_vtable->IsProgram (shader->
+            priv->program_handle));
+  if (shader->context->gl_vtable->IsShader)
+    g_assert (shader->context->gl_vtable->IsShader (stage_handle));
 
   shader->priv->stages =
       g_list_prepend (shader->priv->stages, gst_object_ref_sink (stage));
@@ -533,6 +562,8 @@ gst_gl_shader_attach_unlocked (GstGLShader * shader, GstGLSLStage * stage)
  * Note: must be called in the GL thread
  *
  * Returns: whether @stage could be attached to @shader
+ *
+ * Since: 1.8
  */
 gboolean
 gst_gl_shader_attach (GstGLShader * shader, GstGLSLStage * stage)
@@ -560,6 +591,8 @@ gst_gl_shader_attach (GstGLShader * shader, GstGLSLStage * stage)
  * Note: must be called in the GL thread
  *
  * Returns: whether @stage could be compiled and attached to @shader
+ *
+ * Since: 1.8
  */
 gboolean
 gst_gl_shader_compile_attach_stage (GstGLShader * shader, GstGLSLStage * stage,
@@ -590,6 +623,8 @@ gst_gl_shader_compile_attach_stage (GstGLShader * shader, GstGLSLStage * stage,
  * Note: must be called in the GL thread
  *
  * Returns: whether @shader could be linked together.
+ *
+ * Since: 1.8
  */
 gboolean
 gst_gl_shader_link (GstGLShader * shader, GError ** error)
@@ -683,6 +718,8 @@ gst_gl_shader_link (GstGLShader * shader, GError ** error)
  * Releases the shader and stages.
  *
  * Note: must be called in the GL thread
+ *
+ * Since: 1.8
  */
 void
 gst_gl_shader_release_unlocked (GstGLShader * shader)
@@ -718,6 +755,8 @@ gst_gl_shader_release_unlocked (GstGLShader * shader)
  * Releases the shader and stages.
  *
  * Note: must be called in the GL thread
+ *
+ * Since: 1.8
  */
 void
 gst_gl_shader_release (GstGLShader * shader)
@@ -755,7 +794,7 @@ gst_gl_shader_use (GstGLShader * shader)
 
 /**
  * gst_gl_context_clear_shader:
- * @shader: a #GstGLShader
+ * @context: a #GstGLContext
  *
  * Clear's the currently set shader from the GL state machine.
  *

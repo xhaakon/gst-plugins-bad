@@ -3,7 +3,7 @@
   <description>OpenGL plugin</description>
   <filename>../../ext/gl/.libs/libgstopengl.so</filename>
   <basename>libgstopengl.so</basename>
-  <version>1.7.90</version>
+  <version>1.7.91</version>
   <license>LGPL</license>
   <source>gst-plugins-bad</source>
   <package>GStreamer Bad Plug-ins source release</package>
@@ -159,9 +159,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_blur</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Blur with 9x9 separable convolution Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Blur with 9x9 separable convolution Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -180,9 +180,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_bulge</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Bulge Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Bulge Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -201,9 +201,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_fisheye</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>FishEye Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - FishEye Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -222,9 +222,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_glow</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Glow Lighting Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Glow Lighting Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -243,9 +243,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_heat</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Heat Signature Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Heat Signature Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -264,9 +264,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_identity</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Do nothing Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Do nothing Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -285,9 +285,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_laplacian</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Laplacian Convolution Demo Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Laplacian Convolution Demo Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -306,9 +306,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_lumaxpro</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Luma Cross Processing Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Luma Cross Processing Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -327,9 +327,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_mirror</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Mirror Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Mirror Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -348,9 +348,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_sepia</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Sepia Toning Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Sepia Toning Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -369,9 +369,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_sin</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>All Grey but Red Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - All Grey but Red Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -390,9 +390,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_sobel</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Sobel edge detection Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Sobel edge detection Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -411,9 +411,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_square</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Square Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Square Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -432,9 +432,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_squeeze</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Squeeze Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Squeeze Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -453,9 +453,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_stretch</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Stretch Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Stretch Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -474,9 +474,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_tunnel</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Light Tunnel Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Light Tunnel Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -495,9 +495,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_twirl</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Twirl Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Twirl Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -516,9 +516,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_xpro</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Cross Processing Effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Cross Processing Effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
@@ -537,9 +537,9 @@ Matthew Waters &lt;matthew@centricular.com&gt;</author>
     </element>
     <element>
       <name>gleffects_xray</name>
-      <longname>Gstreamer OpenGL Effects</longname>
+      <longname>Glowing negative effect</longname>
       <class>Filter/Effect/Video</class>
-      <description>GL Shading Language effects</description>
+      <description>GL Shading Language effects - Glowing negative effect</description>
       <author>Filippo Argiolas &lt;filippo.argiolas@gmail.com&gt;</author>
       <pads>
         <caps>
