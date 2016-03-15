@@ -102,6 +102,14 @@
 <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
+<a class="link" href="GstGLDisplay.html#gst-gl-display-create-context" title="gst_gl_display_create_context ()">gst_gl_display_create_context</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
 <a class="link" href="GstGLDisplay.html#gst-context-get-gl-display" title="gst_context_get_gl_display ()">gst_context_get_gl_display</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
@@ -193,7 +201,7 @@ example of such a function is X11's <code class="function">XInitThreads()</code>
 <pre class="programlisting"><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="returnvalue">GstGLDisplay</span></a> *
 gst_gl_display_new (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.11.8.2.4"></a><h4>Returns</h4>
+<a name="id-1.2.9.14.8.2.4"></a><h4>Returns</h4>
 <p> a new <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a>. </p>
 <p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
 </div>
@@ -205,7 +213,7 @@ gst_gl_display_new (<em class="parameter"><code><span class="type">void</span></
 <pre class="programlisting"><a class="link" href="GstGLDisplay.html#GstGLDisplayType" title="enum GstGLDisplayType"><span class="returnvalue">GstGLDisplayType</span></a>
 gst_gl_display_get_handle_type (<em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.11.8.3.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.14.8.3.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -220,7 +228,7 @@ gst_gl_display_get_handle_type (<em class="parameter"><code><a class="link" href
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.11.8.3.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.14.8.3.5"></a><h4>Returns</h4>
 <p> the <a class="link" href="GstGLDisplay.html#GstGLDisplayType" title="enum GstGLDisplayType"><span class="type">GstGLDisplayType</span></a> of <em class="parameter"><code>display</code></em>
 </p>
 </div>
@@ -231,14 +239,14 @@ gst_gl_display_get_handle_type (<em class="parameter"><code><a class="link" href
 <a name="gst-gl-display-filter-gl-api"></a><h3>gst_gl_display_filter_gl_api ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_gl_display_filter_gl_api (<em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>,
-                              <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> api</code></em>);</pre>
+                              <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> gl_api</code></em>);</pre>
 <p>limit the use of OpenGL to the requested <em class="parameter"><code>gl_api</code></em>
 .  This is intended to allow
 application and elements to request a specific set of OpenGL API's based on
 what they support.  See <a class="link" href="GstGLContext.html#gst-gl-context-get-gl-api" title="gst_gl_context_get_gl_api ()"><code class="function">gst_gl_context_get_gl_api()</code></a> for the retreiving the
 API supported by a <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a>.</p>
 <div class="refsect3">
-<a name="id-1.2.9.11.8.4.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.14.8.4.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -267,7 +275,7 @@ API supported by a <a class="link" href="GstGLContext.html" title="GstGLContext"
 gst_gl_display_get_gl_api (<em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>);</pre>
 <p>see <a class="link" href="GstGLDisplay.html#gst-gl-display-filter-gl-api" title="gst_gl_display_filter_gl_api ()"><code class="function">gst_gl_display_filter_gl_api()</code></a> for what the returned value represents</p>
 <div class="refsect3">
-<a name="id-1.2.9.11.8.5.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.14.8.5.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -282,7 +290,7 @@ gst_gl_display_get_gl_api (<em class="parameter"><code><a class="link" href="Gst
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.11.8.5.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.14.8.5.6"></a><h4>Returns</h4>
 <p> the <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> configured for <em class="parameter"><code>display</code></em>
 </p>
 </div>
@@ -294,7 +302,7 @@ gst_gl_display_get_gl_api (<em class="parameter"><code><a class="link" href="Gst
 gst_gl_display_add_context (<em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>,
                             <em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.11.8.6.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.14.8.6.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -316,7 +324,7 @@ gst_gl_display_add_context (<em class="parameter"><code><a class="link" href="Gs
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.11.8.6.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.14.8.6.5"></a><h4>Returns</h4>
 <p> whether <em class="parameter"><code>context</code></em>
 was successfully added. <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> may be returned
 if there already exists another context for <em class="parameter"><code>context</code></em>
@@ -333,7 +341,7 @@ gst_gl_display_get_gl_context_for_thread
                                (<em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>,
                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Threads.html#GThread"><span class="type">GThread</span></a> *thread</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.11.8.7.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.14.8.7.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -355,7 +363,7 @@ gst_gl_display_get_gl_context_for_thread
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.11.8.7.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.14.8.7.5"></a><h4>Returns</h4>
 <p> the <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> current on <em class="parameter"><code>thread</code></em>
 or <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p>
 <p>Must be called with the object lock held. </p>
@@ -371,12 +379,59 @@ gst_gl_display_get_handle (<em class="parameter"><code><a class="link" href="Gst
 </div>
 <hr>
 <div class="refsect2">
+<a name="gst-gl-display-create-context"></a><h3>gst_gl_display_create_context ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+gst_gl_display_create_context (<em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>,
+                               <em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *other_context</code></em>,
+                               <em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> **p_context</code></em>,
+                               <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
+<p>It requires the display's object lock to be held.</p>
+<div class="refsect3">
+<a name="id-1.2.9.14.8.9.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>display</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>other_context</p></td>
+<td class="parameter_description"><p>other <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> to share resources with.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>p_context</p></td>
+<td class="parameter_description"><p>resulting <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>error</p></td>
+<td class="parameter_description"><p>resulting <a href="https://developer.gnome.org/glib/unstable/glib-Error-Reporting.html#GError"><span class="type">GError</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.9.14.8.9.6"></a><h4>Returns</h4>
+<p> whether a new context could be created.</p>
+</div>
+<p class="since">Since: 1.6</p>
+</div>
+<hr>
+<div class="refsect2">
 <a name="gst-context-get-gl-display"></a><h3>gst_context_get_gl_display ()</h3>
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_context_get_gl_display (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstContext.html"><span class="type">GstContext</span></a> *context</code></em>,
                             <em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> **display</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.11.8.9.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.14.8.10.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -398,7 +453,7 @@ gst_context_get_gl_display (<em class="parameter"><code><a href="http://gstreame
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.11.8.9.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.14.8.10.5"></a><h4>Returns</h4>
 <p> Whether <em class="parameter"><code>display</code></em>
 was in <em class="parameter"><code>context</code></em>
 </p>
@@ -415,7 +470,7 @@ gst_context_set_gl_display (<em class="parameter"><code><a href="http://gstreame
  on <em class="parameter"><code>context</code></em>
 </p>
 <div class="refsect3">
-<a name="id-1.2.9.11.8.10.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.14.8.11.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -450,7 +505,7 @@ gst_context_set_gl_display (<em class="parameter"><code><a href="http://gstreame
 <div class="refsect2">
 <a name="GstGLDisplayType"></a><h3>enum GstGLDisplayType</h3>
 <div class="refsect3">
-<a name="id-1.2.9.11.9.3.3"></a><h4>Members</h4>
+<a name="id-1.2.9.14.9.3.3"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">
@@ -460,43 +515,59 @@ gst_context_set_gl_display (<em class="parameter"><code><a href="http://gstreame
 <tbody>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-NONE:CAPS"></a>GST_GL_DISPLAY_TYPE_NONE</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>no display type</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-X11:CAPS"></a>GST_GL_DISPLAY_TYPE_X11</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>X11 display</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-WAYLAND:CAPS"></a>GST_GL_DISPLAY_TYPE_WAYLAND</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>Wayland display</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-COCOA:CAPS"></a>GST_GL_DISPLAY_TYPE_COCOA</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>Cocoa display</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-WIN32:CAPS"></a>GST_GL_DISPLAY_TYPE_WIN32</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>Win32 display</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-DISPMANX:CAPS"></a>GST_GL_DISPLAY_TYPE_DISPMANX</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>Dispmanx display</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-EGL:CAPS"></a>GST_GL_DISPLAY_TYPE_EGL</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>EGL display</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-ANY:CAPS"></a>GST_GL_DISPLAY_TYPE_ANY</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>any display type</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 </tbody>
 </table></div>
@@ -523,7 +594,7 @@ user_function (<a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><sp
 It can be called in any thread and it is emitted with
 display's object lock held.</p>
 <div class="refsect3">
-<a name="id-1.2.9.11.10.2.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.14.10.2.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -550,7 +621,7 @@ display's object lock held.</p>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.11.10.2.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.14.10.2.6"></a><h4>Returns</h4>
 <p> the new context.</p>
 </div>
 <p>Flags: <a href="https://developer.gnome.org/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></p>

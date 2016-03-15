@@ -118,6 +118,14 @@
 </tr>
 <tr>
 <td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="returnvalue">gpointer</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="GstGLContext.html#gst-gl-context-get-proc-address-with-platform" title="gst_gl_context_get_proc_address_with_platform ()">gst_gl_context_get_proc_address_with_platform</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
 <a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="returnvalue">GstGLWindow</span></a> *
 </td>
 <td class="function_name">
@@ -202,6 +210,22 @@
 </td>
 <td class="function_name">
 <a class="link" href="GstGLContext.html#gst-gl-context-can-share" title="gst_gl_context_can_share ()">gst_gl_context_can_share</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="GstGLContext.html#gst-gl-context-is-shared" title="gst_gl_context_is_shared ()">gst_gl_context_is_shared</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="GstGLContext.html#gst-gl-context-set-shared-with" title="gst_gl_context_set_shared_with ()">gst_gl_context_set_shared_with</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
@@ -303,7 +327,7 @@ gst_gl_context_error_quark (<em class="parameter"><code><span class="type">void<
  and <em class="parameter"><code>data</code></em>
 </p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.4.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.4.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -333,7 +357,7 @@ gst_gl_context_new (<em class="parameter"><code><a class="link" href="GstGLDispl
 <p>Create a new <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> with the specified <em class="parameter"><code>display</code></em>
 </p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.5.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.5.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -348,7 +372,7 @@ gst_gl_context_new (<em class="parameter"><code><a class="link" href="GstGLDispl
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.5.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.5.6"></a><h4>Returns</h4>
 <p> a new <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a></p>
 </div>
 <p class="since">Since: 1.4</p>
@@ -363,7 +387,7 @@ gst_gl_context_new_wrapped (<em class="parameter"><code><a class="link" href="Gs
                             <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> available_apis</code></em>);</pre>
 <p>Wraps an existing OpenGL context into a <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a>.</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.6.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.6.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -397,7 +421,7 @@ gst_gl_context_new_wrapped (<em class="parameter"><code><a class="link" href="Gs
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.6.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.6.6"></a><h4>Returns</h4>
 <p> a <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> wrapping <em class="parameter"><code>handle</code></em>
 </p>
 </div>
@@ -419,7 +443,7 @@ OpenGL specification for what is shared between contexts.</p>
 of the error and <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> will be returned.</p>
 <p>Should only be called once.</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.7.7"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.7.7"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -446,7 +470,7 @@ of the error and <a href="https://developer.gnome.org/glib/unstable/glib-Standar
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.7.8"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.7.8"></a><h4>Returns</h4>
 <p> whether the context could successfully be created</p>
 </div>
 <p class="since">Since: 1.4</p>
@@ -460,7 +484,7 @@ gst_gl_context_destroy (<em class="parameter"><code><a class="link" href="GstGLC
 <p>Should only be called after <a class="link" href="GstGLContext.html#gst-gl-context-create" title="gst_gl_context_create ()"><code class="function">gst_gl_context_create()</code></a> has been successfully
 called for this context.</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.8.6"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.8.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -487,7 +511,7 @@ gst_gl_context_activate (<em class="parameter"><code><a class="link" href="GstGL
 <p>In OpenGL terms, calls eglMakeCurrent or similar with this context and the
 currently set window.  See <a class="link" href="GstGLContext.html#gst-gl-context-set-window" title="gst_gl_context_set_window ()"><code class="function">gst_gl_context_set_window()</code></a> for details.</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.9.6"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.9.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -509,7 +533,7 @@ currently set window.  See <a class="link" href="GstGLContext.html#gst-gl-contex
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.9.7"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.9.7"></a><h4>Returns</h4>
 <p> Whether the activation succeeded</p>
 </div>
 <p class="since">Since: 1.4</p>
@@ -534,7 +558,7 @@ specific function does not exist, NULL is returned instead.</p>
 <p>Platform specfic functions (names starting 'egl', 'glX', 'wgl', etc) can also
 be retrieved using this method.</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.11.6"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.11.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -556,10 +580,19 @@ be retrieved using this method.</p>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.11.7"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.11.7"></a><h4>Returns</h4>
 <p> a function pointer or NULL</p>
 </div>
 <p class="since">Since: 1.4</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-gl-context-get-proc-address-with-platform"></a><h3>gst_gl_context_get_proc_address_with_platform ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="returnvalue">gpointer</span></a>
+gst_gl_context_get_proc_address_with_platform
+                               (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLPlatform" title="enum GstGLPlatform"><span class="type">GstGLPlatform</span></a> context_type</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> gl_api</code></em>,
+                                <em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *name</code></em>);</pre>
 </div>
 <hr>
 <div class="refsect2">
@@ -567,7 +600,7 @@ be retrieved using this method.</p>
 <pre class="programlisting"><a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="returnvalue">GstGLWindow</span></a> *
 gst_gl_context_get_window (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.12.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.13.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -582,7 +615,7 @@ gst_gl_context_get_window (<em class="parameter"><code><a class="link" href="Gst
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.12.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.13.5"></a><h4>Returns</h4>
 <p> the currently set window</p>
 </div>
 <p class="since">Since: 1.4</p>
@@ -600,7 +633,7 @@ changed before <a class="link" href="GstGLContext.html#gst-gl-context-create" ti
  is not
 already running.</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.13.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.14.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -622,7 +655,7 @@ already running.</p>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.13.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.14.6"></a><h4>Returns</h4>
 <p> Whether the window was successfully updated</p>
 </div>
 <p class="since">Since: 1.4</p>
@@ -640,7 +673,7 @@ gst_gl_context_thread_add (<em class="parameter"><code><a class="link" href="Gst
 </p>
 <p>MT-safe</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.14.6"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.15.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -675,7 +708,7 @@ with. </p></td>
 <pre class="programlisting"><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="returnvalue">GstGLDisplay</span></a> *
 gst_gl_context_get_display (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.15.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.16.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -690,7 +723,7 @@ gst_gl_context_get_display (<em class="parameter"><code><a class="link" href="Gs
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.15.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.16.5"></a><h4>Returns</h4>
 <p> the <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> associated with this <em class="parameter"><code>context</code></em>
 </p>
 </div>
@@ -705,7 +738,7 @@ gst_gl_context_get_gl_api (<em class="parameter"><code><a class="link" href="Gst
 <p>The currently available API may be limited by the <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> in use and/or
 the <a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a> chosen.</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.16.6"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.17.6"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -720,7 +753,7 @@ the <a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="typ
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.16.7"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.17.7"></a><h4>Returns</h4>
 <p> the available OpenGL api</p>
 </div>
 <p class="since">Since: 1.4</p>
@@ -733,7 +766,7 @@ gst_gl_context_get_gl_context (<em class="parameter"><code><a class="link" href=
 <p>Gets the backing OpenGL context used by <em class="parameter"><code>context</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.17.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.18.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -748,7 +781,7 @@ gst_gl_context_get_gl_context (<em class="parameter"><code><a class="link" href=
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.17.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.18.6"></a><h4>Returns</h4>
 <p> The platform specific backing OpenGL context</p>
 </div>
 <p class="since">Since: 1.4</p>
@@ -761,7 +794,7 @@ gst_gl_context_get_gl_platform (<em class="parameter"><code><a class="link" href
 <p>Gets the OpenGL platform that used by <em class="parameter"><code>context</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.18.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.19.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -776,7 +809,7 @@ gst_gl_context_get_gl_platform (<em class="parameter"><code><a class="link" href
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.18.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.19.6"></a><h4>Returns</h4>
 <p> The platform specific backing OpenGL context</p>
 </div>
 <p class="since">Since: 1.4</p>
@@ -785,9 +818,9 @@ gst_gl_context_get_gl_platform (<em class="parameter"><code><a class="link" href
 <div class="refsect2">
 <a name="gst-gl-context-get-current-gl-context"></a><h3>gst_gl_context_get_current_gl_context ()</h3>
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guintptr"><span class="returnvalue">guintptr</span></a>
-gst_gl_context_get_current_gl_context (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLPlatform" title="enum GstGLPlatform"><span class="type">GstGLPlatform</span></a> platform</code></em>);</pre>
+gst_gl_context_get_current_gl_context (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLPlatform" title="enum GstGLPlatform"><span class="type">GstGLPlatform</span></a> context_type</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.19.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.20.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -802,7 +835,7 @@ gst_gl_context_get_current_gl_context (<em class="parameter"><code><a class="lin
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.19.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.20.5"></a><h4>Returns</h4>
 <p> The OpenGL context handle current in the calling thread or <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p>
 </div>
 <p class="since">Since: 1.6</p>
@@ -819,7 +852,7 @@ gst_gl_context_get_current_gl_api (<em class="parameter"><code><a class="link" h
  aren't modified and <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GST-GL-API-NONE:CAPS"><code class="literal">GST_GL_API_NONE</code></a> is
 returned.</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.20.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.21.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -846,7 +879,7 @@ returned.</p>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.20.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.21.6"></a><h4>Returns</h4>
 <p> The version supported by the OpenGL context current in the calling
 thread or <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GST-GL-API-NONE:CAPS"><code class="literal">GST_GL_API_NONE</code></a></p>
 </div>
@@ -858,7 +891,7 @@ thread or <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GST-GL-API-NO
 <pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Threads.html#GThread"><span class="returnvalue">GThread</span></a> *
 gst_gl_context_get_thread (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.21.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.22.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -873,7 +906,7 @@ gst_gl_context_get_thread (<em class="parameter"><code><a class="link" href="Gst
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.21.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.22.5"></a><h4>Returns</h4>
 <p> The <a href="https://developer.gnome.org/glib/unstable/glib-Threads.html#GThread"><span class="type">GThread</span></a>, <em class="parameter"><code>context</code></em>
 is current in or NULL. </p>
 <p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
@@ -888,7 +921,7 @@ gst_gl_context_can_share (<em class="parameter"><code><a class="link" href="GstG
                           <em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *other_context</code></em>);</pre>
 <p>Note: This will always fail for two wrapped <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a>'s</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.22.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.23.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -910,13 +943,72 @@ gst_gl_context_can_share (<em class="parameter"><code><a class="link" href="GstG
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.22.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.23.6"></a><h4>Returns</h4>
 <p> whether <em class="parameter"><code>context</code></em>
 and <em class="parameter"><code>other_context</code></em>
 are able to share OpenGL
 resources.</p>
 </div>
 <p class="since">Since: 1.6</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-gl-context-is-shared"></a><h3>gst_gl_context_is_shared ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+gst_gl_context_is_shared (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.2.9.8.7.24.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>context</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.2.9.8.7.24.5"></a><h4>Returns</h4>
+<p> Whether the <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> has been shared with another <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a></p>
+</div>
+<p class="since">Since: 1.8</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-gl-context-set-shared-with"></a><h3>gst_gl_context_set_shared_with ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+gst_gl_context_set_shared_with (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>,
+                                <em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *share</code></em>);</pre>
+<p>Will internally set <em class="parameter"><code>context</code></em>
+ as shared with <em class="parameter"><code>share</code></em>
+</p>
+<div class="refsect3">
+<a name="id-1.2.9.8.7.25.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>context</p></td>
+<td class="parameter_description"><p>a wrapped <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>share</p></td>
+<td class="parameter_description"><p>another <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p class="since">Since: 1.8</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -927,7 +1019,7 @@ gst_gl_context_check_feature (<em class="parameter"><code><a class="link" href="
 <p>Some features require that the context be created before it is possible to
 determine their existence and so will fail if that is not the case.</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.23.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.26.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -949,7 +1041,7 @@ determine their existence and so will fail if that is not the case.</p>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.23.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.26.6"></a><h4>Returns</h4>
 <p> Whether <em class="parameter"><code>feature</code></em>
 is supported by <em class="parameter"><code>context</code></em>
 </p>
@@ -965,7 +1057,7 @@ gst_gl_context_check_gl_version (<em class="parameter"><code><a class="link" hre
                                  <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> maj</code></em>,
                                  <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> min</code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.24.4"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.27.4"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -997,7 +1089,7 @@ gst_gl_context_check_gl_version (<em class="parameter"><code><a class="link" hre
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.24.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.27.5"></a><h4>Returns</h4>
 <p> whether OpenGL context implements the required api and specified
 version.</p>
 </div>
@@ -1016,7 +1108,7 @@ gst_gl_context_get_gl_version (<em class="parameter"><code><a class="link" href=
 <em class="parameter"><code>context</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.25.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.28.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -1055,7 +1147,7 @@ gst_gl_context_fill_info (<em class="parameter"><code><a class="link" href="GstG
 context in the current thread.  Typically used with wrapped contexts to
 allow wrapped contexts to be used as regular <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a>'s.</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.26.5"></a><h4>Parameters</h4>
+<a name="id-1.2.9.8.7.29.5"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -1078,7 +1170,7 @@ allow wrapped contexts to be used as regular <a class="link" href="GstGLContext.
 gst_gl_context_get_current (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
 <p>See also <a class="link" href="GstGLContext.html#gst-gl-context-activate" title="gst_gl_context_activate ()"><code class="function">gst_gl_context_activate()</code></a>.</p>
 <div class="refsect3">
-<a name="id-1.2.9.5.7.27.5"></a><h4>Returns</h4>
+<a name="id-1.2.9.8.7.30.5"></a><h4>Returns</h4>
 <p> the <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> active in the current thread or <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p>
 </div>
 <p class="since">Since: 1.6</p>
@@ -1089,7 +1181,7 @@ gst_gl_context_get_current (<em class="parameter"><code><span class="type">void<
 <div class="refsect2">
 <a name="GstGLContextError"></a><h3>enum GstGLContextError</h3>
 <div class="refsect3">
-<a name="id-1.2.9.5.8.2.3"></a><h4>Members</h4>
+<a name="id-1.2.9.8.8.2.3"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="enum_members_name">

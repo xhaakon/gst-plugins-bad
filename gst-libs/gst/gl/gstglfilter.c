@@ -336,7 +336,13 @@ gst_gl_filter_fixate_caps (GstBaseTransform * bt,
       GST_DEBUG_OBJECT (bt, "height is fixed (%d)", h);
 
       if (!gst_value_is_fixed (to_par)) {
-        gst_value_set_fraction (&tpar, 1, 1);
+        /* (shortcut) copy-paste (??) of videoscale seems to aim for 1/1,
+         * so let's make it so ...
+         * especially if following code assumes fixed */
+        GST_DEBUG_OBJECT (bt, "fixating to_par to 1x1");
+        gst_structure_fixate_field_nearest_fraction (outs,
+            "pixel-aspect-ratio", 1, 1);
+        to_par = gst_structure_get_value (outs, "pixel-aspect-ratio");
       }
 
       /* PAR is fixed, choose the height that is nearest to the
@@ -363,7 +369,13 @@ gst_gl_filter_fixate_caps (GstBaseTransform * bt,
       GST_DEBUG_OBJECT (bt, "width is fixed (%d)", w);
 
       if (!gst_value_is_fixed (to_par)) {
-        gst_value_set_fraction (&tpar, 1, 1);
+        /* (shortcut) copy-paste (??) of videoscale seems to aim for 1/1,
+         * so let's make it so ...
+         * especially if following code assumes fixed */
+        GST_DEBUG_OBJECT (bt, "fixating to_par to 1x1");
+        gst_structure_fixate_field_nearest_fraction (outs,
+            "pixel-aspect-ratio", 1, 1);
+        to_par = gst_structure_get_value (outs, "pixel-aspect-ratio");
       }
 
       /* PAR is fixed, choose the height that is nearest to the
@@ -1020,6 +1032,28 @@ gst_gl_filter_render_to_target (GstGLFilter * filter, gboolean resize,
 }
 
 static void
+_get_attributes (GstGLFilter * filter)
+{
+  if (!filter->default_shader)
+    return;
+
+  if (filter->valid_attributes)
+    return;
+
+  if (filter->draw_attr_position_loc == -1)
+    filter->draw_attr_position_loc =
+        gst_gl_shader_get_attribute_location (filter->default_shader,
+        "a_position");
+
+  if (filter->draw_attr_texture_loc == -1)
+    filter->draw_attr_texture_loc =
+        gst_gl_shader_get_attribute_location (filter->default_shader,
+        "a_texcoord");
+
+  filter->valid_attributes = TRUE;
+}
+
+static void
 _draw_with_shader_cb (gint width, gint height, guint texture, gpointer stuff)
 {
   GstGLFilter *filter = GST_GL_FILTER (stuff);
@@ -1033,6 +1067,7 @@ _draw_with_shader_cb (gint width, gint height, guint texture, gpointer stuff)
   }
 #endif
 
+  _get_attributes (filter);
   gst_gl_shader_use (filter->default_shader);
 
   gl->ActiveTexture (GL_TEXTURE1);
@@ -1043,23 +1078,6 @@ _draw_with_shader_cb (gint width, gint height, guint texture, gpointer stuff)
   gst_gl_shader_set_uniform_1f (filter->default_shader, "height", height);
 
   gst_gl_filter_draw_texture (filter, texture, width, height);
-}
-
-static void
-_get_attributes (GstGLFilter * filter)
-{
-  if (!filter->default_shader)
-    return;
-
-  if (filter->draw_attr_position_loc == -1)
-    filter->draw_attr_position_loc =
-        gst_gl_shader_get_attribute_location (filter->default_shader,
-        "a_position");
-
-  if (filter->draw_attr_texture_loc == -1)
-    filter->draw_attr_texture_loc =
-        gst_gl_shader_get_attribute_location (filter->default_shader,
-        "a_texcoord");
 }
 
 /**
@@ -1082,8 +1100,9 @@ void
 gst_gl_filter_render_to_target_with_shader (GstGLFilter * filter,
     gboolean resize, GLuint input, GLuint target, GstGLShader * shader)
 {
+  if (filter->default_shader != shader)
+    filter->valid_attributes = FALSE;
   filter->default_shader = shader;
-  _get_attributes (filter);
 
   gst_gl_filter_render_to_target (filter, resize, input, target,
       _draw_with_shader_cb, filter);
