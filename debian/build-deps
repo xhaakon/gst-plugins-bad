@@ -15,7 +15,7 @@ gobject-introspection (>= 0.9.12-4~)
 @GST_EXTRA_BUILD_DEPENDS@
 @GST_LIB_DEV_DEP@
 gstreamer@GST_ABI@-doc
-gstreamer@GST_ABI@-plugins-base (>= 1.7.90)
+gstreamer@GST_ABI@-plugins-base (>= 1.7.91)
 gstreamer@GST_ABI@-plugins-base-doc
 gtk-doc-tools (>= 1.12)
 ladspa-sdk
@@ -43,11 +43,10 @@ libglu1-mesa-dev [!armhf]
 libgme-dev
 libgnutls28-dev (>= 2.11.3)
 libgsm1-dev
-libgstreamer-plugins-base@GST_ABI@-dev (>= 1.7.90)
-libgstreamer-plugins-good@GST_ABI@-dev (>= 1.7.90)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 1.7.91)
+libgstreamer-plugins-good@GST_ABI@-dev (>= 1.7.91)
 libgtk-3-dev (>= 3.15.0)
 libiptcdata0-dev (>= 1.0.2)
-libjasper-dev
 libkate-dev (>= 0.1.7)
 libmedia-dev (>= 0.1.0+git20131207+e452e83-0ubuntu3) [i386 armhf]
 libmimic-dev (>= 1.0)

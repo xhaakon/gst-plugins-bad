@@ -29,7 +29,6 @@
 #include "gstjniutils.h"
 
 #include "gst-android-hardware-camera.h"
-#include "stdio.h"
 
 GST_DEBUG_CATEGORY_STATIC (ahc_debug);
 #define GST_CAT_DEFAULT ahc_debug
@@ -1682,7 +1681,8 @@ _init_classes (void)
 
 failed:
   if (err) {
-    GST_ERROR ("Failed to get android.hardware.Camera class: %s", err->message);
+    GST_ERROR ("Failed to initialize android.hardware.Camera classes: %s",
+        err->message);
     g_clear_error (&err);
   }
 
