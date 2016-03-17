@@ -1,4 +1,4 @@
-gst-plugins-bad1.0 (1.7.91-1ubuntu1) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.7.91-1ubuntu1) xenial; urgency=medium
 
   * Merge with Debian experimental; remaining changes:
     + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
@@ -22,7 +22,7 @@ gst-plugins-bad1.0 (1.7.91-1ubuntu1) UNRELEASED; urgency=medium
     + debian/watch: Update Vcs-* for new URL scheme
   * Really re-enable bluez.
 
- -- Iain Lane <iain.lane@canonical.com>  Thu, 17 Mar 2016 16:48:03 +0000
+ -- Iain Lane <iain.lane@canonical.com>  Thu, 17 Mar 2016 16:53:29 +0000
 
 gst-plugins-bad1.0 (1.7.91-1) experimental; urgency=medium
 
