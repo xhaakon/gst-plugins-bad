@@ -8,7 +8,7 @@
 <link rel="up" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="prev" href="gst-plugins-bad-libs-GstPhotography.html" title="GstPhotography">
 <link rel="next" href="api-index-full.html" title="Index">
-<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -23,21 +23,21 @@
 <div class="titlepage"><div><div><h1 class="title">
 <a name="gstreamer-libs-hierarchy"></a>Part II. Object Hierarchy</h1></div></div></div>
 <pre class="screen">
-    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
-    <span class="lineart">├──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-    <span class="lineart">│</span>   <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
-    <span class="lineart">│</span>       <span class="lineart">├──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstAllocator.html">GstAllocator</a>
+    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
+    <span class="lineart">├──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+    <span class="lineart">│</span>   <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
+    <span class="lineart">│</span>       <span class="lineart">├──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocator-struct">GstAllocator</a>
     <span class="lineart">│</span>       <span class="lineart">│</span>   <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocator">GstGLBaseMemoryAllocator</a>
     <span class="lineart">│</span>       <span class="lineart">│</span>       <span class="lineart">├──</span> <a class="link" href="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocator">GstGLBufferAllocator</a>
     <span class="lineart">│</span>       <span class="lineart">│</span>       <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemoryAllocator">GstGLMemoryAllocator</a>
     <span class="lineart">│</span>       <span class="lineart">│</span>           <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-gstglmemorypbo.html#GstGLMemoryPBOAllocator">GstGLMemoryPBOAllocator</a>
-    <span class="lineart">│</span>       <span class="lineart">├──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
-    <span class="lineart">│</span>       <span class="lineart">│</span>   <span class="lineart">├──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBin.html">GstBin</a>
+    <span class="lineart">│</span>       <span class="lineart">├──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstElement.html#GstElement-struct">GstElement</a>
+    <span class="lineart">│</span>       <span class="lineart">│</span>   <span class="lineart">├──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBin.html#GstBin-struct">GstBin</a>
     <span class="lineart">│</span>       <span class="lineart">│</span>   <span class="lineart">│</span>   <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-GstInsertbin.html#GstInsertBin">GstInsertBin</a>
-    <span class="lineart">│</span>       <span class="lineart">│</span>   <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html">GstBaseTransform</a>
+    <span class="lineart">│</span>       <span class="lineart">│</span>   <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-libs-1.0GstBaseTransform.html#GstBaseTransform-struct">GstBaseTransform</a>
     <span class="lineart">│</span>       <span class="lineart">│</span>       <span class="lineart">╰──</span> <a class="link" href="GstGLBaseFilter.html" title="GstGLBaseFilter">GstGLBaseFilter</a>
     <span class="lineart">│</span>       <span class="lineart">│</span>           <span class="lineart">╰──</span> <a class="link" href="GstGLFilter.html" title="GstGLFilter">GstGLFilter</a>
-    <span class="lineart">│</span>       <span class="lineart">├──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBufferPool.html">GstBufferPool</a>
+    <span class="lineart">│</span>       <span class="lineart">├──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBufferPool.html#GstBufferPool-struct">GstBufferPool</a>
     <span class="lineart">│</span>       <span class="lineart">│</span>   <span class="lineart">╰──</span> <a class="link" href="GstGLBufferPool.html" title="GstGLBufferPool">GstGLBufferPool</a>
     <span class="lineart">│</span>       <span class="lineart">├──</span> <a class="link" href="GstGLColorConvert.html" title="GstGLColorConvert">GstGLColorConvert</a>
     <span class="lineart">│</span>       <span class="lineart">├──</span> <a class="link" href="GstGLContext.html" title="GstGLContext">GstGLContext</a>
@@ -82,6 +82,6 @@
 </pre>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.24</div>
+<hr>Generated by GTK-Doc V1.25</div>
 </body>
 </html>
