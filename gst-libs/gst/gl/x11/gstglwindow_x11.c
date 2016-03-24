@@ -74,7 +74,6 @@ guintptr gst_gl_window_x11_get_window_handle (GstGLWindow * window);
 static void gst_gl_window_x11_set_preferred_size (GstGLWindow * window,
     gint width, gint height);
 void gst_gl_window_x11_show (GstGLWindow * window);
-void gst_gl_window_x11_draw_unlocked (GstGLWindow * window);
 void gst_gl_window_x11_draw (GstGLWindow * window);
 gboolean gst_gl_window_x11_create_context (GstGLWindow * window,
     GstGLAPI gl_api, guintptr external_gl_context, GError ** error);
@@ -104,8 +103,6 @@ gst_gl_window_x11_class_init (GstGLWindowX11Class * klass)
       GST_DEBUG_FUNCPTR (gst_gl_window_x11_set_window_handle);
   window_class->get_window_handle =
       GST_DEBUG_FUNCPTR (gst_gl_window_x11_get_window_handle);
-  window_class->draw_unlocked =
-      GST_DEBUG_FUNCPTR (gst_gl_window_x11_draw_unlocked);
   window_class->draw = GST_DEBUG_FUNCPTR (gst_gl_window_x11_draw);
   window_class->open = GST_DEBUG_FUNCPTR (gst_gl_window_x11_open);
   window_class->close = GST_DEBUG_FUNCPTR (gst_gl_window_x11_close);
@@ -387,39 +384,13 @@ gst_gl_window_x11_show (GstGLWindow * window)
   gst_gl_window_send_message (window, (GstGLWindowCB) _show_window, window);
 }
 
-/* Called in the gl thread */
-void
-gst_gl_window_x11_draw_unlocked (GstGLWindow * window)
-{
-  GstGLWindowX11 *window_x11 = GST_GL_WINDOW_X11 (window);
-
-  if (gst_gl_window_is_running (GST_GL_WINDOW (window_x11))
-      && window_x11->allow_extra_expose_events) {
-    if (window->queue_resize) {
-      guint width, height;
-
-      gst_gl_window_get_surface_dimensions (window, &width, &height);
-      gst_gl_window_resize (window, width, height);
-    }
-
-    if (window->draw) {
-      GstGLContext *context = gst_gl_window_get_context (window);
-      GstGLContextClass *context_class = GST_GL_CONTEXT_GET_CLASS (context);
-
-      window->draw (window->draw_data);
-      context_class->swap_buffers (context);
-
-      gst_object_unref (context);
-    }
-  }
-}
-
 static void
 draw_cb (gpointer data)
 {
   GstGLWindowX11 *window_x11 = data;
+  GstGLWindow *window = GST_GL_WINDOW (window_x11);
 
-  if (gst_gl_window_is_running (GST_GL_WINDOW (window_x11))) {
+  if (gst_gl_window_is_running (window)) {
     XWindowAttributes attr;
 
     XGetWindowAttributes (window_x11->device, window_x11->internal_win_id,
@@ -443,7 +414,24 @@ draw_cb (gpointer data)
       }
     }
 
-    gst_gl_window_x11_draw_unlocked (GST_GL_WINDOW (window_x11));
+    if (window_x11->allow_extra_expose_events) {
+      if (window->queue_resize) {
+        guint width, height;
+
+        gst_gl_window_get_surface_dimensions (window, &width, &height);
+        gst_gl_window_resize (window, width, height);
+      }
+
+      if (window->draw) {
+        GstGLContext *context = gst_gl_window_get_context (window);
+        GstGLContextClass *context_class = GST_GL_CONTEXT_GET_CLASS (context);
+
+        window->draw (window->draw_data);
+        context_class->swap_buffers (context);
+
+        gst_object_unref (context);
+      }
+    }
   }
 }
 
@@ -512,7 +500,8 @@ gst_gl_window_x11_handle_events (GstGLWindow * window, gboolean handle_events)
     if (handle_events) {
       XSelectInput (window_x11->device, window_x11->internal_win_id,
           StructureNotifyMask | ExposureMask | VisibilityChangeMask |
-          PointerMotionMask | KeyPressMask | KeyReleaseMask);
+          PointerMotionMask | KeyPressMask | KeyReleaseMask | ButtonPressMask |
+          ButtonReleaseMask);
     } else {
       XSelectInput (window_x11->device, window_x11->internal_win_id,
           StructureNotifyMask | ExposureMask | VisibilityChangeMask);
@@ -527,10 +516,6 @@ gst_gl_window_x11_handle_event (GstGLWindowX11 * window_x11)
   GstGLContextClass *context_class;
   GstGLWindow *window;
   gboolean ret = TRUE;
-  const char *key_str = NULL;
-  KeySym keysym;
-  struct mouse_event *mouse_data;
-  struct key_event *key_data;
 
   window = GST_GL_WINDOW (window_x11);
 
@@ -603,47 +588,39 @@ gst_gl_window_x11_handle_event (GstGLWindowX11 * window_x11)
         break;
       case KeyPress:
       case KeyRelease:
+      {
+        const char *key_str = NULL, *key_type = NULL;
+        KeySym keysym;
+
         keysym = XkbKeycodeToKeysym (window_x11->device,
             event.xkey.keycode, 0, 0);
         key_str = XKeysymToString (keysym);
-        key_data = g_slice_new (struct key_event);
-        key_data->window = window;
-        key_data->key_str = XKeysymToString (keysym);
-        key_data->event_type =
-            event.type == KeyPress ? "key-press" : "key-release";
-        GST_DEBUG ("input event key %d pressed over window at %d,%d (%s)",
-            event.xkey.keycode, event.xkey.x, event.xkey.y, key_str);
-        g_main_context_invoke (window->navigation_context,
-            (GSourceFunc) gst_gl_window_key_event_cb, key_data);
+        key_type = event.type == KeyPress ? "key-press" : "key-release";
+        GST_DEBUG ("input event key %d %s over window at %d,%d (%s)",
+            event.xkey.keycode, key_type, event.xkey.x, event.xkey.y, key_str);
+        gst_gl_window_send_key_event_async (window, key_type, key_str);
         break;
+      }
       case ButtonPress:
-      case ButtonRelease:
-        GST_DEBUG ("input event mouse button %d pressed over window at %d,%d",
-            event.xbutton.button, event.xbutton.x, event.xbutton.y);
-        mouse_data = g_slice_new (struct mouse_event);
-        mouse_data->window = window;
-        mouse_data->event_type =
-            event.type ==
-            ButtonPress ? "mouse-button-press" : "mouse-button-release";
-        mouse_data->button = event.xbutton.button;
-        mouse_data->posx = (double) event.xbutton.x;
-        mouse_data->posy = (double) event.xbutton.y;
+      case ButtonRelease:{
+        const char *mouse_type = NULL;
 
-        g_main_context_invoke (window->navigation_context,
-            (GSourceFunc) gst_gl_window_mouse_event_cb, mouse_data);
+        mouse_type = event.type ==
+            ButtonPress ? "mouse-button-press" : "mouse-button-release";
+
+        GST_DEBUG ("input event mouse button %d %s over window at %d,%d",
+            event.xbutton.button, mouse_type, event.xbutton.x, event.xbutton.y);
+
+        gst_gl_window_send_mouse_event_async (window, mouse_type,
+            event.xbutton.button, event.xbutton.x, event.xbutton.y);
         break;
+      }
       case MotionNotify:
         GST_DEBUG ("input event pointer moved over window at %d,%d",
             event.xmotion.x, event.xmotion.y);
-        mouse_data = g_slice_new (struct mouse_event);
-        mouse_data->window = window;
-        mouse_data->event_type = "mouse-move";
-        mouse_data->button = 0;
-        mouse_data->posx = (double) event.xbutton.x;
-        mouse_data->posy = (double) event.xbutton.y;
 
-        g_main_context_invoke (window->navigation_context, (GSourceFunc)
-            gst_gl_window_mouse_event_cb, mouse_data);
+        gst_gl_window_send_mouse_event_async (window, "mouse-move", 0,
+            event.xbutton.x, event.xbutton.y);
         break;
       default:
         GST_DEBUG ("unknown XEvent type: %u", event.type);

@@ -47,6 +47,20 @@
  * his code.
  */
 
+/**
+ * SECTION:element-circle
+ * @see_also: geometrictransform
+ *
+ * Circle is a geometric image transform element. It warps the picture into an
+ * arc shaped form.
+ *
+ * <refsect2>
+ * <title>Example launch line</title>
+ * |[
+ * gst-launch-1.0 -v videotestsrc ! circle ! videoconvert ! autovideosink
+ * ]|
+ * </refsect2>
+ */
 
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
@@ -158,7 +172,7 @@ circle_map (GstGeometricTransform * gt, gint x, gint y, gdouble * in_x,
   distance = sqrt (dx * dx + dy * dy);
   theta = atan2 (-dy, -dx) + circle->angle;
 
-  theta = mod_float (theta, 2 * G_PI);
+  theta = gst_gm_mod_float (theta, 2 * G_PI);
 
   *in_x = gt->width * theta / (circle->spread_angle + 0.0001);
   *in_y =

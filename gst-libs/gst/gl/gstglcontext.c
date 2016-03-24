@@ -41,6 +41,8 @@
 #endif
 
 #include <gmodule.h>
+#include <string.h>
+#include <stdio.h>
 
 #include "gl.h"
 #include "gstglcontext.h"
@@ -65,7 +67,8 @@
 #include "eagl/gstglcontext_eagl.h"
 #endif
 
-GST_DEBUG_CATEGORY_STATIC (gst_performance);
+extern void _gst_gl_debug_enable (GstGLContext * context);
+
 static GPrivate current_context_key;
 
 static GModule *module_self;
@@ -83,7 +86,7 @@ load_opengl_module (gpointer user_data)
 #else
   /* On Linux the .so is only in -dev packages, try with a real soname
    * Proper compilers will optimize away the strcmp */
-  if (strcmp (G_MODULE_SUFFIX, "so") == 0)
+  if (g_strcmp0 (G_MODULE_SUFFIX, "so") == 0)
     module_opengl = g_module_open ("libGL.so.1", G_MODULE_BIND_LAZY);
 
   /* This automatically handles the suffix and even .la files */
@@ -108,7 +111,7 @@ load_gles2_module (gpointer user_data)
 #else
   /* On Linux the .so is only in -dev packages, try with a real soname
    * Proper compilers will optimize away the strcmp */
-  if (strcmp (G_MODULE_SUFFIX, "so") == 0)
+  if (g_strcmp0 (G_MODULE_SUFFIX, "so") == 0)
     module_gles2 = g_module_open ("libGLESv2.so.2", G_MODULE_BIND_LAZY);
 
   /* This automatically handles the suffix and even .la files */
@@ -133,37 +136,55 @@ load_self_module (gpointer user_data)
 #error "Add module loading support for GLES3"
 #endif
 
-/* Context sharedness es tracked by a unique id stored in each context object
- * in order track complex creation/deletion scenarios.  As a result, sharedness
- * can only be successfully validated between two GstGLContext's where one is
- * not a wrapped context.
+/* Context sharedness is tracked by a refcounted pointer stored in each context
+ * object to track complex creation/deletion scenarios.  As a result,
+ * sharedness can only be successfully validated between two GstGLContext's
+ * where one is not a wrapped context.
  *
  * As there is no API at the winsys level to tell whether two OpenGL contexts
  * can share GL resources, this is the next best thing.
+ *
+ * XXX: we may need a way to associate two wrapped GstGLContext's as being
+ * shared however I have not come across a use case that requries this yet.
  */
-static volatile guint sharegroup_idx;
-
-static guint
-_new_sharegroup_id (void)
+struct ContextShareGroup
 {
-  guint current, ret;
+  volatile int refcount;
+};
 
-  do {
-    current = g_atomic_int_get (&sharegroup_idx);
-    ret = current + 1;
+static struct ContextShareGroup *
+_context_share_group_new (void)
+{
+  struct ContextShareGroup *ret = g_new0 (struct ContextShareGroup, 1);
 
-    /* 0 is special */
-    if (ret == 0)
-      ret++;
-  } while (!g_atomic_int_compare_and_exchange (&sharegroup_idx, current, ret));
-
-  GST_TRACE ("generated new share group id %u", ret);
+  ret->refcount = 1;
 
   return ret;
 }
 
+static struct ContextShareGroup *
+_context_share_group_ref (struct ContextShareGroup *share)
+{
+  g_atomic_int_inc (&share->refcount);
+  return share;
+}
+
+static void
+_context_share_group_unref (struct ContextShareGroup *share)
+{
+  if (g_atomic_int_dec_and_test (&share->refcount))
+    g_free (share);
+}
+
+static gboolean
+_context_share_group_is_shared (struct ContextShareGroup *share)
+{
+  return g_atomic_int_get (&share->refcount) > 1;
+}
+
 #define GST_CAT_DEFAULT gst_gl_context_debug
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
+GST_DEBUG_CATEGORY_STATIC (gst_gl_debug);
 
 #define gst_gl_context_parent_class parent_class
 G_DEFINE_ABSTRACT_TYPE (GstGLContext, gst_gl_context, GST_TYPE_OBJECT);
@@ -184,13 +205,12 @@ struct _GstGLContextPrivate
   /* conditions */
   GMutex render_lock;
   GCond create_cond;
-  GCond destroy_cond;
 
   gboolean created;
   gboolean alive;
 
   GWeakRef other_context_ref;
-  guint sharegroup_id;
+  struct ContextShareGroup *sharegroup;
   GError **error;
 
   gint gl_major;
@@ -220,8 +240,8 @@ G_DEFINE_TYPE (GstGLWrappedContext, gst_gl_wrapped_context,
 
 #define GST_GL_WRAPPED_CONTEXT(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), GST_GL_TYPE_WRAPPED_CONTEXT, GstGLWrappedContext))
 #define GST_GL_WRAPPED_CONTEXT_CLASS(k)     (G_TYPE_CHECK_CLASS((k), GST_GL_TYPE_CONTEXT, GstGLContextClass))
-#define GST_GL_IS_WRAPPED_CONTEXT(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), GST_GL_TYPE_WRAPPED_CONTEXT))
-#define GST_GL_IS_WRAPPED_CONTEXT_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_GL_TYPE_WRAPPED_CONTEXT))
+#define GST_IS_GL_WRAPPED_CONTEXT(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), GST_GL_TYPE_WRAPPED_CONTEXT))
+#define GST_IS_GL_WRAPPED_CONTEXT_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_GL_TYPE_WRAPPED_CONTEXT))
 #define GST_GL_WRAPPED_CONTEXT_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), GST_GL_TYPE_WRAPPED_CONTEXT, GstGLWrappedContextClass))
 
 GQuark
@@ -256,7 +276,6 @@ gst_gl_context_init (GstGLContext * context)
   g_mutex_init (&context->priv->render_lock);
 
   g_cond_init (&context->priv->create_cond);
-  g_cond_init (&context->priv->destroy_cond);
   context->priv->created = FALSE;
 
   g_weak_ref_init (&context->priv->other_context_ref, NULL);
@@ -283,7 +302,7 @@ _init_debug (void)
   if (g_once_init_enter (&_init)) {
     GST_DEBUG_CATEGORY_INIT (gst_gl_context_debug, "glcontext", 0,
         "glcontext element");
-    GST_DEBUG_CATEGORY_GET (gst_performance, "GST_PERFORMANCE");
+    GST_DEBUG_CATEGORY_INIT (gst_gl_debug, "gldebug", 0, "OpenGL Debugging");
     g_once_init_leave (&_init, 1);
   }
 }
@@ -310,7 +329,7 @@ gst_gl_context_new (GstGLDisplay * display)
   GST_INFO ("creating a context for display %" GST_PTR_FORMAT
       ", user choice:%s", display, user_choice);
 #if GST_GL_HAVE_PLATFORM_CGL
-  if (!context && (!user_choice || g_strstr_len (user_choice, 5, "cgl")))
+  if (!context && (!user_choice || g_strstr_len (user_choice, 3, "cgl")))
     context = GST_GL_CONTEXT (gst_gl_context_cocoa_new (display));
 #endif
 #if GST_GL_HAVE_PLATFORM_GLX
@@ -318,16 +337,15 @@ gst_gl_context_new (GstGLDisplay * display)
     context = GST_GL_CONTEXT (gst_gl_context_glx_new (display));
 #endif
 #if GST_GL_HAVE_PLATFORM_EGL
-  if (!context && (!user_choice || g_strstr_len (user_choice, 7, "egl")))
+  if (!context && (!user_choice || g_strstr_len (user_choice, 3, "egl")))
     context = GST_GL_CONTEXT (gst_gl_context_egl_new (display));
 #endif
 #if GST_GL_HAVE_PLATFORM_WGL
-  if (!context && (!user_choice || g_strstr_len (user_choice, 3, "wgl"))) {
+  if (!context && (!user_choice || g_strstr_len (user_choice, 3, "wgl")))
     context = GST_GL_CONTEXT (gst_gl_context_wgl_new (display));
-  }
 #endif
 #if GST_GL_HAVE_PLATFORM_EAGL
-  if (!context && (!user_choice || g_strstr_len (user_choice, 5, "eagl")))
+  if (!context && (!user_choice || g_strstr_len (user_choice, 4, "eagl")))
     context = GST_GL_CONTEXT (gst_gl_context_eagl_new (display));
 #endif
 
@@ -388,7 +406,7 @@ gst_gl_context_new_wrapped (GstGLDisplay * display, guintptr handle,
   context = (GstGLContext *) context_wrap;
 
   context->display = gst_object_ref (display);
-  context->priv->sharegroup_id = _new_sharegroup_id ();
+  context->priv->sharegroup = _context_share_group_new ();
   context_wrap->handle = handle;
   context_wrap->platform = context_type;
   context_wrap->available_apis = available_apis;
@@ -624,27 +642,21 @@ gst_gl_context_finalize (GObject * object)
     gst_gl_window_set_draw_callback (context->window, NULL, NULL, NULL);
 
     if (context->priv->alive) {
-      g_mutex_lock (&context->priv->render_lock);
       GST_INFO_OBJECT (context, "send quit gl window loop");
       gst_gl_window_quit (context->window);
-      while (context->priv->alive) {
-        g_cond_wait (&context->priv->destroy_cond, &context->priv->render_lock);
-      }
-      g_mutex_unlock (&context->priv->render_lock);
-    }
 
-    gst_gl_window_set_close_callback (context->window, NULL, NULL, NULL);
-
-    if (context->priv->gl_thread) {
-      gpointer ret = g_thread_join (context->priv->gl_thread);
+      GST_INFO_OBJECT (context, "joining gl thread");
+      g_thread_join (context->priv->gl_thread);
       GST_INFO_OBJECT (context, "gl thread joined");
-      if (ret != NULL)
-        GST_ERROR_OBJECT (context, "gl thread returned a non-null pointer");
       context->priv->gl_thread = NULL;
     }
 
+    gst_gl_window_set_close_callback (context->window, NULL, NULL, NULL);
     gst_object_unref (context->window);
   }
+
+  if (context->priv->sharegroup)
+    _context_share_group_unref (context->priv->sharegroup);
 
   gst_object_unref (context->display);
 
@@ -655,7 +667,6 @@ gst_gl_context_finalize (GObject * object)
 
   g_mutex_clear (&context->priv->render_lock);
 
-  g_cond_clear (&context->priv->destroy_cond);
   g_cond_clear (&context->priv->create_cond);
 
   g_free (context->priv->gl_exts);
@@ -685,7 +696,7 @@ gst_gl_context_activate (GstGLContext * context, gboolean activate)
   GstGLContextClass *context_class;
   gboolean result;
 
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), FALSE);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), FALSE);
   context_class = GST_GL_CONTEXT_GET_CLASS (context);
   g_return_val_if_fail (context_class->activate != NULL, FALSE);
 
@@ -746,7 +757,7 @@ gst_gl_context_get_gl_api (GstGLContext * context)
 {
   GstGLContextClass *context_class;
 
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), GST_GL_API_NONE);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), GST_GL_API_NONE);
   context_class = GST_GL_CONTEXT_GET_CLASS (context);
   g_return_val_if_fail (context_class->get_gl_api != NULL, GST_GL_API_NONE);
 
@@ -775,7 +786,7 @@ gst_gl_context_get_proc_address (GstGLContext * context, const gchar * name)
   GstGLContextClass *context_class;
   GstGLAPI gl_api;
 
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), NULL);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), NULL);
   context_class = GST_GL_CONTEXT_GET_CLASS (context);
   g_return_val_if_fail (context_class->get_proc_address != NULL, NULL);
 
@@ -831,7 +842,7 @@ gst_gl_context_default_get_proc_address (GstGLAPI gl_api, const gchar * name)
 gboolean
 gst_gl_context_set_window (GstGLContext * context, GstGLWindow * window)
 {
-  g_return_val_if_fail (!GST_GL_IS_WRAPPED_CONTEXT (context), FALSE);
+  g_return_val_if_fail (!GST_IS_GL_WRAPPED_CONTEXT (context), FALSE);
 
   GST_DEBUG_OBJECT (context, "window:%" GST_PTR_FORMAT, window);
 
@@ -865,9 +876,9 @@ gst_gl_context_set_window (GstGLContext * context, GstGLWindow * window)
 GstGLWindow *
 gst_gl_context_get_window (GstGLContext * context)
 {
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), NULL);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), NULL);
 
-  if (GST_GL_IS_WRAPPED_CONTEXT (context)) {
+  if (GST_IS_GL_WRAPPED_CONTEXT (context)) {
     GST_WARNING_OBJECT (context, "context is not toplevel, returning NULL");
     return NULL;
   }
@@ -892,12 +903,12 @@ gst_gl_context_get_window (GstGLContext * context)
 gboolean
 gst_gl_context_can_share (GstGLContext * context, GstGLContext * other_context)
 {
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), FALSE);
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (other_context), FALSE);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), FALSE);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (other_context), FALSE);
 
   /* check if the contexts are descendants or the root nodes are the same */
-  return context->priv->sharegroup_id != 0
-      && context->priv->sharegroup_id == other_context->priv->sharegroup_id;
+  return context->priv->sharegroup != NULL
+      && context->priv->sharegroup == other_context->priv->sharegroup;
 }
 
 /**
@@ -925,8 +936,8 @@ gst_gl_context_create (GstGLContext * context,
 {
   gboolean alive = FALSE;
 
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), FALSE);
-  g_return_val_if_fail (!GST_GL_IS_WRAPPED_CONTEXT (context), FALSE);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), FALSE);
+  g_return_val_if_fail (!GST_IS_GL_WRAPPED_CONTEXT (context), FALSE);
 
   GST_DEBUG_OBJECT (context, " other_context:%" GST_PTR_FORMAT, other_context);
 
@@ -938,16 +949,16 @@ gst_gl_context_create (GstGLContext * context,
     g_weak_ref_set (&context->priv->other_context_ref, other_context);
     context->priv->error = error;
     if (other_context == NULL)
-      context->priv->sharegroup_id = _new_sharegroup_id ();
+      context->priv->sharegroup = _context_share_group_new ();
     else
-      context->priv->sharegroup_id = other_context->priv->sharegroup_id;
+      context->priv->sharegroup =
+          _context_share_group_ref (other_context->priv->sharegroup);
 
     context->priv->gl_thread = g_thread_new ("gstglcontext",
         (GThreadFunc) gst_gl_context_create_thread, context);
 
-    g_cond_wait (&context->priv->create_cond, &context->priv->render_lock);
-
-    context->priv->created = TRUE;
+    while (!context->priv->created)
+      g_cond_wait (&context->priv->create_cond, &context->priv->render_lock);
 
     GST_INFO_OBJECT (context, "gl thread created");
   }
@@ -958,154 +969,6 @@ gst_gl_context_create (GstGLContext * context,
 
   return alive;
 }
-
-#ifndef GL_DEBUG_TYPE_ERROR
-#define GL_DEBUG_TYPE_ERROR 0x824C
-#endif
-#ifndef GL_DEBUG_TYPE_DEPRECATED_BEHAVIOUR
-#define GL_DEBUG_TYPE_DEPRECATED_BEHAVIOUR 0x824D
-#endif
-#ifndef GL_DEBUG_TYPE_UNDEFINED_BEHAVIOUR
-#define GL_DEBUG_TYPE_UNDEFINED_BEHAVIOUR 0x824E
-#endif
-#ifndef GL_DEBUG_TYPE_PORTABILITY
-#define GL_DEBUG_TYPE_PORTABILITY 0x824F
-#endif
-#ifndef GL_DEBUG_TYPE_PERFORMANCE
-#define GL_DEBUG_TYPE_PERFORMANCE 0x8250
-#endif
-#ifndef GL_DEBUG_TYPE_MARKER
-#define GL_DEBUG_TYPE_MARKER 0x8268
-#endif
-#ifndef GL_DEBUG_TYPE_OTHER
-#define GL_DEBUG_TYPE_OTHER 0x8251
-#endif
-
-#ifndef GL_DEBUG_SEVERITY_HIGH
-#define GL_DEBUG_SEVERITY_HIGH 0x9146
-#endif
-#ifndef GL_DEBUG_SEVERITY_MEDIUM
-#define GL_DEBUG_SEVERITY_MEDIUM 0x9147
-#endif
-#ifndef GL_DEBUG_SEVERITY_LOW
-#define GL_DEBUG_SEVERITY_LOW 0x9148
-#endif
-#ifndef GL_DEBUG_SEVERITY_NOTIFICATION
-#define GL_DEBUG_SEVERITY_NOTIFICATION 0x826B
-#endif
-
-#ifndef GL_DEBUG_SOURCE_API
-#define GL_DEBUG_SOURCE_API 0x8246
-#endif
-#ifndef GL_DEBUG_SOURCE_WINDOW_SYSTEM
-#define GL_DEBUG_SOURCE_WINDOW_SYSTEM 0x8247
-#endif
-#ifndef GL_DEBUG_SOURCE_SHADER_COMPILER
-#define GL_DEBUG_SOURCE_SHADER_COMPILER 0x8248
-#endif
-#ifndef GL_DEBUG_SOURCE_THIRD_PARTY
-#define GL_DEBUG_SOURCE_THIRD_PARTY 0x8249
-#endif
-#ifndef GL_DEBUG_SOURCE_APPLICATION
-#define GL_DEBUG_SOURCE_APPLICATION 0x824A
-#endif
-#ifndef GL_DEBUG_SOURCE_OTHER
-#define GL_DEBUG_SOURCE_OTHER 0x824B
-#endif
-
-#if !defined(GST_DISABLE_GST_DEBUG)
-static inline const gchar *
-_debug_severity_to_string (GLenum severity)
-{
-  switch (severity) {
-    case GL_DEBUG_SEVERITY_HIGH:
-      return "high";
-    case GL_DEBUG_SEVERITY_MEDIUM:
-      return "medium";
-    case GL_DEBUG_SEVERITY_LOW:
-      return "low";
-    case GL_DEBUG_SEVERITY_NOTIFICATION:
-      return "notification";
-    default:
-      return "invalid";
-  }
-}
-
-static inline const gchar *
-_debug_source_to_string (GLenum source)
-{
-  switch (source) {
-    case GL_DEBUG_SOURCE_API:
-      return "API";
-    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-      return "winsys";
-    case GL_DEBUG_SOURCE_SHADER_COMPILER:
-      return "shader compiler";
-    case GL_DEBUG_SOURCE_THIRD_PARTY:
-      return "third party";
-    case GL_DEBUG_SOURCE_APPLICATION:
-      return "application";
-    case GL_DEBUG_SOURCE_OTHER:
-      return "other";
-    default:
-      return "invalid";
-  }
-}
-
-static inline const gchar *
-_debug_type_to_string (GLenum type)
-{
-  switch (type) {
-    case GL_DEBUG_TYPE_ERROR:
-      return "error";
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOUR:
-      return "deprecated";
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOUR:
-      return "undefined";
-    case GL_DEBUG_TYPE_PORTABILITY:
-      return "portability";
-    case GL_DEBUG_TYPE_PERFORMANCE:
-      return "performance";
-    case GL_DEBUG_TYPE_MARKER:
-      return "debug marker";
-    case GL_DEBUG_TYPE_OTHER:
-      return "other";
-    default:
-      return "invalid";
-  }
-}
-
-static void GSTGLAPI
-_gst_gl_debug_callback (GLenum source, GLenum type, GLuint id, GLenum severity,
-    GLsizei length, const gchar * message, gpointer user_data)
-{
-  GstGLContext *context = user_data;
-  const gchar *severity_str = _debug_severity_to_string (severity);
-  const gchar *source_str = _debug_source_to_string (source);
-  const gchar *type_str = _debug_type_to_string (type);
-
-  switch (type) {
-    case GL_DEBUG_TYPE_ERROR:
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOUR:
-      GST_ERROR_OBJECT (context, "%s: GL %s from %s id:%u, %s", severity_str,
-          type_str, source_str, id, message);
-      break;
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOUR:
-    case GL_DEBUG_TYPE_PORTABILITY:
-      GST_FIXME_OBJECT (context, "%s: GL %s from %s id:%u, %s", severity_str,
-          type_str, source_str, id, message);
-      break;
-    case GL_DEBUG_TYPE_PERFORMANCE:
-      GST_CAT_DEBUG_OBJECT (gst_performance, context, "%s: GL %s from %s id:%u,"
-          " %s", severity_str, type_str, source_str, id, message);
-      break;
-    default:
-      GST_DEBUG_OBJECT (context, "%s: GL %s from %s id:%u, %s", severity_str,
-          type_str, source_str, id, message);
-      break;
-  }
-}
-#endif
 
 static gboolean
 _create_context_info (GstGLContext * context, GstGLAPI gl_api, gint * gl_major,
@@ -1190,6 +1053,9 @@ _compiled_api (void)
 static void
 _unlock_create_thread (GstGLContext * context)
 {
+  context->priv->created = TRUE;
+  GST_INFO_OBJECT (context, "gl thread running");
+  g_cond_signal (&context->priv->create_cond);
   g_mutex_unlock (&context->priv->render_lock);
 }
 
@@ -1220,7 +1086,6 @@ gst_gl_context_create_thread (GstGLContext * context)
 {
   GstGLContextClass *context_class;
   GstGLWindowClass *window_class;
-  GstGLFuncs *gl;
   GstGLAPI compiled_api, user_api, gl_api, display_api;
   gchar *api_string;
   gchar *compiled_api_s;
@@ -1256,7 +1121,6 @@ gst_gl_context_create_thread (GstGLContext * context)
     }
   }
 
-  gl = context->gl_vtable;
   compiled_api = _compiled_api ();
   compiled_api_s = gst_gl_api_to_string (compiled_api);
 
@@ -1344,15 +1208,9 @@ gst_gl_context_create_thread (GstGLContext * context)
 
   context->priv->alive = TRUE;
 
-  if (gl->DebugMessageCallback) {
 #if !defined(GST_DISABLE_GST_DEBUG)
-    GST_INFO_OBJECT (context, "Enabling GL context debugging");
-    /* enable them all */
-    gl->DebugMessageControl (GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, 0,
-        GL_TRUE);
-    gl->DebugMessageCallback (_gst_gl_debug_callback, context);
+  _gst_gl_debug_enable (context);
 #endif
-  }
 
   if (other_context) {
     GST_DEBUG_OBJECT (context, "Unreffing other_context %" GST_PTR_FORMAT,
@@ -1360,9 +1218,8 @@ gst_gl_context_create_thread (GstGLContext * context)
     gst_object_unref (other_context);
   }
 
-  g_cond_signal (&context->priv->create_cond);
-
-//  g_mutex_unlock (&context->priv->render_lock);
+  /* unlocking of the render_lock happens when the
+   * context's loop is running from inside that loop */
   gst_gl_window_send_message_async (context->window,
       (GstGLWindowCB) _unlock_create_thread, context, NULL);
 
@@ -1371,7 +1228,6 @@ gst_gl_context_create_thread (GstGLContext * context)
   GST_INFO_OBJECT (context, "loop exited");
 
   g_mutex_lock (&context->priv->render_lock);
-
   context->priv->alive = FALSE;
 
   gst_gl_context_activate (context, FALSE);
@@ -1387,8 +1243,7 @@ gst_gl_context_create_thread (GstGLContext * context)
     window_class->close (context->window);
   }
 
-  g_cond_signal (&context->priv->destroy_cond);
-
+  context->priv->created = FALSE;
   g_mutex_unlock (&context->priv->render_lock);
 
   return NULL;
@@ -1398,6 +1253,9 @@ failure:
     if (other_context)
       gst_object_unref (other_context);
 
+    /* A context that fails to be created is considered created but not alive
+     * and will never be able to be alive as creation can't happen */
+    context->priv->created = TRUE;
     g_cond_signal (&context->priv->create_cond);
     g_mutex_unlock (&context->priv->render_lock);
     return NULL;
@@ -1420,7 +1278,7 @@ gst_gl_context_destroy (GstGLContext * context)
 {
   GstGLContextClass *context_class;
 
-  g_return_if_fail (GST_GL_IS_CONTEXT (context));
+  g_return_if_fail (GST_IS_GL_CONTEXT (context));
   context_class = GST_GL_CONTEXT_GET_CLASS (context);
   g_return_if_fail (context_class->destroy_context != NULL);
 
@@ -1446,7 +1304,7 @@ gst_gl_context_fill_info (GstGLContext * context, GError ** error)
   GstGLAPI gl_api;
   gboolean ret;
 
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), FALSE);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), FALSE);
   g_return_val_if_fail (context->priv->active_thread == g_thread_self (),
       FALSE);
 
@@ -1538,7 +1396,7 @@ gst_gl_context_get_gl_context (GstGLContext * context)
   GstGLContextClass *context_class;
   guintptr result;
 
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), 0);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), 0);
   context_class = GST_GL_CONTEXT_GET_CLASS (context);
   g_return_val_if_fail (context_class->get_gl_context != NULL, 0);
 
@@ -1562,7 +1420,7 @@ gst_gl_context_get_gl_platform (GstGLContext * context)
 {
   GstGLContextClass *context_class;
 
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), 0);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), 0);
   context_class = GST_GL_CONTEXT_GET_CLASS (context);
   g_return_val_if_fail (context_class->get_gl_platform != NULL, 0);
 
@@ -1580,7 +1438,7 @@ gst_gl_context_get_gl_platform (GstGLContext * context)
 GstGLDisplay *
 gst_gl_context_get_display (GstGLContext * context)
 {
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), NULL);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), NULL);
 
   return gst_object_ref (context->display);
 }
@@ -1620,11 +1478,13 @@ gst_gl_context_thread_add (GstGLContext * context,
   GstGLWindow *window;
   RunGenericData rdata;
 
-  g_return_if_fail (GST_GL_IS_CONTEXT (context));
+  g_return_if_fail (GST_IS_GL_CONTEXT (context));
   g_return_if_fail (func != NULL);
 
-  if (GST_GL_IS_WRAPPED_CONTEXT (context)) {
+  if (GST_IS_GL_WRAPPED_CONTEXT (context))
     g_return_if_fail (context->priv->active_thread == g_thread_self ());
+
+  if (context->priv->active_thread == g_thread_self ()) {
     func (context, data);
     return;
   }
@@ -1656,7 +1516,7 @@ gst_gl_context_thread_add (GstGLContext * context,
 void
 gst_gl_context_get_gl_version (GstGLContext * context, gint * maj, gint * min)
 {
-  g_return_if_fail (GST_GL_IS_CONTEXT (context));
+  g_return_if_fail (GST_IS_GL_CONTEXT (context));
   g_return_if_fail (maj != NULL && min != NULL);
 
   if (maj)
@@ -1682,7 +1542,7 @@ gboolean
 gst_gl_context_check_gl_version (GstGLContext * context, GstGLAPI api,
     gint maj, gint min)
 {
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), FALSE);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), FALSE);
 
   if (maj > context->priv->gl_major)
     return FALSE;
@@ -1716,7 +1576,7 @@ gst_gl_context_check_feature (GstGLContext * context, const gchar * feature)
 {
   GstGLContextClass *context_class;
 
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), FALSE);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), FALSE);
   g_return_val_if_fail (feature != NULL, FALSE);
 
   context_class = GST_GL_CONTEXT_GET_CLASS (context);
@@ -1743,6 +1603,50 @@ GstGLContext *
 gst_gl_context_get_current (void)
 {
   return g_private_get (&current_context_key);
+}
+
+/**
+ * gst_gl_context_is_shared:
+ * @context: a #GstGLContext
+ *
+ * Returns: Whether the #GstGLContext has been shared with another #GstGLContext
+ *
+ * Since: 1.8
+ */
+gboolean
+gst_gl_context_is_shared (GstGLContext * context)
+{
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), FALSE);
+  if (GST_IS_GL_WRAPPED_CONTEXT (context))
+    g_return_val_if_fail (context->priv->active_thread, FALSE);
+  else
+    g_return_val_if_fail (context->priv->alive, FALSE);
+
+  return _context_share_group_is_shared (context->priv->sharegroup);
+}
+
+/**
+ * gst_gl_context_set_shared_with:
+ * @context: a wrapped #GstGLContext
+ * @share: another #GstGLContext
+ *
+ * Will internally set @context as shared with @share
+ *
+ * Since: 1.8
+ */
+void
+gst_gl_context_set_shared_with (GstGLContext * context, GstGLContext * share)
+{
+  g_return_if_fail (GST_IS_GL_CONTEXT (context));
+  g_return_if_fail (GST_IS_GL_CONTEXT (share));
+  g_return_if_fail (!gst_gl_context_is_shared (context));
+  /* XXX: may be a little too strict */
+  g_return_if_fail (GST_IS_GL_WRAPPED_CONTEXT (context));
+
+  if (context->priv->sharegroup)
+    _context_share_group_unref (context->priv->sharegroup);
+  context->priv->sharegroup =
+      _context_share_group_ref (share->priv->sharegroup);
 }
 
 static GstGLAPI

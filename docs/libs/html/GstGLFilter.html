@@ -3,10 +3,10 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>GstGLFilter: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
-<link rel="prev" href="GstGLBaseFilter.html" title="GstGLBaseFilter">
+<link rel="prev" href="gst-plugins-bad-libs-GstEGLImageMemory.html" title="GstEGLImageMemory">
 <link rel="next" href="GstGLFramebuffer.html" title="GstGLFramebuffer">
 <meta name="generator" content="GTK-Doc V1.24 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
@@ -20,7 +20,7 @@
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="gl.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
-<td><a accesskey="p" href="GstGLBaseFilter.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="p" href="gst-plugins-bad-libs-GstEGLImageMemory.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
 <td><a accesskey="n" href="GstGLFramebuffer.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
@@ -34,7 +34,7 @@
 </tr></table></div>
 <div class="refsect1">
 <a name="GstGLFilter.functions"></a><h2>Functions</h2>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="functions_return">
 <col class="functions_name">
@@ -77,7 +77,7 @@
 </div>
 <div class="refsect1">
 <a name="GstGLFilter.other"></a><h2>Types and Values</h2>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="name">
 <col class="description">
@@ -122,8 +122,8 @@ gst_gl_filter_draw_texture (<em class="parameter"><code><a class="link" href="Gs
  and <em class="parameter"><code>height</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.9.15.7.2.5"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
+<a name="id-1.2.9.16.7.2.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
 <col class="parameters_description">
@@ -163,7 +163,7 @@ gst_gl_filter_render_to_target (<em class="parameter"><code><a class="link" href
                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> resize</code></em>,
                                 <em class="parameter"><code><span class="type">GLuint</span> input</code></em>,
                                 <em class="parameter"><code><span class="type">GLuint</span> target</code></em>,
-                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-Utilities.html#GLCB:CAPS" title="GLCB ()"><span class="type">GLCB</span></a> func</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#GLCB:CAPS" title="GLCB ()"><span class="type">GLCB</span></a> func</code></em>,
                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>);</pre>
 <p>Transforms <em class="parameter"><code>input</code></em>
  into <em class="parameter"><code>output</code></em>
@@ -174,8 +174,8 @@ only ever be <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Ma
  is the input texture of <em class="parameter"><code>filter</code></em>
 .</p>
 <div class="refsect3">
-<a name="id-1.2.9.15.7.3.5"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
+<a name="id-1.2.9.16.7.3.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
 <col class="parameters_description">
@@ -230,7 +230,7 @@ gst_gl_filter_render_to_target_with_shader
                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> resize</code></em>,
                                 <em class="parameter"><code><span class="type">GLuint</span> input</code></em>,
                                 <em class="parameter"><code><span class="type">GLuint</span> target</code></em>,
-                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglshader.html#GstGLShader"><span class="type">GstGLShader</span></a> *shader</code></em>);</pre>
+                                <em class="parameter"><code><a class="link" href="GstGLShader.html" title="GstGLShader"><span class="type">GstGLShader</span></a> *shader</code></em>);</pre>
 <p>Transforms <em class="parameter"><code>input</code></em>
  into <em class="parameter"><code>output</code></em>
  using <em class="parameter"><code>shader</code></em>
@@ -241,8 +241,8 @@ only ever be <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Ma
 .</p>
 <p>See also: <a class="link" href="GstGLFilter.html#gst-gl-filter-render-to-target" title="gst_gl_filter_render_to_target ()"><code class="function">gst_gl_filter_render_to_target()</code></a></p>
 <div class="refsect3">
-<a name="id-1.2.9.15.7.4.6"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
+<a name="id-1.2.9.16.7.4.6"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
 <col class="parameters_description">
@@ -289,8 +289,8 @@ gst_gl_filter_filter_texture (<em class="parameter"><code><a class="link" href="
 <p>Perform automatic upload if needed, call filter_texture vfunc and then an
 automatic download if needed.</p>
 <div class="refsect3">
-<a name="id-1.2.9.15.7.5.5"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
+<a name="id-1.2.9.16.7.5.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
 <col class="parameters_description">
@@ -316,7 +316,7 @@ automatic download if needed.</p>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.9.15.7.5.6"></a><h4>Returns</h4>
+<a name="id-1.2.9.16.7.5.6"></a><h4>Returns</h4>
 <p> whether the transformation succeeded</p>
 </div>
 </div>
@@ -327,11 +327,11 @@ automatic download if needed.</p>
 <a name="GstGLFilter-struct"></a><h3>GstGLFilter</h3>
 <pre class="programlisting">typedef struct _GstGLFilter GstGLFilter;</pre>
 <p><a class="link" href="GstGLFilter.html" title="GstGLFilter"><span class="type">GstGLFilter</span></a> is a base class that provides the logic of getting the GL context
-from downstream and automatic upload/download for non-<a class="link" href="gst-plugins-bad-libs-gstglmemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a>
+from downstream and automatic upload/download for non-<a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a>
 <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBuffer.html"><span class="type">GstBuffer</span></a>s.</p>
 <div class="refsect3">
-<a name="id-1.2.9.15.8.2.5"></a><h4>Members</h4>
-<div class="informaltable"><table width="100%" border="0">
+<a name="id-1.2.9.16.8.2.5"></a><h4>Members</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
 <col class="struct_members_description">
@@ -361,8 +361,8 @@ from downstream and automatic upload/download for non-<a class="link" href="gst-
 } GstGLFilterClass;
 </pre>
 <div class="refsect3">
-<a name="id-1.2.9.15.8.3.4"></a><h4>Members</h4>
-<div class="informaltable"><table width="100%" border="0">
+<a name="id-1.2.9.16.8.3.4"></a><h4>Members</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
 <col class="struct_members_description">

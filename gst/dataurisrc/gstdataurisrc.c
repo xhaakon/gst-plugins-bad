@@ -27,7 +27,7 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch-0.10 -v dataurisrc uri="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfElEQVQ4je2MwQnAIAxFgziA4EnczIsO4MEROo/gzZWc4xdTbe1R6LGRR74heYS7iKElzfcMiRnt4hf8gk8EayB6luefue/HzlJfCA50XsNjYRxprZmenXNIKSGEsC+QUqK1hhgj521BzhnWWiilUGvdF5RS4L2HMQZCCJy8sHMm2TYdJAAAAABJRU5ErkJggg==" ! pngdec ! videoconvert ! freeze ! videoconvert ! autovideosink
+ * gst-launch-1.0 -v dataurisrc uri="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfElEQVQ4je2MwQnAIAxFgziA4EnczIsO4MEROo/gzZWc4xdTbe1R6LGRR74heYS7iKElzfcMiRnt4hf8gk8EayB6luefue/HzlJfCA50XsNjYRxprZmenXNIKSGEsC+QUqK1hhgj521BzhnWWiilUGvdF5RS4L2HMQZCCJy8sHMm2TYdJAAAAABJRU5ErkJggg==" ! pngdec ! videoconvert ! imagefreeze ! videoconvert ! autovideosink
  * ]| This pipeline displays a small 16x16 PNG image from the data URI.
  * </refsect2>
  */
@@ -177,9 +177,8 @@ gst_data_uri_src_get_caps (GstBaseSrc * basesrc, GstCaps * filter)
   GstCaps *caps;
 
   GST_OBJECT_LOCK (src);
-  if (gst_pad_has_current_caps (GST_BASE_SRC_PAD (basesrc)))
-    caps = gst_pad_get_current_caps (GST_BASE_SRC_PAD (basesrc));
-  else
+  caps = gst_pad_get_current_caps (GST_BASE_SRC_PAD (basesrc));
+  if (!caps)
     caps = gst_caps_new_any ();
   GST_OBJECT_UNLOCK (src);
 

@@ -53,10 +53,10 @@ static GstStaticPadTemplate gst_gl_download_element_src_pad_template =
     GST_STATIC_CAPS ("video/x-raw; video/x-raw(memory:GLMemory)"));
 
 static GstStaticPadTemplate gst_gl_download_element_sink_pad_template =
-GST_STATIC_PAD_TEMPLATE ("sink",
+    GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("video/x-raw(memory:GLMemory)"));
+    GST_STATIC_CAPS ("video/x-raw(memory:GLMemory); video/x-raw"));
 
 static void
 gst_gl_download_element_class_init (GstGLDownloadElementClass * klass)
@@ -176,7 +176,8 @@ gst_gl_download_element_prepare_output_buffer (GstBaseTransform * bt,
     if (gst_is_gl_memory (mem)) {
       if (!features || gst_caps_features_contains (features,
               GST_CAPS_FEATURE_MEMORY_SYSTEM_MEMORY)) {
-        gst_gl_memory_download_transfer ((GstGLMemory *) mem);
+        if (gst_is_gl_memory_pbo (mem))
+          gst_gl_memory_pbo_download_transfer ((GstGLMemoryPBO *) mem);
       }
     }
   }

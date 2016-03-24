@@ -74,6 +74,8 @@ static void mpegts_base_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 
 static void mpegts_base_free_program (MpegTSBaseProgram * program);
+static void mpegts_base_deactivate_program (MpegTSBase * base,
+    MpegTSBaseProgram * program);
 static gboolean mpegts_base_sink_activate (GstPad * pad, GstObject * parent);
 static gboolean mpegts_base_sink_activate_mode (GstPad * pad,
     GstObject * parent, GstPadMode mode, gboolean active);
@@ -105,11 +107,20 @@ _extra_init (void)
 G_DEFINE_TYPE_WITH_CODE (MpegTSBase, mpegts_base, GST_TYPE_ELEMENT,
     _extra_init ());
 
+/* Default implementation is that mpegtsbase can remove any program */
+static gboolean
+mpegts_base_can_remove_program (MpegTSBase * base, MpegTSBaseProgram * program)
+{
+  return TRUE;
+}
+
 static void
 mpegts_base_class_init (MpegTSBaseClass * klass)
 {
   GObjectClass *gobject_class;
   GstElementClass *element_class;
+
+  klass->can_remove_program = mpegts_base_can_remove_program;
 
   element_class = GST_ELEMENT_CLASS (klass);
   element_class->change_state = mpegts_base_change_state;
@@ -411,6 +422,16 @@ mpegts_base_free_program (MpegTSBaseProgram * program)
 }
 
 void
+mpegts_base_deactivate_and_free_program (MpegTSBase * base,
+    MpegTSBaseProgram * program)
+{
+  GST_DEBUG_OBJECT (base, "program_number : %d", program->program_number);
+
+  mpegts_base_deactivate_program (base, program);
+  mpegts_base_free_program (program);
+}
+
+static void
 mpegts_base_remove_program (MpegTSBase * base, gint program_number)
 {
   GST_DEBUG_OBJECT (base, "program_number : %d", program_number);
@@ -472,7 +493,7 @@ mpegts_base_program_add_stream (MpegTSBase * base,
   return bstream;
 }
 
-void
+static void
 mpegts_base_program_remove_stream (MpegTSBase * base,
     MpegTSBaseProgram * program, guint16 pid)
 {
@@ -771,6 +792,7 @@ mpegts_base_apply_pat (MpegTSBase * base, GstMpegtsSection * section)
   }
 
   if (old_pat) {
+    MpegTSBaseClass *klass = GST_MPEGTS_BASE_GET_CLASS (base);
     /* deactivate the old table */
     GST_LOG ("Deactivating old Program Association Table");
 
@@ -791,8 +813,15 @@ mpegts_base_apply_pat (MpegTSBase * base, GstMpegtsSection * section)
       GST_INFO_OBJECT (base, "PAT removing program 0x%04x 0x%04x",
           patp->program_number, patp->network_or_program_map_PID);
 
-      mpegts_base_deactivate_program (base, program);
-      mpegts_base_remove_program (base, patp->program_number);
+      if (klass->can_remove_program (base, program)) {
+        mpegts_base_deactivate_program (base, program);
+        mpegts_base_remove_program (base, patp->program_number);
+      } else {
+        /* sub-class now owns the program and must call
+         * mpegts_base_deactivate_and_free_program later */
+        g_hash_table_steal (base->programs,
+            GINT_TO_POINTER ((gint) patp->program_number));
+      }
       /* FIXME: when this happens it may still be pmt pid of another
        * program, so setting to False may make it go through expensive
        * path in is_psi unnecessarily */
@@ -854,6 +883,7 @@ mpegts_base_apply_pmt (MpegTSBase * base, GstMpegtsSection * section)
 
   /* If the current program is active, this means we have a new program */
   if (old_program->active) {
+    MpegTSBaseClass *klass = GST_MPEGTS_BASE_GET_CLASS (base);
     old_program = mpegts_base_steal_program (base, program_number);
     program = mpegts_base_new_program (base, program_number, section->pid);
     program->patcount = old_program->patcount;
@@ -861,8 +891,17 @@ mpegts_base_apply_pmt (MpegTSBase * base, GstMpegtsSection * section)
         GINT_TO_POINTER (program_number), program);
 
     /* Desactivate the old program */
-    mpegts_base_deactivate_program (base, old_program);
-    mpegts_base_free_program (old_program);
+    /* FIXME : THIS IS BREAKING THE STREAM SWITCHING LOGIC !
+     *  */
+    if (klass->can_remove_program (base, old_program)) {
+      mpegts_base_deactivate_program (base, old_program);
+      mpegts_base_free_program (old_program);
+    } else {
+      /* sub-class now owns the program and must call
+       * mpegts_base_deactivate_and_free_program later */
+      g_hash_table_steal (base->programs,
+          GINT_TO_POINTER ((gint) old_program->program_number));
+    }
     initial_program = FALSE;
   } else
     program = old_program;
@@ -1404,9 +1443,21 @@ mpegts_base_handle_seek_event (MpegTSBase * base, GstPad * pad,
         }
         base->mode = BASE_MODE_PUSHING;
       }
+    } else {
+      GST_WARNING ("subclass has no seek implementation");
     }
 
     return ret == GST_FLOW_OK;
+  }
+
+  if (!klass->seek) {
+    GST_WARNING ("subclass has no seek implementation");
+    return FALSE;
+  }
+
+  if (rate <= 0.0) {
+    GST_WARNING ("Negative rate not supported");
+    return FALSE;
   }
 
   GST_DEBUG ("seek event, rate: %f start: %" GST_TIME_FORMAT
@@ -1450,16 +1501,11 @@ mpegts_base_handle_seek_event (MpegTSBase * base, GstPad * pad,
 
 
   /* If the subclass can seek, do that */
-  if (klass->seek) {
-    ret = klass->seek (base, event);
-    if (G_UNLIKELY (ret != GST_FLOW_OK))
-      GST_WARNING ("seeking failed %s", gst_flow_get_name (ret));
-    else
-      base->last_seek_seqnum = GST_EVENT_SEQNUM (event);
-  } else {
-    /* FIXME : Check this before so we don't do seeks we can't handle ? */
-    GST_WARNING ("subclass has no seek implementation");
-  }
+  ret = klass->seek (base, event);
+  if (G_UNLIKELY (ret != GST_FLOW_OK))
+    GST_WARNING ("seeking failed %s", gst_flow_get_name (ret));
+  else
+    base->last_seek_seqnum = GST_EVENT_SEQNUM (event);
 
   if (flush_event) {
     /* if we sent a FLUSH_START, we now send a FLUSH_STOP */

@@ -47,6 +47,7 @@
 #include "gstgluploadelement.h"
 #include "gstgldownloadelement.h"
 #include "gstglcolorconvertelement.h"
+#include "gstglcolorbalance.h"
 #include "gstglfilterbin.h"
 #include "gstglsinkbin.h"
 #include "gstglsrcbin.h"
@@ -60,9 +61,11 @@
 #include "gstglfilterapp.h"
 #include "gstglstereosplit.h"
 #include "gstglstereomix.h"
+#include "gstglviewconvert.h"
 
 #if HAVE_GRAPHENE
 #include "gstgltransformation.h"
+#include "gstglvideoflip.h"
 #endif
 #if HAVE_JPEG
 #if HAVE_PNG
@@ -75,7 +78,6 @@
 #include "gstglfilterglass.h"
 /* #include "gstglfilterreflectedscreen.h" */
 #include "gstgldeinterlace.h"
-#include "gstglviewconvert.h"
 #include "gstglmosaic.h"
 #if HAVE_PNG
 #include "gstgldifferencematte.h"
@@ -140,6 +142,11 @@ plugin_init (GstPlugin * plugin)
     return FALSE;
   }
 
+  if (!gst_element_register (plugin, "glcolorbalance",
+          GST_RANK_NONE, GST_TYPE_GL_COLOR_BALANCE)) {
+    return FALSE;
+  }
+
   if (!gst_element_register (plugin, "glfilterbin",
           GST_RANK_NONE, GST_TYPE_GL_FILTER_BIN)) {
     return FALSE;
@@ -167,6 +174,11 @@ plugin_init (GstPlugin * plugin)
 #if HAVE_GRAPHENE
   if (!gst_element_register (plugin, "gltransformation",
           GST_RANK_NONE, GST_TYPE_GL_TRANSFORMATION)) {
+    return FALSE;
+  }
+
+  if (!gst_element_register (plugin, "glvideoflip",
+          GST_RANK_NONE, GST_TYPE_GL_VIDEO_FLIP)) {
     return FALSE;
   }
 #endif
@@ -199,6 +211,21 @@ plugin_init (GstPlugin * plugin)
           GST_RANK_NONE, GST_TYPE_GL_FILTER_APP)) {
     return FALSE;
   }
+
+  if (!gst_element_register (plugin, "glviewconvert",
+          GST_RANK_NONE, GST_TYPE_GL_VIEW_CONVERT_ELEMENT)) {
+    return FALSE;
+  }
+
+  if (!gst_element_register (plugin, "glstereosplit",
+          GST_RANK_NONE, GST_TYPE_GL_STEREOSPLIT)) {
+    return FALSE;
+  }
+
+  if (!gst_element_register (plugin, "glstereomix",
+          GST_RANK_NONE, GST_TYPE_GL_STEREO_MIX)) {
+    return FALSE;
+  }
 #if HAVE_JPEG
 #if HAVE_PNG
   if (!gst_element_register (plugin, "gloverlay",
@@ -228,11 +255,6 @@ plugin_init (GstPlugin * plugin)
     return FALSE;
   }
 
-  if (!gst_element_register (plugin, "glviewconvert",
-          GST_RANK_NONE, GST_TYPE_GL_VIEW_CONVERT_ELEMENT)) {
-    return FALSE;
-  }
-
   if (!gst_element_register (plugin, "glmosaic",
           GST_RANK_NONE, GST_TYPE_GL_MOSAIC)) {
     return FALSE;
@@ -249,14 +271,6 @@ plugin_init (GstPlugin * plugin)
   }
 #endif
 #endif /* HAVE_PNG */
-  if (!gst_element_register (plugin, "glstereosplit",
-          GST_RANK_NONE, GST_TYPE_GL_STEREOSPLIT)) {
-    return FALSE;
-  }
-  if (!gst_element_register (plugin, "glstereomix",
-          GST_RANK_NONE, GST_TYPE_GL_STEREO_MIX)) {
-    return FALSE;
-  }
 #endif /* GST_GL_HAVE_OPENGL */
 #if GST_GL_HAVE_WINDOW_COCOA
   if (!gst_element_register (plugin, "caopengllayersink",

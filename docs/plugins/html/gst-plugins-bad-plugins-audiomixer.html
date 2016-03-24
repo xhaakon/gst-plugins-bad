@@ -3,10 +3,10 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>audiomixer: GStreamer Bad Plugins 1.0 Plugins Reference Manual</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
-<link rel="prev" href="gst-plugins-bad-plugins-assrender.html" title="assrender">
+<link rel="prev" href="gst-plugins-bad-plugins-audiointerleave.html" title="audiointerleave">
 <link rel="next" href="gst-plugins-bad-plugins-autoconvert.html" title="autoconvert">
 <meta name="generator" content="GTK-Doc V1.24 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
@@ -22,7 +22,7 @@
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
-<td><a accesskey="p" href="gst-plugins-bad-plugins-assrender.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="p" href="gst-plugins-bad-plugins-audiointerleave.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
 <td><a accesskey="n" href="gst-plugins-bad-plugins-autoconvert.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
@@ -36,7 +36,7 @@
 </tr></table></div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-audiomixer.properties"></a><h2>Properties</h2>
-<div class="informaltable"><table border="0">
+<div class="informaltable"><table class="informaltable" border="0">
 <colgroup>
 <col width="150px" class="properties_type">
 <col width="300px" class="properties_name">
@@ -74,7 +74,7 @@
 </div>
 <a name="GstAudioMixer"></a><div class="refsect1">
 <a name="gst-plugins-bad-plugins-audiomixer.other"></a><h2>Types and Values</h2>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="name">
 <col class="description">
@@ -94,6 +94,7 @@
                 <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-GstAggregator.html#GstAggregator">GstAggregator</a>
                     <span class="lineart">╰──</span> GstAudioAggregator
                         <span class="lineart">╰──</span> GstAudioMixer
+                            <span class="lineart">╰──</span> GstLiveAdder
 </pre>
 </div>
 <div class="refsect1">
@@ -118,13 +119,13 @@ properties to mute each pad individually and set the volume:</p>
 </li>
 </ul></div>
 <div class="refsect2">
-<a name="id-1.2.6.8.6"></a><h3>Example launch line</h3>
+<a name="id-1.2.7.8.6"></a><h3>Example launch line</h3>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
       <tr>
         <td class="listing_lines" align="right"><pre>1</pre></td>
-        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch audiotestsrc freq<span class="gtkdoc opt">=</span><span class="number">100</span> <span class="gtkdoc opt">!</span> audiomixer name<span class="gtkdoc opt">=</span>mix <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> alsasink audiotestsrc freq<span class="gtkdoc opt">=</span><span class="number">500</span> <span class="gtkdoc opt">!</span> mix<span class="gtkdoc opt">.</span></pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> audiotestsrc freq<span class="gtkdoc opt">=</span><span class="number">100</span> <span class="gtkdoc opt">!</span> audiomixer name<span class="gtkdoc opt">=</span>mix <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> alsasink audiotestsrc freq<span class="gtkdoc opt">=</span><span class="number">500</span> <span class="gtkdoc opt">!</span> mix<span class="gtkdoc opt">.</span></pre></td>
       </tr>
     </tbody>
   </table>
@@ -134,7 +135,7 @@ properties to mute each pad individually and set the volume:</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.6.8.7.1"></a><h3>Element Information</h3>
+<a name="id-1.2.7.8.7.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -160,7 +161,7 @@ properties to mute each pad individually and set the volume:</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.6.8.7.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.7.8.7.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">

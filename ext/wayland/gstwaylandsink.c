@@ -32,7 +32,7 @@
  * <refsect2>
  * <title>Example pipelines</title>
  * |[
- * gst-launch -v videotestsrc ! waylandsink
+ * gst-launch-1.0 -v videotestsrc ! waylandsink
  * ]| test the video rendering in wayland
  * </refsect2>
  */
@@ -219,8 +219,7 @@ gst_wayland_sink_finalize (GObject * object)
   if (sink->pool)
     gst_object_unref (sink->pool);
 
-  if (sink->display_name)
-    g_free (sink->display_name);
+  g_free (sink->display_name);
 
   g_mutex_clear (&sink->display_lock);
   g_mutex_clear (&sink->render_lock);
@@ -364,10 +363,13 @@ gst_wayland_sink_set_context (GstElement * element, GstContext * context)
   if (gst_context_has_context_type (context,
           GST_WAYLAND_DISPLAY_HANDLE_CONTEXT_TYPE)) {
     g_mutex_lock (&sink->display_lock);
-    if (G_LIKELY (!sink->display))
+    if (G_LIKELY (!sink->display)) {
       gst_wayland_sink_set_display_from_context (sink, context);
-    else
+    } else {
       GST_WARNING_OBJECT (element, "changing display handle is not supported");
+      g_mutex_unlock (&sink->display_lock);
+      return;
+    }
     g_mutex_unlock (&sink->display_lock);
   }
 
@@ -397,7 +399,7 @@ gst_wayland_sink_get_caps (GstBaseSink * bsink, GstCaps * filter)
     g_value_init (&list, GST_TYPE_LIST);
     g_value_init (&value, G_TYPE_STRING);
 
-    formats = sink->display->formats;
+    formats = sink->display->shm_formats;
     for (i = 0; i < formats->len; i++) {
       fmt = g_array_index (formats, uint32_t, i);
       g_value_set_string (&value, gst_wl_shm_format_to_string (fmt));
@@ -448,7 +450,7 @@ gst_wayland_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
     goto invalid_format;
 
   /* verify we support the requested format */
-  formats = sink->display->formats;
+  formats = sink->display->shm_formats;
   for (i = 0; i < formats->len; i++) {
     if (g_array_index (formats, uint32_t, i) == format)
       break;
@@ -646,7 +648,7 @@ gst_wayland_sink_render (GstBaseSink * bsink, GstBuffer * buffer)
 
       /* the first time we acquire a buffer,
        * we need to attach a wl_buffer on it */
-      wlbuffer = gst_buffer_get_wl_buffer (buffer);
+      wlbuffer = gst_buffer_get_wl_buffer (to_render);
       if (G_UNLIKELY (!wlbuffer)) {
         mem = gst_buffer_peek_memory (to_render, 0);
         wbuf = gst_wl_shm_memory_construct_wl_buffer (mem, sink->display,
@@ -654,7 +656,7 @@ gst_wayland_sink_render (GstBaseSink * bsink, GstBuffer * buffer)
         if (G_UNLIKELY (!wbuf))
           goto no_wl_buffer;
 
-        gst_buffer_add_wl_buffer (buffer, wbuf, sink->display);
+        gst_buffer_add_wl_buffer (to_render, wbuf, sink->display);
       }
 
       gst_buffer_map (buffer, &src, GST_MAP_READ);
@@ -723,6 +725,11 @@ gst_wayland_sink_set_window_handle (GstVideoOverlay * overlay, guintptr handle)
   struct wl_surface *surface = (struct wl_surface *) handle;
 
   g_return_if_fail (sink != NULL);
+
+  if (sink->window != NULL) {
+    GST_WARNING_OBJECT (sink, "changing window handle is not supported");
+    return;
+  }
 
   g_mutex_lock (&sink->render_lock);
 

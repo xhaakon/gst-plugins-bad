@@ -27,8 +27,8 @@
 #include <gst/adaptivedemux/gstadaptivedemux.h>
 #include <gst/base/gstadapter.h>
 #include <gst/base/gstdataqueue.h>
+#include <gst/gstprotection.h>
 #include "gstmssmanifest.h"
-#include <gst/uridownloader/gsturidownloader.h>
 
 G_BEGIN_DECLS
 

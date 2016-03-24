@@ -35,24 +35,31 @@
 #define GST_CAT_DEFAULT gst_gl_filter_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
-
+/* *INDENT-OFF* */
 static GstStaticPadTemplate gst_gl_filter_src_pad_template =
 GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE_WITH_FEATURES
-        (GST_CAPS_FEATURE_MEMORY_GL_MEMORY,
-            "RGBA"))
-    );
+    GST_STATIC_CAPS ("video/x-raw(" GST_CAPS_FEATURE_MEMORY_GL_MEMORY "), "
+      "format = (string) RGBA, "
+      "width = " GST_VIDEO_SIZE_RANGE ", "
+      "height = " GST_VIDEO_SIZE_RANGE ", "
+      "framerate = " GST_VIDEO_FPS_RANGE ","
+      "texture-target = (string) 2D"
+    ));
 
 static GstStaticPadTemplate gst_gl_filter_sink_pad_template =
 GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE_WITH_FEATURES
-        (GST_CAPS_FEATURE_MEMORY_GL_MEMORY,
-            "RGBA"))
-    );
+    GST_STATIC_CAPS ("video/x-raw(" GST_CAPS_FEATURE_MEMORY_GL_MEMORY "), "
+      "format = (string) RGBA, "
+      "width = " GST_VIDEO_SIZE_RANGE ", "
+      "height = " GST_VIDEO_SIZE_RANGE ", "
+      "framerate = " GST_VIDEO_FPS_RANGE ","
+      "texture-target = (string) 2D"
+    ));
+/* *INDENT-ON* */
 
 /* Properties */
 enum
@@ -63,7 +70,8 @@ enum
 #define gst_gl_filter_parent_class parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGLFilter, gst_gl_filter, GST_TYPE_GL_BASE_FILTER,
     GST_DEBUG_CATEGORY_INIT (gst_gl_filter_debug, "glfilter", 0,
-        "glfilter element"););
+        "glfilter element");
+    );
 
 static void gst_gl_filter_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
@@ -90,6 +98,8 @@ static gboolean gst_gl_filter_set_caps (GstBaseTransform * bt, GstCaps * incaps,
     GstCaps * outcaps);
 static gboolean gst_gl_filter_gl_start (GstGLBaseFilter * filter);
 static void gst_gl_filter_gl_stop (GstGLBaseFilter * filter);
+static gboolean gst_gl_filter_gl_set_caps (GstGLBaseFilter * bt,
+    GstCaps * incaps, GstCaps * outcaps);
 
 static void
 gst_gl_filter_class_init (GstGLFilterClass * klass)
@@ -117,6 +127,7 @@ gst_gl_filter_class_init (GstGLFilterClass * klass)
 
   GST_GL_BASE_FILTER_CLASS (klass)->gl_start = gst_gl_filter_gl_start;
   GST_GL_BASE_FILTER_CLASS (klass)->gl_stop = gst_gl_filter_gl_stop;
+  GST_GL_BASE_FILTER_CLASS (klass)->gl_set_caps = gst_gl_filter_gl_set_caps;
 
   klass->transform_internal_caps = default_transform_internal_caps;
 
@@ -176,44 +187,11 @@ gst_gl_filter_gl_start (GstGLBaseFilter * base_filter)
 {
   GstGLFilter *filter = GST_GL_FILTER (base_filter);
   GstGLFilterClass *filter_class = GST_GL_FILTER_GET_CLASS (filter);
-  GstGLContext *context = GST_GL_BASE_FILTER (filter)->context;
-  gint out_width, out_height;
-
-  out_width = GST_VIDEO_INFO_WIDTH (&filter->out_info);
-  out_height = GST_VIDEO_INFO_HEIGHT (&filter->out_info);
-
-  if (filter->fbo) {
-    gst_gl_context_del_fbo (context, filter->fbo, filter->depthbuffer);
-    filter->fbo = 0;
-    filter->depthbuffer = 0;
-  }
-  //blocking call, generate a FBO
-  if (!gst_gl_context_gen_fbo (context, out_width, out_height,
-          &filter->fbo, &filter->depthbuffer))
-    goto context_error;
 
   if (filter_class->display_init_cb)
     filter_class->display_init_cb (filter);
 
-  if (filter_class->init_fbo) {
-    if (!filter_class->init_fbo (filter))
-      goto error;
-  }
-
   return TRUE;
-
-context_error:
-  {
-    GST_ELEMENT_ERROR (filter, RESOURCE, NOT_FOUND, ("Could not generate FBO"),
-        (NULL));
-    return FALSE;
-  }
-error:
-  {
-    GST_ELEMENT_ERROR (filter, LIBRARY, INIT,
-        ("Subclass failed to initialize."), (NULL));
-    return FALSE;
-  }
 }
 
 static void
@@ -262,8 +240,8 @@ gst_gl_filter_fixate_caps (GstBaseTransform * bt,
   GValue fpar = { 0, }, tpar = {
   0,};
 
-  othercaps = gst_caps_truncate (othercaps);
   othercaps = gst_caps_make_writable (othercaps);
+  othercaps = gst_caps_truncate (othercaps);
 
   GST_DEBUG_OBJECT (bt, "trying to fixate othercaps %" GST_PTR_FORMAT
       " based on caps %" GST_PTR_FORMAT, othercaps, caps);
@@ -358,7 +336,13 @@ gst_gl_filter_fixate_caps (GstBaseTransform * bt,
       GST_DEBUG_OBJECT (bt, "height is fixed (%d)", h);
 
       if (!gst_value_is_fixed (to_par)) {
-        gst_value_set_fraction (&tpar, 1, 1);
+        /* (shortcut) copy-paste (??) of videoscale seems to aim for 1/1,
+         * so let's make it so ...
+         * especially if following code assumes fixed */
+        GST_DEBUG_OBJECT (bt, "fixating to_par to 1x1");
+        gst_structure_fixate_field_nearest_fraction (outs,
+            "pixel-aspect-ratio", 1, 1);
+        to_par = gst_structure_get_value (outs, "pixel-aspect-ratio");
       }
 
       /* PAR is fixed, choose the height that is nearest to the
@@ -385,7 +369,13 @@ gst_gl_filter_fixate_caps (GstBaseTransform * bt,
       GST_DEBUG_OBJECT (bt, "width is fixed (%d)", w);
 
       if (!gst_value_is_fixed (to_par)) {
-        gst_value_set_fraction (&tpar, 1, 1);
+        /* (shortcut) copy-paste (??) of videoscale seems to aim for 1/1,
+         * so let's make it so ...
+         * especially if following code assumes fixed */
+        GST_DEBUG_OBJECT (bt, "fixating to_par to 1x1");
+        gst_structure_fixate_field_nearest_fraction (outs,
+            "pixel-aspect-ratio", 1, 1);
+        to_par = gst_structure_get_value (outs, "pixel-aspect-ratio");
       }
 
       /* PAR is fixed, choose the height that is nearest to the
@@ -677,6 +667,49 @@ gst_gl_filter_get_unit_size (GstBaseTransform * trans, GstCaps * caps,
 }
 
 static gboolean
+gst_gl_filter_gl_set_caps (GstGLBaseFilter * bt, GstCaps * incaps,
+    GstCaps * outcaps)
+{
+  GstGLFilter *filter = GST_GL_FILTER (bt);
+  GstGLFilterClass *filter_class = GST_GL_FILTER_GET_CLASS (filter);
+  GstGLContext *context = GST_GL_BASE_FILTER (filter)->context;
+  gint out_width, out_height;
+
+  out_width = GST_VIDEO_INFO_WIDTH (&filter->out_info);
+  out_height = GST_VIDEO_INFO_HEIGHT (&filter->out_info);
+
+  if (filter->fbo) {
+    gst_gl_context_del_fbo (context, filter->fbo, filter->depthbuffer);
+    filter->fbo = 0;
+    filter->depthbuffer = 0;
+  }
+  //blocking call, generate a FBO
+  if (!gst_gl_context_gen_fbo (context, out_width, out_height,
+          &filter->fbo, &filter->depthbuffer))
+    goto context_error;
+
+  if (filter_class->init_fbo) {
+    if (!filter_class->init_fbo (filter))
+      goto error;
+  }
+
+  return TRUE;
+
+context_error:
+  {
+    GST_ELEMENT_ERROR (filter, RESOURCE, NOT_FOUND, ("Could not generate FBO"),
+        (NULL));
+    return FALSE;
+  }
+error:
+  {
+    GST_ELEMENT_ERROR (filter, LIBRARY, INIT,
+        ("Subclass failed to initialize."), (NULL));
+    return FALSE;
+  }
+}
+
+static gboolean
 gst_gl_filter_set_caps (GstBaseTransform * bt, GstCaps * incaps,
     GstCaps * outcaps)
 {
@@ -703,7 +736,8 @@ gst_gl_filter_set_caps (GstBaseTransform * bt, GstCaps * incaps,
       GST_VIDEO_INFO_WIDTH (&filter->out_info),
       GST_VIDEO_INFO_HEIGHT (&filter->out_info), incaps, outcaps);
 
-  return TRUE;
+  return GST_BASE_TRANSFORM_CLASS (parent_class)->set_caps (bt, incaps,
+      outcaps);
 
 /* ERRORS */
 wrong_caps:
@@ -894,6 +928,13 @@ inbuf_error:
   return ret;
 }
 
+static void
+_debug_marker (GstGLContext * context, GstGLFilter * filter)
+{
+  gst_gl_insert_debug_marker (context,
+      "processing in element %s", GST_OBJECT_NAME (filter));
+}
+
 static GstFlowReturn
 gst_gl_filter_transform (GstBaseTransform * bt, GstBuffer * inbuf,
     GstBuffer * outbuf)
@@ -914,6 +955,8 @@ gst_gl_filter_transform (GstBaseTransform * bt, GstBuffer * inbuf,
   if (in_sync_meta)
     gst_gl_sync_meta_wait (in_sync_meta, context);
 
+  gst_gl_context_thread_add (context, (GstGLContextThreadFunc) _debug_marker,
+      filter);
   if (filter_class->filter)
     ret = filter_class->filter (filter, inbuf, outbuf);
   else
@@ -989,6 +1032,28 @@ gst_gl_filter_render_to_target (GstGLFilter * filter, gboolean resize,
 }
 
 static void
+_get_attributes (GstGLFilter * filter)
+{
+  if (!filter->default_shader)
+    return;
+
+  if (filter->valid_attributes)
+    return;
+
+  if (filter->draw_attr_position_loc == -1)
+    filter->draw_attr_position_loc =
+        gst_gl_shader_get_attribute_location (filter->default_shader,
+        "a_position");
+
+  if (filter->draw_attr_texture_loc == -1)
+    filter->draw_attr_texture_loc =
+        gst_gl_shader_get_attribute_location (filter->default_shader,
+        "a_texcoord");
+
+  filter->valid_attributes = TRUE;
+}
+
+static void
 _draw_with_shader_cb (gint width, gint height, guint texture, gpointer stuff)
 {
   GstGLFilter *filter = GST_GL_FILTER (stuff);
@@ -1002,6 +1067,7 @@ _draw_with_shader_cb (gint width, gint height, guint texture, gpointer stuff)
   }
 #endif
 
+  _get_attributes (filter);
   gst_gl_shader_use (filter->default_shader);
 
   gl->ActiveTexture (GL_TEXTURE1);
@@ -1012,23 +1078,6 @@ _draw_with_shader_cb (gint width, gint height, guint texture, gpointer stuff)
   gst_gl_shader_set_uniform_1f (filter->default_shader, "height", height);
 
   gst_gl_filter_draw_texture (filter, texture, width, height);
-}
-
-static void
-_get_attributes (GstGLFilter * filter)
-{
-  if (!filter->default_shader)
-    return;
-
-  if (filter->draw_attr_position_loc == -1)
-    filter->draw_attr_position_loc =
-        gst_gl_shader_get_attribute_location (filter->default_shader,
-        "a_position");
-
-  if (filter->draw_attr_texture_loc == -1)
-    filter->draw_attr_texture_loc =
-        gst_gl_shader_get_attribute_location (filter->default_shader,
-        "a_texcoord");
 }
 
 /**
@@ -1051,8 +1100,9 @@ void
 gst_gl_filter_render_to_target_with_shader (GstGLFilter * filter,
     gboolean resize, GLuint input, GLuint target, GstGLShader * shader)
 {
+  if (filter->default_shader != shader)
+    filter->valid_attributes = FALSE;
   filter->default_shader = shader;
-  _get_attributes (filter);
 
   gst_gl_filter_render_to_target (filter, resize, input, target,
       _draw_with_shader_cb, filter);

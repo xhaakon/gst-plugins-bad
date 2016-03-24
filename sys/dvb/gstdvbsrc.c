@@ -28,16 +28,16 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch dvbsrc modulation="QAM 64" trans-mode=8k bandwidth=8 frequency=514000000 code-rate-lp=AUTO code-rate-hp=2/3 guard=4  hierarchy=0 ! mpegtsdemux name=demux ! queue max-size-buffers=0 max-size-time=0 ! mpeg2dec ! xvimagesink demux. ! queue max-size-buffers=0 max-size-time=0 ! mad ! alsasink
+ * gst-launch-1.0 dvbsrc modulation="QAM 64" trans-mode=8k bandwidth=8 frequency=514000000 code-rate-lp=AUTO code-rate-hp=2/3 guard=4  hierarchy=0 ! mpegtsdemux name=demux ! queue max-size-buffers=0 max-size-time=0 ! mpeg2dec ! xvimagesink demux. ! queue max-size-buffers=0 max-size-time=0 ! mad ! alsasink
  * ]| Captures a full transport stream from DVB card 0 that is a DVB-T card at tuned frequency 514000000 Hz with other parameters as seen in the pipeline and renders the first TV program on the transport stream.
  * |[
- * gst-launch dvbsrc modulation="QAM 64" trans-mode=8k bandwidth=8 frequency=514000000 code-rate-lp=AUTO code-rate-hp=2/3 guard=4  hierarchy=0 pids=100:256:257 ! mpegtsdemux name=demux ! queue max-size-buffers=0 max-size-time=0 ! mpeg2dec ! xvimagesink demux. ! queue max-size-buffers=0 max-size-time=0 ! mad ! alsasink
+ * gst-launch-1.0 dvbsrc modulation="QAM 64" trans-mode=8k bandwidth=8 frequency=514000000 code-rate-lp=AUTO code-rate-hp=2/3 guard=4  hierarchy=0 pids=100:256:257 ! mpegtsdemux name=demux ! queue max-size-buffers=0 max-size-time=0 ! mpeg2dec ! xvimagesink demux. ! queue max-size-buffers=0 max-size-time=0 ! mad ! alsasink
  * ]| Captures and renders a transport stream from DVB card 0 that is a DVB-T card for a program at tuned frequency 514000000 Hz with PMT PID 100 and elementary stream PIDs of 256, 257 with other parameters as seen in the pipeline.
  * |[
- * gst-launch dvbsrc polarity="h" frequency=11302000 symbol-rate=27500 diseqc-source=0 pids=50:102:103 ! mpegtsdemux name=demux ! queue max-size-buffers=0 max-size-time=0 ! mpeg2dec ! xvimagesink demux. ! queue max-size-buffers=0 max-size-time=0 ! mad ! alsasink
+ * gst-launch-1.0 dvbsrc polarity="h" frequency=11302000 symbol-rate=27500 diseqc-source=0 pids=50:102:103 ! mpegtsdemux name=demux ! queue max-size-buffers=0 max-size-time=0 ! mpeg2dec ! xvimagesink demux. ! queue max-size-buffers=0 max-size-time=0 ! mad ! alsasink
  * ]| Captures and renders a transport stream from DVB card 0 that is a DVB-S card for a program at tuned frequency 11302000 kHz, symbol rate of 27500 kBd (kilo bauds) with PMT PID of 50 and elementary stream PIDs of 102 and 103.
  * |[
- gst-launch dvbsrc frequency=515142857 guard=16 trans-mode="8k" isdbt-layer-enabled=7 isdbt-partial-reception=1 isdbt-layera-fec="2/3" isdbt-layera-modulation="QPSK" isdbt-layera-segment-count=1 isdbt-layera-time-interleaving=4 isdbt-layerb-fec="3/4" isdbt-layerb-modulation="qam-64" isdbt-layerb-segment-count=12 isdbt-layerb-time-interleaving=2 isdbt-layerc-fec="1/2" isdbt-layerc-modulation="qam-64" isdbt-layerc-segment-count=0 isdbt-layerc-time-interleaving=0 delsys="isdb-t" ! tsdemux ! "video/x-h264" ! h264parse ! queue ! avdec_h264 ! videoconvert ! queue ! autovideosink
+ gst-launch-1.0 dvbsrc frequency=515142857 guard=16 trans-mode="8k" isdbt-layer-enabled=7 isdbt-partial-reception=1 isdbt-layera-fec="2/3" isdbt-layera-modulation="QPSK" isdbt-layera-segment-count=1 isdbt-layera-time-interleaving=4 isdbt-layerb-fec="3/4" isdbt-layerb-modulation="qam-64" isdbt-layerb-segment-count=12 isdbt-layerb-time-interleaving=2 isdbt-layerc-fec="1/2" isdbt-layerc-modulation="qam-64" isdbt-layerc-segment-count=0 isdbt-layerc-time-interleaving=0 delsys="isdb-t" ! tsdemux ! "video/x-h264" ! h264parse ! queue ! avdec_h264 ! videoconvert ! queue ! autovideosink
  * ]| Captures and renders the video track of TV Paraíba HD (Globo affiliate) in Campina Grande, Brazil. This is an ISDB-T (Brazilian ISDB-Tb variant) broadcast.
  * </refsect2>
  */
@@ -99,7 +99,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "_stdint.h"
 
 #include <unistd.h>
 
@@ -2056,8 +2055,8 @@ static void
 gst_dvbsrc_output_frontend_stats (GstDvbSrc * src)
 {
   fe_status_t status;
-  uint16_t snr, _signal;
-  uint32_t ber, bad_blks;
+  guint16 snr, _signal;
+  guint32 ber, bad_blks;
   GstMessage *message;
   GstStructure *structure;
   int fe_fd = src->fd_frontend;
@@ -2099,7 +2098,7 @@ error_out:
 struct diseqc_cmd
 {
   struct dvb_diseqc_master_cmd cmd;
-  uint32_t wait;
+  guint32 wait;
 };
 
 static void
@@ -2293,8 +2292,8 @@ gst_dvbsrc_tune_fe (GstDvbSrc * object)
     if (object->tuning_timeout)
       elapsed_time = GST_CLOCK_DIFF (start, gst_util_get_timestamp ());
     GST_LOG_OBJECT (object,
-        "Tuning. Time elapsed %" G_GUINT64_FORMAT " Limit %" G_GUINT64_FORMAT,
-        elapsed_time, object->tuning_timeout);
+        "Tuning. Time elapsed %" GST_STIME_FORMAT " Limit %" G_GUINT64_FORMAT,
+        GST_STIME_ARGS (elapsed_time), object->tuning_timeout);
   }
 
   if (!(status & FE_HAS_LOCK)) {

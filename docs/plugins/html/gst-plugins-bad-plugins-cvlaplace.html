@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>cvlaplace: GStreamer Bad Plugins 1.0 Plugins Reference Manual</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-cvequalizehist.html" title="cvequalizehist">
@@ -15,8 +15,7 @@
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-cvlaplace.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-cvlaplace.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-cvlaplace.description" class="shortcut">Description</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-cvlaplace.properties" class="shortcut">Properties</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
@@ -35,50 +34,55 @@
 </tr></table></div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-cvlaplace.properties"></a><h2>Properties</h2>
-<div class="informaltable"><table border="0">
+<div class="informaltable"><table class="informaltable" border="0">
 <colgroup>
 <col width="150px" class="properties_type">
 <col width="300px" class="properties_name">
 <col width="200px" class="properties_flags">
 </colgroup>
-<tbody><tr>
+<tbody>
+<tr>
 <td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--aperture-size" title="The “aperture-size” property">aperture-size</a></td>
 <td class="property_flags">Read / Write</td>
-</tr></tbody>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--scale" title="The “scale” property">scale</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--shift" title="The “shift” property">shift</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--mask" title="The “mask” property">mask</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+</tbody>
 </table></div>
 </div>
-<a name="GstCvLaplace"></a><div class="refsect1">
+<div class="refsect1">
 <a name="gst-plugins-bad-plugins-cvlaplace.other"></a><h2>Types and Values</h2>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="name">
 <col class="description">
 </colgroup>
 <tbody><tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace-struct" title="struct GstCvLaplace">GstCvLaplace</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace" title="struct GstCvLaplace">GstCvLaplace</a></td>
 </tr></tbody>
 </table></div>
-</div>
-<div class="refsect1">
-<a name="gst-plugins-bad-plugins-cvlaplace.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
-    <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-        <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
-            <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
-                <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html">GstBaseTransform</a>
-                    <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstvideofilter.html#GstVideoFilter">GstVideoFilter</a>
-                        <span class="lineart">╰──</span> GstOpencvVideoFilter
-                            <span class="lineart">╰──</span> GstCvLaplace
-</pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-cvlaplace.description"></a><h2>Description</h2>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.19.7.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.20.5.2.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -104,7 +108,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.19.7.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.20.5.2.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -125,7 +129,7 @@
 </tr>
 <tr>
 <td><p><span class="term">details</span></p></td>
-<td>video/x-raw, format=(string)GRAY8, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
+<td>video/x-raw, format=(string)RGB, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
 </tr>
 </tbody>
 </table></div>
@@ -149,7 +153,7 @@
 </tr>
 <tr>
 <td><p><span class="term">details</span></p></td>
-<td>video/x-raw, format=(string)GRAY16_LE, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
+<td>video/x-raw, format=(string)RGB, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
 </tr>
 </tbody>
 </table></div>
@@ -163,8 +167,21 @@
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-cvlaplace.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstCvLaplace-struct"></a><h3>struct GstCvLaplace</h3>
-<pre class="programlisting">struct GstCvLaplace;</pre>
+<a name="GstCvLaplace"></a><h3>struct GstCvLaplace</h3>
+<pre class="programlisting">struct GstCvLaplace {
+  GstOpencvVideoFilter element;
+
+  gint aperture_size;
+  gdouble scale;
+  gdouble shift;
+  gboolean mask;
+
+  IplImage *intermediary_img;
+  IplImage *cvGray;
+  IplImage *Laplace;
+  IplImage *CLaplace;
+};
+</pre>
 </div>
 </div>
 <div class="refsect1">
@@ -176,6 +193,32 @@
 <p>Flags: Read / Write</p>
 <p>Allowed values: [1,7]</p>
 <p>Default value: 3</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstCvLaplace--scale"></a><h3>The <code class="literal">“scale”</code> property</h3>
+<pre class="programlisting">  “scale”                    <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></pre>
+<p>Scale factor.</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 1</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstCvLaplace--shift"></a><h3>The <code class="literal">“shift”</code> property</h3>
+<pre class="programlisting">  “shift”                    <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></pre>
+<p>Value added to the scaled source array elements.</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstCvLaplace--mask"></a><h3>The <code class="literal">“mask”</code> property</h3>
+<pre class="programlisting">  “mask”                     <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Sets whether the detected edges should be used as a mask on the original input or not.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: TRUE</p>
 </div>
 </div>
 </div>

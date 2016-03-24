@@ -1,8 +1,58 @@
-gst-plugins-bad1.0 (1.6.3-1) unstable; urgency=medium
+gst-plugins-bad1.0 (1.7.91-1) experimental; urgency=medium
 
-  * New upstream bugfix release.
+  * debian/build-deps.in:
+    + Remove libjasper-dev. It's unused and supposed to be removed soon.
+      (Closes: #818213).
+  * New upstream release candidate:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GStreamer >= 1.7.91.
 
- -- Sebastian Dröge <slomo@debian.org>  Wed, 20 Jan 2016 14:54:27 +0200
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 02 Mar 2016 16:45:09 +0200
+
+gst-plugins-bad1.0 (1.7.90-1) experimental; urgency=medium
+
+  [ Iain Lane ]
+  * debian/watch: Fix to work with upstream locations
+
+  [ Sebastian Dröge ]
+  * New upstream release candidate:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GStreamer >= 1.7.90.
+    + debian/gstreamer-plugins-bad.install:
+      - Ship new opusparse plugin, renamed from opus and only contains
+        the parser now.
+
+ -- Sebastian Dröge <slomo@debian.org>  Tue, 01 Mar 2016 17:25:00 +0200
+
+gst-plugins-bad1.0 (1.7.2-1) experimental; urgency=medium
+
+  * New upstream unstable release:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GStreamer >= 1.7.2.
+      - Update faad dependency to >= 2.7 and rsvg to >= 2.36.2.
+    + debian/gstreamer-plugins-bad.install:
+      - Drop mpg123 (moved to -ugly) and rtpbad (moved to -good) plugins.
+      - Add new netsim plugin.
+    + debian/libgstreamer-plugins-bad*.install:
+      - Add new badaudio library.
+
+ -- Sebastian Dröge <slomo@debian.org>  Fri, 19 Feb 2016 11:29:54 +0200
+
+gst-plugins-bad1.0 (1.7.1-1) experimental; urgency=medium
+
+  * New upstream unstable release:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GLib >= 2.40 and GStreamer >= 1.7.1.
+      - Build-depend on libass >= 0.10.2.
+      - Build-depend on libdrm-dev.
+    + debian/gstreamer-plugins-base.install:
+      - Drop liveadder plugin and add new videoframe_audiolevel plugin.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 24 Dec 2015 14:23:55 +0100
 
 gst-plugins-bad1.0 (1.6.2-1) unstable; urgency=medium
 

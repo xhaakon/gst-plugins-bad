@@ -23,11 +23,15 @@
 
 #include <gst/gst.h>
 #include <gst/gl/gl.h>
-#include <QQuickItem>
-#include <QOpenGLContext>
-#include <QOpenGLFunctions>
+
+#include "gstqtgl.h"
+#include <QtQuick/QQuickItem>
+#include <QtGui/QOpenGLContext>
+#include <QtGui/QOpenGLFunctions>
 
 typedef struct _QtGLVideoItemPrivate QtGLVideoItemPrivate;
+
+class InitializeSceneGraph;
 
 class QtGLVideoItem : public QQuickItem, protected QOpenGLFunctions
 {
@@ -53,10 +57,12 @@ protected:
     QSGNode * updatePaintNode (QSGNode * oldNode, UpdatePaintNodeData * updatePaintNodeData);
 
 private:
+    friend class InitializeSceneGraph;
     void setViewportSize(const QSize &size);
     void shareContext();
 
     QSize m_viewportSize;
+    bool m_openGlContextInitialized;
 };
 
 extern "C"

@@ -44,7 +44,7 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch audiotestsrc freq=100 ! audiomixer name=mix ! audioconvert ! alsasink audiotestsrc freq=500 ! mix.
+ * gst-launch-1.0 audiotestsrc freq=100 ! audiomixer name=mix ! audioconvert ! alsasink audiotestsrc freq=500 ! mix.
  * ]| This pipeline produces two sine waves mixed together.
  * </refsect2>
  *
@@ -781,6 +781,97 @@ gst_audiomixer_child_proxy_init (gpointer g_iface, gpointer iface_data)
   iface->get_children_count = gst_audiomixer_child_proxy_get_children_count;
 }
 
+/* Empty liveadder alias with non-zero latency */
+
+typedef GstAudioMixer GstLiveAdder;
+typedef GstAudioMixerClass GstLiveAdderClass;
+
+static GType gst_live_adder_get_type (void);
+#define GST_TYPE_LIVE_ADDER gst_live_adder_get_type ()
+
+G_DEFINE_TYPE (GstLiveAdder, gst_live_adder, GST_TYPE_AUDIO_MIXER);
+
+enum
+{
+  LIVEADDER_PROP_LATENCY = 1
+};
+
+static void
+gst_live_adder_init (GstLiveAdder * self)
+{
+}
+
+static void
+gst_live_adder_set_property (GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec)
+{
+  switch (prop_id) {
+    case LIVEADDER_PROP_LATENCY:
+    {
+      GParamSpec *parent_spec =
+          g_object_class_find_property (G_OBJECT_CLASS
+          (gst_live_adder_parent_class), "latency");
+      GObjectClass *pspec_class = g_type_class_peek (parent_spec->owner_type);
+      GValue v = { 0 };
+
+      g_value_init (&v, G_TYPE_INT64);
+
+      g_value_set_int64 (&v, g_value_get_uint (value) * GST_MSECOND);
+
+      G_OBJECT_CLASS (pspec_class)->set_property (object,
+          parent_spec->param_id, &v, parent_spec);
+      break;
+    }
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+}
+
+static void
+gst_live_adder_get_property (GObject * object, guint prop_id, GValue * value,
+    GParamSpec * pspec)
+{
+  switch (prop_id) {
+    case LIVEADDER_PROP_LATENCY:
+    {
+      GParamSpec *parent_spec =
+          g_object_class_find_property (G_OBJECT_CLASS
+          (gst_live_adder_parent_class), "latency");
+      GObjectClass *pspec_class = g_type_class_peek (parent_spec->owner_type);
+      GValue v = { 0 };
+
+      g_value_init (&v, G_TYPE_INT64);
+
+      G_OBJECT_CLASS (pspec_class)->get_property (object,
+          parent_spec->param_id, &v, parent_spec);
+
+      g_value_set_uint (value, g_value_get_int64 (&v) / GST_MSECOND);
+      break;
+    }
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+}
+
+
+static void
+gst_live_adder_class_init (GstLiveAdderClass * klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+  gobject_class->set_property = gst_live_adder_set_property;
+  gobject_class->get_property = gst_live_adder_get_property;
+
+  g_object_class_install_property (gobject_class, LIVEADDER_PROP_LATENCY,
+      g_param_spec_uint ("latency", "Buffer latency",
+          "Additional latency in live mode to allow upstream "
+          "to take longer to produce buffers for the current "
+          "position (in milliseconds)", 0, G_MAXUINT,
+          30, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_CONSTRUCT));
+}
+
 static gboolean
 plugin_init (GstPlugin * plugin)
 {
@@ -789,6 +880,10 @@ plugin_init (GstPlugin * plugin)
 
   if (!gst_element_register (plugin, "audiomixer", GST_RANK_NONE,
           GST_TYPE_AUDIO_MIXER))
+    return FALSE;
+
+  if (!gst_element_register (plugin, "liveadder", GST_RANK_NONE,
+          GST_TYPE_LIVE_ADDER))
     return FALSE;
 
   if (!gst_element_register (plugin, "audiointerleave", GST_RANK_NONE,

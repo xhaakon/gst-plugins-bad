@@ -4,24 +4,26 @@ lib_LTLIBRARIES = libgstgl-@GST_API_VERSION@.la
 SUBDIRS = glprototypes
 DIST_SUBDIRS = glprototypes android x11 win32 cocoa wayland dispmanx egl eagl
 
-noinst_HEADERS =
-
 built_sys_header_configure = gstglconfig.h
 
 libgstgl_@GST_API_VERSION@_la_SOURCES = \
 	gstgldisplay.c \
 	gstglcontext.c \
-	gstglbasebuffer.c \
+	gstgldebug.c \
+	gstglbasememory.c \
+	gstglbuffer.c \
 	gstglmemory.c \
+	gstglmemorypbo.c \
 	gstglbufferpool.c \
 	gstglfilter.c \
+	gstglformat.c \
 	gstglbasefilter.c \
 	gstglshader.c \
-	gstglshadervariables.c \
+	gstglshaderstrings.c \
+	gstglsl.c \
+	gstglslstage.c \
 	gstglcolorconvert.c \
-	gstgldownload.c \
 	gstglupload.c \
-	gstgluploadmeta.c \
 	gstglwindow.c \
 	gstglapi.c \
 	gstglfeature.c \
@@ -30,23 +32,28 @@ libgstgl_@GST_API_VERSION@_la_SOURCES = \
 	gstglsyncmeta.c \
 	gstglviewconvert.c \
 	gstgloverlaycompositor.c \
-	utils/opengl_versions.h
+	gstglquery.c \
+	gstglcontrolbindingproxy.c
 
 libgstgl_@GST_API_VERSION@includedir = $(includedir)/gstreamer-@GST_API_VERSION@/gst/gl
 libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gstglwindow.h \
 	gstgldisplay.h \
 	gstglcontext.h \
-	gstglbasebuffer.h \
+	gstgldebug.h \
+	gstglbasememory.h \
+	gstglbuffer.h \
 	gstglmemory.h \
+	gstglmemorypbo.h \
 	gstglbufferpool.h \
 	gstglfilter.h \
+	gstglformat.h \
 	gstglbasefilter.h \
-	gstglshadervariables.h \
 	gstglshader.h \
+	gstglshaderstrings.h \
+	gstglsl.h \
+	gstglslstage.h \
 	gstglcolorconvert.h \
-	gstgldownload.h \
-	gstgluploadmeta.h \
 	gstglupload.h \
 	gstglapi.h \
 	gstglfeature.h \
@@ -55,8 +62,17 @@ libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gstglsyncmeta.h \
 	gstglviewconvert.h \
 	gstgloverlaycompositor.h \
+	gstglquery.h \
+	gstglcontrolbindingproxy.h \
 	gstgl_fwd.h \
+	gstgl_enums.h \
 	gl.h
+
+noinst_HEADERS = \
+	gstglsl_private.h \
+	utils/opengl_versions.h \
+	utils/gles_versions.h
+
 
 libgstgl_@GST_API_VERSION@_la_LIBADD = \
 	$(GMODULE_NO_EXPORT_LIBS) \
@@ -104,6 +120,7 @@ endif
 if USE_EGL
 SUBDIRS += egl
 libgstgl_@GST_API_VERSION@_la_LIBADD += egl/libgstgl-egl.la
+libgstgl_@GST_API_VERSION@_la_LIBADD += -lgstallocators-$(GST_API_VERSION)
 endif
 
 configexecincludedir = $(libdir)/gstreamer-@GST_API_VERSION@/include/gst/gl
@@ -137,7 +154,8 @@ GstGL-@GST_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libgstgl-@GST_API_VERSION@
 		GST_PLUGIN_SYSTEM_PATH_1_0="" GST_PLUGIN_PATH_1_0="" GST_REGISTRY_UPDATE=no \
 		$(INTROSPECTION_SCANNER) -v --namespace GstGL \
 		--nsversion=@GST_API_VERSION@ \
-		--strip-prefix=Gst \
+		--identifier-prefix=Gst \
+		--symbol-prefix=gst \
 		--warn-all \
 		--c-include "gst/gl/gl.h" \
 		-I$(top_srcdir)/gst-libs \
@@ -154,7 +172,7 @@ GstGL-@GST_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libgstgl-@GST_API_VERSION@
 		--pkg gstreamer-base-@GST_API_VERSION@ \
 		--pkg gstreamer-video-@GST_API_VERSION@ \
 		--pkg-export gstreamer-gl-@GST_API_VERSION@ \
-		--add-init-section="gst_init(NULL,NULL);" \
+		--add-init-section="$(INTROSPECTION_INIT)" \
 		-DGST_USE_UNSTABLE_API \
 		--output $@ \
 		$(gir_headers) \

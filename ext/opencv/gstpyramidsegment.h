@@ -3,7 +3,7 @@
  * Copyright (C) 2005 Thomas Vander Stichele <thomas@apestaart.org>
  * Copyright (C) 2005 Ronald S. Bultje <rbultje@ronald.bitfreak.net>
  * Copyright (C) 2008 Michael Sheldon <mike@mikeasoft.com>
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -46,12 +46,9 @@
 #ifndef __GST_PYRAMID_SEGMENT_H__
 #define __GST_PYRAMID_SEGMENT_H__
 
-#include <gst/gst.h>
+#include <gstopencvvideofilter.h>
 #include <opencv2/core/version.hpp>
-
-#if CV_MAJOR_VERSION * 100 + CV_MINOR_VERSION >= 204
 #include <opencv2/legacy/legacy.hpp>
-#endif
 
 G_BEGIN_DECLS
 /* #defines don't like whitespacey bits */
@@ -65,18 +62,17 @@ G_BEGIN_DECLS
   (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_PYRAMID_SEGMENT))
 #define GST_IS_PYRAMID_SEGMENT_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_PYRAMID_SEGMENT))
+
 typedef struct _GstPyramidSegment GstPyramidSegment;
 typedef struct _GstPyramidSegmentClass GstPyramidSegmentClass;
 
 struct _GstPyramidSegment
 {
-  GstElement element;
+  GstOpencvVideoFilter element;
 
   GstPad *sinkpad, *srcpad;
 
   gboolean silent;
-
-  IplImage *cvImage, *cvSegmentedImage;
 
   CvMemStorage *storage;
 
@@ -89,7 +85,7 @@ struct _GstPyramidSegment
 
 struct _GstPyramidSegmentClass
 {
-  GstElementClass parent_class;
+  GstOpencvVideoFilterClass parent_class;
 };
 
 GType gst_pyramid_segment_get_type (void);

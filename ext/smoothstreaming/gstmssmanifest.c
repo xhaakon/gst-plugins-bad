@@ -95,6 +95,9 @@ struct _GstMssManifest
 
   gboolean is_live;
 
+  GString *protection_system_id;
+  gchar *protection_data;
+
   GSList *streams;
 };
 
@@ -267,6 +270,41 @@ _gst_mss_stream_init (GstMssStream * stream, xmlNodePtr node)
   stream->regex_position = g_regex_new ("\\{start[ _]time\\}", 0, 0, NULL);
 }
 
+
+static void
+_gst_mss_parse_protection (GstMssManifest * manifest,
+    xmlNodePtr protection_node)
+{
+  xmlNodePtr nodeiter;
+
+  for (nodeiter = protection_node->children; nodeiter;
+      nodeiter = nodeiter->next) {
+    if (nodeiter->type == XML_ELEMENT_NODE
+        && (strcmp ((const char *) nodeiter->name, "ProtectionHeader") == 0)) {
+      xmlChar *system_id_attribute =
+          xmlGetProp (nodeiter, (xmlChar *) "SystemID");
+      gchar *value = (gchar *) system_id_attribute;
+      int id_len = strlen (value);
+      GString *system_id;
+
+      if (value[0] == '{') {
+        value++;
+        id_len--;
+      }
+
+      system_id = g_string_new (value);
+      system_id = g_string_ascii_down (system_id);
+      if (value[id_len - 1] == '}')
+        system_id = g_string_truncate (system_id, id_len - 1);
+
+      manifest->protection_system_id = system_id;
+      manifest->protection_data = (gchar *) xmlNodeGetContent (nodeiter);
+      xmlFree (system_id_attribute);
+      break;
+    }
+  }
+}
+
 GstMssManifest *
 gst_mss_manifest_new (GstBuffer * data)
 {
@@ -300,6 +338,11 @@ gst_mss_manifest_new (GstBuffer * data)
       manifest->streams = g_slist_append (manifest->streams, stream);
       _gst_mss_stream_init (stream, nodeiter);
     }
+
+    if (nodeiter->type == XML_ELEMENT_NODE
+        && (strcmp ((const char *) nodeiter->name, "Protection") == 0)) {
+      _gst_mss_parse_protection (manifest, nodeiter);
+    }
   }
 
   gst_buffer_unmap (data, &mapinfo);
@@ -327,8 +370,26 @@ gst_mss_manifest_free (GstMssManifest * manifest)
 
   g_slist_free_full (manifest->streams, (GDestroyNotify) gst_mss_stream_free);
 
+  if (manifest->protection_system_id != NULL)
+    g_string_free (manifest->protection_system_id, TRUE);
+  xmlFree (manifest->protection_data);
+
   xmlFreeDoc (manifest->xml);
   g_free (manifest);
+}
+
+const gchar *
+gst_mss_manifest_get_protection_system_id (GstMssManifest * manifest)
+{
+  if (manifest->protection_system_id != NULL)
+    return manifest->protection_system_id->str;
+  return NULL;
+}
+
+const gchar *
+gst_mss_manifest_get_protection_data (GstMssManifest * manifest)
+{
+  return manifest->protection_data;
 }
 
 GSList *
@@ -639,11 +700,13 @@ _gst_mss_stream_audio_caps_from_qualitylevel_xml (GstMssStreamQuality * q)
   gchar *audiotag = (gchar *) xmlGetProp (node, (xmlChar *) "AudioTag");
   gchar *channels_str = (gchar *) xmlGetProp (node, (xmlChar *) "Channels");
   gchar *rate_str = (gchar *) xmlGetProp (node, (xmlChar *) "SamplingRate");
+  gchar *depth_str = (gchar *) xmlGetProp (node, (xmlChar *) "BitsPerSample");
   gchar *block_align_str =
       (gchar *) xmlGetProp (node, (xmlChar *) "PacketSize");
   gchar *codec_data_str =
       (gchar *) xmlGetProp (node, (xmlChar *) "CodecPrivateData");
   GstBuffer *codec_data = NULL;
+  gint depth = 0;
   gint block_align = 0;
   gint rate = 0;
   gint channels = 0;
@@ -671,6 +734,8 @@ _gst_mss_stream_audio_caps_from_qualitylevel_xml (GstMssStreamQuality * q)
     rate = (gint) g_ascii_strtoull (rate_str, NULL, 10);
   if (channels_str)
     channels = (int) g_ascii_strtoull (channels_str, NULL, 10);
+  if (depth_str)
+    depth = (gint) g_ascii_strtoull (depth_str, NULL, 10);
   if (block_align_str)
     block_align = (int) g_ascii_strtoull (block_align_str, NULL, 10);
 
@@ -696,6 +761,9 @@ _gst_mss_stream_audio_caps_from_qualitylevel_xml (GstMssStreamQuality * q)
         }
         if (!block_align) {
           block_align = GST_READ_UINT16_LE (mapinfo.data + 12);
+        }
+        if (!depth) {
+          depth = GST_READ_UINT16_LE (mapinfo.data + 14);
         }
         gst_buffer_unmap (codec_data, &mapinfo);
 
@@ -723,6 +791,9 @@ _gst_mss_stream_audio_caps_from_qualitylevel_xml (GstMssStreamQuality * q)
   if (rate)
     gst_structure_set (structure, "rate", G_TYPE_INT, rate, NULL);
 
+  if (depth)
+    gst_structure_set (structure, "depth", G_TYPE_INT, depth, NULL);
+
   if (q->bitrate)
     gst_structure_set (structure, "bitrate", G_TYPE_INT, (int) q->bitrate,
         NULL);
@@ -738,6 +809,7 @@ end:
   xmlFree (audiotag);
   xmlFree (channels_str);
   xmlFree (rate_str);
+  xmlFree (depth_str);
   xmlFree (block_align_str);
   xmlFree (codec_data_str);
 
@@ -915,7 +987,9 @@ gst_mss_stream_get_fragment_gst_timestamp (GstMssStream * stream)
     time = fragment->time + (fragment->duration * fragment->repetitions);
   } else {
     fragment = stream->current_fragment->data;
-    time = fragment->time + (fragment->duration * stream->fragment_repetition_index);
+    time =
+        fragment->time +
+        (fragment->duration * stream->fragment_repetition_index);
   }
 
   timescale = gst_mss_stream_get_timescale (stream);
@@ -1015,17 +1089,23 @@ gst_mss_stream_type_name (GstMssStreamType streamtype)
 /**
  * Seeks all streams to the fragment that contains the set time
  *
+ * @forward: if this is forward playback
  * @time: time in nanoseconds
  */
 void
-gst_mss_manifest_seek (GstMssManifest * manifest, guint64 time)
+gst_mss_manifest_seek (GstMssManifest * manifest, gboolean forward,
+    guint64 time)
 {
   GSList *iter;
 
   for (iter = manifest->streams; iter; iter = g_slist_next (iter)) {
-    gst_mss_stream_seek (iter->data, time);
+    gst_mss_stream_seek (iter->data, forward, 0, time, NULL);
   }
 }
+
+#define SNAP_AFTER(forward,flags) \
+    ((forward && (flags & GST_SEEK_FLAG_SNAP_AFTER)) || \
+    (!forward && (flags & GST_SEEK_FLAG_SNAP_BEFORE)))
 
 /**
  * Seeks this stream to the fragment that contains the sample at time
@@ -1033,7 +1113,8 @@ gst_mss_manifest_seek (GstMssManifest * manifest, guint64 time)
  * @time: time in nanoseconds
  */
 void
-gst_mss_stream_seek (GstMssStream * stream, guint64 time)
+gst_mss_stream_seek (GstMssStream * stream, gboolean forward,
+    GstSeekFlags flags, guint64 time, guint64 * final_time)
 {
   GList *iter;
   guint64 timescale;
@@ -1043,37 +1124,60 @@ gst_mss_stream_seek (GstMssStream * stream, guint64 time)
   time = gst_util_uint64_scale_round (time, timescale, GST_SECOND);
 
   GST_DEBUG ("Stream %s seeking to %" G_GUINT64_FORMAT, stream->url, time);
-
   for (iter = stream->fragments; iter; iter = g_list_next (iter)) {
-    GList *next = g_list_next (iter);
-    if (next) {
-      fragment = next->data;
+    fragment = iter->data;
+    if (fragment->time + fragment->repetitions * fragment->duration > time) {
+      stream->current_fragment = iter;
+      stream->fragment_repetition_index =
+          (time - fragment->time) / fragment->duration;
+      if (((time - fragment->time) % fragment->duration) == 0) {
 
-      if (fragment->time > time) {
-        stream->current_fragment = iter;
-        break;
+        /* for reverse playback, start from the previous fragment when we are
+         * exactly at a limit */
+        if (!forward)
+          stream->fragment_repetition_index--;
+      } else if (SNAP_AFTER (forward, flags))
+        stream->fragment_repetition_index++;
+
+      if (stream->fragment_repetition_index == fragment->repetitions) {
+        /* move to the next one */
+        stream->fragment_repetition_index = 0;
+        stream->current_fragment = g_list_next (iter);
+        fragment =
+            stream->current_fragment ? stream->current_fragment->data : NULL;
+
+      } else if (stream->fragment_repetition_index == -1) {
+        if (g_list_previous (iter)) {
+          stream->current_fragment = g_list_previous (iter);
+          fragment = stream->current_fragment->data;
+          g_assert (fragment);
+          stream->fragment_repetition_index = fragment->repetitions - 1;
+        } else {
+          stream->fragment_repetition_index = 0;
+        }
       }
-    } else {
-      fragment = iter->data;
-      if (fragment->time + fragment->repetitions * fragment->duration > time) {
-        stream->current_fragment = iter;
-      } else {
-        stream->current_fragment = NULL;        /* EOS */
-      }
+
       break;
     }
-  }
 
-  /* position inside the repetitions */
-  if (stream->current_fragment) {
-    fragment = stream->current_fragment->data;
-    stream->fragment_repetition_index =
-        (time - fragment->time) / fragment->duration;
   }
 
   GST_DEBUG ("Stream %s seeked to fragment time %" G_GUINT64_FORMAT
-      " repetition %u", stream->url, fragment->time,
+      " repetition %u", stream->url,
+      fragment ? fragment->time : GST_CLOCK_TIME_NONE,
       stream->fragment_repetition_index);
+  if (final_time) {
+    if (fragment) {
+      *final_time = gst_util_uint64_scale_round (fragment->time +
+          stream->fragment_repetition_index * fragment->duration,
+          GST_SECOND, timescale);
+    } else {
+      GstMssStreamFragment *last_fragment = g_list_last (iter)->data;
+      *final_time = gst_util_uint64_scale_round (last_fragment->time +
+          last_fragment->repetitions * last_fragment->duration,
+          GST_SECOND, timescale);
+    }
+  }
 }
 
 guint64
@@ -1126,7 +1230,9 @@ gst_mss_stream_reload_fragments (GstMssStream * stream, xmlNodePtr streamIndex)
     g_list_free_full (stream->fragments, g_free);
     stream->fragments = g_list_reverse (builder.fragments);
     stream->current_fragment = stream->fragments;
-    gst_mss_stream_seek (stream, current_gst_time);
+    /* TODO Verify how repositioning here works for reverse
+     * playback - it might start from the wrong fragment */
+    gst_mss_stream_seek (stream, TRUE, 0, current_gst_time, NULL);
   }
 }
 
@@ -1155,8 +1261,6 @@ gst_mss_manifest_reload_fragments (GstMssManifest * manifest, GstBuffer * data)
   xmlDocPtr xml;
   xmlNodePtr root;
   GstMapInfo info;
-
-  g_return_if_fail (manifest->is_live);
 
   gst_buffer_map (data, &info, GST_MAP_READ);
 

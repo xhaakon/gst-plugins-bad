@@ -30,8 +30,8 @@ G_BEGIN_DECLS
 #define GST_GL_TYPE_CONTEXT         (gst_gl_context_get_type())
 #define GST_GL_CONTEXT(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), GST_GL_TYPE_CONTEXT, GstGLContext))
 #define GST_GL_CONTEXT_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), GST_GL_TYPE_CONTEXT, GstGLContextClass))
-#define GST_GL_IS_CONTEXT(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), GST_GL_TYPE_CONTEXT))
-#define GST_GL_IS_CONTEXT_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_GL_TYPE_CONTEXT))
+#define GST_IS_GL_CONTEXT(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), GST_GL_TYPE_CONTEXT))
+#define GST_IS_GL_CONTEXT_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_GL_TYPE_CONTEXT))
 #define GST_GL_CONTEXT_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), GST_GL_TYPE_CONTEXT, GstGLContextClass))
 GType gst_gl_context_get_type     (void);
 
@@ -136,7 +136,7 @@ gboolean      gst_gl_context_create           (GstGLContext *context, GstGLConte
 void          gst_gl_context_destroy          (GstGLContext *context);
 
 gpointer      gst_gl_context_default_get_proc_address (GstGLAPI gl_api, const gchar *name);
-gpointer      gst_gl_context_get_proc_address_with_platform (GstGLPlatform, GstGLAPI gl_api, const gchar *name);
+gpointer      gst_gl_context_get_proc_address_with_platform (GstGLPlatform context_type, GstGLAPI gl_api, const gchar *name);
 
 gboolean      gst_gl_context_set_window (GstGLContext *context, GstGLWindow *window);
 GstGLWindow * gst_gl_context_get_window (GstGLContext *context);
@@ -145,8 +145,11 @@ void          gst_gl_context_get_gl_version (GstGLContext *context, gint *maj, g
 gboolean      gst_gl_context_check_gl_version (GstGLContext * context, GstGLAPI api, gint maj, gint min);
 gboolean      gst_gl_context_check_feature (GstGLContext *context, const gchar *feature);
 
-guintptr      gst_gl_context_get_current_gl_context     (GstGLPlatform platform);
+guintptr      gst_gl_context_get_current_gl_context     (GstGLPlatform context_type);
 GstGLAPI      gst_gl_context_get_current_gl_api         (GstGLPlatform platform, guint *major, guint *minor);
+
+gboolean      gst_gl_context_is_shared                  (GstGLContext * context);
+void          gst_gl_context_set_shared_with            (GstGLContext * context, GstGLContext * share);
 
 gboolean gst_gl_context_fill_info (GstGLContext * context, GError ** error);
 
