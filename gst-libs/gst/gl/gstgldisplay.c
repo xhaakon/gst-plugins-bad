@@ -139,8 +139,8 @@ gst_gl_display_init (GstGLDisplay * display)
 
   GST_TRACE ("init %p", display);
 
-  gst_gl_base_buffer_init_once ();
-  gst_gl_memory_init ();
+  gst_gl_buffer_init_once ();
+  gst_gl_memory_pbo_init_once ();
 
 #if GST_GL_HAVE_PLATFORM_EGL
   gst_egl_image_memory_init ();
@@ -437,8 +437,11 @@ _get_gl_context_for_thread_unlocked (GstGLDisplay * display, GThread * thread)
       continue;
     }
 
+    if (thread == NULL)
+      return context;
+
     context_thread = gst_gl_context_get_thread (context);
-    if (thread != NULL && thread == context_thread) {
+    if (thread != context_thread) {
       g_thread_unref (context_thread);
       gst_object_unref (context);
       prev = l;
@@ -497,7 +500,7 @@ _check_collision (GstGLContext * context, GstGLContext * collision)
     goto out;
   }
 
-  if (collision == context) {
+  if (thread == collision_thread) {
     ret = TRUE;
     goto out;
   }
@@ -533,7 +536,7 @@ gst_gl_display_add_context (GstGLDisplay * display, GstGLContext * context)
   GWeakRef *ref;
 
   g_return_val_if_fail (GST_IS_GL_DISPLAY (display), FALSE);
-  g_return_val_if_fail (GST_GL_IS_CONTEXT (context), FALSE);
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), FALSE);
 
   context_display = gst_gl_context_get_display (context);
   g_assert (context_display == display);
@@ -543,6 +546,13 @@ gst_gl_display_add_context (GstGLDisplay * display, GstGLContext * context)
   if (thread) {
     collision = _get_gl_context_for_thread_unlocked (display, thread);
     g_thread_unref (thread);
+
+    /* adding the same context is a no-op */
+    if (context == collision) {
+      ret = TRUE;
+      goto out;
+    }
+
     if (_check_collision (context, collision)) {
       ret = FALSE;
       goto out;

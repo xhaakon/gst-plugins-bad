@@ -26,7 +26,7 @@
  * <refsect2>
  * <title>Examples</title>
  * |[
- * gst-launch videotestsrc ! glstereosplit name=s ! queue ! glimagesink s. ! queue ! glimagesink
+ * gst-launch-1.0 videotestsrc ! glstereosplit name=s ! queue ! glimagesink s. ! queue ! glimagesink
  * ]|
  * FBO (Frame Buffer Object) and GLSL (OpenGL Shading Language) are required.
  * </refsect2>
@@ -210,6 +210,9 @@ stereosplit_set_context (GstElement * element, GstContext * context)
 
   if (stereosplit->display)
     gst_gl_display_filter_gl_api (stereosplit->display, SUPPORTED_GL_APIS);
+
+  GST_ELEMENT_CLASS (gst_gl_stereosplit_parent_class)->set_context (element,
+      context);
 }
 
 static GstStateChangeReturn
@@ -581,8 +584,27 @@ ensure_context (GstGLStereoSplit * self)
     GST_OBJECT_UNLOCK (self->display);
   }
 
+  {
+    GstGLAPI current_gl_api = gst_gl_context_get_gl_api (self->context);
+    if ((current_gl_api & (SUPPORTED_GL_APIS)) == 0)
+      goto unsupported_gl_api;
+  }
+
   return TRUE;
 
+unsupported_gl_api:
+  {
+    GstGLAPI gl_api = gst_gl_context_get_gl_api (self->context);
+    gchar *gl_api_str = gst_gl_api_to_string (gl_api);
+    gchar *supported_gl_api_str = gst_gl_api_to_string (SUPPORTED_GL_APIS);
+    GST_ELEMENT_ERROR (self, RESOURCE, BUSY,
+        ("GL API's not compatible context: %s supported: %s", gl_api_str,
+            supported_gl_api_str), (NULL));
+
+    g_free (supported_gl_api_str);
+    g_free (gl_api_str);
+    return FALSE;
+  }
 context_error:
   {
     GST_ELEMENT_ERROR (self, RESOURCE, NOT_FOUND, ("%s", error->message),

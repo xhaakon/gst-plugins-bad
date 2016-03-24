@@ -37,6 +37,8 @@
 #include <glib.h>
 #include <gst/tag/tag.h>
 #include <gst/pbutils/pbutils.h>
+#include <gst/base/base.h>
+#include <gst/audio/audio.h>
 
 #include "mpegtsbase.h"
 #include "tsdemux.h"
@@ -46,7 +48,10 @@
 #include "pesparse.h"
 #include <gst/codecparsers/gsth264parser.h>
 #include <gst/codecparsers/gstmpegvideoparser.h>
-#include <gst/base/gstbytewriter.h>
+
+#include <math.h>
+
+#define _gst_log2(x) (log(x)/log(2))
 
 /*
  * tsdemux
@@ -204,6 +209,8 @@ struct _TSDemuxStream
       "systemstream = (boolean) FALSE; " \
     "video/x-h264,stream-format=(string)byte-stream," \
       "alignment=(string)nal;" \
+    "video/x-h265,stream-format=(string)byte-stream," \
+      "alignment=(string)nal;" \
     "video/x-dirac;" \
     "video/x-cavs;" \
     "video/x-wmv," \
@@ -230,12 +237,13 @@ struct _TSDemuxStream
       "mute = (boolean) { FALSE, TRUE }; " \
     "audio/x-ac3; audio/x-eac3;" \
     "audio/x-dts;" \
+    "audio/x-opus;" \
     "audio/x-private-ts-lpcm" \
   )
 
 /* Can also use the subpicture pads for text subtitles? */
 #define SUBPICTURE_CAPS \
-    GST_STATIC_CAPS ("subpicture/x-pgs; subpicture/x-dvd")
+    GST_STATIC_CAPS ("subpicture/x-pgs; subpicture/x-dvd; subpicture/x-dvb")
 
 static GstStaticPadTemplate video_template =
 GST_STATIC_PAD_TEMPLATE ("video_%04x", GST_PAD_SRC,
@@ -276,6 +284,9 @@ static void
 gst_ts_demux_program_started (MpegTSBase * base, MpegTSBaseProgram * program);
 static void
 gst_ts_demux_program_stopped (MpegTSBase * base, MpegTSBaseProgram * program);
+static gboolean
+gst_ts_demux_can_remove_program (MpegTSBase * base,
+    MpegTSBaseProgram * program);
 static void gst_ts_demux_reset (MpegTSBase * base);
 static GstFlowReturn
 gst_ts_demux_push (MpegTSBase * base, MpegTSPacketizerPacket * packet,
@@ -373,6 +384,7 @@ gst_ts_demux_class_init (GstTSDemuxClass * klass)
   ts_class->push_event = GST_DEBUG_FUNCPTR (push_event);
   ts_class->program_started = GST_DEBUG_FUNCPTR (gst_ts_demux_program_started);
   ts_class->program_stopped = GST_DEBUG_FUNCPTR (gst_ts_demux_program_stopped);
+  ts_class->can_remove_program = gst_ts_demux_can_remove_program;
   ts_class->stream_added = gst_ts_demux_stream_added;
   ts_class->stream_removed = gst_ts_demux_stream_removed;
   ts_class->seek = GST_DEBUG_FUNCPTR (gst_ts_demux_do_seek);
@@ -395,6 +407,11 @@ gst_ts_demux_reset (MpegTSBase * base)
   if (demux->global_tags) {
     gst_tag_list_unref (demux->global_tags);
     demux->global_tags = NULL;
+  }
+
+  if (demux->previous_program) {
+    mpegts_base_deactivate_and_free_program (base, demux->previous_program);
+    demux->previous_program = NULL;
   }
 
   demux->have_group_id = FALSE;
@@ -851,8 +868,8 @@ gst_ts_demux_do_seek (MpegTSBase * base, GstEvent * event)
 
   gst_segment_do_seek (&demux->segment, rate, format, flags, start_type,
       start, stop_type, stop, NULL);
-  if (!(flags & GST_SEEK_FLAG_ACCURATE))
-    demux->reset_segment = TRUE;
+  /* Reset segment if we're not doing an accurate seek */
+  demux->reset_segment = (!(flags & GST_SEEK_FLAG_ACCURATE));
 
   if (demux->segment_event) {
     gst_event_unref (demux->segment_event);
@@ -1171,7 +1188,7 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
           GST_MTS_DESC_DVB_SUBTITLING);
       if (desc) {
         GST_LOG ("subtitling");
-        is_private = TRUE;
+        is_subpicture = TRUE;
         caps = gst_caps_new_empty_simple ("subpicture/x-dvb");
         sparse = TRUE;
         break;
@@ -1188,6 +1205,179 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
         case DRF_ID_S302M:
           is_audio = TRUE;
           caps = gst_caps_new_empty_simple ("audio/x-smpte-302m");
+          break;
+        case DRF_ID_OPUS:
+          desc = mpegts_get_descriptor_from_stream (bstream,
+              GST_MTS_DESC_DVB_EXTENSION);
+          if (desc != NULL && desc->tag_extension == 0x80 && desc->length >= 1) {       /* User defined (provisional Opus) */
+            guint8 channel_config_code;
+            GstByteReader br;
+
+            /* skip tag, length and tag_extension */
+            gst_byte_reader_init (&br, desc->data + 3, desc->length - 1);
+            channel_config_code = gst_byte_reader_get_uint8_unchecked (&br);
+
+            if ((channel_config_code & 0x8f) <= 8) {
+              static const guint8 coupled_stream_counts[9] = {
+                1, 0, 1, 1, 2, 2, 2, 3, 3
+              };
+              static const guint8 channel_map_a[8][8] = {
+                {0},
+                {0, 1},
+                {0, 2, 1},
+                {0, 1, 2, 3},
+                {0, 4, 1, 2, 3},
+                {0, 4, 1, 2, 3, 5},
+                {0, 4, 1, 2, 3, 5, 6},
+                {0, 6, 1, 2, 3, 4, 5, 7},
+              };
+              static const guint8 channel_map_b[8][8] = {
+                {0},
+                {0, 1},
+                {0, 1, 2},
+                {0, 1, 2, 3},
+                {0, 1, 2, 3, 4},
+                {0, 1, 2, 3, 4, 5},
+                {0, 1, 2, 3, 4, 5, 6},
+                {0, 1, 2, 3, 4, 5, 6, 7},
+              };
+
+              gint channels = -1, stream_count, coupled_count, mapping_family;
+              guint8 *channel_mapping = NULL;
+
+              channels = channel_config_code ? (channel_config_code & 0x0f) : 2;
+              if (channel_config_code == 0 || channel_config_code == 0x80) {
+                /* Dual Mono */
+                mapping_family = 255;
+                if (channel_config_code == 0) {
+                  stream_count = 1;
+                  coupled_count = 1;
+                } else {
+                  stream_count = 2;
+                  coupled_count = 0;
+                }
+                channel_mapping = g_new0 (guint8, channels);
+                memcpy (channel_mapping, &channel_map_a[1], channels);
+              } else if (channel_config_code <= 8) {
+                mapping_family = (channels > 2) ? 1 : 0;
+                stream_count =
+                    channel_config_code -
+                    coupled_stream_counts[channel_config_code];
+                coupled_count = coupled_stream_counts[channel_config_code];
+                if (mapping_family != 0) {
+                  channel_mapping = g_new0 (guint8, channels);
+                  memcpy (channel_mapping, &channel_map_a[channels - 1],
+                      channels);
+                }
+              } else if (channel_config_code >= 0x82
+                  && channel_config_code <= 0x88) {
+                mapping_family = 1;
+                stream_count = channels;
+                coupled_count = 0;
+                channel_mapping = g_new0 (guint8, channels);
+                memcpy (channel_mapping, &channel_map_b[channels - 1],
+                    channels);
+              } else if (channel_config_code == 0x81) {
+                if (gst_byte_reader_get_remaining (&br) < 2) {
+                  GST_WARNING_OBJECT (demux,
+                      "Invalid Opus descriptor with extended channel configuration");
+                  channels = -1;
+                  break;
+                }
+
+                channels = gst_byte_reader_get_uint8_unchecked (&br);
+                mapping_family = gst_byte_reader_get_uint8_unchecked (&br);
+
+                /* Overwrite values from above */
+                if (channels == 0) {
+                  GST_WARNING_OBJECT (demux,
+                      "Invalid Opus descriptor with extended channel configuration");
+                  channels = -1;
+                  break;
+                }
+
+                if (mapping_family == 0 && channels <= 2) {
+                  stream_count = channels - coupled_stream_counts[channels];
+                  coupled_count = coupled_stream_counts[channels];
+                } else {
+                  GstBitReader breader;
+                  guint8 stream_count_minus_one, coupled_stream_count;
+                  gint stream_count_minus_one_len, coupled_stream_count_len;
+                  gint channel_mapping_len, i;
+
+                  gst_bit_reader_init (&breader,
+                      gst_byte_reader_get_data_unchecked
+                      (&br, gst_byte_reader_get_remaining
+                          (&br)), gst_byte_reader_get_remaining (&br));
+
+                  stream_count_minus_one_len = ceil (_gst_log2 (channels));
+                  if (!gst_bit_reader_get_bits_uint8 (&breader,
+                          &stream_count_minus_one,
+                          stream_count_minus_one_len)) {
+                    GST_WARNING_OBJECT (demux,
+                        "Invalid Opus descriptor with extended channel configuration");
+                    channels = -1;
+                    break;
+                  }
+
+                  stream_count = stream_count_minus_one + 1;
+                  coupled_stream_count_len =
+                      ceil (_gst_log2 (stream_count_minus_one + 2));
+
+                  if (!gst_bit_reader_get_bits_uint8 (&breader,
+                          &coupled_stream_count, coupled_stream_count_len)) {
+                    GST_WARNING_OBJECT (demux,
+                        "Invalid Opus descriptor with extended channel configuration");
+                    channels = -1;
+                    break;
+                  }
+
+                  coupled_count = coupled_stream_count;
+
+                  channel_mapping_len =
+                      ceil (_gst_log2 (stream_count_minus_one + 1 +
+                          coupled_stream_count + 1));
+                  channel_mapping = g_new0 (guint8, channels);
+                  for (i = 0; i < channels; i++) {
+                    if (!gst_bit_reader_get_bits_uint8 (&breader,
+                            &channel_mapping[i], channel_mapping_len)) {
+                      GST_WARNING_OBJECT (demux,
+                          "Invalid Opus descriptor with extended channel configuration");
+                      break;
+                    }
+                  }
+
+                  /* error above */
+                  if (i != channels) {
+                    channels = -1;
+                    g_free (channel_mapping);
+                    channel_mapping = NULL;
+                    break;
+                  }
+                }
+              } else {
+                g_assert_not_reached ();
+              }
+
+              if (channels != -1) {
+                is_audio = TRUE;
+                template = gst_static_pad_template_get (&audio_template);
+                name = g_strdup_printf ("audio_%04x", bstream->pid);
+
+                caps =
+                    gst_codec_utils_opus_create_caps (48000, channels,
+                    mapping_family, stream_count, coupled_count,
+                    channel_mapping);
+
+                g_free (channel_mapping);
+              }
+            } else {
+              GST_WARNING_OBJECT (demux,
+                  "unexpected channel config code 0x%02x", channel_config_code);
+            }
+          } else {
+            GST_WARNING_OBJECT (demux, "Opus, but no extension descriptor");
+          }
           break;
         case DRF_ID_HEVC:
           is_video = TRUE;
@@ -1400,8 +1590,7 @@ done:
     gst_pad_set_event_function (pad, gst_ts_demux_srcpad_event);
   }
 
-  if (name)
-    g_free (name);
+  g_free (name);
   if (template)
     gst_object_unref (template);
   if (caps)
@@ -1436,7 +1625,8 @@ gst_ts_demux_stream_added (MpegTSBase * base, MpegTSBaseStream * bstream,
     stream->active = FALSE;
 
     stream->need_newsegment = TRUE;
-    demux->reset_segment = TRUE;
+    /* Reset segment if we're not doing an accurate seek */
+    demux->reset_segment = (!(demux->segment.flags & GST_SEEK_FLAG_ACCURATE));
     stream->needs_keyframe = FALSE;
     stream->discont = TRUE;
     stream->pts = GST_CLOCK_TIME_NONE;
@@ -1513,16 +1703,8 @@ activate_pad_for_stream (GstTSDemux * tsdemux, TSDemuxStream * stream)
     gst_element_add_pad ((GstElement *) tsdemux, stream->pad);
     stream->active = TRUE;
     GST_DEBUG_OBJECT (stream->pad, "done adding pad");
-    /* force sending of pending sticky events which have been stored on the
-     * pad already and which otherwise would only be sent on the first buffer
-     * or serialized event (which means very late in case of subtitle streams),
-     * and playsink waits for stream-start or another serialized event */
-    if (stream->sparse) {
-      GST_DEBUG_OBJECT (stream->pad, "sparse stream, pushing GAP event");
-      gst_pad_push_event (stream->pad, gst_event_new_gap (0, 0));
-    }
   } else if (((MpegTSBaseStream *) stream)->stream_type != 0xff) {
-    GST_WARNING_OBJECT (tsdemux,
+    GST_DEBUG_OBJECT (tsdemux,
         "stream %p (pid 0x%04x, type:0x%02x) has no pad", stream,
         ((MpegTSBaseStream *) stream)->pid,
         ((MpegTSBaseStream *) stream)->stream_type);
@@ -1535,8 +1717,7 @@ gst_ts_demux_stream_flush (TSDemuxStream * stream, GstTSDemux * tsdemux,
 {
   GST_DEBUG ("flushing stream %p", stream);
 
-  if (stream->data)
-    g_free (stream->data);
+  g_free (stream->data);
   stream->data = NULL;
   stream->state = PENDING_PACKET_EMPTY;
   stream->expected_size = 0;
@@ -1583,6 +1764,24 @@ gst_ts_demux_flush_streams (GstTSDemux * demux, gboolean hard)
     gst_ts_demux_stream_flush (walk->data, demux, hard);
 }
 
+static gboolean
+gst_ts_demux_can_remove_program (MpegTSBase * base, MpegTSBaseProgram * program)
+{
+  GstTSDemux *demux = GST_TS_DEMUX (base);
+
+  /* If it's our current active program, we return FALSE, we'll deactivate it
+   * ourselves when the next program gets activated */
+  if (demux->program == program) {
+    GST_DEBUG
+        ("Attempting to remove current program, delaying until new program gets activated");
+    demux->previous_program = program;
+    demux->program_number = -1;
+    return FALSE;
+  }
+  return TRUE;
+}
+
+
 static void
 gst_ts_demux_program_started (MpegTSBase * base, MpegTSBaseProgram * program)
 {
@@ -1607,10 +1806,44 @@ gst_ts_demux_program_started (MpegTSBase * base, MpegTSBaseProgram * program)
       demux->segment_event = NULL;
     }
 
+    /* DRAIN ALL STREAMS FIRST ! */
+    if (demux->previous_program) {
+      GList *tmp;
+      GST_DEBUG_OBJECT (demux, "Draining previous program");
+      for (tmp = demux->previous_program->stream_list; tmp; tmp = tmp->next) {
+        TSDemuxStream *stream = (TSDemuxStream *) tmp->data;
+        if (stream->pad)
+          gst_ts_demux_push_pending_data (demux, stream);
+      }
+    }
+
     /* Add all streams, then fire no-more-pads */
     for (tmp = program->stream_list; tmp; tmp = tmp->next) {
       TSDemuxStream *stream = (TSDemuxStream *) tmp->data;
       activate_pad_for_stream (demux, stream);
+    }
+
+    /* If there was a previous program, now is the time to deactivate it
+     * and remove old pads (including pushing EOS) */
+    if (demux->previous_program) {
+      GST_DEBUG ("Deactivating previous program");
+      mpegts_base_deactivate_and_free_program (base, demux->previous_program);
+      demux->previous_program = NULL;
+    }
+    /* If any of the stream is sparse, push a GAP event before anything else
+     * This is done here, and not in activate_pad_for_stream() because pushing
+     * a GAP event *is* considering data, and we want to ensure the (potential)
+     * old pads are all removed before we push any data on the new ones */
+    for (tmp = program->stream_list; tmp; tmp = tmp->next) {
+      TSDemuxStream *stream = (TSDemuxStream *) tmp->data;
+      if (stream->sparse) {
+        /* force sending of pending sticky events which have been stored on the
+         * pad already and which otherwise would only be sent on the first buffer
+         * or serialized event (which means very late in case of subtitle streams),
+         * and playsink waits for stream-start or another serialized event */
+        GST_DEBUG_OBJECT (stream->pad, "sparse stream, pushing GAP event");
+        gst_pad_push_event (stream->pad, gst_event_new_gap (0, 0));
+      }
     }
     gst_element_no_more_pads ((GstElement *) demux);
   }
@@ -2132,14 +2365,106 @@ gst_ts_demux_check_and_sync_streams (GstTSDemux * demux, GstClockTime time)
   }
 }
 
+static GstBufferList *
+parse_opus_access_unit (TSDemuxStream * stream)
+{
+  GstByteReader reader;
+  GstBufferList *buffer_list = NULL;
+
+  buffer_list = gst_buffer_list_new ();
+  gst_byte_reader_init (&reader, stream->data, stream->current_size);
+
+  do {
+    GstBuffer *buffer;
+    guint16 id;
+    guint au_size = 0;
+    guint8 b;
+    gboolean start_trim_flag, end_trim_flag, control_extension_flag;
+    guint16 start_trim = 0, end_trim = 0;
+    guint8 *packet_data;
+    guint packet_size;
+
+    if (!gst_byte_reader_get_uint16_be (&reader, &id))
+      goto error;
+
+    /* No control header */
+    if ((id >> 5) != 0x3ff)
+      goto error;
+
+    do {
+      if (!gst_byte_reader_get_uint8 (&reader, &b))
+        goto error;
+      au_size += b;
+    } while (b == 0xff);
+
+    start_trim_flag = (id >> 4) & 0x1;
+    end_trim_flag = (id >> 3) & 0x1;
+    control_extension_flag = (id >> 2) & 0x1;
+
+    if (start_trim_flag) {
+      if (!gst_byte_reader_get_uint16_be (&reader, &start_trim))
+        goto error;
+    }
+
+    if (end_trim_flag) {
+      if (!gst_byte_reader_get_uint16_be (&reader, &end_trim))
+        goto error;
+    }
+
+    if (control_extension_flag) {
+      if (!gst_byte_reader_get_uint8 (&reader, &b))
+        goto error;
+
+      if (!gst_byte_reader_skip (&reader, b))
+        goto error;
+    }
+
+    packet_size = au_size;
+
+    /* FIXME: this should be
+     *   packet_size = au_size - gst_byte_reader_get_pos (&reader);
+     * but ffmpeg and the only available sample stream from obe.tv
+     * are not including the control header size in au_size
+     */
+    if (gst_byte_reader_get_remaining (&reader) < packet_size)
+      goto error;
+    if (!gst_byte_reader_dup_data (&reader, packet_size, &packet_data))
+      goto error;
+
+    buffer = gst_buffer_new_wrapped (packet_data, packet_size);
+
+    if (start_trim != 0 || end_trim != 0) {
+      gst_buffer_add_audio_clipping_meta (buffer, GST_FORMAT_DEFAULT,
+          start_trim, end_trim);
+    }
+
+    gst_buffer_list_add (buffer_list, buffer);
+  } while (gst_byte_reader_get_remaining (&reader) > 0);
+
+  g_free (stream->data);
+  stream->data = NULL;
+  stream->current_size = 0;
+
+  return buffer_list;
+
+error:
+  {
+    GST_ERROR ("Failed to parse Opus access unit");
+    g_free (stream->data);
+    stream->data = NULL;
+    stream->current_size = 0;
+    gst_buffer_list_unref (buffer_list);
+    return NULL;
+  }
+}
+
 static GstFlowReturn
 gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream)
 {
   GstFlowReturn res = GST_FLOW_OK;
-#ifndef GST_DISABLE_GST_DEBUG
   MpegTSBaseStream *bs = (MpegTSBaseStream *) stream;
-#endif
   GstBuffer *buffer = NULL;
+  GstBufferList *buffer_list = NULL;
 
   GST_DEBUG_OBJECT (stream->pad,
       "stream:%p, pid:0x%04x stream_type:%d state:%d", stream, bs->pid,
@@ -2174,7 +2499,24 @@ gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream)
       GST_DEBUG_OBJECT (stream->pad,
           "Got Keyframe, ready to go at %" GST_TIME_FORMAT,
           GST_TIME_ARGS (stream->pts));
-      buffer = gst_buffer_new_wrapped (stream->data, stream->current_size);
+
+      if (bs->stream_type == GST_MPEGTS_STREAM_TYPE_PRIVATE_PES_PACKETS &&
+          bs->registration_id == DRF_ID_OPUS) {
+        buffer_list = parse_opus_access_unit (stream);
+        if (!buffer_list) {
+          res = GST_FLOW_ERROR;
+          goto beach;
+        }
+
+        if (gst_buffer_list_length (buffer_list) == 1) {
+          buffer = gst_buffer_ref (gst_buffer_list_get (buffer_list, 0));
+          gst_buffer_list_unref (buffer_list);
+          buffer_list = NULL;
+        }
+      } else {
+        buffer = gst_buffer_new_wrapped (stream->data, stream->current_size);
+      }
+
       stream->seeked_pts = stream->pts;
       stream->seeked_dts = stream->dts;
       stream->needs_keyframe = FALSE;
@@ -2192,15 +2534,45 @@ gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream)
       goto beach;
     }
   } else {
-    buffer = gst_buffer_new_wrapped (stream->data, stream->current_size);
+    if (bs->stream_type == GST_MPEGTS_STREAM_TYPE_PRIVATE_PES_PACKETS &&
+        bs->registration_id == DRF_ID_OPUS) {
+      buffer_list = parse_opus_access_unit (stream);
+      if (!buffer_list) {
+        res = GST_FLOW_ERROR;
+        goto beach;
+      }
+
+      if (gst_buffer_list_length (buffer_list) == 1) {
+        buffer = gst_buffer_ref (gst_buffer_list_get (buffer_list, 0));
+        gst_buffer_list_unref (buffer_list);
+        buffer_list = NULL;
+      }
+    } else {
+      buffer = gst_buffer_new_wrapped (stream->data, stream->current_size);
+    }
 
     if (G_UNLIKELY (stream->pending_ts && !check_pending_buffers (demux))) {
-      PendingBuffer *pend;
-      pend = g_slice_new0 (PendingBuffer);
-      pend->buffer = buffer;
-      pend->pts = stream->raw_pts;
-      pend->dts = stream->raw_dts;
-      stream->pending = g_list_append (stream->pending, pend);
+      if (buffer) {
+        PendingBuffer *pend;
+        pend = g_slice_new0 (PendingBuffer);
+        pend->buffer = buffer;
+        pend->pts = stream->raw_pts;
+        pend->dts = stream->raw_dts;
+        stream->pending = g_list_append (stream->pending, pend);
+      } else {
+        guint i, n;
+
+        n = gst_buffer_list_length (buffer_list);
+        for (i = 0; i < n; i++) {
+          PendingBuffer *pend;
+          pend = g_slice_new0 (PendingBuffer);
+          pend->buffer = gst_buffer_ref (gst_buffer_list_get (buffer_list, i));
+          pend->pts = i == 0 ? stream->raw_pts : -1;
+          pend->dts = i == 0 ? stream->raw_dts : -1;
+          stream->pending = g_list_append (stream->pending, pend);
+        }
+        gst_buffer_list_unref (buffer_list);
+      }
       GST_DEBUG ("Not enough information to push buffers yet, storing buffer");
       goto beach;
     }
@@ -2242,34 +2614,52 @@ gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream)
         "(seeked PTS: %" GST_TIME_FORMAT " DTS: %" GST_TIME_FORMAT ")",
         GST_TIME_ARGS (stream->pts), GST_TIME_ARGS (stream->dts),
         GST_TIME_ARGS (stream->seeked_pts), GST_TIME_ARGS (stream->seeked_dts));
-    gst_buffer_unref (buffer);
+    if (buffer)
+      gst_buffer_unref (buffer);
+    if (buffer_list)
+      gst_buffer_list_unref (buffer_list);
     goto beach;
   }
 
   GST_DEBUG_OBJECT (stream->pad, "stream->pts %" GST_TIME_FORMAT,
       GST_TIME_ARGS (stream->pts));
+
+  /* Decorate buffer or first buffer of the buffer list */
+  if (buffer_list)
+    buffer = gst_buffer_list_get (buffer_list, 0);
+
   if (GST_CLOCK_TIME_IS_VALID (stream->pts))
     GST_BUFFER_PTS (buffer) = stream->pts;
   if (GST_CLOCK_TIME_IS_VALID (stream->dts))
     GST_BUFFER_DTS (buffer) = stream->dts;
 
-  GST_DEBUG_OBJECT (stream->pad,
-      "Pushing buffer with PTS: %" GST_TIME_FORMAT " , DTS: %" GST_TIME_FORMAT,
-      GST_TIME_ARGS (GST_BUFFER_PTS (buffer)),
-      GST_TIME_ARGS (GST_BUFFER_DTS (buffer)));
-
   if (stream->discont)
     GST_BUFFER_FLAG_SET (buffer, GST_BUFFER_FLAG_DISCONT);
   stream->discont = FALSE;
 
-  if (GST_CLOCK_TIME_IS_VALID (GST_BUFFER_DTS (buffer)))
-    demux->segment.position = GST_BUFFER_DTS (buffer);
-  else if (GST_CLOCK_TIME_IS_VALID (GST_BUFFER_PTS (buffer)))
-    demux->segment.position = GST_BUFFER_PTS (buffer);
+  if (buffer_list)
+    buffer = NULL;
 
-  res = gst_pad_push (stream->pad, buffer);
-  /* Record that a buffer was pushed */
-  stream->nb_out_buffers += 1;
+  GST_DEBUG_OBJECT (stream->pad,
+      "Pushing buffer%s with PTS: %" GST_TIME_FORMAT " , DTS: %"
+      GST_TIME_FORMAT, (buffer_list ? "list" : ""), GST_TIME_ARGS (stream->pts),
+      GST_TIME_ARGS (stream->dts));
+
+  if (GST_CLOCK_TIME_IS_VALID (stream->dts))
+    demux->segment.position = stream->dts;
+  else if (GST_CLOCK_TIME_IS_VALID (stream->pts))
+    demux->segment.position = stream->pts;
+
+  if (buffer) {
+    res = gst_pad_push (stream->pad, buffer);
+    /* Record that a buffer was pushed */
+    stream->nb_out_buffers += 1;
+  } else {
+    guint n = gst_buffer_list_length (buffer_list);
+    res = gst_pad_push_list (stream->pad, buffer_list);
+    /* Record that a buffer was pushed */
+    stream->nb_out_buffers += n;
+  }
   GST_DEBUG_OBJECT (stream->pad, "Returned %s", gst_flow_get_name (res));
   res = gst_flow_combiner_update_flow (demux->flowcombiner, res);
   GST_DEBUG_OBJECT (stream->pad, "combined %s", gst_flow_get_name (res));

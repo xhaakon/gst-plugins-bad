@@ -26,7 +26,7 @@
  * <refsect2>
  * <title>Examples</title>
  * |[
- * gst-launch videotestsrc ! glupload ! gleffects effect=5 ! glimagesink
+ * gst-launch-1.0 videotestsrc ! glupload ! gleffects effect=5 ! glimagesink
  * ]|
  * FBO (Frame Buffer Object) and GLSL (OpenGL Shading Language) are required.
  * </refsect2>
@@ -350,6 +350,7 @@ gst_gl_effects_filter_class_init (GstGLEffectsClass * klass,
     const GstGLEffectsFilterDescriptor * filter_descriptor)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
   klass->filter_descriptor = filter_descriptor;
 
@@ -366,6 +367,15 @@ gst_gl_effects_filter_class_init (GstGLEffectsClass * klass,
             GST_TYPE_GL_EFFECTS_EFFECT,
             GST_GL_EFFECT_IDENTITY,
             G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  } else {
+    gchar *description = g_strdup_printf ("GL Shading Language effects - %s",
+        filter_descriptor->filter_longname);
+
+    gst_element_class_set_metadata (element_class,
+        filter_descriptor->filter_longname, "Filter/Effect/Video",
+        description, "Filippo Argiolas <filippo.argiolas@gmail.com>");
+
+    g_free (description);
   }
 
   g_object_class_install_property (gobject_class,
@@ -545,21 +555,23 @@ gst_gl_effects_get_fragment_shader (GstGLEffects * effects,
   shader = g_hash_table_lookup (effects->shaderstable, shader_name);
 
   if (!shader) {
-    shader = gst_gl_shader_new (context);
-    if (!gst_gl_shader_compile_with_default_v_and_check (shader,
-            shader_source_gles2, &filter->draw_attr_position_loc,
-            &filter->draw_attr_texture_loc)) {
-      /* gst gl context error is already set */
-      GST_ELEMENT_ERROR (effects, RESOURCE, NOT_FOUND,
-          ("Failed to initialize %s shader, %s",
-              shader_name, gst_gl_context_get_error ()), (NULL));
-      gst_object_unref (shader);
-      shader = NULL;
-    }
-  }
+    GError *error = NULL;
 
-  if (!shader)
-    return NULL;
+    if (!(shader = gst_gl_shader_new_link_with_stages (context, &error,
+                gst_glsl_stage_new_default_vertex (context),
+                gst_glsl_stage_new_with_string (context, GL_FRAGMENT_SHADER,
+                    GST_GLSL_VERSION_NONE,
+                    GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+                    shader_source_gles2), NULL))) {
+      GST_ELEMENT_ERROR (effects, RESOURCE, NOT_FOUND,
+          ("Failed to initialize %s shader", shader_name), (NULL));
+    }
+
+    filter->draw_attr_position_loc =
+        gst_gl_shader_get_attribute_location (shader, "a_position");
+    filter->draw_attr_texture_loc =
+        gst_gl_shader_get_attribute_location (shader, "a_texcoord");
+  }
 
   g_hash_table_insert (effects->shaderstable, (gchar *) shader_name, shader);
 
@@ -603,6 +615,7 @@ gst_gl_effects_filters_descriptors (void)
     for (i = 0; i < n_filters; ++i, ++effect) {
       descriptors[i].effect = effect->value;
       descriptors[i].filter_name = effect->value_nick;
+      descriptors[i].filter_longname = effect->value_name;
     }
 
     for (defined = gst_gl_effects_filters_supported_properties ();

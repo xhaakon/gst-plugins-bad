@@ -815,6 +815,7 @@ gst_mpegv_parse_update_src_caps (GstMpegvParse * mpvparse)
   }
 
   if (mpvparse->config_flags & FLAG_SEQUENCE_EXT) {
+    guint8 escape = mpvparse->sequenceext.profile_level_escape_bit;
     const guint profile_c = mpvparse->sequenceext.profile;
     const guint level_c = mpvparse->sequenceext.level;
     const gchar *profile = NULL, *level = NULL;
@@ -824,20 +825,14 @@ gst_mpegv_parse_update_src_caps (GstMpegvParse * mpvparse)
      * 4:2:2 and Multi-view have profile = 0, with the escape bit set to 1
      */
     const gchar *const profiles[] =
-        { "high", "spatial", "snr", "main", "simple" };
+        { "4:2:2", "high", "spatial", "snr", "main", "simple" };
     /*
      * Level indication - 4 => High, 6 => High-1440, 8 => Main, 10 => Low,
      *                    except in the case of profile = 0
      */
     const gchar *const levels[] = { "high", "high-1440", "main", "low" };
 
-    if (profile_c > 0 && profile_c < 6)
-      profile = profiles[profile_c - 1];
-
-    if ((level_c > 3) && (level_c < 11) && (level_c % 2 == 0))
-      level = levels[(level_c >> 1) - 2];
-
-    if (profile_c == 8) {
+    if (escape) {
       /* Non-hierarchical profile */
       switch (level_c) {
         case 2:
@@ -863,9 +858,14 @@ gst_mpegv_parse_update_src_caps (GstMpegvParse * mpvparse)
         default:
           break;
       }
-    }
 
-    /* FIXME does it make sense to expose profile/level in the caps ? */
+    } else {
+      if (profile_c < 6)
+        profile = profiles[profile_c];
+
+      if ((level_c > 3) && (level_c < 11) && (level_c % 2 == 0))
+        level = levels[(level_c >> 1) - 2];
+    }
 
     GST_DEBUG_OBJECT (mpvparse, "profile:'%s' level:'%s'", profile, level);
 
@@ -948,8 +948,18 @@ gst_mpegv_parse_pre_push_frame (GstBaseParse * parse, GstBaseParseFrame * frame)
     GstCaps *caps;
 
     /* codec tag */
-    taglist = gst_tag_list_new_empty ();
     caps = gst_pad_get_current_caps (GST_BASE_PARSE_SRC_PAD (parse));
+    if (G_UNLIKELY (caps == NULL)) {
+      if (GST_PAD_IS_FLUSHING (GST_BASE_PARSE_SRC_PAD (parse))) {
+        GST_INFO_OBJECT (parse, "Src pad is flushing");
+        return GST_FLOW_FLUSHING;
+      } else {
+        GST_INFO_OBJECT (parse, "Src pad is not negotiated!");
+        return GST_FLOW_NOT_NEGOTIATED;
+      }
+    }
+
+    taglist = gst_tag_list_new_empty ();
     gst_pb_utils_add_codec_description_to_tag_list (taglist,
         GST_TAG_VIDEO_CODEC, caps);
     gst_caps_unref (caps);

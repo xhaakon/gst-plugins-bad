@@ -18749,6 +18749,36 @@
 </ARG>
 
 <ARG>
+<NAME>GstVideoParse::framesize</NAME>
+<TYPE>guint</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Framesize</NICK>
+<BLURB>Size of an image in raw stream (0: default).</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstVideoParse::offsets</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Offsets</NICK>
+<BLURB>Offset of each planes in bytes using string format: 'o0,o1,o2,o3'.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstVideoParse::strides</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Strides</NICK>
+<BLURB>Stride of each planes in bytes using string format: 's0,s1,s2,s3'.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
 <NAME>GstMetadataParse::exif</NAME>
 <TYPE>gboolean</TYPE>
 <RANGE></RANGE>
@@ -23952,10 +23982,10 @@
 <NAME>GstLiveAdder::latency</NAME>
 <TYPE>guint</TYPE>
 <RANGE></RANGE>
-<FLAGS>rw</FLAGS>
-<NICK>Buffering latency</NICK>
-<BLURB>Amount of data to buffer (in milliseconds).</BLURB>
-<DEFAULT>60</DEFAULT>
+<FLAGS>rwx</FLAGS>
+<NICK>Buffer latency</NICK>
+<BLURB>Additional latency in live mode to allow upstream to take longer to produce buffers for the current position (in milliseconds).</BLURB>
+<DEFAULT>30</DEFAULT>
 </ARG>
 
 <ARG>
@@ -46389,16 +46419,6 @@
 </ARG>
 
 <ARG>
-<NAME>GstGSettingsAudioSink::profile</NAME>
-<TYPE>GstGSettingsAudioSinkProfile</TYPE>
-<RANGE></RANGE>
-<FLAGS>rw</FLAGS>
-<NICK>Profile</NICK>
-<BLURB>Profile.</BLURB>
-<DEFAULT>Sound Events</DEFAULT>
-</ARG>
-
-<ARG>
 <NAME>Gstsolarize::silent</NAME>
 <TYPE>gboolean</TYPE>
 <RANGE></RANGE>
@@ -47079,6 +47099,16 @@
 </ARG>
 
 <ARG>
+<NAME>GstCvSobel::mask</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Mask</NICK>
+<BLURB>Sets whether the detected derivative edges should be used as a mask on the original input or not.</BLURB>
+<DEFAULT>TRUE</DEFAULT>
+</ARG>
+
+<ARG>
 <NAME>GstCvSmooth::param1</NAME>
 <TYPE>gint</TYPE>
 <RANGE>>= 1</RANGE>
@@ -47134,7 +47164,7 @@
 <RANGE>>= 0</RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>color (gaussian standard deviation or color sigma</NICK>
-<BLURB>If type is gaussian, this means the standard deviation.If type is bilateral, this means the color-sigma. If zero, Default values are used.Check cvSmooth OpenCV docs: http://opencv.willowgarage.com/documentation/image_filtering.html#cvSmooth.</BLURB>
+<BLURB>If type is gaussian, this means the standard deviation.If type is bilateral, this means the color-sigma. If zero, Default values are used.</BLURB>
 <DEFAULT>0</DEFAULT>
 </ARG>
 
@@ -47143,9 +47173,9 @@
 <TYPE>gint</TYPE>
 <RANGE>>= 0</RANGE>
 <FLAGS>rw</FLAGS>
-<NICK>height (aperture height)</NICK>
-<BLURB>The aperture height, if zero, the width is used.(Must be positive and odd or zero, unuset in median and bilateral types). Check cvSmooth OpenCV docs: http://opencv.willowgarage.com/documentation/image_filtering.html#cvSmooth.</BLURB>
-<DEFAULT>0</DEFAULT>
+<NICK>height (kernel height)</NICK>
+<BLURB>The gaussian kernel height (must be positive and odd).</BLURB>
+<DEFAULT>3</DEFAULT>
 </ARG>
 
 <ARG>
@@ -47154,7 +47184,7 @@
 <RANGE>>= 0</RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>spatial (spatial sigma, bilateral only)</NICK>
-<BLURB>Only used in bilateral type, means the spatial-sigma.Check cvSmooth OpenCV docs: http://opencv.willowgarage.com/documentation/image_filtering.html#cvSmooth.</BLURB>
+<BLURB>Only used in bilateral type, means the spatial-sigma.</BLURB>
 <DEFAULT>0</DEFAULT>
 </ARG>
 
@@ -47163,8 +47193,8 @@
 <TYPE>gint</TYPE>
 <RANGE>>= 1</RANGE>
 <FLAGS>rw</FLAGS>
-<NICK>width (aperture width)</NICK>
-<BLURB>The aperture width (Must be positive and odd).Check cvSmooth OpenCV docs: http://opencv.willowgarage.com/documentation/image_filtering.html#cvSmooth.</BLURB>
+<NICK>width (kernel width)</NICK>
+<BLURB>The gaussian kernel width (must be positive and odd).If type is median, this means the aperture linear size.Check OpenCV docs: http://docs.opencv.org/2.4/modules/imgproc/doc/filtering.htm.</BLURB>
 <DEFAULT>3</DEFAULT>
 </ARG>
 
@@ -47176,6 +47206,36 @@
 <NICK>aperture size</NICK>
 <BLURB>Size of the extended Laplace Kernel (1, 3, 5 or 7).</BLURB>
 <DEFAULT>3</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCvLaplace::scale</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>>= 0</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>scale factor</NICK>
+<BLURB>Scale factor.</BLURB>
+<DEFAULT>1</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCvLaplace::shift</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>>= 0</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Shift</NICK>
+<BLURB>Value added to the scaled source array elements.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCvLaplace::mask</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Mask</NICK>
+<BLURB>Sets whether the detected edges should be used as a mask on the original input or not.</BLURB>
+<DEFAULT>TRUE</DEFAULT>
 </ARG>
 
 <ARG>
@@ -58484,7 +58544,7 @@
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Use in-band FEC</NICK>
-<BLURB>Use forward error correction if available.</BLURB>
+<BLURB>Use forward error correction if available (needs PLC enabled).</BLURB>
 <DEFAULT>FALSE</DEFAULT>
 </ARG>
 
@@ -58654,7 +58714,7 @@
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Calculate Motion</NICK>
-<BLURB>If needs calculate motion on frame you need this property setting true otherwise false.</BLURB>
+<BLURB>Toggles motion calculation. If FALSE, this filter does nothing.</BLURB>
 <DEFAULT>TRUE</DEFAULT>
 </ARG>
 
@@ -58664,7 +58724,7 @@
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Color of Motion Cells</NICK>
-<BLURB>The color of motion cells separated with ",".</BLURB>
+<BLURB>Color for motion cells in R,G,B format. Max per channel is 255.</BLURB>
 <DEFAULT>"255,255,0"</DEFAULT>
 </ARG>
 
@@ -58694,7 +58754,7 @@
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Display</NICK>
-<BLURB>Motion Cells visible or not on Current Frame.</BLURB>
+<BLURB>Toggle display of motion cells on current frame.</BLURB>
 <DEFAULT>FALSE</DEFAULT>
 </ARG>
 
@@ -58703,8 +58763,8 @@
 <TYPE>gint</TYPE>
 <RANGE>[1,60]</RANGE>
 <FLAGS>rw</FLAGS>
-<NICK>Gap is time in second, elapsed time from last motion timestamp. </NICK>
-<BLURB>If elapsed time minus form last motion timestamp is greater or equal than gap then we post motion finished bus message. .</BLURB>
+<NICK>Motion-finished Threshold</NICK>
+<BLURB>Interval in seconds after which motion is considered finished and a motion finished bus message is posted.</BLURB>
 <DEFAULT>5</DEFAULT>
 </ARG>
 
@@ -58714,7 +58774,7 @@
 <RANGE>[8,32]</RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Number of Horizontal Grids</NICK>
-<BLURB>You can give number of horizontal grid cells.</BLURB>
+<BLURB>Number of horizontal grid cells.</BLURB>
 <DEFAULT>10</DEFAULT>
 </ARG>
 
@@ -58724,7 +58784,7 @@
 <RANGE>[8,32]</RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Number of Vertical Grids</NICK>
-<BLURB>You can give number of vertical grid cells.</BLURB>
+<BLURB>Number of vertical grid cells.</BLURB>
 <DEFAULT>10</DEFAULT>
 </ARG>
 
@@ -58733,8 +58793,8 @@
 <TYPE>gint</TYPE>
 <RANGE>[1,60]</RANGE>
 <FLAGS>rw</FLAGS>
-<NICK>MINIMUN MOTION FRAMES</NICK>
-<BLURB>Define the minimum number of motion frames that trigger a motion event.</BLURB>
+<NICK>Minimum Motion Frames</NICK>
+<BLURB>Minimum number of motion frames triggering a motion event.</BLURB>
 <DEFAULT>1</DEFAULT>
 </ARG>
 
@@ -58744,7 +58804,7 @@
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Motion Cells Of Interest(MOCI)</NICK>
-<BLURB>The line and column idx separated with ":", describe a cell. Cells separated with ",".</BLURB>
+<BLURB>Describe a cell with its line and column idx separated with ":". Pass multiple cells as a comma-separated list.</BLURB>
 <DEFAULT>NULL</DEFAULT>
 </ARG>
 
@@ -58754,7 +58814,7 @@
 <RANGE>[G_MAXULONG,5]</RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Motion Cell Thickness</NICK>
-<BLURB>Motion Cell Border Thickness, if it's -1 then motion cell will be fill.</BLURB>
+<BLURB>Motion Cell Border Thickness. Set to -1 to fill motion cell.</BLURB>
 <DEFAULT>1</DEFAULT>
 </ARG>
 
@@ -58764,7 +58824,7 @@
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Motion Mask with Cells Position</NICK>
-<BLURB>The line and column idx separated with ":" what cells want we mask-out, describe a cell. Cells separated with ",".</BLURB>
+<BLURB>Describe a cell with its line and column idx separated with ":". Pass multiple cells as a comma-separated list.</BLURB>
 <DEFAULT>NULL</DEFAULT>
 </ARG>
 
@@ -58774,7 +58834,7 @@
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Motion Mask with Coordinates</NICK>
-<BLURB>The upper left x, y and lower right x, y coordinates separated with ":", describe a region. Regions separated with ",".</BLURB>
+<BLURB>Describe a region with its upper left and lower right x, y coordinates separated with ":". Pass multiple regions as a comma-separated list.</BLURB>
 <DEFAULT>NULL</DEFAULT>
 </ARG>
 
@@ -58784,7 +58844,7 @@
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Post All Motion</NICK>
-<BLURB>Element post bus msg for every motion frame or just motion start and motion stop.</BLURB>
+<BLURB>Post bus messages for every motion frame or just motion start and motion stop.</BLURB>
 <DEFAULT>FALSE</DEFAULT>
 </ARG>
 
@@ -58793,8 +58853,8 @@
 <TYPE>gint</TYPE>
 <RANGE>[0,180]</RANGE>
 <FLAGS>rw</FLAGS>
-<NICK>POSTNOMOTION</NICK>
-<BLURB>If non 0 post a no_motion event is posted on the bus if no motion is detected for N seconds.</BLURB>
+<NICK>No-motion Threshold</NICK>
+<BLURB>If non 0, post a no_motion event on the bus if no motion is detected for the given number of seconds.</BLURB>
 <DEFAULT>0</DEFAULT>
 </ARG>
 
@@ -58804,7 +58864,7 @@
 <RANGE>[0,1]</RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Motion Sensitivity</NICK>
-<BLURB>You can tunning the element motion sensitivity.</BLURB>
+<BLURB>Motion detection sensitivity.</BLURB>
 <DEFAULT>0.5</DEFAULT>
 </ARG>
 
@@ -58814,7 +58874,7 @@
 <RANGE>[0,1]</RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Lower bound of motion cells number</NICK>
-<BLURB>Threshold value for motion, when motion cells number greater sum cells * threshold, we show motion.</BLURB>
+<BLURB>Threshold value for motion. Filter detects motion when at least this fraction of the cells have moved.</BLURB>
 <DEFAULT>0.01</DEFAULT>
 </ARG>
 
@@ -58824,7 +58884,7 @@
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Use alpha</NICK>
-<BLURB>Use or not alpha blending on frames with motion cells.</BLURB>
+<BLURB>Toggle usage of alpha blending on frames with motion cells.</BLURB>
 <DEFAULT>TRUE</DEFAULT>
 </ARG>
 
@@ -59939,6 +59999,16 @@
 </ARG>
 
 <ARG>
+<NAME>GstDashDemux::presentation-delay</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Presentation delay</NICK>
+<BLURB>Default presentation delay (in seconds, milliseconds or fragments) (e.g. 12s, 2500ms, 3f).</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
 <NAME>GstSkinDetect::method</NAME>
 <TYPE>GstSkindetectMethod</TYPE>
 <RANGE></RANGE>
@@ -59980,8 +60050,8 @@
 
 <ARG>
 <NAME>GstHanddetect::ROI-HEIGHT</NAME>
-<TYPE>guint</TYPE>
-<RANGE></RANGE>
+<TYPE>gint</TYPE>
+<RANGE>>= 0</RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>ROI_HEIGHT</NICK>
 <BLURB>HEIGHT of left-top pointer in region of interest 
@@ -59991,8 +60061,8 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 
 <ARG>
 <NAME>GstHanddetect::ROI-WIDTH</NAME>
-<TYPE>guint</TYPE>
-<RANGE></RANGE>
+<TYPE>gint</TYPE>
+<RANGE>>= 0</RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>ROI_WIDTH</NICK>
 <BLURB>WIDTH of left-top pointer in region of interest 
@@ -60002,8 +60072,8 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 
 <ARG>
 <NAME>GstHanddetect::ROI-X</NAME>
-<TYPE>guint</TYPE>
-<RANGE></RANGE>
+<TYPE>gint</TYPE>
+<RANGE>>= 0</RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>ROI_X</NICK>
 <BLURB>X of left-top pointer in region of interest 
@@ -60013,8 +60083,8 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 
 <ARG>
 <NAME>GstHanddetect::ROI-Y</NAME>
-<TYPE>guint</TYPE>
-<RANGE></RANGE>
+<TYPE>gint</TYPE>
+<RANGE>>= 0</RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>ROI_Y</NICK>
 <BLURB>Y of left-top pointer in region of interest 
@@ -67063,6 +67133,56 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 </ARG>
 
 <ARG>
+<NAME>GstGLFilterShader::fragment</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Fragment Source</NICK>
+<BLURB>GLSL fragment source.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstGLFilterShader::shader</NAME>
+<TYPE>GstGLShader*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Shader object</NICK>
+<BLURB>GstGLShader to use.</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstGLFilterShader::uniforms</NAME>
+<TYPE>GstStructure*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>GLSL Uniforms</NICK>
+<BLURB>GLSL Uniforms.</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstGLFilterShader::update-shader</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>w</FLAGS>
+<NICK>Update Shader</NICK>
+<BLURB>Emit the 'create-shader' signal for the next frame.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstGLFilterShader::vertex</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Vertex Source</NICK>
+<BLURB>GLSL vertex source.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
 <NAME>GstGLOverlay::angle-png</NAME>
 <TYPE>gint</TYPE>
 <RANGE>[-90,90]</RANGE>
@@ -68031,6 +68151,46 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 </ARG>
 
 <ARG>
+<NAME>GstGLSinkBin::brightness</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[-1,1]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Brightness</NICK>
+<BLURB>brightness.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstGLSinkBin::contrast</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[0,2]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Contrast</NICK>
+<BLURB>contrast.</BLURB>
+<DEFAULT>1</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstGLSinkBin::hue</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[-1,1]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Hue</NICK>
+<BLURB>hue.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstGLSinkBin::saturation</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[0,2]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Saturation</NICK>
+<BLURB>saturation.</BLURB>
+<DEFAULT>1</DEFAULT>
+</ARG>
+
+<ARG>
 <NAME>GstGLMixerBin::latency</NAME>
 <TYPE>gint64</TYPE>
 <RANGE>>= 0</RANGE>
@@ -68938,5 +69098,265 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <NICK>Replay window size</NICK>
 <BLURB>Size of the replay protection window.</BLURB>
 <DEFAULT>128</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstTeletextDec::font-description</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Pango font description</NICK>
+<BLURB>Font description used for the pango output.</BLURB>
+<DEFAULT>"verdana 12"</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstTeletextDec::page</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[100,999]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Page number</NICK>
+<BLURB>Number of page that should displayed.</BLURB>
+<DEFAULT>100</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstTeletextDec::subpage</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[G_MAXULONG,153]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Sub-page number</NICK>
+<BLURB>Number of sub-page that should displayed (-1 for all).</BLURB>
+<DEFAULT>-1</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstTeletextDec::subtitles-mode</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Enable subtitles mode</NICK>
+<BLURB>Enables subtitles mode for text output stripping the blank lines and the teletext state lines.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstTeletextDec::subtitles-template</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Subtitles output template</NICK>
+<BLURB>Output template used to print each one of the subtitles lines.</BLURB>
+<DEFAULT>"%s\\n"</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstNetSim::delay-probability</NAME>
+<TYPE>gfloat</TYPE>
+<RANGE>[0,1]</RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Delay Probability</NICK>
+<BLURB>The Probability a buffer is delayed.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstNetSim::drop-packets</NAME>
+<TYPE>guint</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Drop Packets</NICK>
+<BLURB>Drop the next n packets.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstNetSim::drop-probability</NAME>
+<TYPE>gfloat</TYPE>
+<RANGE>[0,1]</RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Drop Probability</NICK>
+<BLURB>The Probability a buffer is dropped.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstNetSim::duplicate-probability</NAME>
+<TYPE>gfloat</TYPE>
+<RANGE>[0,1]</RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Duplicate Probability</NICK>
+<BLURB>The Probability a buffer is duplicated.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstNetSim::max-delay</NAME>
+<TYPE>gint</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Maximum delay (ms)</NICK>
+<BLURB>The maximum delay in ms to apply to buffers.</BLURB>
+<DEFAULT>400</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstNetSim::min-delay</NAME>
+<TYPE>gint</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Minimum delay (ms)</NICK>
+<BLURB>The minimum delay in ms to apply to buffers.</BLURB>
+<DEFAULT>200</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstGDPDepay::ts-offset</NAME>
+<TYPE>gint64</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Timestamp Offset</NICK>
+<BLURB>Timestamp Offset.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstGLColorBalance::brightness</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[-1,1]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Brightness</NICK>
+<BLURB>brightness.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstGLColorBalance::contrast</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[0,2]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Contrast</NICK>
+<BLURB>contrast.</BLURB>
+<DEFAULT>1</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstGLColorBalance::hue</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[-1,1]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Hue</NICK>
+<BLURB>hue.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstGLColorBalance::saturation</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[0,2]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Saturation</NICK>
+<BLURB>saturation.</BLURB>
+<DEFAULT>1</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstToneGenerateSrc::freq</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[0,20000]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Frequency</NICK>
+<BLURB>Frequency of test signal.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstToneGenerateSrc::freq2</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[0,20000]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Second Frequency</NICK>
+<BLURB>Frequency of second telephony tone component.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstToneGenerateSrc::off-time</NAME>
+<TYPE>gint</TYPE>
+<RANGE>>= 0</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Signal OFF time first period </NICK>
+<BLURB>Time of the first period  when the tone signal is off.</BLURB>
+<DEFAULT>1000</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstToneGenerateSrc::off-time2</NAME>
+<TYPE>gint</TYPE>
+<RANGE>>= 0</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Signal OFF time first period </NICK>
+<BLURB>Time of the second period  when the tone signal is off.</BLURB>
+<DEFAULT>1000</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstToneGenerateSrc::on-time</NAME>
+<TYPE>gint</TYPE>
+<RANGE>>= 1</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Signal ON time first period</NICK>
+<BLURB>Time of the first period  when the tone signal is present.</BLURB>
+<DEFAULT>1000</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstToneGenerateSrc::on-time2</NAME>
+<TYPE>gint</TYPE>
+<RANGE>>= 1</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Signal ON time second period</NICK>
+<BLURB>Time of the second period  when the tone signal is present.</BLURB>
+<DEFAULT>1000</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstToneGenerateSrc::repeat</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Repeat the specified tone period </NICK>
+<BLURB>Whether to repeat specified tone indefinitly.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstToneGenerateSrc::samplesperbuffer</NAME>
+<TYPE>gint</TYPE>
+<RANGE>>= 1</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Samples per buffer</NICK>
+<BLURB>Number of samples in each outgoing buffer.</BLURB>
+<DEFAULT>1024</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstToneGenerateSrc::volume</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[-50,0]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Volume</NICK>
+<BLURB>Volume of first signal.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstToneGenerateSrc::volume2</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[-50,0]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Volume2</NICK>
+<BLURB>Volume of second tone signal.</BLURB>
+<DEFAULT>0</DEFAULT>
 </ARG>
 

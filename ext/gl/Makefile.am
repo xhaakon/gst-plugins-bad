@@ -13,6 +13,7 @@ libgstopengl_la_SOURCES = \
 	gstglimagesink.c \
 	gstglfiltercube.c \
 	gstgleffects.c \
+	effects/gstgleffectscurves.c \
 	effects/gstgleffectssources.c \
 	effects/gstgleffectidentity.c \
 	effects/gstgleffectmirror.c \
@@ -32,10 +33,14 @@ libgstopengl_la_SOURCES = \
 	effects/gstgleffectsobel.c \
 	effects/gstgleffectlaplacian.c \
 	gstglcolorscale.c \
+	gstglcolorbalance.c \
 	gstglmixer.c \
 	gstglvideomixer.c \
 	gstglfiltershader.c \
-	gstglfilterapp.c
+	gstglfilterapp.c \
+	gstglviewconvert.c \
+	gstglstereosplit.c \
+	gstglstereomix.c
 
 noinst_HEADERS = \
 	gstglbasemixer.h \
@@ -51,19 +56,20 @@ noinst_HEADERS = \
 	gstgleffects.h \
 	effects/gstgleffectssources.h \
 	gstglcolorscale.h \
+	gstglcolorbalance.h \
 	gstglmixer.h \
 	gstglvideomixer.h \
 	gstglfiltershader.h \
-	gstglfilterapp.h
+	gstglfilterapp.h \
+	gstglstereosplit.h \
+	gstglstereomix.h \
+	gstglviewconvert.h
 
 # full opengl required
 if USE_OPENGL
 libgstopengl_la_SOURCES += \
 	gstglfilterglass.c \
 	gstgldeinterlace.c \
-	gstglviewconvert.c \
-	gstglstereosplit.c \
-	gstglstereomix.c \
 	gltestsrc.c \
 	gstgltestsrc.c \
 	gstglmosaic.c
@@ -71,9 +77,6 @@ libgstopengl_la_SOURCES += \
 noinst_HEADERS += \
 	gstglfilterglass.h \
 	gstgldeinterlace.h \
-	gstglstereosplit.h \
-	gstglstereomix.h \
-	gstglviewconvert.h \
 	gltestsrc.h \
 	gstgltestsrc.h \
 	gstglmosaic.h \
@@ -92,7 +95,11 @@ endif
 if HAVE_GRAPHENE
 libgstopengl_la_SOURCES += \
 	gstgltransformation.c \
-	gstgltransformation.h
+	gstglvideoflip.c
+
+noinst_HEADERS += \
+	gstgltransformation.h \
+	gstglvideoflip.h
 endif
 
 if HAVE_JPEG

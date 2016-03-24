@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>videoparse: GStreamer Bad Plugins 1.0 Plugins Reference Manual</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-twirl.html" title="twirl">
@@ -35,7 +35,7 @@
 </tr></table></div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-videoparse.properties"></a><h2>Properties</h2>
-<div class="informaltable"><table border="0">
+<div class="informaltable"><table class="informaltable" border="0">
 <colgroup>
 <col width="150px" class="properties_type">
 <col width="300px" class="properties_name">
@@ -112,12 +112,29 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-videoparse.html#GstVideoParse--top-field-first" title="The “top-field-first” property">top-field-first</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-videoparse.html#GstVideoParse--framesize" title="The “framesize” property">framesize</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-videoparse.html#GstVideoParse--offsets" title="The “offsets” property">offsets</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-videoparse.html#GstVideoParse--strides" title="The “strides” property">strides</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
 </tbody>
 </table></div>
 </div>
 <a name="GstVideoParse"></a><div class="refsect1">
 <a name="gst-plugins-bad-plugins-videoparse.other"></a><h2>Types and Values</h2>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="name">
 <col class="description">
@@ -144,7 +161,7 @@
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.83.7.3.1"></a><h3>Element Information</h3>
+<a name="id-1.2.78.7.3.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -170,7 +187,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.83.7.3.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.78.7.3.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -351,6 +368,30 @@
 <p>True if top field is earlier than bottom field.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: TRUE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstVideoParse--framesize"></a><h3>The <code class="literal">“framesize”</code> property</h3>
+<pre class="programlisting">  “framesize”                <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a></pre>
+<p>Size of an image in raw stream (0: default).</p>
+<p>Flags: Read / Write</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstVideoParse--offsets"></a><h3>The <code class="literal">“offsets”</code> property</h3>
+<pre class="programlisting">  “offsets”                  <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>Offset of each planes in bytes using string format: 'o0,o1,o2,o3'.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstVideoParse--strides"></a><h3>The <code class="literal">“strides”</code> property</h3>
+<pre class="programlisting">  “strides”                  <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>Stride of each planes in bytes using string format: 's0,s1,s2,s3'.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: NULL</p>
 </div>
 </div>
 </div>

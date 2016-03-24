@@ -762,12 +762,21 @@ gst_h265_parse_handle_frame_packetized (GstBaseParse * parse,
 
     /* dispatch per NALU if needed */
     if (h265parse->split_packetized) {
+      GstBaseParseFrame tmp_frame;
+
+      gst_base_parse_frame_init (&tmp_frame);
+      tmp_frame.flags |= frame->flags;
+      tmp_frame.offset = frame->offset;
+      tmp_frame.overhead = frame->overhead;
+      tmp_frame.buffer = gst_buffer_copy_region (buffer, GST_BUFFER_COPY_ALL,
+          nalu.offset, nalu.size);
+
       /* note we don't need to come up with a sub-buffer, since
        * subsequent code only considers input buffer's metadata.
        * Real data is either taken from input by baseclass or
        * a replacement output buffer is provided anyway. */
-      gst_h265_parse_parse_frame (parse, frame);
-      ret = gst_base_parse_finish_frame (parse, frame, nl + nalu.size);
+      gst_h265_parse_parse_frame (parse, &tmp_frame);
+      ret = gst_base_parse_finish_frame (parse, &tmp_frame, nl + nalu.size);
       left -= nl + nalu.size;
     }
 
@@ -1073,6 +1082,10 @@ gst_h265_parse_make_codec_data (GstH265Parse * h265parse)
   if (!found)
     return NULL;
 
+  sps = h265parse->nalparser->last_sps;
+  if (!sps)
+    return NULL;
+
   buf =
       gst_buffer_new_allocate (NULL,
       23 + num_arrays + (3 * num_arrays) + vps_size + sps_size + pps_size,
@@ -1082,9 +1095,6 @@ gst_h265_parse_make_codec_data (GstH265Parse * h265parse)
   memset (data, 0, map.size);
   nl = h265parse->nal_length_size;
 
-  sps = h265parse->nalparser->last_sps;
-  if (!sps)
-    return NULL;
   pft = &sps->profile_tier_level;
   if (sps->vui_parameters_present_flag)
     min_spatial_segmentation_idc = sps->vui_params.min_spatial_segmentation_idc;
@@ -1340,11 +1350,20 @@ get_compatible_profile_caps (GstH265SPS * sps)
 static void
 ensure_caps_profile (GstH265Parse * h265parse, GstCaps * caps, GstH265SPS * sps)
 {
-  GstCaps *filter_caps, *peer_caps, *compat_caps;
+  GstCaps *peer_caps, *compat_caps;
 
-  filter_caps = gst_caps_new_empty_simple ("video/x-h265");
-  peer_caps =
-      gst_pad_peer_query_caps (GST_BASE_PARSE_SRC_PAD (h265parse), filter_caps);
+  peer_caps = gst_pad_get_current_caps (GST_BASE_PARSE_SRC_PAD (h265parse));
+  if (!peer_caps || !gst_caps_can_intersect (caps, peer_caps)) {
+    GstCaps *filter_caps = gst_caps_new_empty_simple ("video/x-h265");
+
+    if (peer_caps)
+      gst_caps_unref (peer_caps);
+    peer_caps =
+        gst_pad_peer_query_caps (GST_BASE_PARSE_SRC_PAD (h265parse),
+        filter_caps);
+
+    gst_caps_unref (filter_caps);
+  }
 
   if (peer_caps && !gst_caps_can_intersect (caps, peer_caps)) {
     GstStructure *structure;
@@ -1375,7 +1394,6 @@ ensure_caps_profile (GstH265Parse * h265parse, GstCaps * caps, GstH265SPS * sps)
   }
   if (peer_caps)
     gst_caps_unref (peer_caps);
-  gst_caps_unref (filter_caps);
 }
 
 static void
@@ -1557,15 +1575,22 @@ gst_h265_parse_update_src_caps (GstH265Parse * h265parse, GstCaps * caps)
 
     src_caps = gst_pad_get_current_caps (GST_BASE_PARSE_SRC_PAD (h265parse));
 
-    if (src_caps
-        && gst_structure_has_field (gst_caps_get_structure (src_caps, 0),
-            "codec_data")) {
+    if (src_caps) {
       /* use codec data from old caps for comparison; we don't want to resend caps
          if everything is same except codec data; */
-      gst_caps_set_value (caps, "codec_data",
-          gst_structure_get_value (gst_caps_get_structure (src_caps, 0),
-              "codec_data"));
+      if (gst_structure_has_field (gst_caps_get_structure (src_caps, 0),
+              "codec_data")) {
+        gst_caps_set_value (caps, "codec_data",
+            gst_structure_get_value (gst_caps_get_structure (src_caps, 0),
+                "codec_data"));
+      } else if (!buf) {
+        GstStructure *s;
+        /* remove any left-over codec-data hanging around */
+        s = gst_caps_get_structure (caps, 0);
+        gst_structure_remove_field (s, "codec_data");
+      }
     }
+
     if (!(src_caps && gst_caps_is_strictly_equal (src_caps, caps))) {
       /* update codec data to new value */
       if (buf) {
@@ -1765,10 +1790,19 @@ gst_h265_parse_pre_push_frame (GstBaseParse * parse, GstBaseParseFrame * frame)
     GstTagList *taglist;
     GstCaps *caps;
 
-    taglist = gst_tag_list_new_empty ();
-
     /* codec tag */
     caps = gst_pad_get_current_caps (GST_BASE_PARSE_SRC_PAD (parse));
+    if (G_UNLIKELY (caps == NULL)) {
+      if (GST_PAD_IS_FLUSHING (GST_BASE_PARSE_SRC_PAD (parse))) {
+        GST_INFO_OBJECT (parse, "Src pad is flushing");
+        return GST_FLOW_FLUSHING;
+      } else {
+        GST_INFO_OBJECT (parse, "Src pad is not negotiated!");
+        return GST_FLOW_NOT_NEGOTIATED;
+      }
+    }
+
+    taglist = gst_tag_list_new_empty ();
     gst_pb_utils_add_codec_description_to_tag_list (taglist,
         GST_TAG_VIDEO_CODEC, caps);
     gst_caps_unref (caps);
@@ -2023,7 +2057,7 @@ gst_h265_parse_set_caps (GstBaseParse * parse, GstCaps * caps)
         off = nalu.offset + nalu.size;
       }
     }
-
+    gst_buffer_unmap (codec_data, &map);
   } else {
     GST_DEBUG_OBJECT (h265parse, "have bytestream h265");
     /* nothing to pre-process */
@@ -2188,7 +2222,7 @@ gst_h265_parse_event (GstBaseParse * parse, GstEvent * event)
       break;
     }
     case GST_EVENT_FLUSH_STOP:
-
+      h265parse->push_codec = TRUE;
       res = GST_BASE_PARSE_CLASS (parent_class)->sink_event (parse, event);
       break;
     case GST_EVENT_SEGMENT:

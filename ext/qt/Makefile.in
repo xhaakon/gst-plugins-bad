@@ -116,16 +116,15 @@ am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/gtk-doc.m4 \
 	$(top_srcdir)/common/m4/introspection.m4 \
 	$(top_srcdir)/common/m4/orc.m4 $(top_srcdir)/common/m4/pkg.m4 \
-	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/gsettings.m4 \
-	$(top_srcdir)/m4/gst-fionread.m4 $(top_srcdir)/m4/gst-sdl.m4 \
-	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intlmacosx.m4 \
-	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
-	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libgcrypt.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/nls.m4 \
-	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/progtest.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/gst-fionread.m4 \
+	$(top_srcdir)/m4/gst-sdl.m4 $(top_srcdir)/m4/iconv.m4 \
+	$(top_srcdir)/m4/intlmacosx.m4 $(top_srcdir)/m4/lib-ld.m4 \
+	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
+	$(top_srcdir)/m4/libgcrypt.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/po.m4 \
+	$(top_srcdir)/m4/progtest.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(noinst_HEADERS) \
@@ -164,26 +163,26 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libqtsink_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+libgstqtsink_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la
-am_libqtsink_la_OBJECTS = libqtsink_la-gstqsgtexture.lo \
-	libqtsink_la-qtitem.lo libqtsink_la-gstqtsink.lo \
-	libqtsink_la-gstplugin.lo
-am__objects_1 = libqtsink_la-moc_qtitem.lo \
-	libqtsink_la-moc_gstqsgtexture.lo
+am_libgstqtsink_la_OBJECTS = libgstqtsink_la-gstqsgtexture.lo \
+	libgstqtsink_la-qtitem.lo libgstqtsink_la-gstqtsink.lo \
+	libgstqtsink_la-gstplugin.lo
+am__objects_1 = libgstqtsink_la-moc_qtitem.lo \
+	libgstqtsink_la-moc_gstqsgtexture.lo
 am__objects_2 = $(am__objects_1)
-nodist_libqtsink_la_OBJECTS = $(am__objects_2)
-libqtsink_la_OBJECTS = $(am_libqtsink_la_OBJECTS) \
-	$(nodist_libqtsink_la_OBJECTS)
+nodist_libgstqtsink_la_OBJECTS = $(am__objects_2)
+libgstqtsink_la_OBJECTS = $(am_libgstqtsink_la_OBJECTS) \
+	$(nodist_libgstqtsink_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-libqtsink_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
-	$(libqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
-	$(CXXLD) $(libqtsink_la_CXXFLAGS) $(CXXFLAGS) \
-	$(libqtsink_la_LDFLAGS) $(LDFLAGS) -o $@
+libgstqtsink_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(libgstqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
+	$(CXXLD) $(libgstqtsink_la_CXXFLAGS) $(CXXFLAGS) \
+	$(libgstqtsink_la_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -236,8 +235,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libqtsink_la_SOURCES) $(nodist_libqtsink_la_SOURCES)
-DIST_SOURCES = $(libqtsink_la_SOURCES)
+SOURCES = $(libgstqtsink_la_SOURCES) $(nodist_libgstqtsink_la_SOURCES)
+DIST_SOURCES = $(libgstqtsink_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -300,6 +299,8 @@ CLUTTER_X11_CFLAGS = @CLUTTER_X11_CFLAGS@
 CLUTTER_X11_LIBS = @CLUTTER_X11_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CUDA_CFLAGS = @CUDA_CFLAGS@
+CUDA_LIBS = @CUDA_LIBS@
 CURL_CFLAGS = @CURL_CFLAGS@
 CURL_LIBS = @CURL_LIBS@
 CXX = @CXX@
@@ -337,6 +338,8 @@ DVDNAV_LIBS = @DVDNAV_LIBS@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
+EGL_CFLAGS = @EGL_CFLAGS@
+EGL_LIBS = @EGL_LIBS@
 EGREP = @EGREP@
 ERROR_CFLAGS = @ERROR_CFLAGS@
 ERROR_CXXFLAGS = @ERROR_CXXFLAGS@
@@ -345,7 +348,6 @@ EXEEXT = @EXEEXT@
 EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
 FAAC_LIBS = @FAAC_LIBS@
-FAAD_IS_NEAAC = @FAAD_IS_NEAAC@
 FAAD_LIBS = @FAAD_LIBS@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
@@ -364,8 +366,9 @@ GIO_LDFLAGS = @GIO_LDFLAGS@
 GIO_LIBS = @GIO_LIBS@
 GIO_UNIX_CFLAGS = @GIO_UNIX_CFLAGS@
 GIO_UNIX_LIBS = @GIO_UNIX_LIBS@
+GLES2_CFLAGS = @GLES2_CFLAGS@
+GLES2_LIBS = @GLES2_LIBS@
 GLIB_CFLAGS = @GLIB_CFLAGS@
-GLIB_COMPILE_SCHEMAS = @GLIB_COMPILE_SCHEMAS@
 GLIB_EXTRA_CFLAGS = @GLIB_EXTRA_CFLAGS@
 GLIB_GENMARSHAL = @GLIB_GENMARSHAL@
 GLIB_LIBS = @GLIB_LIBS@
@@ -382,16 +385,17 @@ GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
 GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
+GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
+GNUSTL_LIBS = @GNUSTL_LIBS@
 GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
 GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
-GSETTINGS_CFLAGS = @GSETTINGS_CFLAGS@
-GSETTINGS_DISABLE_SCHEMAS_COMPILE = @GSETTINGS_DISABLE_SCHEMAS_COMPILE@
-GSETTINGS_LIBS = @GSETTINGS_LIBS@
 GSM_LIBS = @GSM_LIBS@
 GSTPB_PLUGINS_DIR = @GSTPB_PLUGINS_DIR@
 GSTPB_PREFIX = @GSTPB_PREFIX@
 GST_AGE = @GST_AGE@
+GST_ALLOCATORS_CFLAGS = @GST_ALLOCATORS_CFLAGS@
+GST_ALLOCATORS_LIBS = @GST_ALLOCATORS_LIBS@
 GST_ALL_LDFLAGS = @GST_ALL_LDFLAGS@
 GST_API_VERSION = @GST_API_VERSION@
 GST_BASE_CFLAGS = @GST_BASE_CFLAGS@
@@ -417,6 +421,8 @@ GST_OPTION_CXXFLAGS = @GST_OPTION_CXXFLAGS@
 GST_OPTION_OBJCFLAGS = @GST_OPTION_OBJCFLAGS@
 GST_PACKAGE_NAME = @GST_PACKAGE_NAME@
 GST_PACKAGE_ORIGIN = @GST_PACKAGE_ORIGIN@
+GST_PBUTILS_CFLAGS = @GST_PBUTILS_CFLAGS@
+GST_PBUTILS_LIBS = @GST_PBUTILS_LIBS@
 GST_PKG_CONFIG_PATH = @GST_PKG_CONFIG_PATH@
 GST_PLUGINS_ALL = @GST_PLUGINS_ALL@
 GST_PLUGINS_BAD_CFLAGS = @GST_PLUGINS_BAD_CFLAGS@
@@ -442,6 +448,8 @@ GST_PLUGIN_LIBTOOLFLAGS = @GST_PLUGIN_LIBTOOLFLAGS@
 GST_PREFIX = @GST_PREFIX@
 GST_REVISION = @GST_REVISION@
 GST_TOOLS_DIR = @GST_TOOLS_DIR@
+GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
+GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
 GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
 GTK3_GL_LIBS = @GTK3_GL_LIBS@
@@ -543,6 +551,7 @@ LRDF_LIBS = @LRDF_LIBS@
 LTLIBICONV = @LTLIBICONV@
 LTLIBINTL = @LTLIBINTL@
 LTLIBOBJS = @LTLIBOBJS@
+LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
@@ -556,8 +565,6 @@ MODPLUG_CFLAGS = @MODPLUG_CFLAGS@
 MODPLUG_LIBS = @MODPLUG_LIBS@
 MPEG2ENC_CFLAGS = @MPEG2ENC_CFLAGS@
 MPEG2ENC_LIBS = @MPEG2ENC_LIBS@
-MPG123_CFLAGS = @MPG123_CFLAGS@
-MPG123_LIBS = @MPG123_LIBS@
 MPLEX_CFLAGS = @MPLEX_CFLAGS@
 MPLEX_LDFLAGS = @MPLEX_LDFLAGS@
 MPLEX_LIBS = @MPLEX_LIBS@
@@ -573,6 +580,8 @@ NETTLE_CFLAGS = @NETTLE_CFLAGS@
 NETTLE_LIBS = @NETTLE_LIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
+NVENCODE_CFLAGS = @NVENCODE_CFLAGS@
+NVENCODE_LIBS = @NVENCODE_LIBS@
 OBJC = @OBJC@
 OBJCDEPMODE = @OBJCDEPMODE@
 OBJCFLAGS = @OBJCFLAGS@
@@ -630,16 +639,18 @@ PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_VERSION = @PYTHON_VERSION@
+QT_ANDROID_CFLAGS = @QT_ANDROID_CFLAGS@
+QT_ANDROID_LIBS = @QT_ANDROID_LIBS@
 QT_CFLAGS = @QT_CFLAGS@
 QT_LIBS = @QT_LIBS@
+QT_MAC_CFLAGS = @QT_MAC_CFLAGS@
+QT_MAC_LIBS = @QT_MAC_LIBS@
 QT_WAYLAND_CFLAGS = @QT_WAYLAND_CFLAGS@
 QT_WAYLAND_LIBS = @QT_WAYLAND_LIBS@
 QT_X11_CFLAGS = @QT_X11_CFLAGS@
 QT_X11_LIBS = @QT_X11_LIBS@
 RANLIB = @RANLIB@
 RCC = @RCC@
-RSVG_2_36_2_CFLAGS = @RSVG_2_36_2_CFLAGS@
-RSVG_2_36_2_LIBS = @RSVG_2_36_2_LIBS@
 RSVG_CFLAGS = @RSVG_CFLAGS@
 RSVG_LIBS = @RSVG_LIBS@
 RTMP_CFLAGS = @RTMP_CFLAGS@
@@ -691,6 +702,7 @@ VOAACENC_CFLAGS = @VOAACENC_CFLAGS@
 VOAACENC_LIBS = @VOAACENC_LIBS@
 VOAMRWBENC_CFLAGS = @VOAMRWBENC_CFLAGS@
 VOAMRWBENC_LIBS = @VOAMRWBENC_LIBS@
+VULKAN_LIBS = @VULKAN_LIBS@
 WARNING_CFLAGS = @WARNING_CFLAGS@
 WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
 WARNING_OBJCFLAGS = @WARNING_OBJCFLAGS@
@@ -701,6 +713,7 @@ WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
 WINKS_LIBS = @WINKS_LIBS@
@@ -710,6 +723,8 @@ X11_CFLAGS = @X11_CFLAGS@
 X11_LIBS = @X11_LIBS@
 X265_CFLAGS = @X265_CFLAGS@
 X265_LIBS = @X265_LIBS@
+XCB_CFLAGS = @XCB_CFLAGS@
+XCB_LIBS = @XCB_LIBS@
 XCOMPOSITE_CFLAGS = @XCOMPOSITE_CFLAGS@
 XCOMPOSITE_LIBS = @XCOMPOSITE_LIBS@
 XGETTEXT = @XGETTEXT@
@@ -747,7 +762,6 @@ datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
-gsettingsschemadir = @gsettingsschemadir@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -787,7 +801,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
-plugin_LTLIBRARIES = libqtsink.la
+plugin_LTLIBRARIES = libgstqtsink.la
 noinst_HEADERS = \
 	gstqsgtexture.h \
 	gstqtsink.h \
@@ -801,31 +815,33 @@ moc_generated = \
 #anything generated by the Qt tools...
 BUILT_SOURCES = $(moc_generated)
 CLEANFILES = $(moc_generated)
-nodist_libqtsink_la_SOURCES = $(BUILT_SOURCES)
-libqtsink_la_SOURCES = \
+nodist_libgstqtsink_la_SOURCES = $(BUILT_SOURCES)
+libgstqtsink_la_SOURCES = \
 	gstqsgtexture.cc \
 	qtitem.cc \
 	gstqtsink.cc \
 	gstqtsink.h \
+	gstqtgl.h \
 	gstplugin.cc
 
-libqtsink_la_CXXFLAGS = \
+libgstqtsink_la_CXXFLAGS = \
 	-I$(top_srcdir)/gst-libs \
 	-I$(top_builddir)/gst-libs \
 	$(GST_CXXFLAGS) \
 	$(GST_BASE_CFLAGS) \
 	$(GST_PLUGINS_BASE_CFLAGS) \
-	$(QT_CFLAGS)
+	$(QT_CFLAGS) \
+	$(GL_CFLAGS)
 
-libqtsink_la_LIBADD = \
+libgstqtsink_la_LIBADD = \
 	$(GST_BASE_LIBS) \
 	$(GST_PLUGINS_BASE_LIBS) \
 	$(QT_LIBS) \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la \
 	-lgstvideo-$(GST_API_VERSION)
 
-libqtsink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libqtsink_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
+libgstqtsink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstqtsink_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -896,8 +912,8 @@ clean-pluginLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libqtsink.la: $(libqtsink_la_OBJECTS) $(libqtsink_la_DEPENDENCIES) $(EXTRA_libqtsink_la_DEPENDENCIES) 
-	$(AM_V_CXXLD)$(libqtsink_la_LINK) -rpath $(plugindir) $(libqtsink_la_OBJECTS) $(libqtsink_la_LIBADD) $(LIBS)
+libgstqtsink.la: $(libgstqtsink_la_OBJECTS) $(libgstqtsink_la_DEPENDENCIES) $(EXTRA_libgstqtsink_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(libgstqtsink_la_LINK) -rpath $(plugindir) $(libgstqtsink_la_OBJECTS) $(libgstqtsink_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -905,12 +921,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libqtsink_la-gstplugin.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libqtsink_la-gstqsgtexture.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libqtsink_la-gstqtsink.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libqtsink_la-moc_gstqsgtexture.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libqtsink_la-moc_qtitem.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libqtsink_la-qtitem.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstqtsink_la-gstplugin.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstqtsink_la-gstqsgtexture.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstqtsink_la-gstqtsink.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstqtsink_la-moc_gstqsgtexture.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstqtsink_la-moc_qtitem.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstqtsink_la-qtitem.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -936,47 +952,47 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
 
-libqtsink_la-gstqsgtexture.lo: gstqsgtexture.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqtsink_la_CXXFLAGS) $(CXXFLAGS) -MT libqtsink_la-gstqsgtexture.lo -MD -MP -MF $(DEPDIR)/libqtsink_la-gstqsgtexture.Tpo -c -o libqtsink_la-gstqsgtexture.lo `test -f 'gstqsgtexture.cc' || echo '$(srcdir)/'`gstqsgtexture.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libqtsink_la-gstqsgtexture.Tpo $(DEPDIR)/libqtsink_la-gstqsgtexture.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstqsgtexture.cc' object='libqtsink_la-gstqsgtexture.lo' libtool=yes @AMDEPBACKSLASH@
+libgstqtsink_la-gstqsgtexture.lo: gstqsgtexture.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqtsink_la_CXXFLAGS) $(CXXFLAGS) -MT libgstqtsink_la-gstqsgtexture.lo -MD -MP -MF $(DEPDIR)/libgstqtsink_la-gstqsgtexture.Tpo -c -o libgstqtsink_la-gstqsgtexture.lo `test -f 'gstqsgtexture.cc' || echo '$(srcdir)/'`gstqsgtexture.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstqtsink_la-gstqsgtexture.Tpo $(DEPDIR)/libgstqtsink_la-gstqsgtexture.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstqsgtexture.cc' object='libgstqtsink_la-gstqsgtexture.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqtsink_la_CXXFLAGS) $(CXXFLAGS) -c -o libqtsink_la-gstqsgtexture.lo `test -f 'gstqsgtexture.cc' || echo '$(srcdir)/'`gstqsgtexture.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqtsink_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstqtsink_la-gstqsgtexture.lo `test -f 'gstqsgtexture.cc' || echo '$(srcdir)/'`gstqsgtexture.cc
 
-libqtsink_la-qtitem.lo: qtitem.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqtsink_la_CXXFLAGS) $(CXXFLAGS) -MT libqtsink_la-qtitem.lo -MD -MP -MF $(DEPDIR)/libqtsink_la-qtitem.Tpo -c -o libqtsink_la-qtitem.lo `test -f 'qtitem.cc' || echo '$(srcdir)/'`qtitem.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libqtsink_la-qtitem.Tpo $(DEPDIR)/libqtsink_la-qtitem.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='qtitem.cc' object='libqtsink_la-qtitem.lo' libtool=yes @AMDEPBACKSLASH@
+libgstqtsink_la-qtitem.lo: qtitem.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqtsink_la_CXXFLAGS) $(CXXFLAGS) -MT libgstqtsink_la-qtitem.lo -MD -MP -MF $(DEPDIR)/libgstqtsink_la-qtitem.Tpo -c -o libgstqtsink_la-qtitem.lo `test -f 'qtitem.cc' || echo '$(srcdir)/'`qtitem.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstqtsink_la-qtitem.Tpo $(DEPDIR)/libgstqtsink_la-qtitem.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='qtitem.cc' object='libgstqtsink_la-qtitem.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqtsink_la_CXXFLAGS) $(CXXFLAGS) -c -o libqtsink_la-qtitem.lo `test -f 'qtitem.cc' || echo '$(srcdir)/'`qtitem.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqtsink_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstqtsink_la-qtitem.lo `test -f 'qtitem.cc' || echo '$(srcdir)/'`qtitem.cc
 
-libqtsink_la-gstqtsink.lo: gstqtsink.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqtsink_la_CXXFLAGS) $(CXXFLAGS) -MT libqtsink_la-gstqtsink.lo -MD -MP -MF $(DEPDIR)/libqtsink_la-gstqtsink.Tpo -c -o libqtsink_la-gstqtsink.lo `test -f 'gstqtsink.cc' || echo '$(srcdir)/'`gstqtsink.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libqtsink_la-gstqtsink.Tpo $(DEPDIR)/libqtsink_la-gstqtsink.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstqtsink.cc' object='libqtsink_la-gstqtsink.lo' libtool=yes @AMDEPBACKSLASH@
+libgstqtsink_la-gstqtsink.lo: gstqtsink.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqtsink_la_CXXFLAGS) $(CXXFLAGS) -MT libgstqtsink_la-gstqtsink.lo -MD -MP -MF $(DEPDIR)/libgstqtsink_la-gstqtsink.Tpo -c -o libgstqtsink_la-gstqtsink.lo `test -f 'gstqtsink.cc' || echo '$(srcdir)/'`gstqtsink.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstqtsink_la-gstqtsink.Tpo $(DEPDIR)/libgstqtsink_la-gstqtsink.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstqtsink.cc' object='libgstqtsink_la-gstqtsink.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqtsink_la_CXXFLAGS) $(CXXFLAGS) -c -o libqtsink_la-gstqtsink.lo `test -f 'gstqtsink.cc' || echo '$(srcdir)/'`gstqtsink.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqtsink_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstqtsink_la-gstqtsink.lo `test -f 'gstqtsink.cc' || echo '$(srcdir)/'`gstqtsink.cc
 
-libqtsink_la-gstplugin.lo: gstplugin.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqtsink_la_CXXFLAGS) $(CXXFLAGS) -MT libqtsink_la-gstplugin.lo -MD -MP -MF $(DEPDIR)/libqtsink_la-gstplugin.Tpo -c -o libqtsink_la-gstplugin.lo `test -f 'gstplugin.cc' || echo '$(srcdir)/'`gstplugin.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libqtsink_la-gstplugin.Tpo $(DEPDIR)/libqtsink_la-gstplugin.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstplugin.cc' object='libqtsink_la-gstplugin.lo' libtool=yes @AMDEPBACKSLASH@
+libgstqtsink_la-gstplugin.lo: gstplugin.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqtsink_la_CXXFLAGS) $(CXXFLAGS) -MT libgstqtsink_la-gstplugin.lo -MD -MP -MF $(DEPDIR)/libgstqtsink_la-gstplugin.Tpo -c -o libgstqtsink_la-gstplugin.lo `test -f 'gstplugin.cc' || echo '$(srcdir)/'`gstplugin.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstqtsink_la-gstplugin.Tpo $(DEPDIR)/libgstqtsink_la-gstplugin.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstplugin.cc' object='libgstqtsink_la-gstplugin.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqtsink_la_CXXFLAGS) $(CXXFLAGS) -c -o libqtsink_la-gstplugin.lo `test -f 'gstplugin.cc' || echo '$(srcdir)/'`gstplugin.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqtsink_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstqtsink_la-gstplugin.lo `test -f 'gstplugin.cc' || echo '$(srcdir)/'`gstplugin.cc
 
-libqtsink_la-moc_qtitem.lo: moc_qtitem.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqtsink_la_CXXFLAGS) $(CXXFLAGS) -MT libqtsink_la-moc_qtitem.lo -MD -MP -MF $(DEPDIR)/libqtsink_la-moc_qtitem.Tpo -c -o libqtsink_la-moc_qtitem.lo `test -f 'moc_qtitem.cc' || echo '$(srcdir)/'`moc_qtitem.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libqtsink_la-moc_qtitem.Tpo $(DEPDIR)/libqtsink_la-moc_qtitem.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='moc_qtitem.cc' object='libqtsink_la-moc_qtitem.lo' libtool=yes @AMDEPBACKSLASH@
+libgstqtsink_la-moc_qtitem.lo: moc_qtitem.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqtsink_la_CXXFLAGS) $(CXXFLAGS) -MT libgstqtsink_la-moc_qtitem.lo -MD -MP -MF $(DEPDIR)/libgstqtsink_la-moc_qtitem.Tpo -c -o libgstqtsink_la-moc_qtitem.lo `test -f 'moc_qtitem.cc' || echo '$(srcdir)/'`moc_qtitem.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstqtsink_la-moc_qtitem.Tpo $(DEPDIR)/libgstqtsink_la-moc_qtitem.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='moc_qtitem.cc' object='libgstqtsink_la-moc_qtitem.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqtsink_la_CXXFLAGS) $(CXXFLAGS) -c -o libqtsink_la-moc_qtitem.lo `test -f 'moc_qtitem.cc' || echo '$(srcdir)/'`moc_qtitem.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqtsink_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstqtsink_la-moc_qtitem.lo `test -f 'moc_qtitem.cc' || echo '$(srcdir)/'`moc_qtitem.cc
 
-libqtsink_la-moc_gstqsgtexture.lo: moc_gstqsgtexture.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqtsink_la_CXXFLAGS) $(CXXFLAGS) -MT libqtsink_la-moc_gstqsgtexture.lo -MD -MP -MF $(DEPDIR)/libqtsink_la-moc_gstqsgtexture.Tpo -c -o libqtsink_la-moc_gstqsgtexture.lo `test -f 'moc_gstqsgtexture.cc' || echo '$(srcdir)/'`moc_gstqsgtexture.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libqtsink_la-moc_gstqsgtexture.Tpo $(DEPDIR)/libqtsink_la-moc_gstqsgtexture.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='moc_gstqsgtexture.cc' object='libqtsink_la-moc_gstqsgtexture.lo' libtool=yes @AMDEPBACKSLASH@
+libgstqtsink_la-moc_gstqsgtexture.lo: moc_gstqsgtexture.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqtsink_la_CXXFLAGS) $(CXXFLAGS) -MT libgstqtsink_la-moc_gstqsgtexture.lo -MD -MP -MF $(DEPDIR)/libgstqtsink_la-moc_gstqsgtexture.Tpo -c -o libgstqtsink_la-moc_gstqsgtexture.lo `test -f 'moc_gstqsgtexture.cc' || echo '$(srcdir)/'`moc_gstqsgtexture.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstqtsink_la-moc_gstqsgtexture.Tpo $(DEPDIR)/libgstqtsink_la-moc_gstqsgtexture.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='moc_gstqsgtexture.cc' object='libgstqtsink_la-moc_gstqsgtexture.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqtsink_la_CXXFLAGS) $(CXXFLAGS) -c -o libqtsink_la-moc_gstqsgtexture.lo `test -f 'moc_gstqsgtexture.cc' || echo '$(srcdir)/'`moc_gstqsgtexture.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqtsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqtsink_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstqtsink_la-moc_gstqsgtexture.lo `test -f 'moc_gstqsgtexture.cc' || echo '$(srcdir)/'`moc_gstqsgtexture.cc
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1199,7 +1215,7 @@ uninstall-am: uninstall-pluginLTLIBRARIES
 
 
 $(moc_generated): moc_%.cc: %.h
-	@MOC@ -o $@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(MOC_CPPFLAGS) $<
+	@MOC@ -o $@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(MOC_CPPFLAGS) $<
 
 ui-%.h: %.ui
 	@UIC@ -o $@ $<

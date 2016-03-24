@@ -29,6 +29,8 @@
 #define orc_memcpy memcpy
 #endif
 
+#include "gstahcsrc.h"
+
 #include "gstamc.h"
 #include "gstamc-constants.h"
 
@@ -185,8 +187,8 @@ gst_amc_codec_free (GstAmcCodec * codec)
 }
 
 gboolean
-gst_amc_codec_configure (GstAmcCodec * codec, GstAmcFormat * format, gint flags,
-    GError ** err)
+gst_amc_codec_configure (GstAmcCodec * codec, GstAmcFormat * format,
+    jobject surface, gint flags, GError ** err)
 {
   JNIEnv *env;
 
@@ -195,7 +197,7 @@ gst_amc_codec_configure (GstAmcCodec * codec, GstAmcFormat * format, gint flags,
 
   env = gst_amc_jni_get_env ();
   return gst_amc_jni_call_void_method (env, err, codec->object,
-      media_codec.configure, format->object, NULL, NULL, flags);
+      media_codec.configure, format->object, surface, NULL, flags);
 }
 
 GstAmcFormat *
@@ -360,28 +362,33 @@ gst_amc_codec_get_output_buffer (GstAmcCodec * codec, gint index, GError ** err)
 
   if (!media_codec.get_output_buffer) {
     g_return_val_if_fail (index < codec->n_output_buffers && index >= 0, NULL);
-    return gst_amc_buffer_copy (&codec->output_buffers[index]);
+    if (codec->output_buffers[index].object)
+      return gst_amc_buffer_copy (&codec->output_buffers[index]);
+    else
+      return NULL;
   }
 
   if (!gst_amc_jni_call_object_method (env, err, codec->object,
           media_codec.get_output_buffer, &buffer, index))
     goto done;
 
-  ret = g_new0 (GstAmcBuffer, 1);
-  ret->object = gst_amc_jni_object_make_global (env, buffer);
-  if (!ret->object) {
-    gst_amc_jni_set_error (env, err, GST_LIBRARY_ERROR,
-        GST_LIBRARY_ERROR_FAILED, "Failed to create global buffer reference");
-    goto error;
-  }
+  if (buffer != NULL) {
+    ret = g_new0 (GstAmcBuffer, 1);
+    ret->object = gst_amc_jni_object_make_global (env, buffer);
+    if (!ret->object) {
+      gst_amc_jni_set_error (env, err, GST_LIBRARY_ERROR,
+          GST_LIBRARY_ERROR_FAILED, "Failed to create global buffer reference");
+      goto error;
+    }
 
-  ret->data = (*env)->GetDirectBufferAddress (env, ret->object);
-  if (!ret->data) {
-    gst_amc_jni_set_error (env, err, GST_LIBRARY_ERROR,
-        GST_LIBRARY_ERROR_FAILED, "Failed to get buffer address");
-    goto error;
+    ret->data = (*env)->GetDirectBufferAddress (env, ret->object);
+    if (!ret->data) {
+      gst_amc_jni_set_error (env, err, GST_LIBRARY_ERROR,
+          GST_LIBRARY_ERROR_FAILED, "Failed to get buffer address");
+      goto error;
+    }
+    ret->size = (*env)->GetDirectBufferCapacity (env, ret->object);
   }
-  ret->size = (*env)->GetDirectBufferCapacity (env, ret->object);
 
 done:
 
@@ -436,28 +443,33 @@ gst_amc_codec_get_input_buffer (GstAmcCodec * codec, gint index, GError ** err)
 
   if (!media_codec.get_input_buffer) {
     g_return_val_if_fail (index < codec->n_input_buffers && index >= 0, NULL);
-    return gst_amc_buffer_copy (&codec->input_buffers[index]);
+    if (codec->input_buffers[index].object)
+      return gst_amc_buffer_copy (&codec->input_buffers[index]);
+    else
+      return NULL;
   }
 
   if (!gst_amc_jni_call_object_method (env, err, codec->object,
           media_codec.get_input_buffer, &buffer, index))
     goto done;
 
-  ret = g_new0 (GstAmcBuffer, 1);
-  ret->object = gst_amc_jni_object_make_global (env, buffer);
-  if (!ret->object) {
-    gst_amc_jni_set_error (env, err, GST_LIBRARY_ERROR,
-        GST_LIBRARY_ERROR_FAILED, "Failed to create global buffer reference");
-    goto error;
-  }
+  if (buffer != NULL) {
+    ret = g_new0 (GstAmcBuffer, 1);
+    ret->object = gst_amc_jni_object_make_global (env, buffer);
+    if (!ret->object) {
+      gst_amc_jni_set_error (env, err, GST_LIBRARY_ERROR,
+          GST_LIBRARY_ERROR_FAILED, "Failed to create global buffer reference");
+      goto error;
+    }
 
-  ret->data = (*env)->GetDirectBufferAddress (env, ret->object);
-  if (!ret->data) {
-    gst_amc_jni_set_error (env, err, GST_LIBRARY_ERROR,
-        GST_LIBRARY_ERROR_FAILED, "Failed to get buffer address");
-    goto error;
+    ret->data = (*env)->GetDirectBufferAddress (env, ret->object);
+    if (!ret->data) {
+      gst_amc_jni_set_error (env, err, GST_LIBRARY_ERROR,
+          GST_LIBRARY_ERROR_FAILED, "Failed to get buffer address");
+      goto error;
+    }
+    ret->size = (*env)->GetDirectBufferCapacity (env, ret->object);
   }
-  ret->size = (*env)->GetDirectBufferCapacity (env, ret->object);
 
 done:
 
@@ -591,7 +603,7 @@ gst_amc_codec_queue_input_buffer (GstAmcCodec * codec, gint index,
 
 gboolean
 gst_amc_codec_release_output_buffer (GstAmcCodec * codec, gint index,
-    GError ** err)
+    gboolean render, GError ** err)
 {
   JNIEnv *env;
 
@@ -599,7 +611,7 @@ gst_amc_codec_release_output_buffer (GstAmcCodec * codec, gint index,
 
   env = gst_amc_jni_get_env ();
   return gst_amc_jni_call_void_method (env, err, codec->object,
-      media_codec.release_output_buffer, index, JNI_FALSE);
+      media_codec.release_output_buffer, index, render);
 }
 
 GstAmcFormat *
@@ -1567,6 +1579,7 @@ scan_codecs (GstPlugin * plugin)
       goto next_codec;
     }
     gst_codec_info->is_encoder = is_encoder;
+    gst_codec_info->gl_output_only = FALSE;
 
     supported_types =
         (*env)->CallObjectMethod (env, codec_info, get_supported_types_id);
@@ -1710,12 +1723,13 @@ scan_codecs (GstPlugin * plugin)
           goto next_supported_type;
         }
 
-        if (!ignore_unknown_color_formats
-            && !accepted_color_formats (gst_codec_type, is_encoder)) {
-          GST_ERROR ("%s codec has unknown color formats, ignoring",
-              is_encoder ? "Encoder" : "Decoder");
-          valid_codec = FALSE;
-          goto next_supported_type;
+        if (!accepted_color_formats (gst_codec_type, is_encoder)) {
+          if (!ignore_unknown_color_formats) {
+            gst_codec_info->gl_output_only = TRUE;
+            GST_WARNING
+                ("%s %s has unknown color formats, only direct rendering will be supported",
+                gst_codec_type->mime, is_encoder ? "encoder" : "decoder");
+          }
         }
       }
 
@@ -2004,8 +2018,10 @@ accepted_color_formats (GstAmcCodecType * type, gboolean is_encoder)
   for (i = 0; i < type->n_color_formats; i++) {
     gboolean found = FALSE;
     /* We ignore this one */
-    if (type->color_formats[i] == COLOR_FormatAndroidOpaque)
+    if (type->color_formats[i] == COLOR_FormatAndroidOpaque) {
       all--;
+      continue;
+    }
 
     for (j = 0; j < G_N_ELEMENTS (color_format_mapping_table); j++) {
       if (color_format_mapping_table[j].color_format == type->color_formats[i]) {
@@ -2016,7 +2032,7 @@ accepted_color_formats (GstAmcCodecType * type, gboolean is_encoder)
     }
 
     if (!found) {
-      GST_DEBUG ("Unknown color format 0x%x, ignoring", type->color_formats[i]);
+      GST_ERROR ("Unknown color format 0x%x, ignoring", type->color_formats[i]);
     }
   }
 
@@ -2292,8 +2308,9 @@ gst_amc_color_format_copy (GstAmcColorFormatInfo * cinfo,
     goto done;
   }
 
-  GST_DEBUG ("Sizes not equal (%d vs %d), doing slow line-by-line copying",
-      cbuffer_info->size, gst_buffer_get_size (vbuffer));
+  GST_DEBUG ("Sizes not equal (%d vs %" G_GSIZE_FORMAT
+      "), doing slow line-by-line copying", cbuffer_info->size,
+      gst_buffer_get_size (vbuffer));
 
   /* Different video format, try to convert */
   switch (cinfo->color_format) {
@@ -3311,7 +3328,34 @@ plugin_init (GstPlugin * plugin)
   if (!register_codecs (plugin))
     return FALSE;
 
+  if (!gst_android_graphics_surfacetexture_init ()) {
+    GST_ERROR ("Failed to init android surface texture");
+    return FALSE;
+  }
+
+  if (!gst_android_graphics_imageformat_init ()) {
+    GST_ERROR ("Failed to init android image format");
+    goto failed_surfacetexture;
+  }
+
+  if (!gst_android_hardware_camera_init ()) {
+    goto failed_graphics_imageformat;
+  }
+
+  if (!gst_element_register (plugin, "ahcsrc", GST_RANK_NONE, GST_TYPE_AHC_SRC)) {
+    GST_ERROR ("Failed to register android camera source");
+    goto failed_hardware_camera;
+  }
+
   return TRUE;
+
+failed_hardware_camera:
+  gst_android_hardware_camera_deinit ();
+failed_graphics_imageformat:
+  gst_android_graphics_imageformat_deinit ();
+failed_surfacetexture:
+  gst_android_graphics_surfacetexture_deinit ();
+  return FALSE;
 }
 
 void
@@ -3458,7 +3502,8 @@ gst_amc_codec_info_to_caps (const GstAmcCodecInfo * codec_info,
               gst_amc_color_format_to_video_format (codec_info,
               type->mime, type->color_formats[j]);
           if (format == GST_VIDEO_FORMAT_UNKNOWN) {
-            GST_WARNING ("Unknown color format 0x%08x", type->color_formats[j]);
+            GST_WARNING ("Unknown color format 0x%08x for codec %s",
+                type->color_formats[j], type->mime);
             continue;
           }
 

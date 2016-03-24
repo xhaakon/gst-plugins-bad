@@ -22,10 +22,12 @@
 #define __GST_AMC_VIDEO_DEC_H__
 
 #include <gst/gst.h>
+#include <gst/gl/gl.h>
 
 #include <gst/video/gstvideodecoder.h>
 
 #include "gstamc.h"
+#include "gstamcsurface.h"
 
 G_BEGIN_DECLS
 
@@ -44,6 +46,14 @@ G_BEGIN_DECLS
 
 typedef struct _GstAmcVideoDec GstAmcVideoDec;
 typedef struct _GstAmcVideoDecClass GstAmcVideoDecClass;
+typedef enum _GstAmcCodecConfig GstAmcCodecConfig;
+
+enum _GstAmcCodecConfig
+{
+  AMC_CODEC_CONFIG_NONE,
+  AMC_CODEC_CONFIG_WITH_SURFACE,
+  AMC_CODEC_CONFIG_WITHOUT_SURFACE,
+};
 
 struct _GstAmcVideoDec
 {
@@ -51,6 +61,7 @@ struct _GstAmcVideoDec
 
   /* < private > */
   GstAmcCodec *codec;
+  GstAmcCodecConfig codec_config;
 
   GstVideoCodecState *input_state;
   gboolean input_state_changed;
@@ -58,6 +69,10 @@ struct _GstAmcVideoDec
   /* Output format of the codec */
   GstVideoFormat format;
   GstAmcColorFormatInfo color_format_info;
+
+  /* Output dimensions */
+  guint width;
+  guint height;
 
   guint8 *codec_data;
   gsize codec_data_size;
@@ -76,7 +91,28 @@ struct _GstAmcVideoDec
   /* TRUE if the component is drained currently */
   gboolean drained;
 
+  GstAmcSurface *surface;
+
+  GstGLDisplay *gl_display;
+  GstGLContext *gl_context;
+  GstGLContext *other_gl_context;
+
+  gboolean downstream_supports_gl;
   GstFlowReturn downstream_flow_ret;
+
+  jobject listener;
+  jmethodID set_context_id;
+
+  gboolean gl_mem_attached;
+  GstGLMemory *oes_mem;
+  GError *gl_error;
+  GMutex gl_lock;
+  GCond gl_cond;
+  guint gl_last_rendered_frame;
+  guint gl_pushed_frame_count; /* n buffers pushed */
+  guint gl_ready_frame_count;  /* n buffers ready for GL access */
+  guint gl_released_frame_count;  /* n buffers released */
+  GQueue *gl_queue;
 };
 
 struct _GstAmcVideoDecClass

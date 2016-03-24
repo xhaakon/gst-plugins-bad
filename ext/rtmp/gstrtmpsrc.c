@@ -34,7 +34,7 @@
  * <refsect2>
  * <title>Example launch lines</title>
  * |[
- * gst-launch -v rtmpsrc location=rtmp://somehost/someurl ! fakesink
+ * gst-launch-1.0 -v rtmpsrc location=rtmp://somehost/someurl ! fakesink
  * ]| Open an RTMP location and pass its content to fakesink.
  * </refsect2>
  */
@@ -440,8 +440,8 @@ gst_rtmp_src_query (GstBaseSrc * basesrc, GstQuery * query)
     }
     case GST_QUERY_SCHEDULING:{
       gst_query_set_scheduling (query,
-          GST_SCHEDULING_FLAG_SEQUENTIAL | GST_SCHEDULING_FLAG_BANDWIDTH_LIMITED,
-          1, -1, 0);
+          GST_SCHEDULING_FLAG_SEQUENTIAL |
+          GST_SCHEDULING_FLAG_BANDWIDTH_LIMITED, 1, -1, 0);
       gst_query_add_scheduling_mode (query, GST_PAD_MODE_PUSH);
 
       ret = TRUE;
@@ -575,13 +575,17 @@ gst_rtmp_src_start (GstBaseSrc * basesrc)
   src->discont = TRUE;
 
   src->rtmp = RTMP_Alloc ();
+
+  if (!src->rtmp) {
+    GST_ERROR_OBJECT (src, "Could not allocate librtmp's RTMP context");
+    goto error;
+  }
+
   RTMP_Init (src->rtmp);
   if (!RTMP_SetupURL (src->rtmp, src->uri)) {
     GST_ELEMENT_ERROR (src, RESOURCE, OPEN_READ, (NULL),
         ("Failed to setup URL '%s'", src->uri));
-    RTMP_Free (src->rtmp);
-    src->rtmp = NULL;
-    return FALSE;
+    goto error;
   }
   src->seekable = !(src->rtmp->Link.lFlags & RTMP_LF_LIVE);
   GST_INFO_OBJECT (src, "seekable %d", src->seekable);
@@ -591,13 +595,18 @@ gst_rtmp_src_start (GstBaseSrc * basesrc)
     if (!RTMP_Connect (src->rtmp, NULL)) {
       GST_ELEMENT_ERROR (src, RESOURCE, OPEN_READ, (NULL),
           ("Could not connect to RTMP stream \"%s\" for reading", src->uri));
-      RTMP_Free (src->rtmp);
-      src->rtmp = NULL;
-      return FALSE;
+      goto error;
     }
   }
 
   return TRUE;
+
+error:
+  if (src->rtmp) {
+    RTMP_Free (src->rtmp);
+    src->rtmp = NULL;
+  }
+  return FALSE;
 }
 
 #undef STR2AVAL

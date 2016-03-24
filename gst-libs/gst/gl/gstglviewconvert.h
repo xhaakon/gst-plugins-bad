@@ -61,6 +61,10 @@ struct _GstGLViewConvert
   GstVideoInfo in_info;
   GstVideoInfo out_info;
 
+  GstGLTextureTarget from_texture_target;
+  GstGLTextureTarget to_texture_target;
+  gboolean caps_passthrough;
+
   gboolean initted;
   gboolean reconfigure;
 
@@ -78,8 +82,6 @@ struct _GstGLViewConvertClass
 GType gst_gl_view_convert_get_type (void);
 GstGLViewConvert * gst_gl_view_convert_new (void);
 
-gboolean gst_gl_view_convert_set_format (GstGLViewConvert *viewconvert, GstVideoInfo *in_info,
-    GstVideoInfo *out_info);
 gboolean  gst_gl_view_convert_set_caps (GstGLViewConvert * viewconvert, GstCaps * in_caps, GstCaps * out_caps);
 GstCaps * gst_gl_view_convert_transform_caps (GstGLViewConvert * viewconvert,
     GstPadDirection direction, GstCaps * caps, GstCaps * filter);

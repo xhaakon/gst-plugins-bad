@@ -24,6 +24,7 @@
 #include <stdio.h>
 
 #include <gst/gst.h>
+#include <glib/gprintf.h>
 
 #include "gl.h"
 #include "gstglutils.h"
@@ -374,20 +375,65 @@ gst_gl_context_del_fbo (GstGLContext * context, GLuint fbo, GLuint depth_buffer)
   gst_object_unref (frame);
 }
 
-static void
-_compile_shader (GstGLContext * context, GstGLShader ** shader)
+struct _compile_shader
 {
+  GstGLShader **shader;
+  const gchar *vertex_src;
+  const gchar *fragment_src;
+};
+
+static void
+_compile_shader (GstGLContext * context, struct _compile_shader *data)
+{
+  GstGLShader *shader;
+  GstGLSLStage *vert, *frag;
   GError *error = NULL;
 
-  gst_gl_shader_compile (*shader, &error);
-  if (error) {
-    gst_gl_context_set_error (context, "%s", error->message);
+  shader = gst_gl_shader_new (context);
+
+  if (data->vertex_src) {
+    vert = gst_glsl_stage_new_with_string (context, GL_VERTEX_SHADER,
+        GST_GLSL_VERSION_NONE,
+        GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY, data->vertex_src);
+    if (!gst_glsl_stage_compile (vert, &error)) {
+      GST_ERROR_OBJECT (vert, "%s", error->message);
+      gst_object_unref (vert);
+      gst_object_unref (shader);
+      return;
+    }
+    if (!gst_gl_shader_attach (shader, vert)) {
+      gst_object_unref (shader);
+      return;
+    }
+  }
+
+  if (data->fragment_src) {
+    frag = gst_glsl_stage_new_with_string (context, GL_FRAGMENT_SHADER,
+        GST_GLSL_VERSION_NONE,
+        GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+        data->fragment_src);
+    if (!gst_glsl_stage_compile (frag, &error)) {
+      GST_ERROR_OBJECT (frag, "%s", error->message);
+      gst_object_unref (frag);
+      gst_object_unref (shader);
+      return;
+    }
+    if (!gst_gl_shader_attach (shader, frag)) {
+      gst_object_unref (shader);
+      return;
+    }
+  }
+
+  if (!gst_gl_shader_link (shader, &error)) {
+    GST_ERROR_OBJECT (shader, "%s", error->message);
     g_error_free (error);
     error = NULL;
     gst_gl_context_clear_shader (context);
-    gst_object_unref (*shader);
-    *shader = NULL;
+    gst_object_unref (shader);
+    return;
   }
+
+  *data->shader = shader;
 }
 
 /* Called by glfilter */
@@ -395,18 +441,17 @@ gboolean
 gst_gl_context_gen_shader (GstGLContext * context, const gchar * vert_src,
     const gchar * frag_src, GstGLShader ** shader)
 {
+  struct _compile_shader data;
+
   g_return_val_if_fail (frag_src != NULL || vert_src != NULL, FALSE);
   g_return_val_if_fail (shader != NULL, FALSE);
 
-  *shader = gst_gl_shader_new (context);
-
-  if (frag_src)
-    gst_gl_shader_set_fragment_source (*shader, frag_src);
-  if (vert_src)
-    gst_gl_shader_set_vertex_source (*shader, vert_src);
+  data.shader = shader;
+  data.vertex_src = vert_src;
+  data.fragment_src = frag_src;
 
   gst_gl_context_thread_add (context, (GstGLContextThreadFunc) _compile_shader,
-      shader);
+      &data);
 
   return *shader != NULL;
 }
@@ -416,8 +461,7 @@ gst_gl_context_set_error (GstGLContext * context, const char *format, ...)
 {
   va_list args;
 
-  if (error_message)
-    g_free (error_message);
+  g_free (error_message);
 
   va_start (args, format);
   error_message = g_strdup_vprintf (format, args);
@@ -452,12 +496,27 @@ gst_gl_display_found (GstElement * element, GstGLDisplay * display)
 
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_CONTEXT);
 
+static void
+_init_context_debug (void)
+{
+#ifndef GST_DISABLE_GST_DEBUG
+  static volatile gsize _init = 0;
+
+  if (g_once_init_enter (&_init)) {
+    GST_DEBUG_CATEGORY_GET (GST_CAT_CONTEXT, "GST_CONTEXT");
+    g_once_init_leave (&_init, 1);
+  }
+#endif
+}
+
 static gboolean
 pad_query (const GValue * item, GValue * value, gpointer user_data)
 {
   GstPad *pad = g_value_get_object (item);
   GstQuery *query = user_data;
   gboolean res;
+
+  _init_context_debug ();
 
   res = gst_pad_peer_query (pad, query);
 
@@ -495,12 +554,13 @@ gst_gl_run_query (GstElement * element, GstQuery * query,
   return g_value_get_boolean (&res);
 }
 
-static GstQuery *
-_gst_context_query (GstElement * element,
-    gpointer ptr, const gchar * display_type)
+static void
+_gst_context_query (GstElement * element, const gchar * display_type)
 {
   GstQuery *query;
   GstContext *ctxt;
+
+  _init_context_debug ();
 
   /*  2a) Query downstream with GST_QUERY_CONTEXT for the context and
    *      check if downstream already has a context of the specific type
@@ -511,10 +571,12 @@ _gst_context_query (GstElement * element,
     gst_query_parse_context (query, &ctxt);
     GST_CAT_INFO_OBJECT (GST_CAT_CONTEXT, element,
         "found context (%p) in downstream query", ctxt);
+    gst_element_set_context (element, ctxt);
   } else if (gst_gl_run_query (element, query, GST_PAD_SINK)) {
     gst_query_parse_context (query, &ctxt);
     GST_CAT_INFO_OBJECT (GST_CAT_CONTEXT, element,
         "found context (%p) in upstream query", ctxt);
+    gst_element_set_context (element, ctxt);
   } else {
     /* 3) Post a GST_MESSAGE_NEED_CONTEXT message on the bus with
      *    the required context type and afterwards check if a
@@ -537,103 +599,33 @@ _gst_context_query (GstElement * element,
    * is required to update the display_ptr or call gst_gl_handle_set_context().
    */
 
-  return query;
+  gst_query_unref (query);
 }
 
 static void
 gst_gl_display_context_query (GstElement * element, GstGLDisplay ** display_ptr)
 {
-  GstContext *ctxt = NULL;
-  GstQuery *query = NULL;
-
-#ifndef GST_DISABLE_GST_DEBUG
-  if (!GST_CAT_CONTEXT)
-    GST_DEBUG_CATEGORY_GET (GST_CAT_CONTEXT, "GST_CONTEXT");
-#endif
-
-  query =
-      _gst_context_query (element, display_ptr, GST_GL_DISPLAY_CONTEXT_TYPE);
-  gst_query_parse_context (query, &ctxt);
-
-  if (ctxt && gst_context_has_context_type (ctxt, GST_GL_DISPLAY_CONTEXT_TYPE)) {
-    GstGLDisplay *tmp_disp = NULL;
-    if (gst_context_get_gl_display (ctxt, &tmp_disp) && tmp_disp)
-      *display_ptr = tmp_disp;
-  }
-
+  _gst_context_query (element, GST_GL_DISPLAY_CONTEXT_TYPE);
   if (*display_ptr)
-    goto out;
+    return;
 
 #if GST_GL_HAVE_WINDOW_X11
-  gst_query_unref (query);
-  query = _gst_context_query (element, display_ptr, "gst.x11.display.handle");
-  gst_query_parse_context (query, &ctxt);
-  if (ctxt && gst_context_has_context_type (ctxt, "gst.x11.display.handle")) {
-    const GstStructure *s;
-    Display *display;
-
-    s = gst_context_get_structure (ctxt);
-    if (gst_structure_get (s, "display", G_TYPE_POINTER, &display, NULL)
-        && display) {
-      *display_ptr =
-          (GstGLDisplay *) gst_gl_display_x11_new_with_display (display);
-    }
-  }
-
+  _gst_context_query (element, "gst.x11.display.handle");
   if (*display_ptr)
-    goto out;
+    return;
 #endif
 
 #if GST_GL_HAVE_WINDOW_WAYLAND
-  gst_query_unref (query);
-  query =
-      _gst_context_query (element, display_ptr,
-      "GstWaylandDisplayHandleContextType");
-  gst_query_parse_context (query, &ctxt);
-  if (ctxt
-      && gst_context_has_context_type (ctxt,
-          "GstWaylandDisplayHandleContextType")) {
-    const GstStructure *s;
-    struct wl_display *display;
-
-    s = gst_context_get_structure (ctxt);
-    if (gst_structure_get (s, "display", G_TYPE_POINTER, &display, NULL)
-        && display) {
-      *display_ptr =
-          (GstGLDisplay *) gst_gl_display_wayland_new_with_display (display);
-    }
-  }
-
+  _gst_context_query (element, "GstWaylandDisplayHandleContextType");
   if (*display_ptr)
-    goto out;
+    return;
 #endif
-
-out:
-  gst_query_unref (query);
 }
 
 static void
-gst_gl_context_query (GstElement * element, GstGLContext ** context_ptr)
+gst_gl_context_query (GstElement * element)
 {
-  GstContext *ctxt;
-  GstQuery *query;
-
-#ifndef GST_DISABLE_GST_DEBUG
-  if (!GST_CAT_CONTEXT)
-    GST_DEBUG_CATEGORY_GET (GST_CAT_CONTEXT, "GST_CONTEXT");
-#endif
-
-  query = _gst_context_query (element, context_ptr, "gst.gl.app_context");
-  gst_query_parse_context (query, &ctxt);
-  if (ctxt && gst_context_has_context_type (ctxt, "gst.gl.app_context")) {
-    const GstStructure *s = gst_context_get_structure (ctxt);
-    GstGLContext *tmp_ctx = NULL;
-    if (gst_structure_get (s, "context", GST_GL_TYPE_CONTEXT, &tmp_ctx, NULL)
-        && tmp_ctx)
-      *context_ptr = tmp_ctx;
-  }
-
-  gst_query_unref (query);
+  _gst_context_query (element, "gst.gl.app_context");
 }
 
 /*  4) Create a context by itself and post a GST_MESSAGE_HAVE_CONTEXT
@@ -650,8 +642,12 @@ gst_gl_display_context_propagate (GstElement * element, GstGLDisplay * display)
     return;
   }
 
+  _init_context_debug ();
+
   context = gst_context_new (GST_GL_DISPLAY_CONTEXT_TYPE, TRUE);
   gst_context_set_gl_display (context, display);
+
+  gst_element_set_context (element, context);
 
   GST_CAT_INFO_OBJECT (GST_CAT_CONTEXT, element,
       "posting have context (%p) message with display (%p)", context, display);
@@ -693,7 +689,7 @@ get_gl_context:
   if (*context_ptr)
     goto done;
 
-  gst_gl_context_query (element, context_ptr);
+  gst_gl_context_query (element);
 
 done:
   return *display_ptr != NULL;
@@ -908,6 +904,25 @@ gst_gl_get_plane_data_size (GstVideoInfo * info, GstVideoAlignment * align,
   return plane_size;
 }
 
+/* find the difference between the start of the plane and where the video
+ * data starts in the plane */
+gsize
+gst_gl_get_plane_start (GstVideoInfo * info, GstVideoAlignment * valign,
+    guint plane)
+{
+  gsize plane_start;
+  gint i;
+
+  /* find the start of the plane data including padding */
+  plane_start = 0;
+  for (i = 0; i < plane; i++) {
+    plane_start += gst_gl_get_plane_data_size (info, valign, i);
+  }
+
+  /* offset between the plane data start and where the video frame starts */
+  return (GST_VIDEO_INFO_PLANE_OFFSET (info, plane)) - plane_start;
+}
+
 GstCaps *
 gst_gl_caps_replace_all_caps_features (const GstCaps * caps,
     const gchar * feature_name)
@@ -931,4 +946,133 @@ gst_gl_caps_replace_all_caps_features (const GstCaps * caps,
   }
 
   return tmp;
+}
+
+/**
+ * gst_gl_value_get_texture_target_mask:
+ * @value: an initialized #GValue of type G_TYPE_STRING
+ *
+ * See gst_gl_value_set_texture_target_from_mask() for what entails a mask
+ *
+ * Returns: the mask of #GstGLTextureTarget's in @value
+ */
+GstGLTextureTarget
+gst_gl_value_get_texture_target_mask (const GValue * targets)
+{
+  guint new_targets = 0;
+
+  g_return_val_if_fail (targets != NULL, GST_GL_TEXTURE_TARGET_NONE);
+
+  if (G_TYPE_CHECK_VALUE_TYPE (targets, G_TYPE_STRING)) {
+    GstGLTextureTarget target;
+    const gchar *str;
+
+    str = g_value_get_string (targets);
+    target = gst_gl_texture_target_from_string (str);
+
+    if (target)
+      new_targets |= 1 << target;
+  } else if (G_TYPE_CHECK_VALUE_TYPE (targets, GST_TYPE_LIST)) {
+    gint j, m;
+
+    m = gst_value_list_get_size (targets);
+    for (j = 0; j < m; j++) {
+      const GValue *val = gst_value_list_get_value (targets, j);
+      GstGLTextureTarget target;
+      const gchar *str;
+
+      str = g_value_get_string (val);
+      target = gst_gl_texture_target_from_string (str);
+      if (target)
+        new_targets |= 1 << target;
+    }
+  }
+
+  return new_targets;
+}
+
+/**
+ * gst_gl_value_set_texture_target:
+ * @value: an initialized #GValue of type G_TYPE_STRING
+ * @target: a #GstGLTextureTarget's
+ *
+ * Returns: whether the @target could be set on @value
+ */
+gboolean
+gst_gl_value_set_texture_target (GValue * value, GstGLTextureTarget target)
+{
+  g_return_val_if_fail (value != NULL, FALSE);
+  g_return_val_if_fail (target != GST_GL_TEXTURE_TARGET_NONE, FALSE);
+
+  if (target == GST_GL_TEXTURE_TARGET_2D) {
+    g_value_set_static_string (value, GST_GL_TEXTURE_TARGET_2D_STR);
+  } else if (target == GST_GL_TEXTURE_TARGET_RECTANGLE) {
+    g_value_set_static_string (value, GST_GL_TEXTURE_TARGET_RECTANGLE_STR);
+  } else if (target == GST_GL_TEXTURE_TARGET_EXTERNAL_OES) {
+    g_value_set_static_string (value, GST_GL_TEXTURE_TARGET_EXTERNAL_OES_STR);
+  } else {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+static guint64
+_gst_gl_log2_int64 (guint64 value)
+{
+  guint64 ret = 0;
+
+  while (value >>= 1)
+    ret++;
+
+  return ret;
+}
+
+/**
+ * gst_gl_value_set_texture_target_from_mask:
+ * @value: an uninitialized #GValue
+ * @target_mask: a bitwise mask of #GstGLTextureTarget's
+ *
+ * A mask is a bitwise OR of (1 << target) where target is a valid
+ * #GstGLTextureTarget
+ *
+ * Returns: whether the @target_mask could be set on @value
+ */
+gboolean
+gst_gl_value_set_texture_target_from_mask (GValue * value,
+    GstGLTextureTarget target_mask)
+{
+  g_return_val_if_fail (value != NULL, FALSE);
+  g_return_val_if_fail (target_mask != GST_GL_TEXTURE_TARGET_NONE, FALSE);
+
+  if ((target_mask & (target_mask - 1)) == 0) {
+    /* only one texture target set */
+    g_value_init (value, G_TYPE_STRING);
+    return gst_gl_value_set_texture_target (value,
+        _gst_gl_log2_int64 (target_mask));
+  } else {
+    GValue item = G_VALUE_INIT;
+    gboolean ret = FALSE;
+
+    g_value_init (value, GST_TYPE_LIST);
+    g_value_init (&item, G_TYPE_STRING);
+    if (target_mask & (1 << GST_GL_TEXTURE_TARGET_2D)) {
+      gst_gl_value_set_texture_target (&item, GST_GL_TEXTURE_TARGET_2D);
+      gst_value_list_append_value (value, &item);
+      ret = TRUE;
+    }
+    if (target_mask & (1 << GST_GL_TEXTURE_TARGET_RECTANGLE)) {
+      gst_gl_value_set_texture_target (&item, GST_GL_TEXTURE_TARGET_RECTANGLE);
+      gst_value_list_append_value (value, &item);
+      ret = TRUE;
+    }
+    if (target_mask & (1 << GST_GL_TEXTURE_TARGET_EXTERNAL_OES)) {
+      gst_gl_value_set_texture_target (&item,
+          GST_GL_TEXTURE_TARGET_EXTERNAL_OES);
+      gst_value_list_append_value (value, &item);
+      ret = TRUE;
+    }
+
+    return ret;
+  }
 }

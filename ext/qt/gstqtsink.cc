@@ -28,7 +28,7 @@
 #endif
 
 #include "gstqtsink.h"
-#include <QGuiApplication>
+#include <QtGui/QGuiApplication>
 
 #define GST_CAT_DEFAULT gst_debug_qt_gl_sink
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
@@ -58,8 +58,12 @@ static GstStaticPadTemplate gst_qt_sink_template =
 GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE_WITH_FEATURES
-        (GST_CAPS_FEATURE_MEMORY_GL_MEMORY, "RGBA")));
+    GST_STATIC_CAPS ("video/x-raw(" GST_CAPS_FEATURE_MEMORY_GL_MEMORY "), "
+    "format = (string) RGBA, "
+    "width = " GST_VIDEO_SIZE_RANGE ", "
+    "height = " GST_VIDEO_SIZE_RANGE ", "
+    "framerate = " GST_VIDEO_FPS_RANGE ", "
+    "texture-target = (string) 2D"));
 
 #define DEFAULT_FORCE_ASPECT_RATIO  TRUE
 #define DEFAULT_PAR_N               0
@@ -271,6 +275,8 @@ gst_qt_sink_query (GstBaseSink * bsink, GstQuery * query)
 
       if (ret)
         return ret;
+
+      /* fallthrough */
     }
     default:
       res = GST_BASE_SINK_CLASS (parent_class)->query (bsink, query);
@@ -299,7 +305,7 @@ gst_qt_sink_change_state (GstElement * element, GstStateChange transition)
 
   switch (transition) {
     case GST_STATE_CHANGE_NULL_TO_READY:
-      app = dynamic_cast<QGuiApplication *> (QCoreApplication::instance ());
+      app = static_cast<QGuiApplication *> (QCoreApplication::instance ());
       if (!app) {
         GST_ELEMENT_ERROR (element, RESOURCE, NOT_FOUND,
             ("%s", "Failed to connect to Qt"),

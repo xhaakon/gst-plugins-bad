@@ -34,8 +34,8 @@ GType gst_gl_context_egl_get_type     (void);
 #define GST_GL_TYPE_CONTEXT_EGL         (gst_gl_context_egl_get_type())
 #define GST_GL_CONTEXT_EGL(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), GST_GL_TYPE_CONTEXT_EGL, GstGLContextEGL))
 #define GST_GL_CONTEXT_EGL_CLASS(k)     (G_TYPE_CHECK_CLASS((k), GST_GL_TYPE_CONTEXT_EGL, GstGLContextEGLClass))
-#define GST_GL_IS_CONTEXT_EGL(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), GST_GL_TYPE_CONTEXT_EGL))
-#define GST_GL_IS_CONTEXT_EGL_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_GL_TYPE_CONTEXT_EGL))
+#define GST_IS_GL_CONTEXT_EGL(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), GST_GL_TYPE_CONTEXT_EGL))
+#define GST_IS_GL_CONTEXT_EGL_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_GL_TYPE_CONTEXT_EGL))
 #define GST_GL_CONTEXT_EGL_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), GST_GL_TYPE_CONTEXT_EGL, GstGLContextEGLClass))
 
 struct _GstGLContextEGL {
@@ -47,6 +47,8 @@ struct _GstGLContextEGL {
   EGLConfig  egl_config;
 
   GstGLAPI gl_api;
+
+  const gchar *egl_exts;
 
   EGLImageKHR (*eglCreateImage) (EGLDisplay dpy, EGLContext ctx, EGLenum target,
       EGLClientBuffer buffer, const EGLint *attrib_list);
@@ -63,6 +65,9 @@ struct _GstGLContextEGLClass {
 GstGLContextEGL *   gst_gl_context_egl_new                  (GstGLDisplay * display);
 guintptr            gst_gl_context_egl_get_current_context  (void);
 gpointer            gst_gl_context_egl_get_proc_address     (GstGLAPI gl_api, const gchar * name);
+
+const gchar * gst_gl_context_egl_get_error_string (EGLint err);
+
 
 /* TODO:
  * add support for EGL_NO_CONTEXT

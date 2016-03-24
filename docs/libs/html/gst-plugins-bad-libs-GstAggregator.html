@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>GstAggregator: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="base.html" title="GStreamer Base classes from gst-plugins-bad">
 <link rel="prev" href="base.html" title="GStreamer Base classes from gst-plugins-bad">
@@ -34,7 +34,7 @@ aggregating their buffers.</p>
 </tr></table></div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-GstAggregator.functions"></a><h2>Functions</h2>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="functions_return">
 <col class="functions_name">
@@ -77,7 +77,7 @@ aggregating their buffers.</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-GstAggregator.other"></a><h2>Types and Values</h2>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="name">
 <col class="description">
@@ -145,7 +145,7 @@ mandatory events such as stream-start, caps, and segment events will be
 sent before pushing the buffer.</p>
 <div class="refsect3">
 <a name="id-1.2.7.2.6.2.5"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
 <col class="parameters_description">
@@ -175,7 +175,7 @@ gst_aggregator_set_src_caps (<em class="parameter"><code><a class="link" href="g
 <p>Sets the caps to be used on the src pad.</p>
 <div class="refsect3">
 <a name="id-1.2.7.2.6.3.5"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
 <col class="parameters_description">
@@ -209,7 +209,7 @@ gst_aggregator_iterate_sinkpads (<em class="parameter"><code><a class="link" hre
 sink pad.</p>
 <div class="refsect3">
 <a name="id-1.2.7.2.6.4.6"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
 <col class="parameters_description">
@@ -248,7 +248,7 @@ will not wait for the clock.</p>
 <p>Typically only called by subclasses.</p>
 <div class="refsect3">
 <a name="id-1.2.7.2.6.5.6"></a><h4>Parameters</h4>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
 <col class="parameters_description">
@@ -283,7 +283,7 @@ will not wait for the clock.</p>
 <p>Aggregator base class object structure.</p>
 <div class="refsect3">
 <a name="id-1.2.7.2.7.2.5"></a><h4>Members</h4>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
 <col class="struct_members_description">
@@ -352,6 +352,11 @@ will not wait for the clock.</p>
   gboolean          (*start)          (GstAggregator    *  aggregator);
 
   GstClockTime      (*get_next_time)  (GstAggregator    *  aggregator);
+
+  GstAggregatorPad * (*create_new_pad) (GstAggregator  * self,
+                                        GstPadTemplate * templ,
+                                        const gchar    * req_name,
+                                        const GstCaps  * caps);
 };
 </pre>
 <p>The aggregator base class will handle in a thread-safe way all manners of
@@ -364,7 +369,7 @@ the way the implementor sees fit.</p>
 _finish_buffer from inside that function.</p>
 <div class="refsect3">
 <a name="id-1.2.7.2.7.3.7"></a><h4>Members</h4>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
 <col class="struct_members_description">
@@ -469,6 +474,11 @@ based aggregation to occur. Defaults to returning
 GST_CLOCK_TIME_NONE causing the element to wait for buffers
 on all sink pads before aggregating.</p></td>
 <td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="GstAggregatorClass.create-new-pad"></a>create_new_pad</code></em> ()</p></td>
+<td> </td>
+<td> </td>
 </tr>
 </tbody>
 </table></div>

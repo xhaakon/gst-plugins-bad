@@ -3,11 +3,11 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>GstGLBaseFilter: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
-<link rel="prev" href="gst-plugins-bad-libs-GstEGLImageMemory.html" title="GstEGLImageMemory">
-<link rel="next" href="GstGLFilter.html" title="GstGLFilter">
+<link rel="prev" href="gst-plugins-bad-libs-gstglbasememory.html" title="GstGLBaseMemory">
+<link rel="next" href="gst-plugins-bad-libs-GstGLBuffer.html" title="GstGLBuffer">
 <meta name="generator" content="GTK-Doc V1.24 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -21,21 +21,21 @@
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="gl.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
-<td><a accesskey="p" href="gst-plugins-bad-libs-GstEGLImageMemory.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
-<td><a accesskey="n" href="GstGLFilter.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+<td><a accesskey="p" href="gst-plugins-bad-libs-gstglbasememory.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="gst-plugins-bad-libs-GstGLBuffer.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
 <a name="GstGLBaseFilter"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="GstGLBaseFilter.top_of_page"></a>GstGLBaseFilter</span></h2>
-<p>GstGLBaseFilter</p>
+<p>GstGLBaseFilter — <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html"><span class="type">GstBaseTransform</span></a> subclass for transformin OpenGL resources</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
 <div class="refsect1">
 <a name="GstGLBaseFilter.properties"></a><h2>Properties</h2>
-<div class="informaltable"><table border="0">
+<div class="informaltable"><table class="informaltable" border="0">
 <colgroup>
 <col width="150px" class="properties_type">
 <col width="300px" class="properties_name">
@@ -51,7 +51,7 @@
 </div>
 <div class="refsect1">
 <a name="GstGLBaseFilter.other"></a><h2>Types and Values</h2>
-<div class="informaltable"><table width="100%" border="0">
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="name">
 <col class="description">
@@ -81,6 +81,10 @@
 </div>
 <div class="refsect1">
 <a name="GstGLBaseFilter.description"></a><h2>Description</h2>
+<p><a class="link" href="GstGLBaseFilter.html" title="GstGLBaseFilter"><span class="type">GstGLBaseFilter</span></a> handles the nitty gritty details of retrieving an OpenGL
+context.  It also provided some wrappers around <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html"><span class="type">GstBaseTransform</span></a>'s
+<code class="function">start()</code>, <code class="function">stop()</code> and <code class="function">set_caps()</code> virtual methods that ensure an OpenGL context
+is available and current in the calling thread.</p>
 </div>
 <div class="refsect1">
 <a name="GstGLBaseFilter.functions_details"></a><h2>Functions</h2>
@@ -91,11 +95,9 @@
 <div class="refsect2">
 <a name="GstGLBaseFilter-struct"></a><h3>GstGLBaseFilter</h3>
 <pre class="programlisting">typedef struct _GstGLBaseFilter GstGLBaseFilter;</pre>
-<p><a class="link" href="GstGLBaseFilter.html" title="GstGLBaseFilter"><span class="type">GstGLBaseFilter</span></a> is a base class that provides the logic of getting the
-GL context from the pipeline.</p>
 <div class="refsect3">
-<a name="id-1.2.9.14.8.2.5"></a><h4>Members</h4>
-<div class="informaltable"><table width="100%" border="0">
+<a name="id-1.2.9.4.8.2.4"></a><h4>Members</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
 <col class="struct_members_description">
@@ -114,13 +116,12 @@ GL context from the pipeline.</p>
 
   gboolean (*gl_start)          (GstGLBaseFilter *filter);
   void     (*gl_stop)           (GstGLBaseFilter *filter);
-
-  gpointer _padding[GST_PADDING];
+  gboolean (*gl_set_caps)       (GstGLBaseFilter *filter, GstCaps * incaps, GstCaps * outcaps);
 } GstGLBaseFilterClass;
 </pre>
 <div class="refsect3">
-<a name="id-1.2.9.14.8.3.4"></a><h4>Members</h4>
-<div class="informaltable"><table width="100%" border="0">
+<a name="id-1.2.9.4.8.3.4"></a><h4>Members</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
 <col class="struct_members_description">
@@ -129,13 +130,13 @@ GL context from the pipeline.</p>
 <tbody>
 <tr>
 <td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html#GstBaseTransformClass"><span class="type">GstBaseTransformClass</span></a> <em class="structfield"><code><a name="GstGLBaseFilterClass.parent-class"></a>parent_class</code></em>;</p></td>
-<td> </td>
-<td> </td>
+<td class="struct_member_description"><p>parent class</p></td>
+<td class="struct_member_annotations"> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> <em class="structfield"><code><a name="GstGLBaseFilterClass.supported-gl-api"></a>supported_gl_api</code></em>;</p></td>
-<td> </td>
-<td> </td>
+<td class="struct_member_description"><p>the logical-OR of <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a>'s supported by this element</p></td>
+<td class="struct_member_annotations"> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLBaseFilterClass.gl-start"></a>gl_start</code></em> ()</p></td>
@@ -148,9 +149,10 @@ GL context from the pipeline.</p>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> <em class="structfield"><code><a name="GstGLBaseFilterClass.-padding"></a>_padding</code></em>[GST_PADDING];</p></td>
-<td> </td>
-<td> </td>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLBaseFilterClass.gl-set-caps"></a>gl_set_caps</code></em> ()</p></td>
+<td class="struct_member_description"><p>called in the GL thread when caps are set on <em class="parameter"><code>filter</code></em>
+.</p></td>
+<td class="struct_member_annotations"> </td>
 </tr>
 </tbody>
 </table></div>
@@ -165,6 +167,10 @@ GL context from the pipeline.</p>
 <p>Get OpenGL context.</p>
 <p>Flags: Read</p>
 </div>
+</div>
+<div class="refsect1">
+<a name="GstGLBaseFilter.see-also"></a><h2>See Also</h2>
+<p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html"><span class="type">GstBaseTransform</span></a></p>
 </div>
 </div>
 <div class="footer">

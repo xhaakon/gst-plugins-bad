@@ -28,7 +28,7 @@
  * <refsect2>
  * <title>Example launch line (upload a JPEG file to an HTTP server)</title>
  * |[
- * gst-launch filesrc location=image.jpg ! jpegparse ! curlsink  \
+ * gst-launch-1.0 filesrc location=image.jpg ! jpegparse ! curlsink  \
  *     file-name=image.jpg  \
  *     location=http://192.168.0.1:8080/cgi-bin/patupload.cgi/  \
  *     user=test passwd=test  \
@@ -349,11 +349,16 @@ gst_curl_base_sink_render (GstBaseSink * bsink, GstBuffer * buf)
 
   sink = GST_CURL_BASE_SINK (bsink);
 
-  GST_OBJECT_LOCK (sink);
-
   gst_buffer_map (buf, &map, GST_MAP_READ);
   data = map.data;
   size = map.size;
+
+  if (size == 0) {
+    gst_buffer_unmap (buf, &map);
+    return GST_FLOW_OK;
+  }
+
+  GST_OBJECT_LOCK (sink);
 
   /* check if the transfer thread has encountered problems while the
    * pipeline thread was working elsewhere */
