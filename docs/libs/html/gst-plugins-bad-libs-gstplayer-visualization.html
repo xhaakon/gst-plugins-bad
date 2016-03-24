@@ -8,7 +8,7 @@
 <link rel="up" href="player.html" title="Player Library">
 <link rel="prev" href="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html" title="gstplayer-videooverlayvideorenderer">
 <link rel="next" href="ch08.html" title="Interfaces">
-<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -104,8 +104,8 @@
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.html#GstPlayerVisualization"><span class="returnvalue">GstPlayerVisualization</span></a> **
 gst_player_visualizations_get (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
 <div class="refsect3">
-<a name="id-1.2.10.6.8.2.4"></a><h4>Returns</h4>
-<p> a <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> terminated array containing all available
+<a name="gst-player-visualizations-get.returns"></a><h4>Returns</h4>
+<p> a <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> terminated array containing all available
 visualizations. Use <a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.html#gst-player-visualizations-free" title="gst_player_visualizations_free ()"><code class="function">gst_player_visualizations_free()</code></a> after
 usage. </p>
 <p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>][<acronym title="Parameter points to an array of items."><span class="acronym">array</span></acronym> zero-terminated=1][<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> GstPlayerVisualization]</span></p>
@@ -116,9 +116,9 @@ usage. </p>
 <a name="gst-player-visualizations-free"></a><h3>gst_player_visualizations_free ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_player_visualizations_free (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.html#GstPlayerVisualization"><span class="type">GstPlayerVisualization</span></a> **viss</code></em>);</pre>
-<p>Frees a <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> terminated array of <a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.html#GstPlayerVisualization"><span class="type">GstPlayerVisualization</span></a>.</p>
+<p>Frees a <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> terminated array of <a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.html#GstPlayerVisualization"><span class="type">GstPlayerVisualization</span></a>.</p>
 <div class="refsect3">
-<a name="id-1.2.10.6.8.3.5"></a><h4>Parameters</h4>
+<a name="gst-player-visualizations-free.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -127,7 +127,7 @@ gst_player_visualizations_free (<em class="parameter"><code><a class="link" href
 </colgroup>
 <tbody><tr>
 <td class="parameter_name"><p>viss</p></td>
-<td class="parameter_description"><p>a <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> terminated array of <a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.html#GstPlayerVisualization"><span class="type">GstPlayerVisualization</span></a> to free</p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> terminated array of <a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.html#GstPlayerVisualization"><span class="type">GstPlayerVisualization</span></a> to free</p></td>
 <td class="parameter_annotations"> </td>
 </tr></tbody>
 </table></div>
@@ -141,7 +141,7 @@ gst_player_visualization_copy (<em class="parameter"><code>const <a class="link"
 <p>Makes a copy of the <a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.html#GstPlayerVisualization"><span class="type">GstPlayerVisualization</span></a>. The result must be
 freed using <a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.html#gst-player-visualization-free" title="gst_player_visualization_free ()"><code class="function">gst_player_visualization_free()</code></a>.</p>
 <div class="refsect3">
-<a name="id-1.2.10.6.8.4.5"></a><h4>Parameters</h4>
+<a name="gst-player-visualization-copy.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -156,7 +156,7 @@ freed using <a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.h
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.10.6.8.4.6"></a><h4>Returns</h4>
+<a name="gst-player-visualization-copy.returns"></a><h4>Returns</h4>
 <p> an allocated copy of <em class="parameter"><code>vis</code></em>
 . </p>
 <p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
@@ -169,7 +169,7 @@ freed using <a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.h
 gst_player_visualization_free (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.html#GstPlayerVisualization"><span class="type">GstPlayerVisualization</span></a> *vis</code></em>);</pre>
 <p>Frees a <a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.html#GstPlayerVisualization"><span class="type">GstPlayerVisualization</span></a>.</p>
 <div class="refsect3">
-<a name="id-1.2.10.6.8.5.5"></a><h4>Parameters</h4>
+<a name="gst-player-visualization-free.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -196,7 +196,7 @@ gst_player_visualization_free (<em class="parameter"><code><a class="link" href=
 </pre>
 <p>A <a class="link" href="gst-plugins-bad-libs-gstplayer-visualization.html#GstPlayerVisualization"><span class="type">GstPlayerVisualization</span></a> descriptor.</p>
 <div class="refsect3">
-<a name="id-1.2.10.6.9.2.5"></a><h4>Members</h4>
+<a name="GstPlayerVisualization.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -205,12 +205,12 @@ gst_player_visualization_free (<em class="parameter"><code><a class="link" href=
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *<em class="structfield"><code><a name="GstPlayerVisualization-struct.name"></a>name</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *<em class="structfield"><code><a name="GstPlayerVisualization-struct.name"></a>name</code></em>;</p></td>
 <td class="struct_member_description"><p>name of the visualization.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *<em class="structfield"><code><a name="GstPlayerVisualization-struct.description"></a>description</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *<em class="structfield"><code><a name="GstPlayerVisualization-struct.description"></a>description</code></em>;</p></td>
 <td class="struct_member_description"><p>description of the visualization.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -221,6 +221,6 @@ gst_player_visualization_free (<em class="parameter"><code><a class="link" href=
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.24</div>
+<hr>Generated by GTK-Doc V1.25</div>
 </body>
 </html>

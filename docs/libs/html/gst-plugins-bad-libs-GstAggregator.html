@@ -8,7 +8,7 @@
 <link rel="up" href="base.html" title="GStreamer Base classes from gst-plugins-bad">
 <link rel="prev" href="base.html" title="GStreamer Base classes from gst-plugins-bad">
 <link rel="next" href="gst-plugins-bad-libs-GstAggregatorPad.html" title="GstAggregatorPad">
-<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -42,7 +42,7 @@ aggregating their buffers.</p>
 <tbody>
 <tr>
 <td class="function_type">
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstPad.html#GstFlowReturn"><span class="returnvalue">GstFlowReturn</span></a>
+<a href="/usr/share/gtk-doc/html/gstreamer-1.0GstPad.html#GstFlowReturn"><span class="returnvalue">GstFlowReturn</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-finish-buffer" title="gst_aggregator_finish_buffer ()">gst_aggregator_finish_buffer</a> <span class="c_punctuation">()</span>
@@ -58,7 +58,7 @@ aggregating their buffers.</p>
 </tr>
 <tr>
 <td class="function_type">
-<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-iterate-sinkpads" title="gst_aggregator_iterate_sinkpads ()">gst_aggregator_iterate_sinkpads</a> <span class="c_punctuation">()</span>
@@ -66,7 +66,7 @@ aggregating their buffers.</p>
 </tr>
 <tr>
 <td class="function_type">
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstClock.html#GstClockTime"><span class="returnvalue">GstClockTime</span></a>
+<a href="/usr/share/gtk-doc/html/gstreamer-1.0GstClock.html#GstClockTime"><span class="returnvalue">GstClockTime</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-get-latency" title="gst_aggregator_get_latency ()">gst_aggregator_get_latency</a> <span class="c_punctuation">()</span>
@@ -137,14 +137,14 @@ Control is given to the subclass when all pads have data.</p>
 <a name="gst-plugins-bad-libs-GstAggregator.functions_details"></a><h2>Functions</h2>
 <div class="refsect2">
 <a name="gst-aggregator-finish-buffer"></a><h3>gst_aggregator_finish_buffer ()</h3>
-<pre class="programlisting"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstPad.html#GstFlowReturn"><span class="returnvalue">GstFlowReturn</span></a>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstPad.html#GstFlowReturn"><span class="returnvalue">GstFlowReturn</span></a>
 gst_aggregator_finish_buffer (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstAggregator.html#GstAggregator" title="struct GstAggregator"><span class="type">GstAggregator</span></a> *agg</code></em>,
-                              <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBuffer.html"><span class="type">GstBuffer</span></a> *buffer</code></em>);</pre>
+                              <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="type">GstBuffer</span></a> *buffer</code></em>);</pre>
 <p>This method will push the provided output buffer downstream. If needed,
 mandatory events such as stream-start, caps, and segment events will be
 sent before pushing the buffer.</p>
 <div class="refsect3">
-<a name="id-1.2.7.2.6.2.5"></a><h4>Parameters</h4>
+<a name="gst-aggregator-finish-buffer.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -159,7 +159,7 @@ sent before pushing the buffer.</p>
 </tr>
 <tr>
 <td class="parameter_name"><p>buffer</p></td>
-<td class="parameter_description"><p> the <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstBuffer.html"><span class="type">GstBuffer</span></a> to push. </p></td>
+<td class="parameter_description"><p> the <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="type">GstBuffer</span></a> to push. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></td>
 </tr>
 </tbody>
@@ -171,10 +171,10 @@ sent before pushing the buffer.</p>
 <a name="gst-aggregator-set-src-caps"></a><h3>gst_aggregator_set_src_caps ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_aggregator_set_src_caps (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstAggregator.html#GstAggregator" title="struct GstAggregator"><span class="type">GstAggregator</span></a> *agg</code></em>,
-                             <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> *caps</code></em>);</pre>
+                             <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstCaps.html#GstCaps-struct"><span class="type">GstCaps</span></a> *caps</code></em>);</pre>
 <p>Sets the caps to be used on the src pad.</p>
 <div class="refsect3">
-<a name="id-1.2.7.2.6.3.5"></a><h4>Parameters</h4>
+<a name="gst-aggregator-set-src-caps.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -189,7 +189,7 @@ gst_aggregator_set_src_caps (<em class="parameter"><code><a class="link" href="g
 </tr>
 <tr>
 <td class="parameter_name"><p>caps</p></td>
-<td class="parameter_description"><p>The <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> to set on the src pad.</p></td>
+<td class="parameter_description"><p>The <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstCaps.html#GstCaps-struct"><span class="type">GstCaps</span></a> to set on the src pad.</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 </tbody>
@@ -199,16 +199,16 @@ gst_aggregator_set_src_caps (<em class="parameter"><code><a class="link" href="g
 <hr>
 <div class="refsect2">
 <a name="gst-aggregator-iterate-sinkpads"></a><h3>gst_aggregator_iterate_sinkpads ()</h3>
-<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_aggregator_iterate_sinkpads (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstAggregator.html#GstAggregator" title="struct GstAggregator"><span class="type">GstAggregator</span></a> *self</code></em>,
                                  <em class="parameter"><code><span class="type">GstAggregatorPadForeachFunc</span> func</code></em>,
-                                 <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
 <p>Iterate the sinkpads of aggregator to call a function on them.</p>
 <p>This method guarantees that <em class="parameter"><code>func</code></em>
  will be called only once for each
 sink pad.</p>
 <div class="refsect3">
-<a name="id-1.2.7.2.6.4.6"></a><h4>Parameters</h4>
+<a name="gst-aggregator-iterate-sinkpads.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -239,15 +239,15 @@ sink pad.</p>
 <hr>
 <div class="refsect2">
 <a name="gst-aggregator-get-latency"></a><h3>gst_aggregator_get_latency ()</h3>
-<pre class="programlisting"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstClock.html#GstClockTime"><span class="returnvalue">GstClockTime</span></a>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstClock.html#GstClockTime"><span class="returnvalue">GstClockTime</span></a>
 gst_aggregator_get_latency (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstAggregator.html#GstAggregator" title="struct GstAggregator"><span class="type">GstAggregator</span></a> *self</code></em>);</pre>
 <p>Retrieves the latency values reported by <em class="parameter"><code>self</code></em>
  in response to the latency
-query, or <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstClock.html#GST-CLOCK-TIME-NONE:CAPS"><code class="literal">GST_CLOCK_TIME_NONE</code></a> if there is not live source connected and the element
+query, or <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstClock.html#GST-CLOCK-TIME-NONE:CAPS"><code class="literal">GST_CLOCK_TIME_NONE</code></a> if there is not live source connected and the element
 will not wait for the clock.</p>
 <p>Typically only called by subclasses.</p>
 <div class="refsect3">
-<a name="id-1.2.7.2.6.5.6"></a><h4>Parameters</h4>
+<a name="gst-aggregator-get-latency.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -262,8 +262,8 @@ will not wait for the clock.</p>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="id-1.2.7.2.6.5.7"></a><h4>Returns</h4>
-<p> The latency or <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstClock.html#GST-CLOCK-TIME-NONE:CAPS"><code class="literal">GST_CLOCK_TIME_NONE</code></a> if the element does not sync</p>
+<a name="gst-aggregator-get-latency.returns"></a><h4>Returns</h4>
+<p> The latency or <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstClock.html#GST-CLOCK-TIME-NONE:CAPS"><code class="literal">GST_CLOCK_TIME_NONE</code></a> if the element does not sync</p>
 </div>
 </div>
 </div>
@@ -282,7 +282,7 @@ will not wait for the clock.</p>
 </pre>
 <p>Aggregator base class object structure.</p>
 <div class="refsect3">
-<a name="id-1.2.7.2.7.2.5"></a><h4>Members</h4>
+<a name="GstAggregator.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -291,17 +291,17 @@ will not wait for the clock.</p>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html"><span class="type">GstElement</span></a> <em class="structfield"><code><a name="GstAggregator.parent"></a>parent</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstElement.html#GstElement-struct"><span class="type">GstElement</span></a> <em class="structfield"><code><a name="GstAggregator.parent"></a>parent</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstPad.html"><span class="type">GstPad</span></a> *<em class="structfield"><code><a name="GstAggregator.srcpad"></a>srcpad</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstPad.html#GstPad-struct"><span class="type">GstPad</span></a> *<em class="structfield"><code><a name="GstAggregator.srcpad"></a>srcpad</code></em>;</p></td>
 <td class="struct_member_description"><p>the aggregator's source pad</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstSegment.html"><span class="type">GstSegment</span></a> <em class="structfield"><code><a name="GstAggregator.segment"></a>segment</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstSegment.html#GstSegment-struct"><span class="type">GstSegment</span></a> <em class="structfield"><code><a name="GstAggregator.segment"></a>segment</code></em>;</p></td>
 <td class="struct_member_description"><p>the output segment</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -368,7 +368,7 @@ the way the implementor sees fit.</p>
 , and call
 _finish_buffer from inside that function.</p>
 <div class="refsect3">
-<a name="id-1.2.7.2.7.3.7"></a><h4>Members</h4>
+<a name="GstAggregatorClass.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -377,12 +377,7 @@ _finish_buffer from inside that function.</p>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html#GstElementClass"><span class="type">GstElementClass</span></a> <em class="structfield"><code><a name="GstAggregatorClass.parent-class"></a>parent_class</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="https://developer.gnome.org/gobject/unstable/gobject-Type-Information.html#GType"><span class="type">GType</span></a> <em class="structfield"><code><a name="GstAggregatorClass.sinkpads-type"></a>sinkpads_type</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gobjectgobject-Type-Information.html#GType"><span class="type">GType</span></a> <em class="structfield"><code><a name="GstAggregatorClass.sinkpads-type"></a>sinkpads_type</code></em>;</p></td>
 <td class="struct_member_description"><p>Optional.
 The type of the pads that should be created when
 GstElement.request_new_pad is called.</p></td>
@@ -444,7 +439,7 @@ pad task right after that call.</p></td>
 <td class="struct_member_description"><p>Mandatory.
 Called when buffers are queued on all sinkpads. Classes
 should iterate the GstElement-&gt;sinkpads and peek or steal
-buffers from the <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad"><span class="type">GstAggregatorPads</span></a>. If the subclass returns
+buffers from the <a href="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad"><span class="type">GstAggregatorPads</span></a>. If the subclass returns
 GST_FLOW_EOS, sending of the eos event will be taken care
 of. Once / if a buffer has been constructed from the
 aggregated buffers, the subclass should call _finish_buffer.</p></td>
@@ -491,6 +486,6 @@ on all sink pads before aggregating.</p></td>
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.24</div>
+<hr>Generated by GTK-Doc V1.25</div>
 </body>
 </html>

@@ -8,7 +8,7 @@
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-coloreffects.html" title="coloreffects">
 <link rel="next" href="gst-plugins-bad-plugins-cvdilate.html" title="cvdilate">
-<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -50,16 +50,16 @@
 </div>
 <a name="GstCompositor"></a><a name="GstCompositorPad"></a><div class="refsect1">
 <a name="gst-plugins-bad-plugins-compositor.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
-    <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-        <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
-            <span class="lineart">├──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
-            <span class="lineart">│</span>   <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-GstAggregator.html#GstAggregator">GstAggregator</a>
-            <span class="lineart">│</span>       <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregator">GstVideoAggregator</a>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
+    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
+            <span class="lineart">├──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstElement.html#GstElement-struct">GstElement</a>
+            <span class="lineart">│</span>   <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0gst-plugins-bad-libs-GstAggregator.html#GstAggregator">GstAggregator</a>
+            <span class="lineart">│</span>       <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregator">GstVideoAggregator</a>
             <span class="lineart">│</span>           <span class="lineart">╰──</span> GstCompositor
-            <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstPad.html">GstPad</a>
-                <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad">GstAggregatorPad</a>
-                    <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-bad-libs/html/gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPad">GstVideoAggregatorPad</a>
+            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstPad.html#GstPad-struct">GstPad</a>
+                <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad">GstAggregatorPad</a>
+                    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPad">GstVideoAggregatorPad</a>
                         <span class="lineart">╰──</span> GstCompositorPad
 </pre>
 </div>
@@ -75,28 +75,28 @@ biggest incoming video stream and the framerate of the fastest incoming one.</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
 "xpos": The x-coordinate position of the top-left corner of the picture
-(<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a>)
+(<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)
 </li>
 <li class="listitem">
 "ypos": The y-coordinate position of the top-left corner of the picture
-(<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a>)
+(<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)
 </li>
 <li class="listitem">
 "width": The width of the picture; the input will be scaled if necessary
-(<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a>)
+(<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)
 </li>
 <li class="listitem">
 "height": The height of the picture; the input will be scaled if necessary
-(<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a>)
+(<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)
 </li>
 <li class="listitem">
 "alpha": The transparency of the picture; between 0.0 and 1.0. The blending
 is a simple copy when fully-transparent (0.0) and fully-opaque (1.0).
-(<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a>)
+(<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a>)
 </li>
 <li class="listitem">
 "zorder": The z-order position of the picture in the composition
-(<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>)
+(<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a>)
 </li>
 </ul></div>
 <div class="refsect2">
@@ -296,6 +296,6 @@ framerate of the output video is 10 frames per second.
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.24</div>
+<hr>Generated by GTK-Doc V1.25</div>
 </body>
 </html>

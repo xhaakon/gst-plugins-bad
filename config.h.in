@@ -55,9 +55,6 @@
 /* Defined if gcov is enabled to force a rebuild due to config.h changing */
 #undef GST_GCOV_ENABLED
 
-/* DMABUF available for gl plugins */
-#undef GST_GL_HAVE_DMABUF
-
 /* EGL module name */
 #undef GST_GL_LIBEGL_MODULE_NAME
 

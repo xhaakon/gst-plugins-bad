@@ -8,7 +8,7 @@
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
 <link rel="prev" href="gst-plugins-bad-libs-gstglbasememory.html" title="GstGLBaseMemory">
 <link rel="next" href="gst-plugins-bad-libs-GstGLBuffer.html" title="GstGLBuffer">
-<meta name="generator" content="GTK-Doc V1.24 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -29,7 +29,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="GstGLBaseFilter.top_of_page"></a>GstGLBaseFilter</span></h2>
-<p>GstGLBaseFilter — <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html"><span class="type">GstBaseTransform</span></a> subclass for transformin OpenGL resources</p>
+<p>GstGLBaseFilter — <a href="/usr/share/gtk-doc/html/gstreamer-libs-1.0GstBaseTransform.html#GstBaseTransform-struct"><span class="type">GstBaseTransform</span></a> subclass for transformin OpenGL resources</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -70,11 +70,11 @@
 </div>
 <div class="refsect1">
 <a name="GstGLBaseFilter.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
-    <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-        <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
-            <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
-                <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html">GstBaseTransform</a>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
+    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
+            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstElement.html#GstElement-struct">GstElement</a>
+                <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-libs-1.0GstBaseTransform.html#GstBaseTransform-struct">GstBaseTransform</a>
                     <span class="lineart">╰──</span> GstGLBaseFilter
                         <span class="lineart">╰──</span> <a class="link" href="GstGLFilter.html" title="GstGLFilter">GstGLFilter</a>
 </pre>
@@ -82,7 +82,7 @@
 <div class="refsect1">
 <a name="GstGLBaseFilter.description"></a><h2>Description</h2>
 <p><a class="link" href="GstGLBaseFilter.html" title="GstGLBaseFilter"><span class="type">GstGLBaseFilter</span></a> handles the nitty gritty details of retrieving an OpenGL
-context.  It also provided some wrappers around <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html"><span class="type">GstBaseTransform</span></a>'s
+context.  It also provided some wrappers around <a href="/usr/share/gtk-doc/html/gstreamer-libs-1.0GstBaseTransform.html#GstBaseTransform-struct"><span class="type">GstBaseTransform</span></a>'s
 <code class="function">start()</code>, <code class="function">stop()</code> and <code class="function">set_caps()</code> virtual methods that ensure an OpenGL context
 is available and current in the calling thread.</p>
 </div>
@@ -96,7 +96,7 @@ is available and current in the calling thread.</p>
 <a name="GstGLBaseFilter-struct"></a><h3>GstGLBaseFilter</h3>
 <pre class="programlisting">typedef struct _GstGLBaseFilter GstGLBaseFilter;</pre>
 <div class="refsect3">
-<a name="id-1.2.9.4.8.2.4"></a><h4>Members</h4>
+<a name="GstGLBaseFilter.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -120,7 +120,7 @@ is available and current in the calling thread.</p>
 } GstGLBaseFilterClass;
 </pre>
 <div class="refsect3">
-<a name="id-1.2.9.4.8.3.4"></a><h4>Members</h4>
+<a name="GstGLBaseFilterClass.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="300px" class="struct_members_name">
@@ -128,11 +128,6 @@ is available and current in the calling thread.</p>
 <col width="200px" class="struct_members_annotations">
 </colgroup>
 <tbody>
-<tr>
-<td class="struct_member_name"><p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html#GstBaseTransformClass"><span class="type">GstBaseTransformClass</span></a> <em class="structfield"><code><a name="GstGLBaseFilterClass.parent-class"></a>parent_class</code></em>;</p></td>
-<td class="struct_member_description"><p>parent class</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
 <tr>
 <td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> <em class="structfield"><code><a name="GstGLBaseFilterClass.supported-gl-api"></a>supported_gl_api</code></em>;</p></td>
 <td class="struct_member_description"><p>the logical-OR of <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a>'s supported by this element</p></td>
@@ -170,10 +165,10 @@ is available and current in the calling thread.</p>
 </div>
 <div class="refsect1">
 <a name="GstGLBaseFilter.see-also"></a><h2>See Also</h2>
-<p><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-libs/html/GstBaseTransform.html"><span class="type">GstBaseTransform</span></a></p>
+<p><a href="/usr/share/gtk-doc/html/gstreamer-libs-1.0GstBaseTransform.html#GstBaseTransform-struct"><span class="type">GstBaseTransform</span></a></p>
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.24</div>
+<hr>Generated by GTK-Doc V1.25</div>
 </body>
 </html>
