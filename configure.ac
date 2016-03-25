@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.7.91],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.8.0],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 791, 0, 791)
+AS_LIBTOOL(GST, 800, 0, 800)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.7.91
-GSTPB_REQ=1.7.91
+GST_REQ=1.8.0
+GSTPB_REQ=1.8.0
 
 dnl *** autotools stuff ****
 
@@ -848,10 +848,11 @@ HAVE_GST_ALLOCATORS=no
 PKG_CHECK_MODULES(GST_ALLOCATORS, gstreamer-allocators-1.0,
   HAVE_GST_ALLOCATORS=yes, )
 
+GST_GL_HAVE_DMABUF=0
 if test "x$HAVE_DRM_FOURCC_HEADER" = "xyes" -a \
         "x$HAVE_GST_ALLOCATORS" = "xyes" -a \
         "x$HAVE_EGL" = "xyes"; then
-          AC_DEFINE(GST_GL_HAVE_DMABUF, [1] , [DMABUF available for gl plugins])
+          GST_GL_HAVE_DMABUF=1
 fi
 
 dnl check if we can include both GL and GLES2 at the same time
@@ -1240,6 +1241,10 @@ GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
 #define GST_GL_HAVE_PLATFORM_WGL $GST_GL_HAVE_PLATFORM_WGL
 #define GST_GL_HAVE_PLATFORM_CGL $GST_GL_HAVE_PLATFORM_CGL
 #define GST_GL_HAVE_PLATFORM_EAGL $GST_GL_HAVE_PLATFORM_EAGL
+"
+
+GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
+#define GST_GL_HAVE_DMABUF $GST_GL_HAVE_DMABUF
 "
 
 dnl Check for no platforms/window systems

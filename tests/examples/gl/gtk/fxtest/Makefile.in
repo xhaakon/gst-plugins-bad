@@ -138,7 +138,7 @@ fxtest_OBJECTS = $(am_fxtest_OBJECTS)
 am__DEPENDENCIES_1 =
 fxtest_DEPENDENCIES = ../libgstgtkhelper.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -150,7 +150,7 @@ am_pixbufdrop_OBJECTS = pixbufdrop-pixbufdrop.$(OBJEXT)
 pixbufdrop_OBJECTS = $(am_pixbufdrop_OBJECTS)
 pixbufdrop_DEPENDENCIES = ../libgstgtkhelper.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 pixbufdrop_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(pixbufdrop_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
@@ -756,20 +756,20 @@ wayland_scanner = @wayland_scanner@
 fxtest_SOURCES = fxtest.c
 fxtest_CFLAGS = -I$(top_srcdir)/gst-libs -I$(top_builddir)/gst-libs \
 	$(GST_PLUGINS_BASE_CFLAGS) $(GST_CFLAGS) \
-	$(GL_CFLAGS) $(GTK3_CFLAGS)
+	$(GL_CFLAGS) $(GTK3_CFLAGS) $(X11_CFLAGS)
 
 fxtest_LDADD = ../libgstgtkhelper.la \
 	$(GTK3_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GST_LIBS)  \
-	$(GL_LIBS) -lgstvideo-$(GST_API_VERSION)
+	$(GL_LIBS) -lgstvideo-$(GST_API_VERSION) $(X11_LIBS)
 
 pixbufdrop_SOURCES = pixbufdrop.c
 pixbufdrop_CFLAGS = -I$(top_srcdir)/gst-libs -I$(top_builddir)/gst-libs \
 	$(GST_PLUGINS_BASE_CFLAGS) $(GST_CFLAGS) \
-	$(GL_CFLAGS) $(GTK3_CFLAGS)
+	$(GL_CFLAGS) $(GTK3_CFLAGS) $(X11_CFLAGS)
 
 pixbufdrop_LDADD = ../libgstgtkhelper.la \
 	$(GTK3_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GST_LIBS) \
-	$(GL_LIBS) -lgstvideo-$(GST_API_VERSION)
+	$(GL_LIBS) -lgstvideo-$(GST_API_VERSION) $(X11_LIBS)
 
 all: all-am
 

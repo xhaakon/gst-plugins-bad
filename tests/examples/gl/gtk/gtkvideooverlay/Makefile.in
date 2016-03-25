@@ -138,7 +138,8 @@ gtkvideooverlay_OBJECTS = $(am_gtkvideooverlay_OBJECTS)
 am__DEPENDENCIES_1 =
 gtkvideooverlay_DEPENDENCIES = ../libgstgtkhelper.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -749,11 +750,11 @@ wayland_scanner = @wayland_scanner@
 gtkvideooverlay_SOURCES = main.cpp
 gtkvideooverlay_CXXFLAGS = -I$(top_srcdir)/gst-libs -I$(top_builddir)/gst-libs \
 	$(GST_PLUGINS_BASE_CFLAGS) $(GST_CXXFLAGS) \
-	$(GL_CFLAGS) $(GTK3_CFLAGS)
+	$(GL_CFLAGS) $(GTK3_CFLAGS)  $(X11_CFLAGS)
 
 gtkvideooverlay_LDADD = ../libgstgtkhelper.la \
 	$(GTK3_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GST_LIBS) \
-	$(GL_LIBS) -lgstvideo-$(GST_API_VERSION)
+	$(GL_LIBS) -lgstvideo-$(GST_API_VERSION) $(X11_LIBS)
 
 all: all-am
 

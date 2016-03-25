@@ -205,7 +205,7 @@ gst_vulkan_instance_open (GstVulkanInstance * instance, GError ** error)
       instance_validation_layers, instance_layer_count, instance_layers);
   if (!validation_found) {
     g_error ("vkEnumerateInstanceLayerProperties failed to find"
-        "required validation layer.\n\n"
+        " required validation layer.\n\n"
         "Please look at the Getting Started guide for additional "
         "information.\nvkCreateInstance Failure");
   }
@@ -299,7 +299,7 @@ gst_vulkan_instance_open (GstVulkanInstance * instance, GError ** error)
     app.applicationVersion = 0;
     app.pEngineName = APP_SHORT_NAME;
     app.engineVersion = 0;
-    app.apiVersion = VK_API_VERSION;
+    app.apiVersion = VK_API_VERSION_1_0;
 
     inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     inst_info.pNext = NULL;
