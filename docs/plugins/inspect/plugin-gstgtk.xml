@@ -3,7 +3,7 @@
   <description>Gtk+ sink</description>
   <filename>../../ext/gtk/.libs/libgstgtksink.so</filename>
   <basename>libgstgtksink.so</basename>
-  <version>1.8.0</version>
+  <version>1.8.1</version>
   <license>LGPL</license>
   <source>gst-plugins-bad</source>
   <package>GStreamer Bad Plug-ins source release</package>
@@ -11,9 +11,9 @@
   <elements>
     <element>
       <name>gtkglsink</name>
-      <longname>Gtk Video Sink</longname>
+      <longname>Gtk GL Video Sink</longname>
       <class>Sink/Video</class>
-      <description>A video sink that renders to a GtkWidget</description>
+      <description>A video sink that renders to a GtkWidget using OpenGL</description>
       <author>Matthew Waters &lt;matthew@centricular.com&gt;</author>
       <pads>
         <caps>
