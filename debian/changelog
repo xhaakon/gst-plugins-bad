@@ -1,6 +1,6 @@
-gst-plugins-bad1.0 (1.8.1-1ubuntu1) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.8.1-1ubuntu1) yakkety; urgency=medium
 
-  * Merge with Debian experimental; remaining changes:
+  * Merge with Debian unstable (LP: #1575152); remaining changes:
     + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
     moved to -good.
     + Provide gstreamer-plugins-bad-1.0.pc with Requires on
@@ -21,7 +21,7 @@ gst-plugins-bad1.0 (1.8.1-1ubuntu1) UNRELEASED; urgency=medium
     + debian/control{,.in}: Update Vcs-* for Ubuntu
     + debian/watch: Update Vcs-* for new URL scheme
 
- -- Iain Lane <iain.lane@canonical.com>  Tue, 26 Apr 2016 12:50:31 +0100
+ -- Iain Lane <iain.lane@canonical.com>  Tue, 26 Apr 2016 14:04:21 +0100
 
 gst-plugins-bad1.0 (1.8.1-1) unstable; urgency=medium
 
