@@ -1,3 +1,10 @@
+gst-plugins-bad1.0 (1.8.1-2) unstable; urgency=medium
+
+  * debian/build-deps.in:
+    + Patch by Tobias Frost to fix FTBFS on Hurd (Closes: #822675).
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 02 May 2016 08:55:41 +0300
+
 gst-plugins-bad1.0 (1.8.1-1) unstable; urgency=medium
 
   * New upstream bugfix release.
