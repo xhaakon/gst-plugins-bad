@@ -1,3 +1,11 @@
+gst-plugins-bad1.0 (1.8.2-1) unstable; urgency=medium
+
+  * New upstream bugfix release.
+  * debian/build-deps.in:
+    + Switch from OpenJPEG 1.5 to 2.1.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 09 Jun 2016 11:32:08 +0300
+
 gst-plugins-bad1.0 (1.8.1-2) unstable; urgency=medium
 
   * debian/build-deps.in:
