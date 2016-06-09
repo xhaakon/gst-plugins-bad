@@ -462,6 +462,9 @@
 /* Define if OpenJPEG 1 is used */
 #undef HAVE_OPENJPEG_1
 
+/* Define if OpenJPEG 2.1 is used */
+#undef HAVE_OPENJPEG_2_1
+
 /* Define to enable openni2 library (used by openni2). */
 #undef HAVE_OPENNI2
 
