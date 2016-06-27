@@ -1,3 +1,9 @@
+gst-plugins-bad1.0 (1.8.2-1ubuntu2) yakkety; urgency=medium
+
+  * Rebuild against libopencv-highgui2.4-deb0.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Mon, 27 Jun 2016 21:16:29 +0200
+
 gst-plugins-bad1.0 (1.8.2-1ubuntu1) yakkety; urgency=medium
 
   * Merge with Debian unstable (LP: #1575152); remaining changes:
