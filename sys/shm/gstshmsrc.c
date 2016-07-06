@@ -138,8 +138,7 @@ gst_shm_src_class_init (GstShmSrcClass * klass)
           "The name of the shared memory area used to get buffers",
           NULL, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&srctemplate));
+  gst_element_class_add_static_pad_template (gstelement_class, &srctemplate);
 
   gst_element_class_set_static_metadata (gstelement_class,
       "Shared Memory Source",
@@ -273,11 +272,11 @@ gst_shm_src_stop_reading (GstShmSrc * self)
   if (self->pipe) {
     gst_shm_pipe_dec (self->pipe);
     self->pipe = NULL;
+
+    gst_poll_remove_fd (self->poll, &self->pollfd);
   }
 
-  gst_poll_remove_fd (self->poll, &self->pollfd);
   gst_poll_fd_init (&self->pollfd);
-
   gst_poll_set_flushing (self->poll, TRUE);
 }
 

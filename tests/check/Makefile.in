@@ -111,7 +111,8 @@ check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	elements/mpegtsmux$(EXEEXT) elements/mpegvideoparse$(EXEEXT) \
 	elements/mpeg4videoparse$(EXEEXT) elements/mxfdemux$(EXEEXT) \
 	elements/mxfmux$(EXEEXT) elements/netsim$(EXEEXT) \
-	elements/pcapparse$(EXEEXT) elements/rtponvifparse$(EXEEXT) \
+	elements/pcapparse$(EXEEXT) elements/pnm$(EXEEXT) \
+	elements/rtponvifparse$(EXEEXT) \
 	elements/rtponviftimestamp$(EXEEXT) elements/id3mux$(EXEEXT) \
 	pipelines/mxf$(EXEEXT) $(am__EXEEXT_19) \
 	libs/mpegvideoparser$(EXEEXT) libs/mpegts$(EXEEXT) \
@@ -210,7 +211,8 @@ libparser_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 @USE_GL_TRUE@	libs/gstglupload$(EXEEXT) \
 @USE_GL_TRUE@	libs/gstglcolorconvert$(EXEEXT) \
 @USE_GL_TRUE@	libs/gstglquery$(EXEEXT) libs/gstglsl$(EXEEXT) \
-@USE_GL_TRUE@	elements/glimagesink$(EXEEXT)
+@USE_GL_TRUE@	elements/glimagesink$(EXEEXT) \
+@USE_GL_TRUE@	pipelines/simple-launch-lines$(EXEEXT)
 @USE_HLS_TRUE@am__EXEEXT_26 = elements/hlsdemux_m3u8$(EXEEXT)
 @USE_HLS_TRUE@am__EXEEXT_27 = elements/hls_demux$(EXEEXT)
 @WITH_GST_PLAYER_TESTS_TRUE@am__EXEEXT_28 = libs/player$(EXEEXT)
@@ -487,6 +489,13 @@ elements_ofa_DEPENDENCIES = $(am__DEPENDENCIES_1)
 elements_pcapparse_SOURCES = elements/pcapparse.c
 elements_pcapparse_OBJECTS = elements/pcapparse.$(OBJEXT)
 elements_pcapparse_DEPENDENCIES = libparser.la $(am__DEPENDENCIES_2)
+elements_pnm_SOURCES = elements/pnm.c
+elements_pnm_OBJECTS = elements/elements_pnm-pnm.$(OBJEXT)
+elements_pnm_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+elements_pnm_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(elements_pnm_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 elements_rtponvifparse_SOURCES = elements/rtponvifparse.c
 elements_rtponvifparse_OBJECTS =  \
 	elements/elements_rtponvifparse-rtponvifparse.$(OBJEXT)
@@ -746,6 +755,15 @@ pipelines_mxf_SOURCES = pipelines/mxf.c
 pipelines_mxf_OBJECTS = pipelines/mxf.$(OBJEXT)
 pipelines_mxf_LDADD = $(LDADD)
 pipelines_mxf_DEPENDENCIES = $(am__DEPENDENCIES_1)
+pipelines_simple_launch_lines_SOURCES =  \
+	pipelines/simple-launch-lines.c
+pipelines_simple_launch_lines_OBJECTS = pipelines/pipelines_simple_launch_lines-simple-launch-lines.$(OBJEXT)
+pipelines_simple_launch_lines_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+pipelines_simple_launch_lines_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(pipelines_simple_launch_lines_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 pipelines_streamheader_SOURCES = pipelines/streamheader.c
 pipelines_streamheader_OBJECTS =  \
 	pipelines/pipelines_streamheader-streamheader.$(OBJEXT)
@@ -808,20 +826,22 @@ SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/mplex.c $(elements_mssdemux_SOURCES) \
 	elements/mxfdemux.c elements/mxfmux.c elements/neonhttpsrc.c \
 	elements/netsim.c elements/ofa.c elements/pcapparse.c \
-	elements/rtponvifparse.c elements/rtponviftimestamp.c \
-	elements/schroenc.c elements/shm.c elements/templatematch.c \
-	elements/timidity.c elements/uvch264demux.c \
-	elements/videoframe-audiolevel.c elements/viewfinderbin.c \
-	elements/voaacenc.c elements/voamrwbenc.c elements/x265enc.c \
-	elements/zbar.c generic/states.c libs/aggregator.c \
-	libs/gstglcolorconvert.c libs/gstglcontext.c \
-	libs/gstglmemory.c libs/gstglquery.c libs/gstglsl.c \
-	libs/gstglupload.c libs/h264parser.c libs/insertbin.c \
-	libs/mpegts.c libs/mpegvideoparser.c $(libs_player_SOURCES) \
-	$(nodist_libs_player_SOURCES) libs/vc1parser.c \
-	libs/vp8parser.c $(nodist_orc_audiomixer_SOURCES) \
-	$(nodist_orc_bayer_SOURCES) $(nodist_orc_compositor_SOURCES) \
-	pipelines/mimic.c pipelines/mxf.c pipelines/streamheader.c
+	elements/pnm.c elements/rtponvifparse.c \
+	elements/rtponviftimestamp.c elements/schroenc.c \
+	elements/shm.c elements/templatematch.c elements/timidity.c \
+	elements/uvch264demux.c elements/videoframe-audiolevel.c \
+	elements/viewfinderbin.c elements/voaacenc.c \
+	elements/voamrwbenc.c elements/x265enc.c elements/zbar.c \
+	generic/states.c libs/aggregator.c libs/gstglcolorconvert.c \
+	libs/gstglcontext.c libs/gstglmemory.c libs/gstglquery.c \
+	libs/gstglsl.c libs/gstglupload.c libs/h264parser.c \
+	libs/insertbin.c libs/mpegts.c libs/mpegvideoparser.c \
+	$(libs_player_SOURCES) $(nodist_libs_player_SOURCES) \
+	libs/vc1parser.c libs/vp8parser.c \
+	$(nodist_orc_audiomixer_SOURCES) $(nodist_orc_bayer_SOURCES) \
+	$(nodist_orc_compositor_SOURCES) pipelines/mimic.c \
+	pipelines/mxf.c pipelines/simple-launch-lines.c \
+	pipelines/streamheader.c
 DIST_SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/asfmux.c elements/assrender.c \
 	elements/audiointerleave.c elements/audiomixer.c \
@@ -841,18 +861,19 @@ DIST_SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/mplex.c $(elements_mssdemux_SOURCES) \
 	elements/mxfdemux.c elements/mxfmux.c elements/neonhttpsrc.c \
 	elements/netsim.c elements/ofa.c elements/pcapparse.c \
-	elements/rtponvifparse.c elements/rtponviftimestamp.c \
-	elements/schroenc.c elements/shm.c elements/templatematch.c \
-	elements/timidity.c elements/uvch264demux.c \
-	elements/videoframe-audiolevel.c elements/viewfinderbin.c \
-	elements/voaacenc.c elements/voamrwbenc.c elements/x265enc.c \
-	elements/zbar.c generic/states.c libs/aggregator.c \
-	libs/gstglcolorconvert.c libs/gstglcontext.c \
-	libs/gstglmemory.c libs/gstglquery.c libs/gstglsl.c \
-	libs/gstglupload.c libs/h264parser.c libs/insertbin.c \
-	libs/mpegts.c libs/mpegvideoparser.c $(libs_player_SOURCES) \
-	libs/vc1parser.c libs/vp8parser.c pipelines/mimic.c \
-	pipelines/mxf.c pipelines/streamheader.c
+	elements/pnm.c elements/rtponvifparse.c \
+	elements/rtponviftimestamp.c elements/schroenc.c \
+	elements/shm.c elements/templatematch.c elements/timidity.c \
+	elements/uvch264demux.c elements/videoframe-audiolevel.c \
+	elements/viewfinderbin.c elements/voaacenc.c \
+	elements/voamrwbenc.c elements/x265enc.c elements/zbar.c \
+	generic/states.c libs/aggregator.c libs/gstglcolorconvert.c \
+	libs/gstglcontext.c libs/gstglmemory.c libs/gstglquery.c \
+	libs/gstglsl.c libs/gstglupload.c libs/h264parser.c \
+	libs/insertbin.c libs/mpegts.c libs/mpegvideoparser.c \
+	$(libs_player_SOURCES) libs/vc1parser.c libs/vp8parser.c \
+	pipelines/mimic.c pipelines/mxf.c \
+	pipelines/simple-launch-lines.c pipelines/streamheader.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -1149,6 +1170,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -1364,6 +1387,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -1490,8 +1515,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -1536,6 +1559,8 @@ WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -1634,10 +1659,10 @@ AM_TESTS_ENVIRONMENT = CK_DEFAULT_TIMEOUT=20 $(REGISTRY_ENVIRONMENT) \
 	dc1394src dccpclientsrc dccpclientsink dccpserversrc \
 	dccpserversink decklinksrc decklinksink dtlssrtpdec \
 	dtlssrtpenc dvbsrc dvbbasebin dfbvideosink festival fluidsynth \
-	linsyssdisrc linsyssdisink nassink rsndvdbin sdlaudiosink \
-	sdlvideosink vcdsrc rfbsrc vdpauyuvvideo vdpauvideoyuv \
-	vdpaumpegdec vdpaumpeg4dec vdpauh264dec vdpauvideopostprocess \
-	vdpausink neonhttpsrc"
+	linsyssdisrc linsyssdisink nassink kmssink rsndvdbin \
+	sdlaudiosink sdlvideosink vcdsrc rfbsrc vdpauyuvvideo \
+	vdpauvideoyuv vdpaumpegdec vdpaumpeg4dec vdpauh264dec \
+	vdpauvideopostprocess vdpausink neonhttpsrc"
 
 # inspect every plugin feature
 GST_INSPECT = $(GST_TOOLS_DIR)/gst-inspect-$(GST_API_VERSION)
@@ -1725,7 +1750,8 @@ uvch264_dist_data = elements/uvch264demux_data/valid_h264_jpg.mjpg \
 @USE_GL_TRUE@    libs/gstglcolorconvert \
 @USE_GL_TRUE@    libs/gstglquery \
 @USE_GL_TRUE@    libs/gstglsl \
-@USE_GL_TRUE@    elements/glimagesink
+@USE_GL_TRUE@    elements/glimagesink \
+@USE_GL_TRUE@    pipelines/simple-launch-lines
 
 VALGRIND_TO_FIX = \
 	elements/mpeg2enc \
@@ -1751,7 +1777,13 @@ elements_audiomixer_LDADD = $(GST_BASE_LIBS) $(GST_CONTROLLER_LIBS) -lgstbase-@G
 elements_audiomixer_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CONTROLLER_CFLAGS) $(AM_CFLAGS)
 elements_audiointerleave_LDADD = $(GST_BASE_LIBS) -lgstbase-@GST_API_VERSION@ -lgstaudio-@GST_API_VERSION@ $(LDADD)
 elements_audiointerleave_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_pnm_CFLAGS = \
+	$(GST_PLUGINS_BASE_CFLAGS)
 
+elements_pnm_LDADD = \
+	$(GST_PLUGINS_BASE_LIBS) -lgstapp-$(GST_API_VERSION) $(GST_BASE_LIBS) $(LDADD)
+
+#
 # parser unit test convenience lib
 noinst_LTLIBRARIES = libparser.la
 libparser_la_SOURCES = elements/parser.c elements/parser.h
@@ -1909,10 +1941,11 @@ libs_insertbin_CFLAGS = \
 libs_player_SOURCES = libs/player.c
 libs_player_LDADD = \
 	$(top_builddir)/gst-libs/gst/player/libgstplayer-@GST_API_VERSION@.la \
+	-lgstvideo-@GST_API_VERSION@ \
 	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
 
 libs_player_CFLAGS = \
-	$(GST_PLUGINS_BAD_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS) \
+	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS) \
 	-DTEST_PATH=\"$(builddir)/media\"
 
 @WITH_GST_PLAYER_TESTS_TRUE@PLAYER_MEDIA_FILES = \
@@ -1937,7 +1970,8 @@ orc_audiomixer_LDADD = $(ORC_LIBS) -lorc-test-0.4
 nodist_orc_audiomixer_SOURCES = orc/audiomixer.c
 libs_gstglcontext_LDADD = \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
-	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
+	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
 
 libs_gstglcontext_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
@@ -2000,6 +2034,14 @@ elements_glimagesink_CFLAGS = \
 elements_glimagesink_LDADD = \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
 	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
+	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+
+pipelines_simple_launch_lines_CFLAGS = \
+	$(GST_PLUGINS_BAD_CFLAGS) \
+	-DGST_USE_UNSTABLE_API \
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+
+pipelines_simple_launch_lines_LDADD = \
 	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
 
 libs_aggregator_LDADD = \
@@ -2378,6 +2420,12 @@ elements/pcapparse.$(OBJEXT): elements/$(am__dirstamp) \
 elements/pcapparse$(EXEEXT): $(elements_pcapparse_OBJECTS) $(elements_pcapparse_DEPENDENCIES) $(EXTRA_elements_pcapparse_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/pcapparse$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(elements_pcapparse_OBJECTS) $(elements_pcapparse_LDADD) $(LIBS)
+elements/elements_pnm-pnm.$(OBJEXT): elements/$(am__dirstamp) \
+	elements/$(DEPDIR)/$(am__dirstamp)
+
+elements/pnm$(EXEEXT): $(elements_pnm_OBJECTS) $(elements_pnm_DEPENDENCIES) $(EXTRA_elements_pnm_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/pnm$(EXEEXT)
+	$(AM_V_CCLD)$(elements_pnm_LINK) $(elements_pnm_OBJECTS) $(elements_pnm_LDADD) $(LIBS)
 elements/elements_rtponvifparse-rtponvifparse.$(OBJEXT):  \
 	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
 
@@ -2602,6 +2650,12 @@ pipelines/mxf.$(OBJEXT): pipelines/$(am__dirstamp) \
 pipelines/mxf$(EXEEXT): $(pipelines_mxf_OBJECTS) $(pipelines_mxf_DEPENDENCIES) $(EXTRA_pipelines_mxf_DEPENDENCIES) pipelines/$(am__dirstamp)
 	@rm -f pipelines/mxf$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(pipelines_mxf_OBJECTS) $(pipelines_mxf_LDADD) $(LIBS)
+pipelines/pipelines_simple_launch_lines-simple-launch-lines.$(OBJEXT):  \
+	pipelines/$(am__dirstamp) pipelines/$(DEPDIR)/$(am__dirstamp)
+
+pipelines/simple-launch-lines$(EXEEXT): $(pipelines_simple_launch_lines_OBJECTS) $(pipelines_simple_launch_lines_DEPENDENCIES) $(EXTRA_pipelines_simple_launch_lines_DEPENDENCIES) pipelines/$(am__dirstamp)
+	@rm -f pipelines/simple-launch-lines$(EXEEXT)
+	$(AM_V_CCLD)$(pipelines_simple_launch_lines_LINK) $(pipelines_simple_launch_lines_OBJECTS) $(pipelines_simple_launch_lines_LDADD) $(LIBS)
 pipelines/pipelines_streamheader-streamheader.$(OBJEXT):  \
 	pipelines/$(am__dirstamp) pipelines/$(DEPDIR)/$(am__dirstamp)
 
@@ -2658,6 +2712,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_mssdemux-adaptive_demux_engine.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_mssdemux-mssdemux.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_mssdemux-test_http_src.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_pnm-pnm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_rtponvifparse-rtponvifparse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_rtponviftimestamp-rtponviftimestamp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_timidity-timidity.Po@am__quote@
@@ -2707,6 +2762,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@orc/$(DEPDIR)/orc_compositor-compositor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pipelines/$(DEPDIR)/mimic.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pipelines/$(DEPDIR)/mxf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@pipelines/$(DEPDIR)/pipelines_simple_launch_lines-simple-launch-lines.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@pipelines/$(DEPDIR)/pipelines_streamheader-streamheader.Po@am__quote@
 
 .c.o:
@@ -3118,6 +3174,20 @@ elements/elements_mssdemux-mssdemux.obj: elements/mssdemux.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mssdemux_CFLAGS) $(CFLAGS) -c -o elements/elements_mssdemux-mssdemux.obj `if test -f 'elements/mssdemux.c'; then $(CYGPATH_W) 'elements/mssdemux.c'; else $(CYGPATH_W) '$(srcdir)/elements/mssdemux.c'; fi`
 
+elements/elements_pnm-pnm.o: elements/pnm.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_pnm_CFLAGS) $(CFLAGS) -MT elements/elements_pnm-pnm.o -MD -MP -MF elements/$(DEPDIR)/elements_pnm-pnm.Tpo -c -o elements/elements_pnm-pnm.o `test -f 'elements/pnm.c' || echo '$(srcdir)/'`elements/pnm.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_pnm-pnm.Tpo elements/$(DEPDIR)/elements_pnm-pnm.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/pnm.c' object='elements/elements_pnm-pnm.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_pnm_CFLAGS) $(CFLAGS) -c -o elements/elements_pnm-pnm.o `test -f 'elements/pnm.c' || echo '$(srcdir)/'`elements/pnm.c
+
+elements/elements_pnm-pnm.obj: elements/pnm.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_pnm_CFLAGS) $(CFLAGS) -MT elements/elements_pnm-pnm.obj -MD -MP -MF elements/$(DEPDIR)/elements_pnm-pnm.Tpo -c -o elements/elements_pnm-pnm.obj `if test -f 'elements/pnm.c'; then $(CYGPATH_W) 'elements/pnm.c'; else $(CYGPATH_W) '$(srcdir)/elements/pnm.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_pnm-pnm.Tpo elements/$(DEPDIR)/elements_pnm-pnm.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/pnm.c' object='elements/elements_pnm-pnm.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_pnm_CFLAGS) $(CFLAGS) -c -o elements/elements_pnm-pnm.obj `if test -f 'elements/pnm.c'; then $(CYGPATH_W) 'elements/pnm.c'; else $(CYGPATH_W) '$(srcdir)/elements/pnm.c'; fi`
+
 elements/elements_rtponvifparse-rtponvifparse.o: elements/rtponvifparse.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rtponvifparse_CFLAGS) $(CFLAGS) -MT elements/elements_rtponvifparse-rtponvifparse.o -MD -MP -MF elements/$(DEPDIR)/elements_rtponvifparse-rtponvifparse.Tpo -c -o elements/elements_rtponvifparse-rtponvifparse.o `test -f 'elements/rtponvifparse.c' || echo '$(srcdir)/'`elements/rtponvifparse.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_rtponvifparse-rtponvifparse.Tpo elements/$(DEPDIR)/elements_rtponvifparse-rtponvifparse.Po
@@ -3467,6 +3537,20 @@ orc/orc_compositor-compositor.obj: orc/compositor.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='orc/compositor.c' object='orc/orc_compositor-compositor.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(orc_compositor_CFLAGS) $(CFLAGS) -c -o orc/orc_compositor-compositor.obj `if test -f 'orc/compositor.c'; then $(CYGPATH_W) 'orc/compositor.c'; else $(CYGPATH_W) '$(srcdir)/orc/compositor.c'; fi`
+
+pipelines/pipelines_simple_launch_lines-simple-launch-lines.o: pipelines/simple-launch-lines.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pipelines_simple_launch_lines_CFLAGS) $(CFLAGS) -MT pipelines/pipelines_simple_launch_lines-simple-launch-lines.o -MD -MP -MF pipelines/$(DEPDIR)/pipelines_simple_launch_lines-simple-launch-lines.Tpo -c -o pipelines/pipelines_simple_launch_lines-simple-launch-lines.o `test -f 'pipelines/simple-launch-lines.c' || echo '$(srcdir)/'`pipelines/simple-launch-lines.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) pipelines/$(DEPDIR)/pipelines_simple_launch_lines-simple-launch-lines.Tpo pipelines/$(DEPDIR)/pipelines_simple_launch_lines-simple-launch-lines.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pipelines/simple-launch-lines.c' object='pipelines/pipelines_simple_launch_lines-simple-launch-lines.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pipelines_simple_launch_lines_CFLAGS) $(CFLAGS) -c -o pipelines/pipelines_simple_launch_lines-simple-launch-lines.o `test -f 'pipelines/simple-launch-lines.c' || echo '$(srcdir)/'`pipelines/simple-launch-lines.c
+
+pipelines/pipelines_simple_launch_lines-simple-launch-lines.obj: pipelines/simple-launch-lines.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pipelines_simple_launch_lines_CFLAGS) $(CFLAGS) -MT pipelines/pipelines_simple_launch_lines-simple-launch-lines.obj -MD -MP -MF pipelines/$(DEPDIR)/pipelines_simple_launch_lines-simple-launch-lines.Tpo -c -o pipelines/pipelines_simple_launch_lines-simple-launch-lines.obj `if test -f 'pipelines/simple-launch-lines.c'; then $(CYGPATH_W) 'pipelines/simple-launch-lines.c'; else $(CYGPATH_W) '$(srcdir)/pipelines/simple-launch-lines.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) pipelines/$(DEPDIR)/pipelines_simple_launch_lines-simple-launch-lines.Tpo pipelines/$(DEPDIR)/pipelines_simple_launch_lines-simple-launch-lines.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pipelines/simple-launch-lines.c' object='pipelines/pipelines_simple_launch_lines-simple-launch-lines.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pipelines_simple_launch_lines_CFLAGS) $(CFLAGS) -c -o pipelines/pipelines_simple_launch_lines-simple-launch-lines.obj `if test -f 'pipelines/simple-launch-lines.c'; then $(CYGPATH_W) 'pipelines/simple-launch-lines.c'; else $(CYGPATH_W) '$(srcdir)/pipelines/simple-launch-lines.c'; fi`
 
 pipelines/pipelines_streamheader-streamheader.o: pipelines/streamheader.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pipelines_streamheader_CFLAGS) $(CFLAGS) -MT pipelines/pipelines_streamheader-streamheader.o -MD -MP -MF pipelines/$(DEPDIR)/pipelines_streamheader-streamheader.Tpo -c -o pipelines/pipelines_streamheader-streamheader.o `test -f 'pipelines/streamheader.c' || echo '$(srcdir)/'`pipelines/streamheader.c
@@ -3994,6 +4078,13 @@ elements/pcapparse.log: elements/pcapparse$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+elements/pnm.log: elements/pnm$(EXEEXT)
+	@p='elements/pnm$(EXEEXT)'; \
+	b='elements/pnm'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 elements/rtponvifparse.log: elements/rtponvifparse$(EXEEXT)
 	@p='elements/rtponvifparse$(EXEEXT)'; \
 	b='elements/rtponvifparse'; \
@@ -4179,6 +4270,13 @@ libs/gstglsl.log: libs/gstglsl$(EXEEXT)
 elements/glimagesink.log: elements/glimagesink$(EXEEXT)
 	@p='elements/glimagesink$(EXEEXT)'; \
 	b='elements/glimagesink'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+pipelines/simple-launch-lines.log: pipelines/simple-launch-lines$(EXEEXT)
+	@p='pipelines/simple-launch-lines$(EXEEXT)'; \
+	b='pipelines/simple-launch-lines'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
@@ -4632,6 +4730,7 @@ install-pluginLTLIBRARIES:
 
 clean-local: clean-local-check
 distclean-local: distclean-local-orc
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
 
 @WITH_GST_PLAYER_TESTS_TRUE@$(PLAYER_MEDIA_FILES):
 @WITH_GST_PLAYER_TESTS_TRUE@	$(MKDIR_P) media

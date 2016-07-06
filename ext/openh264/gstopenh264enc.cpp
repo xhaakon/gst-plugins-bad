@@ -35,14 +35,6 @@
 #include <gst/video/gstvideoencoder.h>
 #include <string.h>
 
-#include <wels/codec_api.h>
-#include <wels/codec_app_def.h>
-#include <wels/codec_def.h>
-#include <wels/codec_ver.h>
-
-#define GST_OPENH264ENC_GET_PRIVATE(obj) \
-    (G_TYPE_INSTANCE_GET_PRIVATE((obj), GST_TYPE_OPENH264ENC, GstOpenh264EncPrivate))
-
 GST_DEBUG_CATEGORY_STATIC (gst_openh264enc_debug_category);
 #define GST_CAT_DEFAULT gst_openh264enc_debug_category
 
@@ -75,7 +67,8 @@ gst_openh264enc_rc_modes_get_type (void)
     static const GEnumValue rc_modes_types[] = {
       {RC_QUALITY_MODE, "Quality mode", "quality"},
       {RC_BITRATE_MODE, "Bitrate mode", "bitrate"},
-      {RC_BUFFERBASED_MODE, "No bitrate control, just using buffer status", "buffer"},
+      {RC_BUFFERBASED_MODE, "No bitrate control, just using buffer status",
+          "buffer"},
       {RC_OFF_MODE, "Rate control off mode", "off"},
       {0, NULL, NULL},
     };
@@ -85,13 +78,6 @@ gst_openh264enc_rc_modes_get_type (void)
 
   return rc_modes_type;
 }
-
-typedef enum _GstOpenh264encDeblockingMode
-{
-  GST_OPENH264_DEBLOCKING_ON = 0,
-  GST_OPENH264_DEBLOCKING_OFF = 1,
-  GST_OPENH264_DEBLOCKING_NOT_SLICE_BOUNDARIES = 2
-} GstOpenh264encDeblockingMode;
 
 #define GST_TYPE_OPENH264ENC_DEBLOCKING_MODE (gst_openh264enc_deblocking_mode_get_type ())
 static GType
@@ -106,9 +92,9 @@ gst_openh264enc_deblocking_mode_get_type (void)
   };
   static gsize id = 0;
 
-  if (g_once_init_enter (& id)) {
+  if (g_once_init_enter (&id)) {
     GType _id = g_enum_register_static ("GstOpenh264encDeblockingModes", types);
-    g_once_init_leave (& id, _id);
+    g_once_init_leave (&id, _id);
   }
 
   return (GType) id;
@@ -119,15 +105,15 @@ static GType
 gst_openh264enc_slice_mode_get_type (void)
 {
   static const GEnumValue types[] = {
-    {SM_FIXEDSLCNUM_SLICE, "num-slices slices", "n-slices"},
+    {SM_FIXEDSLCNUM_SLICE, "Fixed number of slices", "n-slices"},
     {SM_AUTO_SLICE, "Number of slices equal to number of threads", "auto"},
     {0, NULL, NULL},
   };
   static gsize id = 0;
 
-  if (g_once_init_enter (& id)) {
+  if (g_once_init_enter (&id)) {
     GType _id = g_enum_register_static ("GstOpenh264encSliceModes", types);
-    g_once_init_leave (& id, _id);
+    g_once_init_leave (&id, _id);
   }
 
   return (GType) id;
@@ -145,9 +131,9 @@ gst_openh264enc_complexity_get_type (void)
   };
   static gsize id = 0;
 
-  if (g_once_init_enter (& id)) {
+  if (g_once_init_enter (&id)) {
     GType _id = g_enum_register_static ("GstOpenh264encComplexity", types);
-    g_once_init_leave (& id, _id);
+    g_once_init_leave (&id, _id);
   }
 
   return (GType) id;
@@ -176,9 +162,9 @@ static void gst_openh264enc_set_rate_control (GstOpenh264Enc * openh264enc,
 
 
 #define DEFAULT_BITRATE            (128000)
+#define DEFAULT_MAX_BITRATE        (UNSPECIFIED_BIT_RATE)
 #define DEFAULT_GOP_SIZE           (90)
 #define DEFAULT_MAX_SLICE_SIZE     (1500000)
-#define DROP_BITRATE               20000
 #define START_FRAMERATE            30
 #define DEFAULT_USAGE_TYPE         CAMERA_VIDEO_REAL_TIME
 #define DEFAULT_RATE_CONTROL       RC_QUALITY_MODE
@@ -198,6 +184,7 @@ enum
   PROP_0,
   PROP_USAGE_TYPE,
   PROP_BITRATE,
+  PROP_MAX_BITRATE,
   PROP_GOP_SIZE,
   PROP_MAX_SLICE_SIZE,
   PROP_RATE_CONTROL,
@@ -214,32 +201,6 @@ enum
   N_PROPERTIES
 };
 
-struct _GstOpenh264EncPrivate
-{
-  ISVCEncoder *encoder;
-  EUsageType usage_type;
-  guint gop_size;
-  RC_MODES rate_control;
-  guint max_slice_size;
-  guint bitrate;
-  guint framerate;
-  guint multi_thread;
-  gboolean enable_denoise;
-  gboolean enable_frame_skip;
-  GstVideoCodecState *input_state;
-  guint32 drop_bitrate;
-  guint64 time_per_frame;
-  guint64 frame_count;
-  guint64 previous_timestamp;
-  GstOpenh264encDeblockingMode deblocking_mode;
-  gboolean background_detection;
-  gboolean adaptive_quantization;
-  gboolean scene_change_detection;
-  SliceModeEnum slice_mode;
-  guint num_slices;
-  ECOMPLEXITY_MODE complexity;
-};
-
 /* pad templates */
 
 static GstStaticPadTemplate gst_openh264enc_sink_template =
@@ -254,7 +215,7 @@ GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS
-    ("video/x-h264, stream-format=(string)\"avc\", alignment=(string)\"au\", profile=(string)\"baseline\"")
+    ("video/x-h264, stream-format=(string)\"byte-stream\", alignment=(string)\"au\", profile=(string)\"baseline\"")
     );
 
 /* class initialization */
@@ -271,14 +232,12 @@ gst_openh264enc_class_init (GstOpenh264EncClass * klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GstVideoEncoderClass *video_encoder_class = GST_VIDEO_ENCODER_CLASS (klass);
 
-  g_type_class_add_private (klass, sizeof (GstOpenh264EncPrivate));
-
   /* Setting up pads and setting metadata should be moved to
      base_class_init if you intend to subclass this class. */
-  gst_element_class_add_pad_template (GST_ELEMENT_CLASS (klass),
-      gst_static_pad_template_get (&gst_openh264enc_src_template));
-  gst_element_class_add_pad_template (GST_ELEMENT_CLASS (klass),
-      gst_static_pad_template_get (&gst_openh264enc_sink_template));
+  gst_element_class_add_static_pad_template (GST_ELEMENT_CLASS (klass),
+      &gst_openh264enc_src_template);
+  gst_element_class_add_static_pad_template (GST_ELEMENT_CLASS (klass),
+      &gst_openh264enc_sink_template);
 
   gst_element_class_set_static_metadata (GST_ELEMENT_CLASS (klass),
       "OpenH264 video encoder", "Encoder/Video", "OpenH264 video encoder",
@@ -332,6 +291,12 @@ gst_openh264enc_class_init (GstOpenh264EncClass * klass)
           0, G_MAXUINT, DEFAULT_BITRATE,
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 
+  g_object_class_install_property (gobject_class, PROP_MAX_BITRATE,
+      g_param_spec_uint ("max-bitrate", "Max Bitrate",
+          "Maximum Bitrate (in bits per second)",
+          0, G_MAXUINT, DEFAULT_MAX_BITRATE,
+          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
+
   g_object_class_install_property (gobject_class, PROP_GOP_SIZE,
       g_param_spec_uint ("gop-size", "GOP size",
           "Number of frames between intra frames",
@@ -378,37 +343,36 @@ gst_openh264enc_class_init (GstOpenh264EncClass * klass)
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 
   g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_COMPLEXITY,
-      g_param_spec_enum ("complexity", "Complexity / quality / speed tradeoff", "Complexity",
-          GST_TYPE_OPENH264ENC_COMPLEXITY, DEFAULT_COMPLEXITY,
+      g_param_spec_enum ("complexity", "Complexity / quality / speed tradeoff",
+          "Complexity", GST_TYPE_OPENH264ENC_COMPLEXITY, DEFAULT_COMPLEXITY,
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 }
 
 static void
 gst_openh264enc_init (GstOpenh264Enc * openh264enc)
 {
-  openh264enc->priv = GST_OPENH264ENC_GET_PRIVATE (openh264enc);
-  openh264enc->priv->gop_size = DEFAULT_GOP_SIZE;
-  openh264enc->priv->usage_type = DEFAULT_USAGE_TYPE;
-  openh264enc->priv->rate_control = DEFAULT_RATE_CONTROL;
-  openh264enc->priv->multi_thread = DEFAULT_MULTI_THREAD;
-  openh264enc->priv->max_slice_size = DEFAULT_MAX_SLICE_SIZE;
-  openh264enc->priv->bitrate = DEFAULT_BITRATE;
-  openh264enc->priv->framerate = START_FRAMERATE;
-  openh264enc->priv->input_state = NULL;
-  openh264enc->priv->time_per_frame = GST_SECOND / openh264enc->priv->framerate;
-  openh264enc->priv->frame_count = 0;
-  openh264enc->priv->previous_timestamp = 0;
-  openh264enc->priv->drop_bitrate = DROP_BITRATE;
-  openh264enc->priv->enable_denoise = DEFAULT_ENABLE_DENOISE;
-  openh264enc->priv->enable_frame_skip = DEFAULT_ENABLE_FRAME_SKIP;
-  openh264enc->priv->deblocking_mode = DEFAULT_DEBLOCKING_MODE;
-  openh264enc->priv->background_detection = DEFAULT_BACKGROUND_DETECTION;
-  openh264enc->priv->adaptive_quantization = DEFAULT_ADAPTIVE_QUANTIZATION;
-  openh264enc->priv->scene_change_detection = DEFAULT_SCENE_CHANGE_DETECTION;
-  openh264enc->priv->slice_mode = DEFAULT_SLICE_MODE;
-  openh264enc->priv->num_slices = DEFAULT_NUM_SLICES;
-  openh264enc->priv->encoder = NULL;
-  openh264enc->priv->complexity = DEFAULT_COMPLEXITY;
+  openh264enc->gop_size = DEFAULT_GOP_SIZE;
+  openh264enc->usage_type = DEFAULT_USAGE_TYPE;
+  openh264enc->rate_control = DEFAULT_RATE_CONTROL;
+  openh264enc->multi_thread = DEFAULT_MULTI_THREAD;
+  openh264enc->max_slice_size = DEFAULT_MAX_SLICE_SIZE;
+  openh264enc->bitrate = DEFAULT_BITRATE;
+  openh264enc->max_bitrate = DEFAULT_MAX_BITRATE;
+  openh264enc->framerate = START_FRAMERATE;
+  openh264enc->input_state = NULL;
+  openh264enc->time_per_frame = GST_SECOND / openh264enc->framerate;
+  openh264enc->frame_count = 0;
+  openh264enc->previous_timestamp = 0;
+  openh264enc->enable_denoise = DEFAULT_ENABLE_DENOISE;
+  openh264enc->enable_frame_skip = DEFAULT_ENABLE_FRAME_SKIP;
+  openh264enc->deblocking_mode = DEFAULT_DEBLOCKING_MODE;
+  openh264enc->background_detection = DEFAULT_BACKGROUND_DETECTION;
+  openh264enc->adaptive_quantization = DEFAULT_ADAPTIVE_QUANTIZATION;
+  openh264enc->scene_change_detection = DEFAULT_SCENE_CHANGE_DETECTION;
+  openh264enc->slice_mode = DEFAULT_SLICE_MODE;
+  openh264enc->num_slices = DEFAULT_NUM_SLICES;
+  openh264enc->encoder = NULL;
+  openh264enc->complexity = DEFAULT_COMPLEXITY;
   gst_openh264enc_set_usage_type (openh264enc, CAMERA_VIDEO_REAL_TIME);
   gst_openh264enc_set_rate_control (openh264enc, RC_QUALITY_MODE);
 }
@@ -418,10 +382,10 @@ gst_openh264enc_set_usage_type (GstOpenh264Enc * openh264enc, gint usage_type)
 {
   switch (usage_type) {
     case CAMERA_VIDEO_REAL_TIME:
-      openh264enc->priv->usage_type = CAMERA_VIDEO_REAL_TIME;
+      openh264enc->usage_type = CAMERA_VIDEO_REAL_TIME;
       break;
     case SCREEN_CONTENT_REAL_TIME:
-      openh264enc->priv->usage_type = SCREEN_CONTENT_REAL_TIME;
+      openh264enc->usage_type = SCREEN_CONTENT_REAL_TIME;
       break;
     default:
       g_assert_not_reached ();
@@ -433,16 +397,16 @@ gst_openh264enc_set_rate_control (GstOpenh264Enc * openh264enc, gint rc_mode)
 {
   switch (rc_mode) {
     case RC_QUALITY_MODE:
-      openh264enc->priv->rate_control = RC_QUALITY_MODE;
+      openh264enc->rate_control = RC_QUALITY_MODE;
       break;
     case RC_BITRATE_MODE:
-      openh264enc->priv->rate_control = RC_BITRATE_MODE;
+      openh264enc->rate_control = RC_BITRATE_MODE;
       break;
     case RC_BUFFERBASED_MODE:
-      openh264enc->priv->rate_control = RC_BUFFERBASED_MODE;
+      openh264enc->rate_control = RC_BUFFERBASED_MODE;
       break;
     case RC_OFF_MODE:
-      openh264enc->priv->rate_control = RC_OFF_MODE;
+      openh264enc->rate_control = RC_OFF_MODE;
       break;
     default:
       g_assert_not_reached ();
@@ -459,11 +423,15 @@ gst_openh264enc_set_property (GObject * object, guint property_id,
 
   switch (property_id) {
     case PROP_BITRATE:
-      openh264enc->priv->bitrate = g_value_get_uint (value);
+      openh264enc->bitrate = g_value_get_uint (value);
+      break;
+
+    case PROP_MAX_BITRATE:
+      openh264enc->max_bitrate = g_value_get_uint (value);
       break;
 
     case PROP_MULTI_THREAD:
-      openh264enc->priv->multi_thread = g_value_get_uint (value);
+      openh264enc->multi_thread = g_value_get_uint (value);
       break;
 
     case PROP_USAGE_TYPE:
@@ -471,11 +439,11 @@ gst_openh264enc_set_property (GObject * object, guint property_id,
       break;
 
     case PROP_ENABLE_DENOISE:
-      openh264enc->priv->enable_denoise = g_value_get_boolean (value);
+      openh264enc->enable_denoise = g_value_get_boolean (value);
       break;
 
     case PROP_ENABLE_FRAME_SKIP:
-      openh264enc->priv->enable_frame_skip = g_value_get_boolean (value);
+      openh264enc->enable_frame_skip = g_value_get_boolean (value);
       break;
 
     case PROP_RATE_CONTROL:
@@ -483,40 +451,40 @@ gst_openh264enc_set_property (GObject * object, guint property_id,
       break;
 
     case PROP_GOP_SIZE:
-      openh264enc->priv->gop_size = g_value_get_uint (value);
+      openh264enc->gop_size = g_value_get_uint (value);
       break;
 
     case PROP_MAX_SLICE_SIZE:
-      openh264enc->priv->max_slice_size = g_value_get_uint (value);
+      openh264enc->max_slice_size = g_value_get_uint (value);
       break;
 
     case PROP_DEBLOCKING_MODE:
-      openh264enc->priv->deblocking_mode =
+      openh264enc->deblocking_mode =
           (GstOpenh264encDeblockingMode) g_value_get_enum (value);
       break;
 
     case PROP_BACKGROUND_DETECTION:
-      openh264enc->priv->background_detection = g_value_get_boolean (value);
+      openh264enc->background_detection = g_value_get_boolean (value);
       break;
 
     case PROP_ADAPTIVE_QUANTIZATION:
-      openh264enc->priv->adaptive_quantization = g_value_get_boolean (value);
+      openh264enc->adaptive_quantization = g_value_get_boolean (value);
       break;
 
     case PROP_SCENE_CHANGE_DETECTION:
-      openh264enc->priv->scene_change_detection = g_value_get_boolean (value);
+      openh264enc->scene_change_detection = g_value_get_boolean (value);
       break;
 
     case PROP_SLICE_MODE:
-      openh264enc->priv->slice_mode = (SliceModeEnum) g_value_get_enum (value);
+      openh264enc->slice_mode = (SliceModeEnum) g_value_get_enum (value);
       break;
 
     case PROP_NUM_SLICES:
-      openh264enc->priv->num_slices = g_value_get_uint (value);
+      openh264enc->num_slices = g_value_get_uint (value);
       break;
 
     case PROP_COMPLEXITY:
-      openh264enc->priv->complexity = (ECOMPLEXITY_MODE) g_value_get_enum (value);
+      openh264enc->complexity = (ECOMPLEXITY_MODE) g_value_get_enum (value);
       break;
 
     default:
@@ -535,63 +503,67 @@ gst_openh264enc_get_property (GObject * object, guint property_id,
 
   switch (property_id) {
     case PROP_USAGE_TYPE:
-      g_value_set_enum (value, openh264enc->priv->usage_type);
+      g_value_set_enum (value, openh264enc->usage_type);
       break;
 
     case PROP_RATE_CONTROL:
-      g_value_set_enum (value, openh264enc->priv->rate_control);
+      g_value_set_enum (value, openh264enc->rate_control);
       break;
 
     case PROP_BITRATE:
-      g_value_set_uint (value, openh264enc->priv->bitrate);
+      g_value_set_uint (value, openh264enc->bitrate);
+      break;
+
+    case PROP_MAX_BITRATE:
+      g_value_set_uint (value, openh264enc->max_bitrate);
       break;
 
     case PROP_ENABLE_DENOISE:
-      g_value_set_boolean (value, openh264enc->priv->enable_denoise);
+      g_value_set_boolean (value, openh264enc->enable_denoise);
       break;
 
     case PROP_ENABLE_FRAME_SKIP:
-      g_value_set_boolean (value, openh264enc->priv->enable_frame_skip);
+      g_value_set_boolean (value, openh264enc->enable_frame_skip);
       break;
 
     case PROP_MULTI_THREAD:
-      g_value_set_uint (value, openh264enc->priv->multi_thread);
+      g_value_set_uint (value, openh264enc->multi_thread);
       break;
 
     case PROP_GOP_SIZE:
-      g_value_set_uint (value, openh264enc->priv->gop_size);
+      g_value_set_uint (value, openh264enc->gop_size);
       break;
 
     case PROP_MAX_SLICE_SIZE:
-      g_value_set_uint (value, openh264enc->priv->max_slice_size);
+      g_value_set_uint (value, openh264enc->max_slice_size);
       break;
 
     case PROP_DEBLOCKING_MODE:
-      g_value_set_enum (value, openh264enc->priv->deblocking_mode);
+      g_value_set_enum (value, openh264enc->deblocking_mode);
       break;
 
     case PROP_BACKGROUND_DETECTION:
-      g_value_set_boolean (value, openh264enc->priv->background_detection);
+      g_value_set_boolean (value, openh264enc->background_detection);
       break;
 
     case PROP_ADAPTIVE_QUANTIZATION:
-      g_value_set_boolean (value, openh264enc->priv->adaptive_quantization);
+      g_value_set_boolean (value, openh264enc->adaptive_quantization);
       break;
 
     case PROP_SCENE_CHANGE_DETECTION:
-      g_value_set_boolean (value, openh264enc->priv->scene_change_detection);
+      g_value_set_boolean (value, openh264enc->scene_change_detection);
       break;
 
     case PROP_SLICE_MODE:
-      g_value_set_enum (value, openh264enc->priv->slice_mode);
+      g_value_set_enum (value, openh264enc->slice_mode);
       break;
 
     case PROP_NUM_SLICES:
-      g_value_set_uint (value, openh264enc->priv->num_slices);
+      g_value_set_uint (value, openh264enc->num_slices);
       break;
 
     case PROP_COMPLEXITY:
-      g_value_set_enum (value, openh264enc->priv->complexity);
+      g_value_set_enum (value, openh264enc->complexity);
       break;
 
     default:
@@ -609,10 +581,10 @@ gst_openh264enc_finalize (GObject * object)
 
   /* clean up object here */
 
-  if (openh264enc->priv->input_state) {
-    gst_video_codec_state_unref (openh264enc->priv->input_state);
+  if (openh264enc->input_state) {
+    gst_video_codec_state_unref (openh264enc->input_state);
   }
-  openh264enc->priv->input_state = NULL;
+  openh264enc->input_state = NULL;
 
   G_OBJECT_CLASS (gst_openh264enc_parent_class)->finalize (object);
 }
@@ -633,17 +605,17 @@ gst_openh264enc_stop (GstVideoEncoder * encoder)
 
   openh264enc = GST_OPENH264ENC (encoder);
 
-  if (openh264enc->priv->encoder != NULL) {
-    openh264enc->priv->encoder->Uninitialize ();
-    WelsDestroySVCEncoder (openh264enc->priv->encoder);
-    openh264enc->priv->encoder = NULL;
+  if (openh264enc->encoder != NULL) {
+    openh264enc->encoder->Uninitialize ();
+    WelsDestroySVCEncoder (openh264enc->encoder);
+    openh264enc->encoder = NULL;
   }
-  openh264enc->priv->encoder = NULL;
+  openh264enc->encoder = NULL;
 
-  if (openh264enc->priv->input_state) {
-    gst_video_codec_state_unref (openh264enc->priv->input_state);
+  if (openh264enc->input_state) {
+    gst_video_codec_state_unref (openh264enc->input_state);
   }
-  openh264enc->priv->input_state = NULL;
+  openh264enc->input_state = NULL;
 
   GST_DEBUG_OBJECT (openh264enc, "openh264_enc_stop called");
 
@@ -656,22 +628,13 @@ gst_openh264enc_set_format (GstVideoEncoder * encoder,
     GstVideoCodecState * state)
 {
   GstOpenh264Enc *openh264enc = GST_OPENH264ENC (encoder);
-  GstOpenh264EncPrivate *priv = openh264enc->priv;
   gchar *debug_caps;
-  SFrameBSInfo bsInfo;
   guint width, height, fps_n, fps_d;
   SEncParamExt enc_params;
   gint ret;
-  guchar *nal_sps_data = NULL;
-  gint nal_sps_length = 0;
-  guchar *nal_pps_data = NULL;
-  gint nal_pps_length = 0;
-  guchar *sps_tmp_buf;
-  guchar *codec_data_tmp_buf;
-  GstBuffer *codec_data;
   GstCaps *outcaps;
   GstVideoCodecState *output_state;
-  openh264enc->priv->frame_count = 0;
+  openh264enc->frame_count = 0;
   int video_format = videoFormatI420;
 
   debug_caps = gst_caps_to_string (state->caps);
@@ -681,125 +644,84 @@ gst_openh264enc_set_format (GstVideoEncoder * encoder,
 
   gst_openh264enc_stop (encoder);
 
-  if (priv->input_state) {
-    gst_video_codec_state_unref (priv->input_state);
+  if (openh264enc->input_state) {
+    gst_video_codec_state_unref (openh264enc->input_state);
   }
-  priv->input_state = gst_video_codec_state_ref (state);
+  openh264enc->input_state = gst_video_codec_state_ref (state);
 
   width = GST_VIDEO_INFO_WIDTH (&state->info);
   height = GST_VIDEO_INFO_HEIGHT (&state->info);
   fps_n = GST_VIDEO_INFO_FPS_N (&state->info);
   fps_d = GST_VIDEO_INFO_FPS_D (&state->info);
 
-  if (priv->encoder != NULL) {
-    priv->encoder->Uninitialize ();
-    WelsDestroySVCEncoder (priv->encoder);
-    priv->encoder = NULL;
+  if (openh264enc->encoder != NULL) {
+    openh264enc->encoder->Uninitialize ();
+    WelsDestroySVCEncoder (openh264enc->encoder);
+    openh264enc->encoder = NULL;
   }
-  WelsCreateSVCEncoder (&(priv->encoder));
+  WelsCreateSVCEncoder (&openh264enc->encoder);
   unsigned int uiTraceLevel = WELS_LOG_ERROR;
-  priv->encoder->SetOption(ENCODER_OPTION_TRACE_LEVEL, &uiTraceLevel);
+  openh264enc->encoder->SetOption (ENCODER_OPTION_TRACE_LEVEL, &uiTraceLevel);
 
-  priv->encoder->GetDefaultParams (&enc_params);
+  openh264enc->encoder->GetDefaultParams (&enc_params);
 
-  enc_params.iUsageType = openh264enc->priv->usage_type;
+  enc_params.iUsageType = openh264enc->usage_type;
   enc_params.iPicWidth = width;
   enc_params.iPicHeight = height;
-  enc_params.iTargetBitrate = openh264enc->priv->bitrate;
-  enc_params.iRCMode = RC_QUALITY_MODE;
+  enc_params.iTargetBitrate = openh264enc->bitrate;
+  enc_params.iMaxBitrate = openh264enc->max_bitrate;
+  enc_params.iRCMode = openh264enc->rate_control;
   enc_params.iTemporalLayerNum = 1;
   enc_params.iSpatialLayerNum = 1;
   enc_params.iLtrMarkPeriod = 30;
-  enc_params.iMultipleThreadIdc = openh264enc->priv->multi_thread;
-  enc_params.bEnableDenoise = openh264enc->priv->enable_denoise;
-  enc_params.iComplexityMode = priv->complexity;
-  enc_params.uiIntraPeriod = priv->gop_size;
-  enc_params.bEnableBackgroundDetection =
-      openh264enc->priv->background_detection;
-  enc_params.bEnableAdaptiveQuant = openh264enc->priv->adaptive_quantization;
-  enc_params.bEnableSceneChangeDetect =
-      openh264enc->priv->scene_change_detection;
-  enc_params.bEnableFrameSkip = openh264enc->priv->enable_frame_skip;
+  enc_params.iMultipleThreadIdc = openh264enc->multi_thread;
+  enc_params.bEnableDenoise = openh264enc->enable_denoise;
+  enc_params.iComplexityMode = openh264enc->complexity;
+  enc_params.uiIntraPeriod = openh264enc->gop_size;
+  enc_params.bEnableBackgroundDetection = openh264enc->background_detection;
+  enc_params.bEnableAdaptiveQuant = openh264enc->adaptive_quantization;
+  enc_params.bEnableSceneChangeDetect = openh264enc->scene_change_detection;
+  enc_params.bEnableFrameSkip = openh264enc->enable_frame_skip;
   enc_params.bEnableLongTermReference = 0;
 #if OPENH264_MINOR >= 4
   enc_params.eSpsPpsIdStrategy = CONSTANT_ID;
 #else
-  enc_params.bEnableSpsPpsIdAddition = 1;
+  enc_params.bEnableSpsPpsIdAddition = 0;
 #endif
   enc_params.bPrefixNalAddingCtrl = 0;
   enc_params.fMaxFrameRate = fps_n * 1.0 / fps_d;
-  enc_params.iLoopFilterDisableIdc = openh264enc->priv->deblocking_mode;
+  enc_params.iLoopFilterDisableIdc = openh264enc->deblocking_mode;
   enc_params.sSpatialLayers[0].uiProfileIdc = PRO_BASELINE;
-  enc_params.sSpatialLayers[0].iVideoWidth = width;
-  enc_params.sSpatialLayers[0].iVideoHeight = height;
+  enc_params.sSpatialLayers[0].iVideoWidth = enc_params.iPicWidth;
+  enc_params.sSpatialLayers[0].iVideoHeight = enc_params.iPicHeight;
   enc_params.sSpatialLayers[0].fFrameRate = fps_n * 1.0 / fps_d;
-  enc_params.sSpatialLayers[0].iSpatialBitrate = openh264enc->priv->bitrate;
-  enc_params.sSpatialLayers[0].sSliceCfg.uiSliceMode =
-      openh264enc->priv->slice_mode;
-  enc_params.sSpatialLayers[0].sSliceCfg.sSliceArgument.uiSliceNum =
-      openh264enc->priv->num_slices;
+  enc_params.sSpatialLayers[0].iSpatialBitrate = enc_params.iTargetBitrate;
+  enc_params.sSpatialLayers[0].iMaxSpatialBitrate = enc_params.iMaxBitrate;
 
-  priv->framerate = (1 + fps_n / fps_d);
+  if (openh264enc->slice_mode == SM_FIXEDSLCNUM_SLICE) {
+    if (openh264enc->num_slices == 1)
+      enc_params.sSpatialLayers[0].sSliceCfg.uiSliceMode = SM_SINGLE_SLICE;
+    else
+      enc_params.sSpatialLayers[0].sSliceCfg.uiSliceMode = SM_FIXEDSLCNUM_SLICE;
+    enc_params.sSpatialLayers[0].sSliceCfg.sSliceArgument.uiSliceNum = openh264enc->num_slices;
+  } else {
+    enc_params.sSpatialLayers[0].sSliceCfg.uiSliceMode = openh264enc->slice_mode;
+  }
 
-  ret = priv->encoder->InitializeExt (&enc_params);
+  openh264enc->framerate = (1 + fps_n / fps_d);
+
+  ret = openh264enc->encoder->InitializeExt (&enc_params);
 
   if (ret != cmResultSuccess) {
     GST_ERROR_OBJECT (openh264enc, "failed to initialize encoder");
     return FALSE;
   }
 
-  priv->encoder->SetOption(ENCODER_OPTION_DATAFORMAT, &video_format);
-
-  memset (&bsInfo, 0, sizeof (SFrameBSInfo));
-
-  ret = priv->encoder->EncodeParameterSets (&bsInfo);
-
-  nal_sps_data = bsInfo.sLayerInfo[0].pBsBuf + 4;
-  nal_sps_length = bsInfo.sLayerInfo[0].pNalLengthInByte[0] - 4;
-
-  nal_pps_data = bsInfo.sLayerInfo[0].pBsBuf + nal_sps_length + 8;
-  nal_pps_length = bsInfo.sLayerInfo[0].pNalLengthInByte[1] - 4;
-
-  if (ret != cmResultSuccess) {
-    GST_ELEMENT_ERROR (openh264enc, STREAM, ENCODE,
-        ("Could not create headers"), ("Could not create SPS"));
-    return FALSE;
-  }
-
-  sps_tmp_buf = (guchar *) (g_memdup (nal_sps_data, nal_sps_length));
-
-  codec_data_tmp_buf =
-      (guchar *) g_malloc (5 + 3 + nal_sps_length + 3 + nal_pps_length);
-  codec_data_tmp_buf[0] = 1; /* version 1 */ ;
-  codec_data_tmp_buf[1] = sps_tmp_buf[1];       /* profile */
-  codec_data_tmp_buf[2] = sps_tmp_buf[2];       /* profile constraints */
-  codec_data_tmp_buf[3] = sps_tmp_buf[3];       /* level */
-  codec_data_tmp_buf[4] = 1;    /* NAL length marker length minus one */
-  codec_data_tmp_buf[5] = 1;    /* Number of SPS */
-  GST_WRITE_UINT16_BE (codec_data_tmp_buf + 6, nal_sps_length);
-  memcpy (codec_data_tmp_buf + 8, sps_tmp_buf, nal_sps_length);
-
-  g_free (sps_tmp_buf);
-
-  codec_data_tmp_buf[8 + nal_sps_length] = 1;   /* Number of PPS */
-  GST_WRITE_UINT16_BE (codec_data_tmp_buf + 8 + nal_sps_length + 1,
-      nal_pps_length);
-  memcpy (codec_data_tmp_buf + 8 + nal_sps_length + 3, nal_pps_data,
-      nal_pps_length);
-
-  GST_DEBUG_OBJECT (openh264enc, "Got SPS of size %d and PPS of size %d",
-      nal_sps_length, nal_pps_length);
-
-  codec_data =
-      gst_buffer_new_wrapped (codec_data_tmp_buf,
-      5 + 3 + nal_sps_length + 3 + nal_pps_length);
+  openh264enc->encoder->SetOption (ENCODER_OPTION_DATAFORMAT, &video_format);
 
   outcaps =
       gst_caps_copy (gst_static_pad_template_get_caps
       (&gst_openh264enc_src_template));
-  gst_caps_set_simple (outcaps, "codec_data", GST_TYPE_BUFFER, codec_data,
-      NULL);
-  gst_buffer_unref (codec_data);
 
   output_state = gst_video_encoder_set_output_state (encoder, outcaps, state);
   gst_video_codec_state_unref (output_state);
@@ -828,7 +750,9 @@ gst_openh264enc_handle_frame (GstVideoEncoder * encoder,
   gint ret;
   SFrameBSInfo frame_info;
   gfloat fps;
-  GstVideoEncoder *base_encoder = GST_VIDEO_ENCODER (openh264enc);
+  GstMapInfo map;
+  gint i, j;
+  gsize buf_length = 0;
 
   if (frame) {
     src_pic = new SSourcePicture;
@@ -840,38 +764,28 @@ gst_openh264enc_handle_frame (GstVideoEncoder * encoder,
     }
     //fill default src_pic
     src_pic->iColorFormat = videoFormatI420;
-    src_pic->uiTimeStamp = 0;
+    src_pic->uiTimeStamp = frame->pts / GST_MSECOND;
   }
 
-  openh264enc->priv->frame_count++;
+  openh264enc->frame_count++;
   if (frame) {
-    if (G_UNLIKELY (openh264enc->priv->frame_count == 1)) {
-      openh264enc->priv->time_per_frame =
-          (GST_NSECOND / openh264enc->priv->framerate);
-      openh264enc->priv->previous_timestamp = frame->pts;
+    if (G_UNLIKELY (openh264enc->frame_count == 1)) {
+      openh264enc->time_per_frame = (GST_SECOND / openh264enc->framerate);
+      openh264enc->previous_timestamp = frame->pts;
     } else {
-      openh264enc->priv->time_per_frame =
-          openh264enc->priv->time_per_frame * 0.8 + (frame->pts -
-          openh264enc->priv->previous_timestamp) * 0.2;
-      openh264enc->priv->previous_timestamp = frame->pts;
-      if (openh264enc->priv->frame_count % 10 == 0) {
-        fps = GST_SECOND / (gdouble) openh264enc->priv->time_per_frame;
-        openh264enc->priv->encoder->SetOption (ENCODER_OPTION_FRAME_RATE, &fps);
+      openh264enc->time_per_frame =
+          openh264enc->time_per_frame * 0.8 + (frame->pts -
+          openh264enc->previous_timestamp) * 0.2;
+      openh264enc->previous_timestamp = frame->pts;
+      if (openh264enc->frame_count % 10 == 0) {
+        fps = GST_SECOND / (gdouble) openh264enc->time_per_frame;
+        openh264enc->encoder->SetOption (ENCODER_OPTION_FRAME_RATE, &fps);
       }
     }
   }
 
-  if (openh264enc->priv->bitrate <= openh264enc->priv->drop_bitrate) {
-    GST_LOG_OBJECT (openh264enc, "Dropped frame due to too low bitrate");
-    if (frame) {
-      gst_video_encoder_finish_frame (encoder, frame);
-      delete src_pic;
-    }
-    return GST_FLOW_OK;
-  }
-
   if (frame) {
-    gst_video_frame_map (&video_frame, &openh264enc->priv->input_state->info,
+    gst_video_frame_map (&video_frame, &openh264enc->input_state->info,
         frame->input_buffer, GST_MAP_READ);
     src_pic->iPicWidth = GST_VIDEO_FRAME_WIDTH (&video_frame);
     src_pic->iPicHeight = GST_VIDEO_FRAME_HEIGHT (&video_frame);
@@ -884,14 +798,14 @@ gst_openh264enc_handle_frame (GstVideoEncoder * encoder,
 
     force_keyframe = GST_VIDEO_CODEC_FRAME_IS_FORCE_KEYFRAME (frame);
     if (force_keyframe) {
-      openh264enc->priv->encoder->ForceIntraFrame (true);
+      openh264enc->encoder->ForceIntraFrame (true);
       GST_DEBUG_OBJECT (openh264enc,
           "Got force key unit event, next frame coded as intra picture");
     }
   }
 
   memset (&frame_info, 0, sizeof (SFrameBSInfo));
-  ret = openh264enc->priv->encoder->EncodeFrame (src_pic, &frame_info);
+  ret = openh264enc->encoder->EncodeFrame (src_pic, &frame_info);
   if (ret != cmResultSuccess) {
     if (frame) {
       gst_video_frame_unmap (&video_frame);
@@ -908,7 +822,7 @@ gst_openh264enc_handle_frame (GstVideoEncoder * encoder,
   if (videoFrameTypeSkip == frame_info.eFrameType) {
     if (frame) {
       gst_video_frame_unmap (&video_frame);
-      gst_video_encoder_finish_frame (base_encoder, frame);
+      gst_video_encoder_finish_frame (encoder, frame);
       delete src_pic;
     }
 
@@ -926,7 +840,7 @@ gst_openh264enc_handle_frame (GstVideoEncoder * encoder,
   /* FIXME: openh264 has no way for us to get a connection
    * between the input and output frames, we just have to
    * guess based on the input */
-  frame = gst_video_encoder_get_oldest_frame (base_encoder);
+  frame = gst_video_encoder_get_oldest_frame (encoder);
   if (!frame) {
     GST_ELEMENT_ERROR (openh264enc, STREAM, ENCODE,
         ("Could not encode frame"), ("openh264enc returned %d", ret));
@@ -934,58 +848,33 @@ gst_openh264enc_handle_frame (GstVideoEncoder * encoder,
     return GST_FLOW_ERROR;
   }
 
-  SLayerBSInfo *bs_info = &frame_info.sLayerInfo[0];
-  gint nal_size = bs_info->pNalLengthInByte[0] - 4;
-  guchar *nal_sps_data, *nal_pps_data;
-  gint nal_sps_length, nal_pps_length, idr_length, tmp_buf_length;
-
   if (videoFrameTypeIDR == frame_info.eFrameType) {
-    GstMapInfo map;
-
-    /* sps */
-    nal_sps_data = frame_info.sLayerInfo[0].pBsBuf + 4;
-    nal_sps_length = frame_info.sLayerInfo[0].pNalLengthInByte[0] - 4;
-    /* pps */
-    nal_pps_data = nal_sps_data + frame_info.sLayerInfo[0].pNalLengthInByte[0];
-    nal_pps_length = frame_info.sLayerInfo[0].pNalLengthInByte[1] - 4;
-    /* idr */
-    bs_info = &frame_info.sLayerInfo[1];
-    idr_length = bs_info->pNalLengthInByte[0] - 4;
-
-    tmp_buf_length = nal_sps_length + 2 + nal_pps_length + 2 + idr_length + 2;
-    frame->output_buffer =
-        gst_video_encoder_allocate_output_buffer (encoder, tmp_buf_length);
-    gst_buffer_map (frame->output_buffer, &map, GST_MAP_WRITE);
-
-    GST_WRITE_UINT16_BE (map.data, nal_sps_length);
-    memcpy (map.data + 2, nal_sps_data, nal_sps_length);
-
-    GST_WRITE_UINT16_BE (map.data + nal_sps_length + 2, nal_pps_length);
-    memcpy (map.data + nal_sps_length + 2 + 2, nal_pps_data, nal_pps_length);
-
-    GST_WRITE_UINT16_BE (map.data + nal_sps_length + 2 + nal_pps_length + 2,
-        idr_length);
-    memcpy (map.data + nal_sps_length + 2 + nal_pps_length + 2 + 2,
-        bs_info->pBsBuf + 4, idr_length);
-
-    gst_buffer_unmap (frame->output_buffer, &map);
-
     GST_VIDEO_CODEC_FRAME_SET_SYNC_POINT (frame);
   } else {
-    GstMapInfo map;
-
-    tmp_buf_length = nal_size + 2;
-    frame->output_buffer =
-        gst_video_encoder_allocate_output_buffer (encoder, tmp_buf_length);
-    gst_buffer_map (frame->output_buffer, &map, GST_MAP_WRITE);
-
-    GST_WRITE_UINT16_BE (map.data, nal_size);
-    memcpy (map.data + 2, bs_info->pBsBuf + 4, nal_size);
-
-    gst_buffer_unmap (frame->output_buffer, &map);
-
     GST_VIDEO_CODEC_FRAME_UNSET_SYNC_POINT (frame);
   }
+
+  for (i = 0; i < frame_info.iLayerNum; i++) {
+    for (j = 0; j < frame_info.sLayerInfo[i].iNalCount; j++) {
+      buf_length += frame_info.sLayerInfo[i].pNalLengthInByte[j];
+    }
+  }
+
+  frame->output_buffer =
+      gst_video_encoder_allocate_output_buffer (encoder, buf_length);
+  gst_buffer_map (frame->output_buffer, &map, GST_MAP_WRITE);
+
+  buf_length = 0;
+  for (i = 0; i < frame_info.iLayerNum; i++) {
+    gsize layer_size = 0;
+    for (j = 0; j < frame_info.sLayerInfo[i].iNalCount; j++) {
+      layer_size += frame_info.sLayerInfo[i].pNalLengthInByte[j];
+    }
+    memcpy (map.data + buf_length, frame_info.sLayerInfo[i].pBsBuf, layer_size);
+    buf_length += layer_size;
+  }
+
+  gst_buffer_unmap (frame->output_buffer, &map);
 
   GST_LOG_OBJECT (openh264enc, "openh264 picture %scoded OK!",
       (ret != cmResultSuccess) ? "NOT " : "");
@@ -998,7 +887,7 @@ gst_openh264enc_finish (GstVideoEncoder * encoder)
 {
   GstOpenh264Enc *openh264enc = GST_OPENH264ENC (encoder);
 
-  if (openh264enc->priv->frame_count == 0)
+  if (openh264enc->frame_count == 0)
     return GST_FLOW_OK;
 
   /* Drain encoder */

@@ -94,10 +94,6 @@
 #include "gstglimagesink.h"
 #include "gstglsinkbin.h"
 
-#if GST_GL_HAVE_PLATFORM_EGL
-#include <gst/gl/egl/gsteglimagememory.h>
-#endif
-
 #include <gst/gl/gstglviewconvert.h>
 
 GST_DEBUG_CATEGORY (gst_debug_glimage_sink);
@@ -120,6 +116,7 @@ G_DEFINE_TYPE (GstGLImageSinkBin, gst_gl_image_sink_bin, GST_TYPE_GL_SINK_BIN);
 enum
 {
   PROP_BIN_0,
+  PROP_BIN_ROTATE_METHOD,
   PROP_BIN_FORCE_ASPECT_RATIO,
   PROP_BIN_PIXEL_ASPECT_RATIO,
   PROP_BIN_HANDLE_EVENTS,
@@ -181,6 +178,39 @@ _on_client_draw (GstGLImageSink * sink, GstGLContext * context,
   return ret;
 }
 
+#define DEFAULT_ROTATE_METHOD GST_GL_ROTATE_METHOD_IDENTITY
+
+#define GST_TYPE_GL_ROTATE_METHOD (gst_gl_rotate_method_get_type())
+
+static const GEnumValue rotate_methods[] = {
+  {GST_GL_ROTATE_METHOD_IDENTITY, "Identity (no rotation)", "none"},
+  {GST_GL_ROTATE_METHOD_90R, "Rotate clockwise 90 degrees", "clockwise"},
+  {GST_GL_ROTATE_METHOD_180, "Rotate 180 degrees", "rotate-180"},
+  {GST_GL_ROTATE_METHOD_90L, "Rotate counter-clockwise 90 degrees",
+      "counterclockwise"},
+  {GST_GL_ROTATE_METHOD_FLIP_HORIZ, "Flip horizontally", "horizontal-flip"},
+  {GST_GL_ROTATE_METHOD_FLIP_VERT, "Flip vertically", "vertical-flip"},
+  {GST_GL_ROTATE_METHOD_FLIP_UL_LR,
+      "Flip across upper left/lower right diagonal", "upper-left-diagonal"},
+  {GST_GL_ROTATE_METHOD_FLIP_UR_LL,
+      "Flip across upper right/lower left diagonal", "upper-right-diagonal"},
+  {GST_GL_ROTATE_METHOD_AUTO,
+      "Select rotate method based on image-orientation tag", "automatic"},
+  {0, NULL, NULL},
+};
+
+static GType
+gst_gl_rotate_method_get_type (void)
+{
+  static GType rotate_method_type = 0;
+
+  if (!rotate_method_type) {
+    rotate_method_type = g_enum_register_static ("GstGLRotateMethod",
+        rotate_methods);
+  }
+  return rotate_method_type;
+}
+
 static void
 gst_gl_image_sink_bin_init (GstGLImageSinkBin * self)
 {
@@ -203,6 +233,12 @@ gst_gl_image_sink_bin_class_init (GstGLImageSinkBinClass * klass)
   gobject_class->set_property = gst_gl_image_sink_bin_set_property;
 
   /* gl sink */
+  g_object_class_install_property (gobject_class, PROP_BIN_ROTATE_METHOD,
+      g_param_spec_enum ("rotate-method",
+          "rotate method",
+          "rotate method",
+          GST_TYPE_GL_ROTATE_METHOD, DEFAULT_ROTATE_METHOD,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
   g_object_class_install_property (gobject_class, PROP_BIN_FORCE_ASPECT_RATIO,
       g_param_spec_boolean ("force-aspect-ratio",
           "Force aspect ratio",
@@ -291,6 +327,7 @@ static void gst_glimage_sink_set_property (GObject * object, guint prop_id,
 static void gst_glimage_sink_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * param_spec);
 
+static gboolean gst_glimage_sink_event (GstBaseSink * sink, GstEvent * event);
 static gboolean gst_glimage_sink_query (GstBaseSink * bsink, GstQuery * query);
 static void gst_glimage_sink_set_context (GstElement * element,
     GstContext * context);
@@ -347,6 +384,7 @@ enum
 {
   ARG_0,
   ARG_DISPLAY,
+  PROP_ROTATE_METHOD,
   PROP_FORCE_ASPECT_RATIO,
   PROP_PIXEL_ASPECT_RATIO,
   PROP_CONTEXT,
@@ -402,6 +440,126 @@ _display_size_to_stream_size (GstGLImageSink * gl_sink, gdouble x,
     *stream_y = GST_VIDEO_INFO_HEIGHT (&gl_sink->out_info);
 
   GST_TRACE ("transform %fx%f into %fx%f", x, y, *stream_x, *stream_y);
+}
+
+/* rotate 90 */
+static const gfloat clockwise_matrix[] = {
+  0.0f, -1.0f, 0.0f, 0.0f,
+  1.0f, 0.0f, 0.0f, 0.0f,
+  0.0f, 0.0f, 1.0f, 0.0f,
+  0.0f, 0.0f, 0.0f, 1.0f,
+};
+
+/* rotate 180 */
+static const gfloat clockwise_180_matrix[] = {
+  -1.0f, 0.0f, 0.0f, 0.0f,
+  0.0f, -1.0f, 0.0f, 0.0f,
+  0.0f, 0.0f, 1.0f, 0.0f,
+  0.0f, 0.0f, 0.0f, 1.0f,
+};
+
+/* rotate 270 */
+static const gfloat counterclockwise_matrix[] = {
+  0.0f, 1.0f, 0.0f, 0.0f,
+  -1.0f, 0.0f, 0.0f, 0.0f,
+  0.0f, 0.0f, 1.0f, 0.0f,
+  0.0f, 0.0f, 0.0f, 1.0f,
+};
+
+/* horizontal-flip */
+static const gfloat horizontal_flip_matrix[] = {
+  1.0f, 0.0f, 0.0f, 0.0f,
+  0.0f, -1.0f, 0.0f, 0.0f,
+  0.0f, 0.0f, 1.0f, 0.0f,
+  0.0f, 0.0f, 0.0f, 1.0f,
+};
+
+/* vertical-flip */
+static const gfloat vertical_flip_matrix[] = {
+  -1.0f, 0.0f, 0.0f, 0.0f,
+  0.0f, 1.0f, 0.0f, 0.0f,
+  0.0f, 0.0f, 1.0f, 0.0f,
+  0.0f, 0.0f, 0.0f, 1.0f,
+};
+
+/* upper-left-diagonal */
+static const gfloat upper_left_matrix[] = {
+  0.0f, 1.0f, 0.0f, 0.0f,
+  1.0f, 0.0f, 0.0f, 0.0f,
+  0.0f, 0.0f, 1.0f, 0.0f,
+  0.0f, 0.0f, 0.0f, 1.0f,
+};
+
+/* upper-right-diagonal */
+static const gfloat upper_right_matrix[] = {
+  0.0f, -1.0f, 0.0f, 0.0f,
+  -1.0f, 0.0f, 0.0f, 0.0f,
+  0.0f, 0.0f, 1.0f, 0.0f,
+  0.0f, 0.0f, 0.0f, 1.0f,
+};
+
+static void
+gst_glimage_sink_set_rotate_method (GstGLImageSink * gl_sink,
+    GstGLRotateMethod method, gboolean from_tag)
+{
+  GstGLRotateMethod tag_method = DEFAULT_ROTATE_METHOD;
+  GST_GLIMAGE_SINK_LOCK (gl_sink);
+  if (from_tag)
+    tag_method = method;
+  else
+    gl_sink->rotate_method = method;
+
+  if (gl_sink->rotate_method == GST_GL_ROTATE_METHOD_AUTO)
+    method = tag_method;
+  else
+    method = gl_sink->rotate_method;
+
+  if (method != gl_sink->current_rotate_method) {
+    GST_DEBUG_OBJECT (gl_sink, "Changing method from %s to %s",
+        rotate_methods[gl_sink->current_rotate_method].value_nick,
+        rotate_methods[method].value_nick);
+
+    switch (method) {
+      case GST_GL_ROTATE_METHOD_IDENTITY:
+        gl_sink->transform_matrix = NULL;
+        gl_sink->output_mode_changed = TRUE;
+        break;
+      case GST_GL_ROTATE_METHOD_90R:
+        gl_sink->transform_matrix = clockwise_matrix;
+        gl_sink->output_mode_changed = TRUE;
+        break;
+      case GST_GL_ROTATE_METHOD_180:
+        gl_sink->transform_matrix = clockwise_180_matrix;
+        gl_sink->output_mode_changed = TRUE;
+        break;
+      case GST_GL_ROTATE_METHOD_90L:
+        gl_sink->transform_matrix = counterclockwise_matrix;
+        gl_sink->output_mode_changed = TRUE;
+        break;
+      case GST_GL_ROTATE_METHOD_FLIP_HORIZ:
+        gl_sink->transform_matrix = horizontal_flip_matrix;
+        gl_sink->output_mode_changed = TRUE;
+        break;
+      case GST_GL_ROTATE_METHOD_FLIP_VERT:
+        gl_sink->transform_matrix = vertical_flip_matrix;
+        gl_sink->output_mode_changed = TRUE;
+        break;
+      case GST_GL_ROTATE_METHOD_FLIP_UL_LR:
+        gl_sink->transform_matrix = upper_left_matrix;
+        gl_sink->output_mode_changed = TRUE;
+        break;
+      case GST_GL_ROTATE_METHOD_FLIP_UR_LL:
+        gl_sink->transform_matrix = upper_right_matrix;
+        gl_sink->output_mode_changed = TRUE;
+        break;
+      default:
+        g_assert_not_reached ();
+        break;
+    }
+
+    gl_sink->current_rotate_method = method;
+  }
+  GST_GLIMAGE_SINK_UNLOCK (gl_sink);
 }
 
 static void
@@ -484,6 +642,13 @@ gst_glimage_sink_class_init (GstGLImageSinkClass * klass)
 
   gobject_class->set_property = gst_glimage_sink_set_property;
   gobject_class->get_property = gst_glimage_sink_get_property;
+
+  g_object_class_install_property (gobject_class, PROP_ROTATE_METHOD,
+      g_param_spec_enum ("rotate-method",
+          "rotate method",
+          "rotate method",
+          GST_TYPE_GL_ROTATE_METHOD, DEFAULT_ROTATE_METHOD,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_FORCE_ASPECT_RATIO,
       g_param_spec_boolean ("force-aspect-ratio", "Force aspect ratio",
@@ -570,13 +735,14 @@ gst_glimage_sink_class_init (GstGLImageSinkClass * klass)
       G_SIGNAL_RUN_LAST, 0, NULL, NULL, g_cclosure_marshal_generic,
       G_TYPE_BOOLEAN, 3, GST_GL_TYPE_CONTEXT, G_TYPE_UINT, G_TYPE_UINT);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_glimage_sink_template));
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_glimage_sink_template);
 
   gobject_class->finalize = gst_glimage_sink_finalize;
 
   gstelement_class->change_state = gst_glimage_sink_change_state;
   gstelement_class->set_context = gst_glimage_sink_set_context;
+  gstbasesink_class->event = gst_glimage_sink_event;
   gstbasesink_class->query = GST_DEBUG_FUNCPTR (gst_glimage_sink_query);
   gstbasesink_class->set_caps = gst_glimage_sink_set_caps;
   gstbasesink_class->get_caps = gst_glimage_sink_get_caps;
@@ -606,6 +772,9 @@ gst_glimage_sink_init (GstGLImageSink * glimage_sink)
   glimage_sink->mview_output_flags = DEFAULT_MULTIVIEW_FLAGS;
   glimage_sink->mview_downmix_mode = DEFAULT_MULTIVIEW_DOWNMIX;
 
+  glimage_sink->current_rotate_method = DEFAULT_ROTATE_METHOD;
+  glimage_sink->transform_matrix = NULL;
+
   g_mutex_init (&glimage_sink->drawing_lock);
 }
 
@@ -620,6 +789,10 @@ gst_glimage_sink_set_property (GObject * object, guint prop_id,
   glimage_sink = GST_GLIMAGE_SINK (object);
 
   switch (prop_id) {
+    case PROP_ROTATE_METHOD:
+      gst_glimage_sink_set_rotate_method (glimage_sink,
+          g_value_get_enum (value), FALSE);
+      break;
     case PROP_FORCE_ASPECT_RATIO:
     {
       glimage_sink->keep_aspect_ratio = g_value_get_boolean (value);
@@ -687,6 +860,9 @@ gst_glimage_sink_get_property (GObject * object, guint prop_id,
   glimage_sink = GST_GLIMAGE_SINK (object);
 
   switch (prop_id) {
+    case PROP_ROTATE_METHOD:
+      g_value_set_enum (value, glimage_sink->current_rotate_method);
+      break;
     case PROP_FORCE_ASPECT_RATIO:
       g_value_set_boolean (value, glimage_sink->keep_aspect_ratio);
       break;
@@ -841,6 +1017,58 @@ context_error:
 
     return FALSE;
   }
+}
+
+static gboolean
+gst_glimage_sink_event (GstBaseSink * sink, GstEvent * event)
+{
+  GstGLImageSink *gl_sink = GST_GLIMAGE_SINK (sink);
+  GstTagList *taglist;
+  gchar *orientation;
+  gboolean ret;
+
+  GST_DEBUG_OBJECT (gl_sink, "handling %s event", GST_EVENT_TYPE_NAME (event));
+
+  switch (GST_EVENT_TYPE (event)) {
+    case GST_EVENT_TAG:
+      gst_event_parse_tag (event, &taglist);
+
+      if (gst_tag_list_get_string (taglist, "image-orientation", &orientation)) {
+        if (!g_strcmp0 ("rotate-0", orientation))
+          gst_glimage_sink_set_rotate_method (gl_sink,
+              GST_GL_ROTATE_METHOD_IDENTITY, TRUE);
+        else if (!g_strcmp0 ("rotate-90", orientation))
+          gst_glimage_sink_set_rotate_method (gl_sink, GST_GL_ROTATE_METHOD_90R,
+              TRUE);
+        else if (!g_strcmp0 ("rotate-180", orientation))
+          gst_glimage_sink_set_rotate_method (gl_sink, GST_GL_ROTATE_METHOD_180,
+              TRUE);
+        else if (!g_strcmp0 ("rotate-270", orientation))
+          gst_glimage_sink_set_rotate_method (gl_sink, GST_GL_ROTATE_METHOD_90L,
+              TRUE);
+        else if (!g_strcmp0 ("flip-rotate-0", orientation))
+          gst_glimage_sink_set_rotate_method (gl_sink,
+              GST_GL_ROTATE_METHOD_FLIP_HORIZ, TRUE);
+        else if (!g_strcmp0 ("flip-rotate-90", orientation))
+          gst_glimage_sink_set_rotate_method (gl_sink,
+              GST_GL_ROTATE_METHOD_FLIP_UR_LL, TRUE);
+        else if (!g_strcmp0 ("flip-rotate-180", orientation))
+          gst_glimage_sink_set_rotate_method (gl_sink,
+              GST_GL_ROTATE_METHOD_FLIP_VERT, TRUE);
+        else if (!g_strcmp0 ("flip-rotate-270", orientation))
+          gst_glimage_sink_set_rotate_method (gl_sink,
+              GST_GL_ROTATE_METHOD_FLIP_UL_LR, TRUE);
+
+        g_free (orientation);
+      }
+      break;
+    default:
+      break;
+  }
+
+  ret = GST_BASE_SINK_CLASS (parent_class)->event (sink, event);
+
+  return ret;
 }
 
 static gboolean
@@ -1702,6 +1930,8 @@ gst_glimage_sink_propose_allocation (GstBaseSink * bsink, GstQuery * query)
 
   gst_query_add_allocation_meta (query,
       GST_VIDEO_OVERLAY_COMPOSITION_META_API_TYPE, allocation_meta);
+  gst_query_add_allocation_meta (query,
+      GST_VIDEO_AFFINE_TRANSFORMATION_META_API_TYPE, 0);
 
   if (allocation_meta)
     gst_structure_free (allocation_meta);
@@ -1777,17 +2007,16 @@ gst_glimage_sink_thread_init_redisplay (GstGLImageSink * gl_sink)
   GError *error = NULL;
   GstGLSLStage *frag_stage, *vert_stage;
 
+  vert_stage = gst_glsl_stage_new_with_string (gl_sink->context,
+      GL_VERTEX_SHADER, GST_GLSL_VERSION_NONE,
+      GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+      gst_gl_shader_string_vertex_mat4_vertex_transform);
   if (gl_sink->texture_target == GST_GL_TEXTURE_TARGET_EXTERNAL_OES) {
-    vert_stage = gst_glsl_stage_new_with_string (gl_sink->context,
-        GL_VERTEX_SHADER, GST_GLSL_VERSION_NONE,
-        GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
-        gst_gl_shader_string_vertex_mat4_texture_transform);
     frag_stage = gst_glsl_stage_new_with_string (gl_sink->context,
         GL_FRAGMENT_SHADER, GST_GLSL_VERSION_NONE,
         GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
         gst_gl_shader_string_fragment_external_oes_default);
   } else {
-    vert_stage = gst_glsl_stage_new_default_vertex (gl_sink->context);
     frag_stage = gst_glsl_stage_new_default_fragment (gl_sink->context);
   }
   if (!vert_stage || !frag_stage) {
@@ -1913,8 +2142,17 @@ gst_glimage_sink_on_resize (GstGLImageSink * gl_sink, gint width, gint height)
 
       src.x = 0;
       src.y = 0;
-      src.w = GST_VIDEO_SINK_WIDTH (gl_sink);
-      src.h = GST_VIDEO_SINK_HEIGHT (gl_sink);
+      if (gl_sink->current_rotate_method == GST_GL_ROTATE_METHOD_90R
+          || gl_sink->current_rotate_method == GST_GL_ROTATE_METHOD_90L
+          || gl_sink->current_rotate_method == GST_GL_ROTATE_METHOD_FLIP_UL_LR
+          || gl_sink->current_rotate_method ==
+          GST_GL_ROTATE_METHOD_FLIP_UR_LL) {
+        src.h = GST_VIDEO_SINK_WIDTH (gl_sink);
+        src.w = GST_VIDEO_SINK_HEIGHT (gl_sink);
+      } else {
+        src.w = GST_VIDEO_SINK_WIDTH (gl_sink);
+        src.h = GST_VIDEO_SINK_HEIGHT (gl_sink);
+      }
 
       dst.x = 0;
       dst.y = 0;
@@ -1943,13 +2181,6 @@ gst_glimage_sink_on_resize (GstGLImageSink * gl_sink, gint width, gint height)
   }
   GST_GLIMAGE_SINK_UNLOCK (gl_sink);
 }
-
-static const gfloat identity_matrix[] = {
-  1.0f, 0.0f, 0.0, 0.0f,
-  0.0f, 1.0f, 0.0, 0.0f,
-  0.0f, 0.0f, 1.0, 0.0f,
-  0.0f, 0.0f, 0.0, 1.0f,
-};
 
 static void
 gst_glimage_sink_on_draw (GstGLImageSink * gl_sink)
@@ -2031,18 +2262,21 @@ gst_glimage_sink_on_draw (GstGLImageSink * gl_sink)
     gl->ActiveTexture (GL_TEXTURE0);
     gl->BindTexture (gl_target, gl_sink->redisplay_texture);
     gst_gl_shader_set_uniform_1i (gl_sink->redisplay_shader, "tex", 0);
-    if (gl_sink->texture_target == GST_GL_TEXTURE_TARGET_EXTERNAL_OES) {
+    {
       GstVideoAffineTransformationMeta *af_meta;
+      gfloat matrix[16];
 
       af_meta =
           gst_buffer_get_video_affine_transformation_meta
           (gl_sink->stored_buffer[0]);
-      if (af_meta)
-        gst_gl_shader_set_uniform_matrix_4fv (gl_sink->redisplay_shader,
-            "u_transformation", 1, FALSE, af_meta->matrix);
-      else
-        gst_gl_shader_set_uniform_matrix_4fv (gl_sink->redisplay_shader,
-            "u_transformation", 1, FALSE, identity_matrix);
+
+      gst_gl_get_affine_transformation_meta_as_ndc (af_meta, matrix);
+
+      if (gl_sink->transform_matrix)
+        gst_gl_multiply_matrix4 (gl_sink->transform_matrix, matrix, matrix);
+
+      gst_gl_shader_set_uniform_matrix_4fv (gl_sink->redisplay_shader,
+          "u_transformation", 1, FALSE, matrix);
     }
 
     gl->DrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);

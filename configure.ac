@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.8.2],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.9.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 802, 0, 802)
+AS_LIBTOOL(GST, 901, 0, 901)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.8.0
-GSTPB_REQ=1.8.0
+GST_REQ=1.9.1
+GSTPB_REQ=1.9.1
 
 dnl *** autotools stuff ****
 
@@ -396,6 +396,12 @@ fi
 AC_SUBST(GST_PLUGIN_LIBTOOLFLAGS)
 AM_CONDITIONAL(GST_PLUGIN_BUILD_STATIC, test "x$enable_static_plugins" = "xyes")
 
+dnl If only building static libraries, define GST_STATIC_COMPILATION. This is
+dnl needed only on Windows, but it doesn't hurt to have it everywhere.
+if test x$enable_static = xyes -a x$enable_shared = xno; then
+  GST_STATIC_CFLAGS="-DGST_STATIC_COMPILATION"
+fi
+
 AC_ARG_WITH([player-tests],
   AS_HELP_STRING([--with-player-tests],[Enable GstPlayer tests that need network access (default: no)]))
 if test x$with_player_tests = xyes; then
@@ -450,10 +456,11 @@ GST_PLUGINS_NONPORTED=" cdxaparse \
  sdi tta \
  videomeasure \
  linsys \
- apexsink dc1394 \
- musepack nas sdl timidity \
+ apexsink \
+ nas sdl timidity \
  wininet \
- xvid lv2 sndio libvisual"
+ xvid sndio libvisual"
+
 AC_SUBST(GST_PLUGINS_NONPORTED)
 
 dnl these are all the gst plug-ins, compilable without additional libs
@@ -681,6 +688,7 @@ save_LIBS="$LIBS"
 
 HAVE_GL=no
 HAVE_GLES2=no
+HAVE_GLES3_H=no
 HAVE_WAYLAND_EGL=no
 
 HAVE_EGL_RPI=no
@@ -707,6 +715,7 @@ case $host in
       if test "x$HAVE_GLES2" != "xyes"; then
         AG_GST_CHECK_LIBHEADER(GLES2, GLESv2, glTexImage2D,, GLES2/gl2.h)
       fi
+      AC_CHECK_HEADER([GLES3/gl3.h], [HAVE_GLES3_H=yes])
     fi
     if test "x$NEED_EGL" != "xno"; then
       AG_GST_PKG_CHECK_MODULES(EGL, egl)
@@ -857,6 +866,10 @@ fi
 
 dnl check if we can include both GL and GLES2 at the same time
 if test "x$HAVE_GL" = "xyes" -a "x$HAVE_GLES2" = "xyes"; then
+  GLES3_H_DEFINE=0
+  if test "x$HAVE_GLES3_H" == "xyes"; then
+    GLES3_H_DEFINE=1
+  fi
   GL_INCLUDES="
 #ifdef __GNUC__
 #  pragma GCC diagnostic push
@@ -869,8 +882,13 @@ if test "x$HAVE_GL" = "xyes" -a "x$HAVE_GLES2" = "xyes"; then
 #  include <OpenGLES/ES2/gl.h>
 #  include <OpenGLES/ES2/glext.h>
 # else
-#  include <GLES2/gl2.h>
-#  include <GLES2/gl2ext.h>
+#  if $GLES3_H_DEFINE
+#   include <GLES3/gl3.h>
+#   include <GLES3/gl3ext.h>
+#  else
+#   include <GLES2/gl2.h>
+#   include <GLES2/gl2ext.h>
+#  endif
 # endif
 # ifdef __APPLE__
 #  include <OpenGL/OpenGL.h>
@@ -906,6 +924,7 @@ int main (int argc, char **argv) { return 0; }
     else
       AC_MSG_WARN([Disabling GL|ES 2.0 support])
       HAVE_GLES2=no
+      HAVE_GLES3_H=no
     fi
   ])
   CFLAGS="$save_CFLAGS"
@@ -1149,6 +1168,9 @@ fi
 if test "x$USE_GLES2" = "xyes"; then
   GL_APIS="gles2 $GL_APIS"
   GST_GL_HAVE_GLES2=1
+  if test "x$HAVE_GLES3_H" = "xyes"; then
+    GST_GL_HAVE_GLES3=1
+  fi
 fi
 
 GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
@@ -1318,8 +1340,13 @@ if test "x$USE_GLES2" = "xyes"; then
 #  include <OpenGLES/ES2/gl.h>
 #  include <OpenGLES/ES2/glext.h>
 # else
-#  include <GLES2/gl2.h>
-#  include <GLES2/gl2ext.h>
+#  if $GST_GL_HAVE_GLES3
+#   include <GLES3/gl3.h>
+#   include <GLES3/gl3ext.h>
+#  else
+#   include <GLES2/gl2.h>
+#   include <GLES2/gl2ext.h>
+#  endif
 # endif
 "
 fi
@@ -1470,15 +1497,14 @@ AC_SUBST(HAVE_JPEG)
 AM_CONDITIONAL(HAVE_JPEG, test "x$HAVE_JPEG" = "xyes")
 
 dnl Vulkan
-VULKAN_CONFIG_DEFINES=""
+PKG_CHECK_MODULES(XCB, xcb >= 1.10, GST_VULKAN_HAVE_WINDOW_XCB=1, GST_VULKAN_HAVE_WINDOW_XCB=0)
+AM_CONDITIONAL(USE_XCB, test "x$GST_VULKAN_HAVE_WINDOW_XCB" = "x1")
 
-PKG_CHECK_MODULES(XCB, xcb >= 1.10, HAVE_XCB=yes, HAVE_XCB=no)
-
-AM_CONDITIONAL(USE_XCB, test "x$HAVE_XCB" = "xyes")
-if test "x$HAVE_XCB" = "xyes"; then
-  VULKAN_CONFIG_DEFINES="$VULKAN_CONFIG_DEFINES
-  #define GST_VULKAN_HAVE_WINDOW_XCB 1"
-fi
+PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.4, GST_VULKAN_HAVE_WINDOW_WAYLAND=1, GST_VULKAN_HAVE_WINDOW_WAYLAND=0)
+AM_CONDITIONAL(USE_WAYLAND, test "x$GST_VULKAN_HAVE_WINDOW_WAYLAND" = "x1")
+VULKAN_CONFIG_DEFINES="
+#define GST_VULKAN_HAVE_WINDOW_XCB $GST_VULKAN_HAVE_WINDOW_XCB
+#define GST_VULKAN_HAVE_WINDOW_WAYLAND $GST_VULKAN_HAVE_WINDOW_WAYLAND"
 
 AC_CONFIG_COMMANDS([ext/vulkan/vkconfig.h], [
 	outfile=vkconfig.h-tmp
@@ -2311,6 +2337,14 @@ AG_GST_CHECK_FEATURE(KATE, [Kate], kate, [
   AC_SUBST(TIGER_LIBS)
 ],,,[AM_CONDITIONAL(USE_TIGER, false)])
 
+dnl *** kms ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_KMS, true)
+AG_GST_CHECK_FEATURE(KMS, [drm/kms libraries], kms, [
+  AG_GST_PKG_CHECK_MODULES(GST_VIDEO, gstreamer-video-1.0)
+  AG_GST_PKG_CHECK_MODULES(GST_ALLOCATORS, gstreamer-allocators-1.0)
+  PKG_CHECK_MODULES([DRM], [libdrm libkms], HAVE_KMS=yes, HAVE_KMS=no)
+])
+
 dnl *** ladspa ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_LADSPA, true)
 AG_GST_CHECK_FEATURE(LADSPA, [ladspa], ladspa, [
@@ -2327,9 +2361,9 @@ AG_GST_CHECK_FEATURE(LADSPA, [ladspa], ladspa, [
 dnl *** LV2 ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_LV2, true)
 AG_GST_CHECK_FEATURE(LV2, [lv2], lv2, [
-  PKG_CHECK_MODULES(SLV2, slv2 >= 0.6.6, HAVE_LV2="yes", HAVE_LV2="no")
-  AC_SUBST(SLV2_CFLAGS)
-  AC_SUBST(SLV2_LIBS)
+  PKG_CHECK_MODULES(LILV, lilv-0 >= 0.6.6, HAVE_LV2="yes", HAVE_LV2="no")
+  AC_SUBST(LILV_CFLAGS)
+  AC_SUBST(LILV_LIBS)
 ])
 
 dnl *** libde265 ***
@@ -2657,21 +2691,17 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
   dnl a new version and the no-backward-compatibility define. (There doesn't
   dnl seem to be a switch to suppress the warnings the cvcompat.h header
   dnl causes.)
-  PKG_CHECK_MODULES(OPENCV, opencv >= 2.3.0 opencv < 2.5.0 , [
+  PKG_CHECK_MODULES(OPENCV, opencv >= 2.3.0 opencv <= 3.1.0 , [
     AC_PROG_CXX
     AC_LANG([C++])
     OLD_CPPFLAGS=$CPPFLAGS
     CPPFLAGS=$OPENCV_CFLAGS
     something_not_found=no
-    AC_CHECK_HEADERS([opencv2/contrib/contrib.hpp \
-                      opencv2/core/core_c.h \
-                      opencv2/core/types_c.h \
+    AC_CHECK_HEADERS([opencv2/core/core_c.h \
                       opencv2/core/version.hpp \
                       opencv2/highgui/highgui_c.h \
                       opencv2/imgproc/imgproc.hpp \
                       opencv2/imgproc/imgproc_c.h \
-                      opencv2/legacy/compat.hpp \
-                      opencv2/legacy/legacy.hpp \
                       opencv2/objdetect/objdetect.hpp \
                       opencv2/video/background_segm.hpp], [], [something_not_found=yes])
     CPPFLAGS=$OLD_CPPFLAGS
@@ -2842,6 +2872,12 @@ AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
       else
         HAVE_QT="yes"
         HAVE_QT_WINDOWING="no"
+        QT_VERSION="`$PKG_CONFIG --modversion Qt5Core`"
+        QPA_INCLUDE_PATH=`$PKG_CONFIG --variable=includedir Qt5Core`/QtGui/${QT_VERSION}/QtGui
+        AS_IF([test -f "$QPA_INCLUDE_PATH/qpa/qplatformnativeinterface.h"], [
+          QT_CFLAGS="$QT_CFLAGS -I$QPA_INCLUDE_PATH"
+          HAVE_QT_QPA_HEADER="yes"
+        ], [AC_MSG_NOTICE([Cannot find QPA])])
         if test "x$GST_GL_HAVE_WINDOW_X11" = "x1" -a "x$GST_GL_HAVE_PLATFORM_GLX" = "x1"; then
           PKG_CHECK_MODULES(QT_X11, Qt5X11Extras, [
             AC_DEFINE([HAVE_QT_X11], [], [Define if Qt X11 integration is installed])
@@ -2850,7 +2886,7 @@ AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
             HAVE_QT_WINDOWING="yes"
           ], [AC_MSG_NOTICE([Could not find Qt X11 integration])])
         fi
-        if test "x$GST_GL_HAVE_WINDOW_WAYLAND" = "x1" -a "x$GST_GL_HAVE_PLATFORM_EGL" = "x1"; then
+        if test "x$GST_GL_HAVE_WINDOW_WAYLAND" = "x1" -a "x$GST_GL_HAVE_PLATFORM_EGL" = "x1" -a "x$HAVE_QT_QPA_HEADER" = "xyes"; then
           PKG_CHECK_MODULES(QT_WAYLAND, Qt5WaylandClient, [
             AC_DEFINE([HAVE_QT_WAYLAND], [],
                 [Define if Qt Wayland integration is installed])
@@ -2859,24 +2895,29 @@ AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
             HAVE_QT_WINDOWING="yes"
           ], [AC_MSG_NOTICE([Could not find Qt Wayland integration])])
         fi
-        if test "x$GST_GL_HAVE_WINDOW_ANDROID" = "x1" -a "x$GST_GL_HAVE_PLATFORM_EGL" = "x1"; then
-          PKG_CHECK_MODULES(QT_ANDROID, Qt5AndroidExtras, [
-            # c++ on android requires a standard library and there are multiple
-            # choices.  cerbero provides a pkg-config file the describes a choice
-            # so try to use that.  Outside cerbero one has to pass these flags
-            # manually for the library one is using
-            PKG_CHECK_MODULES(GNUSTL, gnustl, [
-              QT_CFLAGS="$QT_CFLAGS $GNUSTL_CFLAGS"
-              QT_LIBS="$QT_LIBS $GNUSTL_LIBS"
-              ], [
-              AC_MSG_NOTICE([Could not find Standard C++ library])])
-
-            AC_DEFINE([HAVE_QT_ANDROID], [],
-                [Define if Qt Android integration is installed])
-            QT_CFLAGS="$QT_CFLAGS $QT_ANDROID_CFLAGS"
-            QT_LIBS="$QT_LIBS $QT_ANDROID_LIBS"
-            HAVE_QT_WINDOWING="yes"
-          ], [AC_MSG_NOTICE([Could not find Qt Android integration])])
+        if test "x$GST_GL_HAVE_PLATFORM_EGL" = "x1"; then
+          if test "x$GST_GL_HAVE_WINDOW_ANDROID" = "x1"; then
+            PKG_CHECK_MODULES(QT_ANDROID, Qt5AndroidExtras, [
+              # c++ on android requires a standard library and there are multiple
+              # choices.  cerbero provides a pkg-config file the describes a choice
+              # so try to use that.  Outside cerbero one has to pass these flags
+              # manually for the library one is using
+              PKG_CHECK_MODULES(GNUSTL, gnustl, [
+                QT_CFLAGS="$QT_CFLAGS $GNUSTL_CFLAGS"
+                QT_LIBS="$QT_LIBS $GNUSTL_LIBS"
+                ], [
+                AC_MSG_NOTICE([Could not find Standard C++ library])])
+              AC_DEFINE([HAVE_QT_EGLFS], [],
+                [Define if Qt eglfs integration is installed])
+              QT_CFLAGS="$QT_CFLAGS $QT_ANDROID_CFLAGS"
+              QT_LIBS="$QT_LIBS $QT_ANDROID_LIBS"
+              HAVE_QT_WINDOWING="yes"
+            ], [AC_MSG_NOTICE([Could not find Qt Android integration])])
+          else
+              AC_DEFINE([HAVE_QT_EGLFS], [],
+                [Define if Qt eglfs integration is installed])
+              HAVE_QT_WINDOWING="yes"
+          fi
         fi
         if test "x$GST_GL_HAVE_WINDOW_COCOA" = "x1" -a "x$GST_GL_HAVE_PLATFORM_CGL" = "x1"; then
           PKG_CHECK_MODULES(QT_MAC, Qt5MacExtras, [
@@ -3323,6 +3364,19 @@ AG_GST_CHECK_FEATURE(X265, [x265 plug-in], x265, [
   AG_GST_PKG_CHECK_MODULES(X265, x265)
 ])
 
+dnl *** WebRTC Audio Processing ***
+dnl Note: We test for a specific version as there is no API stability
+translit(dnm, m, l) AM_CONDITIONAL(USE_WEBRTCDSP, true)
+AG_GST_CHECK_FEATURE(WEBRTCDSP, [WebRTC Audio Processing], webrtcdsp, [
+  AC_LANG_PUSH([C++])
+  old_CPPFLAGS=$CPPFLAGS
+  CPPFLAGS="-std=c++11 $CPPFLAGS"
+  AG_GST_PKG_CHECK_MODULES(WEBRTCDSP, webrtc-audio-processing = 0.2)
+  AC_CHECK_HEADER([typeindex],[],[HAVE_WEBRTCDSP=no])
+  CPPFLAGS=$old_CPPFLAGS
+  AC_LANG_POP([C++])
+])
+
 else
 
 dnl not building plugins with external dependencies,
@@ -3358,6 +3412,7 @@ AM_CONDITIONAL(USE_GTK3, false)
 AM_CONDITIONAL(USE_GTK3_GL, false)
 AM_CONDITIONAL(USE_HLS, false)
 AM_CONDITIONAL(USE_KATE, false)
+AM_CONDITIONAL(USE_KMS, false)
 AM_CONDITIONAL(USE_TIGER, false)
 AM_CONDITIONAL(USE_LADSPA, false)
 AM_CONDITIONAL(USE_LV2, false)
@@ -3448,7 +3503,7 @@ dnl FIXME: do we want to rename to GST_ALL_* ?
 dnl prefer internal headers to already installed ones
 dnl also add builddir include for enumtypes and marshal
 dnl add GST_OPTION_CFLAGS, but overridable
-GST_CFLAGS="$GST_CFLAGS -DGST_USE_UNSTABLE_API"
+GST_CFLAGS="$GST_CFLAGS $GST_STATIC_CFLAGS -DGST_USE_UNSTABLE_API"
 GST_CXXFLAGS="$GST_CFLAGS $GLIB_EXTRA_CFLAGS \$(GST_OPTION_CXXFLAGS)"
 GST_OBJCFLAGS="$GST_CFLAGS $GLIB_EXTRA_CFLAGS \$(GST_OPTION_OBJCFLAGS)"
 GST_CFLAGS="$GST_CFLAGS $GLIB_EXTRA_CFLAGS \$(GST_OPTION_CFLAGS)"
@@ -3604,6 +3659,7 @@ sys/dshowsrcwrapper/Makefile
 sys/dshowvideosink/Makefile
 sys/dvb/Makefile
 sys/fbdev/Makefile
+sys/kms/Makefile
 sys/linsys/Makefile
 sys/nvenc/Makefile
 sys/opensles/Makefile
@@ -3634,7 +3690,6 @@ tests/examples/gl/generic/cubeyuv/Makefile
 tests/examples/gl/generic/doublecube/Makefile
 tests/examples/gl/generic/recordgraphic/Makefile
 tests/examples/gl/gtk/Makefile
-tests/examples/gl/gtk/gtkvideooverlay/Makefile
 tests/examples/gl/gtk/3dvideo/Makefile
 tests/examples/gl/gtk/filternovideooverlay/Makefile
 tests/examples/gl/gtk/filtervideooverlay/Makefile
@@ -3712,11 +3767,13 @@ ext/spc/Makefile
 ext/timidity/Makefile
 ext/vulkan/Makefile
 ext/vulkan/xcb/Makefile
+ext/vulkan/wayland/Makefile
 ext/webp/Makefile
 ext/x265/Makefile
 ext/xvid/Makefile
 ext/zbar/Makefile
 ext/dtls/Makefile
+ext/webrtcdsp/Makefile
 po/Makefile.in
 docs/Makefile
 docs/plugins/Makefile

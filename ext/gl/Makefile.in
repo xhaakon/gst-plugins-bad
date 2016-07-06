@@ -94,16 +94,10 @@ target_triplet = @target@
 # full opengl required
 @USE_OPENGL_TRUE@am__append_1 = \
 @USE_OPENGL_TRUE@	gstglfilterglass.c \
-@USE_OPENGL_TRUE@	gstgldeinterlace.c \
-@USE_OPENGL_TRUE@	gltestsrc.c \
-@USE_OPENGL_TRUE@	gstgltestsrc.c \
 @USE_OPENGL_TRUE@	gstglmosaic.c
 
 @USE_OPENGL_TRUE@am__append_2 = \
 @USE_OPENGL_TRUE@	gstglfilterglass.h \
-@USE_OPENGL_TRUE@	gstgldeinterlace.h \
-@USE_OPENGL_TRUE@	gltestsrc.h \
-@USE_OPENGL_TRUE@	gstgltestsrc.h \
 @USE_OPENGL_TRUE@	gstglmosaic.h \
 @USE_OPENGL_TRUE@	effects/gstgleffectscurves.h \
 @USE_OPENGL_TRUE@	effects/gstgleffectlumatocurve.h
@@ -231,15 +225,12 @@ am__libgstopengl_la_SOURCES_DIST = gstopengl.c gstglbasemixer.c \
 	effects/gstgleffectlaplacian.c gstglcolorscale.c \
 	gstglcolorbalance.c gstglmixer.c gstglvideomixer.c \
 	gstglfiltershader.c gstglfilterapp.c gstglviewconvert.c \
-	gstglstereosplit.c gstglstereomix.c gstglfilterglass.c \
-	gstgldeinterlace.c gltestsrc.c gstgltestsrc.c gstglmosaic.c \
+	gstglstereosplit.c gstgldeinterlace.c gstglstereomix.c \
+	gltestsrc.c gstgltestsrc.c gstglfilterglass.c gstglmosaic.c \
 	gstgldifferencematte.c gstgltransformation.c gstglvideoflip.c \
 	gstgloverlay.c caopengllayersink.m
 am__dirstamp = $(am__leading_dot)dirstamp
 @USE_OPENGL_TRUE@am__objects_1 = libgstopengl_la-gstglfilterglass.lo \
-@USE_OPENGL_TRUE@	libgstopengl_la-gstgldeinterlace.lo \
-@USE_OPENGL_TRUE@	libgstopengl_la-gltestsrc.lo \
-@USE_OPENGL_TRUE@	libgstopengl_la-gstgltestsrc.lo \
 @USE_OPENGL_TRUE@	libgstopengl_la-gstglmosaic.lo
 @HAVE_PNG_TRUE@@USE_OPENGL_TRUE@am__objects_2 = libgstopengl_la-gstgldifferencematte.lo
 @HAVE_GRAPHENE_TRUE@am__objects_3 =  \
@@ -286,7 +277,9 @@ am_libgstopengl_la_OBJECTS = libgstopengl_la-gstopengl.lo \
 	libgstopengl_la-gstglfilterapp.lo \
 	libgstopengl_la-gstglviewconvert.lo \
 	libgstopengl_la-gstglstereosplit.lo \
-	libgstopengl_la-gstglstereomix.lo $(am__objects_1) \
+	libgstopengl_la-gstgldeinterlace.lo \
+	libgstopengl_la-gstglstereomix.lo libgstopengl_la-gltestsrc.lo \
+	libgstopengl_la-gstgltestsrc.lo $(am__objects_1) \
 	$(am__objects_2) $(am__objects_3) $(am__objects_4) \
 	$(am__objects_5)
 libgstopengl_la_OBJECTS = $(am_libgstopengl_la_OBJECTS)
@@ -364,8 +357,8 @@ am__noinst_HEADERS_DIST = gstglbasemixer.h gstgluploadelement.h \
 	effects/gstgleffectssources.h gstglcolorscale.h \
 	gstglcolorbalance.h gstglmixer.h gstglvideomixer.h \
 	gstglfiltershader.h gstglfilterapp.h gstglstereosplit.h \
-	gstglstereomix.h gstglviewconvert.h gstglfilterglass.h \
-	gstgldeinterlace.h gltestsrc.h gstgltestsrc.h gstglmosaic.h \
+	gstglstereomix.h gstgldeinterlace.h gstglviewconvert.h \
+	gltestsrc.h gstgltestsrc.h gstglfilterglass.h gstglmosaic.h \
 	effects/gstgleffectscurves.h effects/gstgleffectlumatocurve.h \
 	gstgldifferencematte.h gstgltransformation.h gstglvideoflip.h \
 	gstgloverlay.h caopengllayersink.h
@@ -455,6 +448,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -670,6 +665,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -796,8 +793,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -842,6 +837,8 @@ WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -948,9 +945,9 @@ libgstopengl_la_SOURCES = gstopengl.c gstglbasemixer.c \
 	effects/gstgleffectlaplacian.c gstglcolorscale.c \
 	gstglcolorbalance.c gstglmixer.c gstglvideomixer.c \
 	gstglfiltershader.c gstglfilterapp.c gstglviewconvert.c \
-	gstglstereosplit.c gstglstereomix.c $(am__append_1) \
-	$(am__append_3) $(am__append_5) $(am__append_7) \
-	$(am__append_9)
+	gstglstereosplit.c gstgldeinterlace.c gstglstereomix.c \
+	gltestsrc.c gstgltestsrc.c $(am__append_1) $(am__append_3) \
+	$(am__append_5) $(am__append_7) $(am__append_9)
 noinst_HEADERS = gstglbasemixer.h gstgluploadelement.h \
 	gstgldownloadelement.h gstglcolorconvertelement.h \
 	gstglfilterbin.h gstglmixerbin.h gstglsinkbin.h gstglsrcbin.h \
@@ -958,9 +955,9 @@ noinst_HEADERS = gstglbasemixer.h gstgluploadelement.h \
 	effects/gstgleffectssources.h gstglcolorscale.h \
 	gstglcolorbalance.h gstglmixer.h gstglvideomixer.h \
 	gstglfiltershader.h gstglfilterapp.h gstglstereosplit.h \
-	gstglstereomix.h gstglviewconvert.h $(am__append_2) \
-	$(am__append_4) $(am__append_6) $(am__append_8) \
-	$(am__append_10)
+	gstglstereomix.h gstgldeinterlace.h gstglviewconvert.h \
+	gltestsrc.h gstgltestsrc.h $(am__append_2) $(am__append_4) \
+	$(am__append_6) $(am__append_8) $(am__append_10)
 libgstopengl_la_OBJCFLAGS = \
 	-I$(top_srcdir)/gst-libs \
 	-I$(top_builddir)/gst-libs \
@@ -1469,26 +1466,19 @@ libgstopengl_la-gstglstereosplit.lo: gstglstereosplit.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstglstereosplit.lo `test -f 'gstglstereosplit.c' || echo '$(srcdir)/'`gstglstereosplit.c
 
-libgstopengl_la-gstglstereomix.lo: gstglstereomix.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT libgstopengl_la-gstglstereomix.lo -MD -MP -MF $(DEPDIR)/libgstopengl_la-gstglstereomix.Tpo -c -o libgstopengl_la-gstglstereomix.lo `test -f 'gstglstereomix.c' || echo '$(srcdir)/'`gstglstereomix.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopengl_la-gstglstereomix.Tpo $(DEPDIR)/libgstopengl_la-gstglstereomix.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglstereomix.c' object='libgstopengl_la-gstglstereomix.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstglstereomix.lo `test -f 'gstglstereomix.c' || echo '$(srcdir)/'`gstglstereomix.c
-
-libgstopengl_la-gstglfilterglass.lo: gstglfilterglass.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT libgstopengl_la-gstglfilterglass.lo -MD -MP -MF $(DEPDIR)/libgstopengl_la-gstglfilterglass.Tpo -c -o libgstopengl_la-gstglfilterglass.lo `test -f 'gstglfilterglass.c' || echo '$(srcdir)/'`gstglfilterglass.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopengl_la-gstglfilterglass.Tpo $(DEPDIR)/libgstopengl_la-gstglfilterglass.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglfilterglass.c' object='libgstopengl_la-gstglfilterglass.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstglfilterglass.lo `test -f 'gstglfilterglass.c' || echo '$(srcdir)/'`gstglfilterglass.c
-
 libgstopengl_la-gstgldeinterlace.lo: gstgldeinterlace.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT libgstopengl_la-gstgldeinterlace.lo -MD -MP -MF $(DEPDIR)/libgstopengl_la-gstgldeinterlace.Tpo -c -o libgstopengl_la-gstgldeinterlace.lo `test -f 'gstgldeinterlace.c' || echo '$(srcdir)/'`gstgldeinterlace.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopengl_la-gstgldeinterlace.Tpo $(DEPDIR)/libgstopengl_la-gstgldeinterlace.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgldeinterlace.c' object='libgstopengl_la-gstgldeinterlace.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstgldeinterlace.lo `test -f 'gstgldeinterlace.c' || echo '$(srcdir)/'`gstgldeinterlace.c
+
+libgstopengl_la-gstglstereomix.lo: gstglstereomix.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT libgstopengl_la-gstglstereomix.lo -MD -MP -MF $(DEPDIR)/libgstopengl_la-gstglstereomix.Tpo -c -o libgstopengl_la-gstglstereomix.lo `test -f 'gstglstereomix.c' || echo '$(srcdir)/'`gstglstereomix.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopengl_la-gstglstereomix.Tpo $(DEPDIR)/libgstopengl_la-gstglstereomix.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglstereomix.c' object='libgstopengl_la-gstglstereomix.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstglstereomix.lo `test -f 'gstglstereomix.c' || echo '$(srcdir)/'`gstglstereomix.c
 
 libgstopengl_la-gltestsrc.lo: gltestsrc.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT libgstopengl_la-gltestsrc.lo -MD -MP -MF $(DEPDIR)/libgstopengl_la-gltestsrc.Tpo -c -o libgstopengl_la-gltestsrc.lo `test -f 'gltestsrc.c' || echo '$(srcdir)/'`gltestsrc.c
@@ -1503,6 +1493,13 @@ libgstopengl_la-gstgltestsrc.lo: gstgltestsrc.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgltestsrc.c' object='libgstopengl_la-gstgltestsrc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstgltestsrc.lo `test -f 'gstgltestsrc.c' || echo '$(srcdir)/'`gstgltestsrc.c
+
+libgstopengl_la-gstglfilterglass.lo: gstglfilterglass.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT libgstopengl_la-gstglfilterglass.lo -MD -MP -MF $(DEPDIR)/libgstopengl_la-gstglfilterglass.Tpo -c -o libgstopengl_la-gstglfilterglass.lo `test -f 'gstglfilterglass.c' || echo '$(srcdir)/'`gstglfilterglass.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopengl_la-gstglfilterglass.Tpo $(DEPDIR)/libgstopengl_la-gstglfilterglass.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglfilterglass.c' object='libgstopengl_la-gstglfilterglass.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -c -o libgstopengl_la-gstglfilterglass.lo `test -f 'gstglfilterglass.c' || echo '$(srcdir)/'`gstglfilterglass.c
 
 libgstopengl_la-gstglmosaic.lo: gstglmosaic.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstopengl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopengl_la_CFLAGS) $(CFLAGS) -MT libgstopengl_la-gstglmosaic.lo -MD -MP -MF $(DEPDIR)/libgstopengl_la-gstglmosaic.Tpo -c -o libgstopengl_la-gstglmosaic.lo `test -f 'gstglmosaic.c' || echo '$(srcdir)/'`gstglmosaic.c

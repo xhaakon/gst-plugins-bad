@@ -24,7 +24,7 @@
  * To enable ASCII encoding, set the parameter ascii to TRUE. If you omit
  * the parameter or set it to FALSE, the output will be raw encoded.
  *
- * <refsect>
+ * <refsect2>
  * <title>Example launch line</title>
  * |[
  * gst-launch-1.0 videotestsrc num_buffers=1 ! videoconvert ! "video/x-raw,format=GRAY8" ! pnmenc ascii=true ! filesink location=test.pnm
@@ -53,10 +53,12 @@ enum
       /* Add here. */
 };
 
+
+
 static GstStaticPadTemplate sink_pad_template =
-    GST_STATIC_PAD_TEMPLATE ("sink", GST_PAD_SINK, GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE ("RGB") "; "
-        GST_VIDEO_CAPS_MAKE ("GRAY8")));
+GST_STATIC_PAD_TEMPLATE ("sink", GST_PAD_SINK, GST_PAD_ALWAYS,
+    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE
+        ("{ RGB, GRAY8, GRAY16_BE, GRAY16_LE }")));
 
 
 static GstStaticPadTemplate src_pad_template =
@@ -134,16 +136,27 @@ gst_pnmenc_set_format (GstVideoEncoder * encoder, GstVideoCodecState * state)
   gboolean ret = TRUE;
   GstVideoInfo *info;
   GstVideoCodecState *output_state;
+  const gchar *mime_type = NULL;
 
   pnmenc = GST_PNMENC (encoder);
   info = &state->info;
 
   switch (GST_VIDEO_INFO_FORMAT (info)) {
     case GST_VIDEO_FORMAT_RGB:
+      pnmenc->info.max = 255;
       pnmenc->info.type = GST_PNM_TYPE_PIXMAP;
+      mime_type = MIME_PM;
       break;
     case GST_VIDEO_FORMAT_GRAY8:
+      pnmenc->info.max = 255;
       pnmenc->info.type = GST_PNM_TYPE_GRAYMAP;
+      mime_type = MIME_GM;
+      break;
+    case GST_VIDEO_FORMAT_GRAY16_BE:
+    case GST_VIDEO_FORMAT_GRAY16_LE:
+      pnmenc->info.max = 65535;
+      pnmenc->info.type = GST_PNM_TYPE_GRAYMAP;
+      mime_type = MIME_GM;
       break;
     default:
       ret = FALSE;
@@ -152,8 +165,6 @@ gst_pnmenc_set_format (GstVideoEncoder * encoder, GstVideoCodecState * state)
 
   pnmenc->info.width = GST_VIDEO_INFO_WIDTH (info);
   pnmenc->info.height = GST_VIDEO_INFO_HEIGHT (info);
-  /* Supported max value is only one, that is 255 */
-  pnmenc->info.max = 255;
 
   if (pnmenc->input_state)
     gst_video_codec_state_unref (pnmenc->input_state);
@@ -161,7 +172,7 @@ gst_pnmenc_set_format (GstVideoEncoder * encoder, GstVideoCodecState * state)
 
   output_state =
       gst_video_encoder_set_output_state (encoder,
-      gst_caps_new_empty_simple ("image/pnm"), state);
+      gst_caps_new_empty_simple (mime_type), state);
   gst_video_codec_state_unref (output_state);
 
 done:
@@ -172,7 +183,7 @@ static GstFlowReturn
 gst_pnmenc_handle_frame (GstVideoEncoder * encoder, GstVideoCodecFrame * frame)
 {
   GstPnmenc *pnmenc;
-  guint size, pixels;
+  guint size, pixels, bytesize;
   GstMapInfo omap, imap;
   gchar *header = NULL;
   GstVideoInfo *info;
@@ -180,16 +191,34 @@ gst_pnmenc_handle_frame (GstVideoEncoder * encoder, GstVideoCodecFrame * frame)
   guint i_rowstride, o_rowstride;
   guint bytes = 0, index, head_size;
   guint i, j;
-
+  guint maxbytes_per_pixel, str_len;
+  gchar format_str[4];
   pnmenc = GST_PNMENC (encoder);
   info = &pnmenc->input_state->info;
 
   switch (GST_VIDEO_INFO_FORMAT (info)) {
     case GST_VIDEO_FORMAT_RGB:
       pixels = size = pnmenc->info.width * pnmenc->info.height * 3;
+      bytesize = 1;
+      maxbytes_per_pixel = 4;
+      str_len = 3;
+      g_strlcpy (format_str, "%3i", 4);
       break;
     case GST_VIDEO_FORMAT_GRAY8:
       pixels = size = pnmenc->info.width * pnmenc->info.height * 1;
+      bytesize = 1;
+      maxbytes_per_pixel = 4;
+      str_len = 3;
+      g_strlcpy (format_str, "%3i", 4);
+      break;
+    case GST_VIDEO_FORMAT_GRAY16_LE:
+    case GST_VIDEO_FORMAT_GRAY16_BE:
+      pixels = pnmenc->info.width * pnmenc->info.height * 1;
+      bytesize = 2;
+      size = pixels * bytesize;
+      maxbytes_per_pixel = 6;
+      str_len = 5;
+      g_strlcpy (format_str, "%5i", 4);
       break;
     default:
       ret = FALSE;
@@ -222,58 +251,111 @@ gst_pnmenc_handle_frame (GstVideoEncoder * encoder, GstVideoCodecFrame * frame)
     ret = GST_FLOW_ERROR;
     goto done;
   }
-  memcpy (omap.data, header, strlen (header));
-
+  /* Copy out the header first */
   head_size = strlen (header);
+  memcpy (omap.data, header, head_size);
+
   if (pnmenc->info.encoding == GST_PNM_ENCODING_ASCII) {
     /* We need to convert to ASCII */
-    if (pnmenc->info.width % 4 != 0) {
-      /* Convert from gstreamer rowstride to PNM rowstride */
-      if (pnmenc->info.type == GST_PNM_TYPE_PIXMAP) {
-        o_rowstride = 3 * pnmenc->info.width;
-      } else {
-        o_rowstride = pnmenc->info.width;
-      }
-      i_rowstride = GST_VIDEO_FRAME_COMP_STRIDE (pnmenc->input_state, 0);
-
-      for (i = 0; i < pnmenc->info.height; i++) {
-        index = i * i_rowstride;
-        for (j = 0; j < o_rowstride; j++, bytes++, index++) {
-          g_snprintf ((char *) omap.data + head_size, 4, "%3i",
-              imap.data[index]);
-          head_size += 3;
-          omap.data[head_size++] = ' ';
-          /* Add new line so that file will not end up with sinle big line */
-          if (!((bytes + 1) % 20))
-            omap.data[head_size++] = '\n';
-        }
-      }
+    /* Convert from gstreamer rowstride to PNM rowstride as we go */
+    if (pnmenc->info.type == GST_PNM_TYPE_PIXMAP) {
+      o_rowstride = 3 * pnmenc->info.width;
     } else {
-      for (i = 0; i < pixels; i++) {
-        g_snprintf ((char *) omap.data + head_size, 4, "%3i", imap.data[i]);
-        head_size += 3;
-        omap.data[head_size++] = ' ';
-        if (!((i + 1) % 20))
-          omap.data[head_size++] = '\n';
-      }
+      o_rowstride = pnmenc->info.width;
     }
-  } else {
-    /* Need to convert from GStreamer rowstride to PNM rowstride */
-    if (pnmenc->info.width % 4 != 0) {
-      if (pnmenc->info.type == GST_PNM_TYPE_PIXMAP) {
-        o_rowstride = 3 * pnmenc->info.width;
-      } else {
-        o_rowstride = pnmenc->info.width;
-      }
-      i_rowstride = GST_VIDEO_FRAME_COMP_STRIDE (pnmenc->input_state, 0);
+    i_rowstride = GST_VIDEO_FRAME_COMP_STRIDE (pnmenc->input_state, 0);
 
-      for (i = 0; i < pnmenc->info.height; i++)
-        memcpy (omap.data + head_size + o_rowstride * i,
-            imap.data + i_rowstride * i, o_rowstride);
+    switch (GST_VIDEO_INFO_FORMAT (info)) {
+      case GST_VIDEO_FORMAT_RGB:
+      case GST_VIDEO_FORMAT_GRAY8:
+        for (i = 0; i < pnmenc->info.height; i++) {
+          index = i * i_rowstride;
+          for (j = 0; j < o_rowstride; j++, bytes++, index++) {
+            g_snprintf ((char *) omap.data + head_size, maxbytes_per_pixel,
+                format_str, imap.data[index]);
+            head_size += str_len;
+            omap.data[head_size++] = ' ';
+            /* Add new line so that file will not end up with single big line */
+            if (!((bytes + 1) % 20))
+              omap.data[head_size++] = '\n';
+          }
+        }
+        break;
+      case GST_VIDEO_FORMAT_GRAY16_BE:
+        for (i = 0; i < pnmenc->info.height; i++) {
+          index = i * i_rowstride;
+          for (j = 0; j < o_rowstride; j++, bytes++, index += 2) {
+            g_snprintf ((char *) omap.data + head_size, maxbytes_per_pixel,
+                format_str, GST_READ_UINT16_BE (imap.data + index));
+            head_size += str_len;
+            omap.data[head_size++] = ' ';
+            /* Add new line so that file will not end up with single big line */
+            if (!((bytes + 1) % 20))
+              omap.data[head_size++] = '\n';
+          }
+        }
+        break;
+      case GST_VIDEO_FORMAT_GRAY16_LE:
+        for (i = 0; i < pnmenc->info.height; i++) {
+          index = i * i_rowstride;
+          for (j = 0; j < o_rowstride; j++, bytes++, index += 2) {
+            g_snprintf ((char *) omap.data + head_size, maxbytes_per_pixel,
+                format_str, GST_READ_UINT16_LE (imap.data + index));
+            head_size += str_len;
+            omap.data[head_size++] = ' ';
+            /* Add new line so that file will not end up with single big line */
+            if (!((bytes + 1) % 20))
+              omap.data[head_size++] = '\n';
+          }
+        }
+        break;
+      default:
+        GST_ERROR_OBJECT (encoder, "Unhandled format %s",
+            gst_video_format_to_string (GST_VIDEO_INFO_FORMAT (info)));
+        gst_buffer_unmap (frame->output_buffer, &omap);
+        gst_buffer_unmap (frame->input_buffer, &imap);
+        g_free (header);
+        return GST_FLOW_ERROR;
+    }
+
+    gst_buffer_set_size (frame->output_buffer, head_size);
+  } else {
+    guint out_index = head_size;
+
+    /* Binary output. 8-bit, or 16-bit BE */
+    if (pnmenc->info.type == GST_PNM_TYPE_PIXMAP) {
+      o_rowstride = 3 * pnmenc->info.width * bytesize;
     } else {
-      /* size contains complete image size inlcuding header size,
-         Exclude header size while copying data */
-      memcpy (omap.data + strlen (header), imap.data, (size - head_size));
+      o_rowstride = pnmenc->info.width * bytesize;
+    }
+    i_rowstride = GST_VIDEO_FRAME_COMP_STRIDE (pnmenc->input_state, 0);
+
+    switch (GST_VIDEO_INFO_FORMAT (info)) {
+      case GST_VIDEO_FORMAT_GRAY16_BE:
+        for (i = 0; i < pnmenc->info.height; i++) {
+          index = i * i_rowstride;
+          for (j = 0; j < o_rowstride; j += 2, index += 2) {
+            guint16 val = GST_READ_UINT16_LE (imap.data + index);
+            GST_WRITE_UINT16_BE (omap.data + out_index, val);
+            out_index += 2;
+          }
+        }
+        break;
+      case GST_VIDEO_FORMAT_GRAY16_LE:
+        for (i = 0; i < pnmenc->info.height; i++) {
+          index = i * i_rowstride;
+          for (j = 0; j < o_rowstride; j += 2, index += 2) {
+            guint16 val = GST_READ_UINT16_LE (imap.data + index);
+            GST_WRITE_UINT16_BE (omap.data + out_index, val);
+            out_index += 2;
+          }
+        }
+        break;
+      default:
+        for (i = 0; i < pnmenc->info.height; i++) {
+          memcpy (omap.data + head_size + o_rowstride * i,
+              imap.data + i_rowstride * i, o_rowstride);
+        }
     }
   }
 
@@ -303,11 +385,8 @@ gst_pnmenc_class_init (GstPnmencClass * klass)
       g_param_spec_boolean ("ascii", "ASCII Encoding", "The output will be "
           "ASCII encoded", FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_pad_template));
-
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_pad_template));
+  gst_element_class_add_static_pad_template (element_class, &sink_pad_template);
+  gst_element_class_add_static_pad_template (element_class, &src_pad_template);
 
   gst_element_class_set_static_metadata (element_class, "PNM image encoder",
       "Codec/Encoder/Image",

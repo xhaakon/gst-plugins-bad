@@ -78,8 +78,12 @@
 
 #include <vector>
 
+using namespace std;
+
 #include "gstfacedetect.h"
-#include <opencv2/imgproc/imgproc_c.h>
+#if (CV_MAJOR_VERSION >= 3)
+#include <opencv2/imgproc.hpp>
+#endif
 
 GST_DEBUG_CATEGORY_STATIC (gst_face_detect_debug);
 #define GST_CAT_DEFAULT gst_face_detect_debug
@@ -349,10 +353,8 @@ gst_face_detect_class_init (GstFaceDetectClass * klass)
       "Performs face detection on videos and images, providing detected positions via bus messages",
       "Michael Sheldon <mike@mikeasoft.com>");
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_factory));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_factory));
+  gst_element_class_add_static_pad_template (element_class, &src_factory);
+  gst_element_class_add_static_pad_template (element_class, &sink_factory);
 }
 
 /* initialize the new element
@@ -559,7 +561,7 @@ gst_face_detect_run_detector (GstFaceDetect * filter,
     img_stddev = stddev.val[0];
   }
   if (img_stddev >= filter->min_stddev) {
-    Mat roi (filter->cvGray, r);
+    Mat roi (cv::cvarrToMat (filter->cvGray), r);
     detector->detectMultiScale (roi, faces, filter->scale_factor,
         filter->min_neighbors, filter->flags, cvSize (min_size_width,
             min_size_height), cvSize (0, 0));
@@ -591,7 +593,7 @@ gst_face_detect_transform_ip (GstOpencvVideoFilter * base, GstBuffer * buf,
     gboolean do_display = FALSE;
     gboolean post_msg = FALSE;
 
-    Mat mtxOrg (img, false);
+    Mat mtxOrg (cv::cvarrToMat (img));
 
     if (filter->display) {
       if (gst_buffer_is_writable (buf)) {

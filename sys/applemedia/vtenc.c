@@ -47,6 +47,9 @@ GST_DEBUG_CATEGORY (gst_vtenc_debug);
 const CFStringRef
     kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder =
 CFSTR ("EnableHardwareAcceleratedVideoEncoder");
+const CFStringRef
+    kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder =
+CFSTR ("RequireHardwareAcceleratedVideoEncoder");
 const CFStringRef kVTCompressionPropertyKey_ProfileLevel =
 CFSTR ("ProfileLevel");
 const CFStringRef kVTProfileLevel_H264_Baseline_AutoLevel =
@@ -55,6 +58,12 @@ CFSTR ("H264_Baseline_AutoLevel");
 
 #if defined(MAC_OS_X_VERSION_MAX_ALLOWED) && MAC_OS_X_VERSION_MAX_ALLOWED < 1080
 const CFStringRef kVTCompressionPropertyKey_Quality = CFSTR ("Quality");
+#endif
+
+#ifdef HAVE_VIDEOTOOLBOX_10_9_6
+extern OSStatus
+VTCompressionSessionPrepareToEncodeFrames (VTCompressionSessionRef session)
+    __attribute__ ((weak_import));
 #endif
 
 enum
@@ -642,7 +651,7 @@ gst_vtenc_set_format (GstVideoEncoder * enc, GstVideoCodecState * state)
   self->session = session;
   GST_OBJECT_UNLOCK (self);
 
-  return TRUE;
+  return session != NULL;
 }
 
 static gboolean
@@ -780,6 +789,8 @@ gst_vtenc_create_session (GstVTEnc * self)
   VTCompressionSessionRef session = NULL;
   CFMutableDictionaryRef encoder_spec = NULL, pb_attrs;
   OSStatus status;
+  const GstVTEncoderDetails *codec_details =
+      GST_VTENC_CLASS_GET_CODEC_DETAILS (G_OBJECT_GET_CLASS (self));
 
 #if !HAVE_IOS
   encoder_spec =
@@ -787,6 +798,10 @@ gst_vtenc_create_session (GstVTEnc * self)
       &kCFTypeDictionaryValueCallBacks);
   gst_vtutil_dict_set_boolean (encoder_spec,
       kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder, true);
+  if (codec_details->require_hardware)
+    gst_vtutil_dict_set_boolean (encoder_spec,
+        kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder,
+        TRUE);
 #endif
 
   pb_attrs = CFDictionaryCreateMutable (NULL, 0, &kCFTypeDictionaryKeyCallBacks,
@@ -1392,7 +1407,10 @@ gst_vtenc_register (GstPlugin * plugin,
 }
 
 static const GstVTEncoderDetails gst_vtenc_codecs[] = {
-  {"H.264", "h264", "video/x-h264", kCMVideoCodecType_H264},
+  {"H.264", "h264", "video/x-h264", kCMVideoCodecType_H264, FALSE},
+#ifndef HAVE_IOS
+  {"H.264 (HW only)", "h264_hw", "video/x-h264", kCMVideoCodecType_H264, TRUE},
+#endif
 };
 
 void

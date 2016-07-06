@@ -137,7 +137,8 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 libgstgl_egl_la_LIBADD =
 am_libgstgl_egl_la_OBJECTS = libgstgl_egl_la-gstgldisplay_egl.lo \
 	libgstgl_egl_la-gstglcontext_egl.lo \
-	libgstgl_egl_la-gsteglimagememory.lo
+	libgstgl_egl_la-gstglmemoryegl.lo \
+	libgstgl_egl_la-gsteglimage.lo
 libgstgl_egl_la_OBJECTS = $(am_libgstgl_egl_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -302,6 +303,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -517,6 +520,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -643,8 +648,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -689,6 +692,8 @@ WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -781,14 +786,16 @@ noinst_LTLIBRARIES = libgstgl-egl.la
 libgstgl_egl_la_SOURCES = \
 	gstgldisplay_egl.c \
 	gstglcontext_egl.c \
-	gsteglimagememory.c
+	gstglmemoryegl.c \
+	gsteglimage.c
 
 noinst_HEADERS = 
 libgstgl_eglincludedir = $(includedir)/gstreamer-@GST_API_VERSION@/gst/gl/egl
 libgstgl_eglinclude_HEADERS = \
 	gstgldisplay_egl.h \
 	gstglcontext_egl.h \
-	gsteglimagememory.h \
+	gstglmemoryegl.h \
+	gsteglimage.h \
 	gstegl.h
 
 libgstgl_egl_la_CFLAGS = \
@@ -857,9 +864,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_egl_la-gsteglimagememory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_egl_la-gsteglimage.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_egl_la-gstglcontext_egl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_egl_la-gstgldisplay_egl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgl_egl_la-gstglmemoryegl.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -899,12 +907,19 @@ libgstgl_egl_la-gstglcontext_egl.lo: gstglcontext_egl.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_egl_la_CFLAGS) $(CFLAGS) -c -o libgstgl_egl_la-gstglcontext_egl.lo `test -f 'gstglcontext_egl.c' || echo '$(srcdir)/'`gstglcontext_egl.c
 
-libgstgl_egl_la-gsteglimagememory.lo: gsteglimagememory.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_egl_la_CFLAGS) $(CFLAGS) -MT libgstgl_egl_la-gsteglimagememory.lo -MD -MP -MF $(DEPDIR)/libgstgl_egl_la-gsteglimagememory.Tpo -c -o libgstgl_egl_la-gsteglimagememory.lo `test -f 'gsteglimagememory.c' || echo '$(srcdir)/'`gsteglimagememory.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgl_egl_la-gsteglimagememory.Tpo $(DEPDIR)/libgstgl_egl_la-gsteglimagememory.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gsteglimagememory.c' object='libgstgl_egl_la-gsteglimagememory.lo' libtool=yes @AMDEPBACKSLASH@
+libgstgl_egl_la-gstglmemoryegl.lo: gstglmemoryegl.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_egl_la_CFLAGS) $(CFLAGS) -MT libgstgl_egl_la-gstglmemoryegl.lo -MD -MP -MF $(DEPDIR)/libgstgl_egl_la-gstglmemoryegl.Tpo -c -o libgstgl_egl_la-gstglmemoryegl.lo `test -f 'gstglmemoryegl.c' || echo '$(srcdir)/'`gstglmemoryegl.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgl_egl_la-gstglmemoryegl.Tpo $(DEPDIR)/libgstgl_egl_la-gstglmemoryegl.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstglmemoryegl.c' object='libgstgl_egl_la-gstglmemoryegl.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_egl_la_CFLAGS) $(CFLAGS) -c -o libgstgl_egl_la-gsteglimagememory.lo `test -f 'gsteglimagememory.c' || echo '$(srcdir)/'`gsteglimagememory.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_egl_la_CFLAGS) $(CFLAGS) -c -o libgstgl_egl_la-gstglmemoryegl.lo `test -f 'gstglmemoryegl.c' || echo '$(srcdir)/'`gstglmemoryegl.c
+
+libgstgl_egl_la-gsteglimage.lo: gsteglimage.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_egl_la_CFLAGS) $(CFLAGS) -MT libgstgl_egl_la-gsteglimage.lo -MD -MP -MF $(DEPDIR)/libgstgl_egl_la-gsteglimage.Tpo -c -o libgstgl_egl_la-gsteglimage.lo `test -f 'gsteglimage.c' || echo '$(srcdir)/'`gsteglimage.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgl_egl_la-gsteglimage.Tpo $(DEPDIR)/libgstgl_egl_la-gsteglimage.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gsteglimage.c' object='libgstgl_egl_la-gsteglimage.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgl_egl_la_CFLAGS) $(CFLAGS) -c -o libgstgl_egl_la-gsteglimage.lo `test -f 'gsteglimage.c' || echo '$(srcdir)/'`gsteglimage.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

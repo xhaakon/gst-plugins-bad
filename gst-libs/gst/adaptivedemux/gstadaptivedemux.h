@@ -81,6 +81,8 @@ G_BEGIN_DECLS
   g_clear_error (&err); \
 } G_STMT_END
 
+#define GST_ADAPTIVE_DEMUX_FLOW_END_OF_FRAGMENT GST_FLOW_CUSTOM_SUCCESS_1
+
 typedef struct _GstAdaptiveDemuxStreamFragment GstAdaptiveDemuxStreamFragment;
 typedef struct _GstAdaptiveDemuxStream GstAdaptiveDemuxStream;
 typedef struct _GstAdaptiveDemux GstAdaptiveDemux;
@@ -119,8 +121,6 @@ struct _GstAdaptiveDemuxStream
   GstAdaptiveDemux *demux;
 
   GstSegment segment;
-
-  GstAdapter *adapter;
 
   GstCaps *pending_caps;
   GstEvent *pending_segment;
@@ -204,6 +204,10 @@ struct _GstAdaptiveDemux
 
   gboolean have_group_id;
   guint group_id;
+
+  /* Realtime clock */
+  GstClock *realtime_clock;
+  gint64 clock_offset; /* offset between realtime_clock and UTC (in usec) */
 
   /* < private > */
   GstAdaptiveDemuxPrivate *priv;
@@ -381,13 +385,14 @@ struct _GstAdaptiveDemuxClass
    * data_received:
    * @demux: #GstAdaptiveDemux
    * @stream: #GstAdaptiveDemuxStream
+   * @buffer: #GstBuffer
    *
    * Notifies the subclass that a fragment chunk was downloaded. The subclass
-   * can look at the data at the adapter and modify/push data as desired.
+   * can look at the data and modify/push data as desired.
    *
    * Returns: #GST_FLOW_OK if successful, #GST_FLOW_ERROR in case of error.
    */
-  GstFlowReturn (*data_received) (GstAdaptiveDemux * demux, GstAdaptiveDemuxStream * stream);
+  GstFlowReturn (*data_received) (GstAdaptiveDemux * demux, GstAdaptiveDemuxStream * stream, GstBuffer * buffer);
 
   /**
    * get_live_seek_range:
@@ -449,6 +454,9 @@ gst_adaptive_demux_stream_advance_fragment (GstAdaptiveDemux * demux,
     GstAdaptiveDemuxStream * stream, GstClockTime duration);
 void gst_adaptive_demux_stream_queue_event (GstAdaptiveDemuxStream * stream,
     GstEvent * event);
+
+GstClockTime gst_adaptive_demux_get_monotonic_time (GstAdaptiveDemux * demux);
+GDateTime *gst_adaptive_demux_get_client_now_utc (GstAdaptiveDemux * demux);
 
 G_END_DECLS
 

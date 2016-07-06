@@ -81,7 +81,7 @@ static void gst_ahc_src_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
 static void gst_ahc_src_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
-static void gst_ahc_src_dispose (GObject * object);
+static void gst_ahc_src_finalize (GObject * object);
 
 /* GstElement */
 static GstStateChangeReturn gst_ahc_src_change_state (GstElement * element,
@@ -272,7 +272,7 @@ gst_ahc_src_class_init (GstAHCSrcClass * klass)
 
   gobject_class->set_property = gst_ahc_src_set_property;
   gobject_class->get_property = gst_ahc_src_get_property;
-  gobject_class->dispose = gst_ahc_src_dispose;
+  gobject_class->finalize = gst_ahc_src_finalize;
 
   element_class->change_state = gst_ahc_src_change_state;
 
@@ -287,8 +287,8 @@ gst_ahc_src_class_init (GstAHCSrcClass * klass)
 
   gstpushsrc_class->create = gst_ahc_src_create;
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_ahc_src_pad_template));
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_ahc_src_pad_template);
 
   /**
    * GstAHCSrc:device:
@@ -378,7 +378,7 @@ gst_ahc_src_class_init (GstAHCSrcClass * klass)
       properties[PROP_VERTICAL_VIEW_ANGLE]);
 
   /**
-   * GstAHCSrc:video-stabilizatio:
+   * GstAHCSrc:video-stabilization:
    *
    * Video stabilization reduces the shaking due to the motion of the camera.
    */
@@ -523,10 +523,6 @@ gst_ahc_src_class_init (GstAHCSrcClass * klass)
   properties[PROP_ANALOG_GAIN] = g_object_class_find_property (gobject_class,
       GST_PHOTOGRAPHY_PROP_ANALOG_GAIN);
 
-
-
-  klass->probe_properties = NULL;
-
   gst_element_class_set_static_metadata (element_class,
       "Android Camera Source",
       "Source/Video",
@@ -562,17 +558,14 @@ gst_ahc_src_init (GstAHCSrc * self)
 }
 
 static void
-gst_ahc_src_dispose (GObject * object)
+gst_ahc_src_finalize (GObject * object)
 {
   GstAHCSrc *self = GST_AHC_SRC (object);
 
-  if (self->queue)
-    g_object_unref (self->queue);
-  self->queue = NULL;
-
+  g_clear_object (&self->queue);
   g_mutex_clear (&self->mutex);
 
-  G_OBJECT_CLASS (parent_class)->dispose (object);
+  G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
 static void
@@ -857,167 +850,6 @@ gst_ahc_src_get_property (GObject * object, guint prop_id,
       break;
   }
 }
-
-#if 0
-static const GList *
-gst_ahc_src_probe_get_properties (GstPropertyProbe * probe)
-{
-  GstAHCSrcClass *ahc_class = GST_AHC_SRC_CLASS (probe);
-  GList **list = &ahc_class->probe_properties;
-
-  if (!*list) {
-    *list = g_list_append (*list, properties[PROP_DEVICE]);
-    *list = g_list_append (*list, properties[PROP_EV_COMP]);
-    *list = g_list_append (*list, properties[PROP_ZOOM]);
-    *list = g_list_append (*list, properties[PROP_WB_MODE]);
-    *list = g_list_append (*list, properties[PROP_COLOUR_TONE]);
-    *list = g_list_append (*list, properties[PROP_FLASH_MODE]);
-    *list = g_list_append (*list, properties[PROP_FOCUS_MODE]);
-    *list = g_list_append (*list, properties[PROP_SCENE_MODE]);
-    *list = g_list_append (*list, properties[PROP_FLICKER_MODE]);
-  }
-
-  return *list;
-}
-
-#define PROBE_GET_ENUM_VALUES(name, type, struct_name)                  \
-  if (self->camera) {                                                   \
-    GstAHCParameters *params;                                           \
-                                                                        \
-    params = gst_ah_camera_get_parameters (self->camera);               \
-    if (params) {                                                       \
-      GList *list = gst_ahc_parameters_get_supported_##name (params);   \
-                                                                        \
-      if (list) {                                                       \
-          GValue value = { 0 };                                         \
-          GList *i;                                                     \
-                                                                        \
-          array = g_value_array_new (g_list_length (list));             \
-          g_value_init (&value, type);                                  \
-          for (i = list; i; i = i->next) {                              \
-            struct_name mode;                                           \
-            const gchar *name = i->data;                                \
-                                                                        \
-            if (_##name##_to_enum (name, &mode)) {                      \
-              g_value_set_enum (&value, mode);                          \
-              g_value_array_append (array, &value);                     \
-            }                                                           \
-          }                                                             \
-          g_value_unset (&value);                                       \
-      }                                                                 \
-                                                                        \
-      gst_ahc_parameters_supported_##name##_free (list);                \
-      gst_ahc_parameters_free (params);                                 \
-    }                                                                   \
-  }
-
-
-static GValueArray *
-gst_ahc_src_probe_get_values (GstPropertyProbe * probe,
-    guint prop_id, const GParamSpec * pspec)
-{
-  GstAHCSrc *self = GST_AHC_SRC (probe);
-  GValueArray *array = NULL;
-
-  /* g_object_class_find_property returns overriden property with
-   * param_id == 0, so we can't switch/case the prop_id and
-   * we need to check the pspec instead */
-  if (pspec == properties[PROP_DEVICE]) {
-    GValue value = { 0 };
-    gint num_cams = gst_ah_camera_get_number_of_cameras ();
-    gint i;
-
-    array = g_value_array_new (num_cams);
-    g_value_init (&value, G_TYPE_STRING);
-    for (i = 0; i < num_cams; i++) {
-      g_value_take_string (&value, g_strdup_printf ("%d", i));
-      g_value_array_append (array, &value);
-    }
-    g_value_unset (&value);
-  } else if (pspec == properties[PROP_EV_COMP]) {
-    if (self->camera) {
-      GstAHCParameters *params;
-
-      params = gst_ah_camera_get_parameters (self->camera);
-      if (params) {
-        gint min, max;
-        gfloat step;
-
-        min = gst_ahc_parameters_get_min_exposure_compensation (params);
-        max = gst_ahc_parameters_get_max_exposure_compensation (params);
-        step = gst_ahc_parameters_get_exposure_compensation_step (params);
-
-        if (step != 0.0 && min != max) {
-          GValue value = { 0 };
-          gint i;
-
-          /* Min and Max are inclusive */
-          array = g_value_array_new (max - min + 1);
-          g_value_init (&value, G_TYPE_FLOAT);
-          for (i = min; i <= max; i++) {
-            g_value_set_float (&value, step * i);
-            g_value_array_append (array, &value);
-          }
-          g_value_unset (&value);
-        }
-
-        gst_ahc_parameters_free (params);
-      }
-    }
-  } else if (pspec == properties[PROP_ZOOM]) {
-    if (self->camera) {
-      GstAHCParameters *params;
-
-      params = gst_ah_camera_get_parameters (self->camera);
-      if (params) {
-        GList *zoom_ratios = gst_ahc_parameters_get_zoom_ratios (params);
-        gint max_zoom = gst_ahc_parameters_get_max_zoom (params);
-
-        if (zoom_ratios && g_list_length (zoom_ratios) == (max_zoom + 1)) {
-          GValue value = { 0 };
-          GList *i;
-
-          array = g_value_array_new (max_zoom + 1);
-          g_value_init (&value, G_TYPE_FLOAT);
-          for (i = zoom_ratios; i; i = i->next) {
-            gint zoom_value = GPOINTER_TO_INT (i->data);
-            gfloat zoom = (gfloat) zoom_value / 100.0;
-
-            g_value_set_float (&value, zoom);
-            g_value_array_append (array, &value);
-          }
-          g_value_unset (&value);
-        }
-
-        gst_ahc_parameters_zoom_ratios_free (zoom_ratios);
-        gst_ahc_parameters_free (params);
-      }
-    }
-  } else if (pspec == properties[PROP_WB_MODE]) {
-    PROBE_GET_ENUM_VALUES (white_balance, GST_TYPE_WHITE_BALANCE_MODE,
-        GstPhotographyWhiteBalanceMode);
-  } else if (pspec == properties[PROP_COLOUR_TONE]) {
-    PROBE_GET_ENUM_VALUES (color_effects, GST_TYPE_COLOUR_TONE_MODE,
-        GstPhotographyColorToneMode);
-  } else if (pspec == properties[PROP_FLASH_MODE]) {
-    PROBE_GET_ENUM_VALUES (flash_modes, GST_TYPE_FLASH_MODE,
-        GstPhotographyFlashMode);
-  } else if (pspec == properties[PROP_FOCUS_MODE]) {
-    PROBE_GET_ENUM_VALUES (focus_modes, GST_TYPE_FOCUS_MODE,
-        GstPhotographyFocusMode);
-  } else if (pspec == properties[PROP_SCENE_MODE]) {
-    PROBE_GET_ENUM_VALUES (scene_modes, GST_TYPE_SCENE_MODE,
-        GstPhotographySceneMode);
-  } else if (pspec == properties[PROP_FLICKER_MODE]) {
-    PROBE_GET_ENUM_VALUES (antibanding, GST_TYPE_FLICKER_REDUCTION_MODE,
-        GstPhotographyFlickerReductionMode);
-  } else {
-    G_OBJECT_WARN_INVALID_PROPERTY_ID (probe, prop_id, pspec);
-  }
-
-  return array;
-}
-#endif
 
 static gboolean
 _antibanding_to_enum (const gchar * antibanding,
@@ -2290,7 +2122,7 @@ gst_ahc_src_on_preview_frame (jbyteArray array, gpointer user_data)
 
   GST_DEBUG_OBJECT (self, "Received data buffer %p", array);
 
-  malloc_data = g_slice_new0 (FreeFuncBuffer);
+  malloc_data = g_slice_new (FreeFuncBuffer);
   malloc_data->self = gst_object_ref (self);
   malloc_data->array = (*env)->NewGlobalRef (env, array);
   malloc_data->data = (*env)->GetByteArrayElements (env, array, NULL);
@@ -2305,7 +2137,7 @@ gst_ahc_src_on_preview_frame (jbyteArray array, gpointer user_data)
   GST_DEBUG_OBJECT (self, "creating wrapped buffer (size: %d)",
       self->buffer_size);
 
-  item = g_slice_new0 (GstDataQueueItem);
+  item = g_slice_new (GstDataQueueItem);
   item->object = GST_MINI_OBJECT (buffer);
   item->size = gst_buffer_get_size (buffer);
   item->duration = GST_BUFFER_DURATION (buffer);
@@ -2338,6 +2170,8 @@ gst_ahc_src_on_error (gint error, gpointer user_data)
 static gboolean
 gst_ahc_src_open (GstAHCSrc * self)
 {
+  GError *err = NULL;
+
   GST_DEBUG_OBJECT (self, "Opening camera");
 
   self->camera = gst_ah_camera_open (self->device);
@@ -2345,29 +2179,44 @@ gst_ahc_src_open (GstAHCSrc * self)
   if (self->camera) {
     GST_DEBUG_OBJECT (self, "Opened camera");
 
-    self->texture = gst_ag_surfacetexture_new (0);
+    self->texture = gst_amc_surface_texture_new (&err);
+    if (self->texture == NULL) {
+      GST_ERROR_OBJECT (self,
+          "Failed to create surface texture object: %s", err->message);
+      g_clear_error (&err);
+      goto failed_surfacetexutre;
+    }
     gst_ah_camera_set_preview_texture (self->camera, self->texture);
     self->buffer_size = 0;
   } else {
     gint num_cams = gst_ah_camera_get_number_of_cameras ();
     if (num_cams > 0 && self->device < num_cams) {
       GST_ELEMENT_ERROR (self, RESOURCE, NOT_FOUND,
-          ("Unable to open device '%d'.", self->device), GST_ERROR_SYSTEM);
+          ("Unable to open device '%d'.", self->device), (NULL));
     } else if (num_cams > 0) {
       GST_ELEMENT_ERROR (self, RESOURCE, NOT_FOUND,
-          ("Device '%d' does not exist.", self->device), GST_ERROR_SYSTEM);
+          ("Device '%d' does not exist.", self->device), (NULL));
     } else {
       GST_ELEMENT_ERROR (self, RESOURCE, NOT_FOUND,
-          ("There are no cameras available on this device."), GST_ERROR_SYSTEM);
+          ("There are no cameras available on this device."), (NULL));
     }
   }
 
   return (self->camera != NULL);
+
+failed_surfacetexutre:
+  gst_ah_camera_release (self->camera);
+  gst_ah_camera_free (self->camera);
+  self->camera = NULL;
+
+  return FALSE;
 }
 
 static void
 gst_ahc_src_close (GstAHCSrc * self)
 {
+  GError *err = NULL;
+
   if (self->camera) {
     gst_ah_camera_set_error_callback (self->camera, NULL, NULL);
     gst_ah_camera_set_preview_callback_with_buffer (self->camera, NULL, NULL);
@@ -2376,11 +2225,13 @@ gst_ahc_src_close (GstAHCSrc * self)
   }
   self->camera = NULL;
 
-  if (self->texture) {
-    gst_ag_surfacetexture_release (self->texture);
-    gst_ag_surfacetexture_free (self->texture);
+  if (self->texture && !gst_amc_surface_texture_release (self->texture, &err)) {
+    GST_ERROR_OBJECT (self,
+        "Failed to release surface texture object: %s", err->message);
+    g_clear_error (&err);
   }
-  self->texture = NULL;
+
+  g_clear_object (&self->texture);
 }
 
 static GstStateChangeReturn

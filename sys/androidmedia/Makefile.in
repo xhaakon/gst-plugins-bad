@@ -177,7 +177,6 @@ am_libgstandroidmedia_la_OBJECTS = libgstandroidmedia_la-gstahcsrc.lo \
 	libgstandroidmedia_la-gstamcvideodec.lo \
 	libgstandroidmedia_la-gstamcvideoenc.lo \
 	libgstandroidmedia_la-gst-android-graphics-imageformat.lo \
-	libgstandroidmedia_la-gst-android-graphics-surfacetexture.lo \
 	libgstandroidmedia_la-gst-android-hardware-camera.lo \
 	libgstandroidmedia_la-gstjniutils.lo
 libgstandroidmedia_la_OBJECTS = $(am_libgstandroidmedia_la_OBJECTS)
@@ -317,6 +316,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -532,6 +533,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -658,8 +661,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -704,6 +705,8 @@ WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -802,7 +805,6 @@ libgstandroidmedia_la_SOURCES = \
 	gstamcvideodec.c \
 	gstamcvideoenc.c \
 	gst-android-graphics-imageformat.c \
-	gst-android-graphics-surfacetexture.c \
 	gst-android-hardware-camera.c \
 	gstjniutils.c
 
@@ -816,7 +818,6 @@ noinst_HEADERS = \
 	gstamcvideodec.h \
 	gstamcvideoenc.h \
 	gst-android-graphics-imageformat.h \
-	gst-android-graphics-surfacetexture.h \
 	gst-android-hardware-camera.h \
 	gstjniutils.h
 
@@ -926,7 +927,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gst-android-graphics-imageformat.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gst-android-graphics-surfacetexture.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gst-android-hardware-camera.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstahcsrc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstandroidmedia_la-gstamc.Plo@am__quote@
@@ -1016,13 +1016,6 @@ libgstandroidmedia_la-gst-android-graphics-imageformat.lo: gst-android-graphics-
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gst-android-graphics-imageformat.c' object='libgstandroidmedia_la-gst-android-graphics-imageformat.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gst-android-graphics-imageformat.lo `test -f 'gst-android-graphics-imageformat.c' || echo '$(srcdir)/'`gst-android-graphics-imageformat.c
-
-libgstandroidmedia_la-gst-android-graphics-surfacetexture.lo: gst-android-graphics-surfacetexture.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gst-android-graphics-surfacetexture.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gst-android-graphics-surfacetexture.Tpo -c -o libgstandroidmedia_la-gst-android-graphics-surfacetexture.lo `test -f 'gst-android-graphics-surfacetexture.c' || echo '$(srcdir)/'`gst-android-graphics-surfacetexture.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstandroidmedia_la-gst-android-graphics-surfacetexture.Tpo $(DEPDIR)/libgstandroidmedia_la-gst-android-graphics-surfacetexture.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gst-android-graphics-surfacetexture.c' object='libgstandroidmedia_la-gst-android-graphics-surfacetexture.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -c -o libgstandroidmedia_la-gst-android-graphics-surfacetexture.lo `test -f 'gst-android-graphics-surfacetexture.c' || echo '$(srcdir)/'`gst-android-graphics-surfacetexture.c
 
 libgstandroidmedia_la-gst-android-hardware-camera.lo: gst-android-hardware-camera.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstandroidmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstandroidmedia_la_CFLAGS) $(CFLAGS) -MT libgstandroidmedia_la-gst-android-hardware-camera.lo -MD -MP -MF $(DEPDIR)/libgstandroidmedia_la-gst-android-hardware-camera.Tpo -c -o libgstandroidmedia_la-gst-android-hardware-camera.lo `test -f 'gst-android-hardware-camera.c' || echo '$(srcdir)/'`gst-android-hardware-camera.c

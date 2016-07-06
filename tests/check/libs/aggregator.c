@@ -152,11 +152,9 @@ gst_test_aggregator_class_init (GstTestAggregatorClass * klass)
       GST_STATIC_PAD_TEMPLATE ("sink_%u", GST_PAD_SINK, GST_PAD_REQUEST,
       GST_STATIC_CAPS_ANY);
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&_src_template));
+  gst_element_class_add_static_pad_template (gstelement_class, &_src_template);
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&_sink_template));
+  gst_element_class_add_static_pad_template (gstelement_class, &_sink_template);
 
   gst_element_class_set_static_metadata (gstelement_class, "Aggregator",
       "Testing", "Combine N buffers", "Stefan Sauer <ensonic@users.sf.net>");
@@ -343,6 +341,8 @@ downstream_probe_cb (GstPad * pad, GstPadProbeInfo * info, TestData * test)
         GST_EVENT_FLUSH_STOP)
       g_atomic_int_inc (&test->flush_stop_events);
   }
+
+  gst_mini_object_unref (info->data);
 
   return GST_PAD_PROBE_HANDLED;
 }

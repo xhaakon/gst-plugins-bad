@@ -17,7 +17,7 @@ AM_TESTS_ENVIRONMENT += \
 	GST_STATE_IGNORE_ELEMENTS="apexsink avdtpsrc camerabin dc1394src \
 	    dccpclientsrc dccpclientsink dccpserversrc dccpserversink decklinksrc \
 	    decklinksink dtlssrtpdec dtlssrtpenc dvbsrc dvbbasebin dfbvideosink festival fluidsynth \
-	    linsyssdisrc linsyssdisink nassink \
+	    linsyssdisrc linsyssdisink nassink kmssink \
 	    rsndvdbin sdlaudiosink sdlvideosink vcdsrc rfbsrc vdpauyuvvideo vdpauvideoyuv \
 	    vdpaumpegdec vdpaumpeg4dec vdpauh264dec vdpauvideopostprocess vdpausink neonhttpsrc"
 
@@ -211,7 +211,8 @@ check_gl=libs/gstglcontext \
     libs/gstglcolorconvert \
     libs/gstglquery \
     libs/gstglsl \
-    elements/glimagesink
+    elements/glimagesink \
+    pipelines/simple-launch-lines
 else
 check_gl=
 endif
@@ -272,6 +273,7 @@ check_PROGRAMS = \
 	elements/mxfmux \
 	elements/netsim \
 	elements/pcapparse \
+	elements/pnm \
 	elements/rtponvifparse \
 	elements/rtponviftimestamp \
 	elements/id3mux \
@@ -315,6 +317,12 @@ elements_audiomixer_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST
 elements_audiointerleave_LDADD = $(GST_BASE_LIBS) -lgstbase-@GST_API_VERSION@ -lgstaudio-@GST_API_VERSION@ $(LDADD)
 elements_audiointerleave_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 
+elements_pnm_CFLAGS = \
+	$(GST_PLUGINS_BASE_CFLAGS)
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+elements_pnm_LDADD = \
+	$(GST_PLUGINS_BASE_LIBS) -lgstapp-$(GST_API_VERSION) $(GST_BASE_LIBS) $(LDADD)
+#
 # parser unit test convenience lib
 noinst_LTLIBRARIES = libparser.la
 libparser_la_SOURCES = elements/parser.c elements/parser.h
@@ -480,9 +488,10 @@ libs_player_SOURCES = libs/player.c
 
 libs_player_LDADD = \
 	$(top_builddir)/gst-libs/gst/player/libgstplayer-@GST_API_VERSION@.la \
+	-lgstvideo-@GST_API_VERSION@ \
 	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
 libs_player_CFLAGS = \
-	$(GST_PLUGINS_BAD_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS) \
+	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS) \
 	-DTEST_PATH=\"$(builddir)/media\"
 
 if WITH_GST_PLAYER_TESTS
@@ -532,7 +541,8 @@ orc/audiomixer.c: $(top_srcdir)/gst/audiomixer/gstaudiomixerorc.orc
 
 libs_gstglcontext_LDADD = \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
-	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
+	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
 
 libs_gstglcontext_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
@@ -595,6 +605,14 @@ elements_glimagesink_CFLAGS = \
 elements_glimagesink_LDADD = \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
 	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
+	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+
+pipelines_simple_launch_lines_CFLAGS = \
+	$(GST_PLUGINS_BAD_CFLAGS) \
+	-DGST_USE_UNSTABLE_API \
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+
+pipelines_simple_launch_lines_LDADD = \
 	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
 
 libs_aggregator_LDADD = \

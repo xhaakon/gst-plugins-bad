@@ -28,7 +28,7 @@
 #include "gstglupload.h"
 
 #if GST_GL_HAVE_PLATFORM_EGL
-#include "egl/gsteglimagememory.h"
+#include "egl/gstglmemoryegl.h"
 #endif
 
 #if GST_GL_HAVE_DMABUF
@@ -319,6 +319,17 @@ _gl_memory_upload_propose_allocation (gpointer impl, GstQuery * decide_query,
             upload->context));
     gst_query_add_allocation_param (query, allocator, &params);
     gst_object_unref (allocator);
+
+#if GST_GL_HAVE_PLATFORM_EGL
+    if (upload->upload->context
+        && gst_gl_context_get_gl_platform (upload->upload->context) ==
+        GST_GL_PLATFORM_EGL) {
+      allocator =
+          GST_ALLOCATOR (gst_allocator_find (GST_GL_MEMORY_EGL_ALLOCATOR_NAME));
+      gst_query_add_allocation_param (query, allocator, &params);
+      gst_object_unref (allocator);
+    }
+#endif
   }
 
   n_pools = gst_query_get_n_allocation_pools (query);
@@ -433,231 +444,12 @@ static const UploadMethod _gl_memory_upload = {
   &_gl_memory_upload_free
 };
 
-#if GST_GL_HAVE_PLATFORM_EGL
-struct EGLImageUpload
-{
-  GstGLUpload *upload;
-  GstBuffer *buffer;
-  GstBuffer **outbuf;
-  GstGLVideoAllocationParams *params;
-};
-
-static gpointer
-_egl_image_upload_new (GstGLUpload * upload)
-{
-  struct EGLImageUpload *image = g_new0 (struct EGLImageUpload, 1);
-
-  image->upload = upload;
-
-  return image;
-}
-
-static GstCaps *
-_egl_image_upload_transform_caps (GstGLContext * context,
-    GstPadDirection direction, GstCaps * caps)
-{
-  GstCapsFeatures *passthrough =
-      gst_caps_features_from_string
-      (GST_CAPS_FEATURE_META_GST_VIDEO_OVERLAY_COMPOSITION);
-  GstCaps *ret;
-
-  if (direction == GST_PAD_SINK) {
-    GstCaps *tmp;
-
-    ret =
-        _set_caps_features_with_passthrough (caps,
-        GST_CAPS_FEATURE_MEMORY_GL_MEMORY, passthrough);
-
-    tmp = _caps_intersect_texture_target (ret, 1 << GST_GL_TEXTURE_TARGET_2D);
-    gst_caps_unref (ret);
-    ret = tmp;
-  } else {
-    gint i, n;
-
-    ret =
-        _set_caps_features_with_passthrough (caps,
-        GST_CAPS_FEATURE_MEMORY_EGL_IMAGE, passthrough);
-    gst_caps_set_simple (ret, "format", G_TYPE_STRING, "RGBA", NULL);
-
-    n = gst_caps_get_size (ret);
-    for (i = 0; i < n; i++) {
-      GstStructure *s = gst_caps_get_structure (ret, i);
-
-      gst_structure_remove_fields (s, "texture-target", NULL);
-    }
-  }
-
-  gst_caps_features_free (passthrough);
-
-  return ret;
-}
-
-static gboolean
-_egl_image_upload_accept (gpointer impl, GstBuffer * buffer, GstCaps * in_caps,
-    GstCaps * out_caps)
-{
-  struct EGLImageUpload *image = impl;
-  GstCapsFeatures *features;
-  gboolean ret = TRUE;
-  int i;
-
-  features = gst_caps_get_features (in_caps, 0);
-  if (!gst_caps_features_contains (features, GST_CAPS_FEATURE_MEMORY_EGL_IMAGE))
-    ret = FALSE;
-
-  features = gst_caps_get_features (out_caps, 0);
-  if (!gst_caps_features_contains (features, GST_CAPS_FEATURE_MEMORY_GL_MEMORY))
-    ret = FALSE;
-
-  if (!ret)
-    return FALSE;
-
-  if (image->params)
-    gst_gl_allocation_params_free ((GstGLAllocationParams *) image->params);
-  if (!(image->params =
-          gst_gl_video_allocation_params_new (image->upload->context, NULL,
-              &image->upload->priv->in_info, -1, NULL,
-              GST_GL_TEXTURE_TARGET_2D)))
-    return FALSE;
-
-  if (buffer) {
-    GstVideoInfo *in_info = &image->upload->priv->in_info;
-    guint expected_memories = GST_VIDEO_INFO_N_PLANES (in_info);
-
-    /* Support stereo views for separated multiview mode */
-    if (GST_VIDEO_INFO_MULTIVIEW_MODE (in_info) ==
-        GST_VIDEO_MULTIVIEW_MODE_SEPARATED)
-      expected_memories *= GST_VIDEO_INFO_VIEWS (in_info);
-
-    if (gst_buffer_n_memory (buffer) != expected_memories)
-      return FALSE;
-
-    for (i = 0; i < expected_memories; i++) {
-      GstMemory *mem = gst_buffer_peek_memory (buffer, i);
-
-      if (!gst_is_egl_image_memory (mem))
-        return FALSE;
-    }
-  }
-
-  return TRUE;
-}
-
-static void
-_egl_image_upload_propose_allocation (gpointer impl, GstQuery * decide_query,
-    GstQuery * query)
-{
-  struct EGLImageUpload *image = impl;
-  GstCaps *caps;
-  GstCapsFeatures *features;
-
-  gst_query_parse_allocation (query, &caps, NULL);
-  features = gst_caps_get_features (caps, 0);
-
-  /* Only offer our custom allocator if that type of memory was negotiated. */
-  if (gst_caps_features_contains (features,
-          GST_CAPS_FEATURE_MEMORY_EGL_IMAGE) &&
-      gst_gl_context_check_feature (image->upload->context,
-          "EGL_KHR_image_base")) {
-    GstAllocationParams params;
-    GstAllocator *allocator;
-
-    gst_allocation_params_init (&params);
-
-    allocator = gst_allocator_find (GST_EGL_IMAGE_MEMORY_TYPE);
-    gst_query_add_allocation_param (query, allocator, &params);
-    gst_object_unref (allocator);
-  }
-}
-
-static void
-_egl_image_upload_perform_gl_thread (GstGLContext * context,
-    struct EGLImageUpload *image)
-{
-  GstGLMemoryAllocator *allocator;
-  guint i, n;
-
-  allocator =
-      GST_GL_MEMORY_ALLOCATOR (gst_allocator_find
-      (GST_GL_MEMORY_PBO_ALLOCATOR_NAME));
-
-  /* FIXME: buffer pool */
-  *image->outbuf = gst_buffer_new ();
-  gst_gl_memory_setup_buffer (allocator, *image->outbuf, image->params);
-  gst_object_unref (allocator);
-
-  n = gst_buffer_n_memory (image->buffer);
-  for (i = 0; i < n; i++) {
-    GstMemory *mem = gst_buffer_peek_memory (image->buffer, i);
-    GstGLMemory *out_gl_mem =
-        (GstGLMemory *) gst_buffer_peek_memory (*image->outbuf, i);
-    const GstGLFuncs *gl = NULL;
-
-    gl = GST_GL_CONTEXT (((GstEGLImageMemory *) mem)->context)->gl_vtable;
-
-    gl->ActiveTexture (GL_TEXTURE0 + i);
-    gl->BindTexture (GL_TEXTURE_2D, out_gl_mem->tex_id);
-    gl->EGLImageTargetTexture2D (GL_TEXTURE_2D,
-        gst_egl_image_memory_get_image (mem));
-  }
-
-  if (GST_IS_GL_BUFFER_POOL (image->buffer->pool))
-    gst_gl_buffer_pool_replace_last_buffer (GST_GL_BUFFER_POOL (image->
-            buffer->pool), image->buffer);
-}
-
-static GstGLUploadReturn
-_egl_image_upload_perform (gpointer impl, GstBuffer * buffer,
-    GstBuffer ** outbuf)
-{
-  struct EGLImageUpload *image = impl;
-
-  image->buffer = buffer;
-  image->outbuf = outbuf;
-
-  gst_gl_context_thread_add (image->upload->context,
-      (GstGLContextThreadFunc) _egl_image_upload_perform_gl_thread, image);
-
-  if (!*image->outbuf)
-    return GST_GL_UPLOAD_ERROR;
-
-  return GST_GL_UPLOAD_DONE;
-}
-
-static void
-_egl_image_upload_free (gpointer impl)
-{
-  struct EGLImageUpload *image = impl;
-
-  if (image->params)
-    gst_gl_allocation_params_free ((GstGLAllocationParams *) image->params);
-
-  g_free (impl);
-}
-
-static GstStaticCaps _egl_image_upload_caps =
-GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE_WITH_FEATURES
-    (GST_CAPS_FEATURE_MEMORY_EGL_IMAGE, "RGBA"));
-
-static const UploadMethod _egl_image_upload = {
-  "EGLImage",
-  0,
-  &_egl_image_upload_caps,
-  &_egl_image_upload_new,
-  &_egl_image_upload_transform_caps,
-  &_egl_image_upload_accept,
-  &_egl_image_upload_propose_allocation,
-  &_egl_image_upload_perform,
-  &_egl_image_upload_free
-};
-#endif /* GST_GL_HAVE_PLATFORM_EGL */
-
 #if GST_GL_HAVE_DMABUF
 struct DmabufUpload
 {
   GstGLUpload *upload;
 
-  GstMemory *eglimage[GST_VIDEO_MAX_PLANES];
+  GstEGLImage *eglimage[GST_VIDEO_MAX_PLANES];
   GstBuffer *outbuf;
   GstGLVideoAllocationParams *params;
 };
@@ -729,7 +521,7 @@ _eglimage_quark (gint plane)
   return quark[plane];
 }
 
-static GstMemory *
+static GstEGLImage *
 _get_cached_eglimage (GstMemory * mem, gint plane)
 {
   return gst_mini_object_get_qdata (GST_MINI_OBJECT (mem),
@@ -737,10 +529,10 @@ _get_cached_eglimage (GstMemory * mem, gint plane)
 }
 
 static void
-_set_cached_eglimage (GstMemory * mem, GstMemory * eglimage, gint plane)
+_set_cached_eglimage (GstMemory * mem, GstEGLImage * eglimage, gint plane)
 {
   return gst_mini_object_set_qdata (GST_MINI_OBJECT (mem),
-      _eglimage_quark (plane), eglimage, (GDestroyNotify) gst_memory_unref);
+      _eglimage_quark (plane), eglimage, (GDestroyNotify) gst_egl_image_unref);
 }
 
 static gboolean
@@ -790,9 +582,9 @@ _dma_buf_upload_accept (gpointer impl, GstBuffer * buffer, GstCaps * in_caps,
   if (dmabuf->params)
     gst_gl_allocation_params_free ((GstGLAllocationParams *) dmabuf->params);
   if (!(dmabuf->params =
-          gst_gl_video_allocation_params_new (dmabuf->upload->context, NULL,
-              &dmabuf->upload->priv->in_info, -1, NULL,
-              GST_GL_TEXTURE_TARGET_2D)))
+          gst_gl_video_allocation_params_new_wrapped_gl_handle (dmabuf->
+              upload->context, NULL, &dmabuf->upload->priv->in_info, -1, NULL,
+              GST_GL_TEXTURE_TARGET_2D, 0, NULL, NULL, NULL)))
     return FALSE;
 
   /* Find and validate all memories */
@@ -826,7 +618,7 @@ _dma_buf_upload_accept (gpointer impl, GstBuffer * buffer, GstCaps * in_caps,
 
     /* otherwise create one and cache it */
     dmabuf->eglimage[i] =
-        gst_egl_image_memory_from_dmabuf (dmabuf->upload->context,
+        gst_egl_image_from_dmabuf (dmabuf->upload->context,
         gst_dmabuf_memory_get_fd (mems[i]), in_info, i, mems_skip[i]);
 
     if (!dmabuf->eglimage[i])
@@ -850,35 +642,16 @@ _dma_buf_upload_perform_gl_thread (GstGLContext * context,
     struct DmabufUpload *dmabuf)
 {
   GstGLMemoryAllocator *allocator;
-  guint i, n;
 
   allocator =
       GST_GL_MEMORY_ALLOCATOR (gst_allocator_find
-      (GST_GL_MEMORY_PBO_ALLOCATOR_NAME));
+      (GST_GL_MEMORY_EGL_ALLOCATOR_NAME));
 
   /* FIXME: buffer pool */
   dmabuf->outbuf = gst_buffer_new ();
-  gst_gl_memory_setup_buffer (allocator, dmabuf->outbuf, dmabuf->params);
+  gst_gl_memory_setup_buffer (allocator, dmabuf->outbuf, dmabuf->params, NULL,
+      (gpointer *) dmabuf->eglimage, gst_buffer_n_memory (dmabuf->outbuf));
   gst_object_unref (allocator);
-
-  n = gst_buffer_n_memory (dmabuf->outbuf);
-  for (i = 0; i < n; i++) {
-    const GstGLFuncs *gl = NULL;
-    GstGLMemory *gl_mem =
-        (GstGLMemory *) gst_buffer_peek_memory (dmabuf->outbuf, i);
-
-    if (!dmabuf->eglimage[i]) {
-      g_clear_pointer (&dmabuf->outbuf, gst_buffer_unref);
-      return;
-    }
-
-    gl = GST_GL_CONTEXT (((GstEGLImageMemory *) gl_mem)->context)->gl_vtable;
-
-    gl->ActiveTexture (GL_TEXTURE0 + i);
-    gl->BindTexture (GL_TEXTURE_2D, gl_mem->tex_id);
-    gl->EGLImageTargetTexture2D (GL_TEXTURE_2D,
-        gst_egl_image_memory_get_image (dmabuf->eglimage[i]));
-  }
 }
 
 static GstGLUploadReturn
@@ -1012,7 +785,7 @@ _upload_meta_upload_accept (gpointer impl, GstBuffer * buffer,
   if (!(upload->params =
           gst_gl_video_allocation_params_new (upload->upload->context, NULL,
               &upload->upload->priv->in_info, -1, NULL,
-              GST_GL_TEXTURE_TARGET_2D)))
+              GST_GL_TEXTURE_TARGET_2D, 0)))
     return FALSE;
 
   if (buffer) {
@@ -1103,7 +876,8 @@ _upload_meta_upload_perform (gpointer impl, GstBuffer * buffer,
 
   /* FIXME: buffer pool */
   *outbuf = gst_buffer_new ();
-  gst_gl_memory_setup_buffer (allocator, *outbuf, upload->params);
+  gst_gl_memory_setup_buffer (allocator, *outbuf, upload->params, NULL, NULL,
+      0);
   gst_object_unref (allocator);
 
   for (i = 0; i < GST_GL_UPLOAD_MAX_PLANES; i++) {
@@ -1137,15 +911,8 @@ static void
 _upload_meta_upload_free (gpointer impl)
 {
   struct GLUploadMeta *upload = impl;
-  gint i;
 
   g_return_if_fail (impl != NULL);
-
-  for (i = 0; i < GST_GL_UPLOAD_MAX_PLANES; i++) {
-    if (upload->texture_ids[i])
-      gst_gl_context_del_texture (upload->upload->context,
-          &upload->texture_ids[i]);
-  }
 
   if (upload->params)
     gst_gl_allocation_params_free ((GstGLAllocationParams *) upload->params);
@@ -1301,7 +1068,7 @@ _raw_data_upload_accept (gpointer impl, GstBuffer * buffer, GstCaps * in_caps,
   if (!(raw->params =
           gst_gl_video_allocation_params_new_wrapped_data (raw->upload->context,
               NULL, &raw->upload->priv->in_info, -1, NULL,
-              GST_GL_TEXTURE_TARGET_2D, NULL, raw->in_frame,
+              GST_GL_TEXTURE_TARGET_2D, 0, NULL, raw->in_frame,
               (GDestroyNotify) _raw_upload_frame_unref)))
     return FALSE;
 
@@ -1337,6 +1104,9 @@ _raw_data_upload_perform (gpointer impl, GstBuffer * buffer,
 
     raw->params->parent.wrapped_data = raw->in_frame->frame.data[i];
     raw->params->plane = i;
+    raw->params->tex_type =
+        gst_gl_texture_type_from_format (raw->upload->context,
+        GST_VIDEO_INFO_FORMAT (in_info), i);
 
     tex =
         gst_gl_base_memory_alloc (allocator,
@@ -1385,9 +1155,6 @@ static const UploadMethod _raw_data_upload = {
 };
 
 static const UploadMethod *upload_methods[] = { &_gl_memory_upload,
-#if GST_GL_HAVE_PLATFORM_EGL
-  &_egl_image_upload,
-#endif
 #if GST_GL_HAVE_DMABUF
   &_dma_buf_upload,
 #endif

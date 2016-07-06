@@ -28,10 +28,6 @@
 
 #include "gstglmixer.h"
 
-#if GST_GL_HAVE_PLATFORM_EGL
-#include <gst/gl/egl/gsteglimagememory.h>
-#endif
-
 #define gst_gl_mixer_parent_class parent_class
 G_DEFINE_ABSTRACT_TYPE (GstGLMixer, gst_gl_mixer, GST_TYPE_GL_BASE_MIXER);
 
@@ -380,10 +376,8 @@ gst_gl_mixer_class_init (GstGLMixerClass * klass)
   gobject_class->get_property = gst_gl_mixer_get_property;
   gobject_class->set_property = gst_gl_mixer_set_property;
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_factory));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_factory));
+  gst_element_class_add_static_pad_template (element_class, &src_factory);
+  gst_element_class_add_static_pad_template (element_class, &sink_factory);
 
   agg_class->sinkpads_type = GST_TYPE_GL_MIXER_PAD;
   agg_class->sink_query = gst_gl_mixer_sink_query;
@@ -606,6 +600,7 @@ _upload_frames (GstAggregator * agg, GstAggregatorPad * agg_pad,
   GstGLMixerPad *pad = GST_GL_MIXER_PAD (agg_pad);
   GstGLMixer *mix = GST_GL_MIXER (agg);
 
+  pad->current_texture = 0;
   if (vaggpad->buffer != NULL) {
     GstVideoInfo gl_info;
     GstVideoFrame gl_frame;

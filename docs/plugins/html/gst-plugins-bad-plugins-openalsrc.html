@@ -29,7 +29,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-bad-plugins-openalsrc.top_of_page"></a>openalsrc</span></h2>
-<p>openalsrc</p>
+<p>openalsrc — capture raw audio samples through OpenAL</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -85,10 +85,36 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-openalsrc.description"></a><h2>Description</h2>
+<p>This element captures raw audio samples through OpenAL.</p>
+<div class="refsect2">
+<a name="id-1.2.55.7.3"></a><h3>Example pipelines</h3>
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1</pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> <span class="gtkdoc opt">-</span>v openalsrc <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> wavenc <span class="gtkdoc opt">!</span> filesink location<span class="gtkdoc opt">=</span>stream<span class="gtkdoc opt">.</span>wav</pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+ * will capture sound through OpenAL and encode it to a wav file.
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1</pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> openalsrc <span class="gtkdoc opt">!</span> <span class="string">&quot;audio/x-raw,format=S16LE,rate=44100&quot;</span> <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> volume volume<span class="gtkdoc opt">=</span><span class="number">0.25</span> <span class="gtkdoc opt">!</span> openalsink</pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+ will capture and play audio through OpenAL.
+</div>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.55.7.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.55.7.4.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -114,7 +140,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.55.7.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.55.7.4.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -174,6 +200,10 @@
 <p>Flags: Read</p>
 <p>Default value: NULL</p>
 </div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-openalsrc.see-also"></a><h2>See Also</h2>
+<p>openalsink</p>
 </div>
 </div>
 <div class="footer">

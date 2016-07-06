@@ -28,7 +28,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="GstGLBufferPool.top_of_page"></a>GstGLBufferPool</span></h2>
-<p>GstGLBufferPool — buffer pool for <a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> objects</p>
+<p>GstGLBufferPool</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -97,10 +97,6 @@
 </div>
 <div class="refsect1">
 <a name="GstGLBufferPool.description"></a><h2>Description</h2>
-<p>a <a class="link" href="GstGLBufferPool.html" title="GstGLBufferPool"><span class="type">GstGLBufferPool</span></a> is an object that allocates buffers with <a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p>
-<p>A <a class="link" href="GstGLBufferPool.html" title="GstGLBufferPool"><span class="type">GstGLBufferPool</span></a> is created with <a class="link" href="GstGLBufferPool.html#gst-gl-buffer-pool-new" title="gst_gl_buffer_pool_new ()"><code class="function">gst_gl_buffer_pool_new()</code></a></p>
-<p><a class="link" href="GstGLBufferPool.html" title="GstGLBufferPool"><span class="type">GstGLBufferPool</span></a> implements the VideoMeta buffer pool option 
-<a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-GstVideoPool.html#GST-BUFFER-POOL-OPTION-VIDEO-META:CAPS"><span class="type">GST_BUFFER_POOL_OPTION_VIDEO_META</span></a></p>
 </div>
 <div class="refsect1">
 <a name="GstGLBufferPool.functions_details"></a><h2>Functions</h2>
@@ -108,25 +104,6 @@
 <a name="gst-gl-buffer-pool-new"></a><h3>gst_gl_buffer_pool_new ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBufferPool.html#GstBufferPool-struct"><span class="returnvalue">GstBufferPool</span></a> *
 gst_gl_buffer_pool_new (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>);</pre>
-<div class="refsect3">
-<a name="gst-gl-buffer-pool-new.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody><tr>
-<td class="parameter_name"><p>context</p></td>
-<td class="parameter_description"><p>the <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> to use</p></td>
-<td class="parameter_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-gl-buffer-pool-new.returns"></a><h4>Returns</h4>
-<p> a <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBufferPool.html#GstBufferPool-struct"><span class="type">GstBufferPool</span></a> that allocates buffers with <a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -134,26 +111,6 @@ gst_gl_buffer_pool_new (<em class="parameter"><code><a class="link" href="GstGLC
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="returnvalue">GstGLAllocationParams</span></a> *
 gst_buffer_pool_config_get_gl_allocation_params
                                (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstStructure.html#GstStructure-struct"><span class="type">GstStructure</span></a> *config</code></em>);</pre>
-<div class="refsect3">
-<a name="gst-buffer-pool-config-get-gl-allocation-params.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody><tr>
-<td class="parameter_name"><p>config</p></td>
-<td class="parameter_description"><p>a buffer pool config</p></td>
-<td class="parameter_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-buffer-pool-config-get-gl-allocation-params.returns"></a><h4>Returns</h4>
-<p> the currently set <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. </p>
-<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -162,31 +119,6 @@ gst_buffer_pool_config_get_gl_allocation_params
 gst_buffer_pool_config_set_gl_allocation_params
                                (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstStructure.html#GstStructure-struct"><span class="type">GstStructure</span></a> *config</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *params</code></em>);</pre>
-<p>Sets <em class="parameter"><code>params</code></em>
- on <em class="parameter"><code>config</code></em>
-</p>
-<div class="refsect3">
-<a name="gst-buffer-pool-config-set-gl-allocation-params.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>config</p></td>
-<td class="parameter_description"><p>a buffer pool config</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>params</p></td>
-<td class="parameter_description"><p> a <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a>. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
-</tr>
-</tbody>
-</table></div>
-</div>
 </div>
 </div>
 <div class="refsect1">
@@ -194,7 +126,6 @@ gst_buffer_pool_config_set_gl_allocation_params
 <div class="refsect2">
 <a name="GstGLBufferPool-struct"></a><h3>GstGLBufferPool</h3>
 <pre class="programlisting">typedef struct _GstGLBufferPool GstGLBufferPool;</pre>
-<p>Opaque GstGLBufferPool struct</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -203,12 +134,7 @@ gst_buffer_pool_config_set_gl_allocation_params
   GstBufferPoolClass parent_class;
 } GstGLBufferPoolClass;
 </pre>
-<p>The <a class="link" href="GstGLBufferPool.html#GstGLBufferPoolClass" title="GstGLBufferPoolClass"><span class="type">GstGLBufferPoolClass</span></a> structure contains only private data</p>
 </div>
-</div>
-<div class="refsect1">
-<a name="GstGLBufferPool.see-also"></a><h2>See Also</h2>
-<p><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBufferPool.html#GstBufferPool-struct"><span class="type">GstBufferPool</span></a>, <a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p>
 </div>
 </div>
 <div class="footer">

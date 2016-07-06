@@ -157,10 +157,8 @@ enum
   PROP_LAST
 };
 
-enum GstAdaptiveDemuxFlowReturn
-{
-  GST_ADAPTIVE_DEMUX_FLOW_SWITCH = GST_FLOW_CUSTOM_SUCCESS_2 + 1
-};
+/* Internal, so not using GST_FLOW_CUSTOM_SUCCESS_N */
+#define GST_ADAPTIVE_DEMUX_FLOW_SWITCH (GST_FLOW_CUSTOM_SUCCESS_2 + 1)
 
 struct _GstAdaptiveDemuxPrivate
 {
@@ -200,6 +198,15 @@ struct _GstAdaptiveDemuxPrivate
    * update the segment boundaries */
   GMutex segment_lock;
 };
+
+typedef struct _GstAdaptiveDemuxTimer
+{
+  volatile gint ref_count;
+  GCond *cond;
+  GMutex *mutex;
+  GstClockID clock_id;
+  gboolean fired;
+} GstAdaptiveDemuxTimer;
 
 static GstBinClass *parent_class = NULL;
 static void gst_adaptive_demux_class_init (GstAdaptiveDemuxClass * klass);
@@ -264,14 +271,18 @@ gst_adaptive_demux_stream_fragment_download_finish (GstAdaptiveDemuxStream *
     stream, GstFlowReturn ret, GError * err);
 static GstFlowReturn
 gst_adaptive_demux_stream_data_received_default (GstAdaptiveDemux * demux,
-    GstAdaptiveDemuxStream * stream);
+    GstAdaptiveDemuxStream * stream, GstBuffer * buffer);
 static GstFlowReturn
 gst_adaptive_demux_stream_finish_fragment_default (GstAdaptiveDemux * demux,
     GstAdaptiveDemuxStream * stream);
 static GstFlowReturn
 gst_adaptive_demux_stream_advance_fragment_unlocked (GstAdaptiveDemux * demux,
     GstAdaptiveDemuxStream * stream, GstClockTime duration);
-
+static gboolean
+gst_adaptive_demux_wait_until (GstClock * clock, GCond * cond, GMutex * mutex,
+    GstClockTime end_time);
+static gboolean gst_adaptive_demux_clock_callback (GstClock * clock,
+    GstClockTime time, GstClockID id, gpointer user_data);
 
 /* we can't use G_DEFINE_ABSTRACT_TYPE because we need the klass in the _init
  * method to get to the padtemplates */
@@ -400,6 +411,8 @@ gst_adaptive_demux_init (GstAdaptiveDemux * demux,
     GstAdaptiveDemuxClass * klass)
 {
   GstPadTemplate *pad_template;
+  GstClockType clock_type = GST_CLOCK_TYPE_OTHER;
+  GObjectClass *gobject_class;
 
   GST_DEBUG_OBJECT (demux, "gst_adaptive_demux_init");
 
@@ -413,6 +426,30 @@ gst_adaptive_demux_init (GstAdaptiveDemux * demux,
 
   gst_segment_init (&demux->segment, GST_FORMAT_TIME);
 
+  demux->realtime_clock = gst_system_clock_obtain ();
+  g_assert (demux->realtime_clock != NULL);
+  gobject_class = G_OBJECT_GET_CLASS (demux->realtime_clock);
+  if (g_object_class_find_property (gobject_class, "clock-type")) {
+    g_object_get (demux->realtime_clock, "clock-type", &clock_type, NULL);
+  } else {
+    GST_WARNING_OBJECT (demux,
+        "System clock does not have clock-type property");
+  }
+  if (clock_type == GST_CLOCK_TYPE_REALTIME) {
+    demux->clock_offset = 0;
+  } else {
+    GDateTime *utc_now;
+    GstClockTime rtc_now;
+    GTimeVal gtv;
+
+    utc_now = g_date_time_new_now_utc ();
+    rtc_now = gst_clock_get_time (demux->realtime_clock);
+    g_date_time_to_timeval (utc_now, &gtv);
+    demux->clock_offset =
+        gtv.tv_sec * G_TIME_SPAN_SECOND + gtv.tv_usec -
+        GST_TIME_AS_USECONDS (rtc_now);
+    g_date_time_unref (utc_now);
+  }
   g_rec_mutex_init (&demux->priv->updates_lock);
   demux->priv->updates_task =
       gst_task_new ((GstTaskFunction) gst_adaptive_demux_updates_loop,
@@ -466,6 +503,10 @@ gst_adaptive_demux_finalize (GObject * object)
   g_rec_mutex_clear (&demux->priv->manifest_lock);
   g_mutex_clear (&demux->priv->api_lock);
   g_mutex_clear (&demux->priv->segment_lock);
+  if (demux->realtime_clock) {
+    gst_object_unref (demux->realtime_clock);
+    demux->realtime_clock = NULL;
+  }
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -838,7 +879,7 @@ gst_adaptive_demux_expose_stream (GstAdaptiveDemux * demux,
     stream->pending_caps = NULL;
   }
 
-  stream->discont = FALSE;
+  stream->discont = TRUE;
 
   gst_object_ref (pad);
 
@@ -1074,7 +1115,6 @@ gst_adaptive_demux_stream_new (GstAdaptiveDemux * demux, GstPad * pad)
   gst_segment_init (&stream->segment, GST_FORMAT_TIME);
   g_cond_init (&stream->fragment_download_cond);
   g_mutex_init (&stream->fragment_download_lock);
-  stream->adapter = gst_adapter_new ();
 
   demux->next_streams = g_list_append (demux->next_streams, stream);
 
@@ -1176,7 +1216,7 @@ gst_adaptive_demux_stream_free (GstAdaptiveDemuxStream * stream)
   if (stream->pending_caps)
     gst_caps_unref (stream->pending_caps);
 
-  g_object_unref (stream->adapter);
+  g_clear_pointer (&stream->pending_tags, gst_tag_list_unref);
 
   g_free (stream);
 }
@@ -1217,222 +1257,227 @@ gst_adaptive_demux_can_seek (GstAdaptiveDemux * demux)
                               GST_SEEK_FLAG_SNAP_NEAREST))
 
 static gboolean
+gst_adaptive_demux_handle_seek_event (GstAdaptiveDemux * demux, GstPad * pad,
+    GstEvent * event)
+{
+  GstAdaptiveDemuxClass *demux_class = GST_ADAPTIVE_DEMUX_GET_CLASS (demux);
+  gdouble rate;
+  GstFormat format;
+  GstSeekFlags flags;
+  GstSeekType start_type, stop_type;
+  gint64 start, stop;
+  guint32 seqnum;
+  gboolean update;
+  gboolean ret;
+  GstSegment oldsegment;
+  GstAdaptiveDemuxStream *stream = NULL;
+
+  GST_INFO_OBJECT (demux, "Received seek event");
+
+  GST_API_LOCK (demux);
+  GST_MANIFEST_LOCK (demux);
+
+  if (!gst_adaptive_demux_can_seek (demux)) {
+    GST_MANIFEST_UNLOCK (demux);
+    GST_API_UNLOCK (demux);
+    gst_event_unref (event);
+    return FALSE;
+  }
+
+  gst_event_parse_seek (event, &rate, &format, &flags, &start_type, &start,
+      &stop_type, &stop);
+
+  if (format != GST_FORMAT_TIME) {
+    GST_MANIFEST_UNLOCK (demux);
+    GST_API_UNLOCK (demux);
+    gst_event_unref (event);
+    return FALSE;
+  }
+
+  if (gst_adaptive_demux_is_live (demux)) {
+    gint64 range_start, range_stop;
+    if (!gst_adaptive_demux_get_live_seek_range (demux, &range_start,
+            &range_stop)) {
+      GST_MANIFEST_UNLOCK (demux);
+      GST_API_UNLOCK (demux);
+      gst_event_unref (event);
+      return FALSE;
+    }
+    if (start < range_start || start >= range_stop) {
+      GST_MANIFEST_UNLOCK (demux);
+      GST_API_UNLOCK (demux);
+      GST_WARNING_OBJECT (demux, "Seek to invalid position");
+      gst_event_unref (event);
+      return FALSE;
+    }
+  }
+
+  seqnum = gst_event_get_seqnum (event);
+
+  GST_DEBUG_OBJECT (demux, "seek event, %" GST_PTR_FORMAT, event);
+
+  /* have a backup in case seek fails */
+  gst_segment_copy_into (&demux->segment, &oldsegment);
+
+  if (flags & GST_SEEK_FLAG_FLUSH) {
+    GstEvent *fevent;
+
+    GST_DEBUG_OBJECT (demux, "sending flush start");
+    fevent = gst_event_new_flush_start ();
+    gst_event_set_seqnum (fevent, seqnum);
+    gst_adaptive_demux_push_src_event (demux, fevent);
+
+    gst_adaptive_demux_stop_tasks (demux);
+  } else if ((rate > 0 && start_type != GST_SEEK_TYPE_NONE) ||
+      (rate < 0 && stop_type != GST_SEEK_TYPE_NONE)) {
+
+    gst_adaptive_demux_stop_tasks (demux);
+  }
+
+  GST_ADAPTIVE_DEMUX_SEGMENT_LOCK (demux);
+
+  /*
+   * Handle snap seeks as follows:
+   * 1) do the snap seeking on the stream that received
+   *    the event
+   * 2) use the final position on this stream to seek
+   *    on the other streams to the same position
+   *
+   * We can't snap at all streams at the same time as
+   * they might end in different positions, so just
+   * use the one that received the event as the 'leading'
+   * one to do the snap seek.
+   */
+  if (IS_SNAP_SEEK (flags) && demux_class->stream_seek && (stream =
+          gst_adaptive_demux_find_stream_for_pad (demux, pad))) {
+    GstClockTime ts;
+    GstSeekFlags stream_seek_flags = flags;
+
+    /* snap-seek on the stream that received the event and then
+     * use the resulting position to seek on all streams */
+
+    if (rate >= 0) {
+      if (start_type != GST_SEEK_TYPE_NONE)
+        ts = start;
+      else {
+        ts = stream->segment.position;
+        start_type = GST_SEEK_TYPE_SET;
+      }
+    } else {
+      if (stop_type != GST_SEEK_TYPE_NONE)
+        ts = stop;
+      else {
+        stop_type = GST_SEEK_TYPE_SET;
+        ts = stream->segment.position;
+      }
+    }
+
+    demux_class->stream_seek (stream, rate >= 0, stream_seek_flags, ts, &ts);
+
+    /* replace event with a new one without snaping to seek on all streams */
+    gst_event_unref (event);
+    if (rate >= 0) {
+      start = ts;
+    } else {
+      stop = ts;
+    }
+    event =
+        gst_event_new_seek (rate, format, REMOVE_SNAP_FLAGS (flags),
+        start_type, start, stop_type, stop);
+    GST_DEBUG_OBJECT (demux, "Adapted snap seek to %" GST_PTR_FORMAT, event);
+  }
+  stream = NULL;
+
+  gst_segment_do_seek (&demux->segment, rate, format, flags, start_type,
+      start, stop_type, stop, &update);
+
+  /* FIXME - this seems unatural, do_seek() is updating base when we
+   * only want the start/stop position to change, maybe do_seek() needs
+   * some fixing? */
+  if (!(flags & GST_SEEK_FLAG_FLUSH) && ((rate > 0
+              && start_type == GST_SEEK_TYPE_NONE) || (rate < 0
+              && stop_type == GST_SEEK_TYPE_NONE))) {
+    demux->segment.base = oldsegment.base;
+  }
+
+  GST_DEBUG_OBJECT (demux, "Calling subclass seek: %" GST_PTR_FORMAT, event);
+
+  ret = demux_class->seek (demux, event);
+
+  if (!ret) {
+    /* Is there anything else we can do if it fails? */
+    gst_segment_copy_into (&oldsegment, &demux->segment);
+  } else {
+    demux->priv->segment_seqnum = seqnum;
+  }
+  GST_ADAPTIVE_DEMUX_SEGMENT_UNLOCK (demux);
+
+  if (flags & GST_SEEK_FLAG_FLUSH) {
+    GstEvent *fevent;
+
+    GST_DEBUG_OBJECT (demux, "Sending flush stop on all pad");
+    fevent = gst_event_new_flush_stop (TRUE);
+    gst_event_set_seqnum (fevent, seqnum);
+    gst_adaptive_demux_push_src_event (demux, fevent);
+  }
+
+  if (demux->next_streams) {
+    gst_adaptive_demux_expose_streams (demux, FALSE);
+  } else {
+    GList *iter;
+    GstClockTime period_start =
+        gst_adaptive_demux_get_period_start_time (demux);
+
+    GST_ADAPTIVE_DEMUX_SEGMENT_LOCK (demux);
+    for (iter = demux->streams; iter; iter = g_list_next (iter)) {
+      GstAdaptiveDemuxStream *stream = iter->data;
+      GstEvent *seg_evt;
+      GstClockTime offset;
+
+      /* See comments in gst_adaptive_demux_get_period_start_time() for
+       * an explanation of the segment modifications */
+      stream->segment = demux->segment;
+      offset =
+          gst_adaptive_demux_stream_get_presentation_offset (demux, stream);
+      stream->segment.start += offset - period_start;
+      if (demux->segment.rate > 0 && start_type != GST_SEEK_TYPE_NONE)
+        stream->segment.position = stream->segment.start;
+      else if (demux->segment.rate < 0 && stop_type != GST_SEEK_TYPE_NONE)
+        stream->segment.position = stream->segment.stop;
+      seg_evt = gst_event_new_segment (&stream->segment);
+      gst_event_set_seqnum (seg_evt, demux->priv->segment_seqnum);
+      gst_event_replace (&stream->pending_segment, seg_evt);
+      gst_event_unref (seg_evt);
+      /* Make sure the first buffer after a seek has the discont flag */
+      stream->discont = TRUE;
+    }
+
+    GST_ADAPTIVE_DEMUX_SEGMENT_UNLOCK (demux);
+  }
+
+  /* Restart the demux */
+  gst_adaptive_demux_start_tasks (demux);
+  GST_MANIFEST_UNLOCK (demux);
+  GST_API_UNLOCK (demux);
+  gst_event_unref (event);
+
+  return ret;
+}
+
+static gboolean
 gst_adaptive_demux_src_event (GstPad * pad, GstObject * parent,
     GstEvent * event)
 {
   GstAdaptiveDemux *demux;
-  GstAdaptiveDemuxClass *demux_class;
 
   demux = GST_ADAPTIVE_DEMUX_CAST (parent);
-  demux_class = GST_ADAPTIVE_DEMUX_GET_CLASS (demux);
 
   /* FIXME handle events received on pads that are to be removed */
 
   switch (event->type) {
     case GST_EVENT_SEEK:
     {
-      gdouble rate;
-      GstFormat format;
-      GstSeekFlags flags;
-      GstSeekType start_type, stop_type;
-      gint64 start, stop;
-      guint32 seqnum;
-      gboolean update;
-      gboolean ret = TRUE;
-      GstSegment oldsegment;
-      GstAdaptiveDemuxStream *stream = NULL;
-
-      GST_INFO_OBJECT (demux, "Received seek event");
-
-      GST_API_LOCK (demux);
-      GST_MANIFEST_LOCK (demux);
-
-      if (!gst_adaptive_demux_can_seek (demux)) {
-        GST_MANIFEST_UNLOCK (demux);
-        GST_API_UNLOCK (demux);
-        gst_event_unref (event);
-        return FALSE;
-      }
-
-      gst_event_parse_seek (event, &rate, &format, &flags, &start_type, &start,
-          &stop_type, &stop);
-
-      if (format != GST_FORMAT_TIME) {
-        GST_MANIFEST_UNLOCK (demux);
-        GST_API_UNLOCK (demux);
-        gst_event_unref (event);
-        return FALSE;
-      }
-
-      if (gst_adaptive_demux_is_live (demux)) {
-        gint64 range_start, range_stop;
-        if (!gst_adaptive_demux_get_live_seek_range (demux, &range_start,
-                &range_stop)) {
-          GST_MANIFEST_UNLOCK (demux);
-          GST_API_UNLOCK (demux);
-          gst_event_unref (event);
-          return FALSE;
-        }
-        if (start < range_start || start >= range_stop) {
-          GST_MANIFEST_UNLOCK (demux);
-          GST_API_UNLOCK (demux);
-          GST_WARNING_OBJECT (demux, "Seek to invalid position");
-          gst_event_unref (event);
-          return FALSE;
-        }
-      }
-
-      seqnum = gst_event_get_seqnum (event);
-
-      GST_DEBUG_OBJECT (demux, "seek event, %" GST_PTR_FORMAT, event);
-
-      /* have a backup in case seek fails */
-      gst_segment_copy_into (&demux->segment, &oldsegment);
-
-      if (flags & GST_SEEK_FLAG_FLUSH) {
-        GstEvent *fevent;
-
-        GST_DEBUG_OBJECT (demux, "sending flush start");
-        fevent = gst_event_new_flush_start ();
-        gst_event_set_seqnum (fevent, seqnum);
-        gst_adaptive_demux_push_src_event (demux, fevent);
-
-        gst_adaptive_demux_stop_tasks (demux);
-      } else if ((rate > 0 && start_type != GST_SEEK_TYPE_NONE) ||
-          (rate < 0 && stop_type != GST_SEEK_TYPE_NONE)) {
-
-        gst_adaptive_demux_stop_tasks (demux);
-      }
-
-      GST_ADAPTIVE_DEMUX_SEGMENT_LOCK (demux);
-
-      /*
-       * Handle snap seeks as follows:
-       * 1) do the snap seeking on the stream that received
-       *    the event
-       * 2) use the final position on this stream to seek
-       *    on the other streams to the same position
-       *
-       * We can't snap at all streams at the same time as
-       * they might end in different positions, so just
-       * use the one that received the event as the 'leading'
-       * one to do the snap seek.
-       */
-      if (IS_SNAP_SEEK (flags) && demux_class->stream_seek && (stream =
-              gst_adaptive_demux_find_stream_for_pad (demux, pad))) {
-        GstClockTime ts;
-        GstSeekFlags stream_seek_flags = flags;
-
-        /* snap-seek on the stream that received the event and then
-         * use the resulting position to seek on all streams */
-
-        if (rate >= 0) {
-          if (start_type != GST_SEEK_TYPE_NONE)
-            ts = start;
-          else {
-            ts = stream->segment.position;
-            start_type = GST_SEEK_TYPE_SET;
-          }
-        } else {
-          if (stop_type != GST_SEEK_TYPE_NONE)
-            ts = stop;
-          else {
-            stop_type = GST_SEEK_TYPE_SET;
-            ts = stream->segment.position;
-          }
-        }
-
-        demux_class->stream_seek (stream, rate >= 0, stream_seek_flags, ts,
-            &ts);
-
-        /* replace event with a new one without snaping to seek on all streams */
-        gst_event_unref (event);
-        if (rate >= 0) {
-          start = ts;
-        } else {
-          stop = ts;
-        }
-        event =
-            gst_event_new_seek (rate, format, REMOVE_SNAP_FLAGS (flags),
-            start_type, start, stop_type, stop);
-        GST_DEBUG_OBJECT (demux, "Adapted snap seek to %" GST_PTR_FORMAT,
-            event);
-      }
-      stream = NULL;
-
-      gst_segment_do_seek (&demux->segment, rate, format, flags, start_type,
-          start, stop_type, stop, &update);
-
-      /* FIXME - this seems unatural, do_seek() is updating base when we
-       * only want the start/stop position to change, maybe do_seek() needs
-       * some fixing? */
-      if (!(flags & GST_SEEK_FLAG_FLUSH) && ((rate > 0
-                  && start_type == GST_SEEK_TYPE_NONE) || (rate < 0
-                  && stop_type == GST_SEEK_TYPE_NONE))) {
-        demux->segment.base = oldsegment.base;
-      }
-
-      GST_DEBUG_OBJECT (demux, "Calling subclass seek: %" GST_PTR_FORMAT,
-          event);
-
-      ret = demux_class->seek (demux, event);
-
-      if (!ret) {
-        /* Is there anything else we can do if it fails? */
-        gst_segment_copy_into (&oldsegment, &demux->segment);
-      } else {
-        demux->priv->segment_seqnum = seqnum;
-      }
-      GST_ADAPTIVE_DEMUX_SEGMENT_UNLOCK (demux);
-
-      if (flags & GST_SEEK_FLAG_FLUSH) {
-        GstEvent *fevent;
-
-        GST_DEBUG_OBJECT (demux, "Sending flush stop on all pad");
-        fevent = gst_event_new_flush_stop (TRUE);
-        gst_event_set_seqnum (fevent, seqnum);
-        gst_adaptive_demux_push_src_event (demux, fevent);
-      }
-
-      if (demux->next_streams) {
-        gst_adaptive_demux_expose_streams (demux, FALSE);
-      } else {
-        GList *iter;
-        GstClockTime period_start =
-            gst_adaptive_demux_get_period_start_time (demux);
-
-        GST_ADAPTIVE_DEMUX_SEGMENT_LOCK (demux);
-        for (iter = demux->streams; iter; iter = g_list_next (iter)) {
-          GstAdaptiveDemuxStream *stream = iter->data;
-          GstEvent *seg_evt;
-          GstClockTime offset;
-
-          /* See comments in gst_adaptive_demux_get_period_start_time() for
-           * an explanation of the segment modifications */
-          stream->segment = demux->segment;
-          offset =
-              gst_adaptive_demux_stream_get_presentation_offset (demux, stream);
-          stream->segment.start += offset - period_start;
-          if (demux->segment.rate > 0 && start_type != GST_SEEK_TYPE_NONE)
-            stream->segment.position = stream->segment.start;
-          else if (demux->segment.rate < 0 && stop_type != GST_SEEK_TYPE_NONE)
-            stream->segment.position = stream->segment.stop;
-          seg_evt = gst_event_new_segment (&stream->segment);
-          gst_event_set_seqnum (seg_evt, demux->priv->segment_seqnum);
-          gst_event_replace (&stream->pending_segment, seg_evt);
-          gst_event_unref (seg_evt);
-        }
-
-        GST_ADAPTIVE_DEMUX_SEGMENT_UNLOCK (demux);
-      }
-
-      /* Restart the demux */
-      gst_adaptive_demux_start_tasks (demux);
-      GST_MANIFEST_UNLOCK (demux);
-      GST_API_UNLOCK (demux);
-
-      gst_event_unref (event);
-      return ret;
+      return gst_adaptive_demux_handle_seek_event (demux, pad, event);
     }
     case GST_EVENT_RECONFIGURE:{
       GstAdaptiveDemuxStream *stream;
@@ -1672,7 +1717,6 @@ gst_adaptive_demux_stop_tasks (GstAdaptiveDemux * demux)
 
     stream->download_error_count = 0;
     stream->need_header = TRUE;
-    gst_adapter_clear (stream->adapter);
   }
 }
 
@@ -1969,12 +2013,8 @@ gst_adaptive_demux_stream_finish_fragment_default (GstAdaptiveDemux * demux,
  */
 static GstFlowReturn
 gst_adaptive_demux_stream_data_received_default (GstAdaptiveDemux * demux,
-    GstAdaptiveDemuxStream * stream)
+    GstAdaptiveDemuxStream * stream, GstBuffer * buffer)
 {
-  GstBuffer *buffer;
-
-  buffer = gst_adapter_take_buffer (stream->adapter,
-      gst_adapter_available (stream->adapter));
   return gst_adaptive_demux_stream_push_buffer (stream, buffer);
 }
 
@@ -2070,15 +2110,14 @@ _src_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
   }
 
   stream->download_total_time +=
-      g_get_monotonic_time () - stream->download_chunk_start_time;
+      GST_TIME_AS_USECONDS (gst_adaptive_demux_get_monotonic_time (demux)) -
+      stream->download_chunk_start_time;
   stream->download_total_bytes += gst_buffer_get_size (buffer);
 
-  gst_adapter_push (stream->adapter, buffer);
-  GST_DEBUG_OBJECT (stream->pad, "Received buffer of size %" G_GSIZE_FORMAT
-      ". Now %" G_GSIZE_FORMAT " on adapter", gst_buffer_get_size (buffer),
-      gst_adapter_available (stream->adapter));
+  GST_DEBUG_OBJECT (stream->pad, "Received buffer of size %" G_GSIZE_FORMAT,
+      gst_buffer_get_size (buffer));
 
-  ret = klass->data_received (demux, stream);
+  ret = klass->data_received (demux, stream, buffer);
 
   if (ret == GST_FLOW_FLUSHING) {
     /* do not make any changes if the stream is cancelled */
@@ -2091,9 +2130,12 @@ _src_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
     g_mutex_unlock (&stream->fragment_download_lock);
   }
 
-  stream->download_chunk_start_time = g_get_monotonic_time ();
+  stream->download_chunk_start_time =
+      GST_TIME_AS_USECONDS (gst_adaptive_demux_get_monotonic_time (demux));
 
   if (ret != GST_FLOW_OK) {
+    gboolean finished = FALSE;
+
     if (ret < GST_FLOW_EOS) {
       GST_ELEMENT_ERROR (demux, STREAM, FAILED, (NULL),
           ("stream stopped, reason %s", gst_flow_get_name (ret)));
@@ -2105,9 +2147,22 @@ _src_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
           gst_flow_get_name (ret));
     }
 
-    gst_adaptive_demux_stream_fragment_download_finish (stream, ret, NULL);
-    if (ret == (GstFlowReturn) GST_ADAPTIVE_DEMUX_FLOW_SWITCH)
+    if (ret == (GstFlowReturn) GST_ADAPTIVE_DEMUX_FLOW_SWITCH) {
       ret = GST_FLOW_EOS;       /* return EOS to make the source stop */
+    } else if (ret == GST_ADAPTIVE_DEMUX_FLOW_END_OF_FRAGMENT) {
+      /* Behaves like an EOS event from upstream */
+      ret = klass->finish_fragment (demux, stream);
+      if (ret == (GstFlowReturn) GST_ADAPTIVE_DEMUX_FLOW_SWITCH) {
+        ret = GST_FLOW_EOS;     /* return EOS to make the source stop */
+      } else if (ret != GST_FLOW_OK) {
+        goto error;
+      }
+      finished = TRUE;
+    }
+
+    gst_adaptive_demux_stream_fragment_download_finish (stream, ret, NULL);
+    if (finished)
+      ret = GST_FLOW_EOS;
   }
 
 error:
@@ -2463,8 +2518,9 @@ gst_adaptive_demux_stream_download_uri (GstAdaptiveDemux * demux,
     }
 
     if (G_LIKELY (stream->last_ret == GST_FLOW_OK)) {
-      stream->download_start_time = g_get_monotonic_time ();
-      stream->download_chunk_start_time = g_get_monotonic_time ();
+      stream->download_start_time =
+          GST_TIME_AS_USECONDS (gst_adaptive_demux_get_monotonic_time (demux));
+      stream->download_chunk_start_time = stream->download_start_time;
 
       /* src element is in state READY. Before we start it, we reset
        * download_finished
@@ -2668,7 +2724,7 @@ static void
 gst_adaptive_demux_stream_download_loop (GstAdaptiveDemuxStream * stream)
 {
   GstAdaptiveDemux *demux = stream->demux;
-  guint64 next_download = g_get_monotonic_time ();
+  GstClockTime next_download = gst_adaptive_demux_get_monotonic_time (demux);
   GstFlowReturn ret;
   gboolean live;
 
@@ -2795,6 +2851,7 @@ gst_adaptive_demux_stream_download_loop (GstAdaptiveDemuxStream * stream)
         GST_PTR_FORMAT, seg_event);
     gst_pad_push_event (stream->pad, seg_event);
 
+    stream->discont = TRUE;
     stream->restart_download = FALSE;
   }
 
@@ -2810,7 +2867,8 @@ gst_adaptive_demux_stream_download_loop (GstAdaptiveDemuxStream * stream)
       gint64 wait_time =
           gst_adaptive_demux_stream_get_fragment_waiting_time (demux, stream);
       if (wait_time > 0) {
-        gint64 end_time = g_get_monotonic_time () + wait_time / GST_USECOND;
+        GstClockTime end_time =
+            gst_adaptive_demux_get_monotonic_time (demux) + wait_time;
 
         GST_DEBUG_OBJECT (stream->pad, "Download waiting for %" GST_TIME_FORMAT,
             GST_TIME_ARGS (wait_time));
@@ -2824,8 +2882,9 @@ gst_adaptive_demux_stream_download_loop (GstAdaptiveDemuxStream * stream)
           stream->last_ret = GST_FLOW_FLUSHING;
           goto cancelled;
         }
-        g_cond_wait_until (&stream->fragment_download_cond,
-            &stream->fragment_download_lock, end_time);
+        gst_adaptive_demux_wait_until (demux->realtime_clock,
+            &stream->fragment_download_cond, &stream->fragment_download_lock,
+            end_time);
         g_mutex_unlock (&stream->fragment_download_lock);
 
         GST_DEBUG_OBJECT (stream->pad, "Download finished waiting");
@@ -2844,7 +2903,7 @@ gst_adaptive_demux_stream_download_loop (GstAdaptiveDemuxStream * stream)
 
     stream->last_ret = GST_FLOW_OK;
 
-    next_download = g_get_monotonic_time ();
+    next_download = gst_adaptive_demux_get_monotonic_time (demux);
     ret = gst_adaptive_demux_stream_download_fragment (stream);
 
     if (ret == GST_FLOW_FLUSHING) {
@@ -2930,9 +2989,7 @@ gst_adaptive_demux_stream_download_loop (GstAdaptiveDemuxStream * stream)
         }
 
         /* Wait half the fragment duration before retrying */
-        next_download +=
-            gst_util_uint64_scale
-            (stream->fragment.duration, G_USEC_PER_SEC, 2 * GST_SECOND);
+        next_download += stream->fragment.duration / 2;
 
         GST_MANIFEST_UNLOCK (demux);
 
@@ -2943,8 +3000,9 @@ gst_adaptive_demux_stream_download_loop (GstAdaptiveDemuxStream * stream)
           stream->last_ret = GST_FLOW_FLUSHING;
           goto cancelled;
         }
-        g_cond_wait_until (&stream->fragment_download_cond,
-            &stream->fragment_download_lock, next_download);
+        gst_adaptive_demux_wait_until (demux->realtime_clock,
+            &stream->fragment_download_cond, &stream->fragment_download_lock,
+            next_download);
         g_mutex_unlock (&stream->fragment_download_lock);
 
         GST_DEBUG_OBJECT (demux, "Retrying now");
@@ -3025,7 +3083,7 @@ download_error:
 static void
 gst_adaptive_demux_updates_loop (GstAdaptiveDemux * demux)
 {
-  gint64 next_update;
+  GstClockTime next_update;
   GstAdaptiveDemuxClass *klass = GST_ADAPTIVE_DEMUX_GET_CLASS (demux);
 
   /* Loop for updating of the playlist. This periodically checks if
@@ -3037,8 +3095,9 @@ gst_adaptive_demux_updates_loop (GstAdaptiveDemux * demux)
 
   GST_MANIFEST_LOCK (demux);
 
-  next_update = g_get_monotonic_time () +
-      klass->get_manifest_update_interval (demux);
+  next_update =
+      gst_adaptive_demux_get_monotonic_time (demux) +
+      klass->get_manifest_update_interval (demux) * GST_USECOND;
 
   /* Updating playlist only needed for live playlists */
   while (gst_adaptive_demux_is_live (demux)) {
@@ -3054,7 +3113,8 @@ gst_adaptive_demux_updates_loop (GstAdaptiveDemux * demux)
       g_mutex_unlock (&demux->priv->updates_timed_lock);
       goto quit;
     }
-    g_cond_wait_until (&demux->priv->updates_timed_cond,
+    gst_adaptive_demux_wait_until (demux->realtime_clock,
+        &demux->priv->updates_timed_cond,
         &demux->priv->updates_timed_lock, next_update);
     g_mutex_unlock (&demux->priv->updates_timed_lock);
 
@@ -3078,8 +3138,8 @@ gst_adaptive_demux_updates_loop (GstAdaptiveDemux * demux)
       demux->priv->update_failed_count++;
       if (demux->priv->update_failed_count <= DEFAULT_FAILED_COUNT) {
         GST_WARNING_OBJECT (demux, "Could not update the playlist");
-        next_update = g_get_monotonic_time () +
-            klass->get_manifest_update_interval (demux);
+        next_update = gst_adaptive_demux_get_monotonic_time (demux)
+            + klass->get_manifest_update_interval (demux) * GST_USECOND;
       } else {
         GST_ELEMENT_ERROR (demux, STREAM, FAILED,
             (_("Internal data stream error.")), ("Could not update playlist"));
@@ -3090,8 +3150,9 @@ gst_adaptive_demux_updates_loop (GstAdaptiveDemux * demux)
       }
     } else {
       GST_DEBUG_OBJECT (demux, "Updated playlist successfully");
-      next_update = g_get_monotonic_time () +
-          klass->get_manifest_update_interval (demux);
+      next_update =
+          gst_adaptive_demux_get_monotonic_time (demux) +
+          klass->get_manifest_update_interval (demux) * GST_USECOND;
 
       /* Wake up download tasks */
       g_mutex_lock (&demux->priv->manifest_update_lock);
@@ -3238,13 +3299,12 @@ gst_adaptive_demux_stream_advance_fragment_unlocked (GstAdaptiveDemux * demux,
   }
 
   stream->download_start_time = stream->download_chunk_start_time =
-      g_get_monotonic_time ();
+      GST_TIME_AS_USECONDS (gst_adaptive_demux_get_monotonic_time (demux));
 
   if (ret == GST_FLOW_OK) {
     if (gst_adaptive_demux_stream_select_bitrate (demux, stream,
             gst_adaptive_demux_stream_update_current_bitrate (demux, stream))) {
       stream->need_header = TRUE;
-      gst_adapter_clear (stream->adapter);
       ret = (GstFlowReturn) GST_ADAPTIVE_DEMUX_FLOW_SWITCH;
     }
 
@@ -3417,4 +3477,132 @@ gst_adaptive_demux_advance_period (GstAdaptiveDemux * demux)
   klass->advance_period (demux);
   gst_adaptive_demux_expose_streams (demux, FALSE);
   gst_adaptive_demux_start_tasks (demux);
+}
+
+/**
+ * gst_adaptive_demux_get_monotonic_time:
+ * Returns: a monotonically increasing time, using the system realtime clock
+ */
+GstClockTime
+gst_adaptive_demux_get_monotonic_time (GstAdaptiveDemux * demux)
+{
+  g_return_val_if_fail (demux != NULL, GST_CLOCK_TIME_NONE);
+  return gst_clock_get_time (demux->realtime_clock);
+}
+
+/**
+ * gst_adaptive_demux_get_client_now_utc:
+ * @demux: #GstAdaptiveDemux
+ * Returns: the client's estimate of UTC
+ *
+ * Used to find the client's estimate of UTC, using the system realtime clock.
+ */
+GDateTime *
+gst_adaptive_demux_get_client_now_utc (GstAdaptiveDemux * demux)
+{
+  GstClockTime rtc_now;
+  gint64 utc_now;
+  GTimeVal gtv;
+
+  rtc_now = gst_clock_get_time (demux->realtime_clock);
+  utc_now = demux->clock_offset + GST_TIME_AS_USECONDS (rtc_now);
+  gtv.tv_sec = utc_now / G_TIME_SPAN_SECOND;
+  gtv.tv_usec = utc_now % G_TIME_SPAN_SECOND;
+  return g_date_time_new_from_timeval_utc (&gtv);
+}
+
+static GstAdaptiveDemuxTimer *
+gst_adaptive_demux_timer_new (GCond * cond, GMutex * mutex)
+{
+  GstAdaptiveDemuxTimer *timer;
+
+  timer = g_slice_new (GstAdaptiveDemuxTimer);
+  timer->fired = FALSE;
+  timer->cond = cond;
+  timer->mutex = mutex;
+  timer->ref_count = 1;
+  return timer;
+}
+
+static GstAdaptiveDemuxTimer *
+gst_adaptive_demux_timer_ref (GstAdaptiveDemuxTimer * timer)
+{
+  g_return_val_if_fail (timer != NULL, NULL);
+  g_atomic_int_inc (&timer->ref_count);
+  return timer;
+}
+
+static void
+gst_adaptive_demux_timer_unref (GstAdaptiveDemuxTimer * timer)
+{
+  g_return_if_fail (timer != NULL);
+  if (g_atomic_int_dec_and_test (&timer->ref_count)) {
+    g_slice_free (GstAdaptiveDemuxTimer, timer);
+  }
+}
+
+/* gst_adaptive_demux_wait_until:
+ * A replacement for g_cond_wait_until that uses the clock rather
+ * than system time to control the duration of the sleep. Typically
+ * clock is actually a #GstSystemClock, in which case this function
+ * behaves exactly like g_cond_wait_until. Inside unit tests,
+ * the clock is typically a #GstTestClock, which allows tests to run
+ * in non-realtime.
+ * This function must be called with mutex held.
+ */
+static gboolean
+gst_adaptive_demux_wait_until (GstClock * clock, GCond * cond, GMutex * mutex,
+    GstClockTime end_time)
+{
+  GstAdaptiveDemuxTimer *timer;
+  gboolean fired;
+  GstClockReturn res;
+
+  if (G_UNLIKELY (!GST_CLOCK_TIME_IS_VALID (end_time))) {
+    /* for an invalid time, gst_clock_id_wait_async will try to call
+     * gst_adaptive_demux_clock_callback from the current thread.
+     * It still holds the mutex while doing that, so it will deadlock.
+     * g_cond_wait_until would return immediately with false, so we'll do the same.
+     */
+    return FALSE;
+  }
+  timer = gst_adaptive_demux_timer_new (cond, mutex);
+  timer->clock_id = gst_clock_new_single_shot_id (clock, end_time);
+  res =
+      gst_clock_id_wait_async (timer->clock_id,
+      gst_adaptive_demux_clock_callback, gst_adaptive_demux_timer_ref (timer),
+      (GDestroyNotify) gst_adaptive_demux_timer_unref);
+  /* clock does not support asynchronously wait. Assert and return */
+  if (res == GST_CLOCK_UNSUPPORTED) {
+    gst_clock_id_unref (timer->clock_id);
+    gst_adaptive_demux_timer_unref (timer);
+    g_return_val_if_reached (TRUE);
+  }
+  g_assert (!timer->fired);
+  /* the gst_adaptive_demux_clock_callback() will signal the
+   * cond when the clock's single shot timer fires, or the cond will be
+   * signalled by another thread that wants to cause this wait to finish
+   * early (e.g. to terminate the waiting thread).
+   * There is no need for a while loop here, because that logic is
+   * implemented by the function calling gst_adaptive_demux_wait_until() */
+  g_cond_wait (cond, mutex);
+  fired = timer->fired;
+  if (!fired)
+    gst_clock_id_unschedule (timer->clock_id);
+  gst_clock_id_unref (timer->clock_id);
+  gst_adaptive_demux_timer_unref (timer);
+  return !fired;
+}
+
+static gboolean
+gst_adaptive_demux_clock_callback (GstClock * clock,
+    GstClockTime time, GstClockID id, gpointer user_data)
+{
+  GstAdaptiveDemuxTimer *timer = (GstAdaptiveDemuxTimer *) user_data;
+  g_return_val_if_fail (timer != NULL, FALSE);
+  g_mutex_lock (timer->mutex);
+  timer->fired = TRUE;
+  g_cond_signal (timer->cond);
+  g_mutex_unlock (timer->mutex);
+  return TRUE;
 }

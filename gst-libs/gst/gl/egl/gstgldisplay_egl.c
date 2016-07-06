@@ -23,7 +23,8 @@
 #endif
 
 #include <gst/gl/egl/gstgldisplay_egl.h>
-#include <gst/gl/egl/gsteglimagememory.h>
+#include <gst/gl/egl/gsteglimage.h>
+#include <gst/gl/egl/gstglmemoryegl.h>
 
 GST_DEBUG_CATEGORY_STATIC (gst_gl_display_debug);
 #define GST_CAT_DEFAULT gst_gl_display_debug
@@ -50,7 +51,7 @@ gst_gl_display_egl_init (GstGLDisplayEGL * display_egl)
   display->type = GST_GL_DISPLAY_TYPE_EGL;
   display_egl->foreign_display = FALSE;
 
-  gst_egl_image_memory_init ();
+  gst_gl_memory_egl_init_once ();
 }
 
 static void

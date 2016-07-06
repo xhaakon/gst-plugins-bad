@@ -84,11 +84,11 @@ struct _GstHLSDemux
 #endif
   gchar *current_key;
   guint8 *current_iv;
-  GstBuffer *pending_buffer; /* decryption scenario:
-                              * the last buffer can only be pushed when
-                              * resized, so need to store and wait for
-                              * EOS to know it is the last */
-
+  GstAdapter *pending_encrypted_data;  /* for chunking data into 16 byte multiples for decryption */
+  GstBuffer *pending_decrypted_buffer; /* last decrypted buffer for pkcs7 unpadding.
+                                          We only know that it is the last at EOS */
+  GstBuffer *pending_typefind_buffer;  /* for collecting data until typefind succeeds */
+  guint64 current_offset;              /* offset we're currently at */
   gboolean reset_pts;
 };
 
