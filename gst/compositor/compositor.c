@@ -75,7 +75,7 @@
  * ]| A pipeline to demonstrate compositor used together with videobox.
  * This should show a 320x240 pixels video test source with some transparency
  * showing the background checker pattern. Another video test source with just
- * the snow pattern of 100x100 pixels is overlayed on top of the first one on
+ * the snow pattern of 100x100 pixels is overlaid on top of the first one on
  * the left vertically centered with a small transparency showing the first
  * video test source behind and the checker pattern under it. Note that the
  * framerate of the output video is 10 frames per second.
@@ -239,9 +239,12 @@ _mixer_pad_get_output_size (GstCompositor * comp,
       comp_pad->height <=
       0 ? GST_VIDEO_INFO_HEIGHT (&vagg_pad->info) : comp_pad->height;
 
-  gst_video_calculate_display_ratio (&dar_n, &dar_d, pad_width, pad_height,
-      GST_VIDEO_INFO_PAR_N (&vagg_pad->info),
-      GST_VIDEO_INFO_PAR_D (&vagg_pad->info), out_par_n, out_par_d);
+  if (!gst_video_calculate_display_ratio (&dar_n, &dar_d, pad_width, pad_height,
+          GST_VIDEO_INFO_PAR_N (&vagg_pad->info),
+          GST_VIDEO_INFO_PAR_D (&vagg_pad->info), out_par_n, out_par_d)) {
+    GST_WARNING_OBJECT (comp_pad, "Cannot calculate display aspect ratio");
+    *width = *height = 0;
+  }
   GST_LOG_OBJECT (comp_pad, "scaling %ux%u by %u/%u (%u/%u / %u/%u)", pad_width,
       pad_height, dar_n, dar_d, GST_VIDEO_INFO_PAR_N (&vagg_pad->info),
       GST_VIDEO_INFO_PAR_D (&vagg_pad->info), out_par_n, out_par_d);
@@ -254,10 +257,8 @@ _mixer_pad_get_output_size (GstCompositor * comp,
     pad_width = gst_util_uint64_scale_int (pad_height, dar_n, dar_d);
   }
 
-  if (width)
-    *width = pad_width;
-  if (height)
-    *height = pad_height;
+  *width = pad_width;
+  *height = pad_height;
 }
 
 static gboolean
@@ -1112,10 +1113,8 @@ gst_compositor_class_init (GstCompositorClass * klass)
           GST_TYPE_COMPOSITOR_BACKGROUND,
           DEFAULT_BACKGROUND, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&src_factory));
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&sink_factory));
+  gst_element_class_add_static_pad_template (gstelement_class, &src_factory);
+  gst_element_class_add_static_pad_template (gstelement_class, &sink_factory);
 
   gst_element_class_set_static_metadata (gstelement_class, "Compositor",
       "Filter/Editor/Video/Compositor",

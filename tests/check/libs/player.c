@@ -132,6 +132,7 @@ typedef enum
   STATE_CHANGE_VIDEO_DIMENSIONS_CHANGED,
   STATE_CHANGE_MEDIA_INFO_UPDATED,
   STATE_CHANGE_SEEK_DONE,
+  STATE_CHANGE_URI_LOADED,
 } TestPlayerStateChange;
 
 static const gchar *
@@ -158,6 +159,8 @@ test_player_state_change_get_name (TestPlayerStateChange change)
       return "media-info-updated";
     case STATE_CHANGE_SEEK_DONE:
       return "seek-done";
+    case STATE_CHANGE_URI_LOADED:
+      return "uri-loaded";
     default:
       g_assert_not_reached ();
       break;
@@ -175,6 +178,8 @@ struct _TestPlayerState
   GstPlayerState state;
   gint width, height;
   GstPlayerMediaInfo *media_info;
+  gchar *uri_loaded;
+  gboolean stopping;
 
   void (*test_callback) (GstPlayer * player, TestPlayerStateChange change,
       TestPlayerState * old_state, TestPlayerState * new_state);
@@ -196,7 +201,8 @@ test_player_state_change_debug (GstPlayer * player,
       "\tseek_done %d -> %d\n"
       "\tstate %s -> %s\n"
       "\twidth/height %d/%d -> %d/%d\n"
-      "\tmedia_info %p -> %p",
+      "\tmedia_info %p -> %p\n"
+      "\turi_loaded %s -> %s",
       test_player_state_change_get_name (change),
       old_state->buffering_percent, new_state->buffering_percent,
       GST_TIME_ARGS (old_state->position), GST_TIME_ARGS (new_state->position),
@@ -208,7 +214,8 @@ test_player_state_change_debug (GstPlayer * player,
       gst_player_state_get_name (old_state->state),
       gst_player_state_get_name (new_state->state), old_state->width,
       old_state->height, new_state->width, new_state->height,
-      old_state->media_info, new_state->media_info);
+      old_state->media_info, new_state->media_info,
+      old_state->uri_loaded, new_state->uri_loaded);
 }
 
 static void
@@ -220,12 +227,16 @@ test_player_state_reset (TestPlayerState * state)
   state->state = GST_PLAYER_STATE_STOPPED;
   state->width = state->height = 0;
   state->media_info = NULL;
+  state->stopping = FALSE;
+  g_clear_pointer (&state->uri_loaded, g_free);
 }
 
 static void
 buffering_cb (GstPlayer * player, gint percent, TestPlayerState * state)
 {
   TestPlayerState old_state = *state;
+
+  g_assert (!state->stopping);
 
   state->buffering_percent = percent;
   test_player_state_change_debug (player, STATE_CHANGE_BUFFERING, &old_state,
@@ -239,6 +250,8 @@ duration_changed_cb (GstPlayer * player, guint64 duration,
 {
   TestPlayerState old_state = *state;
 
+  g_assert (!state->stopping);
+
   state->duration = duration;
   test_player_state_change_debug (player, STATE_CHANGE_DURATION_CHANGED,
       &old_state, state);
@@ -251,6 +264,8 @@ end_of_stream_cb (GstPlayer * player, TestPlayerState * state)
 {
   TestPlayerState old_state = *state;
 
+  g_assert (!state->stopping);
+
   state->end_of_stream = TRUE;
   test_player_state_change_debug (player, STATE_CHANGE_END_OF_STREAM,
       &old_state, state);
@@ -261,6 +276,8 @@ static void
 error_cb (GstPlayer * player, GError * error, TestPlayerState * state)
 {
   TestPlayerState old_state = *state;
+
+  g_assert (!state->stopping);
 
   state->error = TRUE;
   test_player_state_change_debug (player, STATE_CHANGE_ERROR, &old_state,
@@ -273,6 +290,8 @@ warning_cb (GstPlayer * player, GError * error, TestPlayerState * state)
 {
   TestPlayerState old_state = *state;
 
+  g_assert (!state->stopping);
+
   state->warning = TRUE;
   test_player_state_change_debug (player, STATE_CHANGE_WARNING, &old_state,
       state);
@@ -284,6 +303,8 @@ position_updated_cb (GstPlayer * player, guint64 position,
     TestPlayerState * state)
 {
   TestPlayerState old_state = *state;
+
+  g_assert (!state->stopping);
 
   state->position = position;
   test_player_state_change_debug (player, STATE_CHANGE_POSITION_UPDATED,
@@ -298,6 +319,8 @@ media_info_updated_cb (GstPlayer * player, GstPlayerMediaInfo * media_info,
 {
   TestPlayerState old_state = *state;
 
+  g_assert (!state->stopping);
+
   state->media_info = media_info;
 
   test_player_state_change_debug (player, STATE_CHANGE_MEDIA_INFO_UPDATED,
@@ -311,6 +334,8 @@ state_changed_cb (GstPlayer * player, GstPlayerState player_state,
     TestPlayerState * state)
 {
   TestPlayerState old_state = *state;
+
+  g_assert (!state->stopping || player_state == GST_PLAYER_STATE_STOPPED);
 
   state->state = player_state;
 
@@ -328,6 +353,8 @@ video_dimensions_changed_cb (GstPlayer * player, gint width, gint height,
 {
   TestPlayerState old_state = *state;
 
+  g_assert (!state->stopping);
+
   state->width = width;
   state->height = height;
   test_player_state_change_debug (player, STATE_CHANGE_VIDEO_DIMENSIONS_CHANGED,
@@ -341,11 +368,22 @@ seek_done_cb (GstPlayer * player, guint64 position, TestPlayerState * state)
 {
   TestPlayerState old_state = *state;
 
+  g_assert (!state->stopping);
+
   state->seek_done = TRUE;
   state->seek_done_position = position;
   test_player_state_change_debug (player, STATE_CHANGE_SEEK_DONE,
       &old_state, state);
   state->test_callback (player, STATE_CHANGE_SEEK_DONE, &old_state, state);
+}
+
+static void
+uri_loaded_cb (GstPlayer * player, const gchar * uri, TestPlayerState * state)
+{
+  TestPlayerState old_state = *state;
+
+  state->uri_loaded = g_strdup (uri);
+  state->test_callback (player, STATE_CHANGE_URI_LOADED, &old_state, state);
 }
 
 static GstPlayer *
@@ -386,8 +424,31 @@ test_player_new (TestPlayerState * state)
   g_signal_connect (player, "video-dimensions-changed",
       G_CALLBACK (video_dimensions_changed_cb), state);
   g_signal_connect (player, "seek-done", G_CALLBACK (seek_done_cb), state);
+  g_signal_connect (player, "uri-loaded", G_CALLBACK (uri_loaded_cb), state);
 
   return player;
+}
+
+static void
+test_player_stopped_cb (GstPlayer * player, TestPlayerStateChange change,
+    TestPlayerState * old_state, TestPlayerState * new_state)
+{
+  if (new_state->state == GST_PLAYER_STATE_STOPPED) {
+    g_main_loop_quit (new_state->loop);
+  }
+}
+
+static void
+stop_player (GstPlayer * player, TestPlayerState * state)
+{
+  if (state->state != GST_PLAYER_STATE_STOPPED) {
+    /* Make sure all pending operations are finished so the player won't be
+     * appear as 'leaked' to leak detection tools. */
+    state->test_callback = test_player_stopped_cb;
+    gst_player_stop (player);
+    state->stopping = TRUE;
+    g_main_loop_run (state->loop);
+  }
 }
 
 static void
@@ -402,18 +463,29 @@ test_play_audio_video_eos_cb (GstPlayer * player, TestPlayerStateChange change,
 
   switch (step) {
     case 0:
+      fail_unless_equals_int (change, STATE_CHANGE_URI_LOADED);
+      if (video)
+        fail_unless (g_str_has_suffix (new_state->uri_loaded,
+                "audio-video-short.ogg"));
+      else
+        fail_unless (g_str_has_suffix (new_state->uri_loaded,
+                "audio-short.ogg"));
+      new_state->test_data =
+          GINT_TO_POINTER ((video ? 0x10 : 0x00) | (step + 1));
+      break;
+    case 1:
       fail_unless_equals_int (change, STATE_CHANGE_STATE_CHANGED);
       fail_unless_equals_int (old_state->state, GST_PLAYER_STATE_STOPPED);
       fail_unless_equals_int (new_state->state, GST_PLAYER_STATE_BUFFERING);
       new_state->test_data =
           GINT_TO_POINTER ((video ? 0x10 : 0x00) | (step + 1));
       break;
-    case 1:
+    case 2:
       fail_unless_equals_int (change, STATE_CHANGE_MEDIA_INFO_UPDATED);
       new_state->test_data =
           GINT_TO_POINTER ((video ? 0x10 : 0x00) | (step + 1));
       break;
-    case 2:
+    case 3:
       fail_unless_equals_int (change, STATE_CHANGE_VIDEO_DIMENSIONS_CHANGED);
       if (video) {
         fail_unless_equals_int (new_state->width, 320);
@@ -425,27 +497,27 @@ test_play_audio_video_eos_cb (GstPlayer * player, TestPlayerStateChange change,
       new_state->test_data =
           GINT_TO_POINTER ((video ? 0x10 : 0x00) | (step + 1));
       break;
-    case 3:
+    case 4:
       fail_unless_equals_int (change, STATE_CHANGE_DURATION_CHANGED);
       fail_unless_equals_uint64 (new_state->duration,
           G_GUINT64_CONSTANT (464399092));
       new_state->test_data =
           GINT_TO_POINTER ((video ? 0x10 : 0x00) | (step + 1));
       break;
-    case 4:
+    case 5:
       fail_unless_equals_int (change, STATE_CHANGE_POSITION_UPDATED);
       fail_unless_equals_uint64 (new_state->position, G_GUINT64_CONSTANT (0));
       new_state->test_data =
           GINT_TO_POINTER ((video ? 0x10 : 0x00) | (step + 1));
       break;
-    case 5:
+    case 6:
       fail_unless_equals_int (change, STATE_CHANGE_STATE_CHANGED);
       fail_unless_equals_int (old_state->state, GST_PLAYER_STATE_BUFFERING);
       fail_unless_equals_int (new_state->state, GST_PLAYER_STATE_PLAYING);
       new_state->test_data =
           GINT_TO_POINTER ((video ? 0x10 : 0x00) | (step + 1));
       break;
-    case 6:
+    case 7:
       if (change == STATE_CHANGE_POSITION_UPDATED) {
         fail_unless (old_state->position <= new_state->position);
       } else {
@@ -455,7 +527,7 @@ test_play_audio_video_eos_cb (GstPlayer * player, TestPlayerStateChange change,
             GINT_TO_POINTER ((video ? 0x10 : 0x00) | (step + 1));
       }
       break;
-    case 7:
+    case 8:
       fail_unless_equals_int (change, STATE_CHANGE_STATE_CHANGED);
       fail_unless_equals_int (old_state->state, GST_PLAYER_STATE_PLAYING);
       fail_unless_equals_int (new_state->state, GST_PLAYER_STATE_STOPPED);
@@ -492,8 +564,9 @@ START_TEST (test_play_audio_eos)
   gst_player_play (player);
   g_main_loop_run (state.loop);
 
-  fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 8);
+  fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 9);
 
+  stop_player (player, &state);
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -672,6 +745,7 @@ START_TEST (test_play_media_info)
   g_main_loop_run (state.loop);
 
   fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 1);
+  stop_player (player, &state);
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -764,6 +838,7 @@ START_TEST (test_play_stream_disable)
 
   fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 0x33);
 
+  stop_player (player, &state);
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -828,6 +903,7 @@ START_TEST (test_play_stream_switch_audio)
 
   fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 2);
 
+  stop_player (player, &state);
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -892,6 +968,7 @@ START_TEST (test_play_stream_switch_subtitle)
 
   fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 2);
 
+  stop_player (player, &state);
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -923,6 +1000,7 @@ START_TEST (test_play_error_invalid_external_suburi)
 
   fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 2);
 
+  stop_player (player, &state);
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -1001,6 +1079,7 @@ START_TEST (test_play_external_suburi)
 
   fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 2);
 
+  stop_player (player, &state);
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -1072,6 +1151,7 @@ START_TEST (test_play_forward_rate)
 
   fail_unless_equals_int (GPOINTER_TO_INT (state.test_data) & 0xf, 10);
 
+  stop_player (player, &state);
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -1103,6 +1183,7 @@ START_TEST (test_play_backward_rate)
 
   fail_unless_equals_int (GPOINTER_TO_INT (state.test_data) & 0xf, 10);
 
+  stop_player (player, &state);
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -1132,8 +1213,9 @@ START_TEST (test_play_audio_video_eos)
   gst_player_play (player);
   g_main_loop_run (state.loop);
 
-  fail_unless_equals_int (GPOINTER_TO_INT (state.test_data) & (~0x10), 8);
+  fail_unless_equals_int (GPOINTER_TO_INT (state.test_data) & (~0x10), 9);
 
+  stop_player (player, &state);
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -1149,16 +1231,21 @@ test_play_error_invalid_uri_cb (GstPlayer * player,
 
   switch (step) {
     case 0:
+      fail_unless_equals_int (change, STATE_CHANGE_URI_LOADED);
+      fail_unless_equals_string (new_state->uri_loaded, "foo://bar");
+      new_state->test_data = GINT_TO_POINTER (step + 1);
+      break;
+    case 1:
       fail_unless_equals_int (change, STATE_CHANGE_STATE_CHANGED);
       fail_unless_equals_int (old_state->state, GST_PLAYER_STATE_STOPPED);
       fail_unless_equals_int (new_state->state, GST_PLAYER_STATE_BUFFERING);
       new_state->test_data = GINT_TO_POINTER (step + 1);
       break;
-    case 1:
+    case 2:
       fail_unless_equals_int (change, STATE_CHANGE_ERROR);
       new_state->test_data = GINT_TO_POINTER (step + 1);
       break;
-    case 2:
+    case 3:
       fail_unless_equals_int (change, STATE_CHANGE_STATE_CHANGED);
       fail_unless_equals_int (old_state->state, GST_PLAYER_STATE_BUFFERING);
       fail_unless_equals_int (new_state->state, GST_PLAYER_STATE_STOPPED);
@@ -1190,8 +1277,9 @@ START_TEST (test_play_error_invalid_uri)
   gst_player_play (player);
   g_main_loop_run (state.loop);
 
-  fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 3);
+  fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 4);
 
+  stop_player (player, &state);
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -1208,16 +1296,21 @@ test_play_error_invalid_uri_and_play_cb (GstPlayer * player,
 
   switch (step) {
     case 0:
+      fail_unless_equals_int (change, STATE_CHANGE_URI_LOADED);
+      fail_unless_equals_string (new_state->uri_loaded, "foo://bar");
+      new_state->test_data = GINT_TO_POINTER (step + 1);
+      break;
+    case 1:
       fail_unless_equals_int (change, STATE_CHANGE_STATE_CHANGED);
       fail_unless_equals_int (old_state->state, GST_PLAYER_STATE_STOPPED);
       fail_unless_equals_int (new_state->state, GST_PLAYER_STATE_BUFFERING);
       new_state->test_data = GINT_TO_POINTER (step + 1);
       break;
-    case 1:
+    case 2:
       fail_unless_equals_int (change, STATE_CHANGE_ERROR);
       new_state->test_data = GINT_TO_POINTER (step + 1);
       break;
-    case 2:
+    case 3:
       fail_unless_equals_int (change, STATE_CHANGE_STATE_CHANGED);
       fail_unless_equals_int (old_state->state, GST_PLAYER_STATE_BUFFERING);
       fail_unless_equals_int (new_state->state, GST_PLAYER_STATE_STOPPED);
@@ -1230,34 +1323,39 @@ test_play_error_invalid_uri_and_play_cb (GstPlayer * player,
 
       gst_player_play (player);
       break;
-    case 3:
+    case 4:
+      fail_unless_equals_int (change, STATE_CHANGE_URI_LOADED);
+      fail_unless (g_str_has_suffix (new_state->uri_loaded, "audio-short.ogg"));
+      new_state->test_data = GINT_TO_POINTER (step + 1);
+      break;
+    case 5:
       fail_unless_equals_int (change, STATE_CHANGE_STATE_CHANGED);
       fail_unless_equals_int (old_state->state, GST_PLAYER_STATE_STOPPED);
       fail_unless_equals_int (new_state->state, GST_PLAYER_STATE_BUFFERING);
       new_state->test_data = GINT_TO_POINTER (step + 1);
       break;
-    case 4:
+    case 6:
       fail_unless_equals_int (change, STATE_CHANGE_MEDIA_INFO_UPDATED);
       new_state->test_data = GINT_TO_POINTER (step + 1);
       break;
-    case 5:
+    case 7:
       fail_unless_equals_int (change, STATE_CHANGE_VIDEO_DIMENSIONS_CHANGED);
       fail_unless_equals_int (new_state->width, 0);
       fail_unless_equals_int (new_state->height, 0);
       new_state->test_data = GINT_TO_POINTER (step + 1);
       break;
-    case 6:
+    case 8:
       fail_unless_equals_int (change, STATE_CHANGE_DURATION_CHANGED);
       fail_unless_equals_uint64 (new_state->duration,
           G_GUINT64_CONSTANT (464399092));
       new_state->test_data = GINT_TO_POINTER (step + 1);
       break;
-    case 7:
+    case 9:
       fail_unless_equals_int (change, STATE_CHANGE_POSITION_UPDATED);
       fail_unless_equals_uint64 (new_state->position, G_GUINT64_CONSTANT (0));
       new_state->test_data = GINT_TO_POINTER (step + 1);
       break;
-    case 8:
+    case 10:
       fail_unless_equals_int (change, STATE_CHANGE_STATE_CHANGED);
       fail_unless_equals_int (old_state->state, GST_PLAYER_STATE_BUFFERING);
       fail_unless_equals_int (new_state->state, GST_PLAYER_STATE_PLAYING);
@@ -1289,8 +1387,9 @@ START_TEST (test_play_error_invalid_uri_and_play)
   gst_player_play (player);
   g_main_loop_run (state.loop);
 
-  fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 9);
+  fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 11);
 
+  stop_player (player, &state);
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -1341,6 +1440,7 @@ START_TEST (test_play_audio_video_seek_done)
 
   fail_unless_equals_int (GPOINTER_TO_INT (state.test_data) & (~0x10), 2);
 
+  stop_player (player, &state);
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -1425,6 +1525,87 @@ START_TEST (test_play_position_update_interval)
 
   fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 5);
 
+  stop_player (player, &state);
+  g_object_unref (player);
+  g_main_loop_unref (state.loop);
+}
+
+END_TEST;
+
+static void
+test_restart_cb (GstPlayer * player,
+    TestPlayerStateChange change, TestPlayerState * old_state,
+    TestPlayerState * new_state)
+{
+  gint steps = GPOINTER_TO_INT (new_state->test_data);
+
+  if (!steps && change == STATE_CHANGE_URI_LOADED) {
+    fail_unless (g_str_has_suffix (new_state->uri_loaded, "sintel.mkv"));
+    new_state->test_data = GINT_TO_POINTER (steps + 1);
+  } else if (change == STATE_CHANGE_STATE_CHANGED
+      && new_state->state == GST_PLAYER_STATE_BUFFERING) {
+    new_state->test_data = GINT_TO_POINTER (steps + 1);
+    g_main_loop_quit (new_state->loop);
+  }
+}
+
+static void
+test_restart_cb2 (GstPlayer * player,
+    TestPlayerStateChange change, TestPlayerState * old_state,
+    TestPlayerState * new_state)
+{
+  gint steps = GPOINTER_TO_INT (new_state->test_data);
+
+  if (!steps && change == STATE_CHANGE_URI_LOADED) {
+    fail_unless (g_str_has_suffix (new_state->uri_loaded, "audio-short.ogg"));
+    new_state->test_data = GINT_TO_POINTER (steps + 1);
+  } else if (change == STATE_CHANGE_STATE_CHANGED
+      && new_state->state == GST_PLAYER_STATE_BUFFERING) {
+    new_state->test_data = GINT_TO_POINTER (steps + 1);
+    g_main_loop_quit (new_state->loop);
+  }
+}
+
+
+START_TEST (test_restart)
+{
+  GstPlayer *player;
+  TestPlayerState state;
+  gchar *uri;
+
+  memset (&state, 0, sizeof (state));
+  state.loop = g_main_loop_new (NULL, FALSE);
+  state.test_callback = test_restart_cb;
+  state.test_data = GINT_TO_POINTER (0);
+
+  player = test_player_new (&state);
+
+  fail_unless (player != NULL);
+
+  uri = gst_filename_to_uri (TEST_PATH "/sintel.mkv", NULL);
+  fail_unless (uri != NULL);
+  gst_player_set_uri (player, uri);
+  g_free (uri);
+
+  gst_player_play (player);
+  g_main_loop_run (state.loop);
+  fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 2);
+  stop_player (player, &state);
+
+  /* Try again with another URI */
+  state.test_data = GINT_TO_POINTER (0);
+  state.test_callback = test_restart_cb2;
+
+  uri = gst_filename_to_uri (TEST_PATH "/audio-short.ogg", NULL);
+  fail_unless (uri != NULL);
+  gst_player_set_uri (player, uri);
+  g_free (uri);
+
+  gst_player_play (player);
+  g_main_loop_run (state.loop);
+  fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 2);
+  stop_player (player, &state);
+
   g_object_unref (player);
   g_main_loop_unref (state.loop);
 }
@@ -1472,6 +1653,7 @@ player_suite (void)
   tcase_add_test (tc_general, test_play_forward_rate);
   tcase_add_test (tc_general, test_play_backward_rate);
   tcase_add_test (tc_general, test_play_audio_video_seek_done);
+  tcase_add_test (tc_general, test_restart);
 
   suite_add_tcase (s, tc_general);
 

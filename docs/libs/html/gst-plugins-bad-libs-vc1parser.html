@@ -27,8 +27,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-bad-libs-vc1parser.top_of_page"></a>vc1parser</span></h2>
-<p>vc1parser — Convenience library for parsing vc1 video
-bitstream.</p>
+<p>vc1parser</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -257,8 +256,6 @@ bitstream.</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-vc1parser.description"></a><h2>Description</h2>
-<p>For more details about the structures, look at the
-smpte specifications (S421m-2006.pdf).</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-vc1parser.functions_details"></a><h2>Functions</h2>
@@ -268,41 +265,6 @@ smpte specifications (S421m-2006.pdf).</p>
 gst_vc1_identify_next_bdu (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                            <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                            <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1BDU" title="struct GstVC1BDU"><span class="type">GstVC1BDU</span></a> *bdu</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
- and fills <em class="parameter"><code>bdu</code></em>
- fields</p>
-<div class="refsect3">
-<a name="gst-vc1-identify-next-bdu.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>the size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>bdu</p></td>
-<td class="parameter_description"><p> The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1BDU" title="struct GstVC1BDU"><span class="type">GstVC1BDU</span></a> where to store parsed bdu headers. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-vc1-identify-next-bdu.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1ParserResult" title="enum GstVC1ParserResult"><span class="type">GstVC1ParserResult</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -311,41 +273,6 @@ gst_vc1_identify_next_bdu (<em class="parameter"><code>const <a href="/usr/share
 gst_vc1_parse_sequence_header (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqHdr" title="struct GstVC1SeqHdr"><span class="type">GstVC1SeqHdr</span></a> *seqhdr</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
-, and fills <em class="parameter"><code>seqhdr</code></em>
- fields.</p>
-<div class="refsect3">
-<a name="gst-vc1-parse-sequence-header.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>the size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>seqhdr</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqHdr" title="struct GstVC1SeqHdr"><span class="type">GstVC1SeqHdr</span></a> to set.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-vc1-parse-sequence-header.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1ParserResult" title="enum GstVC1ParserResult"><span class="type">GstVC1ParserResult</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -354,41 +281,6 @@ gst_vc1_parse_sequence_header (<em class="parameter"><code>const <a href="/usr/s
 gst_vc1_parse_sequence_layer (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                               <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                               <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqLayer" title="struct GstVC1SeqLayer"><span class="type">GstVC1SeqLayer</span></a> *seqlayer</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
-, and fills <em class="parameter"><code>seqlayer</code></em>
- fields.</p>
-<div class="refsect3">
-<a name="gst-vc1-parse-sequence-layer.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>the size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>seqlayer</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqLayer" title="struct GstVC1SeqLayer"><span class="type">GstVC1SeqLayer</span></a> to set.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-vc1-parse-sequence-layer.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1ParserResult" title="enum GstVC1ParserResult"><span class="type">GstVC1ParserResult</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -398,41 +290,6 @@ gst_vc1_parse_sequence_header_struct_a
                                (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqStructA" title="struct GstVC1SeqStructA"><span class="type">GstVC1SeqStructA</span></a> *structa</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
-, and fills <em class="parameter"><code>structa</code></em>
- fields.</p>
-<div class="refsect3">
-<a name="gst-vc1-parse-sequence-header-struct-a.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>the size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>structa</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqStructA" title="struct GstVC1SeqStructA"><span class="type">GstVC1SeqStructA</span></a> to set.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-vc1-parse-sequence-header-struct-a.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1ParserResult" title="enum GstVC1ParserResult"><span class="type">GstVC1ParserResult</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -442,41 +299,6 @@ gst_vc1_parse_sequence_header_struct_b
                                (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqStructB" title="struct GstVC1SeqStructB"><span class="type">GstVC1SeqStructB</span></a> *structb</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
-, and fills <em class="parameter"><code>structb</code></em>
- fields.</p>
-<div class="refsect3">
-<a name="gst-vc1-parse-sequence-header-struct-b.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>the size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>structb</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqStructB" title="struct GstVC1SeqStructB"><span class="type">GstVC1SeqStructB</span></a> to set.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-vc1-parse-sequence-header-struct-b.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1ParserResult" title="enum GstVC1ParserResult"><span class="type">GstVC1ParserResult</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -486,41 +308,6 @@ gst_vc1_parse_sequence_header_struct_c
                                (<em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqStructC" title="struct GstVC1SeqStructC"><span class="type">GstVC1SeqStructC</span></a> *structc</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
-, and fills <em class="parameter"><code>structc</code></em>
- fields.</p>
-<div class="refsect3">
-<a name="gst-vc1-parse-sequence-header-struct-c.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>the size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>structc</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqStructC" title="struct GstVC1SeqStructC"><span class="type">GstVC1SeqStructC</span></a> to set.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-vc1-parse-sequence-header-struct-c.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1ParserResult" title="enum GstVC1ParserResult"><span class="type">GstVC1ParserResult</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -530,46 +317,6 @@ gst_vc1_parse_entry_point_header (<em class="parameter"><code>const <a href="/us
                                   <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                   <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1EntryPointHdr" title="struct GstVC1EntryPointHdr"><span class="type">GstVC1EntryPointHdr</span></a> *entrypoint</code></em>,
                                   <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqHdr" title="struct GstVC1SeqHdr"><span class="type">GstVC1SeqHdr</span></a> *seqhdr</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
-, and sets <em class="parameter"><code>entrypoint</code></em>
- fields.</p>
-<div class="refsect3">
-<a name="gst-vc1-parse-entry-point-header.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>the size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>entrypoint</p></td>
-<td class="parameter_description"><p> The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1EntryPointHdr" title="struct GstVC1EntryPointHdr"><span class="type">GstVC1EntryPointHdr</span></a> to set. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
-</tr>
-<tr>
-<td class="parameter_name"><p>seqhdr</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqHdr" title="struct GstVC1SeqHdr"><span class="type">GstVC1SeqHdr</span></a> currently being parsed</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-vc1-parse-entry-point-header.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1EntryPointHdr" title="struct GstVC1EntryPointHdr"><span class="type">GstVC1EntryPointHdr</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -580,63 +327,12 @@ gst_vc1_parse_frame_header (<em class="parameter"><code>const <a href="/usr/shar
                             <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1FrameHdr" title="struct GstVC1FrameHdr"><span class="type">GstVC1FrameHdr</span></a> *framehdr</code></em>,
                             <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqHdr" title="struct GstVC1SeqHdr"><span class="type">GstVC1SeqHdr</span></a> *seqhdr</code></em>,
                             <em class="parameter"><code><span class="type">GstVC1BitPlanes</span> *bitplanes</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
-, and fills <em class="parameter"><code>entrypoint</code></em>
- fields.</p>
-<div class="refsect3">
-<a name="gst-vc1-parse-frame-header.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>the size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>framehdr</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1FrameHdr" title="struct GstVC1FrameHdr"><span class="type">GstVC1FrameHdr</span></a> to fill.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>seqhdr</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqHdr" title="struct GstVC1SeqHdr"><span class="type">GstVC1SeqHdr</span></a> currently being parsed</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>bitplanes</p></td>
-<td class="parameter_description"><p>The <span class="type">GstVC1BitPlanes</span> to store bitplanes in or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-vc1-parse-frame-header.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1ParserResult" title="enum GstVC1ParserResult"><span class="type">GstVC1ParserResult</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="gst-vc1-bitplanes-new"></a><h3>gst_vc1_bitplanes_new ()</h3>
 <pre class="programlisting"><span class="returnvalue">GstVC1BitPlanes</span> *
 gst_vc1_bitplanes_new (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
-<p>Creates a new <span class="type">GstVC1BitPlanes</span>. It should be freed with
-<a class="link" href="gst-plugins-bad-libs-vc1parser.html#gst-vc1-bitplanes-free" title="gst_vc1_bitplanes_free ()"><code class="function">gst_vc1_bitplanes_free()</code></a> after use.</p>
-<div class="refsect3">
-<a name="gst-vc1-bitplanes-new.returns"></a><h4>Returns</h4>
-<p> a new <span class="type">GstVC1BitPlanes</span></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -656,39 +352,6 @@ gst_vc1_bitplanes_free_1 (<em class="parameter"><code><span class="type">GstVC1B
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_vc1_bitplanes_ensure_size (<em class="parameter"><code><span class="type">GstVC1BitPlanes</span> *bitplanes</code></em>,
                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqHdr" title="struct GstVC1SeqHdr"><span class="type">GstVC1SeqHdr</span></a> *seqhdr</code></em>);</pre>
-<p>Fills the <em class="parameter"><code>bitplanes</code></em>
- structure from <em class="parameter"><code>seqhdr</code></em>
-, this function
-should be called after <a class="link" href="gst-plugins-bad-libs-vc1parser.html#gst-vc1-parse-sequence-header" title="gst_vc1_parse_sequence_header ()"><span class="type">gst_vc1_parse_sequence_header</span></a> if
-in simple or main mode, or after <a class="link" href="gst-plugins-bad-libs-vc1parser.html#gst-vc1-parse-entry-point-header" title="gst_vc1_parse_entry_point_header ()"><span class="type">gst_vc1_parse_entry_point_header</span></a>
-if in advanced mode.</p>
-<div class="refsect3">
-<a name="gst-vc1-bitplanes-ensure-size.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>bitplanes</p></td>
-<td class="parameter_description"><p>The <span class="type">GstVC1BitPlanes</span> to reset</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>seqhdr</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-vc1parser.html#GstVC1SeqHdr" title="struct GstVC1SeqHdr"><span class="type">GstVC1SeqHdr</span></a> from which to set <em class="parameter"><code>bitplanes</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-vc1-bitplanes-ensure-size.returns"></a><h4>Returns</h4>
-<p> <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if everything went fine, <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize</p>
-</div>
 </div>
 </div>
 <div class="refsect1">
@@ -1114,7 +777,6 @@ if in advanced mode.</p>
   GstVC1AdvancedSeqHdr   advanced;
 };
 </pre>
-<p>Structure for sequence headers in any profile.</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1165,7 +827,6 @@ if in advanced mode.</p>
   GstVC1EntryPointHdr entrypoint;
 };
 </pre>
-<p>Structure for the advanced profile sequence headers specific parameters.</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1281,7 +942,6 @@ if in advanced mode.</p>
   guint8 hrd_full[MAX_HRD_NUM_LEAKY_BUCKETS];
 };
 </pre>
-<p>Structure for entrypoint header, this will be used only in advanced profiles</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1315,11 +975,6 @@ if in advanced mode.</p>
   guint header_size;
 };
 </pre>
-<p>Structure that represent picture in any profile or mode.
-You should look at <em class="parameter"><code>ptype</code></em>
- and <em class="parameter"><code>profile</code></em>
- to know what is currently
-in use.</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1399,258 +1054,6 @@ in use.</p>
   guint8  intcompfield;
 };
 </pre>
-<div class="refsect3">
-<a name="GstVC1PicAdvanced.members"></a><h4>Members</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="300px" class="struct_members_name">
-<col class="struct_members_description">
-<col width="200px" class="struct_members_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="struct_member_name"><p><span class="type">GstVC1FrameCodingMode</span> <em class="structfield"><code><a name="GstVC1PicAdvanced.fcm"></a>fcm</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.tfcntr"></a>tfcntr</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.rptfrm"></a>rptfrm</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.tff"></a>tff</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.rff"></a>rff</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.ps-present"></a>ps_present</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.ps-hoffset"></a>ps_hoffset</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.ps-voffset"></a>ps_voffset</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.ps-width"></a>ps_width</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.ps-height"></a>ps_height</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.rndctrl"></a>rndctrl</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.uvsamp"></a>uvsamp</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.postproc"></a>postproc</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.mvrange"></a>mvrange</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.mvmode"></a>mvmode</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.mvtab"></a>mvtab</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.cbptab"></a>cbptab</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.ttmbf"></a>ttmbf</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.ttfrm"></a>ttfrm</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.bfraction"></a>bfraction</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.mvmode2"></a>mvmode2</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.lumscale"></a>lumscale</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.lumshift"></a>lumshift</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.bf"></a>bf</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.condover"></a>condover</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.transacfrm2"></a>transacfrm2</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.acpred"></a>acpred</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.overflags"></a>overflags</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.mvtypemb"></a>mvtypemb</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.skipmb"></a>skipmb</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.directmb"></a>directmb</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.forwardmb"></a>forwardmb</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.fieldtx"></a>fieldtx</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.intcomp"></a>intcomp</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.dmvrange"></a>dmvrange</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.mbmodetab"></a>mbmodetab</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.imvtab"></a>imvtab</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.icbptab"></a>icbptab</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.mvbptab2"></a>mvbptab2</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.mvbptab4"></a>mvbptab4</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.mvswitch4"></a>mvswitch4</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.refdist"></a>refdist</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.fptype"></a>fptype</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.numref"></a>numref</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.reffield"></a>reffield</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.lumscale2"></a>lumscale2</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.lumshift2"></a>lumshift2</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicAdvanced.intcompfield"></a>intcompfield</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -1692,108 +1095,6 @@ in use.</p>
   guint8 directmb; /* B pic main profile only */
 };
 </pre>
-<div class="refsect3">
-<a name="GstVC1PicSimpleMain.members"></a><h4>Members</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="300px" class="struct_members_name">
-<col class="struct_members_description">
-<col width="200px" class="struct_members_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.frmcnt"></a>frmcnt</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.mvrange"></a>mvrange</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.rangeredfrm"></a>rangeredfrm</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.respic"></a>respic</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.transacfrm2"></a>transacfrm2</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.bf"></a>bf</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.mvmode"></a>mvmode</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.mvtab"></a>mvtab</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.ttmbf"></a>ttmbf</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.mvmode2"></a>mvmode2</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.lumscale"></a>lumscale</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.lumshift"></a>lumshift</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.cbptab"></a>cbptab</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.ttfrm"></a>ttfrm</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.bfraction"></a>bfraction</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.mvtypemb"></a>mvtypemb</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.skipmb"></a>skipmb</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstVC1PicSimpleMain.directmb"></a>directmb</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -1838,7 +1139,6 @@ in use.</p>
   guint8 * data;
 };
 </pre>
-<p>Structure that represents a Bitstream Data Unit.</p>
 </div>
 </div>
 </div>

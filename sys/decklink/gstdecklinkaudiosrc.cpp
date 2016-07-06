@@ -171,8 +171,7 @@ gst_decklink_audio_src_class_init (GstDecklinkAudioSrcClass * klass)
           G_MAXINT, DEFAULT_BUFFER_SIZE,
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_template));
+  gst_element_class_add_static_pad_template (element_class, &sink_template);
 
   gst_element_class_set_static_metadata (element_class, "Decklink Audio Source",
       "Audio/Src", "Decklink Source", "David Schleef <ds@entropywave.com>, "
@@ -492,8 +491,10 @@ retry:
   sample_count = p->packet->GetSampleFrameCount ();
   data_size = self->info.bpf * sample_count;
 
-  if (p->capture_time == GST_CLOCK_TIME_NONE && self->next_offset == (guint64) - 1) {
-    GST_DEBUG_OBJECT (self, "Got packet without timestamp before initial "
+  if (p->capture_time == GST_CLOCK_TIME_NONE
+      && self->next_offset == (guint64) - 1) {
+    GST_DEBUG_OBJECT (self,
+        "Got packet without timestamp before initial "
         "timestamp after discont - dropping");
     capture_packet_free (p);
     goto retry;

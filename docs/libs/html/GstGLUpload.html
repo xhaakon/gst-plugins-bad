@@ -28,7 +28,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="GstGLUpload.top_of_page"></a>GstGLUpload</span></h2>
-<p>GstGLUpload — an object that uploads to GL textures</p>
+<p>GstGLUpload</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -122,8 +122,6 @@
 </div>
 <div class="refsect1">
 <a name="GstGLUpload.description"></a><h2>Description</h2>
-<p><a class="link" href="GstGLUpload.html" title="GstGLUpload"><span class="type">GstGLUpload</span></a> is an object that uploads data from system memory into GL textures.</p>
-<p>A <a class="link" href="GstGLUpload.html" title="GstGLUpload"><span class="type">GstGLUpload</span></a> can be created with <a class="link" href="GstGLUpload.html#gst-gl-upload-new" title="gst_gl_upload_new ()"><code class="function">gst_gl_upload_new()</code></a></p>
 </div>
 <div class="refsect1">
 <a name="GstGLUpload.functions_details"></a><h2>Functions</h2>
@@ -131,25 +129,6 @@
 <a name="gst-gl-upload-new"></a><h3>gst_gl_upload_new ()</h3>
 <pre class="programlisting"><a class="link" href="GstGLUpload.html" title="GstGLUpload"><span class="returnvalue">GstGLUpload</span></a> *
 gst_gl_upload_new (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>);</pre>
-<div class="refsect3">
-<a name="gst-gl-upload-new.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody><tr>
-<td class="parameter_name"><p>context</p></td>
-<td class="parameter_description"><p>a <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-gl-upload-new.returns"></a><h4>Returns</h4>
-<p> a new <a class="link" href="GstGLUpload.html" title="GstGLUpload"><span class="type">GstGLUpload</span></a> object</p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -158,38 +137,6 @@ gst_gl_upload_new (<em class="parameter"><code><a class="link" href="GstGLContex
 gst_gl_upload_get_caps (<em class="parameter"><code><a class="link" href="GstGLUpload.html" title="GstGLUpload"><span class="type">GstGLUpload</span></a> *upload</code></em>,
                         <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstCaps.html#GstCaps-struct"><span class="type">GstCaps</span></a> **in_caps</code></em>,
                         <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstCaps.html#GstCaps-struct"><span class="type">GstCaps</span></a> **out_caps</code></em>);</pre>
-<div class="refsect3">
-<a name="gst-gl-upload-get-caps.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>upload</p></td>
-<td class="parameter_description"><p>a <a class="link" href="GstGLUpload.html" title="GstGLUpload"><span class="type">GstGLUpload</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>in_caps</p></td>
-<td class="parameter_description"><p> the input <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstCaps.html#GstCaps-struct"><span class="type">GstCaps</span></a>. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>][<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
-</tr>
-<tr>
-<td class="parameter_name"><p>out_caps</p></td>
-<td class="parameter_description"><p> the output <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstCaps.html#GstCaps-struct"><span class="type">GstCaps</span></a>. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>][<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-gl-upload-get-caps.returns"></a><h4>Returns</h4>
-<p> The <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstCaps.html#GstCaps-struct"><span class="type">GstCaps</span></a> set by <a class="link" href="GstGLUpload.html#gst-gl-upload-set-caps" title="gst_gl_upload_set_caps ()"><code class="function">gst_gl_upload_set_caps()</code></a>. </p>
-<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -198,42 +145,6 @@ gst_gl_upload_get_caps (<em class="parameter"><code><a class="link" href="GstGLU
 gst_gl_upload_set_caps (<em class="parameter"><code><a class="link" href="GstGLUpload.html" title="GstGLUpload"><span class="type">GstGLUpload</span></a> *upload</code></em>,
                         <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstCaps.html#GstCaps-struct"><span class="type">GstCaps</span></a> *in_caps</code></em>,
                         <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstCaps.html#GstCaps-struct"><span class="type">GstCaps</span></a> *out_caps</code></em>);</pre>
-<p>Initializes <em class="parameter"><code>upload</code></em>
- with the information required for upload.</p>
-<div class="refsect3">
-<a name="gst-gl-upload-set-caps.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>upload</p></td>
-<td class="parameter_description"><p>a <a class="link" href="GstGLUpload.html" title="GstGLUpload"><span class="type">GstGLUpload</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>in_caps</p></td>
-<td class="parameter_description"><p>input <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstCaps.html#GstCaps-struct"><span class="type">GstCaps</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>out_caps</p></td>
-<td class="parameter_description"><p>output <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstCaps.html#GstCaps-struct"><span class="type">GstCaps</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-gl-upload-set-caps.returns"></a><h4>Returns</h4>
-<p> whether <em class="parameter"><code>in_caps</code></em>
-and <em class="parameter"><code>out_caps</code></em>
-could be set on <em class="parameter"><code>upload</code></em>
-</p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -242,34 +153,6 @@ could be set on <em class="parameter"><code>upload</code></em>
 gst_gl_upload_propose_allocation (<em class="parameter"><code><a class="link" href="GstGLUpload.html" title="GstGLUpload"><span class="type">GstGLUpload</span></a> *upload</code></em>,
                                   <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstQuery.html#GstQuery-struct"><span class="type">GstQuery</span></a> *decide_query</code></em>,
                                   <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstQuery.html#GstQuery-struct"><span class="type">GstQuery</span></a> *query</code></em>);</pre>
-<p>Adds the required allocation parameters to support uploading.</p>
-<div class="refsect3">
-<a name="gst-gl-upload-propose-allocation.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>upload</p></td>
-<td class="parameter_description"><p>a <a class="link" href="GstGLUpload.html" title="GstGLUpload"><span class="type">GstGLUpload</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>decide_query</p></td>
-<td class="parameter_description"><p> a <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstQuery.html#GstQuery-struct"><span class="type">GstQuery</span></a> from a decide allocation. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
-</tr>
-<tr>
-<td class="parameter_name"><p>query</p></td>
-<td class="parameter_description"><p>the proposed allocation query</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -287,41 +170,6 @@ gst_gl_upload_transform_caps (<em class="parameter"><code><a class="link" href="
 gst_gl_upload_perform_with_buffer (<em class="parameter"><code><a class="link" href="GstGLUpload.html" title="GstGLUpload"><span class="type">GstGLUpload</span></a> *upload</code></em>,
                                    <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="type">GstBuffer</span></a> *buffer</code></em>,
                                    <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="type">GstBuffer</span></a> **outbuf_ptr</code></em>);</pre>
-<p>Uploads <em class="parameter"><code>buffer</code></em>
- using the transformation specified by
-<a class="link" href="GstGLUpload.html#gst-gl-upload-set-caps" title="gst_gl_upload_set_caps ()"><code class="function">gst_gl_upload_set_caps()</code></a> creating a new <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="type">GstBuffer</span></a> in <em class="parameter"><code>outbuf_ptr</code></em>
-.</p>
-<div class="refsect3">
-<a name="gst-gl-upload-perform-with-buffer.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>upload</p></td>
-<td class="parameter_description"><p>a <a class="link" href="GstGLUpload.html" title="GstGLUpload"><span class="type">GstGLUpload</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>buffer</p></td>
-<td class="parameter_description"><p>input <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="type">GstBuffer</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>outbuf_ptr</p></td>
-<td class="parameter_description"><p>resulting <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="type">GstBuffer</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-gl-upload-perform-with-buffer.returns"></a><h4>Returns</h4>
-<p> whether the upload was successful</p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -335,12 +183,7 @@ gst_gl_upload_get_input_template_caps (<em class="parameter"><code><span class="
 <div class="refsect2">
 <a name="GstGLUpload-struct"></a><h3>GstGLUpload</h3>
 <pre class="programlisting">typedef struct _GstGLUpload GstGLUpload;</pre>
-<p>Opaque <a class="link" href="GstGLUpload.html" title="GstGLUpload"><span class="type">GstGLUpload</span></a> object</p>
 </div>
-</div>
-<div class="refsect1">
-<a name="GstGLUpload.see-also"></a><h2>See Also</h2>
-<p><span class="type">GstGLDownload</span>, <a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p>
 </div>
 </div>
 <div class="footer">

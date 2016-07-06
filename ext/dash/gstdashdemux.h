@@ -67,11 +67,15 @@ struct _GstDashDemuxStream
   GstMediaFragmentInfo current_fragment;
 
   /* index parsing */
+  GstAdapter *sidx_adapter;
   GstSidxParser sidx_parser;
-  gsize sidx_current_remaining;
   gint sidx_index;
   gint64 sidx_base_offset;
   GstClockTime pending_seek_ts;
+  /* sidx offset tracking */
+  guint64 sidx_current_offset;
+  /* index = 1, header = 2, data = 3 */
+  guint sidx_index_header_or_data;
 };
 
 /**

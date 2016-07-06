@@ -28,7 +28,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-bad-libs-gstglmemorypbo.top_of_page"></a>GstGLMemoryPBO</span></h2>
-<p>GstGLMemoryPBO — memory subclass for GL textures</p>
+<p>GstGLMemoryPBO</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -123,11 +123,6 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-gstglmemorypbo.description"></a><h2>Description</h2>
-<p><a class="link" href="gst-plugins-bad-libs-gstglmemorypbo.html#GstGLMemoryPBO" title="GstGLMemoryPBO"><span class="type">GstGLMemoryPBO</span></a> is created or wrapped through <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#gst-gl-base-memory-alloc" title="gst_gl_base_memory_alloc ()"><code class="function">gst_gl_base_memory_alloc()</code></a>
-with <a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams" title="struct GstGLVideoAllocationParams"><span class="type">GstGLVideoAllocationParams</span></a>.</p>
-<p><a class="link" href="gst-plugins-bad-libs-gstglmemorypbo.html#GstGLMemoryPBO" title="GstGLMemoryPBO"><span class="type">GstGLMemoryPBO</span></a> is created through <code class="function">gst_gl_memory_pbo_alloc()</code> or system memory can
-be wrapped through <code class="function">gst_gl_memory_pbo_wrapped()</code>.</p>
-<p>Data is uploaded or downloaded from the GPU as is necessary.</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-gstglmemorypbo.functions_details"></a><h2>Functions</h2>
@@ -135,27 +130,6 @@ be wrapped through <code class="function">gst_gl_memory_pbo_wrapped()</code>.</p
 <a name="gst-is-gl-memory-pbo"></a><h3>gst_is_gl_memory_pbo ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_is_gl_memory_pbo (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstMemory.html#GstMemory-struct"><span class="type">GstMemory</span></a> *mem</code></em>);</pre>
-<div class="refsect3">
-<a name="gst-is-gl-memory-pbo.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody><tr>
-<td class="parameter_name"><p>mem</p></td>
-<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstMemory.html#GstMemory-struct"><span class="type">GstMemory</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-is-gl-memory-pbo.returns"></a><h4>Returns</h4>
-<p> whether the memory at <em class="parameter"><code>mem</code></em>
-is a <a class="link" href="gst-plugins-bad-libs-gstglmemorypbo.html#GstGLMemoryPBO" title="GstGLMemoryPBO"><span class="type">GstGLMemoryPBO</span></a></p>
-</div>
-<p class="since">Since: 1.8</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -169,107 +143,12 @@ gst_gl_memory_pbo_copy_into_texture (<em class="parameter"><code><a class="link"
                                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> height</code></em>,
                                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> stride</code></em>,
                                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> respecify</code></em>);</pre>
-<p>Copies <em class="parameter"><code>gl_mem</code></em>
- into the texture specfified by <em class="parameter"><code>tex_id</code></em>
-.  The format of <em class="parameter"><code>tex_id</code></em>
-
-is specified by <em class="parameter"><code>tex_type</code></em>
-, <em class="parameter"><code>width</code></em>
- and <em class="parameter"><code>height</code></em>
-.</p>
-<p>If <em class="parameter"><code>respecify</code></em>
- is <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a>, then the copy is performed in terms of the texture
-data.  This is useful for splitting RGBA textures into RG or R textures or
-vice versa. The requirement for this to succeed is that the backing texture
-data must be the same size, i.e. say a RGBA8 texture is converted into a RG8
-texture, then the RG texture must have twice as many pixels available for
-output as the RGBA texture.</p>
-<p>Otherwise, if <em class="parameter"><code>respecify</code></em>
- is <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>, then the copy is performed per texel
-using glCopyTexImage.  See the OpenGL specification for details on the
-mappings between texture formats.</p>
-<div class="refsect3">
-<a name="gst-gl-memory-pbo-copy-into-texture.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>gl_mem</p></td>
-<td class="parameter_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglmemorypbo.html#GstGLMemoryPBO" title="GstGLMemoryPBO"><span class="type">GstGLMemoryPBO</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>tex_id</p></td>
-<td class="parameter_description"><p>the destination texture id</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>target</p></td>
-<td class="parameter_description"><p>the destination <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLTextureTarget" title="enum GstGLTextureTarget"><span class="type">GstGLTextureTarget</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>tex_type</p></td>
-<td class="parameter_description"><p>the destination <span class="type">GstVideoGLTextureType</span></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>width</p></td>
-<td class="parameter_description"><p>width of <em class="parameter"><code>tex_id</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>height</p></td>
-<td class="parameter_description"><p>height of <em class="parameter"><code>tex_id</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>stride</p></td>
-<td class="parameter_description"><p>stride of the backing texture data</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>respecify</p></td>
-<td class="parameter_description"><p>whether to copy the data or copy per texel</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-gl-memory-pbo-copy-into-texture.returns"></a><h4>Returns</h4>
-<p> Whether the copy suceeded</p>
-</div>
-<p class="since">Since: 1.8</p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="gst-gl-memory-pbo-download-transfer"></a><h3>gst_gl_memory_pbo_download_transfer ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_gl_memory_pbo_download_transfer (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglmemorypbo.html#GstGLMemoryPBO" title="GstGLMemoryPBO"><span class="type">GstGLMemoryPBO</span></a> *gl_mem</code></em>);</pre>
-<p>Transfer the texture data from the PBO into the texture if necessary.</p>
-<div class="refsect3">
-<a name="gst-gl-memory-pbo-download-transfer.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody><tr>
-<td class="parameter_name"><p>gl_mem</p></td>
-<td class="parameter_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglmemorypbo.html#GstGLMemoryPBO" title="GstGLMemoryPBO"><span class="type">GstGLMemoryPBO</span></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
-<p class="since">Since: 1.8</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -311,12 +190,7 @@ gst_gl_memory_pbo_upload_transfer (<em class="parameter"><code><a class="link" h
   GstGLMemory      mem;
 } GstGLMemoryPBO;
 </pre>
-<p>Private instance</p>
 </div>
-</div>
-<div class="refsect1">
-<a name="gst-plugins-bad-libs-gstglmemorypbo.see-also"></a><h2>See Also</h2>
-<p><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstMemory.html#GstMemory-struct"><span class="type">GstMemory</span></a>, <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocator-struct"><span class="type">GstAllocator</span></a>, <a class="link" href="GstGLBufferPool.html" title="GstGLBufferPool"><span class="type">GstGLBufferPool</span></a></p>
 </div>
 </div>
 <div class="footer">

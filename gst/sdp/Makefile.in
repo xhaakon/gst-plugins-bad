@@ -167,7 +167,7 @@ libgstsdpelem_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_libgstsdpelem_la_OBJECTS = libgstsdpelem_la-gstsdpelem.lo \
-	libgstsdpelem_la-gstsdpdemux.lo
+	libgstsdpelem_la-gstsdpsrc.lo libgstsdpelem_la-gstsdpdemux.lo
 libgstsdpelem_la_OBJECTS = $(am_libgstsdpelem_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -304,6 +304,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -519,6 +521,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -645,8 +649,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -691,6 +693,8 @@ WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -780,15 +784,16 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstsdpelem.la
-libgstsdpelem_la_SOURCES = gstsdpelem.c gstsdpdemux.h gstsdpdemux.c
+libgstsdpelem_la_SOURCES = gstsdpelem.c gstsdpsrc.c gstsdpdemux.c
 libgstsdpelem_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_CFLAGS) $(GIO_CFLAGS)
 libgstsdpelem_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GIO_LIBS) \
 		       -lgstrtp-@GST_API_VERSION@ -lgstsdp-@GST_API_VERSION@ \
+		       -lgstapp-@GST_API_VERSION@ \
 		       $(GST_LIBS) $(WINSOCK2_LIBS)
 
 libgstsdpelem_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstsdpelem_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
-noinst_HEADERS = gstsdpdemux.h
+noinst_HEADERS = gstsdpdemux.h gstsdpsrc.h
 all: all-am
 
 .SUFFIXES:
@@ -869,6 +874,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsdpelem_la-gstsdpdemux.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsdpelem_la-gstsdpelem.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsdpelem_la-gstsdpsrc.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -900,6 +906,13 @@ libgstsdpelem_la-gstsdpelem.lo: gstsdpelem.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstsdpelem.c' object='libgstsdpelem_la-gstsdpelem.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstsdpelem_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsdpelem_la_CFLAGS) $(CFLAGS) -c -o libgstsdpelem_la-gstsdpelem.lo `test -f 'gstsdpelem.c' || echo '$(srcdir)/'`gstsdpelem.c
+
+libgstsdpelem_la-gstsdpsrc.lo: gstsdpsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstsdpelem_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsdpelem_la_CFLAGS) $(CFLAGS) -MT libgstsdpelem_la-gstsdpsrc.lo -MD -MP -MF $(DEPDIR)/libgstsdpelem_la-gstsdpsrc.Tpo -c -o libgstsdpelem_la-gstsdpsrc.lo `test -f 'gstsdpsrc.c' || echo '$(srcdir)/'`gstsdpsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstsdpelem_la-gstsdpsrc.Tpo $(DEPDIR)/libgstsdpelem_la-gstsdpsrc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstsdpsrc.c' object='libgstsdpelem_la-gstsdpsrc.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstsdpelem_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsdpelem_la_CFLAGS) $(CFLAGS) -c -o libgstsdpelem_la-gstsdpsrc.lo `test -f 'gstsdpsrc.c' || echo '$(srcdir)/'`gstsdpsrc.c
 
 libgstsdpelem_la-gstsdpdemux.lo: gstsdpdemux.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstsdpelem_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsdpelem_la_CFLAGS) $(CFLAGS) -MT libgstsdpelem_la-gstsdpdemux.lo -MD -MP -MF $(DEPDIR)/libgstsdpelem_la-gstsdpdemux.Tpo -c -o libgstsdpelem_la-gstsdpdemux.lo `test -f 'gstsdpdemux.c' || echo '$(srcdir)/'`gstsdpdemux.c

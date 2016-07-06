@@ -34,6 +34,12 @@
 #endif
 #endif
 
+#if GST_VULKAN_HAVE_WINDOW_WAYLAND
+#ifndef VK_USE_PLATFORM_WAYLAND_KHR
+#define VK_USE_PLATFORM_WAYLAND_KHR
+#endif
+#endif
+
 #include <vulkan/vulkan.h>
 
 #endif /* _VK_H_ */

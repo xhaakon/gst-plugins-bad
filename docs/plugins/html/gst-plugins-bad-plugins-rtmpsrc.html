@@ -42,12 +42,19 @@
 <col width="300px" class="properties_name">
 <col width="200px" class="properties_flags">
 </colgroup>
-<tbody><tr>
+<tbody>
+<tr>
 <td class="property_type">
 <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-rtmpsrc.html#GstRTMPSrc--location" title="The “location” property">location</a></td>
 <td class="property_flags">Read / Write</td>
-</tr></tbody>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-rtmpsrc.html#GstRTMPSrc--timeout" title="The “timeout” property">timeout</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+</tbody>
 </table></div>
 </div>
 <a name="GstRTMPSrc"></a><div class="refsect1">
@@ -82,10 +89,27 @@ GstRTMPSrc implements
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-rtmpsrc.description"></a><h2>Description</h2>
+<p>This plugin reads data from a local or remote location specified
+by an URI. This location can be specified using any protocol supported by
+the RTMP library, i.e. rtmp, rtmpt, rtmps, rtmpe, rtmfp, rtmpte and rtmpts.</p>
+<div class="refsect2">
+<a name="id-1.2.61.8.3"></a><h3>Example launch lines</h3>
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1</pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> <span class="gtkdoc opt">-</span>v rtmpsrc location<span class="gtkdoc opt">=</span>rtmp<span class="gtkdoc opt">:</span><span class="gtkdoc slc">//somehost/someurl ! fakesink</span></pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+ Open an RTMP location and pass its content to fakesink.
+</div>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.62.8.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.61.8.4.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -111,7 +135,7 @@ GstRTMPSrc implements
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.62.8.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.61.8.4.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -148,6 +172,7 @@ GstRTMPSrc implements
 <div class="refsect2">
 <a name="GstRTMPSrc-struct"></a><h3>struct GstRTMPSrc</h3>
 <pre class="programlisting">struct GstRTMPSrc;</pre>
+<p>Opaque data structure.</p>
 </div>
 </div>
 <div class="refsect1">
@@ -158,6 +183,15 @@ GstRTMPSrc implements
 <p>Location of the RTMP url to read.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstRTMPSrc--timeout"></a><h3>The <code class="literal">“timeout”</code> property</h3>
+<pre class="programlisting">  “timeout”                  <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>Time without receiving any data from the server to wait before to timeout the session.</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 120</p>
 </div>
 </div>
 </div>

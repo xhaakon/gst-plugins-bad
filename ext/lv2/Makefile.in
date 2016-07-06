@@ -163,10 +163,12 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstlv2_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/signalprocessor/libgstsignalprocessor-@GST_API_VERSION@.la \
+libgstlv2_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am_libgstlv2_la_OBJECTS = libgstlv2_la-gstlv2.lo
+am_libgstlv2_la_OBJECTS = libgstlv2_la-gstlv2.lo \
+	libgstlv2_la-gstlv2utils.lo libgstlv2_la-gstlv2filter.lo \
+	libgstlv2_la-gstlv2source.lo
 libgstlv2_la_OBJECTS = $(am_libgstlv2_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -303,6 +305,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -518,6 +522,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -644,8 +650,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -690,6 +694,8 @@ WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -779,20 +785,23 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstlv2.la
-libgstlv2_la_SOURCES = gstlv2.c
+libgstlv2_la_SOURCES = gstlv2.c gstlv2utils.c gstlv2filter.c gstlv2source.c
 libgstlv2_la_CFLAGS = \
 	-I$(top_srcdir)/gst-libs \
+	$(GST_AUDIO_CFLAGS) \
+	$(GST_BASE_CFLAGS) \
 	$(GST_PLUGINS_BASE_CFLAGS) \
-	$(GST_CFLAGS) $(SLV2_CFLAGS)
+	$(GST_CFLAGS) $(LILV_CFLAGS)
 
 libgstlv2_la_LIBADD = \
-	$(top_builddir)/gst-libs/gst/signalprocessor/libgstsignalprocessor-@GST_API_VERSION@.la \
+	$(GST_AUDIO_LIBS) \
+	$(GST_BASE_LIBS) \
 	$(GST_PLUGINS_BASE_LIBS) -lgstaudio-$(GST_API_VERSION) \
-	$(LIBM) $(SLV2_LIBS)
+	$(LIBM) $(LILV_LIBS)
 
 libgstlv2_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstlv2_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
-noinst_HEADERS = gstlv2.h
+noinst_HEADERS = gstlv2.h gstlv2utils.h
 all: all-am
 
 .SUFFIXES:
@@ -872,6 +881,9 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstlv2_la-gstlv2.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstlv2_la-gstlv2filter.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstlv2_la-gstlv2source.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstlv2_la-gstlv2utils.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -903,6 +915,27 @@ libgstlv2_la-gstlv2.lo: gstlv2.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstlv2.c' object='libgstlv2_la-gstlv2.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstlv2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstlv2_la_CFLAGS) $(CFLAGS) -c -o libgstlv2_la-gstlv2.lo `test -f 'gstlv2.c' || echo '$(srcdir)/'`gstlv2.c
+
+libgstlv2_la-gstlv2utils.lo: gstlv2utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstlv2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstlv2_la_CFLAGS) $(CFLAGS) -MT libgstlv2_la-gstlv2utils.lo -MD -MP -MF $(DEPDIR)/libgstlv2_la-gstlv2utils.Tpo -c -o libgstlv2_la-gstlv2utils.lo `test -f 'gstlv2utils.c' || echo '$(srcdir)/'`gstlv2utils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstlv2_la-gstlv2utils.Tpo $(DEPDIR)/libgstlv2_la-gstlv2utils.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstlv2utils.c' object='libgstlv2_la-gstlv2utils.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstlv2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstlv2_la_CFLAGS) $(CFLAGS) -c -o libgstlv2_la-gstlv2utils.lo `test -f 'gstlv2utils.c' || echo '$(srcdir)/'`gstlv2utils.c
+
+libgstlv2_la-gstlv2filter.lo: gstlv2filter.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstlv2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstlv2_la_CFLAGS) $(CFLAGS) -MT libgstlv2_la-gstlv2filter.lo -MD -MP -MF $(DEPDIR)/libgstlv2_la-gstlv2filter.Tpo -c -o libgstlv2_la-gstlv2filter.lo `test -f 'gstlv2filter.c' || echo '$(srcdir)/'`gstlv2filter.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstlv2_la-gstlv2filter.Tpo $(DEPDIR)/libgstlv2_la-gstlv2filter.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstlv2filter.c' object='libgstlv2_la-gstlv2filter.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstlv2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstlv2_la_CFLAGS) $(CFLAGS) -c -o libgstlv2_la-gstlv2filter.lo `test -f 'gstlv2filter.c' || echo '$(srcdir)/'`gstlv2filter.c
+
+libgstlv2_la-gstlv2source.lo: gstlv2source.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstlv2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstlv2_la_CFLAGS) $(CFLAGS) -MT libgstlv2_la-gstlv2source.lo -MD -MP -MF $(DEPDIR)/libgstlv2_la-gstlv2source.Tpo -c -o libgstlv2_la-gstlv2source.lo `test -f 'gstlv2source.c' || echo '$(srcdir)/'`gstlv2source.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstlv2_la-gstlv2source.Tpo $(DEPDIR)/libgstlv2_la-gstlv2source.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstlv2source.c' object='libgstlv2_la-gstlv2source.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstlv2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstlv2_la_CFLAGS) $(CFLAGS) -c -o libgstlv2_la-gstlv2source.lo `test -f 'gstlv2source.c' || echo '$(srcdir)/'`gstlv2source.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

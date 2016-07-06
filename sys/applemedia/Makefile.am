@@ -72,9 +72,11 @@ noinst_HEADERS =				\
 	vtutil.h				\
 	corevideobuffer.h			\
 	coremediabuffer.h			\
+	corevideomemory.h			\
 	videotexturecache.h			\
 	atdec.h 				\
 	iosassetsrc.h				\
+	iosurfacememory.h			\
 	avfassetsrc.h  				\
 	glcontexthelper.h
 
@@ -96,6 +98,7 @@ libgstapplemedia_la_SOURCES +=			\
 libgstapplemedia_la_LDFLAGS +=			\
 	-Wl,-framework -Wl,Cocoa		\
 	-Wl,-framework -Wl,QTKit		\
+	-Wl,-framework -Wl,OpenGL 		\
 	-Wl,-framework -Wl,IOSurface
 
 endif

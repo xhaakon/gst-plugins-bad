@@ -239,10 +239,10 @@ mpegtsmux_class_init (MpegTsMuxClass * klass)
   GstElementClass *gstelement_class = GST_ELEMENT_CLASS (klass);
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&mpegtsmux_sink_factory));
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&mpegtsmux_src_factory));
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &mpegtsmux_sink_factory);
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &mpegtsmux_src_factory);
 
   gst_element_class_set_static_metadata (gstelement_class,
       "MPEG Transport Stream Muxer", "Codec/Muxer",
@@ -933,11 +933,9 @@ mpegtsmux_sink_event (GstCollectPads * pads, GstCollectData * data,
 
         lang_code = gst_tag_get_language_code_iso_639_2B (lang);
         if (lang_code) {
-          if (pad_data->language) {
-            g_free (pad_data->language);
-            pad_data->language = NULL;
-          }
           GST_DEBUG_OBJECT (pad, "Setting language to '%s'", lang_code);
+
+          g_free (pad_data->language);
           pad_data->language = g_strdup (lang_code);
         } else {
           GST_WARNING_OBJECT (pad, "Did not get language code for '%s'", lang);

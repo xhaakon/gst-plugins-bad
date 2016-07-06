@@ -72,10 +72,19 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-mimenc.description"></a><h2>Description</h2>
+<p>The MIMIC codec is used by MSN Messenger's webcam support. It creates the
+TCP header for the MIMIC codec.</p>
+<p>When using it to communicate directly with MSN Messenger, if the sender
+wants to stop sending, he has to send a special buffer every 4 seconds.
+When the "paused-mode" property is set to TRUE, if the element receives no
+buffer on its sink pad for 4 seconds, it will produced a special paused
+frame and will continue doing so every 4 seconds until a new buffer is
+u received on its sink pad.</p>
+<p>Its fourcc is ML20.</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.45.7.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.45.7.5.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -101,7 +110,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.45.7.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.45.7.5.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -177,6 +186,10 @@
 <p>Flags: Read / Write</p>
 <p>Default value: FALSE</p>
 </div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-mimenc.see-also"></a><h2>See Also</h2>
+<p>mimdec</p>
 </div>
 </div>
 <div class="footer">

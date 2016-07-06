@@ -22,6 +22,7 @@
 #define __GST_GL_UTILS_H__
 
 #include <gst/video/video.h>
+#include <gst/video/gstvideoaffinetransformationmeta.h>
 
 #include <gst/gl/gstgl_fwd.h>
 
@@ -67,16 +68,6 @@ typedef void (*GLCB) (gint, gint, guint, gpointer stuff);
  */
 typedef void (*GLCB_V2) (gpointer stuff);
 
-/* deprecated. replaced by GstGLMemory */
-void gst_gl_context_gen_texture (GstGLContext * context, GLuint * pTexture,
-    GstVideoFormat v_format, GLint width, GLint height);
-/* deprecated. replaced by GstGLMemory */
-void gst_gl_context_del_texture (GstGLContext * context, GLuint * pTexture);
-
-/* deprecated. replaced by GstGLMemory */
-void gst_gl_generate_texture_full (GstGLContext * context, const GstVideoInfo * info,
-    const guint comp, gint stride[], gsize offset[], gsize size[], GLuint * pTexture);
-
 gboolean gst_gl_context_gen_fbo (GstGLContext * context, gint width, gint height,
     GLuint * fbo, GLuint * depthbuffer);
 gboolean gst_gl_context_use_fbo_v2 (GstGLContext * context, gint texture_fbo_width,
@@ -115,6 +106,10 @@ gboolean gst_gl_value_set_texture_target_from_mask (GValue * value,
     GstGLTextureTarget target_mask);
 gboolean gst_gl_value_set_texture_target (GValue * value, GstGLTextureTarget target);
 GstGLTextureTarget gst_gl_value_get_texture_target_mask (const GValue * value);
+
+void gst_gl_multiply_matrix4 (const gfloat * a, const gfloat * b, gfloat * result);
+void gst_gl_get_affine_transformation_meta_as_ndc (GstVideoAffineTransformationMeta *
+    meta, gfloat * matrix);
 
 G_END_DECLS
 

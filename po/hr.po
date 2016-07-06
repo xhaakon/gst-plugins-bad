@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.7.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-06-09 11:22+0300\n"
+"POT-Creation-Date: 2016-07-06 11:51+0300\n"
 "PO-Revision-Date: 2016-05-27 12:45-0700\n"
 "Last-Translator: Božidar Putanec <bozidarp@yahoo.com>\n"
 "Language-Team: Croatian <lokalizacija@linux.hr>\n"
@@ -18,6 +18,12 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 "X-Generator: Lokalize 2.0\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr "format nije bio dogovoren prije ‘get’ funkcije"
@@ -137,12 +143,24 @@ msgstr "Konfiguracijsku datoteku za DVB kanal nije moguće pronaći"
 msgid "Couldn't load DVB channel configuration file: %s"
 msgstr "Nije moguće učitati konfiguracijsku datoteku za DVB kanal: %s"
 
-msgid "DVB channel configuration file doesn't contain any channels"
-msgstr "Konfiguracijska datoteka za DVB kanal ne sadrži nijedan kanal"
-
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr "Pojedinosti za DVB kanal %s nije moguće pronaći"
+
+#, fuzzy, c-format
+msgid "No properties for the DVB channel %s"
+msgstr "Pojedinosti za DVB kanal %s nije moguće pronaći"
+
+#, fuzzy, c-format
+msgid "Failed to set properties for the DVB channel %s"
+msgstr "Pojedinosti za DVB kanal %s nije moguće pronaći"
+
+#, fuzzy, c-format
+msgid "Couldn't find DVB channel configuration file: %s"
+msgstr "Konfiguracijsku datoteku za DVB kanal nije moguće pronaći"
+
+msgid "DVB channel configuration file doesn't contain any channels"
+msgstr "Konfiguracijska datoteka za DVB kanal ne sadrži nijedan kanal"
 
 #~ msgid "Could not write to file \"%s\"."
 #~ msgstr "Ne mogu pisati u datoteku „%s”."

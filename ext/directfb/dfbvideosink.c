@@ -168,6 +168,19 @@ gst_meta_dfbsurface_api_get_type (void)
   return type;
 }
 
+static gboolean
+gst_meta_dfbsurface_init (GstMetaDfbSurface * meta, gpointer params,
+    GstBuffer * buf)
+{
+  meta->surface = NULL;
+  meta->width = meta->height = 0;
+  meta->locked = FALSE;
+  meta->pixel_format = 0;
+  meta->dfbvideosink = NULL;
+
+  return TRUE;
+}
+
 /* our metadata */
 const GstMetaInfo *
 gst_meta_dfbsurface_get_info (void)
@@ -178,7 +191,8 @@ gst_meta_dfbsurface_get_info (void)
     const GstMetaInfo *meta =
         gst_meta_register (gst_meta_dfbsurface_api_get_type (),
         "GstMetaDfbSurface", sizeof (GstMetaDfbSurface),
-        (GstMetaInitFunction) NULL, (GstMetaFreeFunction) NULL,
+        (GstMetaInitFunction) gst_meta_dfbsurface_init,
+        (GstMetaFreeFunction) NULL,
         (GstMetaTransformFunction) NULL);
     g_once_init_leave (&meta_info, meta);
   }
@@ -2420,8 +2434,8 @@ gst_dfbvideosink_class_init (GstDfbVideoSinkClass * klass)
       "DirectFB video sink", "Sink/Video", "A DirectFB based videosink",
       "Julien Moutte <julien@moutte.net>");
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&gst_dfbvideosink_sink_template_factory));
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &gst_dfbvideosink_sink_template_factory);
 
   gstelement_class->change_state = gst_dfbvideosink_change_state;
 

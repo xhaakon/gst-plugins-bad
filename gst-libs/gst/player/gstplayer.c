@@ -65,6 +65,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_player_debug);
 #define DEFAULT_MUTE FALSE
 #define DEFAULT_RATE 1.0
 #define DEFAULT_POSITION_UPDATE_INTERVAL_MS 100
+#define DEFAULT_AUDIO_VIDEO_OFFSET 0
 
 GQuark
 gst_player_error_quark (void)
@@ -95,11 +96,15 @@ enum
   PROP_RATE,
   PROP_PIPELINE,
   PROP_POSITION_UPDATE_INTERVAL,
+  PROP_VIDEO_MULTIVIEW_MODE,
+  PROP_VIDEO_MULTIVIEW_FLAGS,
+  PROP_AUDIO_VIDEO_OFFSET,
   PROP_LAST
 };
 
 enum
 {
+  SIGNAL_URI_LOADED,
   SIGNAL_POSITION_UPDATED,
   SIGNAL_DURATION_CHANGED,
   SIGNAL_STATE_CHANGED,
@@ -161,6 +166,10 @@ struct _GstPlayer
   GstClockTime last_seek_time;  /* Only set from main context */
   GSource *seek_source;
   GstClockTime seek_position;
+  /* If TRUE, all signals are inhibited except the
+   * state-changed:GST_PLAYER_STATE_STOPPED/PAUSED. This ensures that no signal
+   * is emitted after gst_player_stop/pause() has been called by the user. */
+  gboolean inhibit_sigs;
 };
 
 struct _GstPlayerClass
@@ -238,6 +247,7 @@ gst_player_init (GstPlayer * self)
   self->seek_pending = FALSE;
   self->seek_position = GST_CLOCK_TIME_NONE;
   self->last_seek_time = GST_CLOCK_TIME_NONE;
+  self->inhibit_sigs = FALSE;
 
   GST_TRACE_OBJECT (self, "Initialized");
 }
@@ -325,7 +335,32 @@ gst_player_class_init (GstPlayerClass * klass)
       0, 10000, DEFAULT_POSITION_UPDATE_INTERVAL_MS,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
+  param_specs[PROP_VIDEO_MULTIVIEW_MODE] =
+      g_param_spec_enum ("video-multiview-mode",
+      "Multiview Mode Override",
+      "Re-interpret a video stream as one of several frame-packed stereoscopic modes.",
+      GST_TYPE_VIDEO_MULTIVIEW_FRAME_PACKING,
+      GST_VIDEO_MULTIVIEW_FRAME_PACKING_NONE,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  param_specs[PROP_VIDEO_MULTIVIEW_FLAGS] =
+      g_param_spec_flags ("video-multiview-flags",
+      "Multiview Flags Override",
+      "Override details of the multiview frame layout",
+      GST_TYPE_VIDEO_MULTIVIEW_FLAGS, GST_VIDEO_MULTIVIEW_FLAGS_NONE,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  param_specs[PROP_AUDIO_VIDEO_OFFSET] =
+      g_param_spec_int64 ("audio-video-offset", "Audio Video Offset",
+      "The synchronisation offset between audio and video in nanoseconds",
+      G_MININT64, G_MAXINT64, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
+
+  signals[SIGNAL_URI_LOADED] =
+      g_signal_new ("uri-loaded", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, NULL, G_TYPE_NONE, 1, G_TYPE_STRING);
 
   signals[SIGNAL_POSITION_UPDATED] =
       g_signal_new ("position-updated", G_TYPE_FROM_CLASS (klass),
@@ -450,6 +485,28 @@ gst_player_constructed (GObject * object)
   G_OBJECT_CLASS (parent_class)->constructed (object);
 }
 
+typedef struct
+{
+  GstPlayer *player;
+  gchar *uri;
+} UriLoadedSignalData;
+
+static void
+uri_loaded_dispatch (gpointer user_data)
+{
+  UriLoadedSignalData *data = user_data;
+
+  g_signal_emit (data->player, signals[SIGNAL_URI_LOADED], 0, data->uri);
+}
+
+static void
+uri_loaded_signal_data_free (UriLoadedSignalData * data)
+{
+  g_object_unref (data->player);
+  g_free (data->uri);
+  g_free (data);
+}
+
 static gboolean
 gst_player_set_uri_internal (gpointer user_data)
 {
@@ -462,6 +519,17 @@ gst_player_set_uri_internal (gpointer user_data)
   GST_DEBUG_OBJECT (self, "Changing URI to '%s'", GST_STR_NULL (self->uri));
 
   g_object_set (self->playbin, "uri", self->uri, NULL);
+
+  if (g_signal_handler_find (self, G_SIGNAL_MATCH_ID,
+          signals[SIGNAL_URI_LOADED], 0, NULL, NULL, NULL) != 0) {
+    UriLoadedSignalData *data = g_new (UriLoadedSignalData, 1);
+
+    data->player = g_object_ref (self);
+    data->uri = g_strdup (self->uri);
+    gst_player_signal_dispatcher_dispatch (self->signal_dispatcher, self,
+        uri_loaded_dispatch, data,
+        (GDestroyNotify) uri_loaded_signal_data_free);
+  }
 
   /* if have suburi from previous playback then free it */
   if (self->suburi) {
@@ -570,6 +638,21 @@ gst_player_set_property (GObject * object, guint prop_id,
 
       gst_player_set_position_update_interval_internal (self);
       break;
+    case PROP_VIDEO_MULTIVIEW_MODE:
+      GST_DEBUG_OBJECT (self, "Set multiview mode=%u",
+          g_value_get_enum (value));
+      g_object_set_property (G_OBJECT (self->playbin), "video-multiview-mode",
+          value);
+      break;
+    case PROP_VIDEO_MULTIVIEW_FLAGS:
+      GST_DEBUG_OBJECT (self, "Set multiview flags=%x",
+          g_value_get_flags (value));
+      g_object_set_property (G_OBJECT (self->playbin), "video-multiview-flags",
+          value);
+      break;
+    case PROP_AUDIO_VIDEO_OFFSET:
+      g_object_set_property (G_OBJECT (self->playbin), "av-offset", value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -662,6 +745,23 @@ gst_player_get_property (GObject * object, guint prop_id,
       g_value_set_uint (value, gst_player_get_position_update_interval (self));
       g_mutex_unlock (&self->lock);
       break;
+    case PROP_VIDEO_MULTIVIEW_MODE:{
+      g_object_get_property (G_OBJECT (self->playbin), "video-multiview-mode",
+          value);
+      GST_TRACE_OBJECT (self, "Return multiview mode=%d",
+          g_value_get_enum (value));
+      break;
+    }
+    case PROP_VIDEO_MULTIVIEW_FLAGS:{
+      g_object_get_property (G_OBJECT (self->playbin), "video-multiview-flags",
+          value);
+      GST_TRACE_OBJECT (self, "Return multiview flags=%x",
+          g_value_get_flags (value));
+      break;
+    }
+    case PROP_AUDIO_VIDEO_OFFSET:
+      g_object_get_property (G_OBJECT (self->playbin), "av-offset", value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -692,6 +792,10 @@ static void
 state_changed_dispatch (gpointer user_data)
 {
   StateChangedSignalData *data = user_data;
+
+  if (data->player->inhibit_sigs && data->state != GST_PLAYER_STATE_STOPPED
+      && data->state != GST_PLAYER_STATE_PAUSED)
+    return;
 
   g_signal_emit (data->player, signals[SIGNAL_STATE_CHANGED], 0, data->state);
 }
@@ -736,6 +840,9 @@ static void
 position_updated_dispatch (gpointer user_data)
 {
   PositionUpdatedSignalData *data = user_data;
+
+  if (data->player->inhibit_sigs)
+    return;
 
   if (data->player->target_state >= GST_STATE_PAUSED) {
     g_signal_emit (data->player, signals[SIGNAL_POSITION_UPDATED], 0,
@@ -853,6 +960,9 @@ error_dispatch (gpointer user_data)
 {
   ErrorSignalData *data = user_data;
 
+  if (data->player->inhibit_sigs)
+    return;
+
   g_signal_emit (data->player, signals[SIGNAL_ERROR], 0, data->err);
 }
 
@@ -938,6 +1048,9 @@ static void
 warning_dispatch (gpointer user_data)
 {
   WarningSignalData *data = user_data;
+
+  if (data->player->inhibit_sigs)
+    return;
 
   g_signal_emit (data->player, signals[SIGNAL_WARNING], 0, data->err);
 }
@@ -1051,7 +1164,12 @@ warning_cb (G_GNUC_UNUSED GstBus * bus, GstMessage * msg, gpointer user_data)
 static void
 eos_dispatch (gpointer user_data)
 {
-  g_signal_emit (user_data, signals[SIGNAL_END_OF_STREAM], 0);
+  GstPlayer *player = user_data;
+
+  if (player->inhibit_sigs)
+    return;
+
+  g_signal_emit (player, signals[SIGNAL_END_OF_STREAM], 0);
 }
 
 static void
@@ -1085,6 +1203,9 @@ static void
 buffering_dispatch (gpointer user_data)
 {
   BufferingSignalData *data = user_data;
+
+  if (data->player->inhibit_sigs)
+    return;
 
   if (data->player->target_state >= GST_STATE_PAUSED) {
     g_signal_emit (data->player, signals[SIGNAL_BUFFERING], 0, data->percent);
@@ -1201,6 +1322,9 @@ video_dimensions_changed_dispatch (gpointer user_data)
 {
   VideoDimensionsChangedSignalData *data = user_data;
 
+  if (data->player->inhibit_sigs)
+    return;
+
   if (data->player->target_state >= GST_STATE_PAUSED) {
     g_signal_emit (data->player, signals[SIGNAL_VIDEO_DIMENSIONS_CHANGED], 0,
         data->width, data->height);
@@ -1286,6 +1410,9 @@ duration_changed_dispatch (gpointer user_data)
 {
   DurationChangedSignalData *data = user_data;
 
+  if (data->player->inhibit_sigs)
+    return;
+
   if (data->player->target_state >= GST_STATE_PAUSED) {
     g_signal_emit (data->player, signals[SIGNAL_DURATION_CHANGED], 0,
         data->duration);
@@ -1329,6 +1456,9 @@ static void
 seek_done_dispatch (gpointer user_data)
 {
   SeekDoneSignalData *data = user_data;
+
+  if (data->player->inhibit_sigs)
+    return;
 
   g_signal_emit (data->player, signals[SIGNAL_SEEK_DONE], 0, data->position);
 }
@@ -1671,6 +1801,9 @@ static void
 media_info_updated_dispatch (gpointer user_data)
 {
   MediaInfoUpdatedSignalData *data = user_data;
+
+  if (data->player->inhibit_sigs)
+    return;
 
   if (data->player->target_state >= GST_STATE_PAUSED) {
     g_signal_emit (data->player, signals[SIGNAL_MEDIA_INFO_UPDATED], 0,
@@ -2235,6 +2368,7 @@ gst_player_media_info_create (GstPlayer * self)
   media_info = gst_player_media_info_new (self->uri);
   media_info->duration = gst_player_get_duration (self);
   media_info->tags = self->global_tags;
+  media_info->is_live = self->is_live;
   self->global_tags = NULL;
 
   query = gst_query_new_seeking (GST_FORMAT_TIME);
@@ -2256,10 +2390,10 @@ gst_player_media_info_create (GstPlayer * self)
   media_info->image_sample = get_from_tags (self, media_info, get_cover_sample);
 
   GST_DEBUG_OBJECT (self, "uri: %s title: %s duration: %" GST_TIME_FORMAT
-      " seekable: %s container: %s image_sample %p",
+      " seekable: %s live: %s container: %s image_sample %p",
       media_info->uri, media_info->title, GST_TIME_ARGS (media_info->duration),
-      media_info->seekable ? "yes" : "no", media_info->container,
-      media_info->image_sample);
+      media_info->seekable ? "yes" : "no", media_info->is_live ? "yes" : "no",
+      media_info->container, media_info->image_sample);
 
   GST_DEBUG_OBJECT (self, "end");
   return media_info;
@@ -2309,8 +2443,13 @@ subtitle_tags_changed_cb (G_GNUC_UNUSED GstElement * playbin, gint stream_index,
 static void
 volume_changed_dispatch (gpointer user_data)
 {
-  g_signal_emit (user_data, signals[SIGNAL_VOLUME_CHANGED], 0);
-  g_object_notify_by_pspec (G_OBJECT (user_data), param_specs[PROP_VOLUME]);
+  GstPlayer *player = user_data;
+
+  if (player->inhibit_sigs)
+    return;
+
+  g_signal_emit (player, signals[SIGNAL_VOLUME_CHANGED], 0);
+  g_object_notify_by_pspec (G_OBJECT (player), param_specs[PROP_VOLUME]);
 }
 
 static void
@@ -2328,8 +2467,13 @@ volume_notify_cb (G_GNUC_UNUSED GObject * obj, G_GNUC_UNUSED GParamSpec * pspec,
 static void
 mute_changed_dispatch (gpointer user_data)
 {
-  g_signal_emit (user_data, signals[SIGNAL_MUTE_CHANGED], 0);
-  g_object_notify_by_pspec (G_OBJECT (user_data), param_specs[PROP_MUTE]);
+  GstPlayer *player = user_data;
+
+  if (player->inhibit_sigs)
+    return;
+
+  g_signal_emit (player, signals[SIGNAL_MUTE_CHANGED], 0);
+  g_object_notify_by_pspec (G_OBJECT (player), param_specs[PROP_MUTE]);
 }
 
 static void
@@ -2596,6 +2740,10 @@ gst_player_play (GstPlayer * self)
 {
   g_return_if_fail (GST_IS_PLAYER (self));
 
+  g_mutex_lock (&self->lock);
+  self->inhibit_sigs = FALSE;
+  g_mutex_unlock (&self->lock);
+
   g_main_context_invoke_full (self->context, G_PRIORITY_DEFAULT,
       gst_player_play_internal, self, NULL);
 }
@@ -2663,6 +2811,10 @@ gst_player_pause (GstPlayer * self)
 {
   g_return_if_fail (GST_IS_PLAYER (self));
 
+  g_mutex_lock (&self->lock);
+  self->inhibit_sigs = FALSE;
+  g_mutex_unlock (&self->lock);
+
   g_main_context_invoke_full (self->context, G_PRIORITY_DEFAULT,
       gst_player_pause_internal, self, NULL);
 }
@@ -2722,6 +2874,10 @@ void
 gst_player_stop (GstPlayer * self)
 {
   g_return_if_fail (GST_IS_PLAYER (self));
+
+  g_mutex_lock (&self->lock);
+  self->inhibit_sigs = TRUE;
+  g_mutex_unlock (&self->lock);
 
   g_main_context_invoke_full (self->context, G_PRIORITY_DEFAULT,
       gst_player_stop_internal, self, NULL);
@@ -3654,6 +3810,127 @@ gst_player_get_color_balance (GstPlayer * self, GstPlayerColorBalanceType type)
   return ((gdouble) value -
       (gdouble) channel->min_value) / ((gdouble) channel->max_value -
       (gdouble) channel->min_value);
+}
+
+/**
+ * gst_player_get_multiview_mode:
+ * @player: #GstPlayer instance
+ *
+ * Retrieve the current value of the indicated @type.
+ *
+ * Returns: The current value of @type, Default: -1 "none"
+ *
+ * Since: 1.10
+ */
+GstVideoMultiviewMode
+gst_player_get_multiview_mode (GstPlayer * self)
+{
+  GstVideoMultiviewMode val = GST_VIDEO_MULTIVIEW_MODE_NONE;
+
+  g_return_val_if_fail (GST_IS_PLAYER (self), GST_VIDEO_MULTIVIEW_MODE_NONE);
+
+  g_object_get (self, "video-multiview-mode", &val, NULL);
+
+  return val;
+}
+
+/**
+ * gst_player_set_multiview_mode:
+ * @player: #GstPlayer instance
+ * @mode: The new value for the @type
+ *
+ * Sets the current value of the indicated mode @type to the passed
+ * value.
+ *
+ * Since: 1.10
+ */
+void
+gst_player_set_multiview_mode (GstPlayer * self, GstVideoMultiviewMode mode)
+{
+  g_return_if_fail (GST_IS_PLAYER (self));
+
+  g_object_set (self, "video-multiview-mode", mode, NULL);
+}
+
+/**
+ * gst_player_get_multiview_flags:
+ * @player: #GstPlayer instance
+ *
+ * Retrieve the current value of the indicated @type.
+ *
+ * Returns: The current value of @type, Default: 0x00000000 "none
+ *
+ * Since: 1.10
+ */
+GstVideoMultiviewFlags
+gst_player_get_multiview_flags (GstPlayer * self)
+{
+  GstVideoMultiviewFlags val = GST_VIDEO_MULTIVIEW_FLAGS_NONE;
+
+  g_return_val_if_fail (GST_IS_PLAYER (self), val);
+
+  g_object_get (self, "video-multiview-flags", &val, NULL);
+
+  return val;
+}
+
+/**
+ * gst_player_set_multiview_flags:
+ * @player: #GstPlayer instance
+ * @flags: The new value for the @type
+ *
+ * Sets the current value of the indicated mode @type to the passed
+ * value.
+ *
+ * Since: 1.10
+ */
+void
+gst_player_set_multiview_flags (GstPlayer * self, GstVideoMultiviewFlags flags)
+{
+  g_return_if_fail (GST_IS_PLAYER (self));
+
+  g_object_set (self, "video-multiview-flags", flags, NULL);
+}
+
+/**
+ * gst_player_get_audio_video_offset:
+ * @player: #GstPlayer instance
+ *
+ * Retrieve the current value of audio-video-offset property
+ *
+ * Returns: The current value of audio-video-offset in nanoseconds
+ *
+ * Since 1.10
+ */
+gint64
+gst_player_get_audio_video_offset (GstPlayer * self)
+{
+  gint64 val = 0;
+
+  g_return_val_if_fail (GST_IS_PLAYER (self), DEFAULT_AUDIO_VIDEO_OFFSET);
+
+  g_object_get (self, "audio-video-offset", &val, NULL);
+
+  return val;
+}
+
+/**
+ * gst_player_set_audio_video_offset:
+ * @player: #GstPlayer instance
+ * @offset: #gint64 in nanoseconds
+ *
+ * Sets audio-video-offset property by value of @offset
+ *
+ * Returns: void
+ *
+ * Since 1.10
+ */
+void
+gst_player_set_audio_video_offset (GstPlayer * self, gint64 offset)
+{
+  g_return_if_fail (GST_IS_PLAYER (self));
+
+  g_object_set (self, "audio-video-offset", offset, NULL);
 }
 
 #define C_ENUM(v) ((gint) v)

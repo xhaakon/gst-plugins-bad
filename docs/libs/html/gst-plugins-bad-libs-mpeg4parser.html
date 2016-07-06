@@ -27,8 +27,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-bad-libs-mpeg4parser.top_of_page"></a>mpeg4parser</span></h2>
-<p>mpeg4parser — Convenience library for parsing mpeg4 part 2 video
-bitstream.</p>
+<p>mpeg4parser</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -197,8 +196,6 @@ bitstream.</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-mpeg4parser.description"></a><h2>Description</h2>
-<p>For more details about the structures, you can refer to the
-specifications: ISO-IEC-14496-2_2004_MPEG4_VISUAL.pdf</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-mpeg4parser.functions_details"></a><h2>Functions</h2>
@@ -211,58 +208,6 @@ gst_mpeg4_parse (<em class="parameter"><code><a class="link" href="gst-plugins-b
                  <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>,
                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
- and fills <em class="parameter"><code>packet</code></em>
- with the information of the next packet
-found.</p>
-<div class="refsect3">
-<a name="gst-mpeg4-parse.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>packet</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4Packet" title="struct GstMpeg4Packet"><span class="type">GstMpeg4Packet</span></a> to fill</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>skip_user_data</p></td>
-<td class="parameter_description"><p><a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> to skip user data packet <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>vop</p></td>
-<td class="parameter_description"><p>The last parsed <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VideoObjectPlane" title="struct GstMpeg4VideoObjectPlane"><span class="type">GstMpeg4VideoObjectPlane</span></a> or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> if you do
-not need to detect the resync codes.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>offset</p></td>
-<td class="parameter_description"><p>offset from which to start the parsing</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>The size of the <em class="parameter"><code>data</code></em>
-to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-mpeg4-parse.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4ParseResult" title="enum GstMpeg4ParseResult"><span class="type">GstMpeg4ParseResult</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -273,52 +218,6 @@ gst_mpeg4_parse_video_object_plane (<em class="parameter"><code><a class="link" 
                                     <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VideoObjectLayer" title="struct GstMpeg4VideoObjectLayer"><span class="type">GstMpeg4VideoObjectLayer</span></a> *vol</code></em>,
                                     <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
- containing the video object plane packet, and fills the <em class="parameter"><code>vol</code></em>
-
-structure.</p>
-<div class="refsect3">
-<a name="gst-mpeg4-parse-video-object-plane.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>vop</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VideoObjectPlane" title="struct GstMpeg4VideoObjectPlane"><span class="type">GstMpeg4VideoObjectPlane</span></a> currently being parsed</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>sprite_trajectory</p></td>
-<td class="parameter_description"><p>A <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4SpriteTrajectory" title="struct GstMpeg4SpriteTrajectory"><span class="type">GstMpeg4SpriteTrajectory</span></a> to fill or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>vol</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VideoObjectLayer" title="struct GstMpeg4VideoObjectLayer"><span class="type">GstMpeg4VideoObjectLayer</span></a> structure to fill</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>The size of the <em class="parameter"><code>data</code></em>
-to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-mpeg4-parse-video-object-plane.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4ParseResult" title="enum GstMpeg4ParseResult"><span class="type">GstMpeg4ParseResult</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -327,42 +226,6 @@ to parse</p></td>
 gst_mpeg4_parse_group_of_vop (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4GroupOfVOP" title="struct GstMpeg4GroupOfVOP"><span class="type">GstMpeg4GroupOfVOP</span></a> *gov</code></em>,
                               <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                               <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
- containing the group of video object plane packet, and fills
-the <em class="parameter"><code>gov</code></em>
- structure.</p>
-<div class="refsect3">
-<a name="gst-mpeg4-parse-group-of-vop.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>gov</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4GroupOfVOP" title="struct GstMpeg4GroupOfVOP"><span class="type">GstMpeg4GroupOfVOP</span></a> structure to fill</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>The size of the <em class="parameter"><code>data</code></em>
-to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-mpeg4-parse-group-of-vop.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4ParseResult" title="enum GstMpeg4ParseResult"><span class="type">GstMpeg4ParseResult</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -372,47 +235,6 @@ gst_mpeg4_parse_video_object_layer (<em class="parameter"><code><a class="link" 
                                     <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VisualObject" title="struct GstMpeg4VisualObject"><span class="type">GstMpeg4VisualObject</span></a> *vo</code></em>,
                                     <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
- containing the video object layer packet, and fills
-the <em class="parameter"><code>vol</code></em>
- structure.</p>
-<div class="refsect3">
-<a name="gst-mpeg4-parse-video-object-layer.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>vol</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VideoObjectLayer" title="struct GstMpeg4VideoObjectLayer"><span class="type">GstMpeg4VideoObjectLayer</span></a> structure to fill</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>vo</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VisualObject" title="struct GstMpeg4VisualObject"><span class="type">GstMpeg4VisualObject</span></a> currently being parsed or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>The size of the <em class="parameter"><code>data</code></em>
-to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-mpeg4-parse-video-object-layer.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4ParseResult" title="enum GstMpeg4ParseResult"><span class="type">GstMpeg4ParseResult</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -422,48 +244,6 @@ gst_mpeg4_parse_visual_object (<em class="parameter"><code><a class="link" href=
                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VideoSignalType" title="struct GstMpeg4VideoSignalType"><span class="type">GstMpeg4VideoSignalType</span></a> *signal_type</code></em>,
                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
- containing the visual object packet, and fills
-the <em class="parameter"><code>vo</code></em>
- structure.</p>
-<div class="refsect3">
-<a name="gst-mpeg4-parse-visual-object.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>vo</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VisualObject" title="struct GstMpeg4VisualObject"><span class="type">GstMpeg4VisualObject</span></a> structure to fill</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>signal_type</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VideoSignalType" title="struct GstMpeg4VideoSignalType"><span class="type">GstMpeg4VideoSignalType</span></a> to fill or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse, should contain the vo_start_code
-but not the start code prefix</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>The size of the <em class="parameter"><code>data</code></em>
-to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-mpeg4-parse-visual-object.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4ParseResult" title="enum GstMpeg4ParseResult"><span class="type">GstMpeg4ParseResult</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -473,43 +253,6 @@ gst_mpeg4_parse_visual_object_sequence
                                (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VisualObjectSequence" title="struct GstMpeg4VisualObjectSequence"><span class="type">GstMpeg4VisualObjectSequence</span></a> *vos</code></em>,
                                 <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
- containing the visual object sequence packet, and fills
-the <em class="parameter"><code>vos</code></em>
- structure.</p>
-<div class="refsect3">
-<a name="gst-mpeg4-parse-visual-object-sequence.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>vos</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VisualObjectSequence" title="struct GstMpeg4VisualObjectSequence"><span class="type">GstMpeg4VisualObjectSequence</span></a> structure to fill</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse, should contain the visual_object_sequence_start_code
-but not the start code prefix</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>The size of the <em class="parameter"><code>data</code></em>
-to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-mpeg4-parse-visual-object-sequence.returns"></a><h4>Returns</h4>
-<p> a <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4ParseResult" title="enum GstMpeg4ParseResult"><span class="type">GstMpeg4ParseResult</span></a></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -521,63 +264,12 @@ gst_mpeg4_parse_video_packet_header (<em class="parameter"><code><a class="link"
                                      <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4SpriteTrajectory" title="struct GstMpeg4SpriteTrajectory"><span class="type">GstMpeg4SpriteTrajectory</span></a> *sprite_trajectory</code></em>,
                                      <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
                                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>);</pre>
-<p>Parsers <em class="parameter"><code>data</code></em>
- containing the video packet header
-and fills the <em class="parameter"><code>videopackethdr</code></em>
- structure</p>
-<div class="refsect3">
-<a name="gst-mpeg4-parse-video-packet-header.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>videopackethdr</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VideoPacketHdr" title="struct GstMpeg4VideoPacketHdr"><span class="type">GstMpeg4VideoPacketHdr</span></a> structure to fill</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>vol</p></td>
-<td class="parameter_description"><p>The last parsed <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VideoObjectLayer" title="struct GstMpeg4VideoObjectLayer"><span class="type">GstMpeg4VideoObjectLayer</span></a>, will be updated
-with the informations found during the parsing</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>vop</p></td>
-<td class="parameter_description"><p>The last parsed <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4VideoObjectPlane" title="struct GstMpeg4VideoObjectPlane"><span class="type">GstMpeg4VideoObjectPlane</span></a>, will be updated
-with the informations found during the parsing</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>sprite_trajectory</p></td>
-<td class="parameter_description"><p>A <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4SpriteTrajectory" title="struct GstMpeg4SpriteTrajectory"><span class="type">GstMpeg4SpriteTrajectory</span></a> to fill or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>
-with the informations found during the parsing</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse, should be set after the resync marker.</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>The size of the data to parse</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
 </div>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-mpeg4parser.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
 <a name="GstMpeg4StartCode"></a><h3>enum GstMpeg4StartCode</h3>
-<p>Defines the different startcodes present in the bitstream as
-defined in: Table 6-3 — Start code values</p>
 <div class="refsect3">
 <a name="GstMpeg4StartCode.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -714,8 +406,6 @@ defined in: Table 6-3 — Start code values</p>
 <hr>
 <div class="refsect2">
 <a name="GstMpeg4VisualObjectType"></a><h3>enum GstMpeg4VisualObjectType</h3>
-<p>Defines the different visual object types as
-defined in: Table 6-5 -- Meaning of visual object type</p>
 <div class="refsect3">
 <a name="GstMpeg4VisualObjectType.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -757,8 +447,6 @@ defined in: Table 6-5 -- Meaning of visual object type</p>
 <hr>
 <div class="refsect2">
 <a name="GstMpeg4AspectRatioInfo"></a><h3>enum GstMpeg4AspectRatioInfo</h3>
-<p>Defines the different pixel aspect ratios as
-defined in: Table 6-12 -- Meaning of pixel aspect ratio</p>
 <div class="refsect3">
 <a name="GstMpeg4AspectRatioInfo.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -770,45 +458,33 @@ defined in: Table 6-12 -- Meaning of pixel aspect ratio</p>
 <tbody>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-SQUARE:CAPS"></a>GST_MPEG4_SQUARE</p></td>
-<td class="enum_member_description">
-<p>1:1 square</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-625-TYPE-4-3:CAPS"></a>GST_MPEG4_625_TYPE_4_3</p></td>
-<td class="enum_member_description">
-<p>12:11 (625-type for 4:3 picture)</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-525-TYPE-4-3:CAPS"></a>GST_MPEG4_525_TYPE_4_3</p></td>
-<td class="enum_member_description">
-<p>10:11 (525-type for 4:3 picture)</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-625-TYPE-16-9:CAPS"></a>GST_MPEG4_625_TYPE_16_9</p></td>
-<td class="enum_member_description">
-<p>16:11 (625-type stretched for 16:9 picture)</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-525-TYPE-16-9:CAPS"></a>GST_MPEG4_525_TYPE_16_9</p></td>
-<td class="enum_member_description">
-<p>40:33 (525-type stretched for 16:9 picture)</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-EXTENDED-PAR:CAPS"></a>GST_MPEG4_EXTENDED_PAR</p></td>
-<td class="enum_member_description">
-<p>Extended par</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 </tbody>
 </table></div>
@@ -817,7 +493,6 @@ defined in: Table 6-12 -- Meaning of pixel aspect ratio</p>
 <hr>
 <div class="refsect2">
 <a name="GstMpeg4ParseResult"></a><h3>enum GstMpeg4ParseResult</h3>
-<p>Result type of any parsing function.</p>
 <div class="refsect3">
 <a name="GstMpeg4ParseResult.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -829,31 +504,23 @@ defined in: Table 6-12 -- Meaning of pixel aspect ratio</p>
 <tbody>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-PARSER-OK:CAPS"></a>GST_MPEG4_PARSER_OK</p></td>
-<td class="enum_member_description">
-<p>The parsing went well</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-PARSER-BROKEN-DATA:CAPS"></a>GST_MPEG4_PARSER_BROKEN_DATA</p></td>
-<td class="enum_member_description">
-<p>The bitstream was broken</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-PARSER-NO-PACKET:CAPS"></a>GST_MPEG4_PARSER_NO_PACKET</p></td>
-<td class="enum_member_description">
-<p>There was no packet in the buffer</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-PARSER-NO-PACKET-END:CAPS"></a>GST_MPEG4_PARSER_NO_PACKET_END</p></td>
-<td class="enum_member_description">
-<p>There was no packet end in the buffer</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-PARSER-ERROR:CAPS"></a>GST_MPEG4_PARSER_ERROR</p></td>
@@ -867,8 +534,6 @@ defined in: Table 6-12 -- Meaning of pixel aspect ratio</p>
 <hr>
 <div class="refsect2">
 <a name="GstMpeg4VideoObjectCodingType"></a><h3>enum GstMpeg4VideoObjectCodingType</h3>
-<p>The vop coding types as defined in:
-Table 6-20 -- Meaning of vop_coding_type</p>
 <div class="refsect3">
 <a name="GstMpeg4VideoObjectCodingType.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -880,31 +545,23 @@ Table 6-20 -- Meaning of vop_coding_type</p>
 <tbody>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-I-VOP:CAPS"></a>GST_MPEG4_I_VOP</p></td>
-<td class="enum_member_description">
-<p>intra-coded (I)</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-P-VOP:CAPS"></a>GST_MPEG4_P_VOP</p></td>
-<td class="enum_member_description">
-<p>predictive-coded (P)</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-B-VOP:CAPS"></a>GST_MPEG4_B_VOP</p></td>
-<td class="enum_member_description">
-<p>bidirectionally-predictive-coded (B)</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-MPEG4-S-VOP:CAPS"></a>GST_MPEG4_S_VOP</p></td>
-<td class="enum_member_description">
-<p>sprite (S)</p>
-</td>
-<td class="enum_member_annotations"> </td>
+<td> </td>
+<td> </td>
 </tr>
 </tbody>
 </table></div>
@@ -913,8 +570,6 @@ Table 6-20 -- Meaning of vop_coding_type</p>
 <hr>
 <div class="refsect2">
 <a name="GstMpeg4ChromaFormat"></a><h3>enum GstMpeg4ChromaFormat</h3>
-<p>The chroma format in use as
-defined in: Table 6-13 -- Meaning of chroma_format</p>
 <div class="refsect3">
 <a name="GstMpeg4ChromaFormat.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -934,8 +589,6 @@ defined in: Table 6-13 -- Meaning of chroma_format</p>
 <hr>
 <div class="refsect2">
 <a name="GstMpeg4VideoObjectLayerShape"></a><h3>enum GstMpeg4VideoObjectLayerShape</h3>
-<p>The different video object layer shapes as defined in:
-Table 6-16 — Video Object Layer shape type</p>
 <div class="refsect3">
 <a name="GstMpeg4VideoObjectLayerShape.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -972,9 +625,6 @@ Table 6-16 — Video Object Layer shape type</p>
 <hr>
 <div class="refsect2">
 <a name="GstMpeg4SpriteEnable"></a><h3>enum GstMpeg4SpriteEnable</h3>
-<p>Indicates the usage of static sprite coding
-or global motion compensation (GMC) as defined in:
-Table V2 - 2 -- Meaning of sprite_enable codewords</p>
 <div class="refsect3">
 <a name="GstMpeg4SpriteEnable.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -1006,10 +656,6 @@ Table V2 - 2 -- Meaning of sprite_enable codewords</p>
 <hr>
 <div class="refsect2">
 <a name="GstMpeg4Profile"></a><h3>enum GstMpeg4Profile</h3>
-<p>Different defined profiles as defined in:
-9- Profiles and levels</p>
-<p>It is computed using:
-Table G.1 — FLC table for profile_and_level_indication</p>
 <div class="refsect3">
 <a name="GstMpeg4Profile.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -1126,10 +772,6 @@ Table G.1 — FLC table for profile_and_level_indication</p>
 <hr>
 <div class="refsect2">
 <a name="GstMpeg4Level"></a><h3>enum GstMpeg4Level</h3>
-<p>Different levels as defined in:
-9- Profiles and levels</p>
-<p>It is computed using:
-Table G.1 — FLC table for profile_and_level_indication</p>
 <div class="refsect3">
 <a name="GstMpeg4Level.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -1195,8 +837,6 @@ Table G.1 — FLC table for profile_and_level_indication</p>
   GstMpeg4Profile profile;
 };
 </pre>
-<p>The visual object sequence structure as defined in:
-6.2.2 Visual Object Sequence and Visual Object</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1210,8 +850,6 @@ Table G.1 — FLC table for profile_and_level_indication</p>
   GstMpeg4VisualObjectType type;
 };
 </pre>
-<p>The visual object structure as defined in:
-6.2.2 Visual Object Sequence and Visual Object</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1227,8 +865,6 @@ Table G.1 — FLC table for profile_and_level_indication</p>
   guint8 matrix_coefficients;
 };
 </pre>
-<p>The video signal type structure as defined in:
-6.2.2 Visual Object Sequence and Visual Object.</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1263,8 +899,6 @@ Table G.1 — FLC table for profile_and_level_indication</p>
   guint size;
 };
 </pre>
-<p>The video plane short header structure as defined in:
-6.2.5.2 Video Plane with Short Header</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1362,8 +996,6 @@ Table G.1 — FLC table for profile_and_level_indication</p>
   GstMpeg4VideoPlaneShortHdr short_hdr;
 };
 </pre>
-<p>The video object layer structure as defined in:
-6.2.3 Video Object Layer</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1373,9 +1005,6 @@ Table G.1 — FLC table for profile_and_level_indication</p>
   guint16 sprite_ref_points[63]; /* Defined as "dv" in 6.2.5.4 */
 };
 </pre>
-<p>The sprite trajectory structure as defined in:
-7.8.4 Sprite reference point decoding and
-6.2.5.4 Sprite coding</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1389,8 +1018,6 @@ Table G.1 — FLC table for profile_and_level_indication</p>
   guint8 broken_link;
 };
 </pre>
-<p>The group of video object plane structure as defined in:
-6.2.4 Group of Video Object Plane</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1444,8 +1071,6 @@ Table G.1 — FLC table for profile_and_level_indication</p>
   guint    size;
 };
 </pre>
-<p>The Video object plane structure as defined in:
-6.2.5 Video Object Plane and Video Plane with Short Header</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1459,47 +1084,6 @@ Table G.1 — FLC table for profile_and_level_indication</p>
   GstMpeg4StartCode type;
 };
 </pre>
-<p>A structure that contains the type of a packet, its offset and its size</p>
-<div class="refsect3">
-<a name="GstMpeg4Packet.members"></a><h4>Members</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="300px" class="struct_members_name">
-<col class="struct_members_description">
-<col width="200px" class="struct_members_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="struct_member_name"><p>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *<em class="structfield"><code><a name="GstMpeg4Packet.data"></a>data</code></em>;</p></td>
-<td class="struct_member_description"><p>the data containing packet starting at <em class="parameter"><code>offset</code></em>
-</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstMpeg4Packet.offset"></a>offset</code></em>;</p></td>
-<td class="struct_member_description"><p>offset of the start of the packet (without the 3 bytes startcode), but
-including the <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4StartCode" title="enum GstMpeg4StartCode"><span class="type">GstMpeg4StartCode</span></a> byte.</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> <em class="structfield"><code><a name="GstMpeg4Packet.size"></a>size</code></em>;</p></td>
-<td class="struct_member_description"><p>The size in bytes of the packet or <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#G-MAXUINT:CAPS"><code class="literal">G_MAXUINT</code></a> if the end wasn't found.</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstMpeg4Packet.marker-size"></a>marker_size</code></em>;</p></td>
-<td class="struct_member_description"><p>The size in bit of the resync marker.</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpeg4StartCode" title="enum GstMpeg4StartCode"><span class="type">GstMpeg4StartCode</span></a> <em class="structfield"><code><a name="GstMpeg4Packet.type"></a>type</code></em>;</p></td>
-<td class="struct_member_description"><p>the type of the packet that start at <em class="parameter"><code>offset</code></em>
-</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -1511,40 +1095,6 @@ including the <a class="link" href="gst-plugins-bad-libs-mpeg4parser.html#GstMpe
   guint   size;
 };
 </pre>
-<p>The video packet header structure as defined in:
-6.2.5.2 Video Plane with Short Header</p>
-<div class="refsect3">
-<a name="GstMpeg4VideoPacketHdr.members"></a><h4>Members</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="300px" class="struct_members_name">
-<col class="struct_members_description">
-<col width="200px" class="struct_members_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpeg4VideoPacketHdr.header-extension-code"></a>header_extension_code</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpeg4VideoPacketHdr.macroblock-number"></a>macroblock_number</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpeg4VideoPacketHdr.quant-scale"></a>quant_scale</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstMpeg4VideoPacketHdr.size"></a>size</code></em>;</p></td>
-<td class="struct_member_description"><p>Size of the header in bit.</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
 </div>
 </div>
 </div>

@@ -1184,6 +1184,7 @@ gst_gl_video_allocation_params_free_data
 gst_gl_video_allocation_params_init_full
 gst_gl_video_allocation_params_new
 gst_gl_video_allocation_params_new_wrapped_data
+gst_gl_video_allocation_params_new_wrapped_gl_handle
 gst_gl_video_allocation_params_new_wrapped_texture
 GstGLMemoryAllocator
 GstGLMemoryAllocatorClass
@@ -1660,7 +1661,7 @@ GST_TYPE_VIDEO_AGGREGATOR
 GST_VIDEO_AGGREGATOR
 GST_VIDEO_AGGREGATOR_CLASS
 GST_VIDEO_AGGREGATOR_GET_CLASS
-gst_videoaggregator_get_type
+gst_video_aggregator_get_type
 GstVideoAggregatorPrivate
 </SECTION>
 
@@ -1676,7 +1677,7 @@ GST_TYPE_VIDEO_AGGREGATOR_PAD
 GST_VIDEO_AGGREGATOR_PAD
 GST_VIDEO_AGGREGATOR_PAD_CLASS
 GST_VIDEO_AGGREGATOR_PAD_GET_CLASS
-gst_videoaggregator_pad_get_type
+gst_video_aggregator_pad_get_type
 </SECTION>
 
 <SECTION>
@@ -1744,6 +1745,14 @@ gst_player_color_balance_type_get_name
 gst_player_has_color_balance
 gst_player_set_color_balance
 gst_player_get_color_balance
+
+gst_player_get_multiview_mode
+gst_player_set_multiview_mode
+gst_player_get_multiview_flags
+gst_player_set_multiview_flags
+
+gst_player_get_audio_video_offset
+gst_player_set_audio_video_offset
 
 gst_player_get_rate
 gst_player_set_rate
@@ -1858,6 +1867,7 @@ gst_player_media_info_get_duration
 gst_player_media_info_get_title
 gst_player_media_info_get_container_format
 gst_player_media_info_is_seekable
+gst_player_media_info_is_live
 gst_player_media_info_get_image_sample
 gst_player_media_info_get_tags
 gst_player_media_info_get_stream_list

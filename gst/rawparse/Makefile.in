@@ -166,6 +166,7 @@ am__DEPENDENCIES_1 =
 libgstrawparse_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_libgstrawparse_la_OBJECTS = libgstrawparse_la-gstrawparse.lo \
+	libgstrawparse_la-gstunalignedaudioparse.lo \
 	libgstrawparse_la-gstaudioparse.lo \
 	libgstrawparse_la-gstvideoparse.lo libgstrawparse_la-plugin.lo
 libgstrawparse_la_OBJECTS = $(am_libgstrawparse_la_OBJECTS)
@@ -304,6 +305,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -519,6 +522,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -645,8 +650,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -691,6 +694,8 @@ WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -782,6 +787,7 @@ wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstrawparse.la
 libgstrawparse_la_SOURCES = \
 	gstrawparse.c \
+	gstunalignedaudioparse.c \
 	gstaudioparse.c \
 	gstvideoparse.c \
 	plugin.c
@@ -800,6 +806,8 @@ libgstrawparse_la_LIBADD = \
 libgstrawparse_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstrawparse_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 noinst_HEADERS = \
+	unalignedaudio.h \
+	gstunalignedaudioparse.h \
 	gstaudioparse.h \
 	gstrawparse.h \
 	gstvideoparse.h
@@ -884,6 +892,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrawparse_la-gstaudioparse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrawparse_la-gstrawparse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrawparse_la-gstunalignedaudioparse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrawparse_la-gstvideoparse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrawparse_la-plugin.Plo@am__quote@
 
@@ -917,6 +926,13 @@ libgstrawparse_la-gstrawparse.lo: gstrawparse.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstrawparse.c' object='libgstrawparse_la-gstrawparse.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -c -o libgstrawparse_la-gstrawparse.lo `test -f 'gstrawparse.c' || echo '$(srcdir)/'`gstrawparse.c
+
+libgstrawparse_la-gstunalignedaudioparse.lo: gstunalignedaudioparse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -MT libgstrawparse_la-gstunalignedaudioparse.lo -MD -MP -MF $(DEPDIR)/libgstrawparse_la-gstunalignedaudioparse.Tpo -c -o libgstrawparse_la-gstunalignedaudioparse.lo `test -f 'gstunalignedaudioparse.c' || echo '$(srcdir)/'`gstunalignedaudioparse.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrawparse_la-gstunalignedaudioparse.Tpo $(DEPDIR)/libgstrawparse_la-gstunalignedaudioparse.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstunalignedaudioparse.c' object='libgstrawparse_la-gstunalignedaudioparse.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -c -o libgstrawparse_la-gstunalignedaudioparse.lo `test -f 'gstunalignedaudioparse.c' || echo '$(srcdir)/'`gstunalignedaudioparse.c
 
 libgstrawparse_la-gstaudioparse.lo: gstaudioparse.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -MT libgstrawparse_la-gstaudioparse.lo -MD -MP -MF $(DEPDIR)/libgstrawparse_la-gstaudioparse.Tpo -c -o libgstrawparse_la-gstaudioparse.lo `test -f 'gstaudioparse.c' || echo '$(srcdir)/'`gstaudioparse.c

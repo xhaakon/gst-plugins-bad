@@ -102,87 +102,18 @@
 <a name="gst-aggregator-pad-steal-buffer"></a><h3>gst_aggregator_pad_steal_buffer ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="returnvalue">GstBuffer</span></a> *
 gst_aggregator_pad_steal_buffer (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad" title="struct GstAggregatorPad"><span class="type">GstAggregatorPad</span></a> *pad</code></em>);</pre>
-<p>Steal the ref to the buffer currently queued in <em class="parameter"><code>pad</code></em>
-.</p>
-<div class="refsect3">
-<a name="gst-aggregator-pad-steal-buffer.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody><tr>
-<td class="parameter_name"><p>pad</p></td>
-<td class="parameter_description"><p>the pad to get buffer from</p></td>
-<td class="parameter_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-aggregator-pad-steal-buffer.returns"></a><h4>Returns</h4>
-<p> The buffer in <em class="parameter"><code>pad</code></em>
-or NULL if no buffer was
-queued. You should unref the buffer after usage. </p>
-<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="gst-aggregator-pad-get-buffer"></a><h3>gst_aggregator_pad_get_buffer ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="returnvalue">GstBuffer</span></a> *
 gst_aggregator_pad_get_buffer (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad" title="struct GstAggregatorPad"><span class="type">GstAggregatorPad</span></a> *pad</code></em>);</pre>
-<div class="refsect3">
-<a name="gst-aggregator-pad-get-buffer.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody><tr>
-<td class="parameter_name"><p>pad</p></td>
-<td class="parameter_description"><p>the pad to get buffer from</p></td>
-<td class="parameter_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-aggregator-pad-get-buffer.returns"></a><h4>Returns</h4>
-<p> A reference to the buffer in <em class="parameter"><code>pad</code></em>
-or
-NULL if no buffer was queued. You should unref the buffer after
-usage. </p>
-<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="gst-aggregator-pad-drop-buffer"></a><h3>gst_aggregator_pad_drop_buffer ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_aggregator_pad_drop_buffer (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad" title="struct GstAggregatorPad"><span class="type">GstAggregatorPad</span></a> *pad</code></em>);</pre>
-<p>Drop the buffer currently queued in <em class="parameter"><code>pad</code></em>
-.</p>
-<div class="refsect3">
-<a name="gst-aggregator-pad-drop-buffer.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody><tr>
-<td class="parameter_name"><p>pad</p></td>
-<td class="parameter_description"><p>the pad where to drop any pending buffer</p></td>
-<td class="parameter_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-aggregator-pad-drop-buffer.returns"></a><h4>Returns</h4>
-<p> TRUE if there was a buffer queued in <em class="parameter"><code>pad</code></em>
-, or FALSE if not.</p>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -209,44 +140,6 @@ gst_aggregator_pad_is_eos (<em class="parameter"><code><a class="link" href="gst
   gpointer _gst_reserved[GST_PADDING];
 };
 </pre>
-<p>The implementation the GstPad to use with <a class="link" href="gst-plugins-bad-libs-GstAggregator.html#GstAggregator" title="struct GstAggregator"><span class="type">GstAggregator</span></a></p>
-<div class="refsect3">
-<a name="GstAggregatorPad.members"></a><h4>Members</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="300px" class="struct_members_name">
-<col class="struct_members_description">
-<col width="200px" class="struct_members_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstPad.html#GstPad-struct"><span class="type">GstPad</span></a> <em class="structfield"><code><a name="GstAggregatorPad.parent"></a>parent</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstSegment.html#GstSegment-struct"><span class="type">GstSegment</span></a> <em class="structfield"><code><a name="GstAggregatorPad.segment"></a>segment</code></em>;</p></td>
-<td class="struct_member_description"><p>last segment received.</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstSegment.html#GstSegment-struct"><span class="type">GstSegment</span></a> <em class="structfield"><code><a name="GstAggregatorPad.clip-segment"></a>clip_segment</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><span class="type">GstAggregatorPadPrivate</span> *<em class="structfield"><code><a name="GstAggregatorPad.priv"></a>priv</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> <em class="structfield"><code><a name="GstAggregatorPad.-gst-reserved"></a>_gst_reserved</code></em>[GST_PADDING];</p></td>
-<td> </td>
-<td> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -257,24 +150,6 @@ gst_aggregator_pad_is_eos (<em class="parameter"><code><a class="link" href="gst
   GstFlowReturn (*flush)     (GstAggregatorPad * aggpad, GstAggregator * aggregator);
 };
 </pre>
-<div class="refsect3">
-<a name="GstAggregatorPadClass.members"></a><h4>Members</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="300px" class="struct_members_name">
-<col class="struct_members_description">
-<col width="200px" class="struct_members_annotations">
-</colgroup>
-<tbody><tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="GstAggregatorPadClass.flush"></a>flush</code></em> ()</p></td>
-<td class="struct_member_description"><p>Optional
-Called when the pad has received a flush stop, this is the place
-to flush any information specific to the pad, it allows for individual
-pads to be flushed while others might not be.</p></td>
-<td class="struct_member_annotations"> </td>
-</tr></tbody>
-</table></div>
-</div>
 </div>
 </div>
 </div>

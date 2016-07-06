@@ -1,5 +1,6 @@
 /* GStreamer
  * Copyright (C) <1999> Erik Walthinsen <omega@cse.ogi.edu>
+ * Copyright (C) <2016> Matthew Waters <matthew@centricular.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -21,17 +22,19 @@
 #include "config.h"
 #endif
 
-/* non-GST-specific stuff */
-
 #include "gltestsrc.h"
 
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+#define MAX_ATTRIBUTES 4
 
-#ifndef M_PI
-#define M_PI  3.14159265358979323846
-#endif
+struct vts_color_struct
+{
+  gfloat R, G, B;
+};
+
+struct XYZWRGB
+{
+  gfloat X, Y, Z, W, R, G, B;
+};
 
 enum
 {
@@ -51,408 +54,1115 @@ enum
 
 static const struct vts_color_struct vts_colors[] = {
   /* 100% white */
-  {255, 128, 128, 255, 255, 255, 255},
+  {1.0f, 1.0f, 1.0f},
   /* yellow */
-  {226, 0, 155, 255, 255, 0, 255},
+  {1.0f, 1.0f, 0.0f},
   /* cyan */
-  {179, 170, 0, 0, 255, 255, 255},
+  {0.0f, 1.0f, 1.0f},
   /* green */
-  {150, 46, 21, 0, 255, 0, 255},
+  {0.0f, 1.0f, 0.0f},
   /* magenta */
-  {105, 212, 235, 255, 0, 255, 255},
+  {1.0f, 0.0f, 1.0f},
   /* red */
-  {76, 85, 255, 255, 0, 0, 255},
+  {1.0f, 0.0f, 0.0f},
   /* blue */
-  {29, 255, 107, 0, 0, 255, 255},
+  {0.0f, 0.0f, 1.0f},
   /* black */
-  {16, 128, 128, 0, 0, 0, 255},
+  {0.0f, 0.0f, 0.0f},
   /* -I */
-  {16, 198, 21, 0, 0, 128, 255},
+  {0.0, 0.0f, 0.5f},
   /* +Q */
-  {16, 235, 198, 0, 128, 255, 255},
+  {0.0f, 0.5, 1.0f},
   /* superblack */
-  {0, 128, 128, 0, 0, 0, 255},
-  /* 5% grey */
-  {32, 128, 128, 32, 32, 32, 255},
+  {0.0f, 0.0f, 0.0f},
+  /* 7.421875% grey */
+  {19. / 256.0f, 19. / 256.0f, 19. / 256.0},
 };
 
-static void
-gst_gl_test_src_unicolor (GstGLTestSrc * v, GstBuffer * buffer, int w,
-    int h, const struct vts_color_struct *color);
-
-void
-gst_gl_test_src_smpte (GstGLTestSrc * v, GstBuffer * buffer, int w, int h)
-{
-#if GST_GL_HAVE_OPENGL
-  int i;
-
-  if (gst_gl_context_get_gl_api (v->context) & GST_GL_API_OPENGL) {
-
-    glClearColor (0.0, 0.0, 0.0, 1.0);
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glDisable (GL_CULL_FACE);
-
-    glMatrixMode (GL_PROJECTION);
-    glLoadIdentity ();
-
-    for (i = 0; i < 7; i++) {
-      glColor4f (vts_colors[i].R * (1 / 255.0f), vts_colors[i].G * (1 / 255.0f),
-          vts_colors[i].B * (1 / 255.0f), 1.0f);
-      glBegin (GL_QUADS);
-      glVertex3f (-1.0f + i * (2.0f / 7.0f), -1.0f + 2.0 * (2.0f / 3.0f), 0);
-      glVertex3f (-1.0f + (i + 1.0f) * (2.0f / 7.0f),
-          -1.0f + 2.0f * (2.0f / 3.0f), 0);
-      glVertex3f (-1.0f + (i + 1.0f) * (2.0f / 7.0f), -1.0f, 0);
-      glVertex3f (-1.0f + i * (2.0f / 7.0f), -1.0f, 0);
-      glEnd ();
-    }
-
-    for (i = 0; i < 7; i++) {
-      int k;
-
-      if (i & 1) {
-        k = 7;
-      } else {
-        k = 6 - i;
-      }
-
-      glColor4f (vts_colors[k].R * (1 / 255.0f), vts_colors[k].G * (1 / 255.0f),
-          vts_colors[k].B * (1 / 255.0f), 1.0f);
-      glBegin (GL_QUADS);
-      glVertex3f (-1.0f + i * (2.0f / 7.0f), -1.0f + 2.0f * (3.0f / 4.0f), 0);
-      glVertex3f (-1.0f + (i + 1) * (2.0f / 7.0f), -1.0f + 2.0f * (3.0f / 4.0f),
-          0);
-      glVertex3f (-1.0f + (i + 1) * (2.0f / 7.0f), -1.0f + 2.0f * (2.0f / 3.0f),
-          0);
-      glVertex3f (-1.0f + i * (2.0f / 7.0f), -1.0f + 2.0f * (2.0f / 3.0f), 0);
-      glEnd ();
-    }
-
-    for (i = 0; i < 3; i++) {
-      int k;
-
-      if (i == 0) {
-        k = 8;
-      } else if (i == 1) {
-        k = 0;
-      } else {
-        k = 9;
-      }
-
-      glColor4f (vts_colors[k].R * (1 / 255.0f), vts_colors[k].G * (1 / 255.0f),
-          vts_colors[k].B * (1 / 255.0f), 1.0f);
-      glBegin (GL_QUADS);
-      glVertex3f (-1.0f + i * (2.0f / 6.0f), -1.0f + 2.0f * 1, 0);
-      glVertex3f (-1.0f + (i + 1) * (2.0f / 6.0f), -1.0f + 2.0f * 1, 0);
-      glVertex3f (-1.0f + (i + 1) * (2.0f / 6.0f), -1.0f + 2.0f * (3.0f / 4.0f),
-          0);
-      glVertex3f (-1.0f + i * (2.0f / 6.0f), -1.0f + 2.0f * (3.0f / 4.0f), 0);
-      glEnd ();
-    }
-
-    for (i = 0; i < 3; i++) {
-      int k;
-
-      if (i == 0) {
-        k = COLOR_SUPER_BLACK;
-      } else if (i == 1) {
-        k = COLOR_BLACK;
-      } else {
-        k = COLOR_DARK_GREY;
-      }
-
-      glColor4f (vts_colors[k].R * (1 / 255.0f), vts_colors[k].G * (1 / 255.0f),
-          vts_colors[k].B * (1 / 255.0f), 1.0f);
-      glBegin (GL_QUADS);
-      glVertex3f (-1.0f + 2.0f * (0.5f + i * (1.0f / 12.0f)), -1.0 + 2.0f * 1,
-          0);
-      glVertex3f (-1.0f + 2.0f * (0.5f + (i + 1) * (1.0f / 12.0f)),
-          -1.0f + 2.0f * 1, 0);
-      glVertex3f (-1.0f + 2.0f * (0.5f + (i + 1) * (1.0f / 12.0f)),
-          -1.0f + 2.0f * (3.0f / 4.0f), 0);
-      glVertex3f (-1.0f + 2.0f * (0.5f + i * (1.0f / 12.0f)),
-          -1.0f + 2.0f * (3.0f / 4.0f), 0);
-      glEnd ();
-    }
-
-    glColor4f (1.0, 1.0, 1.0, 1.0);
-    glBegin (GL_QUADS);
-    glVertex3f (-1.0 + 2.0 * (0.75), -1.0 + 2.0 * 1, 0);
-    glVertex3f (-1.0 + 2.0 * (1.0), -1.0 + 2.0 * 1, 0);
-    glVertex3f (-1.0 + 2.0 * (1.0), -1.0 + 2.0 * (3.0 / 4.0), 0);
-    glVertex3f (-1.0 + 2.0 * (0.75), -1.0 + 2.0 * (3.0 / 4.0), 0);
-    glEnd ();
-  }
-#endif
-}
-
 /* *INDENT-OFF* */
-
 static const GLfloat positions[] = {
      -1.0,  1.0,  0.0, 1.0,
       1.0,  1.0,  0.0, 1.0,
       1.0, -1.0,  0.0, 1.0,
      -1.0, -1.0,  0.0, 1.0,
-  };
-static const GLfloat identitiy_matrix[] = {
-      1.0,  0.0,  0.0, 0.0,
-      0.0,  1.0,  0.0, 0.0,
-      0.0,  0.0,  1.0, 0.0,
-      0.0,  0.0,  0.0, 1.0,
-  };
+};
 
+static const GLushort indices_quad[] = { 0, 1, 2, 0, 2, 3 };
 /* *INDENT-ON* */
 
-void
-gst_gl_test_src_shader (GstGLTestSrc * v, GstBuffer * buffer, int w, int h)
+struct attribute
 {
+  const gchar *name;
+  gint location;
+  guint n_elements;
+  GLenum element_type;
+  guint offset;                 /* in bytes */
+  guint stride;                 /* in bytes */
+};
 
-  GstGLFuncs *gl = v->context->gl_vtable;
+struct SrcShader
+{
+  struct BaseSrcImpl base;
+
+  GstGLShader *shader;
+
+  guint vao;
+  guint vbo;
+  guint vbo_indices;
+
+  guint n_attributes;
+  struct attribute attributes[MAX_ATTRIBUTES];
+
+  gconstpointer vertices;
+  gsize vertices_size;
+  const gushort *indices;
+  guint index_offset;
+  guint n_indices;
+};
+
+static void
+_bind_buffer (struct SrcShader *src)
+{
+  GstGLContext *context = src->base.context;
+  const GstGLFuncs *gl = context->gl_vtable;
+  gint i;
+
+  gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, src->vbo_indices);
+  gl->BindBuffer (GL_ARRAY_BUFFER, src->vbo);
+
+  /* Load the vertex position */
+  for (i = 0; i < src->n_attributes; i++) {
+    struct attribute *attr = &src->attributes[i];
+
+    if (attr->location == -1)
+      attr->location =
+          gst_gl_shader_get_attribute_location (src->shader, attr->name);
+
+    gl->VertexAttribPointer (attr->location, attr->n_elements,
+        attr->element_type, GL_FALSE, attr->stride,
+        (void *) (gintptr) attr->offset);
+
+    gl->EnableVertexAttribArray (attr->location);
+  }
+}
+
+static void
+_unbind_buffer (struct SrcShader *src)
+{
+  GstGLContext *context = src->base.context;
+  const GstGLFuncs *gl = context->gl_vtable;
+  gint i;
+
+  gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
+  gl->BindBuffer (GL_ARRAY_BUFFER, 0);
+
+  for (i = 0; i < src->n_attributes; i++) {
+    struct attribute *attr = &src->attributes[i];
+
+    gl->DisableVertexAttribArray (attr->location);
+  }
+}
+
+static gboolean
+_src_shader_init (gpointer impl, GstGLContext * context, GstVideoInfo * v_info)
+{
+  struct SrcShader *src = impl;
+  const GstGLFuncs *gl = context->gl_vtable;
+
+  src->base.context = context;
+
+  if (!src->vbo) {
+    if (gl->GenVertexArrays) {
+      gl->GenVertexArrays (1, &src->vao);
+      gl->BindVertexArray (src->vao);
+    }
+
+    gl->GenBuffers (1, &src->vbo);
+    gl->BindBuffer (GL_ARRAY_BUFFER, src->vbo);
+    gl->BufferData (GL_ARRAY_BUFFER, src->vertices_size,
+        src->vertices, GL_STATIC_DRAW);
+
+    gl->GenBuffers (1, &src->vbo_indices);
+    gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, src->vbo_indices);
+    gl->BufferData (GL_ELEMENT_ARRAY_BUFFER, src->n_indices * sizeof (gushort),
+        src->indices, GL_STATIC_DRAW);
+
+    if (gl->GenVertexArrays) {
+      _bind_buffer (src);
+      gl->BindVertexArray (0);
+    }
+
+    gl->BindBuffer (GL_ARRAY_BUFFER, 0);
+    gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
+  }
+
+  return TRUE;
+}
+
+static gboolean
+_src_shader_fill_bound_fbo (gpointer impl)
+{
+  struct SrcShader *src = impl;
+  const GstGLFuncs *gl;
+
+  g_return_val_if_fail (src->base.context, FALSE);
+  g_return_val_if_fail (src->shader, FALSE);
+  gl = src->base.context->gl_vtable;
+
+  gst_gl_shader_use (src->shader);
+
+  if (gl->GenVertexArrays)
+    gl->BindVertexArray (src->vao);
+  else
+    _bind_buffer (src);
+
+  gl->DrawElements (GL_TRIANGLES, src->n_indices, GL_UNSIGNED_SHORT,
+      (gpointer) (gintptr) src->index_offset);
+
+  if (gl->GenVertexArrays)
+    gl->BindVertexArray (0);
+  else
+    _unbind_buffer (src);
+
+  gst_gl_context_clear_shader (src->base.context);
+
+  return TRUE;
+}
+
+static void
+_src_shader_deinit (gpointer impl)
+{
+  struct SrcShader *src = impl;
+  const GstGLFuncs *gl = src->base.context->gl_vtable;
+
+  if (src->shader)
+    gst_object_unref (src->shader);
+  src->shader = NULL;
+
+  if (src->vao)
+    gl->DeleteVertexArrays (1, &src->vao);
+  src->vao = 0;
+
+  if (src->vbo)
+    gl->DeleteBuffers (1, &src->vbo);
+  src->vbo = 0;
+
+  if (src->vbo_indices)
+    gl->DeleteBuffers (1, &src->vbo_indices);
+  src->vbo_indices = 0;
+}
 
 /* *INDENT-OFF* */
-  const GLfloat uvs[] = {
-     0.0,  1.0,
-     1.0,  1.0,
-     1.0,  0.0,
-     0.0,  0.0,
-  };
+static const gchar *smpte_vertex_src =
+    "attribute vec4 position;\n"
+    "attribute vec4 a_color;\n"
+    "varying vec4 color;\n"
+    "void main()\n"
+    "{\n"
+    "  gl_Position = position;\n"
+    "  color = a_color;\n"
+    "}";
+
+static const gchar *smpte_fragment_src =
+    "#ifdef GL_ES\n"
+    "precision mediump float;\n"
+    "#endif\n"
+    "varying vec4 color;\n"
+    "void main()\n"
+    "{\n"
+    "  gl_FragColor = color;\n"
+    "}";
+
+static const gchar *snow_vertex_src =
+    "attribute vec4 position;\n"
+    "varying vec2 out_uv;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = position;\n"
+    "   out_uv = position.xy;\n"
+    "}";
+
+static const gchar *snow_fragment_src = 
+    "#ifdef GL_ES\n"
+    "precision mediump float;\n"
+    "#endif\n"
+    "uniform float time;\n"
+    "varying vec2 out_uv;\n"
+    "\n"
+    "float rand(vec2 co){\n"
+    "    return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);\n"
+    "}\n"
+    "void main()\n"
+    "{\n"
+    "  gl_FragColor = vec4(rand(time * out_uv));\n"
+    "}";
 /* *INDENT-ON* */
 
-  GLushort indices[] = { 0, 1, 2, 3, 0 };
+#define N_QUADS 21
+struct SrcSMPTE
+{
+  struct SrcShader base;
 
-  GLint attr_position_loc = -1;
-  GLint attr_uv_loc = -1;
+  GstGLShader *snow_shader;
+  GstGLShader *color_shader;
+  gint attr_snow_position;
+};
 
-  if (gst_gl_context_get_gl_api (v->context)) {
+static gpointer
+_src_smpte_new (GstGLTestSrc * test)
+{
+  struct SrcSMPTE *src = g_new0 (struct SrcSMPTE, 1);
 
-    gst_gl_context_clear_shader (v->context);
-    gl->BindTexture (GL_TEXTURE_2D, 0);
+  src->base.base.src = test;
 
-    gst_gl_shader_use (v->shader);
-
-    attr_position_loc =
-        gst_gl_shader_get_attribute_location (v->shader, "position");
-
-    attr_uv_loc = gst_gl_shader_get_attribute_location (v->shader, "uv");
-
-    /* Load the vertex position */
-    gl->VertexAttribPointer (attr_position_loc, 4, GL_FLOAT,
-        GL_FALSE, 0, positions);
-    /* Load the texture coordinate */
-    gl->VertexAttribPointer (attr_uv_loc, 2, GL_FLOAT, GL_FALSE, 0, uvs);
-
-    gl->EnableVertexAttribArray (attr_position_loc);
-    gl->EnableVertexAttribArray (attr_uv_loc);
-
-    gst_gl_shader_set_uniform_matrix_4fv (v->shader, "mvp",
-        1, GL_FALSE, identitiy_matrix);
-
-    gst_gl_shader_set_uniform_1f (v->shader, "time",
-        (gfloat) v->running_time / GST_SECOND);
-
-    gst_gl_shader_set_uniform_1f (v->shader, "aspect_ratio",
-        (gfloat) w / (gfloat) h);
-
-    gl->DrawElements (GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_SHORT, indices);
-
-    gl->DisableVertexAttribArray (attr_position_loc);
-    gl->DisableVertexAttribArray (attr_uv_loc);
-
-    gst_gl_context_clear_shader (v->context);
-  }
+  return src;
 }
 
-static void
-gst_gl_test_src_unicolor (GstGLTestSrc * v, GstBuffer * buffer, int w,
-    int h, const struct vts_color_struct *color)
+static gboolean
+_src_smpte_init (gpointer impl, GstGLContext * context, GstVideoInfo * v_info)
 {
-#if GST_GL_HAVE_OPENGL
-  if (gst_gl_context_get_gl_api (v->context) & GST_GL_API_OPENGL) {
-    glClearColor (color->R * (1 / 255.0f), color->G * (1 / 255.0f),
-        color->B * (1 / 255.0f), 1.0f);
-    glClear (GL_COLOR_BUFFER_BIT);
-  }
-#endif
-}
-
-void
-gst_gl_test_src_black (GstGLTestSrc * v, GstBuffer * buffer, int w, int h)
-{
-  gst_gl_test_src_unicolor (v, buffer, w, h, vts_colors + COLOR_BLACK);
-}
-
-void
-gst_gl_test_src_white (GstGLTestSrc * v, GstBuffer * buffer, int w, int h)
-{
-  gst_gl_test_src_unicolor (v, buffer, w, h, vts_colors + COLOR_WHITE);
-}
-
-void
-gst_gl_test_src_red (GstGLTestSrc * v, GstBuffer * buffer, int w, int h)
-{
-  gst_gl_test_src_unicolor (v, buffer, w, h, vts_colors + COLOR_RED);
-}
-
-void
-gst_gl_test_src_green (GstGLTestSrc * v, GstBuffer * buffer, int w, int h)
-{
-  gst_gl_test_src_unicolor (v, buffer, w, h, vts_colors + COLOR_GREEN);
-}
-
-void
-gst_gl_test_src_blue (GstGLTestSrc * v, GstBuffer * buffer, int w, int h)
-{
-  gst_gl_test_src_unicolor (v, buffer, w, h, vts_colors + COLOR_BLUE);
-}
-
-static void
-gst_gl_test_src_checkers (GstGLTestSrc * v, gint checker_width)
-{
-
-  GstGLFuncs *gl = v->context->gl_vtable;
-
-  GLushort indices[] = { 0, 1, 2, 3, 0 };
-
-  GLint attr_position_loc = -1;
-
-  if (gst_gl_context_get_gl_api (v->context)) {
-
-    gst_gl_context_clear_shader (v->context);
-    gl->BindTexture (GL_TEXTURE_2D, 0);
-
-    gst_gl_shader_use (v->shader);
-
-    attr_position_loc =
-        gst_gl_shader_get_attribute_location (v->shader, "position");
-
-    /* Load the vertex position */
-    gl->VertexAttribPointer (attr_position_loc, 4, GL_FLOAT,
-        GL_FALSE, 0, positions);
-
-    gl->EnableVertexAttribArray (attr_position_loc);
-
-    gst_gl_shader_set_uniform_matrix_4fv (v->shader, "mvp",
-        1, GL_FALSE, identitiy_matrix);
-
-    gst_gl_shader_set_uniform_1f (v->shader, "checker_width", checker_width);
-
-    gl->DrawElements (GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_SHORT, indices);
-
-    gl->DisableVertexAttribArray (attr_position_loc);
-
-    gst_gl_context_clear_shader (v->context);
-  }
-}
-
-
-void
-gst_gl_test_src_checkers1 (GstGLTestSrc * v, GstBuffer * buffer, int w, int h)
-{
-  gst_gl_test_src_checkers (v, 1);
-}
-
-
-void
-gst_gl_test_src_checkers2 (GstGLTestSrc * v, GstBuffer * buffer, int w, int h)
-{
-  gst_gl_test_src_checkers (v, 2);
-}
-
-void
-gst_gl_test_src_checkers4 (GstGLTestSrc * v, GstBuffer * buffer, int w, int h)
-{
-  gst_gl_test_src_checkers (v, 4);
-
-}
-
-void
-gst_gl_test_src_checkers8 (GstGLTestSrc * v, GstBuffer * buffer, int w, int h)
-{
-  gst_gl_test_src_checkers (v, 8);
-}
-
-void
-gst_gl_test_src_circular (GstGLTestSrc * v, GstBuffer * buffer, int w, int h)
-{
-#if 0
+  struct SrcSMPTE *src = impl;
+  struct XYZWRGB *coord;
+  gushort *plane_indices;
+  GError *error = NULL;
+  int color_idx = 0;
   int i;
-  int j;
-  paintinfo pi = { NULL, };
-  paintinfo *p = &pi;
-  struct fourcc_list_struct *fourcc;
-  struct vts_color_struct color;
-  static uint8_t sine_array[256];
-  static int sine_array_inited = FALSE;
-  double freq[8];
 
-#ifdef SCALE_AMPLITUDE
-  double ampl[8];
-#endif
-  int d;
+  src->base.base.context = context;
 
-  if (!sine_array_inited) {
-    for (i = 0; i < 256; i++) {
-      sine_array[i] =
-          floor (255 * (0.5 + 0.5 * sin (i * 2 * M_PI / 256)) + 0.5);
-    }
-    sine_array_inited = TRUE;
+  coord = g_new0 (struct XYZWRGB, N_QUADS * 4);
+  plane_indices = g_new0 (gushort, N_QUADS * 6);
+
+  /* top row */
+  for (int i = 0; i < 7; i++) {
+    coord[color_idx * 4 + 0].X = -1.0f + i * (2.0f / 7.0f);
+    coord[color_idx * 4 + 0].Y = 1.0f / 3.0f;
+    coord[color_idx * 4 + 1].X = -1.0f + (i + 1) * (2.0f / 7.0f);
+    coord[color_idx * 4 + 1].Y = 1.0f / 3.0f;
+    coord[color_idx * 4 + 2].X = -1.0f + (i + 1) * (2.0f / 7.0f);
+    coord[color_idx * 4 + 2].Y = -1.0f;
+    coord[color_idx * 4 + 3].X = -1.0f + i * (2.0f / 7.0f);
+    coord[color_idx * 4 + 3].Y = -1.0f;
+    color_idx++;
   }
 
-  p->width = w;
-  p->height = h;
-  fourcc = v->fourcc;
-  if (fourcc == NULL)
+  /* middle row */
+  for (int i = 0; i < 7; i++) {
+    coord[color_idx * 4 + 0].X = -1.0f + i * (2.0f / 7.0f);
+    coord[color_idx * 4 + 0].Y = 0.5f;
+    coord[color_idx * 4 + 1].X = -1.0f + (i + 1) * (2.0f / 7.0f);
+    coord[color_idx * 4 + 1].Y = 0.5f;
+    coord[color_idx * 4 + 2].X = -1.0f + (i + 1) * (2.0f / 7.0f);
+    coord[color_idx * 4 + 2].Y = 1.0f / 3.0f;
+    coord[color_idx * 4 + 3].X = -1.0f + i * (2.0f / 7.0f);
+    coord[color_idx * 4 + 3].Y = 1.0f / 3.0f;
+    color_idx++;
+  }
+
+  /* bottom row, left three */
+  for (int i = 0; i < 3; i++) {
+    coord[color_idx * 4 + 0].X = -1.0f + i / 3.0f;
+    coord[color_idx * 4 + 0].Y = 1.0f;
+    coord[color_idx * 4 + 1].X = -1.0f + (i + 1) / 3.0f;
+    coord[color_idx * 4 + 1].Y = 1.0f;
+    coord[color_idx * 4 + 2].X = -1.0f + (i + 1) / 3.0f;
+    coord[color_idx * 4 + 2].Y = 0.5f;
+    coord[color_idx * 4 + 3].X = -1.0f + i / 3.0f;
+    coord[color_idx * 4 + 3].Y = 0.5f;
+    color_idx++;
+  }
+
+  /* bottom row, middle three (the blacks) */
+  for (int i = 0; i < 3; i++) {
+    coord[color_idx * 4 + 0].X = i / 6.0f;
+    coord[color_idx * 4 + 0].Y = 1.0f;
+    coord[color_idx * 4 + 1].X = (i + 1) / 6.0f;
+    coord[color_idx * 4 + 1].Y = 1.0f;
+    coord[color_idx * 4 + 2].X = (i + 1) / 6.0f;
+    coord[color_idx * 4 + 2].Y = 0.5f;
+    coord[color_idx * 4 + 3].X = i / 6.0f;
+    coord[color_idx * 4 + 3].Y = 0.5f;
+    color_idx++;
+  }
+
+  g_assert (color_idx < N_QUADS);
+
+  for (i = 0; i < N_QUADS - 1; i++) {
+    int j, k;
+    if (i < 7) {
+      k = i;
+    } else if ((i - 7) & 1) {
+      k = COLOR_BLACK;
+    } else {
+      k = 13 - i;
+    }
+
+    if (i == 14) {
+      k = COLOR_NEG_I;
+    } else if (i == 15) {
+      k = COLOR_WHITE;
+    } else if (i == 16) {
+      k = COLOR_POS_Q;
+    } else if (i == 17) {
+      k = COLOR_SUPER_BLACK;
+    } else if (i == 18) {
+      k = COLOR_BLACK;
+    } else if (i == 19) {
+      k = COLOR_DARK_GREY;
+    }
+
+    for (j = 0; j < 4; j++) {
+      coord[i * 4 + j].Z = 0.0f;
+      coord[i * 4 + j].W = 1.0f;
+      coord[i * 4 + j].R = vts_colors[k].R;
+      coord[i * 4 + j].G = vts_colors[k].G;
+      coord[i * 4 + j].B = vts_colors[k].B;
+    }
+
+    for (j = 0; j < 6; j++)
+      plane_indices[i * 6 + j] = i * 4 + indices_quad[j];
+  }
+
+  /* snow */
+  coord[color_idx * 4 + 0].X = 0.5f;
+  coord[color_idx * 4 + 0].Y = 1.0f;
+  coord[color_idx * 4 + 0].Z = 0.0f;
+  coord[color_idx * 4 + 0].W = 1.0f;
+  coord[color_idx * 4 + 1].X = 1.0f;
+  coord[color_idx * 4 + 1].Y = 1.0f;
+  coord[color_idx * 4 + 1].Z = 0.0f;
+  coord[color_idx * 4 + 1].W = 1.0f;
+  coord[color_idx * 4 + 2].X = 1.0f;
+  coord[color_idx * 4 + 2].Y = 0.5f;
+  coord[color_idx * 4 + 2].Z = 0.0f;
+  coord[color_idx * 4 + 2].W = 1.0f;
+  coord[color_idx * 4 + 3].X = 0.5f;
+  coord[color_idx * 4 + 3].Y = 0.5f;
+  coord[color_idx * 4 + 3].Z = 0.0f;
+  coord[color_idx * 4 + 3].W = 1.0f;
+  for (i = 0; i < 6; i++)
+    plane_indices[color_idx * 6 + i] = color_idx * 4 + indices_quad[i];
+  color_idx++;
+
+  if (src->color_shader)
+    gst_object_unref (src->color_shader);
+  src->color_shader = gst_gl_shader_new_link_with_stages (context, &error,
+      gst_glsl_stage_new_with_string (context, GL_VERTEX_SHADER,
+          GST_GLSL_VERSION_NONE,
+          GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+          smpte_vertex_src),
+      gst_glsl_stage_new_with_string (context, GL_FRAGMENT_SHADER,
+          GST_GLSL_VERSION_NONE,
+          GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+          smpte_fragment_src), NULL);
+  if (!src->color_shader) {
+    GST_ERROR_OBJECT (src->base.base.src, "%s", error->message);
+    return FALSE;
+  }
+
+  if (src->snow_shader)
+    gst_object_unref (src->snow_shader);
+  src->snow_shader = gst_gl_shader_new_link_with_stages (context, &error,
+      gst_glsl_stage_new_with_string (context, GL_VERTEX_SHADER,
+          GST_GLSL_VERSION_NONE,
+          GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+          snow_vertex_src),
+      gst_glsl_stage_new_with_string (context, GL_FRAGMENT_SHADER,
+          GST_GLSL_VERSION_NONE,
+          GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+          snow_fragment_src), NULL);
+  if (!src->snow_shader) {
+    GST_ERROR_OBJECT (src->base.base.src, "%s", error->message);
+    return FALSE;
+  }
+
+  src->attr_snow_position = -1;
+
+  src->base.n_attributes = 2;
+
+  src->base.attributes[0].name = "position";
+  src->base.attributes[0].location = -1;
+  src->base.attributes[0].n_elements = 4;
+  src->base.attributes[0].element_type = GL_FLOAT;
+  src->base.attributes[0].offset = 0;
+  src->base.attributes[0].stride = sizeof (struct XYZWRGB);
+
+  src->base.attributes[1].name = "a_color";
+  src->base.attributes[1].location = -1;
+  src->base.attributes[1].n_elements = 3;
+  src->base.attributes[1].element_type = GL_FLOAT;
+  src->base.attributes[1].offset = 4 * sizeof (gfloat);
+  src->base.attributes[1].stride = sizeof (struct XYZWRGB);
+
+  if (src->base.shader)
+    gst_object_unref (src->base.shader);
+  src->base.shader = gst_object_ref (src->color_shader);
+  src->base.vertices = (gfloat *) coord;
+  src->base.vertices_size = sizeof (struct XYZWRGB) * N_QUADS * 4;
+  src->base.indices = plane_indices;
+  src->base.n_indices = N_QUADS * 6;
+
+  return _src_shader_init (impl, context, v_info);
+}
+
+static gboolean
+_src_smpte_fill_bound_fbo (gpointer impl)
+{
+  struct SrcSMPTE *src = impl;
+  gint attr_color_position = -1;
+
+  src->base.n_attributes = 2;
+  if (src->base.shader)
+    gst_object_unref (src->base.shader);
+  src->base.shader = gst_object_ref (src->color_shader);
+  src->base.n_indices = (N_QUADS - 1) * 6;
+  src->base.index_offset = 0;
+  if (!_src_shader_fill_bound_fbo (impl))
+    return FALSE;
+  attr_color_position = src->base.attributes[0].location;
+
+  src->base.attributes[0].location = src->attr_snow_position;
+  src->base.n_attributes = 1;
+  if (src->base.shader)
+    gst_object_unref (src->base.shader);
+  src->base.shader = gst_object_ref (src->snow_shader);
+  src->base.n_indices = 6;
+  src->base.index_offset = (N_QUADS - 1) * 6 * sizeof (gushort);
+  gst_gl_shader_use (src->snow_shader);
+  gst_gl_shader_set_uniform_1f (src->snow_shader, "time",
+      (gfloat) src->base.base.src->running_time / GST_SECOND);
+  if (!_src_shader_fill_bound_fbo (impl))
+    return FALSE;
+  src->attr_snow_position = src->base.attributes[0].location;
+  src->base.attributes[0].location = attr_color_position;
+
+  return TRUE;
+}
+
+static void
+_src_smpte_free (gpointer impl)
+{
+  struct SrcSMPTE *src = impl;
+
+  if (!impl)
     return;
 
-  fourcc->paint_setup (p, dest);
-  p->paint_hline = fourcc->paint_hline;
+  _src_shader_deinit (impl);
 
-  color = vts_colors[COLOR_BLACK];
-  p->color = &color;
+  g_free ((gpointer) src->base.vertices);
+  g_free ((gpointer) src->base.indices);
 
-  for (i = 1; i < 8; i++) {
-    freq[i] = 200 * pow (2.0, -(i - 1) / 4.0);
-#ifdef SCALE_AMPLITUDE
-    {
-      double x;
+  if (src->snow_shader)
+    gst_object_unref (src->snow_shader);
+  if (src->color_shader)
+    gst_object_unref (src->color_shader);
 
-      x = 2 * M_PI * freq[i] / w;
-      ampl[i] = sin (x) / x;
-    }
-#endif
+  g_free (impl);
+}
+
+static const struct SrcFuncs src_smpte = {
+  GST_GL_TEST_SRC_SMPTE,
+  _src_smpte_new,
+  _src_smpte_init,
+  _src_smpte_fill_bound_fbo,
+  _src_smpte_free,
+};
+
+#undef N_QUADS
+
+struct SrcUniColor
+{
+  struct BaseSrcImpl base;
+
+  struct vts_color_struct color;
+};
+
+static gpointer
+_src_uni_color_new (GstGLTestSrc * test)
+{
+  struct SrcUniColor *src = g_new0 (struct SrcUniColor, 1);
+
+  src->base.src = test;
+
+  return src;
+}
+
+static gboolean
+_src_uni_color_init (gpointer impl, GstGLContext * context,
+    GstVideoInfo * v_info)
+{
+  struct SrcUniColor *src = impl;
+
+  src->base.context = context;
+  src->base.v_info = *v_info;
+
+  return TRUE;
+}
+
+static gboolean
+_src_uni_color_fill_bound_fbo (gpointer impl)
+{
+  struct SrcUniColor *src = impl;
+  const GstGLFuncs *gl = src->base.context->gl_vtable;
+
+  gl->ClearColor (src->color.R, src->color.G, src->color.B, 1.0f);
+  gl->Clear (GL_COLOR_BUFFER_BIT);
+
+  return TRUE;
+}
+
+static void
+_src_uni_color_free (gpointer impl)
+{
+  g_free (impl);
+}
+
+#define SRC_UNICOLOR(name, cap_name) \
+static gpointer \
+G_PASTE(G_PASTE(_src_unicolor_,name),_new) (GstGLTestSrc * test) \
+{ \
+  struct SrcUniColor *src = _src_uni_color_new (test); \
+  src->color = vts_colors[G_PASTE(COLOR_,cap_name)]; \
+  return src; \
+} \
+static const struct SrcFuncs G_PASTE (src_,name) = { \
+  G_PASTE(GST_GL_TEST_SRC_,cap_name), \
+  G_PASTE(G_PASTE(_src_unicolor_,name),_new), \
+  _src_uni_color_init, \
+  _src_uni_color_fill_bound_fbo, \
+  _src_uni_color_free, \
+}
+
+SRC_UNICOLOR (white, WHITE);
+SRC_UNICOLOR (black, BLACK);
+SRC_UNICOLOR (red, RED);
+SRC_UNICOLOR (green, GREEN);
+SRC_UNICOLOR (blue, BLUE);
+
+static gpointer
+_src_blink_new (GstGLTestSrc * test)
+{
+  struct SrcUniColor *src = _src_uni_color_new (test);
+
+  src->color = vts_colors[COLOR_WHITE];
+
+  return src;
+}
+
+static gboolean
+_src_blink_fill_bound_fbo (gpointer impl)
+{
+  struct SrcUniColor *src = impl;
+
+  if (src->color.R > 0.5) {
+    src->color = vts_colors[COLOR_BLACK];
+  } else {
+    src->color = vts_colors[COLOR_WHITE];
   }
 
-  for (i = 0; i < w; i++) {
-    for (j = 0; j < h; j++) {
-      double dist;
-      int seg;
+  return _src_uni_color_fill_bound_fbo (impl);
+}
 
-      dist =
-          sqrt ((2 * i - w) * (2 * i - w) + (2 * j - h) * (2 * j -
-              h)) / (2 * w);
-      seg = floor (dist * 16);
-      if (seg == 0 || seg >= 8) {
-        color.Y = 255;
-      } else {
-#ifdef SCALE_AMPLITUDE
-        double a;
-#endif
-        d = floor (256 * dist * freq[seg] + 0.5);
-#ifdef SCALE_AMPLITUDE
-        a = ampl[seg];
-        if (a < 0)
-          a = 0;
-        color.Y = 128 + a * (sine_array[d & 0xff] - 128);
-#else
-        color.Y = sine_array[d & 0xff];
-#endif
-      }
-      color.R = color.Y;
-      color.G = color.Y;
-      color.B = color.Y;
-      p->paint_hline (p, i, j, 1);
-    }
+static const struct SrcFuncs src_blink = {
+  GST_GL_TEST_SRC_BLINK,
+  _src_blink_new,
+  _src_uni_color_init,
+  _src_blink_fill_bound_fbo,
+  _src_uni_color_free,
+};
+
+/* *INDENT-OFF* */
+static const gchar *checkers_vertex_src = "attribute vec4 position;\n"
+    "varying vec2 uv;\n"
+    "void main()\n"
+    "{\n"
+    "  gl_Position = position;\n"
+    /* RPi gives incorrect results for positive uv (plus it makes us start on
+     * the right pixel color i.e. red) */
+    "  uv = position.xy - 1.0;\n"
+    "}";
+
+static const gchar *checkers_fragment_src =
+    "#ifdef GL_ES\n"
+    "precision mediump float;\n"
+    "#endif\n"
+    "uniform float checker_width;\n"
+    "uniform float width;\n"
+    "uniform float height;\n"
+    "varying vec2 uv;\n"
+    "void main()\n"
+    "{\n"
+    "  vec2 xy_mod = floor (0.5 * uv * vec2(width, height) / (checker_width));\n"
+    "  float result = mod (xy_mod.x + xy_mod.y, 2.0);\n"
+    "  gl_FragColor.r = step (result, 0.5);\n"
+    "  gl_FragColor.g = 1.0 - gl_FragColor.r;\n"
+    "  gl_FragColor.ba = vec2(0.0, 1.0);\n"
+    "}";
+/* *INDENT-ON* */
+
+struct SrcCheckers
+{
+  struct SrcShader base;
+
+  guint checker_width;
+};
+
+static gboolean
+_src_checkers_init (gpointer impl, GstGLContext * context,
+    GstVideoInfo * v_info)
+{
+  struct SrcCheckers *src = impl;
+  GError *error = NULL;
+
+  src->base.base.context = context;
+
+  if (src->base.shader)
+    gst_object_unref (src->base.shader);
+  src->base.shader = gst_gl_shader_new_link_with_stages (context, &error,
+      gst_glsl_stage_new_with_string (context, GL_VERTEX_SHADER,
+          GST_GLSL_VERSION_NONE,
+          GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+          checkers_vertex_src),
+      gst_glsl_stage_new_with_string (context, GL_FRAGMENT_SHADER,
+          GST_GLSL_VERSION_NONE,
+          GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+          checkers_fragment_src), NULL);
+  if (!src->base.shader) {
+    GST_ERROR_OBJECT (src->base.base.src, "%s", error->message);
+    return FALSE;
   }
-#endif
+
+  src->base.n_attributes = 1;
+
+  src->base.attributes[0].name = "position";
+  src->base.attributes[0].location = -1;
+  src->base.attributes[0].n_elements = 4;
+  src->base.attributes[0].element_type = GL_FLOAT;
+  src->base.attributes[0].offset = 0;
+  src->base.attributes[0].stride = 4 * sizeof (gfloat);
+
+  src->base.vertices = positions;
+  src->base.vertices_size = sizeof (positions);
+  src->base.indices = indices_quad;
+  src->base.n_indices = 6;
+
+  gst_gl_shader_use (src->base.shader);
+  gst_gl_shader_set_uniform_1f (src->base.shader, "checker_width",
+      src->checker_width);
+  gst_gl_shader_set_uniform_1f (src->base.shader, "width",
+      (gfloat) GST_VIDEO_INFO_WIDTH (v_info));
+  gst_gl_shader_set_uniform_1f (src->base.shader, "height",
+      (gfloat) GST_VIDEO_INFO_HEIGHT (v_info));
+  gst_gl_context_clear_shader (src->base.base.context);
+
+  return _src_shader_init (impl, context, v_info);
+}
+
+static void
+_src_checkers_free (gpointer impl)
+{
+  struct SrcCheckers *src = impl;
+
+  if (!src)
+    return;
+
+  _src_shader_deinit (impl);
+
+  g_free (impl);
+}
+
+static gpointer
+_src_checkers_new (GstGLTestSrc * test)
+{
+  struct SrcCheckers *src = g_new0 (struct SrcCheckers, 1);
+
+  src->base.base.src = test;
+
+  return src;
+}
+
+#define SRC_CHECKERS(spacing) \
+static gpointer \
+G_PASTE(G_PASTE(_src_checkers,spacing),_new) (GstGLTestSrc * test) \
+{ \
+  struct SrcCheckers *src = _src_checkers_new (test); \
+  src->checker_width = spacing; \
+  return src; \
+} \
+static const struct SrcFuncs G_PASTE(src_checkers,spacing) = { \
+  G_PASTE(GST_GL_TEST_SRC_CHECKERS,spacing), \
+  G_PASTE(G_PASTE(_src_checkers,spacing),_new), \
+  _src_checkers_init, \
+  _src_shader_fill_bound_fbo, \
+  _src_checkers_free, \
+}
+
+SRC_CHECKERS (1);
+SRC_CHECKERS (2);
+SRC_CHECKERS (4);
+SRC_CHECKERS (8);
+
+static gboolean
+_src_snow_init (gpointer impl, GstGLContext * context, GstVideoInfo * v_info)
+{
+  struct SrcShader *src = impl;
+  GError *error = NULL;
+
+  src->base.context = context;
+
+  if (src->shader)
+    gst_object_unref (src->shader);
+  src->shader = gst_gl_shader_new_link_with_stages (context, &error,
+      gst_glsl_stage_new_with_string (context, GL_VERTEX_SHADER,
+          GST_GLSL_VERSION_NONE,
+          GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+          snow_vertex_src),
+      gst_glsl_stage_new_with_string (context, GL_FRAGMENT_SHADER,
+          GST_GLSL_VERSION_NONE,
+          GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+          snow_fragment_src), NULL);
+  if (!src->shader) {
+    GST_ERROR_OBJECT (src->base.src, "%s", error->message);
+    return FALSE;
+  }
+
+  src->n_attributes = 1;
+
+  src->attributes[0].name = "position";
+  src->attributes[0].location = -1;
+  src->attributes[0].n_elements = 4;
+  src->attributes[0].element_type = GL_FLOAT;
+  src->attributes[0].offset = 0;
+  src->attributes[0].stride = 4 * sizeof (gfloat);
+
+  src->vertices = positions;
+  src->vertices_size = sizeof (positions);
+  src->indices = indices_quad;
+  src->n_indices = 6;
+
+  return _src_shader_init (impl, context, v_info);
+}
+
+static gboolean
+_src_snow_fill_bound_fbo (gpointer impl)
+{
+  struct SrcShader *src = impl;
+
+  g_return_val_if_fail (src->base.context, FALSE);
+  g_return_val_if_fail (src->shader, FALSE);
+
+  gst_gl_shader_use (src->shader);
+  gst_gl_shader_set_uniform_1f (src->shader, "time",
+      (gfloat) src->base.src->running_time / GST_SECOND);
+
+  return _src_shader_fill_bound_fbo (impl);
+}
+
+static void
+_src_snow_free (gpointer impl)
+{
+  struct SrcShader *src = impl;
+
+  if (!src)
+    return;
+
+  _src_shader_deinit (impl);
+
+  g_free (impl);
+}
+
+static gpointer
+_src_snow_new (GstGLTestSrc * test)
+{
+  struct SrcShader *src = g_new0 (struct SrcShader, 1);
+
+  src->base.src = test;
+
+  return src;
+}
+
+static const struct SrcFuncs src_snow = {
+  GST_GL_TEST_SRC_SNOW,
+  _src_snow_new,
+  _src_snow_init,
+  _src_snow_fill_bound_fbo,
+  _src_snow_free,
+};
+
+/* *INDENT-OFF* */
+static const gchar *mandelbrot_vertex_src = "attribute vec4 position;\n"
+    "uniform float aspect_ratio;\n"
+    "varying vec2 fractal_position;\n"
+    "void main()\n"
+    "{\n"
+    "  gl_Position = position;\n"
+    "  fractal_position = vec2(position.y * 0.5 - 0.3, aspect_ratio * position.x * 0.5);\n"
+    "  fractal_position *= 2.5;\n"
+    "}";
+
+static const gchar *mandelbrot_fragment_src = 
+    "#ifdef GL_ES\n"
+    "precision mediump float;\n"
+    "#endif\n"
+    "uniform float time;\n"
+    "varying vec2 fractal_position;\n"
+    "const vec4 K = vec4(1.0, 0.66, 0.33, 3.0);\n"
+    "vec4 hsv_to_rgb(float hue, float saturation, float value) {\n"
+    "  vec4 p = abs(fract(vec4(hue) + K) * 6.0 - K.wwww);\n"
+    "  return value * mix(K.xxxx, clamp(p - K.xxxx, 0.0, 1.0), saturation);\n"
+    "}\n"
+    "vec4 i_to_rgb(int i) {\n"
+    "  float hue = float(i) / 100.0 + sin(time);\n"
+    "  return hsv_to_rgb(hue, 0.5, 0.8);\n"
+    "}\n"
+    "vec2 pow_2_complex(vec2 c) {\n"
+    "  return vec2(c.x*c.x - c.y*c.y, 2.0 * c.x * c.y);\n"
+    "}\n"
+    "vec2 mandelbrot(vec2 c, vec2 c0) {\n"
+    "  return pow_2_complex(c) + c0;\n"
+    "}\n"
+    "vec4 iterate_pixel(vec2 position) {\n"
+    "  vec2 c = vec2(0);\n"
+    "  for (int i=0; i < 20; i++) {\n"
+    "    if (c.x*c.x + c.y*c.y > 2.0*2.0)\n"
+    "      return i_to_rgb(i);\n"
+    "    c = mandelbrot(c, position);\n"
+    "  }\n"
+    "  return vec4(0, 0, 0, 1);\n"
+    "}\n"
+    "void main() {\n"
+    "  gl_FragColor = iterate_pixel(fractal_position);\n"
+    "}";
+/* *INDENT-ON* */
+
+static gboolean
+_src_mandelbrot_init (gpointer impl, GstGLContext * context,
+    GstVideoInfo * v_info)
+{
+  struct SrcShader *src = impl;
+  GError *error = NULL;
+
+  src->base.context = context;
+
+  if (src->shader)
+    gst_object_unref (src->shader);
+  src->shader = gst_gl_shader_new_link_with_stages (context, &error,
+      gst_glsl_stage_new_with_string (context, GL_VERTEX_SHADER,
+          GST_GLSL_VERSION_NONE,
+          GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+          mandelbrot_vertex_src),
+      gst_glsl_stage_new_with_string (context, GL_FRAGMENT_SHADER,
+          GST_GLSL_VERSION_NONE,
+          GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+          mandelbrot_fragment_src), NULL);
+  if (!src->shader) {
+    GST_ERROR_OBJECT (src->base.src, "%s", error->message);
+    return FALSE;
+  }
+
+  src->n_attributes = 1;
+
+  src->attributes[0].name = "position";
+  src->attributes[0].location = -1;
+  src->attributes[0].n_elements = 4;
+  src->attributes[0].element_type = GL_FLOAT;
+  src->attributes[0].offset = 0;
+  src->attributes[0].stride = 4 * sizeof (gfloat);
+
+  src->vertices = positions;
+  src->vertices_size = sizeof (positions);
+  src->indices = indices_quad;
+  src->n_indices = 6;
+
+  gst_gl_shader_use (src->shader);
+  gst_gl_shader_set_uniform_1f (src->shader, "aspect_ratio",
+      (gfloat) GST_VIDEO_INFO_WIDTH (v_info) /
+      (gfloat) GST_VIDEO_INFO_HEIGHT (v_info));
+  gst_gl_context_clear_shader (src->base.context);
+
+  return _src_shader_init (impl, context, v_info);
+}
+
+static gboolean
+_src_mandelbrot_fill_bound_fbo (gpointer impl)
+{
+  struct SrcShader *src = impl;
+
+  g_return_val_if_fail (src->base.context, FALSE);
+  g_return_val_if_fail (src->shader, FALSE);
+
+  gst_gl_shader_use (src->shader);
+  gst_gl_shader_set_uniform_1f (src->shader, "time",
+      (gfloat) src->base.src->running_time / GST_SECOND);
+
+  return _src_shader_fill_bound_fbo (impl);
+}
+
+static void
+_src_mandelbrot_free (gpointer impl)
+{
+  struct SrcShader *src = impl;
+
+  if (!src)
+    return;
+
+  _src_shader_deinit (impl);
+
+  g_free (impl);
+}
+
+static gpointer
+_src_mandelbrot_new (GstGLTestSrc * test)
+{
+  struct SrcShader *src = g_new0 (struct SrcShader, 1);
+
+  src->base.src = test;
+
+  return src;
+}
+
+static const struct SrcFuncs src_mandelbrot = {
+  GST_GL_TEST_SRC_MANDELBROT,
+  _src_mandelbrot_new,
+  _src_mandelbrot_init,
+  _src_mandelbrot_fill_bound_fbo,
+  _src_mandelbrot_free,
+};
+
+/* *INDENT-OFF* */
+static const gchar *circular_vertex_src =
+    "attribute vec4 position;\n"
+    "varying vec2 uv;\n"
+    "void main()\n"
+    "{\n"
+    "  gl_Position = position;\n"
+    "  uv = position.xy;\n"
+    "}";
+
+static const gchar *circular_fragment_src =
+    "#ifdef GL_ES\n"
+    "precision mediump float;\n"
+    "#endif\n"
+    "uniform float aspect_ratio;\n"
+    "varying vec2 uv;\n"
+    "#define PI 3.14159265\n"
+    "void main() {\n"
+    "  float dist = 0.5 * sqrt(uv.x * uv.x + uv.y / aspect_ratio * uv.y / aspect_ratio);\n"
+    "  float seg = floor(dist * 16.0);\n"
+    "  if (seg <= 0.0 || seg >= 8.0) {\n"
+    "    gl_FragColor = vec4(vec3(0.0), 1.0);\n"
+    "  } else {\n"
+    "    float d = floor (256.0 * dist * 200.0 * pow (2.0, - (seg - 1.0) / 4.0) + 0.5) / 128.0;\n"
+    "    gl_FragColor = vec4 (vec3(sin (d * PI) * 0.5 + 0.5), 1.0);\n"
+    "  }\n"
+    "}";
+/* *INDENT-ON* */
+
+static gboolean
+_src_circular_init (gpointer impl, GstGLContext * context,
+    GstVideoInfo * v_info)
+{
+  struct SrcShader *src = impl;
+  GError *error = NULL;
+
+  src->base.context = context;
+
+  if (src->shader)
+    gst_object_unref (src->shader);
+  src->shader = gst_gl_shader_new_link_with_stages (context, &error,
+      gst_glsl_stage_new_with_string (context, GL_VERTEX_SHADER,
+          GST_GLSL_VERSION_NONE,
+          GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+          circular_vertex_src),
+      gst_glsl_stage_new_with_string (context, GL_FRAGMENT_SHADER,
+          GST_GLSL_VERSION_NONE,
+          GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
+          circular_fragment_src), NULL);
+  if (!src->shader) {
+    GST_ERROR_OBJECT (src->base.src, "%s", error->message);
+    return FALSE;
+  }
+
+  src->n_attributes = 1;
+
+  src->attributes[0].name = "position";
+  src->attributes[0].location = -1;
+  src->attributes[0].n_elements = 4;
+  src->attributes[0].element_type = GL_FLOAT;
+  src->attributes[0].offset = 0;
+  src->attributes[0].stride = 4 * sizeof (gfloat);
+
+  src->vertices = positions;
+  src->vertices_size = sizeof (positions);
+  src->indices = indices_quad;
+  src->n_indices = 6;
+
+  gst_gl_shader_use (src->shader);
+  gst_gl_shader_set_uniform_1f (src->shader, "aspect_ratio",
+      (gfloat) GST_VIDEO_INFO_WIDTH (v_info) /
+      (gfloat) GST_VIDEO_INFO_HEIGHT (v_info));
+  gst_gl_context_clear_shader (src->base.context);
+
+  return _src_shader_init (impl, context, v_info);
+}
+
+static void
+_src_circular_free (gpointer impl)
+{
+  struct SrcShader *src = impl;
+
+  if (!src)
+    return;
+
+  _src_shader_deinit (impl);
+
+  g_free (impl);
+}
+
+static gpointer
+_src_circular_new (GstGLTestSrc * test)
+{
+  struct SrcShader *src = g_new0 (struct SrcShader, 1);
+
+  src->base.src = test;
+
+  return src;
+}
+
+static const struct SrcFuncs src_circular = {
+  GST_GL_TEST_SRC_CIRCULAR,
+  _src_circular_new,
+  _src_circular_init,
+  _src_mandelbrot_fill_bound_fbo,
+  _src_circular_free,
+};
+
+static const struct SrcFuncs *src_impls[] = {
+  &src_smpte,
+  &src_snow,
+  &src_black,
+  &src_white,
+  &src_red,
+  &src_green,
+  &src_blue,
+  &src_checkers1,
+  &src_checkers2,
+  &src_checkers4,
+  &src_checkers8,
+  &src_circular,
+  &src_blink,
+  &src_mandelbrot,
+};
+
+const struct SrcFuncs *
+gst_gl_test_src_get_src_funcs_for_pattern (GstGLTestSrcPattern pattern)
+{
+  gint i;
+
+  for (i = 0; i < G_N_ELEMENTS (src_impls); i++) {
+    if (src_impls[i]->pattern == pattern)
+      return src_impls[i];
+  }
+
+  return NULL;
 }

@@ -43,6 +43,8 @@
 #include "config.h"
 #endif
 
+#include <gst/video/gstvideoaffinetransformationmeta.h>
+
 #include "gstglvideomixer.h"
 #include "gstglmixerbin.h"
 
@@ -452,6 +454,7 @@ enum
 #define DEBUG_INIT \
     GST_DEBUG_CATEGORY_INIT (gst_gl_video_mixer_debug, "glvideomixer", 0, "glvideomixer element");
 
+#define gst_gl_video_mixer_parent_class parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGLVideoMixer, gst_gl_video_mixer, GST_TYPE_GL_MIXER,
     DEBUG_INIT);
 
@@ -463,6 +466,9 @@ static void gst_gl_video_mixer_get_property (GObject * object, guint prop_id,
 static GstCaps *_update_caps (GstVideoAggregator * vagg, GstCaps * caps,
     GstCaps * filter);
 static GstCaps *_fixate_caps (GstVideoAggregator * vagg, GstCaps * caps);
+static gboolean gst_gl_video_mixer_propose_allocation (GstGLBaseMixer *
+    base_mix, GstGLBaseMixerPad * base_pad, GstQuery * decide_query,
+    GstQuery * query);
 static void gst_gl_video_mixer_reset (GstGLMixer * mixer);
 static gboolean gst_gl_video_mixer_init_shader (GstGLMixer * mixer,
     GstCaps * outcaps);
@@ -472,15 +478,6 @@ static gboolean gst_gl_video_mixer_process_textures (GstGLMixer * mixer,
 static void gst_gl_video_mixer_callback (gpointer stuff);
 
 /* *INDENT-OFF* */
-/* vertex source */
-static const gchar *video_mixer_v_src =
-    "attribute vec4 a_position;                                   \n"
-    "attribute vec2 a_texCoord;                                   \n"
-    "varying vec2 v_texCoord;                                     \n"
-    "void main()                                                  \n"
-    "{                                                            \n"
-    "   gl_Position = a_position;                                 \n"
-    "   v_texCoord = a_texCoord;                                  \n" "}";
 
 /* fragment source */
 static const gchar *video_mixer_f_src =
@@ -489,10 +486,10 @@ static const gchar *video_mixer_f_src =
     "#endif\n"
     "uniform sampler2D texture;                     \n"
     "uniform float alpha;\n"
-    "varying vec2 v_texCoord;                            \n"
+    "varying vec2 v_texcoord;                            \n"
     "void main()                                         \n"
     "{                                                   \n"
-    "  vec4 rgba = texture2D( texture, v_texCoord );\n"
+    "  vec4 rgba = texture2D(texture, v_texcoord);\n"
     "  gl_FragColor = vec4(rgba.rgb, rgba.a * alpha);\n"
     "}                                                   \n";
 
@@ -863,6 +860,7 @@ gst_gl_video_mixer_class_init (GstGLVideoMixerClass * klass)
   GstElementClass *element_class;
   GstAggregatorClass *agg_class = (GstAggregatorClass *) klass;
   GstVideoAggregatorClass *vagg_class = (GstVideoAggregatorClass *) klass;
+  GstGLBaseMixerClass *mix_class = GST_GL_BASE_MIXER_CLASS (klass);
 
   gobject_class = (GObjectClass *) klass;
   element_class = GST_ELEMENT_CLASS (klass);
@@ -889,6 +887,8 @@ gst_gl_video_mixer_class_init (GstGLVideoMixerClass * klass)
   vagg_class->fixate_caps = _fixate_caps;
 
   agg_class->sinkpads_type = GST_TYPE_GL_VIDEO_MIXER_PAD;
+
+  mix_class->propose_allocation = gst_gl_video_mixer_propose_allocation;
 
   GST_GL_BASE_MIXER_CLASS (klass)->supported_gl_api =
       GST_GL_API_OPENGL | GST_GL_API_OPENGL3 | GST_GL_API_GLES2;
@@ -931,6 +931,20 @@ gst_gl_video_mixer_get_property (GObject * object, guint prop_id,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
   }
+}
+
+static gboolean
+gst_gl_video_mixer_propose_allocation (GstGLBaseMixer * base_mix,
+    GstGLBaseMixerPad * base_pad, GstQuery * decide_query, GstQuery * query)
+{
+  if (!GST_GL_BASE_MIXER_CLASS (parent_class)->propose_allocation (base_mix,
+          base_pad, decide_query, query))
+    return FALSE;
+
+  gst_query_add_allocation_meta (query,
+      GST_VIDEO_AFFINE_TRANSFORMATION_META_API_TYPE, 0);
+
+  return TRUE;
 }
 
 static void
@@ -1137,7 +1151,8 @@ gst_gl_video_mixer_init_shader (GstGLMixer * mixer, GstCaps * outcaps)
         video_mixer->shader);
 
   return gst_gl_context_gen_shader (GST_GL_BASE_MIXER (mixer)->context,
-      video_mixer_v_src, video_mixer_f_src, &video_mixer->shader);
+      gst_gl_shader_string_vertex_mat4_vertex_transform,
+      video_mixer_f_src, &video_mixer->shader);
 }
 
 static gboolean
@@ -1403,7 +1418,7 @@ gst_gl_video_mixer_callback (gpointer stuff)
   attr_position_loc =
       gst_gl_shader_get_attribute_location (video_mixer->shader, "a_position");
   attr_texture_loc =
-      gst_gl_shader_get_attribute_location (video_mixer->shader, "a_texCoord");
+      gst_gl_shader_get_attribute_location (video_mixer->shader, "a_texcoord");
 
   gl->Enable (GL_BLEND);
 
@@ -1412,6 +1427,7 @@ gst_gl_video_mixer_callback (gpointer stuff)
   while (walk) {
     GstGLMixerPad *mix_pad = walk->data;
     GstGLVideoMixerPad *pad = walk->data;
+    GstVideoAggregatorPad *vagg_pad = walk->data;
     GstVideoInfo *v_info;
     guint in_tex;
     guint in_width, in_height;
@@ -1490,6 +1506,17 @@ gst_gl_video_mixer_callback (gpointer stuff)
     gl->BindTexture (GL_TEXTURE_2D, in_tex);
     gst_gl_shader_set_uniform_1i (video_mixer->shader, "texture", 0);
     gst_gl_shader_set_uniform_1f (video_mixer->shader, "alpha", pad->alpha);
+
+    {
+      GstVideoAffineTransformationMeta *af_meta;
+      gfloat matrix[16];
+
+      af_meta =
+          gst_buffer_get_video_affine_transformation_meta (vagg_pad->buffer);
+      gst_gl_get_affine_transformation_meta_as_ndc (af_meta, matrix);
+      gst_gl_shader_set_uniform_matrix_4fv (video_mixer->shader,
+          "u_transformation", 1, FALSE, matrix);
+    }
 
     gl->EnableVertexAttribArray (attr_position_loc);
     gl->EnableVertexAttribArray (attr_texture_loc);

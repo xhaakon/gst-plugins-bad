@@ -37,11 +37,38 @@
 #define GST_IS_NV_BASE_ENC_CLASS(obj) \
   (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_NV_BASE_ENC))
 
+typedef enum {
+  GST_NV_PRESET_DEFAULT,
+  GST_NV_PRESET_HP,
+  GST_NV_PRESET_HQ,
+/* FIXME: problematic GST_NV_PRESET_BD, */
+  GST_NV_PRESET_LOW_LATENCY_DEFAULT,
+  GST_NV_PRESET_LOW_LATENCY_HQ,
+  GST_NV_PRESET_LOW_LATENCY_HP,
+  GST_NV_PRESET_LOSSLESS_DEFAULT,
+  GST_NV_PRESET_LOSSLESS_HP,
+} GstNvPreset;
+
+typedef enum {
+  GST_NV_RC_MODE_DEFAULT,
+  GST_NV_RC_MODE_CONSTQP,
+  GST_NV_RC_MODE_CBR,
+  GST_NV_RC_MODE_VBR,
+  GST_NV_RC_MODE_VBR_MINQP,
+} GstNvRCMode;
+
 typedef struct {
   GstVideoEncoder video_encoder;
 
   /* properties */
   guint           cuda_device_id;
+  GstNvPreset     preset_enum;
+  GUID            selected_preset;
+  GstNvRCMode     rate_control_mode;
+  gint            qp_min;
+  gint            qp_max;
+  gint            qp_const;
+  guint           bitrate;
 
   CUcontext       cuda_ctx;
   void          * encoder;
@@ -90,14 +117,14 @@ typedef struct {
 
   GUID codec_id;
 
-  gboolean (*initialize_encoder) (GstNvBaseEnc * nvenc,
-                                  GstVideoCodecState * old_state,
-                                  GstVideoCodecState * state);
   gboolean (*set_src_caps)       (GstNvBaseEnc * nvenc,
                                   GstVideoCodecState * state);
   gboolean (*set_pic_params)     (GstNvBaseEnc * nvenc,
                                   GstVideoCodecFrame * frame,
                                   NV_ENC_PIC_PARAMS * pic_params);
+  gboolean (*set_encoder_config) (GstNvBaseEnc * nvenc,
+                                  GstVideoCodecState * state,
+                                  NV_ENC_CONFIG * config);
 } GstNvBaseEncClass;
 
 G_GNUC_INTERNAL

@@ -211,7 +211,9 @@ typedef struct _GstMpegVideoPacket          GstMpegVideoPacket;
  * @bitrate_value: Value of the bitrate as is in the stream (400bps unit)
  * @bitrate: the real bitrate of the Mpeg video stream in bits per second, 0 if VBR stream
  * @constrained_parameters_flag: %TRUE if this stream uses contrained parameters.
+ * @load_intra_quantiser_matrix: %TRUE indicates the presence of intra_quantiser_matrix
  * @intra_quantizer_matrix: intra-quantization table, in zigzag scan order
+ * @load_non_intra_quantiser_matrix: %TRUE indicates the presence of non_intra_quantiser_matrix
  * @non_intra_quantizer_matrix: non-intra quantization table, in zigzag scan order
  *
  * The Mpeg2 Video Sequence Header structure.
@@ -226,7 +228,9 @@ struct _GstMpegVideoSequenceHdr
 
   guint8  constrained_parameters_flag;
 
+  guint8  load_intra_quantiser_matrix;
   guint8  intra_quantizer_matrix[64];
+  guint8  load_non_intra_quantiser_matrix;
   guint8  non_intra_quantizer_matrix[64];
 
   /* Calculated values */
@@ -376,6 +380,7 @@ struct _GstMpegVideoPictureHdr
 {
   guint16 tsn;
   guint8 pic_type;
+  guint16 vbv_delay;
 
   guint8 full_pel_forward_vector, full_pel_backward_vector;
 
@@ -394,7 +399,7 @@ struct _GstMpegVideoPictureHdr
  * @alternate_scan: Alternate Scan
  * @repeat_first_field: Repeat First Field
  * @chroma_420_type: Chroma 420 Type
- * @progressive_frame: %TRUE if the frame is progressive %FALSE otherwize
+ * @progressive_frame: %TRUE if the frame is progressive %FALSE otherwise
  *
  * The Mpeg2 Video Picture Extension structure.
  */
@@ -445,10 +450,13 @@ struct _GstMpegVideoGop
 
 /**
  * GstMpegVideoSliceHdr:
- * @slice_vertical_position_extension: Extension to slice_vertical_position
+ * @vertical_position: slice vertical position
+ * @vertical_position_extension: Extension to slice_vertical_position
  * @priority_breakpoint: Point where the bitstream shall be partitioned
  * @quantiser_scale_code: Quantiser value (range: 1-31)
+ * @slice_ext_flag: Slice Extension flag
  * @intra_slice: Equal to one if all the macroblocks are intra macro blocks.
+ * @slice_picture_id_enable: controls the semantics of slice_picture_id
  * @slice_picture_id: Intended to aid recovery on severe bursts of
  *   errors for certain types of applications
  *
@@ -458,9 +466,14 @@ struct _GstMpegVideoGop
  */
 struct _GstMpegVideoSliceHdr
 {
+  guint8 vertical_position;
+  guint8 vertical_position_ext;
+
   guint8 priority_breakpoint;
   guint8 quantiser_scale_code;
+  guint8 slice_ext_flag;
   guint8 intra_slice;
+  guint8 slice_picture_id_enable;
   guint8 slice_picture_id;
 
   /* Calculated values */

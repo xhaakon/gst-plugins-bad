@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.7.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-06-09 11:22+0300\n"
+"POT-Creation-Date: 2016-07-06 11:51+0300\n"
 "PO-Revision-Date: 2016-05-20 12:33+0100\n"
 "Last-Translator: Peter Tuhársky <tuharsky@misbb.sk>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
@@ -19,6 +19,12 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Poedit 1.6.10\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr "formát nebol dohodnutý pred funkciou stiahnutia"
@@ -135,12 +141,24 @@ msgstr "Nepodarilo sa nájsť konfiguračný súbor DVB kanálu"
 msgid "Couldn't load DVB channel configuration file: %s"
 msgstr "Nepodarilo sa načítať konfiguračný súbor DVB kanálu: %s"
 
-msgid "DVB channel configuration file doesn't contain any channels"
-msgstr "Konfiguračný súbor DVB kanála neobsahuje žiadne kanály"
-
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr "Nepodarilo sa nájsť podrobnosti o DVB kanáli %s"
+
+#, fuzzy, c-format
+msgid "No properties for the DVB channel %s"
+msgstr "Nepodarilo sa nájsť podrobnosti o DVB kanáli %s"
+
+#, fuzzy, c-format
+msgid "Failed to set properties for the DVB channel %s"
+msgstr "Nepodarilo sa nájsť podrobnosti o DVB kanáli %s"
+
+#, fuzzy, c-format
+msgid "Couldn't find DVB channel configuration file: %s"
+msgstr "Nepodarilo sa nájsť konfiguračný súbor DVB kanálu"
+
+msgid "DVB channel configuration file doesn't contain any channels"
+msgstr "Konfiguračný súbor DVB kanála neobsahuje žiadne kanály"
 
 #~ msgid "Couldn't get the Manifest's URI"
 #~ msgstr "Nepodarilo sa získať URI Manifestu"

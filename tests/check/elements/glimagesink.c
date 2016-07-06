@@ -116,8 +116,6 @@ GST_START_TEST (test_query_drain)
   loop = g_main_loop_new (NULL, FALSE);
 #endif
 
-  setup_glimagesink ();
-
   /* GstBaseSink handles the drain query as well. */
   g_object_set (sinkelement, "enable-last-sample", TRUE, NULL);
 
@@ -188,6 +186,7 @@ GST_START_TEST (test_query_drain)
    * releases the buffers it currently owns, upon drain query. */
   query = gst_query_new_drain ();
   DO_CALL (do_peer_query_func, query);
+  gst_query_unref (query);
 
   /* Transfer buffers back to the downstream pool to be release
    * properly. This also make sure that all buffers are returned.
@@ -210,8 +209,6 @@ GST_START_TEST (test_query_drain)
   fail_unless (gst_buffer_pool_set_active (pool, FALSE));
   gst_object_unref (pool);
 
-  cleanup_glimagesink ();
-
   if (loop)
     g_main_loop_unref (loop);
 }
@@ -226,7 +223,7 @@ glimagesink_suite (void)
 
   tcase_set_timeout (tc, 5);
 
-  tcase_add_checked_fixture (tc, setup_glimagesink, NULL);
+  tcase_add_checked_fixture (tc, setup_glimagesink, cleanup_glimagesink);
   tcase_add_test (tc, test_query_drain);
   suite_add_tcase (s, tc);
 
