@@ -15,10 +15,10 @@ BugLink: https://bugs.launchpad.net/ubuntu/+source/gst-plugins-bad1.0/+bug/14523
  2 files changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/sys/androidmedia/gstamchybris.c b/sys/androidmedia/gstamchybris.c
-index 160a006..06b1cd1 100644
+index e3fd870..07905da 100644
 --- a/sys/androidmedia/gstamchybris.c
 +++ b/sys/androidmedia/gstamchybris.c
-@@ -1475,7 +1475,8 @@ static const struct
+@@ -1476,7 +1476,8 @@ static const struct
    COLOR_EXYNOS_Format32bitABGR8888, GST_VIDEO_FORMAT_ABGR}, {
    256, GST_VIDEO_FORMAT_NV12}, {
    263, GST_VIDEO_FORMAT_NV12}, {
