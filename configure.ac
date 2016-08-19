@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.8.2],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.8.3],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,7 +51,7 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 802, 0, 802)
+AS_LIBTOOL(GST, 803, 0, 803)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.8.0
@@ -2842,6 +2842,12 @@ AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
       else
         HAVE_QT="yes"
         HAVE_QT_WINDOWING="no"
+        QT_VERSION="`$PKG_CONFIG --modversion Qt5Core`"
+        QPA_INCLUDE_PATH=`$PKG_CONFIG --variable=includedir Qt5Core`/QtGui/${QT_VERSION}/QtGui
+        AS_IF([test -f "$QPA_INCLUDE_PATH/qpa/qplatformnativeinterface.h"], [
+          QT_CFLAGS="$QT_CFLAGS -I$QPA_INCLUDE_PATH"
+          HAVE_QT_QPA_HEADER="yes"
+        ], [AC_MSG_NOTICE([Cannot find QPA])])
         if test "x$GST_GL_HAVE_WINDOW_X11" = "x1" -a "x$GST_GL_HAVE_PLATFORM_GLX" = "x1"; then
           PKG_CHECK_MODULES(QT_X11, Qt5X11Extras, [
             AC_DEFINE([HAVE_QT_X11], [], [Define if Qt X11 integration is installed])
@@ -2850,7 +2856,7 @@ AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
             HAVE_QT_WINDOWING="yes"
           ], [AC_MSG_NOTICE([Could not find Qt X11 integration])])
         fi
-        if test "x$GST_GL_HAVE_WINDOW_WAYLAND" = "x1" -a "x$GST_GL_HAVE_PLATFORM_EGL" = "x1"; then
+        if test "x$GST_GL_HAVE_WINDOW_WAYLAND" = "x1" -a "x$GST_GL_HAVE_PLATFORM_EGL" = "x1" -a "x$HAVE_QT_QPA_HEADER" = "xyes"; then
           PKG_CHECK_MODULES(QT_WAYLAND, Qt5WaylandClient, [
             AC_DEFINE([HAVE_QT_WAYLAND], [],
                 [Define if Qt Wayland integration is installed])
@@ -2859,24 +2865,29 @@ AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
             HAVE_QT_WINDOWING="yes"
           ], [AC_MSG_NOTICE([Could not find Qt Wayland integration])])
         fi
-        if test "x$GST_GL_HAVE_WINDOW_ANDROID" = "x1" -a "x$GST_GL_HAVE_PLATFORM_EGL" = "x1"; then
-          PKG_CHECK_MODULES(QT_ANDROID, Qt5AndroidExtras, [
-            # c++ on android requires a standard library and there are multiple
-            # choices.  cerbero provides a pkg-config file the describes a choice
-            # so try to use that.  Outside cerbero one has to pass these flags
-            # manually for the library one is using
-            PKG_CHECK_MODULES(GNUSTL, gnustl, [
-              QT_CFLAGS="$QT_CFLAGS $GNUSTL_CFLAGS"
-              QT_LIBS="$QT_LIBS $GNUSTL_LIBS"
-              ], [
-              AC_MSG_NOTICE([Could not find Standard C++ library])])
-
-            AC_DEFINE([HAVE_QT_ANDROID], [],
-                [Define if Qt Android integration is installed])
-            QT_CFLAGS="$QT_CFLAGS $QT_ANDROID_CFLAGS"
-            QT_LIBS="$QT_LIBS $QT_ANDROID_LIBS"
-            HAVE_QT_WINDOWING="yes"
-          ], [AC_MSG_NOTICE([Could not find Qt Android integration])])
+        if test "x$GST_GL_HAVE_PLATFORM_EGL" = "x1"; then
+          if test "x$GST_GL_HAVE_WINDOW_ANDROID" = "x1"; then
+            PKG_CHECK_MODULES(QT_ANDROID, Qt5AndroidExtras, [
+              # c++ on android requires a standard library and there are multiple
+              # choices.  cerbero provides a pkg-config file the describes a choice
+              # so try to use that.  Outside cerbero one has to pass these flags
+              # manually for the library one is using
+              PKG_CHECK_MODULES(GNUSTL, gnustl, [
+                QT_CFLAGS="$QT_CFLAGS $GNUSTL_CFLAGS"
+                QT_LIBS="$QT_LIBS $GNUSTL_LIBS"
+                ], [
+                AC_MSG_NOTICE([Could not find Standard C++ library])])
+              AC_DEFINE([HAVE_QT_EGLFS], [],
+                [Define if Qt eglfs integration is installed])
+              QT_CFLAGS="$QT_CFLAGS $QT_ANDROID_CFLAGS"
+              QT_LIBS="$QT_LIBS $QT_ANDROID_LIBS"
+              HAVE_QT_WINDOWING="yes"
+            ], [AC_MSG_NOTICE([Could not find Qt Android integration])])
+          else
+              AC_DEFINE([HAVE_QT_EGLFS], [],
+                [Define if Qt eglfs integration is installed])
+              HAVE_QT_WINDOWING="yes"
+          fi
         fi
         if test "x$GST_GL_HAVE_WINDOW_COCOA" = "x1" -a "x$GST_GL_HAVE_PLATFORM_CGL" = "x1"; then
           PKG_CHECK_MODULES(QT_MAC, Qt5MacExtras, [
