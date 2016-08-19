@@ -27,30 +27,12 @@
 #include <gst/video/video.h>
 #include "qtitem.h"
 #include "gstqsgtexture.h"
+#include "gstqtglutility.h"
 
 #include <QtCore/QRunnable>
 #include <QtGui/QGuiApplication>
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/QSGSimpleTextureNode>
-
-#if GST_GL_HAVE_WINDOW_X11 && GST_GL_HAVE_PLATFORM_GLX && defined (HAVE_QT_X11)
-#include <QX11Info>
-#include <gst/gl/x11/gstgldisplay_x11.h>
-#include <gst/gl/x11/gstglcontext_glx.h>
-#endif
-
-#if GST_GL_HAVE_WINDOW_WAYLAND && GST_GL_HAVE_PLATFORM_EGL && defined (HAVE_QT_WAYLAND)
-#include <gst/gl/wayland/gstgldisplay_wayland.h>
-#endif
-
-#if GST_GL_HAVE_WINDOW_ANDROID && GST_GL_HAVE_PLATFORM_EGL && defined (HAVE_QT_ANDROID)
-#include <gst/gl/egl/gstgldisplay_egl.h>
-#include <gst/gl/egl/gstglcontext_egl.h>
-#endif
-
-#if GST_GL_HAVE_WINDOW_COCOA && GST_GL_HAVE_PLATFORM_COCOA && defined (HAVE_QT_MAC)
-#include <gst/gl/coaoa/gstgldisplay_cocoa.h>
-#endif
 
 /**
  * SECTION:gtkgstglwidget
@@ -122,10 +104,7 @@ void InitializeSceneGraph::run()
 
 QtGLVideoItem::QtGLVideoItem()
 {
-  QGuiApplication *app = static_cast<QGuiApplication *> (QCoreApplication::instance ());
   static volatile gsize _debug;
-
-  g_assert (app != NULL);
 
   if (g_once_init_enter (&_debug)) {
     GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "qtglwidget", 0, "Qt GL Widget");
@@ -142,26 +121,7 @@ QtGLVideoItem::QtGLVideoItem()
 
   g_mutex_init (&this->priv->lock);
 
-#if GST_GL_HAVE_WINDOW_X11 && defined (HAVE_QT_X11)
-  if (QString::fromUtf8 ("xcb") == app->platformName())
-    this->priv->display = (GstGLDisplay *)
-        gst_gl_display_x11_new_with_display (QX11Info::display ());
-#endif
-#if GST_GL_HAVE_WINDOW_ANDROID && GST_GL_HAVE_PLATFORM_EGL && defined (HAVE_QT_ANDROID)
-  if (QString::fromUtf8 ("android") == app->platformName())
-    this->priv->display = (GstGLDisplay *) gst_gl_display_egl_new ();
-#endif
-#if GST_GL_HAVE_WINDOW_COCOA && GST_GL_HAVE_PLATFORM_COCOA && defined (HAVE_QT_MAC)
-  if (QString::fromUtf8 ("cocoa") == app->platformName())
-    this->priv->display = (GstGLDisplay *) gst_gl_display_cocoa_new ();
-#endif
-#if GST_GL_HAVE_WINDOW_EAGL && GST_GL_HAVE_PLATFORM_EAGL && defined (HAVE_QT_IOS)
-  if (QString::fromUtf8 ("ios") == app->platformName())
-    this->priv->display = gst_gl_display_new ();
-#endif
-
-  if (!this->priv->display)
-    this->priv->display = gst_gl_display_new ();
+  this->priv->display = gst_qt_get_gl_display();
 
   connect(this, SIGNAL(windowChanged(QQuickWindow*)), this,
           SLOT(handleWindowChanged(QQuickWindow*)));
@@ -197,9 +157,9 @@ QtGLVideoItem::getDAR(gint * num, gint * den)
 }
 
 void
-QtGLVideoItem::setForceAspectRatio(bool far)
+QtGLVideoItem::setForceAspectRatio(bool force_aspect_ratio)
 {
-  this->priv->force_aspect_ratio = far;
+  this->priv->force_aspect_ratio = !!force_aspect_ratio;
 }
 
 bool
@@ -295,10 +255,6 @@ qt_item_set_buffer (QtGLVideoItem * widget, GstBuffer * buffer)
 void
 QtGLVideoItem::onSceneGraphInitialized ()
 {
-  GstGLPlatform platform;
-  GstGLAPI gl_api;
-  guintptr gl_handle;
-
   GST_DEBUG ("scene graph initialization with Qt GL context %p",
       this->window()->openglContext ());
 
@@ -311,80 +267,8 @@ QtGLVideoItem::onSceneGraphInitialized ()
     return;
   }
 
-#if GST_GL_HAVE_WINDOW_X11 && defined (HAVE_QT_X11)
-  if (GST_IS_GL_DISPLAY_X11 (this->priv->display)) {
-    platform = GST_GL_PLATFORM_GLX;
-    gl_api = gst_gl_context_get_current_gl_api (platform, NULL, NULL);
-    gl_handle = gst_gl_context_get_current_gl_context (platform);
-    if (gl_handle)
-      this->priv->other_context =
-          gst_gl_context_new_wrapped (this->priv->display, gl_handle,
-          platform, gl_api);
-  }
-#endif
-#if GST_GL_HAVE_WINDOW_WAYLAND && defined (HAVE_QT_WAYLAND)
-  if (GST_IS_GL_DISPLAY_WAYLAND (this->priv->display)) {
-    platform = GST_GL_PLATFORM_EGL;
-    gl_api = gst_gl_context_get_current_gl_api (platform, NULL, NULL);
-    gl_handle = gst_gl_context_get_current_gl_context (platform);
-    if (gl_handle)
-      this->priv->other_context =
-          gst_gl_context_new_wrapped (this->priv->display, gl_handle,
-          platform, gl_api);
-  }
-#endif
-#if GST_GL_HAVE_WINDOW_ANDROID && GST_GL_HAVE_PLATFORM_EGL && defined (HAVE_QT_ANDROID)
-  if (GST_IS_GL_DISPLAY_EGL (this->priv->display)) {
-    platform = GST_GL_PLATFORM_EGL;
-    gl_api = gst_gl_context_get_current_gl_api (platform, NULL, NULL);
-    gl_handle = gst_gl_context_get_current_gl_context (platform);
-    if (gl_handle)
-      this->priv->other_context =
-          gst_gl_context_new_wrapped (this->priv->display, gl_handle,
-          platform, gl_api);
-  }
-#endif
-#if GST_GL_HAVE_WINDOW_COCOA && GST_GL_HAVE_PLATFORM_COCOA && defined (HAVE_QT_MAC)
-  if (this->priv->display) {
-    platform = GST_GL_PLATFORM_CGL;
-    gl_api = gst_gl_context_get_current_gl_api (platform, NULL, NULL);
-    gl_handle = gst_gl_context_get_current_gl_context (platform);
-    if (gl_handle)
-      this->priv->other_context =
-          gst_gl_context_new_wrapped (this->priv->display, gl_handle,
-          platform, gl_api);
-  }
-#endif
-#if GST_GL_HAVE_WINDOW_EAGL && GST_GL_HAVE_PLATFORM_EAGL && defined (HAVE_QT_IOS)
-  if (this->priv->display) {
-    platform = GST_GL_PLATFORM_EAGL;
-    gl_api = gst_gl_context_get_current_gl_api (platform, NULL, NULL);
-    gl_handle = gst_gl_context_get_current_gl_context (platform);
-    if (gl_handle)
-      this->priv->other_context =
-          gst_gl_context_new_wrapped (this->priv->display, gl_handle,
-          platform, gl_api);
-  }
-#endif
-
-  (void) platform;
-  (void) gl_api;
-  (void) gl_handle;
-
-  if (this->priv->other_context) {
-    GError *error = NULL;
-
-    gst_gl_context_activate (this->priv->other_context, TRUE);
-    if (!gst_gl_context_fill_info (this->priv->other_context, &error)) {
-      GST_ERROR ("%p failed to retrieve qt context info: %s", this, error->message);
-      g_object_unref (this->priv->other_context);
-      this->priv->other_context = NULL;
-    } else {
-      gst_gl_display_filter_gl_api (this->priv->display, gst_gl_context_get_gl_api (this->priv->other_context));
-      gst_gl_context_activate (this->priv->other_context, FALSE);
-      m_openGlContextInitialized = true;
-    }
-  }
+  m_openGlContextInitialized = gst_qt_get_gl_wrapcontext (this->priv->display,
+      &this->priv->other_context, &this->priv->context);
 
   GST_DEBUG ("%p created wrapped GL context %" GST_PTR_FORMAT, this,
       this->priv->other_context);
@@ -399,6 +283,8 @@ QtGLVideoItem::onSceneGraphInvalidated ()
 gboolean
 qt_item_init_winsys (QtGLVideoItem * widget)
 {
+  GError *error = NULL;
+
   g_return_val_if_fail (widget != NULL, FALSE);
 
   g_mutex_lock (&widget->priv->lock);
@@ -431,8 +317,12 @@ qt_item_init_winsys (QtGLVideoItem * widget)
     return FALSE;
   }
 
-  gst_gl_context_create (widget->priv->context, widget->priv->other_context,
-      NULL);
+  if (!gst_gl_context_create (widget->priv->context, widget->priv->other_context,
+        &error)) {
+    GST_ERROR ("%s", error->message);
+    g_mutex_unlock (&widget->priv->lock);
+    return FALSE;
+  }
 
   g_mutex_unlock (&widget->priv->lock);
   return TRUE;

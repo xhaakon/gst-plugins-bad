@@ -32,6 +32,7 @@ plugin_init (GstPlugin * plugin)
           GST_RANK_NONE, GST_TYPE_QT_SINK)) {
     return FALSE;
   }
+
   /* this means the plugin must be loaded before the qml engine is loaded */
   qmlRegisterType<QtGLVideoItem> ("org.freedesktop.gstreamer.GLVideoItem", 1, 0, "GstGLVideoItem");
 
@@ -41,6 +42,6 @@ plugin_init (GstPlugin * plugin)
 GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
     qt,
-    "Qt sink",
+    "Qt gl plugin",
     plugin_init, PACKAGE_VERSION, GST_LICENSE, GST_PACKAGE_NAME,
     GST_PACKAGE_ORIGIN)
