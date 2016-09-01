@@ -93,6 +93,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstspeed.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsrtp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgststereo.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsubenc.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgsttimecode.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideofiltersbad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideoframe_audiolevel.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideoparsersbad.so
@@ -100,6 +101,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideosignal.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvmnc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvoaacenc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvoamrwbenc.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstwebrtcdsp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstwebp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstwildmidi.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstx265.so
