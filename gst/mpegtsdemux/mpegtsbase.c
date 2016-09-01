@@ -1326,7 +1326,7 @@ no_initial_pcr:
   mpegts_packetizer_clear (base->packetizer);
   GST_WARNING_OBJECT (base, "Couldn't find any PCR within the first %d bytes",
       10 * 65536);
-  return GST_FLOW_ERROR;
+  return GST_FLOW_OK;
 }
 
 
@@ -1382,9 +1382,7 @@ error:
             (_("Internal data stream error.")),
             ("No program activated before EOS"));
     } else if (ret == GST_FLOW_NOT_LINKED || ret < GST_FLOW_EOS) {
-      GST_ELEMENT_ERROR (base, STREAM, FAILED,
-          (_("Internal data stream error.")),
-          ("stream stopped, reason %s", reason));
+      GST_ELEMENT_FLOW_ERROR (base, ret);
       GST_MPEGTS_BASE_GET_CLASS (base)->push_event (base, gst_event_new_eos ());
     }
     gst_pad_pause_task (base->sinkpad);

@@ -133,7 +133,7 @@ gst_video_aggregator_pad_set_property (GObject * object, guint prop_id,
   gst_object_unref (vagg);
 }
 
-static gboolean
+static GstFlowReturn
 _flush_pad (GstAggregatorPad * aggpad, GstAggregator * aggregator)
 {
   GstVideoAggregator *vagg = GST_VIDEO_AGGREGATOR (aggregator);
@@ -144,7 +144,7 @@ _flush_pad (GstAggregatorPad * aggpad, GstAggregator * aggregator)
   pad->priv->start_time = -1;
   pad->priv->end_time = -1;
 
-  return TRUE;
+  return GST_FLOW_OK;
 }
 
 static gboolean
@@ -737,7 +737,8 @@ gst_video_aggregator_update_src_caps (GstVideoAggregator * vagg)
     GST_DEBUG_OBJECT (vagg, "updating caps from %" GST_PTR_FORMAT,
         downstream_caps);
     GST_DEBUG_OBJECT (vagg, "       with filter %" GST_PTR_FORMAT, peercaps);
-    if (!(caps = vagg_klass->update_caps (vagg, downstream_caps, peercaps))) {
+    if (!(caps = vagg_klass->update_caps (vagg, downstream_caps, peercaps)) ||
+        gst_caps_is_empty (caps)) {
       GST_WARNING_OBJECT (vagg, "Subclass failed to update provided caps");
       gst_caps_unref (downstream_caps);
       if (peercaps)

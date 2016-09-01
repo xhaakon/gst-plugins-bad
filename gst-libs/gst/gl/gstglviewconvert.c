@@ -1208,7 +1208,7 @@ _fixate_texture_target (GstGLViewConvert * viewconvert,
     g_value_set_static_string (&item, GST_GL_TEXTURE_TARGET_EXTERNAL_OES_STR);
   }
 
-  gst_structure_set_value (s, "texture-target", &item);
+  gst_structure_set_value (s_other, "texture-target", &item);
 
   g_value_unset (&item);
 
@@ -1286,9 +1286,7 @@ gst_gl_view_convert_fixate_caps (GstGLViewConvert * viewconvert,
     }
   }
 
-  tmp = _fixate_texture_target (viewconvert, direction, caps, othercaps);
-  gst_caps_unref (othercaps);
-  othercaps = tmp;
+  othercaps = _fixate_texture_target (viewconvert, direction, caps, othercaps);
 
 done:
   GST_DEBUG_OBJECT (viewconvert, "dir %s fixated to %" GST_PTR_FORMAT
@@ -1304,6 +1302,11 @@ gst_gl_view_convert_reset (GstGLViewConvert * viewconvert)
   if (viewconvert->shader)
     gst_gl_context_del_shader (viewconvert->context, viewconvert->shader);
   viewconvert->shader = NULL;
+
+  if (viewconvert->fbo)
+    gst_object_unref (viewconvert->fbo);
+  viewconvert->fbo = NULL;
+
   viewconvert->initted = FALSE;
   viewconvert->reconfigure = FALSE;
 }
@@ -1383,74 +1386,16 @@ gst_gl_view_convert_perform (GstGLViewConvert * viewconvert, GstBuffer * inbuf)
 static gboolean
 _init_view_convert_fbo (GstGLViewConvert * viewconvert)
 {
-  GstGLFuncs *gl;
   guint out_width, out_height;
-  GLuint fake_texture = 0;      /* a FBO must hava texture to init */
-  GLenum internal_format;
-  gboolean ret = TRUE;
 
-  gl = viewconvert->context->gl_vtable;
   out_width = GST_VIDEO_INFO_WIDTH (&viewconvert->out_info);
   out_height = GST_VIDEO_INFO_HEIGHT (&viewconvert->out_info);
-  if (!gl->GenFramebuffers) {
-    /* turn off the pipeline because Frame buffer object is a not present */
-    gst_gl_context_set_error (viewconvert->context,
-        "Frambuffer objects unsupported");
-    return FALSE;
-  }
 
-  /* setup FBO */
-  gl->GenFramebuffers (1, &viewconvert->fbo);
-  gl->BindFramebuffer (GL_FRAMEBUFFER, viewconvert->fbo);
-  /* setup the render buffer for depth */
-  gl->GenRenderbuffers (1, &viewconvert->depth_buffer);
-  gl->BindRenderbuffer (GL_RENDERBUFFER, viewconvert->depth_buffer);
-  if (USING_OPENGL (viewconvert->context)
-      || USING_OPENGL3 (viewconvert->context)) {
-    gl->RenderbufferStorage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT, out_width,
-        out_height);
-    gl->RenderbufferStorage (GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
-        out_width, out_height);
-  }
-  if (USING_GLES2 (viewconvert->context)) {
-    gl->RenderbufferStorage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT16,
-        out_width, out_height);
-  }
+  viewconvert->fbo =
+      gst_gl_framebuffer_new_with_default_depth (viewconvert->context,
+      out_width, out_height);
 
-  /* a fake texture is attached to the convert FBO (cannot init without it) */
-  gl->GenTextures (1, &fake_texture);
-  gl->BindTexture (GL_TEXTURE_2D, fake_texture);
-  internal_format =
-      gst_gl_sized_gl_format_from_gl_format_type (viewconvert->context, GL_RGBA,
-      GL_UNSIGNED_BYTE);
-  gl->TexImage2D (GL_TEXTURE_2D, 0, internal_format, out_width, out_height,
-      0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-  gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  /* attach the texture to the FBO to renderer to */
-  gl->FramebufferTexture2D (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-      GL_TEXTURE_2D, fake_texture, 0);
-  /* attach the depth render buffer to the FBO */
-  gl->FramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-      GL_RENDERBUFFER, viewconvert->depth_buffer);
-  if (USING_OPENGL (viewconvert->context)) {
-    gl->FramebufferRenderbuffer (GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
-        GL_RENDERBUFFER, viewconvert->depth_buffer);
-  }
-
-  if (!gst_gl_context_check_framebuffer_status (viewconvert->context)) {
-    gst_gl_context_set_error (viewconvert->context,
-        "GL framebuffer status incomplete");
-    ret = FALSE;
-  }
-
-  /* unbind the FBO */
-  gl->BindTexture (GL_TEXTURE_2D, 0);
-  gl->BindFramebuffer (GL_FRAMEBUFFER, 0);
-  gl->DeleteTextures (1, &fake_texture);
-  return ret;
+  return viewconvert->fbo != NULL;
 }
 
 /* free after use */
@@ -1643,8 +1588,8 @@ _init_view_convert (GstGLViewConvert * viewconvert)
       viewconvert->out_info.width, viewconvert->out_info.height);
 
   if (!gl->CreateProgramObject && !gl->CreateProgram) {
-    gst_gl_context_set_error (viewconvert->context,
-        "Cannot perform multiview conversion without OpenGL shaders");
+    GST_ERROR_OBJECT (viewconvert, "Cannot perform multiview conversion "
+        "without OpenGL shaders");
     goto error;
   }
 
@@ -1865,9 +1810,9 @@ _do_view_convert_draw (GstGLContext * context, GstGLViewConvert * viewconvert)
       gst_gl_texture_target_to_gl (viewconvert->from_texture_target);
 
   gl = context->gl_vtable;
-  out_width = GST_VIDEO_INFO_WIDTH (&viewconvert->out_info);
-  out_height = GST_VIDEO_INFO_HEIGHT (&viewconvert->out_info);
-  gl->BindFramebuffer (GL_FRAMEBUFFER, viewconvert->fbo);
+
+  gst_gl_framebuffer_bind (viewconvert->fbo);
+
   if (out_mode == GST_VIDEO_MULTIVIEW_MODE_SEPARATED ||
       out_mode == GST_VIDEO_MULTIVIEW_MODE_FRAME_BY_FRAME) {
     out_views = viewconvert->out_info.views;
@@ -1877,19 +1822,18 @@ _do_view_convert_draw (GstGLContext * context, GstGLViewConvert * viewconvert)
 
   /* attach the texture to the FBO to renderer to */
   for (i = 0; i < out_views; i++) {
-    guint gl_target =
-        gst_gl_texture_target_to_gl (viewconvert->to_texture_target);
+    GstGLBaseMemory *tex = (GstGLBaseMemory *) priv->out_tex[i];
 
-    /* needed? */
-    gl->BindTexture (gl_target, priv->out_tex[i]->tex_id);
-    gl->FramebufferTexture2D (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
-        gl_target, priv->out_tex[i]->tex_id, 0);
+    gst_gl_framebuffer_attach (viewconvert->fbo, GL_COLOR_ATTACHMENT0 + i, tex);
   }
 
   if (gl->DrawBuffers)
     gl->DrawBuffers (out_views, multipleRT);
   else if (gl->DrawBuffer)
     gl->DrawBuffer (GL_COLOR_ATTACHMENT0);
+
+  gst_gl_framebuffer_get_effective_dimensions (viewconvert->fbo, &out_width,
+      &out_height);
   gl->GetIntegerv (GL_VIEWPORT, viewport_dim);
   gl->Viewport (0, 0, out_width, out_height);
 
@@ -1911,6 +1855,7 @@ _do_view_convert_draw (GstGLContext * context, GstGLViewConvert * viewconvert)
     gl->BindVertexArray (priv->vao);
   else
     _bind_buffer (viewconvert);
+
   if (in_mode == GST_VIDEO_MULTIVIEW_MODE_SEPARATED ||
       in_mode == GST_VIDEO_MULTIVIEW_MODE_FRAME_BY_FRAME) {
     if (priv->in_tex[1] == NULL) {
@@ -1924,7 +1869,9 @@ _do_view_convert_draw (GstGLContext * context, GstGLViewConvert * viewconvert)
 
   gl->ActiveTexture (GL_TEXTURE0);
   gl->BindTexture (from_gl_target, priv->in_tex[0]->tex_id);
+
   gl->DrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
+
   if (gl->BindVertexArray)
     gl->BindVertexArray (0);
   else
@@ -1935,8 +1882,8 @@ _do_view_convert_draw (GstGLContext * context, GstGLViewConvert * viewconvert)
   gst_gl_context_clear_shader (context);
   gl->Viewport (viewport_dim[0], viewport_dim[1], viewport_dim[2],
       viewport_dim[3]);
-  gst_gl_context_check_framebuffer_status (context);
-  gl->BindFramebuffer (GL_FRAMEBUFFER, 0);
+  gst_gl_context_clear_framebuffer (context);
+
   return TRUE;
 }
 
@@ -2144,15 +2091,13 @@ out:
       GstMapInfo to_info, from_info;
       if (!gst_memory_map ((GstMemory *) priv->out_tex[j],
               &from_info, GST_MAP_READ | GST_MAP_GL)) {
-        gst_gl_context_set_error (viewconvert->context,
-            "Failed to map " "intermediate memory");
+        GST_ERROR_OBJECT (viewconvert, "Failed to map intermediate memory");
         res = FALSE;
         continue;
       }
       if (!gst_memory_map ((GstMemory *) out_tex, &to_info,
               GST_MAP_WRITE | GST_MAP_GL)) {
-        gst_gl_context_set_error (viewconvert->context, "Failed to map "
-            "intermediate memory");
+        GST_ERROR_OBJECT (viewconvert, "Failed to map intermediate memory");
         res = FALSE;
         continue;
       }

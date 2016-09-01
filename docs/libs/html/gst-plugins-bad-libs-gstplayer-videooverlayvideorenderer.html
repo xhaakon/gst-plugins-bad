@@ -27,7 +27,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.top_of_page"></a>gstplayer-videooverlayvideorenderer</span></h2>
-<p>gstplayer-videooverlayvideorenderer</p>
+<p>gstplayer-videooverlayvideorenderer — Player Video Overlay Video Renderer</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -100,6 +100,26 @@
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-gstplayer.html#GstPlayerVideoRenderer"><span class="returnvalue">GstPlayerVideoRenderer</span></a> *
 gst_player_video_overlay_video_renderer_new
                                (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> window_handle</code></em>);</pre>
+<div class="refsect3">
+<a name="gst-player-video-overlay-video-renderer-new.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>window_handle</p></td>
+<td class="parameter_description"><p> Window handle to use or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-player-video-overlay-video-renderer-new.returns"></a><h4>Returns</h4>
+<p>. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -107,6 +127,27 @@ gst_player_video_overlay_video_renderer_new
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="returnvalue">gpointer</span></a>
 gst_player_video_overlay_video_renderer_get_window_handle
                                (<em class="parameter"><code><span class="type">GstPlayerVideoOverlayVideoRenderer</span> *self</code></em>);</pre>
+<div class="refsect3">
+<a name="gst-player-video-overlay-video-renderer-get-window-handle.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p><a class="link" href="gst-plugins-bad-libs-gstplayer.html#GstPlayerVideoRenderer"><span class="type">GstPlayerVideoRenderer</span></a> instance</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-player-video-overlay-video-renderer-get-window-handle.returns"></a><h4>Returns</h4>
+<p> The currently set, platform specific window
+handle. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -115,6 +156,30 @@ gst_player_video_overlay_video_renderer_get_window_handle
 gst_player_video_overlay_video_renderer_set_window_handle
                                (<em class="parameter"><code><span class="type">GstPlayerVideoOverlayVideoRenderer</span> *self</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> window_handle</code></em>);</pre>
+<p>Sets the platform specific window handle into which the video
+should be rendered</p>
+<div class="refsect3">
+<a name="gst-player-video-overlay-video-renderer-set-window-handle.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p><a class="link" href="gst-plugins-bad-libs-gstplayer.html#GstPlayerVideoRenderer"><span class="type">GstPlayerVideoRenderer</span></a> instance</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>window_handle</p></td>
+<td class="parameter_description"><p>handle referencing to the platform specific window</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -122,6 +187,23 @@ gst_player_video_overlay_video_renderer_set_window_handle
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_player_video_overlay_video_renderer_expose
                                (<em class="parameter"><code><span class="type">GstPlayerVideoOverlayVideoRenderer</span> *self</code></em>);</pre>
+<p>Tell an overlay that it has been exposed. This will redraw the current frame
+in the drawable even if the pipeline is PAUSED.</p>
+<div class="refsect3">
+<a name="gst-player-video-overlay-video-renderer-expose.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>a <span class="type">GstPlayerVideoOverlayVideoRenderer</span> instance.</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -133,6 +215,45 @@ gst_player_video_overlay_video_renderer_get_render_rectangle
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> *y</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> *width</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> *height</code></em>);</pre>
+<p>Return the currently configured render rectangle. See <a class="link" href="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-set-render-rectangle" title="gst_player_video_overlay_video_renderer_set_render_rectangle ()"><code class="function">gst_player_video_overlay_video_renderer_set_render_rectangle()</code></a>
+for details.</p>
+<div class="refsect3">
+<a name="gst-player-video-overlay-video-renderer-get-render-rectangle.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>a <span class="type">GstPlayerVideoOverlayVideoRenderer</span> instance</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>x</p></td>
+<td class="parameter_description"><p> the horizontal offset of the render area inside the window. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>y</p></td>
+<td class="parameter_description"><p> the vertical offset of the render area inside the window. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>width</p></td>
+<td class="parameter_description"><p> the width of the render area inside the window. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>height</p></td>
+<td class="parameter_description"><p> the height of the render area inside the window. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -144,6 +265,54 @@ gst_player_video_overlay_video_renderer_set_render_rectangle
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> y</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> width</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> height</code></em>);</pre>
+<p>Configure a subregion as a video target within the window set by
+<a class="link" href="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-set-window-handle" title="gst_player_video_overlay_video_renderer_set_window_handle ()"><code class="function">gst_player_video_overlay_video_renderer_set_window_handle()</code></a>. If this is not
+used or not supported the video will fill the area of the window set as the
+overlay to 100%. By specifying the rectangle, the video can be overlaid to
+a specific region of that window only. After setting the new rectangle one
+should call <a class="link" href="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-expose" title="gst_player_video_overlay_video_renderer_expose ()"><code class="function">gst_player_video_overlay_video_renderer_expose()</code></a> to force a
+redraw. To unset the region pass -1 for the <em class="parameter"><code>width</code></em>
+ and <em class="parameter"><code>height</code></em>
+ parameters.</p>
+<p>This method is needed for non fullscreen video overlay in UI toolkits that
+do not support subwindows.</p>
+<div class="refsect3">
+<a name="gst-player-video-overlay-video-renderer-set-render-rectangle.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>a <span class="type">GstPlayerVideoOverlayVideoRenderer</span> instance</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>x</p></td>
+<td class="parameter_description"><p>the horizontal offset of the render area inside the window</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>y</p></td>
+<td class="parameter_description"><p>the vertical offset of the render area inside the window</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>width</p></td>
+<td class="parameter_description"><p>the width of the render area inside the window</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>height</p></td>
+<td class="parameter_description"><p>the height of the render area inside the window</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
 </div>
 </div>
 <div class="refsect1">

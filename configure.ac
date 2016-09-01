@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.9.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.9.2],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 901, 0, 901)
+AS_LIBTOOL(GST, 902, 0, 902)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.9.1
-GSTPB_REQ=1.9.1
+GST_REQ=1.9.2
+GSTPB_REQ=1.9.2
 
 dnl *** autotools stuff ****
 
@@ -201,6 +201,10 @@ AG_GST_CHECK_GST_BASE($GST_API_VERSION, [$GST_REQ], yes)
 AG_GST_CHECK_GST_CHECK($GST_API_VERSION, [$GST_REQ], no)
 AG_GST_CHECK_GST_CONTROLLER($GST_API_VERSION, [$GST_REQ], yes)
 AG_GST_CHECK_GST_NET($GST_API_VERSION, [$GST_REQ], yes)
+AG_GST_PKG_CHECK_MODULES(GST_VIDEO, gstreamer-video-[$GST_API_VERSION], [$GST_REQ], yes)
+AG_GST_PKG_CHECK_MODULES(GST_AUDIO, gstreamer-audio-[$GST_API_VERSION], [$GST_REQ], yes)
+AG_GST_PKG_CHECK_MODULES(GST_PBUTILS, gstreamer-pbutils-[$GST_API_VERSION], [$GST_REQ], yes)
+
 AM_CONDITIONAL(HAVE_GST_CHECK, test "x$HAVE_GST_CHECK" = "xyes")
 
 AG_GST_CHECK_GST_PLUGINS_BASE($GST_API_VERSION, [$GSTPB_REQ], yes)
@@ -310,7 +314,7 @@ AM_CONDITIONAL(HAVE_XCOMPOSITE, test "x$HAVE_XCOMPOSITE" = "xyes")
 
 dnl graphene-1.0 is optional and used in gltransformation
 HAVE_GRAPHENE=NO
-PKG_CHECK_MODULES(GRAPHENE, graphene-1.0 >= 1.0.0, HAVE_GRAPHENE=yes, HAVE_GRAPHENE=no)
+PKG_CHECK_MODULES(GRAPHENE, graphene-1.0 >= 1.4.0, HAVE_GRAPHENE=yes, HAVE_GRAPHENE=no)
 if test "x$HAVE_GRAPHENE" = "xyes"; then
   AC_DEFINE(HAVE_GRAPHENE, [1] , [Use graphene])
 fi
@@ -524,6 +528,7 @@ AG_GST_CHECK_PLUGIN(smooth)
 AG_GST_CHECK_PLUGIN(speed)
 AG_GST_CHECK_PLUGIN(subenc)
 AG_GST_CHECK_PLUGIN(stereo)
+AG_GST_CHECK_PLUGIN(timecode)
 AG_GST_CHECK_PLUGIN(tta)
 AG_GST_CHECK_PLUGIN(videofilters)
 AG_GST_CHECK_PLUGIN(videomeasure)
@@ -538,6 +543,7 @@ dnl *** plug-ins to exclude ***
 AC_CHECK_HEADER(AVFoundation/AVFoundation.h, HAVE_AVFOUNDATION="yes", HAVE_AVFOUNDATION="no", [-])
 AC_CHECK_HEADER(MobileCoreServices/MobileCoreServices.h, HAVE_IOS="yes", HAVE_IOS="no", [-])
 AC_CHECK_HEADER(VideoToolbox/VideoToolbox.h, HAVE_VIDEOTOOLBOX="yes", HAVE_VIDEOTOOLBOX="no", [-])
+AC_CHECK_HEADER(QTKit/QTKit.h, HAVE_QTKIT="yes", HAVE_QTKIT="no", [-])
 
 if test "x$HAVE_VIDEOTOOLBOX" = "xyes"; then
   old_LIBS=$LIBS
@@ -564,6 +570,10 @@ if test "x$HAVE_VIDEOTOOLBOX" = "xyes"; then
   AC_DEFINE(HAVE_VIDEOTOOLBOX, 1, [Define if building with VideoToolbox])
 fi
 
+AM_CONDITIONAL(HAVE_QTKIT, test "x$HAVE_QTKIT" = "xyes")
+if test "x$HAVE_QTKIT" = "xyes"; then
+  AC_DEFINE(HAVE_QTKIT, 1, [Define if building with QTKit])
+fi
 dnl disable gst plugins we might not be able to build on this
 dnl platform: (ugly but minimally invasive)
 dnl FIXME: maybe move to sys, or make work with winsock2
@@ -789,6 +799,17 @@ case $host in
     CFLAGS=$old_CFLAGS
 
     PKG_CHECK_MODULES(WAYLAND_EGL, wayland-client >= 1.0 wayland-cursor >= 1.0 wayland-egl >= 9.0, HAVE_WAYLAND_EGL=yes, HAVE_WAYLAND_EGL=no)
+
+    # OS X and iOS always have GL available
+    case $host in
+      *-darwin*)
+        if test "x$HAVE_IOS" = "xyes"; then
+          HAVE_GLES2=yes
+        else
+          HAVE_GL=yes
+        fi
+      ;;
+    esac
   ;;
 esac
 
@@ -1372,6 +1393,7 @@ GST_GL_HAVE_GLINTPTR=0
 GST_GL_HAVE_GLSYNC=0
 GST_GL_HAVE_GLUINT64=0
 GST_GL_HAVE_GLINT64=0
+GST_GL_HAVE_EGLATTRIB=0
 
 old_CFLAGS=$CFLAGS
 CFLAGS="$GL_CFLAGS $CFLAGS"
@@ -1411,6 +1433,17 @@ if test "x$ac_cv_type_GLint64" = "xyes"; then
   GST_GL_HAVE_GLINT64=1
 fi
 
+if test "x$USE_EGL" = "xyes"; then
+  EGL_INCLUDES="$GL_INCLUDES
+  #include <EGL/egl.h>
+  #include <EGL/eglext.h>
+  "
+  AC_CHECK_TYPES(EGLAttrib, [], [], [[$EGL_INCLUDES]])
+  if test "x$ac_cv_type_EGLAttrib" = "xyes"; then
+    GST_GL_HAVE_EGLATTRIB=1
+  fi
+fi
+
 CFLAGS=$old_CFLAGS
 
 GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
@@ -1421,6 +1454,7 @@ GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
 #define GST_GL_HAVE_GLSYNC $GST_GL_HAVE_GLSYNC
 #define GST_GL_HAVE_GLUINT64 $GST_GL_HAVE_GLUINT64
 #define GST_GL_HAVE_GLINT64 $GST_GL_HAVE_GLINT64
+#define GST_GL_HAVE_EGLATTRIB $GST_GL_HAVE_EGLATTRIB
 "
 
 AC_CONFIG_COMMANDS([gst-libs/gst/gl/gstglconfig.h], [
@@ -1876,8 +1910,6 @@ AC_SUBST(LIBUSB_LIBS)
 dnl *** NVENC ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_NVENC, true)
 AG_GST_CHECK_FEATURE(NVENC, [NVIDIA Encode API], nvenc, [
-  AG_GST_PKG_CHECK_MODULES(GST_VIDEO, gstreamer-video-1.0)
-  AG_GST_PKG_CHECK_MODULES(GST_PBUTILS, gstreamer-pbutils-1.0)
   AC_ARG_WITH([cuda-prefix],
           AS_HELP_STRING([--with-cuda-prefix],
           [Use the provided prefix for detecting the cuda installation]),
@@ -2284,6 +2316,14 @@ AG_GST_CHECK_FEATURE(FBDEV, [linux framebuffer], fbdevsink, [
   fi
 ])
 
+dnl *** fdkaac ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_FDK_AAC, true)
+AG_GST_CHECK_FEATURE(FDK_AAC, [fdkaac plugin], fdkaac, [
+  PKG_CHECK_MODULES(FDK_AAC, fdk-aac, HAVE_FDK_AAC="yes", [
+    HAVE_FDK_AAC="no"
+  ])
+])
+
 dnl *** flite ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_FLITE, true)
 AG_GST_CHECK_FEATURE(FLITE, [Flite plugin], flite, [
@@ -2340,7 +2380,6 @@ AG_GST_CHECK_FEATURE(KATE, [Kate], kate, [
 dnl *** kms ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_KMS, true)
 AG_GST_CHECK_FEATURE(KMS, [drm/kms libraries], kms, [
-  AG_GST_PKG_CHECK_MODULES(GST_VIDEO, gstreamer-video-1.0)
   AG_GST_PKG_CHECK_MODULES(GST_ALLOCATORS, gstreamer-allocators-1.0)
   PKG_CHECK_MODULES([DRM], [libdrm libkms], HAVE_KMS=yes, HAVE_KMS=no)
 ])
@@ -2361,7 +2400,13 @@ AG_GST_CHECK_FEATURE(LADSPA, [ladspa], ladspa, [
 dnl *** LV2 ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_LV2, true)
 AG_GST_CHECK_FEATURE(LV2, [lv2], lv2, [
-  PKG_CHECK_MODULES(LILV, lilv-0 >= 0.6.6, HAVE_LV2="yes", HAVE_LV2="no")
+  PKG_CHECK_MODULES(LILV, lilv-0 >= 0.22, [
+    HAVE_LV2="yes",
+    HAVE_LILV_0_22="yes"
+    AC_DEFINE(HAVE_LILV_0_22, 1, [Define if we have liblilv >= 0.22])
+  ],[
+    PKG_CHECK_MODULES(LILV, lilv-0 >= 0.16, HAVE_LV2="yes", HAVE_LV2="no")
+  ])
   AC_SUBST(LILV_CFLAGS)
   AC_SUBST(LILV_LIBS)
 ])
@@ -3368,11 +3413,24 @@ dnl *** WebRTC Audio Processing ***
 dnl Note: We test for a specific version as there is no API stability
 translit(dnm, m, l) AM_CONDITIONAL(USE_WEBRTCDSP, true)
 AG_GST_CHECK_FEATURE(WEBRTCDSP, [WebRTC Audio Processing], webrtcdsp, [
+
+  AG_GST_PKG_CHECK_MODULES(WEBRTCDSP, webrtc-audio-processing >= 0.2 webrtc-audio-processing < 0.4)
+
+  # On Android, C++ headers comes with the STL implementation
+  AS_CASE(["${host}"],
+    [*android*],
+      [
+        PKG_CHECK_MODULES(GNUSTL, gnustl, [
+          WEBRTCDSP_CFLAGS="$WEBRTCDSP_CFLAGS $GNUSTL_CFLAGS"
+          WEBRTCDSP_LIBS="$WEBRTCDSP_LIBS $GNUSTL_LIBS"])
+      ])
+  AC_SUBST([WEBRTCDSP_CFLAGS])
+  AC_SUBST([WEBRTCDSP_LIBS])
+
   AC_LANG_PUSH([C++])
   old_CPPFLAGS=$CPPFLAGS
-  CPPFLAGS="-std=c++11 $CPPFLAGS"
-  AG_GST_PKG_CHECK_MODULES(WEBRTCDSP, webrtc-audio-processing = 0.2)
-  AC_CHECK_HEADER([typeindex],[],[HAVE_WEBRTCDSP=no])
+  CPPFLAGS="-std=c++11 $CPPFLAGS $GNUSTL_CFLAGS"
+  AC_CHECK_HEADER([vector],[],[HAVE_WEBRTCDSP=no])
   CPPFLAGS=$old_CPPFLAGS
   AC_LANG_POP([C++])
 ])
@@ -3404,6 +3462,7 @@ AM_CONDITIONAL(USE_RESINDVD, false)
 AM_CONDITIONAL(USE_FAAC, false)
 AM_CONDITIONAL(USE_FAAD, false)
 AM_CONDITIONAL(USE_FBDEV, false)
+AM_CONDITIONAL(USE_FDK_AAC, false)
 AM_CONDITIONAL(USE_FLITE, false)
 AM_CONDITIONAL(USE_FLUIDSYNTH, false)
 AM_CONDITIONAL(USE_GL, false)
@@ -3460,6 +3519,7 @@ AM_CONDITIONAL(USE_TELETEXTDEC, false)
 AM_CONDITIONAL(USE_SNDIO, false)
 AM_CONDITIONAL(USE_UVCH264, false)
 AM_CONDITIONAL(USE_WEBP, false)
+AM_CONDITIONAL(USE_WEBRTCDSP, false)
 AM_CONDITIONAL(USE_OPENH264, false)
 AM_CONDITIONAL(USE_X265, false)
 AM_CONDITIONAL(USE_DTLS, false)
@@ -3611,6 +3671,7 @@ gst/speed/Makefile
 gst/subenc/Makefile
 gst/stereo/Makefile
 gst/tta/Makefile
+gst/timecode/Makefile
 gst/videofilters/Makefile
 gst/videomeasure/Makefile
 gst/videoparsers/Makefile
@@ -3649,7 +3710,6 @@ sys/acmenc/Makefile
 sys/acmmp3dec/Makefile
 sys/androidmedia/Makefile
 sys/applemedia/Makefile
-sys/applemedia-nonpublic/Makefile
 sys/avc/Makefile
 sys/bluez/Makefile
 sys/d3dvideosink/Makefile
@@ -3722,6 +3782,7 @@ ext/gl/Makefile
 ext/gtk/Makefile
 ext/faac/Makefile
 ext/faad/Makefile
+ext/fdkaac/Makefile
 ext/flite/Makefile
 ext/fluidsynth/Makefile
 ext/gsm/Makefile

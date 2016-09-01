@@ -146,6 +146,26 @@ gst_lv2_host_init (void)
 
 /* preset interface */
 
+static char *
+make_bundle_name (GstObject * obj, const gchar * name)
+{
+  GstElementFactory *factory;
+  gchar *basename, *s, *bundle;
+
+  factory = gst_element_get_factory ((GstElement *) obj);
+  basename = g_strdup (gst_element_factory_get_metadata (factory,
+          GST_ELEMENT_METADATA_LONGNAME));
+  s = basename;
+  while ((s = strchr (s, ' '))) {
+    *s = '_';
+  }
+  bundle = g_strjoin (NULL, basename, "_", name, ".preset.lv2", NULL);
+
+  g_free (basename);
+
+  return bundle;
+}
+
 gchar **
 gst_lv2_get_preset_names (GstLV2 * lv2, GstObject * obj)
 {
@@ -267,24 +287,19 @@ get_port_value (const char *port_symbol, void *data, uint32_t * size,
 gboolean
 gst_lv2_save_preset (GstLV2 * lv2, GstObject * obj, const gchar * name)
 {
-  gchar *filename, *basename, *bundle, *dir, *tmp_dir, *s;
+  gchar *filename, *bundle, *dir, *tmp_dir;
   gpointer user_data[] = { lv2->klass, obj };
-  GstElementFactory *factory;
   LilvState *state;
   LilvNode *bundle_dir;
+  const LilvNode *state_uri;
   LilvInstance *instance = lv2->instance;
   gboolean res;
-
-  factory = gst_element_get_factory ((GstElement *) obj);
-  basename = g_strdup (gst_element_factory_get_metadata (factory,
-          GST_ELEMENT_METADATA_LONGNAME));
-  s = basename;
-  while ((s = strchr (s, ' '))) {
-    *s = '_';
-  }
+#ifndef HAVE_LILV_0_22
+  gchar *filepath;
+#endif
 
   filename = g_strjoin (NULL, name, ".ttl", NULL);
-  bundle = g_strjoin (NULL, basename, "_", name, ".preset.lv2", NULL);
+  bundle = make_bundle_name (obj, name);
   /* dir needs to end on a dir separator for the lilv_new_file_uri() to work */
   dir =
       g_build_filename (g_get_home_dir (), ".lv2", bundle, G_DIR_SEPARATOR_S,
@@ -313,9 +328,19 @@ gst_lv2_save_preset (GstLV2 * lv2, GstObject * obj, const gchar * name)
   lilv_world_load_bundle (world, bundle_dir);
   lilv_node_free (bundle_dir);
 
-  lilv_world_load_resource (world, lilv_state_get_uri (state));
+#ifdef HAVE_LILV_0_22
+  state_uri = lilv_state_get_uri (state);
+#else
+  filepath = g_build_filename (dir, filename, NULL);
+  state_uri = lilv_new_uri (world, filepath);
+  g_free (filepath);
+#endif
+  lilv_world_load_resource (world, state_uri);
   g_hash_table_insert (lv2->presets, g_strdup (name),
-      lilv_node_duplicate (lilv_state_get_uri (state)));
+      lilv_node_duplicate (state_uri));
+#ifndef HAVE_LILV_0_22
+  lilv_node_free ((LilvNode *) state_uri);
+#endif
 
   lilv_state_free (state);
   if (!lv2->instance) {
@@ -326,7 +351,6 @@ gst_lv2_save_preset (GstLV2 * lv2, GstObject * obj, const gchar * name)
   g_free (dir);
   g_free (bundle);
   g_free (filename);
-  g_free (basename);
 
   return res;
 }
@@ -344,18 +368,18 @@ gst_lv2_rename_preset (GstLV2 * lv2, GstObject * obj,
 gboolean
 gst_lv2_delete_preset (GstLV2 * lv2, GstObject * obj, const gchar * name)
 {
+#ifdef HAVE_LILV_0_22
   LilvNode *preset = g_hash_table_lookup (lv2->presets, name);
   LilvState *state = lilv_state_new_from_world (world, &lv2_map, preset);
 
   lilv_world_unload_resource (world, lilv_state_get_uri (state));
   lilv_state_delete (world, state);
   lilv_state_free (state);
-
+#endif
   g_hash_table_remove (lv2->presets, name);
 
   return FALSE;
 }
-
 
 /* api helpers */
 
@@ -757,11 +781,15 @@ gst_lv2_element_class_set_metadata (GstLV2Class * lv2_class,
   }
   val = lilv_plugin_get_author_name (lv2plugin);
   if (val) {
+    // TODO: check lilv_plugin_get_author_email(lv2plugin);
     author = g_strdup (lilv_node_as_string (val));
     lilv_node_free (val);
   } else {
     author = g_strdup ("no author available");
   }
+
+  // TODO: better description from:
+  // lilv_plugin_get_author_homepage() and lilv_plugin_get_project()
 
   lv2plugin_class = lilv_plugin_get_class (lv2plugin);
   cval = lilv_plugin_class_get_label (lv2plugin_class);

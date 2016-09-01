@@ -106,6 +106,30 @@ gst_buffer_add_mpeg_video_meta (<em class="parameter"><code><a href="/usr/share/
                                 <em class="parameter"><code>const <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureHdr" title="struct GstMpegVideoPictureHdr"><span class="type">GstMpegVideoPictureHdr</span></a> *pic_hdr</code></em>,
                                 <em class="parameter"><code>const <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureExt" title="struct GstMpegVideoPictureExt"><span class="type">GstMpegVideoPictureExt</span></a> *pic_ext</code></em>,
                                 <em class="parameter"><code>const <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoQuantMatrixExt" title="struct GstMpegVideoQuantMatrixExt"><span class="type">GstMpegVideoQuantMatrixExt</span></a> *quant_ext</code></em>);</pre>
+<p>Creates and adds a <a class="link" href="gst-plugins-bad-libs-gstmpegvideometa.html#GstMpegVideoMeta" title="struct GstMpegVideoMeta"><span class="type">GstMpegVideoMeta</span></a> to a <em class="parameter"><code>buffer</code></em>
+.</p>
+<p>Provided structures must either be <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> or GSlice-allocated.</p>
+<div class="refsect3">
+<a name="gst-buffer-add-mpeg-video-meta.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>buffer</p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="type">GstBuffer</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-buffer-add-mpeg-video-meta.returns"></a><h4>Returns</h4>
+<p> a newly created <a class="link" href="gst-plugins-bad-libs-gstmpegvideometa.html#GstMpegVideoMeta" title="struct GstMpegVideoMeta"><span class="type">GstMpegVideoMeta</span></a>. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+<p class="since">Since: 1.2</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -150,6 +174,70 @@ gst_mpeg_video_meta_get_info (<em class="parameter"><code><span class="type">voi
   gsize slice_offset;
 };
 </pre>
+<p>Extra buffer metadata describing the contents of a MPEG1/2 Video frame</p>
+<p>Can be used by elements (mainly decoders) to avoid having to parse
+Mpeg video 1/2 packets if it can be done upstream.</p>
+<p>The various fields are only valid during the lifetime of the <a class="link" href="gst-plugins-bad-libs-gstmpegvideometa.html#GstMpegVideoMeta" title="struct GstMpegVideoMeta"><span class="type">GstMpegVideoMeta</span></a>.
+If elements wish to use those for longer, they are required to make a copy.</p>
+<div class="refsect3">
+<a name="GstMpegVideoMeta.members"></a><h4>Members</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="300px" class="struct_members_name">
+<col class="struct_members_description">
+<col width="200px" class="struct_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gstreamer-1.0gstreamer-GstMeta.html#GstMeta"><span class="type">GstMeta</span></a> <em class="structfield"><code><a name="GstMpegVideoMeta.meta"></a>meta</code></em>;</p></td>
+<td class="struct_member_description"><p>parent <a href="/usr/share/gtk-doc/html/gstreamer-1.0gstreamer-GstMeta.html#GstMeta"><span class="type">GstMeta</span></a></p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> *<em class="structfield"><code><a name="GstMpegVideoMeta.sequencehdr"></a>sequencehdr</code></em>;</p></td>
+<td class="struct_member_description"><p>the <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> if present in the buffer</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceExt" title="struct GstMpegVideoSequenceExt"><span class="type">GstMpegVideoSequenceExt</span></a> *<em class="structfield"><code><a name="GstMpegVideoMeta.sequenceext"></a>sequenceext</code></em>;</p></td>
+<td class="struct_member_description"><p>the <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceExt" title="struct GstMpegVideoSequenceExt"><span class="type">GstMpegVideoSequenceExt</span></a> if present in the buffer</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">GstMpegVideoSequenceDisplayExt</span> *<em class="structfield"><code><a name="GstMpegVideoMeta.sequencedispext"></a>sequencedispext</code></em>;</p></td>
+<td class="struct_member_description"><p>the <span class="type">GstMpegVideoSequenceDisplayExt</span> if present in the
+buffer.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureHdr" title="struct GstMpegVideoPictureHdr"><span class="type">GstMpegVideoPictureHdr</span></a> *<em class="structfield"><code><a name="GstMpegVideoMeta.pichdr"></a>pichdr</code></em>;</p></td>
+<td class="struct_member_description"><p>the <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureHdr" title="struct GstMpegVideoPictureHdr"><span class="type">GstMpegVideoPictureHdr</span></a> if present in the buffer.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureExt" title="struct GstMpegVideoPictureExt"><span class="type">GstMpegVideoPictureExt</span></a> *<em class="structfield"><code><a name="GstMpegVideoMeta.picext"></a>picext</code></em>;</p></td>
+<td class="struct_member_description"><p>the <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureExt" title="struct GstMpegVideoPictureExt"><span class="type">GstMpegVideoPictureExt</span></a> if present in the buffer.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoQuantMatrixExt" title="struct GstMpegVideoQuantMatrixExt"><span class="type">GstMpegVideoQuantMatrixExt</span></a> *<em class="structfield"><code><a name="GstMpegVideoMeta.quantext"></a>quantext</code></em>;</p></td>
+<td class="struct_member_description"><p>the <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoQuantMatrixExt" title="struct GstMpegVideoQuantMatrixExt"><span class="type">GstMpegVideoQuantMatrixExt</span></a> if present in the buffer</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstMpegVideoMeta.num-slices"></a>num_slices</code></em>;</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> <em class="structfield"><code><a name="GstMpegVideoMeta.slice-offset"></a>slice_offset</code></em>;</p></td>
+<td> </td>
+<td> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p class="since">Since: 1.2</p>
 </div>
 </div>
 </div>

@@ -100,20 +100,17 @@ START_TEST (test_set_and_get_position_update_interval)
 {
   GstPlayer *player;
   guint interval = 0;
+  GstStructure *config;
 
   player = gst_player_new (NULL, NULL);
 
   fail_unless (player != NULL);
 
-  gst_player_set_position_update_interval (player, 500);
-  interval = gst_player_get_position_update_interval (player);
-
+  config = gst_player_get_config (player);
+  gst_player_config_set_position_update_interval (config, 500);
+  interval = gst_player_config_get_position_update_interval (config);
   fail_unless (interval == 500);
-
-  g_object_set (player, "position-update-interval", 1000, NULL);
-  g_object_get (player, "position-update-interval", &interval, NULL);
-
-  fail_unless_equals_int (interval, 1000);
+  gst_player_set_config (player, config);
 
   g_object_unref (player);
 }
@@ -1476,7 +1473,6 @@ test_play_position_update_interval_cb (GstPlayer * player,
 
     if (do_quit && position >= 2000 * GST_MSECOND) {
       do_quit = FALSE;
-      gst_player_set_position_update_interval (player, 0);
       g_main_loop_quit (new_state->loop);
     }
   } else if (change == STATE_CHANGE_END_OF_STREAM ||
@@ -1499,6 +1495,7 @@ START_TEST (test_play_position_update_interval)
   GstPlayer *player;
   TestPlayerState state;
   gchar *uri;
+  GstStructure *config;
 
   memset (&state, 0, sizeof (state));
   state.loop = g_main_loop_new (NULL, FALSE);
@@ -1506,7 +1503,10 @@ START_TEST (test_play_position_update_interval)
   state.test_data = GINT_TO_POINTER (0);
 
   player = test_player_new (&state);
-  gst_player_set_position_update_interval (player, 600);
+
+  config = gst_player_get_config (player);
+  gst_player_config_set_position_update_interval (config, 600);
+  gst_player_set_config (player, config);
 
   fail_unless (player != NULL);
 
@@ -1519,6 +1519,13 @@ START_TEST (test_play_position_update_interval)
   g_main_loop_run (state.loop);
 
   fail_unless_equals_int (GPOINTER_TO_INT (state.test_data), 5);
+
+  /* Disable position updates */
+  gst_player_stop (player);
+
+  config = gst_player_get_config (player);
+  gst_player_config_set_position_update_interval (config, 0);
+  gst_player_set_config (player, config);
 
   g_timeout_add (2000, quit_loop_cb, state.loop);
   g_main_loop_run (state.loop);
@@ -1612,6 +1619,58 @@ START_TEST (test_restart)
 
 END_TEST;
 
+#define TEST_USER_AGENT "test user agent"
+
+static void
+source_setup_cb (GstElement * playbin, GstElement * source, GMainLoop * loop)
+{
+  gchar *user_agent;
+
+  g_object_get (source, "user-agent", &user_agent, NULL);
+  fail_unless_equals_string (user_agent, TEST_USER_AGENT);
+  g_free (user_agent);
+
+  g_main_loop_quit (loop);
+}
+
+START_TEST (test_user_agent)
+{
+  GstPlayer *player;
+  GMainLoop *loop;
+  GstElement *pipeline;
+  GstStructure *config;
+  gchar *user_agent;
+
+  loop = g_main_loop_new (NULL, FALSE);
+  player = gst_player_new (NULL, NULL);
+  fail_unless (player != NULL);
+
+  gst_player_set_uri (player, "http://badger.com/test.mkv");
+
+  config = gst_player_get_config (player);
+  gst_player_config_set_user_agent (config, TEST_USER_AGENT);
+
+  user_agent = gst_player_config_get_user_agent (config);
+  fail_unless_equals_string (user_agent, TEST_USER_AGENT);
+  g_free (user_agent);
+
+  gst_player_set_config (player, config);
+
+  pipeline = gst_player_get_pipeline (player);
+  g_signal_connect (pipeline, "source-setup", G_CALLBACK (source_setup_cb),
+      loop);
+
+  gst_player_pause (player);
+  g_main_loop_run (loop);
+
+  gst_object_unref (pipeline);
+
+  g_object_unref (player);
+  g_main_loop_unref (loop);
+}
+
+END_TEST;
+
 static Suite *
 player_suite (void)
 {
@@ -1654,6 +1713,7 @@ player_suite (void)
   tcase_add_test (tc_general, test_play_backward_rate);
   tcase_add_test (tc_general, test_play_audio_video_seek_done);
   tcase_add_test (tc_general, test_restart);
+  tcase_add_test (tc_general, test_user_agent);
 
   suite_add_tcase (s, tc_general);
 

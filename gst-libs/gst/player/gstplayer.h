@@ -118,6 +118,10 @@ gchar *      gst_player_get_uri                       (GstPlayer    * player);
 void         gst_player_set_uri                       (GstPlayer    * player,
                                                        const gchar  * uri);
 
+gchar *      gst_player_get_subtitle_uri              (GstPlayer    * player);
+gboolean     gst_player_set_subtitle_uri              (GstPlayer    * player,
+                                                       const gchar *uri);
+
 GstClockTime gst_player_get_position                  (GstPlayer    * player);
 GstClockTime gst_player_get_duration                  (GstPlayer    * player);
 
@@ -160,10 +164,6 @@ GstPlayerVideoInfo * gst_player_get_current_video_track
 GstPlayerSubtitleInfo * gst_player_get_current_subtitle_track
                                                       (GstPlayer    * player);
 
-gboolean     gst_player_set_subtitle_uri              (GstPlayer    * player,
-                                                       const gchar *uri);
-gchar *      gst_player_get_subtitle_uri              (GstPlayer    * player);
-
 gboolean     gst_player_set_visualization             (GstPlayer    * player,
                                                        const gchar *name);
 
@@ -191,6 +191,20 @@ void                    gst_player_set_multiview_flags  (GstPlayer  * player,
 gint64       gst_player_get_audio_video_offset        (GstPlayer    * player);
 void         gst_player_set_audio_video_offset        (GstPlayer    * player,
                                                        gint64 offset);
+
+gboolean       gst_player_set_config                  (GstPlayer * player,
+                                                       GstStructure * config);
+GstStructure * gst_player_get_config                  (GstPlayer * player);
+
+/* helpers for configuring the config structure */
+
+void           gst_player_config_set_user_agent       (GstStructure * config,
+                                                       const gchar * agent);
+gchar *        gst_player_config_get_user_agent       (const GstStructure * config);
+
+void           gst_player_config_set_position_update_interval  (GstStructure * config,
+                                                                guint          interval);
+guint          gst_player_config_get_position_update_interval  (const GstStructure * config);
 
 G_END_DECLS
 

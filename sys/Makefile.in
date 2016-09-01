@@ -304,6 +304,8 @@ EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
 FAAC_LIBS = @FAAC_LIBS@
 FAAD_LIBS = @FAAD_LIBS@
+FDK_AAC_CFLAGS = @FDK_AAC_CFLAGS@
+FDK_AAC_LIBS = @FDK_AAC_LIBS@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
 FLITE_CFLAGS = @FLITE_CFLAGS@
@@ -353,6 +355,8 @@ GST_ALLOCATORS_CFLAGS = @GST_ALLOCATORS_CFLAGS@
 GST_ALLOCATORS_LIBS = @GST_ALLOCATORS_LIBS@
 GST_ALL_LDFLAGS = @GST_ALL_LDFLAGS@
 GST_API_VERSION = @GST_API_VERSION@
+GST_AUDIO_CFLAGS = @GST_AUDIO_CFLAGS@
+GST_AUDIO_LIBS = @GST_AUDIO_LIBS@
 GST_BASE_CFLAGS = @GST_BASE_CFLAGS@
 GST_BASE_LIBS = @GST_BASE_LIBS@
 GST_CFLAGS = @GST_CFLAGS@
@@ -765,7 +769,7 @@ wayland_scanner = @wayland_scanner@
 @USE_ANDROID_MEDIA_FALSE@ANDROID_MEDIA_DIR = 
 @USE_ANDROID_MEDIA_TRUE@ANDROID_MEDIA_DIR = androidmedia
 @USE_APPLE_MEDIA_FALSE@APPLE_MEDIA_DIR = 
-@USE_APPLE_MEDIA_TRUE@APPLE_MEDIA_DIR = applemedia applemedia-nonpublic
+@USE_APPLE_MEDIA_TRUE@APPLE_MEDIA_DIR = applemedia
 @USE_AVC_FALSE@AVC_DIR = 
 @USE_AVC_TRUE@AVC_DIR = avc
 @USE_BLUEZ_FALSE@BLUEZ_DIR = 
@@ -821,7 +825,7 @@ wayland_scanner = @wayland_scanner@
 @USE_TINYALSA_FALSE@TINYALSA_DIR = 
 @USE_TINYALSA_TRUE@TINYALSA_DIR = tinyalsa
 SUBDIRS = $(ACM_DIR) $(ANDROID_MEDIA_DIR) $(APPLE_MEDIA_DIR) $(AVC_DIR) $(BLUEZ_DIR) $(D3DVIDEOSINK_DIR) $(DECKLINK_DIR) $(DIRECTSOUND_DIR) $(WINKS_DIR) $(DVB_DIR) $(FBDEV_DIR) $(KMS_DIR) $(LINSYS_DIR) $(OPENSLES_DIR) $(PVR_DIR) $(SHM_DIR) $(UVCH264_DIR) $(VCD_DIR) $(VDPAU_DIR) $(WININET_DIR) $(WINSCREENCAP_DIR) $(WASAPI_DIR) $(NVENC_DIR) $(TINYALSA_DIR)
-DIST_SUBDIRS = acmenc acmmp3dec androidmedia applemedia applemedia-nonpublic avc bluez d3dvideosink decklink directsound dvb linsys fbdev kms dshowdecwrapper dshowsrcwrapper dshowvideosink \
+DIST_SUBDIRS = acmenc acmmp3dec androidmedia applemedia avc bluez d3dvideosink decklink directsound dvb linsys fbdev kms dshowdecwrapper dshowsrcwrapper dshowvideosink \
 		opensles pvr2d shm uvch264 vcd vdpau wasapi wininet winks winscreencap \
 		nvenc tinyalsa
 

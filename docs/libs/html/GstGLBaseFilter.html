@@ -29,7 +29,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="GstGLBaseFilter.top_of_page"></a>GstGLBaseFilter</span></h2>
-<p>GstGLBaseFilter</p>
+<p>GstGLBaseFilter — <a href="/usr/share/gtk-doc/html/gstreamer-libs-1.0GstBaseTransform.html#GstBaseTransform-struct"><span class="type">GstBaseTransform</span></a> subclass for transformin OpenGL resources</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -81,6 +81,10 @@
 </div>
 <div class="refsect1">
 <a name="GstGLBaseFilter.description"></a><h2>Description</h2>
+<p><a class="link" href="GstGLBaseFilter.html" title="GstGLBaseFilter"><span class="type">GstGLBaseFilter</span></a> handles the nitty gritty details of retrieving an OpenGL
+context.  It also provided some wrappers around <a href="/usr/share/gtk-doc/html/gstreamer-libs-1.0GstBaseTransform.html#GstBaseTransform-struct"><span class="type">GstBaseTransform</span></a>'s
+<code class="function">start()</code>, <code class="function">stop()</code> and <code class="function">set_caps()</code> virtual methods that ensure an OpenGL context
+is available and current in the calling thread.</p>
 </div>
 <div class="refsect1">
 <a name="GstGLBaseFilter.functions_details"></a><h2>Functions</h2>
@@ -91,6 +95,17 @@
 <div class="refsect2">
 <a name="GstGLBaseFilter-struct"></a><h3>GstGLBaseFilter</h3>
 <pre class="programlisting">typedef struct _GstGLBaseFilter GstGLBaseFilter;</pre>
+<div class="refsect3">
+<a name="GstGLBaseFilter.members"></a><h4>Members</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="300px" class="struct_members_name">
+<col class="struct_members_description">
+<col width="200px" class="struct_members_annotations">
+</colgroup>
+<tbody></tbody>
+</table></div>
+</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -104,6 +119,39 @@
   gboolean (*gl_set_caps)       (GstGLBaseFilter *filter, GstCaps * incaps, GstCaps * outcaps);
 } GstGLBaseFilterClass;
 </pre>
+<div class="refsect3">
+<a name="GstGLBaseFilterClass.members"></a><h4>Members</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="300px" class="struct_members_name">
+<col class="struct_members_description">
+<col width="200px" class="struct_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> <em class="structfield"><code><a name="GstGLBaseFilterClass.supported-gl-api"></a>supported_gl_api</code></em>;</p></td>
+<td class="struct_member_description"><p>the logical-OR of <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a>'s supported by this element</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLBaseFilterClass.gl-start"></a>gl_start</code></em> ()</p></td>
+<td class="struct_member_description"><p>called in the GL thread to setup the element GL state.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLBaseFilterClass.gl-stop"></a>gl_stop</code></em> ()</p></td>
+<td class="struct_member_description"><p>called in the GL thread to setup the element GL state.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLBaseFilterClass.gl-set-caps"></a>gl_set_caps</code></em> ()</p></td>
+<td class="struct_member_description"><p>called in the GL thread when caps are set on <em class="parameter"><code>filter</code></em>
+.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
 </div>
 </div>
 <div class="refsect1">
@@ -114,6 +162,10 @@
 <p>Get OpenGL context.</p>
 <p>Flags: Read</p>
 </div>
+</div>
+<div class="refsect1">
+<a name="GstGLBaseFilter.see-also"></a><h2>See Also</h2>
+<p><a href="/usr/share/gtk-doc/html/gstreamer-libs-1.0GstBaseTransform.html#GstBaseTransform-struct"><span class="type">GstBaseTransform</span></a></p>
 </div>
 </div>
 <div class="footer">

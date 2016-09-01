@@ -6,7 +6,7 @@
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
-<link rel="prev" href="gst-plugins-bad-plugins-twirl.html" title="twirl">
+<link rel="prev" href="gst-plugins-bad-plugins-unalignedvideoparse.html" title="unalignedvideoparse">
 <link rel="next" href="gst-plugins-bad-plugins-waterripple.html" title="waterripple">
 <meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
@@ -16,12 +16,13 @@
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-videoparse.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-videoparse.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-videoparse.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_interfaces">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-videoparse.implemented-interfaces" class="shortcut">Implemented Interfaces</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-videoparse.properties" class="shortcut">Properties</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
-<td><a accesskey="p" href="gst-plugins-bad-plugins-twirl.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="p" href="gst-plugins-bad-plugins-unalignedvideoparse.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
 <td><a accesskey="n" href="gst-plugins-bad-plugins-waterripple.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
@@ -151,17 +152,24 @@
     <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
         <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
             <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstElement.html#GstElement-struct">GstElement</a>
-                <span class="lineart">╰──</span> GstRawParse
+                <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBin.html#GstBin-struct">GstBin</a>
                     <span class="lineart">╰──</span> GstVideoParse
 </pre>
 </div>
 <div class="refsect1">
+<a name="gst-plugins-bad-plugins-videoparse.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
+<p>
+GstVideoParse implements
+ <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstChildProxy.html#GstChildProxy-struct">GstChildProxy</a>.</p>
+</div>
+<div class="refsect1">
 <a name="gst-plugins-bad-plugins-videoparse.description"></a><h2>Description</h2>
 <p>Converts a byte stream into video frames.</p>
+<div class="note">This element is deprecated. Use <a class="link" href="gst-plugins-bad-plugins-rawvideoparse.html#GstRawVideoParse"><span class="type">GstRawVideoParse</span></a> instead.</div>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.77.7.3.1"></a><h3>Element Information</h3>
+<a name="id-1.2.128.8.4.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -187,7 +195,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.77.7.3.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.128.8.4.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -233,10 +241,6 @@
 <tr>
 <td><p><span class="term">details</span></p></td>
 <td>video/x-raw</td>
-</tr>
-<tr>
-<td><p><span class="term"></span></p></td>
-<td> video/x-bayer</td>
 </tr>
 </tbody>
 </table></div>

@@ -78,7 +78,8 @@ enum
 #define gst_gl_filter_parent_class parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGLFilter, gst_gl_filter, GST_TYPE_GL_BASE_FILTER,
     GST_DEBUG_CATEGORY_INIT (gst_gl_filter_debug, "glfilter", 0,
-        "glfilter element"););
+        "glfilter element");
+    );
 
 static void gst_gl_filter_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
@@ -227,12 +228,11 @@ gst_gl_filter_gl_stop (GstGLBaseFilter * base_filter)
     filter->vbo_indices = 0;
   }
 
-  if (filter->fbo != 0) {
-    gst_gl_context_del_fbo (context, filter->fbo, filter->depthbuffer);
+  if (filter->fbo != NULL) {
+    gst_object_unref (filter->fbo);
+    filter->fbo = NULL;
   }
 
-  filter->fbo = 0;
-  filter->depthbuffer = 0;
   filter->default_shader = NULL;
   filter->draw_attr_position_loc = -1;
   filter->draw_attr_texture_loc = -1;
@@ -690,14 +690,12 @@ gst_gl_filter_gl_set_caps (GstGLBaseFilter * bt, GstCaps * incaps,
   out_width = GST_VIDEO_INFO_WIDTH (&filter->out_info);
   out_height = GST_VIDEO_INFO_HEIGHT (&filter->out_info);
 
-  if (filter->fbo) {
-    gst_gl_context_del_fbo (context, filter->fbo, filter->depthbuffer);
-    filter->fbo = 0;
-    filter->depthbuffer = 0;
-  }
-  //blocking call, generate a FBO
-  if (!gst_gl_context_gen_fbo (context, out_width, out_height,
-          &filter->fbo, &filter->depthbuffer))
+  if (filter->fbo)
+    gst_object_unref (filter->fbo);
+
+  if (!(filter->fbo =
+          gst_gl_framebuffer_new_with_default_depth (context, out_width,
+              out_height)))
     goto context_error;
 
   if (filter_class->init_fbo) {
@@ -904,7 +902,7 @@ gst_gl_filter_filter_texture (GstGLFilter * filter, GstBuffer * inbuf,
     GstBuffer * outbuf)
 {
   GstGLFilterClass *filter_class;
-  guint in_tex, out_tex;
+  GstMemory *in_tex, *out_tex;
   GstVideoFrame gl_frame, out_frame;
   gboolean ret;
 
@@ -916,7 +914,12 @@ gst_gl_filter_filter_texture (GstGLFilter * filter, GstBuffer * inbuf,
     goto inbuf_error;
   }
 
-  in_tex = *(guint *) gl_frame.data[0];
+  in_tex = gl_frame.map[0].memory;
+  if (!gst_is_gl_memory (in_tex)) {
+    ret = FALSE;
+    GST_ERROR_OBJECT (filter, "Input memory must be GstGLMemory");
+    goto inbuf_error;
+  }
 
   if (!gst_video_frame_map (&out_frame, &filter->out_info, outbuf,
           GST_MAP_WRITE | GST_MAP_GL)) {
@@ -924,13 +927,17 @@ gst_gl_filter_filter_texture (GstGLFilter * filter, GstBuffer * inbuf,
     goto unmap_out_error;
   }
 
-  out_tex = *(guint *) out_frame.data[0];
+  out_tex = out_frame.map[0].memory;
+  g_return_val_if_fail (gst_is_gl_memory (out_tex), FALSE);
 
-  GST_DEBUG ("calling filter_texture with textures in:%i out:%i", in_tex,
-      out_tex);
+  GST_DEBUG ("calling filter_texture with textures in:%i out:%i",
+      GST_GL_MEMORY_CAST (in_tex)->tex_id,
+      GST_GL_MEMORY_CAST (out_tex)->tex_id);
 
   g_assert (filter_class->filter_texture);
-  ret = filter_class->filter_texture (filter, in_tex, out_tex);
+
+  ret = filter_class->filter_texture (filter, GST_GL_MEMORY_CAST (in_tex),
+      GST_GL_MEMORY_CAST (out_tex));
 
   gst_video_frame_unmap (&out_frame);
 unmap_out_error:
@@ -941,10 +948,19 @@ inbuf_error:
 }
 
 static void
-_debug_marker (GstGLContext * context, GstGLFilter * filter)
+_filter_gl (GstGLContext * context, GstGLFilter * filter)
 {
+  GstGLFilterClass *filter_class = GST_GL_FILTER_GET_CLASS (filter);
+
   gst_gl_insert_debug_marker (context,
       "processing in element %s", GST_OBJECT_NAME (filter));
+
+  if (filter_class->filter)
+    filter->gl_result =
+        filter_class->filter (filter, filter->inbuf, filter->outbuf);
+  else
+    filter->gl_result =
+        gst_gl_filter_filter_texture (filter, filter->inbuf, filter->outbuf);
 }
 
 static GstFlowReturn
@@ -967,12 +983,11 @@ gst_gl_filter_transform (GstBaseTransform * bt, GstBuffer * inbuf,
   if (in_sync_meta)
     gst_gl_sync_meta_wait (in_sync_meta, context);
 
-  gst_gl_context_thread_add (context, (GstGLContextThreadFunc) _debug_marker,
+  filter->inbuf = inbuf;
+  filter->outbuf = outbuf;
+  gst_gl_context_thread_add (context, (GstGLContextThreadFunc) _filter_gl,
       filter);
-  if (filter_class->filter)
-    ret = filter_class->filter (filter, inbuf, outbuf);
-  else
-    ret = gst_gl_filter_filter_texture (filter, inbuf, outbuf);
+  ret = filter->gl_result;
 
   out_sync_meta = gst_buffer_get_gl_sync_meta (outbuf);
   if (out_sync_meta)
@@ -981,66 +996,46 @@ gst_gl_filter_transform (GstBaseTransform * bt, GstBuffer * inbuf,
   return ret ? GST_FLOW_OK : GST_FLOW_ERROR;
 }
 
-struct glcb2
+struct glcb
 {
-  GLCB func;
+  GstGLFilter *filter;
+  GstGLFilterRenderFunc func;
+  GstGLMemory *in_tex;
   gpointer data;
-  guint texture;
-  guint width;
-  guint height;
 };
 
-/* convenience functions to simplify filter development */
-static void
-_glcb2 (gpointer data)
+static gboolean
+_glcb (gpointer data)
 {
-  struct glcb2 *cb = data;
+  struct glcb *cb = data;
 
-  cb->func (cb->width, cb->height, cb->texture, cb->data);
+  return cb->func (cb->filter, cb->in_tex, cb->data);
 }
 
 /**
  * gst_gl_filter_render_to_target:
  * @filter: a #GstGLFilter
- * @resize: whether to automatically resize the texture between the input size
- *          and the output size
  * @input: the input texture
- * @target: the output texture
+ * @output: the output texture
  * @func: the function to transform @input into @output. called with @data
  * @data: the data associated with @func
  *
- * Transforms @input into @output using @func on through FBO.  @resize should
- * only ever be %TRUE whenever @input is the input texture of @filter.
+ * Transforms @input into @output using @func on through FBO.
+ *
+ * Returns: the return value of @func
  */
-void
-gst_gl_filter_render_to_target (GstGLFilter * filter, gboolean resize,
-    GLuint input, GLuint target, GLCB func, gpointer data)
+gboolean
+gst_gl_filter_render_to_target (GstGLFilter * filter, GstGLMemory * input,
+    GstGLMemory * output, GstGLFilterRenderFunc func, gpointer data)
 {
-  GstGLContext *context = GST_GL_BASE_FILTER (filter)->context;
-  guint in_width, in_height, out_width, out_height;
-  struct glcb2 cb;
+  struct glcb cb;
 
-  out_width = GST_VIDEO_INFO_WIDTH (&filter->out_info);
-  out_height = GST_VIDEO_INFO_HEIGHT (&filter->out_info);
-  if (resize) {
-    in_width = GST_VIDEO_INFO_WIDTH (&filter->in_info);
-    in_height = GST_VIDEO_INFO_HEIGHT (&filter->in_info);
-  } else {
-    in_width = out_width;
-    in_height = out_height;
-  }
-
-  GST_LOG ("rendering to target. in %u, %ux%u out %u, %ux%u", input, in_width,
-      in_height, target, out_width, out_height);
-
+  cb.filter = filter;
   cb.func = func;
+  cb.in_tex = input;
   cb.data = data;
-  cb.texture = input;
-  cb.width = in_width;
-  cb.height = in_height;
 
-  gst_gl_context_use_fbo_v2 (context, out_width, out_height,
-      filter->fbo, filter->depthbuffer, target, _glcb2, &cb);
+  return gst_gl_framebuffer_draw_to_texture (filter->fbo, output, _glcb, &cb);
 }
 
 static void
@@ -1065,10 +1060,10 @@ _get_attributes (GstGLFilter * filter)
   filter->valid_attributes = TRUE;
 }
 
-static void
-_draw_with_shader_cb (gint width, gint height, guint texture, gpointer stuff)
+static gboolean
+_draw_with_shader_cb (GstGLFilter * filter, GstGLMemory * in_tex,
+    gpointer unused)
 {
-  GstGLFilter *filter = GST_GL_FILTER (stuff);
   GstGLContext *context = GST_GL_BASE_FILTER (filter)->context;
   GstGLFuncs *gl = context->gl_vtable;
 
@@ -1083,26 +1078,27 @@ _draw_with_shader_cb (gint width, gint height, guint texture, gpointer stuff)
   gst_gl_shader_use (filter->default_shader);
 
   gl->ActiveTexture (GL_TEXTURE1);
-  gl->BindTexture (GL_TEXTURE_2D, texture);
+  gl->BindTexture (GL_TEXTURE_2D, gst_gl_memory_get_texture_id (in_tex));
 
   gst_gl_shader_set_uniform_1i (filter->default_shader, "tex", 1);
-  gst_gl_shader_set_uniform_1f (filter->default_shader, "width", width);
-  gst_gl_shader_set_uniform_1f (filter->default_shader, "height", height);
+  gst_gl_shader_set_uniform_1f (filter->default_shader, "width",
+      GST_VIDEO_INFO_WIDTH (&filter->out_info));
+  gst_gl_shader_set_uniform_1f (filter->default_shader, "height",
+      GST_VIDEO_INFO_HEIGHT (&filter->out_info));
 
-  gst_gl_filter_draw_texture (filter, texture, width, height);
+  gst_gl_filter_draw_fullscreen_quad (filter);
+
+  return TRUE;
 }
 
 /**
  * gst_gl_filter_render_to_target_with_shader:
  * @filter: a #GstGLFilter
- * @resize: whether to automatically resize the texture between the input size
- *          and the output size
  * @input: the input texture
- * @target: the output texture
+ * @output: the output texture
  * @shader: the shader to use.
  *
- * Transforms @input into @output using @shader on FBO.  @resize should
- * only ever be %TRUE whenever @input is the input texture of @filter.
+ * Transforms @input into @output using @shader with a FBO.
  *
  * See also: gst_gl_filter_render_to_target()
  */
@@ -1110,14 +1106,14 @@ _draw_with_shader_cb (gint width, gint height, guint texture, gpointer stuff)
  * the shader, render input to a quad */
 void
 gst_gl_filter_render_to_target_with_shader (GstGLFilter * filter,
-    gboolean resize, GLuint input, GLuint target, GstGLShader * shader)
+    GstGLMemory * input, GstGLMemory * output, GstGLShader * shader)
 {
   if (filter->default_shader != shader)
     filter->valid_attributes = FALSE;
   filter->default_shader = shader;
 
-  gst_gl_filter_render_to_target (filter, resize, input, target,
-      _draw_with_shader_cb, filter);
+  gst_gl_filter_render_to_target (filter, input, output, _draw_with_shader_cb,
+      NULL);
 }
 
 /* *INDENT-OFF* */
@@ -1168,22 +1164,19 @@ _unbind_buffer (GstGLFilter * filter)
 }
 
 /**
- * gst_gl_filter_draw_texture:
+ * gst_gl_filter_draw_fullscreen_quad:
  * @filter: a #GstGLFilter
- * @texture: the texture to draw
- * @width: width of @texture
- * @height: height of texture
  *
- * Draws @texture into the OpenGL scene at the specified @width and @height.
+ * Render a fullscreen quad using the current GL state.  The only GL state this 
+ * modifies is the necessary vertex/index buffers and, if necessary, a
+ * Vertex Array Object for drawing a fullscreen quad.  Framebuffer state,
+ * any shaders, viewport state, etc must be setup by the caller.
  */
 void
-gst_gl_filter_draw_texture (GstGLFilter * filter, GLuint texture,
-    guint width, guint height)
+gst_gl_filter_draw_fullscreen_quad (GstGLFilter * filter)
 {
   GstGLContext *context = GST_GL_BASE_FILTER (filter)->context;
   GstGLFuncs *gl = context->gl_vtable;
-
-  GST_DEBUG ("drawing texture:%u dimensions:%ux%u", texture, width, height);
 
   {
     if (!filter->vertex_buffer) {
