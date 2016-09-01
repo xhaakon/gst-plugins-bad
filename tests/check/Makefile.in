@@ -91,14 +91,14 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-noinst_PROGRAMS = pipelines/streamheader$(EXEEXT) $(am__EXEEXT_29)
+noinst_PROGRAMS = pipelines/streamheader$(EXEEXT) $(am__EXEEXT_28) \
+	$(am__EXEEXT_29)
 check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4) \
 	$(am__EXEEXT_5) $(am__EXEEXT_6) $(am__EXEEXT_7) \
 	$(am__EXEEXT_8) $(am__EXEEXT_9) $(am__EXEEXT_10) \
 	$(am__EXEEXT_11) $(am__EXEEXT_12) $(am__EXEEXT_13) \
-	$(am__EXEEXT_14) $(am__EXEEXT_16) $(am__EXEEXT_17) \
-	elements/aiffparse$(EXEEXT) \
+	$(am__EXEEXT_15) $(am__EXEEXT_16) elements/aiffparse$(EXEEXT) \
 	elements/videoframe-audiolevel$(EXEEXT) \
 	elements/autoconvert$(EXEEXT) \
 	elements/autovideoconvert$(EXEEXT) \
@@ -106,22 +106,24 @@ check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	elements/asfmux$(EXEEXT) elements/camerabin$(EXEEXT) \
 	elements/dataurisrc$(EXEEXT) elements/gdppay$(EXEEXT) \
 	elements/gdpdepay$(EXEEXT) elements/compositor$(EXEEXT) \
-	$(am__EXEEXT_18) elements/jpegparse$(EXEEXT) \
+	$(am__EXEEXT_17) elements/jpegparse$(EXEEXT) \
 	elements/h263parse$(EXEEXT) elements/h264parse$(EXEEXT) \
 	elements/mpegtsmux$(EXEEXT) elements/mpegvideoparse$(EXEEXT) \
 	elements/mpeg4videoparse$(EXEEXT) elements/mxfdemux$(EXEEXT) \
 	elements/mxfmux$(EXEEXT) elements/netsim$(EXEEXT) \
 	elements/pcapparse$(EXEEXT) elements/pnm$(EXEEXT) \
+	elements/rawaudioparse$(EXEEXT) \
+	elements/rawvideoparse$(EXEEXT) \
 	elements/rtponvifparse$(EXEEXT) \
 	elements/rtponviftimestamp$(EXEEXT) elements/id3mux$(EXEEXT) \
-	pipelines/mxf$(EXEEXT) $(am__EXEEXT_19) \
+	pipelines/mxf$(EXEEXT) $(am__EXEEXT_18) \
 	libs/mpegvideoparser$(EXEEXT) libs/mpegts$(EXEEXT) \
 	libs/h264parser$(EXEEXT) libs/vp8parser$(EXEEXT) \
-	libs/aggregator$(EXEEXT) $(am__EXEEXT_20) \
-	libs/vc1parser$(EXEEXT) $(am__EXEEXT_21) $(am__EXEEXT_22) \
-	elements/viewfinderbin$(EXEEXT) $(am__EXEEXT_23) \
-	$(am__EXEEXT_24) libs/insertbin$(EXEEXT) $(am__EXEEXT_25) \
-	$(am__EXEEXT_26) $(am__EXEEXT_27) $(am__EXEEXT_28)
+	libs/aggregator$(EXEEXT) $(am__EXEEXT_19) \
+	libs/vc1parser$(EXEEXT) $(am__EXEEXT_20) $(am__EXEEXT_21) \
+	elements/viewfinderbin$(EXEEXT) $(am__EXEEXT_22) \
+	$(am__EXEEXT_23) libs/insertbin$(EXEEXT) $(am__EXEEXT_24) \
+	$(am__EXEEXT_25) $(am__EXEEXT_26) $(am__EXEEXT_27)
 @WITH_GST_PLAYER_TESTS_TRUE@am__append_1 = $(PLAYER_MEDIA_FILES) libs/player_dummy.c
 subdir = tests/check
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -179,43 +181,44 @@ libparser_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libparser_la_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 @USE_ASSRENDER_TRUE@am__EXEEXT_1 = elements/assrender$(EXEEXT)
-@USE_DASH_TRUE@am__EXEEXT_2 = elements/dash_mpd$(EXEEXT)
-@USE_DASH_TRUE@am__EXEEXT_3 = elements/dash_demux$(EXEEXT)
-@USE_FAAC_TRUE@am__EXEEXT_4 = elements/faac$(EXEEXT)
-@USE_FAAD_TRUE@am__EXEEXT_5 = elements/faad$(EXEEXT)
-@USE_VOAACENC_TRUE@am__EXEEXT_6 = elements/voaacenc$(EXEEXT)
-@USE_VOAMRWBENC_TRUE@am__EXEEXT_7 = elements/voamrwbenc$(EXEEXT)
-@USE_MPEG2ENC_TRUE@am__EXEEXT_8 = elements/mpeg2enc$(EXEEXT)
-@USE_MPLEX_TRUE@am__EXEEXT_9 = elements/mplex$(EXEEXT)
-@USE_SMOOTHSTREAMING_TRUE@am__EXEEXT_10 = elements/mssdemux$(EXEEXT)
-@USE_OFA_TRUE@am__EXEEXT_11 = elements/ofa$(EXEEXT)
-@USE_TIMIDITY_TRUE@am__EXEEXT_12 = elements/timidity$(EXEEXT)
-@USE_KATE_TRUE@am__EXEEXT_13 = elements/kate$(EXEEXT)
-@USE_OPENCV_TRUE@am__EXEEXT_14 = elements/templatematch$(EXEEXT)
-@USE_SSH2_TRUE@am__EXEEXT_15 = elements/curlsftpsink$(EXEEXT)
-@USE_CURL_TRUE@am__EXEEXT_16 = elements/curlhttpsink$(EXEEXT) \
+@USE_DASH_TRUE@am__EXEEXT_2 = elements/dash_mpd$(EXEEXT) \
+@USE_DASH_TRUE@	elements/dash_isoff$(EXEEXT)
+@USE_FAAC_TRUE@am__EXEEXT_3 = elements/faac$(EXEEXT)
+@USE_FAAD_TRUE@am__EXEEXT_4 = elements/faad$(EXEEXT)
+@USE_VOAACENC_TRUE@am__EXEEXT_5 = elements/voaacenc$(EXEEXT)
+@USE_VOAMRWBENC_TRUE@am__EXEEXT_6 = elements/voamrwbenc$(EXEEXT)
+@USE_MPEG2ENC_TRUE@am__EXEEXT_7 = elements/mpeg2enc$(EXEEXT)
+@USE_MPLEX_TRUE@am__EXEEXT_8 = elements/mplex$(EXEEXT)
+@USE_SMOOTHSTREAMING_TRUE@am__EXEEXT_9 = elements/mssdemux$(EXEEXT)
+@USE_OFA_TRUE@am__EXEEXT_10 = elements/ofa$(EXEEXT)
+@USE_TIMIDITY_TRUE@am__EXEEXT_11 = elements/timidity$(EXEEXT)
+@USE_KATE_TRUE@am__EXEEXT_12 = elements/kate$(EXEEXT)
+@USE_OPENCV_TRUE@am__EXEEXT_13 = elements/templatematch$(EXEEXT)
+@USE_SSH2_TRUE@am__EXEEXT_14 = elements/curlsftpsink$(EXEEXT)
+@USE_CURL_TRUE@am__EXEEXT_15 = elements/curlhttpsink$(EXEEXT) \
 @USE_CURL_TRUE@	elements/curlfilesink$(EXEEXT) \
-@USE_CURL_TRUE@	elements/curlftpsink$(EXEEXT) $(am__EXEEXT_15) \
+@USE_CURL_TRUE@	elements/curlftpsink$(EXEEXT) $(am__EXEEXT_14) \
 @USE_CURL_TRUE@	elements/curlsmtpsink$(EXEEXT)
-@USE_SHM_TRUE@am__EXEEXT_17 = elements/shm$(EXEEXT)
-@USE_EXIF_TRUE@am__EXEEXT_18 = elements/jifmux$(EXEEXT)
-@USE_MIMIC_TRUE@am__EXEEXT_19 = pipelines/mimic$(EXEEXT)
-@USE_UVCH264_TRUE@am__EXEEXT_20 = elements/uvch264demux$(EXEEXT)
-@USE_SCHRO_TRUE@am__EXEEXT_21 = elements/schroenc$(EXEEXT)
-@USE_X265_TRUE@am__EXEEXT_22 = elements/x265enc$(EXEEXT)
-@USE_ZBAR_TRUE@am__EXEEXT_23 = elements/zbar$(EXEEXT)
-@HAVE_ORC_TRUE@am__EXEEXT_24 = orc/bayer$(EXEEXT) \
+@USE_SHM_TRUE@am__EXEEXT_16 = elements/shm$(EXEEXT)
+@USE_EXIF_TRUE@am__EXEEXT_17 = elements/jifmux$(EXEEXT)
+@USE_MIMIC_TRUE@am__EXEEXT_18 = pipelines/mimic$(EXEEXT)
+@USE_UVCH264_TRUE@am__EXEEXT_19 = elements/uvch264demux$(EXEEXT)
+@USE_SCHRO_TRUE@am__EXEEXT_20 = elements/schroenc$(EXEEXT)
+@USE_X265_TRUE@am__EXEEXT_21 = elements/x265enc$(EXEEXT)
+@USE_ZBAR_TRUE@am__EXEEXT_22 = elements/zbar$(EXEEXT)
+@HAVE_ORC_TRUE@am__EXEEXT_23 = orc/bayer$(EXEEXT) \
 @HAVE_ORC_TRUE@	orc/audiomixer$(EXEEXT) orc/compositor$(EXEEXT)
-@USE_GL_TRUE@am__EXEEXT_25 = libs/gstglcontext$(EXEEXT) \
+@USE_GL_TRUE@am__EXEEXT_24 = libs/gstglcontext$(EXEEXT) \
 @USE_GL_TRUE@	libs/gstglmemory$(EXEEXT) \
 @USE_GL_TRUE@	libs/gstglupload$(EXEEXT) \
 @USE_GL_TRUE@	libs/gstglcolorconvert$(EXEEXT) \
 @USE_GL_TRUE@	libs/gstglquery$(EXEEXT) libs/gstglsl$(EXEEXT) \
 @USE_GL_TRUE@	elements/glimagesink$(EXEEXT) \
 @USE_GL_TRUE@	pipelines/simple-launch-lines$(EXEEXT)
-@USE_HLS_TRUE@am__EXEEXT_26 = elements/hlsdemux_m3u8$(EXEEXT)
-@USE_HLS_TRUE@am__EXEEXT_27 = elements/hls_demux$(EXEEXT)
-@WITH_GST_PLAYER_TESTS_TRUE@am__EXEEXT_28 = libs/player$(EXEEXT)
+@USE_HLS_TRUE@am__EXEEXT_25 = elements/hlsdemux_m3u8$(EXEEXT)
+@USE_HLS_TRUE@am__EXEEXT_26 = elements/hls_demux$(EXEEXT)
+@WITH_GST_PLAYER_TESTS_TRUE@am__EXEEXT_27 = libs/player$(EXEEXT)
+@USE_DASH_TRUE@am__EXEEXT_28 = elements/dash_demux$(EXEEXT)
 @USE_NEON_TRUE@am__EXEEXT_29 = elements/neonhttpsrc$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 elements_aiffparse_SOURCES = elements/aiffparse.c
@@ -232,7 +235,8 @@ elements_assrender_OBJECTS =  \
 	elements/elements_assrender-assrender.$(OBJEXT)
 am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
 elements_assrender_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
 elements_assrender_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(elements_assrender_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -241,7 +245,7 @@ elements_audiointerleave_SOURCES = elements/audiointerleave.c
 elements_audiointerleave_OBJECTS =  \
 	elements/elements_audiointerleave-audiointerleave.$(OBJEXT)
 elements_audiointerleave_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
 elements_audiointerleave_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(elements_audiointerleave_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -279,7 +283,8 @@ elements_compositor_SOURCES = elements/compositor.c
 elements_compositor_OBJECTS =  \
 	elements/elements_compositor-compositor.$(OBJEXT)
 elements_compositor_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
 elements_compositor_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(elements_compositor_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -317,6 +322,15 @@ elements_dash_demux_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(elements_dash_demux_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
+am_elements_dash_isoff_OBJECTS =  \
+	elements/elements_dash_isoff-dash_isoff.$(OBJEXT)
+elements_dash_isoff_OBJECTS = $(am_elements_dash_isoff_OBJECTS)
+elements_dash_isoff_DEPENDENCIES = $(am__DEPENDENCIES_2) \
+	$(am__DEPENDENCIES_1)
+elements_dash_isoff_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(elements_dash_isoff_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 am_elements_dash_mpd_OBJECTS =  \
 	elements/elements_dash_mpd-dash_mpd.$(OBJEXT)
 elements_dash_mpd_OBJECTS = $(am_elements_dash_mpd_OBJECTS)
@@ -335,7 +349,7 @@ elements_faac_SOURCES = elements/faac.c
 elements_faac_OBJECTS = elements/elements_faac-faac.$(OBJEXT)
 elements_faac_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
 elements_faac_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(elements_faac_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
@@ -343,7 +357,7 @@ elements_faad_SOURCES = elements/faad.c
 elements_faad_OBJECTS = elements/elements_faad-faad.$(OBJEXT)
 elements_faad_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
 elements_faad_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(elements_faad_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
@@ -370,7 +384,8 @@ elements_glimagesink_OBJECTS =  \
 elements_glimagesink_DEPENDENCIES =  \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
 elements_glimagesink_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(elements_glimagesink_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -440,7 +455,8 @@ elements_mpegtsmux_SOURCES = elements/mpegtsmux.c
 elements_mpegtsmux_OBJECTS =  \
 	elements/elements_mpegtsmux-mpegtsmux.$(OBJEXT)
 elements_mpegtsmux_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
 elements_mpegtsmux_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(elements_mpegtsmux_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -475,9 +491,14 @@ elements_mxfmux_OBJECTS = elements/mxfmux.$(OBJEXT)
 elements_mxfmux_LDADD = $(LDADD)
 elements_mxfmux_DEPENDENCIES = $(am__DEPENDENCIES_1)
 elements_neonhttpsrc_SOURCES = elements/neonhttpsrc.c
-elements_neonhttpsrc_OBJECTS = elements/neonhttpsrc.$(OBJEXT)
+elements_neonhttpsrc_OBJECTS =  \
+	elements/elements_neonhttpsrc-neonhttpsrc.$(OBJEXT)
 elements_neonhttpsrc_LDADD = $(LDADD)
 elements_neonhttpsrc_DEPENDENCIES = $(am__DEPENDENCIES_1)
+elements_neonhttpsrc_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(elements_neonhttpsrc_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 elements_netsim_SOURCES = elements/netsim.c
 elements_netsim_OBJECTS = elements/netsim.$(OBJEXT)
 elements_netsim_LDADD = $(LDADD)
@@ -496,6 +517,24 @@ elements_pnm_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 elements_pnm_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(elements_pnm_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+elements_rawaudioparse_SOURCES = elements/rawaudioparse.c
+elements_rawaudioparse_OBJECTS =  \
+	elements/elements_rawaudioparse-rawaudioparse.$(OBJEXT)
+elements_rawaudioparse_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+elements_rawaudioparse_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(elements_rawaudioparse_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+elements_rawvideoparse_SOURCES = elements/rawvideoparse.c
+elements_rawvideoparse_OBJECTS =  \
+	elements/elements_rawvideoparse-rawvideoparse.$(OBJEXT)
+elements_rawvideoparse_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+elements_rawvideoparse_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(elements_rawvideoparse_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 elements_rtponvifparse_SOURCES = elements/rtponvifparse.c
 elements_rtponvifparse_OBJECTS =  \
 	elements/elements_rtponvifparse-rtponvifparse.$(OBJEXT)
@@ -550,7 +589,7 @@ elements_videoframe_audiolevel_SOURCES =  \
 elements_videoframe_audiolevel_OBJECTS = elements/elements_videoframe_audiolevel-videoframe-audiolevel.$(OBJEXT)
 elements_videoframe_audiolevel_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
 elements_videoframe_audiolevel_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(elements_videoframe_audiolevel_CFLAGS) $(CFLAGS) \
@@ -564,7 +603,7 @@ elements_voaacenc_OBJECTS =  \
 	elements/elements_voaacenc-voaacenc.$(OBJEXT)
 elements_voaacenc_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
 elements_voaacenc_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(elements_voaacenc_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
@@ -604,7 +643,8 @@ libs_gstglcolorconvert_OBJECTS =  \
 libs_gstglcolorconvert_DEPENDENCIES =  \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
 libs_gstglcolorconvert_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(libs_gstglcolorconvert_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -615,7 +655,8 @@ libs_gstglcontext_OBJECTS =  \
 libs_gstglcontext_DEPENDENCIES =  \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
 libs_gstglcontext_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(libs_gstglcontext_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
@@ -626,7 +667,8 @@ libs_gstglmemory_OBJECTS =  \
 libs_gstglmemory_DEPENDENCIES =  \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
 libs_gstglmemory_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(libs_gstglmemory_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
@@ -656,7 +698,8 @@ libs_gstglupload_OBJECTS =  \
 libs_gstglupload_DEPENDENCIES =  \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
 libs_gstglupload_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(libs_gstglupload_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
@@ -703,7 +746,8 @@ libs_player_OBJECTS = $(am_libs_player_OBJECTS) \
 	$(nodist_libs_player_OBJECTS)
 libs_player_DEPENDENCIES = $(top_builddir)/gst-libs/gst/player/libgstplayer-@GST_API_VERSION@.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
 libs_player_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libs_player_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
@@ -815,10 +859,11 @@ SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/curlfilesink.c elements/curlftpsink.c \
 	elements/curlhttpsink.c elements/curlsftpsink.c \
 	elements/curlsmtpsink.c $(elements_dash_demux_SOURCES) \
-	$(elements_dash_mpd_SOURCES) elements/dataurisrc.c \
-	elements/faac.c elements/faad.c elements/gdpdepay.c \
-	elements/gdppay.c elements/glimagesink.c elements/h263parse.c \
-	elements/h264parse.c $(elements_hls_demux_SOURCES) \
+	$(elements_dash_isoff_SOURCES) $(elements_dash_mpd_SOURCES) \
+	elements/dataurisrc.c elements/faac.c elements/faad.c \
+	elements/gdpdepay.c elements/gdppay.c elements/glimagesink.c \
+	elements/h263parse.c elements/h264parse.c \
+	$(elements_hls_demux_SOURCES) \
 	$(elements_hlsdemux_m3u8_SOURCES) elements/id3mux.c \
 	$(elements_jifmux_SOURCES) elements/jpegparse.c \
 	elements/kate.c elements/mpeg2enc.c elements/mpeg4videoparse.c \
@@ -826,7 +871,8 @@ SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/mplex.c $(elements_mssdemux_SOURCES) \
 	elements/mxfdemux.c elements/mxfmux.c elements/neonhttpsrc.c \
 	elements/netsim.c elements/ofa.c elements/pcapparse.c \
-	elements/pnm.c elements/rtponvifparse.c \
+	elements/pnm.c elements/rawaudioparse.c \
+	elements/rawvideoparse.c elements/rtponvifparse.c \
 	elements/rtponviftimestamp.c elements/schroenc.c \
 	elements/shm.c elements/templatematch.c elements/timidity.c \
 	elements/uvch264demux.c elements/videoframe-audiolevel.c \
@@ -850,10 +896,11 @@ DIST_SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/curlfilesink.c elements/curlftpsink.c \
 	elements/curlhttpsink.c elements/curlsftpsink.c \
 	elements/curlsmtpsink.c $(elements_dash_demux_SOURCES) \
-	$(elements_dash_mpd_SOURCES) elements/dataurisrc.c \
-	elements/faac.c elements/faad.c elements/gdpdepay.c \
-	elements/gdppay.c elements/glimagesink.c elements/h263parse.c \
-	elements/h264parse.c $(elements_hls_demux_SOURCES) \
+	$(elements_dash_isoff_SOURCES) $(elements_dash_mpd_SOURCES) \
+	elements/dataurisrc.c elements/faac.c elements/faad.c \
+	elements/gdpdepay.c elements/gdppay.c elements/glimagesink.c \
+	elements/h263parse.c elements/h264parse.c \
+	$(elements_hls_demux_SOURCES) \
 	$(elements_hlsdemux_m3u8_SOURCES) elements/id3mux.c \
 	$(elements_jifmux_SOURCES) elements/jpegparse.c \
 	elements/kate.c elements/mpeg2enc.c elements/mpeg4videoparse.c \
@@ -861,7 +908,8 @@ DIST_SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/mplex.c $(elements_mssdemux_SOURCES) \
 	elements/mxfdemux.c elements/mxfmux.c elements/neonhttpsrc.c \
 	elements/netsim.c elements/ofa.c elements/pcapparse.c \
-	elements/pnm.c elements/rtponvifparse.c \
+	elements/pnm.c elements/rawaudioparse.c \
+	elements/rawvideoparse.c elements/rtponvifparse.c \
 	elements/rtponviftimestamp.c elements/schroenc.c \
 	elements/shm.c elements/templatematch.c elements/timidity.c \
 	elements/uvch264demux.c elements/videoframe-audiolevel.c \
@@ -1193,6 +1241,8 @@ EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
 FAAC_LIBS = @FAAC_LIBS@
 FAAD_LIBS = @FAAD_LIBS@
+FDK_AAC_CFLAGS = @FDK_AAC_CFLAGS@
+FDK_AAC_LIBS = @FDK_AAC_LIBS@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
 FLITE_CFLAGS = @FLITE_CFLAGS@
@@ -1242,6 +1292,8 @@ GST_ALLOCATORS_CFLAGS = @GST_ALLOCATORS_CFLAGS@
 GST_ALLOCATORS_LIBS = @GST_ALLOCATORS_LIBS@
 GST_ALL_LDFLAGS = @GST_ALL_LDFLAGS@
 GST_API_VERSION = @GST_API_VERSION@
+GST_AUDIO_CFLAGS = @GST_AUDIO_CFLAGS@
+GST_AUDIO_LIBS = @GST_AUDIO_LIBS@
 GST_BASE_CFLAGS = @GST_BASE_CFLAGS@
 GST_BASE_LIBS = @GST_BASE_LIBS@
 GST_CFLAGS = @GST_CFLAGS@
@@ -1678,7 +1730,7 @@ SUPPRESSIONS = $(top_srcdir)/common/gst.supp $(srcdir)/gst-plugins-bad.supp
 @USE_ASSRENDER_FALSE@check_assrender = 
 @USE_ASSRENDER_TRUE@check_assrender = elements/assrender
 @USE_DASH_FALSE@check_dash = 
-@USE_DASH_TRUE@check_dash = elements/dash_mpd
+@USE_DASH_TRUE@check_dash = elements/dash_mpd elements/dash_isoff
 @USE_DASH_FALSE@check_dash_demux = 
 @USE_DASH_TRUE@check_dash_demux = elements/dash_demux
 @USE_FAAC_FALSE@check_faac = 
@@ -1763,19 +1815,19 @@ VALGRIND_TO_FIX = \
 VALGRIND_TESTS_DISABLE = \
 	$(VALGRIND_TO_FIX)
 
-noinst_HEADERS = elements/mxfdemux.h
+noinst_HEADERS = elements/mxfdemux.h elements/dash_isoff.h
 TESTS = $(check_PROGRAMS)
 AM_CFLAGS = $(GST_CFLAGS) $(GST_CHECK_CFLAGS) $(GST_OPTION_CFLAGS) \
 	-DGST_CHECK_TEST_ENVIRONMENT_BEACON="\"GST_PLUGIN_LOADING_WHITELIST\"" \
 	-DGST_TEST_FILES_PATH="\"$(TEST_FILES_DIRECTORY)\"" \
-	-UG_DISABLE_ASSERT -UG_DISABLE_CAST_CHECKS
+	-UG_DISABLE_ASSERT -UG_DISABLE_CAST_CHECKS $(PTHREAD_CFLAGS)
 
 LDADD = $(GST_CHECK_LIBS)
 generic_states_CFLAGS = $(AM_CFLAGS) $(GMODULE_NO_EXPORT_CFLAGS)
 generic_states_LDADD = $(LDADD) $(GMODULE_NO_EXPORT_LIBS)
 elements_audiomixer_LDADD = $(GST_BASE_LIBS) $(GST_CONTROLLER_LIBS) -lgstbase-@GST_API_VERSION@ $(LDADD)
 elements_audiomixer_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CONTROLLER_CFLAGS) $(AM_CFLAGS)
-elements_audiointerleave_LDADD = $(GST_BASE_LIBS) -lgstbase-@GST_API_VERSION@ -lgstaudio-@GST_API_VERSION@ $(LDADD)
+elements_audiointerleave_LDADD = $(GST_BASE_LIBS) -lgstbase-@GST_API_VERSION@ $(GST_AUDIO_LIBS) $(LDADD)
 elements_audiointerleave_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 elements_pnm_CFLAGS = \
 	$(GST_PLUGINS_BASE_CFLAGS)
@@ -1796,6 +1848,10 @@ elements_mpeg4videoparse_LDADD = libparser.la $(LDADD)
 elements_h263parse_LDADD = libparser.la $(LDADD)
 elements_h264parse_LDADD = libparser.la $(LDADD)
 elements_pcapparse_LDADD = libparser.la $(LDADD)
+elements_rawaudioparse_LDADD = $(GST_BASE_LIBS) -lgstbase-@GST_API_VERSION@ $(GST_AUDIO_LIBS) $(LDADD)
+elements_rawaudioparse_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_rawvideoparse_LDADD = $(GST_BASE_LIBS) -lgstbase-@GST_API_VERSION@ $(GST_VIDEO_LIBS) $(LDADD)
+elements_rawvideoparse_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 libs_mpegvideoparser_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
 	-DGST_USE_UNSTABLE_API \
@@ -1808,7 +1864,8 @@ libs_mpegvideoparser_LDADD = \
 libs_mpegts_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) \
 	-DGST_USE_UNSTABLE_API \
-	$(GST_CFLAGS)
+	$(GST_CFLAGS) \
+	$(PTHREAD_CFLAGS)
 
 libs_mpegts_LDADD = \
 	$(top_builddir)/gst-libs/gst/mpegts/libgstmpegts-@GST_API_VERSION@.la \
@@ -1849,7 +1906,7 @@ elements_videoframe_audiolevel_CFLAGS = \
 
 elements_videoframe_audiolevel_LDADD = \
 	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
-	-lgstaudio-@GST_API_VERSION@
+	$(GST_AUDIO_LIBS)
 
 elements_faad_CFLAGS = \
 	$(GST_PLUGINS_BASE_CFLAGS) \
@@ -1857,7 +1914,7 @@ elements_faad_CFLAGS = \
 
 elements_faad_LDADD = \
 	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
-	-lgstaudio-@GST_API_VERSION@
+	$(GST_AUDIO_LIBS)
 
 elements_faac_CFLAGS = \
 	$(GST_PLUGINS_BASE_CFLAGS) \
@@ -1865,7 +1922,7 @@ elements_faac_CFLAGS = \
 
 elements_faac_LDADD = \
 	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
-	-lgstaudio-@GST_API_VERSION@
+	$(GST_AUDIO_LIBS)
 
 elements_gdppay_CFLAGS = \
 	$(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
@@ -1881,7 +1938,7 @@ elements_voaacenc_CFLAGS = \
 
 elements_voaacenc_LDADD = \
 	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
-	-lgstaudio-@GST_API_VERSION@
+	$(GST_AUDIO_LIBS)
 
 elements_camerabin_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
@@ -1902,9 +1959,9 @@ elements_timidity_LDADD = $(GST_BASE_LIBS) $(LDADD)
 elements_kate_CFLAGS = $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 elements_kate_LDADD = $(GST_BASE_LIBS) $(LDADD)
 elements_assrender_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
-elements_assrender_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) -lgstapp-$(GST_API_VERSION) $(GST_BASE_LIBS) $(LDADD)
+elements_assrender_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) -lgstapp-$(GST_API_VERSION) $(GST_BASE_LIBS) $(LDADD)
 elements_mpegtsmux_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
-elements_mpegtsmux_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) $(GST_BASE_LIBS) $(LDADD)
+elements_mpegtsmux_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
 elements_uvch264demux_CFLAGS = -DUVCH264DEMUX_DATADIR="$(srcdir)/elements/uvch264demux_data" \
 				$(AM_CFLAGS)
 
@@ -1913,6 +1970,9 @@ elements_dash_mpd_LDADD = $(LDADD) $(LIBXML2_LIBS) \
 	$(top_builddir)/gst-libs/gst/uridownloader/libgsturidownloader-@GST_API_VERSION@.la
 
 elements_dash_mpd_SOURCES = elements/dash_mpd.c
+elements_dash_isoff_CFLAGS = $(AM_CFLAGS) $(GST_BASE_CFLAGS)
+elements_dash_isoff_LDADD = $(LDADD) $(GST_BASE_LIBS)
+elements_dash_isoff_SOURCES = elements/dash_isoff.c
 elements_dash_demux_CFLAGS = $(AM_CFLAGS) $(LIBXML2_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) $(GST_PLUGINS_BAD_CFLAGS)
 elements_dash_demux_LDADD = \
 	$(LDADD) $(LIBXML2_LIBS) $(GST_BASE_LIBS) \
@@ -1921,6 +1981,7 @@ elements_dash_demux_LDADD = \
 	$(top_builddir)/gst-libs/gst/adaptivedemux/libgstadaptivedemux-@GST_API_VERSION@.la
 
 elements_dash_demux_SOURCES = elements/test_http_src.c elements/test_http_src.h elements/adaptive_demux_engine.c elements/adaptive_demux_engine.h elements/adaptive_demux_common.c elements/adaptive_demux_common.h elements/dash_demux.c
+elements_neonhttpsrc_CFLAGS = $(AM_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS)
 elements_mssdemux_CFLAGS = $(AM_CFLAGS) $(LIBXML2_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) $(GST_PLUGINS_BAD_CFLAGS)
 elements_mssdemux_LDADD = \
 	$(LDADD) $(LIBXML2_LIBS) $(GST_BASE_LIBS) \
@@ -1941,8 +2002,8 @@ libs_insertbin_CFLAGS = \
 libs_player_SOURCES = libs/player.c
 libs_player_LDADD = \
 	$(top_builddir)/gst-libs/gst/player/libgstplayer-@GST_API_VERSION@.la \
-	-lgstvideo-@GST_API_VERSION@ \
-	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+	$(GST_VIDEO_LIBS) $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) \
+	$(LDADD)
 
 libs_player_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS) \
@@ -1970,8 +2031,8 @@ orc_audiomixer_LDADD = $(ORC_LIBS) -lorc-test-0.4
 nodist_orc_audiomixer_SOURCES = orc/audiomixer.c
 libs_gstglcontext_LDADD = \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
-	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
-	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+	$(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) \
+	$(GST_LIBS) $(LDADD)
 
 libs_gstglcontext_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
@@ -1980,8 +2041,8 @@ libs_gstglcontext_CFLAGS = \
 
 libs_gstglmemory_LDADD = \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
-	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
-	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+	$(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) \
+	$(GST_LIBS) $(LDADD)
 
 libs_gstglmemory_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
@@ -1995,8 +2056,8 @@ libs_gstglupload_CFLAGS = \
 
 libs_gstglupload_LDADD = \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
-	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
-	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+	$(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) \
+	$(GST_LIBS) $(LDADD)
 
 libs_gstglcolorconvert_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
@@ -2005,8 +2066,8 @@ libs_gstglcolorconvert_CFLAGS = \
 
 libs_gstglcolorconvert_LDADD = \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
-	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
-	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+	$(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) \
+	$(GST_LIBS) $(LDADD)
 
 libs_gstglquery_LDADD = \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
@@ -2033,8 +2094,8 @@ elements_glimagesink_CFLAGS = \
 
 elements_glimagesink_LDADD = \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-@GST_API_VERSION@.la \
-	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
-	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+	$(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) \
+	$(GST_LIBS) $(LDADD)
 
 pipelines_simple_launch_lines_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) \
@@ -2055,8 +2116,7 @@ libs_aggregator_CFLAGS = \
 	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
 
 elements_compositor_LDADD = \
-	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
-	$(GST_BASE_LIBS) $(LDADD)
+	$(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
 
 elements_compositor_CFLAGS = \
 	$(GST_PLUGINS_BASE_CFLAGS) \
@@ -2246,6 +2306,12 @@ elements/elements_dash_demux-dash_demux.$(OBJEXT):  \
 elements/dash_demux$(EXEEXT): $(elements_dash_demux_OBJECTS) $(elements_dash_demux_DEPENDENCIES) $(EXTRA_elements_dash_demux_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/dash_demux$(EXEEXT)
 	$(AM_V_CCLD)$(elements_dash_demux_LINK) $(elements_dash_demux_OBJECTS) $(elements_dash_demux_LDADD) $(LIBS)
+elements/elements_dash_isoff-dash_isoff.$(OBJEXT):  \
+	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
+
+elements/dash_isoff$(EXEEXT): $(elements_dash_isoff_OBJECTS) $(elements_dash_isoff_DEPENDENCIES) $(EXTRA_elements_dash_isoff_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/dash_isoff$(EXEEXT)
+	$(AM_V_CCLD)$(elements_dash_isoff_LINK) $(elements_dash_isoff_OBJECTS) $(elements_dash_isoff_LDADD) $(LIBS)
 elements/elements_dash_mpd-dash_mpd.$(OBJEXT):  \
 	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
 
@@ -2396,12 +2462,12 @@ elements/mxfmux.$(OBJEXT): elements/$(am__dirstamp) \
 elements/mxfmux$(EXEEXT): $(elements_mxfmux_OBJECTS) $(elements_mxfmux_DEPENDENCIES) $(EXTRA_elements_mxfmux_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/mxfmux$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(elements_mxfmux_OBJECTS) $(elements_mxfmux_LDADD) $(LIBS)
-elements/neonhttpsrc.$(OBJEXT): elements/$(am__dirstamp) \
-	elements/$(DEPDIR)/$(am__dirstamp)
+elements/elements_neonhttpsrc-neonhttpsrc.$(OBJEXT):  \
+	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
 
 elements/neonhttpsrc$(EXEEXT): $(elements_neonhttpsrc_OBJECTS) $(elements_neonhttpsrc_DEPENDENCIES) $(EXTRA_elements_neonhttpsrc_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/neonhttpsrc$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(elements_neonhttpsrc_OBJECTS) $(elements_neonhttpsrc_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(elements_neonhttpsrc_LINK) $(elements_neonhttpsrc_OBJECTS) $(elements_neonhttpsrc_LDADD) $(LIBS)
 elements/netsim.$(OBJEXT): elements/$(am__dirstamp) \
 	elements/$(DEPDIR)/$(am__dirstamp)
 
@@ -2426,6 +2492,18 @@ elements/elements_pnm-pnm.$(OBJEXT): elements/$(am__dirstamp) \
 elements/pnm$(EXEEXT): $(elements_pnm_OBJECTS) $(elements_pnm_DEPENDENCIES) $(EXTRA_elements_pnm_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/pnm$(EXEEXT)
 	$(AM_V_CCLD)$(elements_pnm_LINK) $(elements_pnm_OBJECTS) $(elements_pnm_LDADD) $(LIBS)
+elements/elements_rawaudioparse-rawaudioparse.$(OBJEXT):  \
+	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
+
+elements/rawaudioparse$(EXEEXT): $(elements_rawaudioparse_OBJECTS) $(elements_rawaudioparse_DEPENDENCIES) $(EXTRA_elements_rawaudioparse_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/rawaudioparse$(EXEEXT)
+	$(AM_V_CCLD)$(elements_rawaudioparse_LINK) $(elements_rawaudioparse_OBJECTS) $(elements_rawaudioparse_LDADD) $(LIBS)
+elements/elements_rawvideoparse-rawvideoparse.$(OBJEXT):  \
+	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
+
+elements/rawvideoparse$(EXEEXT): $(elements_rawvideoparse_OBJECTS) $(elements_rawvideoparse_DEPENDENCIES) $(EXTRA_elements_rawvideoparse_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/rawvideoparse$(EXEEXT)
+	$(AM_V_CCLD)$(elements_rawvideoparse_LINK) $(elements_rawvideoparse_OBJECTS) $(elements_rawvideoparse_LDADD) $(LIBS)
 elements/elements_rtponvifparse-rtponvifparse.$(OBJEXT):  \
 	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
 
@@ -2694,6 +2772,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_dash_demux-adaptive_demux_engine.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_dash_demux-dash_demux.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_dash_demux-test_http_src.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_dash_isoff-dash_isoff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_dash_mpd-dash_mpd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_faac-faac.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_faad-faad.Po@am__quote@
@@ -2712,7 +2791,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_mssdemux-adaptive_demux_engine.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_mssdemux-mssdemux.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_mssdemux-test_http_src.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_neonhttpsrc-neonhttpsrc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_pnm-pnm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_rtponvifparse-rtponvifparse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_rtponviftimestamp-rtponviftimestamp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_timidity-timidity.Po@am__quote@
@@ -2730,7 +2812,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mplex.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mxfdemux.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mxfmux.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/neonhttpsrc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/netsim.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/ofa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/pcapparse.Po@am__quote@
@@ -2921,6 +3002,20 @@ elements/elements_dash_demux-dash_demux.obj: elements/dash_demux.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/dash_demux.c' object='elements/elements_dash_demux-dash_demux.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_dash_demux_CFLAGS) $(CFLAGS) -c -o elements/elements_dash_demux-dash_demux.obj `if test -f 'elements/dash_demux.c'; then $(CYGPATH_W) 'elements/dash_demux.c'; else $(CYGPATH_W) '$(srcdir)/elements/dash_demux.c'; fi`
+
+elements/elements_dash_isoff-dash_isoff.o: elements/dash_isoff.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_dash_isoff_CFLAGS) $(CFLAGS) -MT elements/elements_dash_isoff-dash_isoff.o -MD -MP -MF elements/$(DEPDIR)/elements_dash_isoff-dash_isoff.Tpo -c -o elements/elements_dash_isoff-dash_isoff.o `test -f 'elements/dash_isoff.c' || echo '$(srcdir)/'`elements/dash_isoff.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_dash_isoff-dash_isoff.Tpo elements/$(DEPDIR)/elements_dash_isoff-dash_isoff.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/dash_isoff.c' object='elements/elements_dash_isoff-dash_isoff.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_dash_isoff_CFLAGS) $(CFLAGS) -c -o elements/elements_dash_isoff-dash_isoff.o `test -f 'elements/dash_isoff.c' || echo '$(srcdir)/'`elements/dash_isoff.c
+
+elements/elements_dash_isoff-dash_isoff.obj: elements/dash_isoff.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_dash_isoff_CFLAGS) $(CFLAGS) -MT elements/elements_dash_isoff-dash_isoff.obj -MD -MP -MF elements/$(DEPDIR)/elements_dash_isoff-dash_isoff.Tpo -c -o elements/elements_dash_isoff-dash_isoff.obj `if test -f 'elements/dash_isoff.c'; then $(CYGPATH_W) 'elements/dash_isoff.c'; else $(CYGPATH_W) '$(srcdir)/elements/dash_isoff.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_dash_isoff-dash_isoff.Tpo elements/$(DEPDIR)/elements_dash_isoff-dash_isoff.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/dash_isoff.c' object='elements/elements_dash_isoff-dash_isoff.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_dash_isoff_CFLAGS) $(CFLAGS) -c -o elements/elements_dash_isoff-dash_isoff.obj `if test -f 'elements/dash_isoff.c'; then $(CYGPATH_W) 'elements/dash_isoff.c'; else $(CYGPATH_W) '$(srcdir)/elements/dash_isoff.c'; fi`
 
 elements/elements_dash_mpd-dash_mpd.o: elements/dash_mpd.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_dash_mpd_CFLAGS) $(CFLAGS) -MT elements/elements_dash_mpd-dash_mpd.o -MD -MP -MF elements/$(DEPDIR)/elements_dash_mpd-dash_mpd.Tpo -c -o elements/elements_dash_mpd-dash_mpd.o `test -f 'elements/dash_mpd.c' || echo '$(srcdir)/'`elements/dash_mpd.c
@@ -3174,6 +3269,20 @@ elements/elements_mssdemux-mssdemux.obj: elements/mssdemux.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mssdemux_CFLAGS) $(CFLAGS) -c -o elements/elements_mssdemux-mssdemux.obj `if test -f 'elements/mssdemux.c'; then $(CYGPATH_W) 'elements/mssdemux.c'; else $(CYGPATH_W) '$(srcdir)/elements/mssdemux.c'; fi`
 
+elements/elements_neonhttpsrc-neonhttpsrc.o: elements/neonhttpsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_neonhttpsrc_CFLAGS) $(CFLAGS) -MT elements/elements_neonhttpsrc-neonhttpsrc.o -MD -MP -MF elements/$(DEPDIR)/elements_neonhttpsrc-neonhttpsrc.Tpo -c -o elements/elements_neonhttpsrc-neonhttpsrc.o `test -f 'elements/neonhttpsrc.c' || echo '$(srcdir)/'`elements/neonhttpsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_neonhttpsrc-neonhttpsrc.Tpo elements/$(DEPDIR)/elements_neonhttpsrc-neonhttpsrc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/neonhttpsrc.c' object='elements/elements_neonhttpsrc-neonhttpsrc.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_neonhttpsrc_CFLAGS) $(CFLAGS) -c -o elements/elements_neonhttpsrc-neonhttpsrc.o `test -f 'elements/neonhttpsrc.c' || echo '$(srcdir)/'`elements/neonhttpsrc.c
+
+elements/elements_neonhttpsrc-neonhttpsrc.obj: elements/neonhttpsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_neonhttpsrc_CFLAGS) $(CFLAGS) -MT elements/elements_neonhttpsrc-neonhttpsrc.obj -MD -MP -MF elements/$(DEPDIR)/elements_neonhttpsrc-neonhttpsrc.Tpo -c -o elements/elements_neonhttpsrc-neonhttpsrc.obj `if test -f 'elements/neonhttpsrc.c'; then $(CYGPATH_W) 'elements/neonhttpsrc.c'; else $(CYGPATH_W) '$(srcdir)/elements/neonhttpsrc.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_neonhttpsrc-neonhttpsrc.Tpo elements/$(DEPDIR)/elements_neonhttpsrc-neonhttpsrc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/neonhttpsrc.c' object='elements/elements_neonhttpsrc-neonhttpsrc.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_neonhttpsrc_CFLAGS) $(CFLAGS) -c -o elements/elements_neonhttpsrc-neonhttpsrc.obj `if test -f 'elements/neonhttpsrc.c'; then $(CYGPATH_W) 'elements/neonhttpsrc.c'; else $(CYGPATH_W) '$(srcdir)/elements/neonhttpsrc.c'; fi`
+
 elements/elements_pnm-pnm.o: elements/pnm.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_pnm_CFLAGS) $(CFLAGS) -MT elements/elements_pnm-pnm.o -MD -MP -MF elements/$(DEPDIR)/elements_pnm-pnm.Tpo -c -o elements/elements_pnm-pnm.o `test -f 'elements/pnm.c' || echo '$(srcdir)/'`elements/pnm.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_pnm-pnm.Tpo elements/$(DEPDIR)/elements_pnm-pnm.Po
@@ -3187,6 +3296,34 @@ elements/elements_pnm-pnm.obj: elements/pnm.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/pnm.c' object='elements/elements_pnm-pnm.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_pnm_CFLAGS) $(CFLAGS) -c -o elements/elements_pnm-pnm.obj `if test -f 'elements/pnm.c'; then $(CYGPATH_W) 'elements/pnm.c'; else $(CYGPATH_W) '$(srcdir)/elements/pnm.c'; fi`
+
+elements/elements_rawaudioparse-rawaudioparse.o: elements/rawaudioparse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawaudioparse_CFLAGS) $(CFLAGS) -MT elements/elements_rawaudioparse-rawaudioparse.o -MD -MP -MF elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Tpo -c -o elements/elements_rawaudioparse-rawaudioparse.o `test -f 'elements/rawaudioparse.c' || echo '$(srcdir)/'`elements/rawaudioparse.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Tpo elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/rawaudioparse.c' object='elements/elements_rawaudioparse-rawaudioparse.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawaudioparse_CFLAGS) $(CFLAGS) -c -o elements/elements_rawaudioparse-rawaudioparse.o `test -f 'elements/rawaudioparse.c' || echo '$(srcdir)/'`elements/rawaudioparse.c
+
+elements/elements_rawaudioparse-rawaudioparse.obj: elements/rawaudioparse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawaudioparse_CFLAGS) $(CFLAGS) -MT elements/elements_rawaudioparse-rawaudioparse.obj -MD -MP -MF elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Tpo -c -o elements/elements_rawaudioparse-rawaudioparse.obj `if test -f 'elements/rawaudioparse.c'; then $(CYGPATH_W) 'elements/rawaudioparse.c'; else $(CYGPATH_W) '$(srcdir)/elements/rawaudioparse.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Tpo elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/rawaudioparse.c' object='elements/elements_rawaudioparse-rawaudioparse.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawaudioparse_CFLAGS) $(CFLAGS) -c -o elements/elements_rawaudioparse-rawaudioparse.obj `if test -f 'elements/rawaudioparse.c'; then $(CYGPATH_W) 'elements/rawaudioparse.c'; else $(CYGPATH_W) '$(srcdir)/elements/rawaudioparse.c'; fi`
+
+elements/elements_rawvideoparse-rawvideoparse.o: elements/rawvideoparse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawvideoparse_CFLAGS) $(CFLAGS) -MT elements/elements_rawvideoparse-rawvideoparse.o -MD -MP -MF elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Tpo -c -o elements/elements_rawvideoparse-rawvideoparse.o `test -f 'elements/rawvideoparse.c' || echo '$(srcdir)/'`elements/rawvideoparse.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Tpo elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/rawvideoparse.c' object='elements/elements_rawvideoparse-rawvideoparse.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawvideoparse_CFLAGS) $(CFLAGS) -c -o elements/elements_rawvideoparse-rawvideoparse.o `test -f 'elements/rawvideoparse.c' || echo '$(srcdir)/'`elements/rawvideoparse.c
+
+elements/elements_rawvideoparse-rawvideoparse.obj: elements/rawvideoparse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawvideoparse_CFLAGS) $(CFLAGS) -MT elements/elements_rawvideoparse-rawvideoparse.obj -MD -MP -MF elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Tpo -c -o elements/elements_rawvideoparse-rawvideoparse.obj `if test -f 'elements/rawvideoparse.c'; then $(CYGPATH_W) 'elements/rawvideoparse.c'; else $(CYGPATH_W) '$(srcdir)/elements/rawvideoparse.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Tpo elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/rawvideoparse.c' object='elements/elements_rawvideoparse-rawvideoparse.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawvideoparse_CFLAGS) $(CFLAGS) -c -o elements/elements_rawvideoparse-rawvideoparse.obj `if test -f 'elements/rawvideoparse.c'; then $(CYGPATH_W) 'elements/rawvideoparse.c'; else $(CYGPATH_W) '$(srcdir)/elements/rawvideoparse.c'; fi`
 
 elements/elements_rtponvifparse-rtponvifparse.o: elements/rtponvifparse.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rtponvifparse_CFLAGS) $(CFLAGS) -MT elements/elements_rtponvifparse-rtponvifparse.o -MD -MP -MF elements/$(DEPDIR)/elements_rtponvifparse-rtponvifparse.Tpo -c -o elements/elements_rtponvifparse-rtponvifparse.o `test -f 'elements/rtponvifparse.c' || echo '$(srcdir)/'`elements/rtponvifparse.c
@@ -3791,9 +3928,9 @@ elements/dash_mpd.log: elements/dash_mpd$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
-elements/dash_demux.log: elements/dash_demux$(EXEEXT)
-	@p='elements/dash_demux$(EXEEXT)'; \
-	b='elements/dash_demux'; \
+elements/dash_isoff.log: elements/dash_isoff$(EXEEXT)
+	@p='elements/dash_isoff$(EXEEXT)'; \
+	b='elements/dash_isoff'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
@@ -4081,6 +4218,20 @@ elements/pcapparse.log: elements/pcapparse$(EXEEXT)
 elements/pnm.log: elements/pnm$(EXEEXT)
 	@p='elements/pnm$(EXEEXT)'; \
 	b='elements/pnm'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+elements/rawaudioparse.log: elements/rawaudioparse$(EXEEXT)
+	@p='elements/rawaudioparse$(EXEEXT)'; \
+	b='elements/rawaudioparse'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+elements/rawvideoparse.log: elements/rawvideoparse$(EXEEXT)
+	@p='elements/rawvideoparse$(EXEEXT)'; \
+	b='elements/rawvideoparse'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

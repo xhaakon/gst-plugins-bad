@@ -305,7 +305,8 @@ static void gst_ts_demux_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 static void gst_ts_demux_flush_streams (GstTSDemux * tsdemux, gboolean hard);
 static GstFlowReturn
-gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream);
+gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream,
+    MpegTSBaseProgram * program);
 static void gst_ts_demux_stream_flush (TSDemuxStream * stream,
     GstTSDemux * demux, gboolean hard);
 
@@ -972,7 +973,7 @@ push_event (MpegTSBase * base, GstEvent * event)
       /* If we are pushing out EOS, flush out pending data first */
       if (GST_EVENT_TYPE (event) == GST_EVENT_EOS &&
           gst_pad_is_active (stream->pad))
-        gst_ts_demux_push_pending_data (demux, stream);
+        gst_ts_demux_push_pending_data (demux, stream, NULL);
 
       gst_event_ref (event);
       gst_pad_push_event (stream->pad, event);
@@ -1505,6 +1506,10 @@ create_pad_for_stream (MpegTSBase * base, MpegTSBaseStream * bstream,
       is_audio = TRUE;
       caps = gst_caps_new_empty_simple ("audio/x-ac3");
       break;
+    case ST_PS_AUDIO_LPCM2:
+      is_audio = TRUE;
+      caps = gst_caps_new_empty_simple ("audio/x-private2-lpcm");
+      break;
     case ST_PS_AUDIO_DTS:
       is_audio = TRUE;
       caps = gst_caps_new_empty_simple ("audio/x-dts");
@@ -1647,6 +1652,8 @@ gst_ts_demux_stream_added (MpegTSBase * base, MpegTSBaseStream * bstream,
     stream->nb_out_buffers = 0;
     stream->gap_ref_buffers = 0;
     stream->gap_ref_pts = GST_CLOCK_TIME_NONE;
+    /* Only wait for a valid timestamp if we have a PCR_PID */
+    stream->pending_ts = program->pcr_pid < 0x1fff;
     stream->continuity_counter = CONTINUITY_UNSET;
   }
 }
@@ -1677,7 +1684,7 @@ gst_ts_demux_stream_removed (MpegTSBase * base, MpegTSBaseStream * bstream)
       if (gst_pad_is_active (stream->pad)) {
         /* Flush out all data */
         GST_DEBUG_OBJECT (stream->pad, "Flushing out pending data");
-        gst_ts_demux_push_pending_data ((GstTSDemux *) base, stream);
+        gst_ts_demux_push_pending_data ((GstTSDemux *) base, stream, NULL);
 
         GST_DEBUG_OBJECT (stream->pad, "Pushing out EOS");
         gst_pad_push_event (stream->pad, gst_event_new_eos ());
@@ -1825,7 +1832,8 @@ gst_ts_demux_program_started (MpegTSBase * base, MpegTSBaseProgram * program)
       for (tmp = demux->previous_program->stream_list; tmp; tmp = tmp->next) {
         TSDemuxStream *stream = (TSDemuxStream *) tmp->data;
         if (stream->pad)
-          gst_ts_demux_push_pending_data (demux, stream);
+          gst_ts_demux_push_pending_data (demux, stream,
+              demux->previous_program);
       }
     }
 
@@ -2225,7 +2233,8 @@ gst_ts_demux_queue_data (GstTSDemux * demux, TSDemuxStream * stream,
 }
 
 static void
-calculate_and_push_newsegment (GstTSDemux * demux, TSDemuxStream * stream)
+calculate_and_push_newsegment (GstTSDemux * demux, TSDemuxStream * stream,
+    MpegTSBaseProgram * target_program)
 {
   MpegTSBase *base = (MpegTSBase *) demux;
   GstClockTime lowest_pts = GST_CLOCK_TIME_NONE;
@@ -2234,12 +2243,15 @@ calculate_and_push_newsegment (GstTSDemux * demux, TSDemuxStream * stream)
 
   GST_DEBUG ("Creating new newsegment for stream %p", stream);
 
+  if (target_program == NULL)
+    target_program = demux->program;
+
   /* Speedup : if we don't need to calculate anything, go straight to pushing */
   if (demux->segment_event)
     goto push_new_segment;
 
   /* Calculate the 'new_start' value, used for newsegment */
-  for (tmp = demux->program->stream_list; tmp; tmp = tmp->next) {
+  for (tmp = target_program->stream_list; tmp; tmp = tmp->next) {
     TSDemuxStream *pstream = (TSDemuxStream *) tmp->data;
 
     if (GST_CLOCK_TIME_IS_VALID (pstream->first_pts)) {
@@ -2288,7 +2300,7 @@ calculate_and_push_newsegment (GstTSDemux * demux, TSDemuxStream * stream)
   }
 
 push_new_segment:
-  for (tmp = demux->program->stream_list; tmp; tmp = tmp->next) {
+  for (tmp = target_program->stream_list; tmp; tmp = tmp->next) {
     stream = (TSDemuxStream *) tmp->data;
     if (stream->pad == NULL)
       continue;
@@ -2363,7 +2375,7 @@ gst_ts_demux_check_and_sync_streams (GstTSDemux * demux, GstClockTime time)
           "Stream needs update. Pushing GAP event to TS %" GST_TIME_FORMAT,
           GST_TIME_ARGS (time));
       if (G_UNLIKELY (ps->need_newsegment))
-        calculate_and_push_newsegment (demux, ps);
+        calculate_and_push_newsegment (demux, ps, NULL);
 
       /* Now send gap event */
       gst_pad_push_event (ps->pad, gst_event_new_gap (time, 0));
@@ -2471,12 +2483,14 @@ error:
 }
 
 static GstFlowReturn
-gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream)
+gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream,
+    MpegTSBaseProgram * target_program)
 {
   GstFlowReturn res = GST_FLOW_OK;
   MpegTSBaseStream *bs = (MpegTSBaseStream *) stream;
   GstBuffer *buffer = NULL;
   GstBufferList *buffer_list = NULL;
+
 
   GST_DEBUG_OBJECT (stream->pad,
       "stream:%p, pid:0x%04x stream_type:%d state:%d", stream, bs->pid,
@@ -2591,7 +2605,7 @@ gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream)
   }
 
   if (G_UNLIKELY (stream->need_newsegment))
-    calculate_and_push_newsegment (demux, stream);
+    calculate_and_push_newsegment (demux, stream, target_program);
 
   /* FIXME : Push pending buffers if any */
   if (G_UNLIKELY (stream->pending)) {
@@ -2685,13 +2699,19 @@ gst_ts_demux_push_pending_data (GstTSDemux * demux, TSDemuxStream * stream)
      * hit this will trigger a gap check */
     if (G_UNLIKELY (stream->pts != GST_CLOCK_TIME_NONE &&
             stream->pts > stream->gap_ref_pts + 2 * GST_SECOND)) {
-      GstClockTime curpcr =
-          mpegts_packetizer_get_current_time (MPEG_TS_BASE_PACKETIZER (demux),
-          demux->program->pcr_pid);
-      if (curpcr == GST_CLOCK_TIME_NONE || curpcr < 800 * GST_MSECOND)
-        goto beach;
-      curpcr -= 800 * GST_MSECOND;
-      gst_ts_demux_check_and_sync_streams (demux, curpcr);
+      if (demux->program->pcr_pid != 0x1fff) {
+        GstClockTime curpcr =
+            mpegts_packetizer_get_current_time (MPEG_TS_BASE_PACKETIZER (demux),
+            demux->program->pcr_pid);
+        if (curpcr == GST_CLOCK_TIME_NONE || curpcr < 800 * GST_MSECOND)
+          goto beach;
+        curpcr -= 800 * GST_MSECOND;
+        /* Use the current PCR (with a safety margin) to sync against */
+        gst_ts_demux_check_and_sync_streams (demux, curpcr);
+      } else {
+        /* If we don't have a PCR track, just use the current stream PTS */
+        gst_ts_demux_check_and_sync_streams (demux, stream->pts);
+      }
     }
   }
 
@@ -2719,7 +2739,7 @@ gst_ts_demux_handle_packet (GstTSDemux * demux, TSDemuxStream * stream,
   if (G_UNLIKELY (packet->payload_unit_start_indicator) &&
       FLAGS_HAS_PAYLOAD (packet->scram_afc_cc))
     /* Flush previous data */
-    res = gst_ts_demux_push_pending_data (demux, stream);
+    res = gst_ts_demux_push_pending_data (demux, stream, NULL);
 
   if (packet->payload && (res == GST_FLOW_OK || res == GST_FLOW_NOT_LINKED)
       && stream->pad) {
@@ -2729,7 +2749,7 @@ gst_ts_demux_handle_packet (GstTSDemux * demux, TSDemuxStream * stream,
     /* Finally check if the data we queued completes a packet */
     if (stream->expected_size && stream->current_size == stream->expected_size) {
       GST_LOG ("pushing complete packet");
-      res = gst_ts_demux_push_pending_data (demux, stream);
+      res = gst_ts_demux_push_pending_data (demux, stream, NULL);
     }
   }
 
@@ -2777,7 +2797,7 @@ gst_ts_demux_drain (MpegTSBase * base)
   for (tmp = demux->program->stream_list; tmp; tmp = tmp->next) {
     TSDemuxStream *stream = (TSDemuxStream *) tmp->data;
     if (stream->pad) {
-      res = gst_ts_demux_push_pending_data (demux, stream);
+      res = gst_ts_demux_push_pending_data (demux, stream, NULL);
       if (G_UNLIKELY (res != GST_FLOW_OK))
         break;
     }

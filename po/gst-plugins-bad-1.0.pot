@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.9.1\n"
+"Project-Id-Version: gst-plugins-bad 1.9.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-07-06 11:51+0300\n"
+"POT-Creation-Date: 2016-09-01 11:24+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,15 +16,15 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ext/gl/gstgltestsrc.c:519
+#: ext/gl/gstgltestsrc.c:521
 msgid "failed to draw pattern"
 msgstr ""
 
-#: ext/gl/gstgltestsrc.c:520
+#: ext/gl/gstgltestsrc.c:522
 msgid "A GL error occured"
 msgstr ""
 
-#: ext/gl/gstgltestsrc.c:526
+#: ext/gl/gstgltestsrc.c:528
 msgid "format wasn't negotiated before get function"
 msgstr ""
 
@@ -56,7 +56,7 @@ msgid "Could not read DVD."
 msgstr ""
 
 #: ext/smoothstreaming/gstmssdemux.c:405
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:674
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:692
 msgid "This file contains no playable streams."
 msgstr ""
 
@@ -80,21 +80,17 @@ msgstr ""
 msgid "Could not start sndio"
 msgstr ""
 
-#: gst/aiff/aiffparse.c:1504
-msgid "Internal data flow error."
-msgstr ""
-
 #: gst/asfmux/gstasfmux.c:1831
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 
-#: gst/camerabin2/camerabingeneral.c:166 gst/camerabin2/gstcamerabin2.c:1876
+#: gst/camerabin2/camerabingeneral.c:166 gst/camerabin2/gstcamerabin2.c:1875
 #: gst/camerabin2/gstdigitalzoom.c:282 gst/camerabin2/gstviewfinderbin.c:270
 #, c-format
 msgid "Missing element '%s' - check your GStreamer installation."
 msgstr ""
 
-#: gst/camerabin2/gstcamerabin2.c:364
+#: gst/camerabin2/gstcamerabin2.c:363
 msgid "File location is set to NULL, please set it to a valid filename"
 msgstr ""
 
@@ -102,23 +98,21 @@ msgstr ""
 msgid "Digitalzoom element couldn't be created"
 msgstr ""
 
-#: gst/dvdspu/gstdvdspu.c:1039
+#: gst/dvdspu/gstdvdspu.c:1041
 msgid "Subpicture format was not configured before data flow"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2712
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3053
 msgid "Failed to get fragment URL."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2950
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3145
-#: gst/mpegtsdemux/mpegtsbase.c:1382 gst/mpegtsdemux/mpegtsbase.c:1386
-#: gst/nuvdemux/gstnuvdemux.c:733
-msgid "Internal data stream error."
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3404
+msgid "Couldn't download fragments"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3061
-msgid "Couldn't download fragments"
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3493
+#: gst/mpegtsdemux/mpegtsbase.c:1382
+msgid "Internal data stream error."
 msgstr ""
 
 #: gst/videomeasure/gstvideomeasure_collector.c:294
@@ -160,35 +154,35 @@ msgstr ""
 msgid "Could not open file \"%s\" for reading."
 msgstr ""
 
-#: sys/dvb/parsechannels.c:336
+#: sys/dvb/parsechannels.c:359
 msgid "Couldn't find DVB channel configuration file"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:339 sys/dvb/parsechannels.c:495
+#: sys/dvb/parsechannels.c:362 sys/dvb/parsechannels.c:518
 #, c-format
 msgid "Couldn't load DVB channel configuration file: %s"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:348 sys/dvb/parsechannels.c:780
+#: sys/dvb/parsechannels.c:371 sys/dvb/parsechannels.c:803
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:358
+#: sys/dvb/parsechannels.c:381
 #, c-format
 msgid "No properties for the DVB channel %s"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:368
+#: sys/dvb/parsechannels.c:391
 #, c-format
 msgid "Failed to set properties for the DVB channel %s"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:492
+#: sys/dvb/parsechannels.c:515
 #, c-format
 msgid "Couldn't find DVB channel configuration file: %s"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:502
+#: sys/dvb/parsechannels.c:525
 msgid "DVB channel configuration file doesn't contain any channels"
 msgstr ""

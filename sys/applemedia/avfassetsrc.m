@@ -535,8 +535,7 @@ gst_avf_asset_src_read_data (GstAVFAssetSrc *self, GstPad *pad,
     }
 
     if (combined_ret != GST_FLOW_OK) {
-      GST_ELEMENT_ERROR (self, STREAM, FAILED, ("Internal data stream error."),
-          ("stream stopped reason %s", gst_flow_get_name (ret)));
+      GST_ELEMENT_FLOW_ERROR (self, ret);
     }
 
     gst_pad_pause_task (pad);
@@ -900,16 +899,13 @@ gst_avf_asset_src_uri_handler_init (gpointer g_iface, gpointer iface_data)
 {
   NSString *str;
   NSURL *url;
-  gchar *escaped_uri;
 
-  GST_INFO ("Initializing AVFAssetReader with uri:%s", uri);
+  GST_INFO ("Initializing AVFAssetReader with uri: %s", uri);
   *error = NULL;
 
-  escaped_uri = g_uri_escape_string (uri, ":/", TRUE);
-  str = [NSString stringWithUTF8String: escaped_uri];
+  str = [NSString stringWithUTF8String: uri];
   url = [[NSURL alloc] initWithString: str];
   asset = [[AVAsset assetWithURL: url] retain];
-  g_free (escaped_uri);
 
   if (!asset.playable) {
     *error = g_error_new (GST_AVF_ASSET_SRC_ERROR, GST_AVF_ASSET_ERROR_NOT_PLAYABLE,
@@ -1074,7 +1070,7 @@ gst_avf_asset_src_uri_handler_init (gpointer g_iface, gpointer iface_data)
     return NULL;
   }
 
-  buf = gst_core_media_buffer_new (cmbuf, FALSE);
+  buf = gst_core_media_buffer_new (cmbuf, FALSE, NULL);
   CFRelease (cmbuf);
   if (buf == NULL)
     return NULL;

@@ -29,7 +29,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="GstGLDisplay.top_of_page"></a>GstGLDisplay</span></h2>
-<p>GstGLDisplay</p>
+<p>GstGLDisplay — window system display connection abstraction</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -173,6 +173,26 @@
 </div>
 <div class="refsect1">
 <a name="GstGLDisplay.description"></a><h2>Description</h2>
+<p><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> represents a connection to the underlying windowing system. 
+Elements are required to make use of <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstContext.html#GstContext-struct"><span class="type">GstContext</span></a> to share and propogate
+a <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a>.</p>
+<p>There are a number of environment variables that influence the choice of
+platform and window system specific functionality.</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>GST_GL_WINDOW influences the window system to use.  Common values are
+'x11', 'wayland', 'win32' or 'cocoa'.</p></li>
+<li class="listitem"><p>GST_GL_PLATFORM influences the OpenGL platform to use.  Common values are
+'egl', 'glx', 'wgl' or 'cgl'.</p></li>
+<li class="listitem"><p>GST_GL_API influences the OpenGL API requested by the OpenGL platform.
+Common values are 'opengl' and 'gles2'.</p></li>
+</ul></div>
+<div class="note">Certain window systems require a special function to be called to
+initialize threading support.  As this GStreamer GL library does not preclude
+concurrent access to the windowing system, it is strongly advised that
+applications ensure that threading support has been initialized before any
+other toolkit/library functionality is accessed.  Failure to do so could
+result in sudden application abortion during execution.  The most notably
+example of such a function is X11's <code class="function">XInitThreads()</code>.</div>
 </div>
 <div class="refsect1">
 <a name="GstGLDisplay.functions_details"></a><h2>Functions</h2>
@@ -180,12 +200,39 @@
 <a name="gst-gl-display-new"></a><h3>gst_gl_display_new ()</h3>
 <pre class="programlisting"><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="returnvalue">GstGLDisplay</span></a> *
 gst_gl_display_new (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<div class="refsect3">
+<a name="gst-gl-display-new.returns"></a><h4>Returns</h4>
+<p> a new <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a>. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+<p class="since">Since: 1.4</p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="gst-gl-display-get-handle-type"></a><h3>gst_gl_display_get_handle_type ()</h3>
 <pre class="programlisting"><a class="link" href="GstGLDisplay.html#GstGLDisplayType" title="enum GstGLDisplayType"><span class="returnvalue">GstGLDisplayType</span></a>
 gst_gl_display_get_handle_type (<em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>);</pre>
+<div class="refsect3">
+<a name="gst-gl-display-get-handle-type.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>display</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-gl-display-get-handle-type.returns"></a><h4>Returns</h4>
+<p> the <a class="link" href="GstGLDisplay.html#GstGLDisplayType" title="enum GstGLDisplayType"><span class="type">GstGLDisplayType</span></a> of <em class="parameter"><code>display</code></em>
+</p>
+</div>
+<p class="since">Since: 1.4</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -193,12 +240,60 @@ gst_gl_display_get_handle_type (<em class="parameter"><code><a class="link" href
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_gl_display_filter_gl_api (<em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>,
                               <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> gl_api</code></em>);</pre>
+<p>limit the use of OpenGL to the requested <em class="parameter"><code>gl_api</code></em>
+.  This is intended to allow
+application and elements to request a specific set of OpenGL API's based on
+what they support.  See <a class="link" href="GstGLContext.html#gst-gl-context-get-gl-api" title="gst_gl_context_get_gl_api ()"><code class="function">gst_gl_context_get_gl_api()</code></a> for the retreiving the
+API supported by a <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a>.</p>
+<div class="refsect3">
+<a name="gst-gl-display-filter-gl-api.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>display</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>gl_api</p></td>
+<td class="parameter_description"><p>a <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> to filter with</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="gst-gl-display-get-gl-api"></a><h3>gst_gl_display_get_gl_api ()</h3>
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="returnvalue">GstGLAPI</span></a>
 gst_gl_display_get_gl_api (<em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>);</pre>
+<p>see <a class="link" href="GstGLDisplay.html#gst-gl-display-filter-gl-api" title="gst_gl_display_filter_gl_api ()"><code class="function">gst_gl_display_filter_gl_api()</code></a> for what the returned value represents</p>
+<div class="refsect3">
+<a name="gst-gl-display-get-gl-api.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>display</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-gl-display-get-gl-api.returns"></a><h4>Returns</h4>
+<p> the <a class="link" href="gst-plugins-bad-libs-GstGLAPI.html#GstGLAPI" title="enum GstGLAPI"><span class="type">GstGLAPI</span></a> configured for <em class="parameter"><code>display</code></em>
+</p>
+</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -206,6 +301,37 @@ gst_gl_display_get_gl_api (<em class="parameter"><code><a class="link" href="Gst
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_gl_display_add_context (<em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>,
                             <em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>);</pre>
+<div class="refsect3">
+<a name="gst-gl-display-add-context.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>display</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>context</p></td>
+<td class="parameter_description"><p> a <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-gl-display-add-context.returns"></a><h4>Returns</h4>
+<p> whether <em class="parameter"><code>context</code></em>
+was successfully added. <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> may be returned
+if there already exists another context for <em class="parameter"><code>context</code></em>
+'s active thread.</p>
+<p>Must be called with the object lock held.</p>
+</div>
+<p class="since">Since: 1.6</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -214,6 +340,36 @@ gst_gl_display_add_context (<em class="parameter"><code><a class="link" href="Gs
 gst_gl_display_get_gl_context_for_thread
                                (<em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Threads.html#GThread"><span class="type">GThread</span></a> *thread</code></em>);</pre>
+<div class="refsect3">
+<a name="gst-gl-display-get-gl-context-for-thread.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>display</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>thread</p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/glibglib-Threads.html#GThread"><span class="type">GThread</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-gl-display-get-gl-context-for-thread.returns"></a><h4>Returns</h4>
+<p> the <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> current on <em class="parameter"><code>thread</code></em>
+or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p>
+<p>Must be called with the object lock held. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
+</div>
+<p class="since">Since: 1.6</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -229,6 +385,44 @@ gst_gl_display_create_context (<em class="parameter"><code><a class="link" href=
                                <em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *other_context</code></em>,
                                <em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> **p_context</code></em>,
                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Error-Reporting.html#GError"><span class="type">GError</span></a> **error</code></em>);</pre>
+<p>It requires the display's object lock to be held.</p>
+<div class="refsect3">
+<a name="gst-gl-display-create-context.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>display</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>other_context</p></td>
+<td class="parameter_description"><p>other <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> to share resources with.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>p_context</p></td>
+<td class="parameter_description"><p>resulting <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>error</p></td>
+<td class="parameter_description"><p>resulting <a href="/usr/share/gtk-doc/html/glibglib-Error-Reporting.html#GError"><span class="type">GError</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-gl-display-create-context.returns"></a><h4>Returns</h4>
+<p> whether a new context could be created.</p>
+</div>
+<p class="since">Since: 1.6</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -236,6 +430,35 @@ gst_gl_display_create_context (<em class="parameter"><code><a class="link" href=
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_context_get_gl_display (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstContext.html#GstContext-struct"><span class="type">GstContext</span></a> *context</code></em>,
                             <em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> **display</code></em>);</pre>
+<div class="refsect3">
+<a name="gst-context-get-gl-display.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>context</p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstContext.html#GstContext-struct"><span class="type">GstContext</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>display</p></td>
+<td class="parameter_description"><p>resulting <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-context-get-gl-display.returns"></a><h4>Returns</h4>
+<p> Whether <em class="parameter"><code>display</code></em>
+was in <em class="parameter"><code>context</code></em>
+</p>
+</div>
+<p class="since">Since: 1.4</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -243,6 +466,32 @@ gst_context_get_gl_display (<em class="parameter"><code><a href="/usr/share/gtk-
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_context_set_gl_display (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstContext.html#GstContext-struct"><span class="type">GstContext</span></a> *context</code></em>,
                             <em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>);</pre>
+<p>Sets <em class="parameter"><code>display</code></em>
+ on <em class="parameter"><code>context</code></em>
+</p>
+<div class="refsect3">
+<a name="gst-context-set-gl-display.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>context</p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstContext.html#GstContext-struct"><span class="type">GstContext</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>display</p></td>
+<td class="parameter_description"><p>resulting <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p class="since">Since: 1.4</p>
 </div>
 </div>
 <div class="refsect1">
@@ -266,43 +515,59 @@ gst_context_set_gl_display (<em class="parameter"><code><a href="/usr/share/gtk-
 <tbody>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-NONE:CAPS"></a>GST_GL_DISPLAY_TYPE_NONE</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>no display type</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-X11:CAPS"></a>GST_GL_DISPLAY_TYPE_X11</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>X11 display</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-WAYLAND:CAPS"></a>GST_GL_DISPLAY_TYPE_WAYLAND</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>Wayland display</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-COCOA:CAPS"></a>GST_GL_DISPLAY_TYPE_COCOA</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>Cocoa display</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-WIN32:CAPS"></a>GST_GL_DISPLAY_TYPE_WIN32</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>Win32 display</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-DISPMANX:CAPS"></a>GST_GL_DISPLAY_TYPE_DISPMANX</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>Dispmanx display</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-EGL:CAPS"></a>GST_GL_DISPLAY_TYPE_EGL</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>EGL display</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GL-DISPLAY-TYPE-ANY:CAPS"></a>GST_GL_DISPLAY_TYPE_ANY</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>any display type</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 </tbody>
 </table></div>
@@ -312,6 +577,8 @@ gst_context_set_gl_display (<em class="parameter"><code><a href="/usr/share/gtk-
 <div class="refsect2">
 <a name="GstGLDisplay-struct"></a><h3>GstGLDisplay</h3>
 <pre class="programlisting">typedef struct _GstGLDisplay GstGLDisplay;</pre>
+<p>The contents of a <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> are private and should only be accessed
+through the provided API</p>
 </div>
 </div>
 <div class="refsect1">
@@ -319,11 +586,50 @@ gst_context_set_gl_display (<em class="parameter"><code><a href="/usr/share/gtk-
 <div class="refsect2">
 <a name="GstGLDisplay-create-context"></a><h3>The <code class="literal">“create-context”</code> signal</h3>
 <pre class="programlisting"><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="returnvalue">GstGLContext</span></a>*
-user_function (<a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *gstgldisplay,
-               <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *arg1,
+user_function (<a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *object,
+               <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context,
                <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>      user_data)</pre>
+<p>Overrides the <em class="parameter"><code>GstGLContext</code></em>
+ creation mechanism.
+It can be called in any thread and it is emitted with
+display's object lock held.</p>
+<div class="refsect3">
+<a name="GstGLDisplay-create-context.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>object</p></td>
+<td class="parameter_description"><p>the <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>context</p></td>
+<td class="parameter_description"><p>other context to share resources with.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="GstGLDisplay-create-context.returns"></a><h4>Returns</h4>
+<p> the new context.</p>
+</div>
 <p>Flags: <a href="/usr/share/gtk-doc/html/gobjectgobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></p>
 </div>
+</div>
+<div class="refsect1">
+<a name="GstGLDisplay.see-also"></a><h2>See Also</h2>
+<p><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstContext.html#GstContext-struct"><span class="type">GstContext</span></a>, <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a>, <a class="link" href="GstGLWindow.html" title="GstGLWindow"><span class="type">GstGLWindow</span></a></p>
 </div>
 </div>
 <div class="footer">

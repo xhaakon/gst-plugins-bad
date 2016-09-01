@@ -82,6 +82,56 @@
   gboolean ignore_eos;
 };
 </pre>
+<div class="refsect3">
+<a name="GstVideoAggregatorPad.members"></a><h4>Members</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="300px" class="struct_members_name">
+<col class="struct_members_description">
+<col width="200px" class="struct_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad" title="struct GstAggregatorPad"><span class="type">GstAggregatorPad</span></a> <em class="structfield"><code><a name="GstVideoAggregatorPad.parent"></a>parent</code></em>;</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideo.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a> <em class="structfield"><code><a name="GstVideoAggregatorPad.info"></a>info</code></em>;</p></td>
+<td class="struct_member_description"><p>The <a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideo.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a> currently set on the pad</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="type">GstBuffer</span></a> *<em class="structfield"><code><a name="GstVideoAggregatorPad.buffer"></a>buffer</code></em>;</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideo.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a> <em class="structfield"><code><a name="GstVideoAggregatorPad.buffer-vinfo"></a>buffer_vinfo</code></em>;</p></td>
+<td class="struct_member_description"><p>The <a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideo.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a> representing the type contained
+in <em class="parameter"><code>buffer</code></em>
+</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideo.html#GstVideoFrame"><span class="type">GstVideoFrame</span></a> *<em class="structfield"><code><a name="GstVideoAggregatorPad.aggregated-frame"></a>aggregated_frame</code></em>;</p></td>
+<td class="struct_member_description"><p>The <a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideo.html#GstVideoFrame"><span class="type">GstVideoFrame</span></a> ready to be used for aggregation
+inside the aggregate_frames vmethod.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstVideoAggregatorPad.zorder"></a>zorder</code></em>;</p></td>
+<td class="struct_member_description"><p>The zorder of this pad</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> <em class="structfield"><code><a name="GstVideoAggregatorPad.ignore-eos"></a>ignore_eos</code></em>;</p></td>
+<td> </td>
+<td> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
 </div>
 <hr>
 <div class="refsect2">
@@ -102,6 +152,15 @@
   gpointer          _gst_reserved[GST_PADDING_LARGE];
 };
 </pre>
+<p><em class="parameter"><code>set_info</code></em>
+: Lets subclass set a converter on the pad,
+                right after a new format has been negotiated.
+<em class="parameter"><code>prepare_frame</code></em>
+: Prepare the frame from the pad buffer (if any)
+                and sets it to <em class="parameter"><code>aggregated_frame</code></em>
+
+<em class="parameter"><code>clean_frame</code></em>
+:   clean the frame previously prepared in prepare_frame</p>
 </div>
 </div>
 </div>

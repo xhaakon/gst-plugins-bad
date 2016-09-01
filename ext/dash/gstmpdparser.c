@@ -2453,7 +2453,8 @@ gst_mpdparser_get_rep_idx_with_min_bandwidth (GList * Representations)
 
 gint
 gst_mpdparser_get_rep_idx_with_max_bandwidth (GList * Representations,
-    gint max_bandwidth)
+    gint max_bandwidth, gint max_video_width, gint max_video_height, gint
+    max_video_framerate_n, gint max_video_framerate_d)
 {
   GList *list = NULL, *best = NULL;
   GstRepresentationNode *representation;
@@ -2468,8 +2469,32 @@ gst_mpdparser_get_rep_idx_with_max_bandwidth (GList * Representations,
     return gst_mpdparser_get_rep_idx_with_min_bandwidth (Representations);
 
   for (list = g_list_first (Representations); list; list = g_list_next (list)) {
+    GstFrameRate *framerate = NULL;
+
     representation = (GstRepresentationNode *) list->data;
-    if (representation && representation->bandwidth <= max_bandwidth &&
+
+    /* FIXME: Really? */
+    if (!representation)
+      continue;
+
+    framerate = representation->RepresentationBase->frameRate;
+    if (!framerate)
+      framerate = representation->RepresentationBase->maxFrameRate;
+
+    if (framerate && max_video_framerate_n > 0) {
+      if (gst_util_fraction_compare (framerate->num, framerate->den,
+              max_video_framerate_n, max_video_framerate_d) > 0)
+        continue;
+    }
+
+    if (max_video_width > 0
+        && representation->RepresentationBase->width > max_video_width)
+      continue;
+    if (max_video_height > 0
+        && representation->RepresentationBase->height > max_video_height)
+      continue;
+
+    if (representation->bandwidth <= max_bandwidth &&
         representation->bandwidth > best_bandwidth) {
       best = list;
       best_bandwidth = representation->bandwidth;
@@ -5988,4 +6013,30 @@ gst_mpd_client_parse_default_presentation_delay (GstMpdClient * client,
     value = 0;
   }
   return value;
+}
+
+GstClockTime
+gst_mpd_client_get_maximum_segment_duration (GstMpdClient * client)
+{
+  GstClockTime ret = GST_CLOCK_TIME_NONE, dur;
+  GList *stream;
+
+  g_return_val_if_fail (client != NULL, GST_CLOCK_TIME_NONE);
+  g_return_val_if_fail (client->mpd_node != NULL, GST_CLOCK_TIME_NONE);
+
+  if (client->mpd_node->maxSegmentDuration != GST_MPD_DURATION_NONE) {
+    return client->mpd_node->maxSegmentDuration * GST_MSECOND;
+  }
+
+  /* According to the DASH specification, if maxSegmentDuration is not present:
+     "If not present, then the maximum Segment duration shall be the maximum
+     duration of any Segment documented in this MPD"
+   */
+  for (stream = client->active_streams; stream; stream = g_list_next (stream)) {
+    dur = gst_mpd_client_get_segment_duration (client, stream->data, NULL);
+    if (dur != GST_CLOCK_TIME_NONE && (dur > ret || ret == GST_CLOCK_TIME_NONE)) {
+      ret = dur;
+    }
+  }
+  return ret;
 }

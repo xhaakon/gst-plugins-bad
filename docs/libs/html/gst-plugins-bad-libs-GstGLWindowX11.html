@@ -7,7 +7,7 @@
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
 <link rel="prev" href="gst-plugins-bad-libs-GstGLWindowWin32.html" title="GstGLWindowWin32">
-<link rel="next" href="gst-plugins-bad-libs-gstgldebug.html" title="OpenGL Debugging">
+<link rel="next" href="gst-plugins-bad-libs-OpenGL-debugging.html" title="OpenGL debugging">
 <meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -20,7 +20,7 @@
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="gl.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
 <td><a accesskey="p" href="gst-plugins-bad-libs-GstGLWindowWin32.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
-<td><a accesskey="n" href="gst-plugins-bad-libs-gstgldebug.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+<td><a accesskey="n" href="gst-plugins-bad-libs-OpenGL-debugging.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
 <a name="gst-plugins-bad-libs-GstGLWindowX11"></a><div class="titlepage"></div>
@@ -114,12 +114,18 @@ gst_gl_window_x11_create_window (<em class="parameter"><code><a class="link" hre
 <a name="gst-gl-window-x11-trap-x-errors"></a><h3>gst_gl_window_x11_trap_x_errors ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_gl_window_x11_trap_x_errors (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>Traps every X error until <a class="link" href="gst-plugins-bad-libs-GstGLWindowX11.html#gst-gl-window-x11-untrap-x-errors" title="gst_gl_window_x11_untrap_x_errors ()"><code class="function">gst_gl_window_x11_untrap_x_errors()</code></a> is called.</p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="gst-gl-window-x11-untrap-x-errors"></a><h3>gst_gl_window_x11_untrap_x_errors ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
 gst_gl_window_x11_untrap_x_errors (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>Removes the X error trap and returns the current status.</p>
+<div class="refsect3">
+<a name="gst-gl-window-x11-untrap-x-errors.returns"></a><h4>Returns</h4>
+<p> the trapped error code, or 0 for success</p>
+</div>
 </div>
 </div>
 <div class="refsect1">
@@ -129,6 +135,7 @@ gst_gl_window_x11_untrap_x_errors (<em class="parameter"><code><span class="type
 <pre class="programlisting">struct GstGLWindowX11 {
 };
 </pre>
+<p>Opaque <a class="link" href="gst-plugins-bad-libs-GstGLWindowX11.html#GstGLWindowX11" title="struct GstGLWindowX11"><span class="type">GstGLWindowX11</span></a> object</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -136,6 +143,7 @@ gst_gl_window_x11_untrap_x_errors (<em class="parameter"><code><span class="type
 <pre class="programlisting">struct GstGLWindowX11Class {
 };
 </pre>
+<p>Opaque <a class="link" href="gst-plugins-bad-libs-GstGLWindowX11.html#GstGLWindowX11Class" title="struct GstGLWindowX11Class"><span class="type">GstGLWindowX11Class</span></a> object</p>
 </div>
 </div>
 </div>

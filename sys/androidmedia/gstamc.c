@@ -30,6 +30,7 @@
 #endif
 
 #include "gstahcsrc.h"
+#include "gstahssrc.h"
 
 #include "gstamc.h"
 #include "gstamc-constants.h"
@@ -49,7 +50,7 @@ GST_DEBUG_CATEGORY (gst_amc_debug);
 
 GQuark gst_amc_codec_info_quark = 0;
 
-static GList *codec_infos = NULL;
+static GQueue codec_infos = G_QUEUE_INIT;
 #ifdef GST_AMC_IGNORE_UNKNOWN_COLOR_FORMATS
 static gboolean ignore_unknown_color_formats = TRUE;
 #else
@@ -1398,7 +1399,7 @@ scan_codecs (GstPlugin * plugin)
         }
       }
 
-      codec_infos = g_list_append (codec_infos, gst_codec_info);
+      g_queue_push_tail (&codec_infos, gst_codec_info);
     }
 
     return TRUE;
@@ -1851,9 +1852,42 @@ scan_codecs (GstPlugin * plugin)
 
     /* We need at least a valid supported type */
     if (valid_codec) {
-      GST_LOG ("Successfully scanned codec '%s'", name_str);
-      codec_infos = g_list_append (codec_infos, gst_codec_info);
-      gst_codec_info = NULL;
+      GList *l;
+
+      for (l = codec_infos.head; l; l = l->next) {
+        GstAmcCodecInfo *tmp = l->data;
+
+        if (strcmp (tmp->name, gst_codec_info->name) == 0
+            && ! !tmp->is_encoder == ! !gst_codec_info->is_encoder) {
+          gint m = tmp->n_supported_types, n;
+
+          GST_LOG ("Successfully scanned codec '%s', appending to existing",
+              name_str);
+
+          tmp->gl_output_only |= gst_codec_info->gl_output_only;
+          tmp->n_supported_types += gst_codec_info->n_supported_types;
+          tmp->supported_types =
+              g_realloc (tmp->supported_types,
+              tmp->n_supported_types * sizeof (GstAmcCodecType));
+
+          for (n = 0; n < gst_codec_info->n_supported_types; n++, m++) {
+            tmp->supported_types[m] = gst_codec_info->supported_types[n];
+          }
+          g_free (gst_codec_info->supported_types);
+          g_free (gst_codec_info->name);
+          g_free (gst_codec_info);
+          gst_codec_info = NULL;
+
+          break;
+        }
+      }
+
+      /* Found no existing codec with this name */
+      if (l == NULL) {
+        GST_LOG ("Successfully scanned codec '%s'", name_str);
+        g_queue_push_tail (&codec_infos, gst_codec_info);
+        gst_codec_info = NULL;
+      }
     }
 
     /* Clean up of all local references we got */
@@ -1891,7 +1925,7 @@ scan_codecs (GstPlugin * plugin)
     valid_codec = TRUE;
   }
 
-  ret = codec_infos != NULL;
+  ret = codec_infos.length != 0;
 
   /* If successful we store a cache of the codec information in
    * the registry. Otherwise we would always load all codecs during
@@ -1906,7 +1940,7 @@ scan_codecs (GstPlugin * plugin)
 
     g_value_init (&arr, GST_TYPE_ARRAY);
 
-    for (l = codec_infos; l; l = l->next) {
+    for (l = codec_infos.head; l; l = l->next) {
       GstAmcCodecInfo *gst_codec_info = l->data;
       GValue cv = { 0, };
       GstStructure *cs = gst_structure_new_empty ("gst-amc-codec");
@@ -3187,7 +3221,7 @@ register_codecs (GstPlugin * plugin)
 
   GST_DEBUG ("Registering plugins");
 
-  for (l = codec_infos; l; l = l->next) {
+  for (l = codec_infos.head; l; l = l->next) {
     GstAmcCodecInfo *codec_info = l->data;
     gboolean is_audio = FALSE;
     gboolean is_video = FALSE;
@@ -3337,13 +3371,24 @@ plugin_init (GstPlugin * plugin)
     goto failed_graphics_imageformat;
   }
 
+  if (!gst_android_hardware_sensor_init ()) {
+    goto failed_hardware_camera;
+  }
+
   if (!gst_element_register (plugin, "ahcsrc", GST_RANK_NONE, GST_TYPE_AHC_SRC)) {
     GST_ERROR ("Failed to register android camera source");
-    goto failed_hardware_camera;
+    goto failed_hardware_sensor;
+  }
+
+  if (!gst_element_register (plugin, "ahssrc", GST_RANK_NONE, GST_TYPE_AHS_SRC)) {
+    GST_ERROR ("Failed to register android sensor source");
+    goto failed_hardware_sensor;
   }
 
   return TRUE;
 
+failed_hardware_sensor:
+  gst_android_hardware_sensor_deinit ();
 failed_hardware_camera:
   gst_android_hardware_camera_deinit ();
 failed_graphics_imageformat:
@@ -3820,6 +3865,10 @@ gst_amc_codec_info_to_caps (const GstAmcCodecInfo * codec_info,
       }
     }
   }
+
+  GST_DEBUG ("Returning caps for '%s':", codec_info->name);
+  GST_DEBUG ("  raw caps: %" GST_PTR_FORMAT, raw_ret);
+  GST_DEBUG ("  encoded caps: %" GST_PTR_FORMAT, encoded_ret);
 }
 
 GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
