@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.8.2\n"
+"Project-Id-Version: gst-plugins-bad 1.8.3\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-06-09 11:22+0300\n"
+"POT-Creation-Date: 2016-08-19 11:59+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,7 +48,7 @@ msgid "Could not read DVD."
 msgstr ""
 
 #: ext/smoothstreaming/gstmssdemux.c:405
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:633
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:647
 msgid "This file contains no playable streams."
 msgstr ""
 
@@ -94,22 +94,22 @@ msgstr ""
 msgid "Digitalzoom element couldn't be created"
 msgstr ""
 
-#: gst/dvdspu/gstdvdspu.c:1040
+#: gst/dvdspu/gstdvdspu.c:1042
 msgid "Subpicture format was not configured before data flow"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2656
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2740
 msgid "Failed to get fragment URL."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2891
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3085
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2975
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3170
 #: gst/mpegtsdemux/mpegtsbase.c:1383 gst/mpegtsdemux/mpegtsbase.c:1387
 #: gst/nuvdemux/gstnuvdemux.c:736
 msgid "Internal data stream error."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3003
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3087
 msgid "Couldn't download fragments"
 msgstr ""
 

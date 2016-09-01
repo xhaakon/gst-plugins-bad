@@ -1,3 +1,9 @@
+gst-plugins-bad1.0 (1.8.3-1) unstable; urgency=medium
+
+  * New upstream bugfix release.
+
+ -- Sebastian Dröge <slomo@debian.org>  Fri, 19 Aug 2016 12:01:55 +0300
+
 gst-plugins-bad1.0 (1.8.2-1ubuntu4) yakkety; urgency=medium
 
   [ Alfonso Sanchez-Beato (email Canonical) ]

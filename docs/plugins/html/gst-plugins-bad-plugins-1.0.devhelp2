@@ -155,7 +155,9 @@
     <keyword type="struct" name="struct GstAutoConvert" link="gst-plugins-bad-plugins-autoconvert.html#GstAutoConvert-struct"/>
     <keyword type="property" name="The “factories” property" link="gst-plugins-bad-plugins-autoconvert.html#GstAutoConvert--factories"/>
     <keyword type="property" name="The “initial-identity” property" link="gst-plugins-bad-plugins-autoconvert.html#GstAutoConvert--initial-identity"/>
-    <keyword type="struct" name="struct GstBs2b" link="gst-plugins-bad-plugins-bs2b.html#GstBs2b"/>
+    <keyword type="struct" name="struct GstBs2b" link="gst-plugins-bad-plugins-bs2b.html#GstBs2b-struct"/>
+    <keyword type="property" name="The “fcut” property" link="gst-plugins-bad-plugins-bs2b.html#GstBs2b--fcut"/>
+    <keyword type="property" name="The “feed” property" link="gst-plugins-bad-plugins-bs2b.html#GstBs2b--feed"/>
     <keyword type="struct" name="struct GstBulge" link="gst-plugins-bad-plugins-bulge.html#GstBulge-struct"/>
     <keyword type="property" name="The “zoom” property" link="gst-plugins-bad-plugins-bulge.html#GstBulge--zoom"/>
     <keyword type="struct" name="struct GstBurn" link="gst-plugins-bad-plugins-burn.html#GstBurn-struct"/>
@@ -171,15 +173,15 @@
     <keyword type="struct" name="struct GstColorEffects" link="gst-plugins-bad-plugins-coloreffects.html#GstColorEffects-struct"/>
     <keyword type="property" name="The “preset” property" link="gst-plugins-bad-plugins-coloreffects.html#GstColorEffects--preset"/>
     <keyword type="property" name="The “background” property" link="gst-plugins-bad-plugins-compositor.html#GstCompositor--background"/>
-    <keyword type="struct" name="struct GstCvDilate" link="gst-plugins-bad-plugins-cvdilate.html#GstCvDilate"/>
-    <keyword type="struct" name="struct GstCvErode" link="gst-plugins-bad-plugins-cverode.html#GstCvErode"/>
-    <keyword type="struct" name="struct GstCvEqualizeHist" link="gst-plugins-bad-plugins-cvequalizehist.html#GstCvEqualizeHist"/>
-    <keyword type="struct" name="struct GstCvLaplace" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace"/>
+    <keyword type="struct" name="struct GstCvDilate" link="gst-plugins-bad-plugins-cvdilate.html#GstCvDilate-struct"/>
+    <keyword type="struct" name="struct GstCvErode" link="gst-plugins-bad-plugins-cverode.html#GstCvErode-struct"/>
+    <keyword type="struct" name="struct GstCvEqualizeHist" link="gst-plugins-bad-plugins-cvequalizehist.html#GstCvEqualizeHist-struct"/>
+    <keyword type="struct" name="struct GstCvLaplace" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace-struct"/>
     <keyword type="property" name="The “aperture-size” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--aperture-size"/>
     <keyword type="property" name="The “scale” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--scale"/>
     <keyword type="property" name="The “shift” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--shift"/>
     <keyword type="property" name="The “mask” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--mask"/>
-    <keyword type="struct" name="struct GstCvSmooth" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth"/>
+    <keyword type="struct" name="struct GstCvSmooth" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth-struct"/>
     <keyword type="property" name="The “param1” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--param1"/>
     <keyword type="property" name="The “param2” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--param2"/>
     <keyword type="property" name="The “param3” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--param3"/>
@@ -189,7 +191,7 @@
     <keyword type="property" name="The “height” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--height"/>
     <keyword type="property" name="The “spatial” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--spatial"/>
     <keyword type="property" name="The “width” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--width"/>
-    <keyword type="struct" name="struct GstCvSobel" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel"/>
+    <keyword type="struct" name="struct GstCvSobel" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel-struct"/>
     <keyword type="property" name="The “aperture-size” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--aperture-size"/>
     <keyword type="property" name="The “x-order” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--x-order"/>
     <keyword type="property" name="The “y-order” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--y-order"/>
@@ -459,11 +461,11 @@
     <keyword type="property" name="The “zoom” property" link="gst-plugins-bad-plugins-square.html#GstSquare--zoom"/>
     <keyword type="struct" name="struct GstStretch" link="gst-plugins-bad-plugins-stretch.html#GstStretch-struct"/>
     <keyword type="property" name="The “intensity” property" link="gst-plugins-bad-plugins-stretch.html#GstStretch--intensity"/>
-    <keyword type="struct" name="struct GstTemplateMatch" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch"/>
+    <keyword type="struct" name="struct GstTemplateMatch" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch-struct"/>
     <keyword type="property" name="The “display” property" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch--display"/>
     <keyword type="property" name="The “method” property" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch--method"/>
     <keyword type="property" name="The “template” property" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch--template"/>
-    <keyword type="struct" name="struct GstOpencvTextOverlay" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay"/>
+    <keyword type="struct" name="struct GstOpencvTextOverlay" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay-struct"/>
     <keyword type="property" name="The “colorB” property" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay--colorB"/>
     <keyword type="property" name="The “colorG” property" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay--colorG"/>
     <keyword type="property" name="The “colorR” property" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay--colorR"/>
