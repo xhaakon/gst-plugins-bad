@@ -142,11 +142,13 @@ gst_fdkaacdec_set_format (GstAudioDecoder * dec, GstCaps * caps)
 
     if ((err = aacDecoder_ConfigRaw (self->dec, &data, &size)) != AAC_DEC_OK) {
       gst_buffer_unmap (codec_data, &map);
+      gst_buffer_unref (codec_data);
       GST_ERROR_OBJECT (self, "Invalid codec_data: %d", err);
       return FALSE;
     }
 
     gst_buffer_unmap (codec_data, &map);
+    gst_buffer_unref (codec_data);
   }
 
   if ((err =
@@ -158,15 +160,15 @@ gst_fdkaacdec_set_format (GstAudioDecoder * dec, GstCaps * caps)
 
   if ((err =
           aacDecoder_SetParam (self->dec, AAC_PCM_OUTPUT_INTERLEAVED,
-              0)) != AAC_DEC_OK) {
-    GST_ERROR_OBJECT (self, "Failed to set output channel mapping: %d", err);
+              1)) != AAC_DEC_OK) {
+    GST_ERROR_OBJECT (self, "Failed to set interleaved output: %d", err);
     return FALSE;
   }
 
   /* 8 channels * 2 bytes per sample * 2048 samples */
   if (!self->decode_buffer) {
-    self->decode_buffer_size = 8 * 2 * 2048;
-    self->decode_buffer = g_malloc (self->decode_buffer_size);
+    self->decode_buffer_size = 8 * 2048;
+    self->decode_buffer = g_new (gint16, self->decode_buffer_size);
   }
 
   return TRUE;
@@ -188,6 +190,7 @@ gst_fdkaacdec_handle_frame (GstAudioDecoder * dec, GstBuffer * inbuf)
   gboolean need_reorder;
 
   if (inbuf) {
+    gst_buffer_ref (inbuf);
     gst_buffer_map (inbuf, &imap, GST_MAP_READ);
     valid = size = imap.size;
 
@@ -196,10 +199,8 @@ gst_fdkaacdec_handle_frame (GstAudioDecoder * dec, GstBuffer * inbuf)
                 &valid)) != AAC_DEC_OK) {
       GST_AUDIO_DECODER_ERROR (self, 1, STREAM, DECODE, (NULL),
           ("filling error: %d", err), ret);
-      gst_buffer_unmap (inbuf, &imap);
       goto out;
     }
-    gst_buffer_unmap (inbuf, &imap);
 
     if (GST_BUFFER_IS_DISCONT (inbuf))
       flags |= AACDEC_INTR;
@@ -208,8 +209,13 @@ gst_fdkaacdec_handle_frame (GstAudioDecoder * dec, GstBuffer * inbuf)
   }
 
   if ((err =
-          aacDecoder_DecodeFrame (self->dec, (gint16 *) self->decode_buffer,
+          aacDecoder_DecodeFrame (self->dec, self->decode_buffer,
               self->decode_buffer_size, flags)) != AAC_DEC_OK) {
+    if (err == AAC_DEC_TRANSPORT_SYNC_ERROR) {
+      ret = GST_FLOW_OK;
+      outbuf = NULL;
+      goto finish;
+    }
     GST_AUDIO_DECODER_ERROR (self, 1, STREAM, DECODE, (NULL),
         ("decoding error: %d", err), ret);
     goto out;
@@ -383,9 +389,15 @@ gst_fdkaacdec_handle_frame (GstAudioDecoder * dec, GstBuffer * inbuf)
         GST_AUDIO_INFO_CHANNELS (&info), pos, gst_pos);
   }
 
+finish:
   ret = gst_audio_decoder_finish_frame (dec, outbuf, 1);
 
 out:
+
+  if (inbuf) {
+    gst_buffer_unmap (inbuf, &imap);
+    gst_buffer_unref (inbuf);
+  }
 
   return ret;
 }
@@ -398,7 +410,7 @@ gst_fdkaacdec_flush (GstAudioDecoder * dec, gboolean hard)
   if (self->dec) {
     AAC_DECODER_ERROR err;
     if ((err =
-            aacDecoder_DecodeFrame (self->dec, (gint16 *) self->decode_buffer,
+            aacDecoder_DecodeFrame (self->dec, self->decode_buffer,
                 self->decode_buffer_size, AACDEC_FLUSH)) != AAC_DEC_OK) {
       GST_ERROR_OBJECT (self, "flushing error: %d", err);
     }

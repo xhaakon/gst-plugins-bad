@@ -970,13 +970,13 @@ gst_gl_base_memory_memcpy (<em class="parameter"><code><a class="link" href="gst
 
   GstGLBaseMemoryAllocatorCreateFunction        create;
   GstGLBaseMemoryAllocatorMapFunction           map;
+  GstGLBaseMemoryAllocatorUnmapFunction         unmap;
+  GstGLBaseMemoryAllocatorCopyFunction          copy;
+  GstGLBaseMemoryAllocatorDestroyFunction       destroy;
 #if 0
   GstGLBaseMemoryAllocatorFlushFunction         flush;        /* make CPU writes visible to the GPU */
   GstGLBaseMemoryAllocatorInvalidateFunction    invalidate;   /* make GPU writes visible to the CPU */
 #endif
-  GstGLBaseMemoryAllocatorUnmapFunction         unmap;
-  GstGLBaseMemoryAllocatorCopyFunction          copy;
-  GstGLBaseMemoryAllocatorDestroyFunction       destroy;
 } GstGLBaseMemoryAllocatorClass;
 </pre>
 <div class="refsect3">
@@ -1004,16 +1004,6 @@ gst_gl_base_memory_memcpy (<em class="parameter"><code><a class="link" href="gst
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">GstGLBaseMemoryAllocatorFlushFunction</span> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.flush"></a>flush</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><span class="type">GstGLBaseMemoryAllocatorInvalidateFunction</span> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.invalidate"></a>invalidate</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
 <td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorUnmapFunction" title="GstGLBaseMemoryAllocatorUnmapFunction ()"><span class="type">GstGLBaseMemoryAllocatorUnmapFunction</span></a> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.unmap"></a>unmap</code></em>;</p></td>
 <td class="struct_member_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorUnmapFunction" title="GstGLBaseMemoryAllocatorUnmapFunction ()"><span class="type">GstGLBaseMemoryAllocatorUnmapFunction</span></a></p></td>
 <td class="struct_member_annotations"> </td>
@@ -1027,6 +1017,16 @@ gst_gl_base_memory_memcpy (<em class="parameter"><code><a class="link" href="gst
 <td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorDestroyFunction" title="GstGLBaseMemoryAllocatorDestroyFunction ()"><span class="type">GstGLBaseMemoryAllocatorDestroyFunction</span></a> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.destroy"></a>destroy</code></em>;</p></td>
 <td class="struct_member_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorDestroyFunction" title="GstGLBaseMemoryAllocatorDestroyFunction ()"><span class="type">GstGLBaseMemoryAllocatorDestroyFunction</span></a></p></td>
 <td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">GstGLBaseMemoryAllocatorFlushFunction</span> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.flush"></a>flush</code></em>;</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">GstGLBaseMemoryAllocatorInvalidateFunction</span> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.invalidate"></a>invalidate</code></em>;</p></td>
+<td> </td>
+<td> </td>
 </tr>
 </tbody>
 </table></div>

@@ -168,7 +168,8 @@ libgstbluez_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_libgstbluez_la_OBJECTS = libgstbluez_la-bluez-plugin.lo \
 	libgstbluez_la-gsta2dpsink.lo libgstbluez_la-gstavdtpsink.lo \
-	libgstbluez_la-gstavdtpsrc.lo libgstbluez_la-gstavdtputil.lo
+	libgstbluez_la-gstavdtpsrc.lo libgstbluez_la-gstavdtputil.lo \
+	libgstbluez_la-gstavrcputil.lo
 am__objects_1 = libgstbluez_la-bluez.lo
 nodist_libgstbluez_la_OBJECTS = $(am__objects_1)
 libgstbluez_la_OBJECTS = $(am_libgstbluez_la_OBJECTS) \
@@ -699,6 +700,9 @@ WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
 WAYLAND_EGL_CFLAGS = @WAYLAND_EGL_CFLAGS@
 WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
+WAYLAND_PROTOCOLS_CFLAGS = @WAYLAND_PROTOCOLS_CFLAGS@
+WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
+WAYLAND_PROTOCOLS_LIBS = @WAYLAND_PROTOCOLS_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
 WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
@@ -797,7 +801,8 @@ libgstbluez_la_SOURCES = \
 	gsta2dpsink.c \
 	gstavdtpsink.c \
 	gstavdtpsrc.c \
-	gstavdtputil.c
+	gstavdtputil.c \
+	gstavrcputil.c
 
 nodist_libgstbluez_la_SOURCES = \
 	$(BUILT_SOURCES)
@@ -825,7 +830,8 @@ noinst_HEADERS = \
 	gsta2dpsink.h \
 	gstavdtpsink.h \
 	gstavdtpsrc.h \
-	gstavdtputil.h
+	gstavdtputil.h \
+	gstavrcputil.h
 
 BUILT_SOURCES = \
 	bluez.h \
@@ -918,6 +924,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstbluez_la-gstavdtpsink.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstbluez_la-gstavdtpsrc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstbluez_la-gstavdtputil.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstbluez_la-gstavrcputil.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -977,6 +984,13 @@ libgstbluez_la-gstavdtputil.lo: gstavdtputil.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstavdtputil.c' object='libgstbluez_la-gstavdtputil.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstbluez_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstbluez_la_CFLAGS) $(CFLAGS) -c -o libgstbluez_la-gstavdtputil.lo `test -f 'gstavdtputil.c' || echo '$(srcdir)/'`gstavdtputil.c
+
+libgstbluez_la-gstavrcputil.lo: gstavrcputil.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstbluez_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstbluez_la_CFLAGS) $(CFLAGS) -MT libgstbluez_la-gstavrcputil.lo -MD -MP -MF $(DEPDIR)/libgstbluez_la-gstavrcputil.Tpo -c -o libgstbluez_la-gstavrcputil.lo `test -f 'gstavrcputil.c' || echo '$(srcdir)/'`gstavrcputil.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstbluez_la-gstavrcputil.Tpo $(DEPDIR)/libgstbluez_la-gstavrcputil.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstavrcputil.c' object='libgstbluez_la-gstavrcputil.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstbluez_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstbluez_la_CFLAGS) $(CFLAGS) -c -o libgstbluez_la-gstavrcputil.lo `test -f 'gstavrcputil.c' || echo '$(srcdir)/'`gstavrcputil.c
 
 libgstbluez_la-bluez.lo: bluez.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstbluez_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstbluez_la_CFLAGS) $(CFLAGS) -MT libgstbluez_la-bluez.lo -MD -MP -MF $(DEPDIR)/libgstbluez_la-bluez.Tpo -c -o libgstbluez_la-bluez.lo `test -f 'bluez.c' || echo '$(srcdir)/'`bluez.c

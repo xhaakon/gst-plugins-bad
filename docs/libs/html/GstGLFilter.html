@@ -287,6 +287,8 @@ from downstream and automatic upload/download for non-<a class="link" href="gst-
   /* useful to init and cleanup custom gl resources */
   void (*display_init_cb)       (GstGLFilter *filter);
   void (*display_reset_cb)      (GstGLFilter *filter);
+
+  gpointer                      _padding[GST_PADDING];
 } GstGLFilterClass;
 </pre>
 <div class="refsect3">
@@ -342,6 +344,11 @@ caps to be processed between upload on input and before download for output.</p>
 <td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.display-reset-cb"></a>display_reset_cb</code></em> ()</p></td>
 <td class="struct_member_description"><p>execute arbitrary gl code at stop</p></td>
 <td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> <em class="structfield"><code><a name="GstGLFilterClass.-padding"></a>_padding</code></em>[GST_PADDING];</p></td>
+<td> </td>
+<td> </td>
 </tr>
 </tbody>
 </table></div>

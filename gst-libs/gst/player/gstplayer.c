@@ -1590,8 +1590,10 @@ state_changed_cb (G_GNUC_UNUSED GstBus * bus, GstMessage * msg,
       }
 
       check_video_dimensions_changed (self);
-      gst_element_query_duration (self->playbin, GST_FORMAT_TIME, &duration);
-      emit_duration_changed (self, duration);
+      if (gst_element_query_duration (self->playbin, GST_FORMAT_TIME,
+              &duration)) {
+        emit_duration_changed (self, duration);
+      }
     }
 
     if (new_state == GST_STATE_PAUSED
@@ -1730,14 +1732,7 @@ tags_cb (G_GNUC_UNUSED GstBus * bus, GstMessage * msg, gpointer user_data)
 
   gst_message_parse_tag (msg, &tags);
 
-  /*
-   * NOTE: Inorder to get global tag you must apply the following patches in
-   * your gstreamer build.
-   *
-   * http://cgit.freedesktop.org/gstreamer/gst-plugins-good/commit/?id=9119fbd774093e3ae762c8652acd80d54b2c3b45
-   * http://cgit.freedesktop.org/gstreamer/gstreamer/commit/?id=18b058100940bdcaed86fa412e3582a02871f995
-   */
-  GST_DEBUG_OBJECT (self, "recieved %s tags",
+  GST_DEBUG_OBJECT (self, "received %s tags",
       gst_tag_list_get_scope (tags) ==
       GST_TAG_SCOPE_GLOBAL ? "global" : "stream");
 
@@ -2592,14 +2587,7 @@ gst_player_main (gpointer data)
 
   scaletempo = gst_element_factory_make ("scaletempo", NULL);
   if (scaletempo) {
-    if (gst_plugin_feature_check_version (GST_PLUGIN_FEATURE
-            (gst_element_get_factory (scaletempo)), 1, 6, 1)) {
-      g_object_set (self->playbin, "audio-filter", scaletempo, NULL);
-    } else {
-      gst_object_unref (scaletempo);
-      g_warning ("GstPlayer: scaletempo >= 1.6.1 is needed for preserving "
-          "audio pitch during trick modes");
-    }
+    g_object_set (self->playbin, "audio-filter", scaletempo, NULL);
   } else {
     g_warning ("GstPlayer: scaletempo element not available. Audio pitch "
         "will not be preserved during trick modes");
@@ -2766,7 +2754,8 @@ gst_player_play_internal (gpointer user_data)
     change_state (self, GST_PLAYER_STATE_BUFFERING);
 
   if (self->current_state >= GST_STATE_PAUSED && !self->is_eos
-      && self->buffering >= 100) {
+      && self->buffering >= 100 && !(self->seek_position != GST_CLOCK_TIME_NONE
+          || self->seek_pending)) {
     state_ret = gst_element_set_state (self->playbin, GST_STATE_PLAYING);
   } else {
     state_ret = gst_element_set_state (self->playbin, GST_STATE_PAUSED);
@@ -3013,11 +3002,9 @@ gst_player_seek_internal_locked (GstPlayer * self)
 
   flags |= GST_SEEK_FLAG_FLUSH;
 
-#if GST_CHECK_VERSION(1,5,0)
   if (rate != 1.0) {
     flags |= GST_SEEK_FLAG_TRICKMODE;
   }
-#endif
 
   if (rate >= 0.0) {
     s_event = gst_event_new_seek (rate, GST_FORMAT_TIME, flags,
@@ -3186,14 +3173,12 @@ gst_player_set_uri (GstPlayer * self, const gchar * val)
  *
  * Sets the external subtitle URI.
  */
-gboolean
+void
 gst_player_set_subtitle_uri (GstPlayer * self, const gchar * suburi)
 {
-  g_return_val_if_fail (GST_IS_PLAYER (self), FALSE);
+  g_return_if_fail (GST_IS_PLAYER (self));
 
   g_object_set (self, "suburi", suburi, NULL);
-
-  return TRUE;
 }
 
 /**

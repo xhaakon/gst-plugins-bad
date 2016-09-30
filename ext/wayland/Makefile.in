@@ -172,9 +172,11 @@ am_libgstwaylandsink_la_OBJECTS =  \
 	libgstwaylandsink_la-wlbuffer.lo \
 	libgstwaylandsink_la-wldisplay.lo \
 	libgstwaylandsink_la-wlwindow.lo \
-	libgstwaylandsink_la-wlvideoformat.lo \
-	libgstwaylandsink_la-scaler-protocol.lo
-libgstwaylandsink_la_OBJECTS = $(am_libgstwaylandsink_la_OBJECTS)
+	libgstwaylandsink_la-wlvideoformat.lo
+nodist_libgstwaylandsink_la_OBJECTS =  \
+	libgstwaylandsink_la-viewporter-protocol.lo
+libgstwaylandsink_la_OBJECTS = $(am_libgstwaylandsink_la_OBJECTS) \
+	$(nodist_libgstwaylandsink_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -217,7 +219,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libgstwaylandsink_la_SOURCES)
+SOURCES = $(libgstwaylandsink_la_SOURCES) \
+	$(nodist_libgstwaylandsink_la_SOURCES)
 DIST_SOURCES = $(libgstwaylandsink_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
@@ -701,6 +704,9 @@ WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
 WAYLAND_EGL_CFLAGS = @WAYLAND_EGL_CFLAGS@
 WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
+WAYLAND_PROTOCOLS_CFLAGS = @WAYLAND_PROTOCOLS_CFLAGS@
+WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
+WAYLAND_PROTOCOLS_LIBS = @WAYLAND_PROTOCOLS_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
 WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
@@ -794,15 +800,16 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstwaylandsink.la
+BUILT_SOURCES = viewporter-protocol.c viewporter-client-protocol.h
 libgstwaylandsink_la_SOURCES = \
 	gstwaylandsink.c \
 	wlshmallocator.c \
 	wlbuffer.c \
 	wldisplay.c \
 	wlwindow.c \
-	wlvideoformat.c \
-	scaler-protocol.c
+	wlvideoformat.c
 
+nodist_libgstwaylandsink_la_SOURCES = viewporter-protocol.c
 libgstwaylandsink_la_CFLAGS = $(GST_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
                                $(WAYLAND_CFLAGS) $(GST_PLUGINS_BAD_CFLAGS)
 
@@ -821,12 +828,11 @@ noinst_HEADERS = \
 	wlbuffer.h \
 	wldisplay.h \
 	wlwindow.h \
-	wlvideoformat.h \
-	scaler-client-protocol.h
+	wlvideoformat.h
 
-EXTRA_DIST = scaler.xml
-CLEANFILES = scaler-protocol.c scaler-client-protocol.h
-all: all-am
+CLEANFILES = $(BUILT_SOURCES)
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .lo .o .obj
@@ -905,7 +911,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-gstwaylandsink.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-scaler-protocol.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-viewporter-protocol.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wlbuffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wldisplay.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wlshmallocator.Plo@am__quote@
@@ -978,12 +984,12 @@ libgstwaylandsink_la-wlvideoformat.lo: wlvideoformat.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-wlvideoformat.lo `test -f 'wlvideoformat.c' || echo '$(srcdir)/'`wlvideoformat.c
 
-libgstwaylandsink_la-scaler-protocol.lo: scaler-protocol.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -MT libgstwaylandsink_la-scaler-protocol.lo -MD -MP -MF $(DEPDIR)/libgstwaylandsink_la-scaler-protocol.Tpo -c -o libgstwaylandsink_la-scaler-protocol.lo `test -f 'scaler-protocol.c' || echo '$(srcdir)/'`scaler-protocol.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstwaylandsink_la-scaler-protocol.Tpo $(DEPDIR)/libgstwaylandsink_la-scaler-protocol.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='scaler-protocol.c' object='libgstwaylandsink_la-scaler-protocol.lo' libtool=yes @AMDEPBACKSLASH@
+libgstwaylandsink_la-viewporter-protocol.lo: viewporter-protocol.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -MT libgstwaylandsink_la-viewporter-protocol.lo -MD -MP -MF $(DEPDIR)/libgstwaylandsink_la-viewporter-protocol.Tpo -c -o libgstwaylandsink_la-viewporter-protocol.lo `test -f 'viewporter-protocol.c' || echo '$(srcdir)/'`viewporter-protocol.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstwaylandsink_la-viewporter-protocol.Tpo $(DEPDIR)/libgstwaylandsink_la-viewporter-protocol.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='viewporter-protocol.c' object='libgstwaylandsink_la-viewporter-protocol.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-scaler-protocol.lo `test -f 'scaler-protocol.c' || echo '$(srcdir)/'`scaler-protocol.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstwaylandsink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-viewporter-protocol.lo `test -f 'viewporter-protocol.c' || echo '$(srcdir)/'`viewporter-protocol.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1074,13 +1080,15 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-check: check-am
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs:
 	for dir in "$(DESTDIR)$(plugindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -1111,6 +1119,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
 clean-am: clean-generic clean-libtool clean-pluginLTLIBRARIES \
@@ -1182,7 +1191,7 @@ ps-am:
 
 uninstall-am: uninstall-pluginLTLIBRARIES
 
-.MAKE: install-am install-strip
+.MAKE: all check install install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
 	clean-libtool clean-pluginLTLIBRARIES cscopelist-am ctags \
@@ -1202,21 +1211,21 @@ uninstall-am: uninstall-pluginLTLIBRARIES
 .PRECIOUS: Makefile
 
 
-%-protocol.c : %.xml
-	$(wayland_scanner) code < $< > $@
+.SECONDEXPANSION:
 
-%-client-protocol.h : %.xml
-	$(wayland_scanner) client-header < $< > $@
+define protostability
+$(if $(findstring unstable,$1),unstable,stable)
+endef
 
-gstwaylandsink.c: scaler-client-protocol.h
+define protoname
+$(shell echo $1 | sed 's/\([a-z\-]\+\)-[a-z]\+-v[0-9]\+/\1/')
+endef
 
-wlshmallocator.c: scaler-client-protocol.h
+%-protocol.c : $(WAYLAND_PROTOCOLS_DATADIR)/$$(call protostability,$$*)/$$(call protoname,$$*)/$$*.xml
+	$(AM_V_GEN)$(wayland_scanner) code < $< > $@
 
-wlbuffer.c: scaler-client-protocol.h
-
-wldisplay.c: scaler-client-protocol.h
-
-wlwindow.c: scaler-client-protocol.h
+%-client-protocol.h : $(WAYLAND_PROTOCOLS_DATADIR)/$$(call protostability,$$*)/$$(call protoname,$$*)/$$*.xml
+	$(AM_V_GEN)$(wayland_scanner) client-header < $< > $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

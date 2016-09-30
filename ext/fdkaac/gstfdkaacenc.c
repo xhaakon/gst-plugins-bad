@@ -127,11 +127,11 @@ static GstStaticPadTemplate src_template = GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS ("audio/mpeg, "
-        "mpegversion = (int) {2, 4}, "
+        "mpegversion = (int) 4, "
         "rate = (int) { " SAMPLE_RATES " }, "
         "channels = (int) {1, 2, 3, 4, 5, 6, 8}, "
         "stream-format = (string) { adts, adif, raw }, "
-        "base-profile = (string) lc")
+        "base-profile = (string) lc, " "framed = (boolean) true")
     );
 
 GST_DEBUG_CATEGORY_STATIC (gst_fdkaacenc_debug);
@@ -296,11 +296,7 @@ gst_fdkaacenc_set_format (GstAudioEncoder * enc, GstAudioInfo * info)
     return FALSE;
   }
 
-  if (mpegversion == 4) {
-    aot = AOT_AAC_LC;
-  } else {
-    aot = AOT_MP2_AAC_LC;
-  }
+  aot = AOT_AAC_LC;
 
   if ((err = aacEncoder_SetParam (self->enc, AACENC_AOT, aot)) != AACENC_OK) {
     GST_ERROR_OBJECT (self, "Unable to set AOT %d: %d\n", aot, err);
@@ -410,6 +406,12 @@ gst_fdkaacenc_set_format (GstAudioEncoder * enc, GstAudioInfo * info)
     }
   }
 
+  if ((err = aacEncoder_SetParam (self->enc, AACENC_TRANSMUX,
+              transmux)) != AACENC_OK) {
+    GST_ERROR_OBJECT (self, "Unable to set transmux %d: %d", transmux, err);
+    return FALSE;
+  }
+
   if ((err = aacEncoder_SetParam (self->enc, AACENC_BITRATE,
               bitrate)) != AACENC_OK) {
     GST_ERROR_OBJECT (self, "Unable to set bitrate %d: %d", bitrate, err);
@@ -436,6 +438,7 @@ gst_fdkaacenc_set_format (GstAudioEncoder * enc, GstAudioInfo * info)
   src_caps = gst_caps_new_simple ("audio/mpeg",
       "mpegversion", G_TYPE_INT, mpegversion,
       "channels", G_TYPE_INT, GST_AUDIO_INFO_CHANNELS (info),
+      "framed", G_TYPE_BOOLEAN, TRUE,
       "rate", G_TYPE_INT, GST_AUDIO_INFO_RATE (info), NULL);
 
   /* raw */
