@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.9.2],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.9.90],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 902, 0, 902)
+AS_LIBTOOL(GST, 990, 0, 990)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.9.2
-GSTPB_REQ=1.9.2
+GST_REQ=1.9.90
+GSTPB_REQ=1.9.90
 
 dnl *** autotools stuff ****
 
@@ -2219,13 +2219,17 @@ translit(dnm, m, l) AM_CONDITIONAL(USE_WAYLAND, true)
 AC_PATH_PROG([wayland_scanner], [wayland-scanner])
 AG_GST_CHECK_FEATURE(WAYLAND, [wayland sink], wayland , [
   PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.4.0, [
-    if test "x$wayland_scanner" != "x"; then
-      HAVE_WAYLAND="yes"
-    else
-      AC_MSG_RESULT([wayland-scanner is required to build the wayland plugin])
-      HAVE_WAYLAND="no"
-    fi
-    ],
+    PKG_CHECK_MODULES(WAYLAND_PROTOCOLS, wayland-protocols >= 1.4, [
+      if test "x$wayland_scanner" != "x"; then
+        HAVE_WAYLAND="yes"
+        AC_SUBST(WAYLAND_PROTOCOLS_DATADIR, `$PKG_CONFIG --variable=pkgdatadir wayland-protocols`)
+      else
+        AC_MSG_RESULT([wayland-scanner is required to build the wayland plugin])
+        HAVE_WAYLAND="no"
+      fi
+      ],
+      [ HAVE_WAYLAND="no"
+    ])],
     [ HAVE_WAYLAND="no"
   ])
 ])
@@ -2381,7 +2385,7 @@ dnl *** kms ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_KMS, true)
 AG_GST_CHECK_FEATURE(KMS, [drm/kms libraries], kms, [
   AG_GST_PKG_CHECK_MODULES(GST_ALLOCATORS, gstreamer-allocators-1.0)
-  PKG_CHECK_MODULES([DRM], [libdrm libkms], HAVE_KMS=yes, HAVE_KMS=no)
+  PKG_CHECK_MODULES([DRM], [libdrm >= 2.4.55 libkms], HAVE_KMS=yes, HAVE_KMS=no)
 ])
 
 dnl *** ladspa ***
@@ -2998,14 +3002,15 @@ AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
 dnl *** Vulkan ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_VULKAN, true)
 AG_GST_CHECK_FEATURE(VULKAN, [Vulkan elements], vulkan, [
-  HAVE_VULKAN=no
   AC_CHECK_HEADER(vulkan/vulkan.h, [
     AC_CHECK_LIB(vulkan, vkCreateDevice, [
       VULKAN_LIBS="-lvulkan"
       AC_SUBST(VULKAN_LIBS)
-      dnl TODO check platform support (x11, win32, wayland, android, etc)
-      if test "x$HAVE_XCB" = "xyes"; then
-        HAVE_VULKAN=yes
+      if test "x$GST_VULKAN_HAVE_WINDOW_XCB" = "x1"; then
+        HAVE_VULKAN="yes"
+      fi
+      if test "x$GST_VULKAN_HAVE_WINDOW_WAYLAND" = "x1"; then
+        HAVE_VULKAN="yes"
       fi
     ], [])
   ], [])
@@ -3523,6 +3528,7 @@ AM_CONDITIONAL(USE_WEBRTCDSP, false)
 AM_CONDITIONAL(USE_OPENH264, false)
 AM_CONDITIONAL(USE_X265, false)
 AM_CONDITIONAL(USE_DTLS, false)
+AM_CONDITIONAL(USE_VULKAN, false)
 
 fi dnl of EXT plugins
 

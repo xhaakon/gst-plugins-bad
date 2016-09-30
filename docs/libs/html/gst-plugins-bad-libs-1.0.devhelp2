@@ -2316,11 +2316,11 @@
     <keyword type="member" name="GstGLBaseMemoryAllocatorClass.alloc" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.alloc"/>
     <keyword type="member" name="GstGLBaseMemoryAllocatorClass.create" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.create"/>
     <keyword type="member" name="GstGLBaseMemoryAllocatorClass.map" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.map"/>
-    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.flush" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.flush"/>
-    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.invalidate" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.invalidate"/>
     <keyword type="member" name="GstGLBaseMemoryAllocatorClass.unmap" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.unmap"/>
     <keyword type="member" name="GstGLBaseMemoryAllocatorClass.copy" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.copy"/>
     <keyword type="member" name="GstGLBaseMemoryAllocatorClass.destroy" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.destroy"/>
+    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.flush" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.flush"/>
+    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.invalidate" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.invalidate"/>
     <keyword type="member" name="GstGLAllocationParams.struct-size" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams.struct-size"/>
     <keyword type="member" name="GstGLAllocationParams.copy" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams.copy"/>
     <keyword type="member" name="GstGLAllocationParams.free" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams.free"/>
@@ -2352,6 +2352,7 @@
     <keyword type="member" name="GstGLFilterClass.transform-internal-caps" link="GstGLFilter.html#GstGLFilterClass.transform-internal-caps"/>
     <keyword type="member" name="GstGLFilterClass.display-init-cb" link="GstGLFilter.html#GstGLFilterClass.display-init-cb"/>
     <keyword type="member" name="GstGLFilterClass.display-reset-cb" link="GstGLFilter.html#GstGLFilterClass.display-reset-cb"/>
+    <keyword type="member" name="GstGLFilterClass.-padding" link="GstGLFilter.html#GstGLFilterClass.-padding"/>
     <keyword type="member" name="GstGLMemory.mem" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.mem"/>
     <keyword type="member" name="GstGLMemory.tex-id" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.tex-id"/>
     <keyword type="member" name="GstGLMemory.tex-target" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.tex-target"/>

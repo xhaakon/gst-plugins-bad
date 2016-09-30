@@ -310,13 +310,16 @@ gst_decklink_audio_sink_ringbuffer_delay (GstAudioRingBuffer * rb)
   GstDecklinkAudioSinkRingBuffer *self =
       GST_DECKLINK_AUDIO_SINK_RING_BUFFER_CAST (rb);
   guint ret = 0;
+  HRESULT res = S_OK;
 
   if (self->output) {
-    if (self->output->output->GetBufferedAudioSampleFrameCount (&ret) != S_OK)
+    if ((res =
+            self->output->output->GetBufferedAudioSampleFrameCount (&ret)) !=
+        S_OK)
       ret = 0;
   }
 
-  GST_DEBUG_OBJECT (self->sink, "Delay: %u", ret);
+  GST_DEBUG_OBJECT (self->sink, "Delay: %u (0x%08x)", ret, res);
 
   return ret;
 }
@@ -529,7 +532,8 @@ static void gst_decklink_audio_sink_finalize (GObject * object);
 
 static GstStateChangeReturn gst_decklink_audio_sink_change_state (GstElement *
     element, GstStateChange transition);
-static GstCaps * gst_decklink_audio_sink_get_caps (GstBaseSink * bsink, GstCaps * filter);
+static GstCaps *gst_decklink_audio_sink_get_caps (GstBaseSink * bsink,
+    GstCaps * filter);
 static GstAudioRingBuffer
     * gst_decklink_audio_sink_create_ringbuffer (GstAudioBaseSink * absink);
 
@@ -553,7 +557,8 @@ gst_decklink_audio_sink_class_init (GstDecklinkAudioSinkClass * klass)
   element_class->change_state =
       GST_DEBUG_FUNCPTR (gst_decklink_audio_sink_change_state);
 
-  basesink_class->get_caps = GST_DEBUG_FUNCPTR (gst_decklink_audio_sink_get_caps);
+  basesink_class->get_caps =
+      GST_DEBUG_FUNCPTR (gst_decklink_audio_sink_get_caps);
 
   audiobasesink_class->create_ringbuffer =
       GST_DEBUG_FUNCPTR (gst_decklink_audio_sink_create_ringbuffer);
@@ -672,7 +677,9 @@ gst_decklink_audio_sink_get_caps (GstBaseSink * bsink, GstCaps * filter)
       GValue arr = G_VALUE_INIT;
       GValue v = G_VALUE_INIT;
 
-      ret = buf->output->attributes->GetInt (BMDDeckLinkMaximumAudioChannels, &max_channels);
+      ret =
+          buf->output->attributes->GetInt (BMDDeckLinkMaximumAudioChannels,
+          &max_channels);
       /* 2 should always be supported */
       if (ret != S_OK) {
         max_channels = 2;
@@ -702,7 +709,8 @@ gst_decklink_audio_sink_get_caps (GstBaseSink * bsink, GstCaps * filter)
   }
 
   if (filter) {
-    GstCaps *intersection = gst_caps_intersect_full (filter, caps, GST_CAPS_INTERSECT_FIRST);
+    GstCaps *intersection =
+        gst_caps_intersect_full (filter, caps, GST_CAPS_INTERSECT_FIRST);
     gst_caps_unref (caps);
     caps = intersection;
   }
