@@ -1411,6 +1411,7 @@
     <keyword type="constant" name="GST_MTS_DESC_ATSC_REDISTRIBUTION_CONTROL" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-descriptors.html#GST-MTS-DESC-ATSC-REDISTRIBUTION-CONTROL:CAPS"/>
     <keyword type="constant" name="GST_MTS_DESC_ATSC_GENRE" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-descriptors.html#GST-MTS-DESC-ATSC-GENRE:CAPS"/>
     <keyword type="constant" name="GST_MTS_DESC_ATSC_PRIVATE_INFORMATION" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-descriptors.html#GST-MTS-DESC-ATSC-PRIVATE-INFORMATION:CAPS"/>
+    <keyword type="constant" name="GST_MTS_DESC_ATSC_EAC3" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-descriptors.html#GST-MTS-DESC-ATSC-EAC3:CAPS"/>
     <keyword type="constant" name="GST_MTS_DESC_ATSC_ENHANCED_SIGNALING" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-descriptors.html#GST-MTS-DESC-ATSC-ENHANCED-SIGNALING:CAPS"/>
     <keyword type="constant" name="GST_MTS_DESC_ATSC_DATA_SERVICE" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-descriptors.html#GST-MTS-DESC-ATSC-DATA-SERVICE:CAPS"/>
     <keyword type="constant" name="GST_MTS_DESC_ATSC_PID_COUNT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-descriptors.html#GST-MTS-DESC-ATSC-PID-COUNT:CAPS"/>
