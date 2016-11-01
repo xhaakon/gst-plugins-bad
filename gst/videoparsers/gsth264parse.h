@@ -71,6 +71,7 @@ struct _GstH264Parse
   /* state */
   GstH264NalParser *nalparser;
   guint state;
+  guint in_align;
   guint align;
   guint format;
   gint current_off;
@@ -118,7 +119,7 @@ struct _GstH264Parse
   gboolean picture_start;
 
   /* props */
-  guint interval;
+  gint interval;
 
   GstClockTime pending_key_unit_ts;
   GstEvent *force_key_unit_event;

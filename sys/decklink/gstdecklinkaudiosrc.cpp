@@ -171,8 +171,7 @@ gst_decklink_audio_src_class_init (GstDecklinkAudioSrcClass * klass)
           G_MAXINT, DEFAULT_BUFFER_SIZE,
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_template));
+  gst_element_class_add_static_pad_template (element_class, &sink_template);
 
   gst_element_class_set_static_metadata (element_class, "Decklink Audio Source",
       "Audio/Src", "Decklink Source", "David Schleef <ds@entropywave.com>, "
@@ -368,7 +367,7 @@ gst_decklink_audio_src_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
         self->input->config->SetInt (bmdDeckLinkConfigAudioInputConnection,
         conn);
     if (ret != S_OK) {
-      GST_ERROR ("set configuration (audio input connection)");
+      GST_ERROR ("set configuration (audio input connection): 0x%08x", ret);
       return FALSE;
     }
   }
@@ -376,7 +375,7 @@ gst_decklink_audio_src_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
   ret = self->input->input->EnableAudioInput (bmdAudioSampleRate48kHz,
       sample_depth, 2);
   if (ret != S_OK) {
-    GST_WARNING_OBJECT (self, "Failed to enable audio input");
+    GST_WARNING_OBJECT (self, "Failed to enable audio input: 0x%08x", ret);
     return FALSE;
   }
 
@@ -492,8 +491,10 @@ retry:
   sample_count = p->packet->GetSampleFrameCount ();
   data_size = self->info.bpf * sample_count;
 
-  if (p->capture_time == GST_CLOCK_TIME_NONE && self->next_offset == (guint64) - 1) {
-    GST_DEBUG_OBJECT (self, "Got packet without timestamp before initial "
+  if (p->capture_time == GST_CLOCK_TIME_NONE
+      && self->next_offset == (guint64) - 1) {
+    GST_DEBUG_OBJECT (self,
+        "Got packet without timestamp before initial "
         "timestamp after discont - dropping");
     capture_packet_free (p);
     goto retry;

@@ -62,6 +62,8 @@
 #include "gstglstereosplit.h"
 #include "gstglstereomix.h"
 #include "gstglviewconvert.h"
+#include "gstgltestsrc.h"
+#include "gstgldeinterlace.h"
 
 #if HAVE_GRAPHENE
 #include "gstgltransformation.h"
@@ -74,10 +76,8 @@
 #endif /* HAVE_JPEG */
 
 #if GST_GL_HAVE_OPENGL
-#include "gstgltestsrc.h"
 #include "gstglfilterglass.h"
 /* #include "gstglfilterreflectedscreen.h" */
-#include "gstgldeinterlace.h"
 #include "gstglmosaic.h"
 #if HAVE_PNG
 #include "gstgldifferencematte.h"
@@ -226,6 +226,17 @@ plugin_init (GstPlugin * plugin)
           GST_RANK_NONE, GST_TYPE_GL_STEREO_MIX)) {
     return FALSE;
   }
+
+  if (!gst_element_register (plugin, "gltestsrc",
+          GST_RANK_NONE, GST_TYPE_GL_TEST_SRC)) {
+    return FALSE;
+  }
+
+  if (!gst_element_register (plugin, "gldeinterlace",
+          GST_RANK_NONE, GST_TYPE_GL_DEINTERLACE)) {
+    return FALSE;
+  }
+
 #if HAVE_JPEG
 #if HAVE_PNG
   if (!gst_element_register (plugin, "gloverlay",
@@ -235,11 +246,6 @@ plugin_init (GstPlugin * plugin)
 #endif /* HAVE_PNG */
 #endif /* HAVE_JPEG */
 #if GST_GL_HAVE_OPENGL
-  if (!gst_element_register (plugin, "gltestsrc",
-          GST_RANK_NONE, GST_TYPE_GL_TEST_SRC)) {
-    return FALSE;
-  }
-
   if (!gst_element_register (plugin, "glfilterglass",
           GST_RANK_NONE, GST_TYPE_GL_FILTER_GLASS)) {
     return FALSE;
@@ -250,11 +256,6 @@ plugin_init (GstPlugin * plugin)
     return FALSE;
   }
 #endif
-  if (!gst_element_register (plugin, "gldeinterlace",
-          GST_RANK_NONE, GST_TYPE_GL_DEINTERLACE)) {
-    return FALSE;
-  }
-
   if (!gst_element_register (plugin, "glmosaic",
           GST_RANK_NONE, GST_TYPE_GL_MOSAIC)) {
     return FALSE;

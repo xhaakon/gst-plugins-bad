@@ -80,8 +80,8 @@ gst_gl_upload_element_class_init (GstGLUploadElementClass * klass)
 
   bt_class->passthrough_on_same_caps = TRUE;
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_gl_upload_element_src_pad_template));
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_gl_upload_element_src_pad_template);
 
   upload_caps = gst_gl_upload_get_input_template_caps ();
   gst_element_class_add_pad_template (element_class,
@@ -133,9 +133,14 @@ static GstCaps *
 _gst_gl_upload_element_transform_caps (GstBaseTransform * bt,
     GstPadDirection direction, GstCaps * caps, GstCaps * filter)
 {
+  GstGLUploadElement *upload = GST_GL_UPLOAD_ELEMENT (bt);
   GstGLContext *context = GST_GL_BASE_FILTER (bt)->context;
 
-  return gst_gl_upload_transform_caps (context, direction, caps, filter);
+  if (upload->upload == NULL)
+    upload->upload = gst_gl_upload_new (NULL);
+
+  return gst_gl_upload_transform_caps (upload->upload, context, direction, caps,
+      filter);
 }
 
 static gboolean
@@ -177,10 +182,10 @@ _gst_gl_upload_element_decide_allocation (GstBaseTransform * trans,
   if (!ret)
     return FALSE;
 
+  /* GstGLBaseFilter populates ->context in ::decide_allocation so now it's the
+   * time to set the ->upload context */
   context = GST_GL_BASE_FILTER (trans)->context;
-
-  if (!upload->upload)
-    upload->upload = gst_gl_upload_new (context);
+  gst_gl_upload_set_context (upload->upload, context);
 
   return gst_gl_upload_set_caps (upload->upload, upload->in_caps,
       upload->out_caps);
@@ -220,6 +225,10 @@ gst_gl_upload_element_prepare_output_buffer (GstBaseTransform * bt,
     return GST_FLOW_NOT_NEGOTIATED;
 
   ret = gst_gl_upload_perform_with_buffer (upload->upload, buffer, outbuf);
+  if (ret == GST_GL_UPLOAD_RECONFIGURE) {
+    gst_base_transform_reconfigure_src (bt);
+    return GST_FLOW_OK;
+  }
 
   if (ret != GST_GL_UPLOAD_DONE || *outbuf == NULL) {
     GST_ELEMENT_ERROR (bt, RESOURCE, NOT_FOUND, ("%s",

@@ -21,6 +21,42 @@
  * Boston, MA 02110-1301, USA.
  */
 
+/**
+ * SECTION:element-glstereomix
+ *
+ * Combine 2 input streams to produce a stereoscopic output
+ * stream. Input views are taken from the left pad and right pad
+ * respectively, and mixed according to their timelines.
+ *
+ * If either input stream is stereoscopic, the approproriate view
+ * (left or right) is taken from each stream and placed into the output.
+ *
+ * The multiview representation on the output is chosen according to
+ * the downstream caps.
+ *
+ * <refsect2>
+ * <title>Examples</title>
+ * |[
+ * gst-launch-1.0 -v videotestsrc pattern=ball name=left \
+ *     videotestsrc name=right glstereomix name=mix \
+ *     left. ! vid/x-raw,width=640,height=480! glupload ! mix.  \
+ *     right. ! video/x-raw,width=640,height=480! glupload ! mix.  \
+ *     mix. ! video/x-raw'(memory:GLMemory)',multiview-mode=side-by-side ! \
+ *     queue ! glimagesink output-multiview-mode=side-by-side
+ * ]| Mix 2 different videotestsrc patterns into a side-by-side stereo image and display it.
+ * |[
+ * gst-launch-1.0 -ev v4l2src name=left \
+ *     videotestsrc name=right \
+ *     glstereomix name=mix \
+ *     left. ! video/x-raw,width=640,height=480 ! glupload ! glcolorconvert ! mix.  \
+ *     right. ! video/x-raw,width=640,height=480 ! glupload ! mix.  \
+ *     mix. ! video/x-raw'(memory:GLMemory)',multiview-mode=top-bottom ! \
+ *     glcolorconvert ! gldownload ! queue ! x264enc ! h264parse ! \
+ *     mp4mux ! progressreport ! filesink location=output.mp4 
+ * ]| Mix the input from a camera to the left view, and videotestsrc to the right view,
+ *    and encode as a top-bottom frame packed H.264 video.
+ * </refsect2>
+ */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -106,11 +142,6 @@ static gboolean gst_gl_stereo_mix_start (GstAggregator * agg);
 static gboolean gst_gl_stereo_mix_src_query (GstAggregator * agg,
     GstQuery * query);
 
-static void
-gst_gl_stereo_mix_find_best_format (GstVideoAggregator * vagg,
-    GstCaps * downstream_caps, GstVideoInfo * best_info,
-    gboolean * at_least_one_alpha);
-
 static void gst_gl_stereo_mix_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
 static void gst_gl_stereo_mix_get_property (GObject * object, guint prop_id,
@@ -150,10 +181,8 @@ gst_gl_stereo_mix_class_init (GstGLStereoMixClass * klass)
           GST_TYPE_GL_STEREO_DOWNMIX_MODE_TYPE, DEFAULT_DOWNMIX,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_factory));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_factory));
+  gst_element_class_add_static_pad_template (element_class, &src_factory);
+  gst_element_class_add_static_pad_template (element_class, &sink_factory);
 
   agg_class->sinkpads_type = GST_TYPE_GL_STEREO_MIX_PAD;
   agg_class->stop = gst_gl_stereo_mix_stop;
@@ -165,7 +194,6 @@ gst_gl_stereo_mix_class_init (GstGLStereoMixClass * klass)
   videoaggregator_class->negotiated_caps = _negotiated_caps;
   videoaggregator_class->get_output_buffer =
       gst_gl_stereo_mix_get_output_buffer;
-  videoaggregator_class->find_best_format = gst_gl_stereo_mix_find_best_format;
 
   base_mix_class->supported_gl_api =
       GST_GL_API_GLES2 | GST_GL_API_OPENGL | GST_GL_API_OPENGL3;
@@ -440,13 +468,97 @@ get_converted_caps (GstGLStereoMix * mix, GstCaps * caps)
   return result;
 }
 
-/* Return the possible output caps we decided in find_best_format() */
+/* Return the possible output caps based on inputs and downstream prefs */
 static GstCaps *
 _update_caps (GstVideoAggregator * vagg, GstCaps * caps, GstCaps * filter)
 {
   GstGLStereoMix *mix = GST_GL_STEREO_MIX (vagg);
+  GList *l;
+  gint best_width = -1, best_height = -1;
+  gdouble best_fps = -1, cur_fps;
+  gint best_fps_n = 0, best_fps_d = 1;
+  GstVideoInfo *mix_info;
+  GstCaps *blend_caps, *tmp_caps;
+  GstCaps *out_caps;
 
-  return gst_caps_ref (mix->out_caps);
+  GST_OBJECT_LOCK (vagg);
+
+  for (l = GST_ELEMENT (vagg)->sinkpads; l; l = l->next) {
+    GstVideoAggregatorPad *pad = l->data;
+    GstVideoInfo tmp = pad->info;
+    gint this_width, this_height;
+    gint fps_n, fps_d;
+
+    if (!pad->info.finfo)
+      continue;
+
+    /* This can happen if we release a pad and another pad hasn't been negotiated_caps yet */
+    if (GST_VIDEO_INFO_FORMAT (&pad->info) == GST_VIDEO_FORMAT_UNKNOWN)
+      continue;
+
+    /* Convert to per-view width/height for unpacked forms */
+    gst_video_multiview_video_info_change_mode (&tmp,
+        GST_VIDEO_MULTIVIEW_MODE_SEPARATED, GST_VIDEO_MULTIVIEW_FLAGS_NONE);
+
+    this_width = GST_VIDEO_INFO_WIDTH (&tmp);
+    this_height = GST_VIDEO_INFO_HEIGHT (&tmp);
+    fps_n = GST_VIDEO_INFO_FPS_N (&tmp);
+    fps_d = GST_VIDEO_INFO_FPS_D (&tmp);
+
+    GST_INFO_OBJECT (vagg, "Input pad %" GST_PTR_FORMAT
+        " w %u h %u", pad, this_width, this_height);
+
+    if (this_width == 0 || this_height == 0)
+      continue;
+
+    if (best_width < this_width)
+      best_width = this_width;
+    if (best_height < this_height)
+      best_height = this_height;
+
+    if (fps_d == 0)
+      cur_fps = 0.0;
+    else
+      gst_util_fraction_to_double (fps_n, fps_d, &cur_fps);
+
+    if (best_fps < cur_fps) {
+      best_fps = cur_fps;
+      best_fps_n = fps_n;
+      best_fps_d = fps_d;
+    }
+
+    /* FIXME: Preserve PAR for at least one input when different sized inputs */
+  }
+  GST_OBJECT_UNLOCK (vagg);
+
+  mix_info = &mix->mix_info;
+  gst_video_info_set_format (mix_info, GST_VIDEO_FORMAT_RGBA, best_width,
+      best_height);
+
+  GST_VIDEO_INFO_FPS_N (mix_info) = best_fps_n;
+  GST_VIDEO_INFO_FPS_D (mix_info) = best_fps_d;
+
+  GST_VIDEO_INFO_MULTIVIEW_MODE (mix_info) = GST_VIDEO_MULTIVIEW_MODE_SEPARATED;
+  GST_VIDEO_INFO_VIEWS (mix_info) = 2;
+
+  /* FIXME: If input is marked as flipped or flopped, preserve those flags */
+  GST_VIDEO_INFO_MULTIVIEW_FLAGS (mix_info) = GST_VIDEO_MULTIVIEW_FLAGS_NONE;
+
+  /* Choose our output format based on downstream preferences */
+  blend_caps = gst_video_info_to_caps (mix_info);
+
+  gst_caps_set_features (blend_caps, 0,
+      gst_caps_features_from_string (GST_CAPS_FEATURE_MEMORY_GL_MEMORY));
+
+  tmp_caps = get_converted_caps (GST_GL_STEREO_MIX (vagg), blend_caps);
+  gst_caps_unref (blend_caps);
+
+  out_caps = gst_caps_intersect (caps, tmp_caps);
+  gst_caps_unref (tmp_caps);
+
+  GST_DEBUG_OBJECT (vagg, "Possible output caps %" GST_PTR_FORMAT, out_caps);
+
+  return out_caps;
 }
 
 /* Called after videoaggregator fixates our caps */
@@ -464,8 +576,6 @@ _negotiated_caps (GstVideoAggregator * vagg, GstCaps * caps)
       return FALSE;
 
   /* Update the glview_convert output */
-  if (!gst_video_info_from_caps (&mix->out_info, caps))
-    return FALSE;
 
   /* We can configure the view_converter now */
   gst_gl_view_convert_set_context (mix->viewconvert,
@@ -586,109 +696,4 @@ gst_gl_stereo_mix_process_frames (GstGLStereoMix * mixer)
   }
 
   return TRUE;
-}
-
-/* Iterate the input sink pads, and choose the blend format
- * we will generate before output conversion, which is RGBA
- * at some suitable size */
-static void
-gst_gl_stereo_mix_find_best_format (GstVideoAggregator * vagg,
-    GstCaps * downstream_caps, GstVideoInfo * best_info,
-    gboolean * at_least_one_alpha)
-{
-  GstGLStereoMix *mix = GST_GL_STEREO_MIX (vagg);
-  GList *l;
-  gint best_width = -1, best_height = -1;
-  gdouble best_fps = -1, cur_fps;
-  gint best_fps_n = 0, best_fps_d = 1;
-  GstVideoInfo *mix_info;
-  GstCaps *blend_caps, *tmp_caps;
-
-  /* We'll deal with alpha internally, so just tell aggregator to
-   * be quiet */
-  *at_least_one_alpha = FALSE;
-
-  GST_OBJECT_LOCK (vagg);
-
-  for (l = GST_ELEMENT (vagg)->sinkpads; l; l = l->next) {
-    GstVideoAggregatorPad *pad = l->data;
-    GstVideoInfo tmp = pad->info;
-    gint this_width, this_height;
-    gint fps_n, fps_d;
-
-    if (!pad->info.finfo)
-      continue;
-
-    /* This can happen if we release a pad and another pad hasn't been negotiated_caps yet */
-    if (GST_VIDEO_INFO_FORMAT (&pad->info) == GST_VIDEO_FORMAT_UNKNOWN)
-      continue;
-
-    /* Convert to per-view width/height for unpacked forms */
-    gst_video_multiview_video_info_change_mode (&tmp,
-        GST_VIDEO_MULTIVIEW_MODE_SEPARATED, GST_VIDEO_MULTIVIEW_FLAGS_NONE);
-
-    this_width = GST_VIDEO_INFO_WIDTH (&tmp);
-    this_height = GST_VIDEO_INFO_HEIGHT (&tmp);
-    fps_n = GST_VIDEO_INFO_FPS_N (&tmp);
-    fps_d = GST_VIDEO_INFO_FPS_D (&tmp);
-
-    GST_INFO_OBJECT (vagg, "Input pad %" GST_PTR_FORMAT
-        " w %u h %u", pad, this_width, this_height);
-
-    if (this_width == 0 || this_height == 0)
-      continue;
-
-    if (best_width < this_width)
-      best_width = this_width;
-    if (best_height < this_height)
-      best_height = this_height;
-
-    if (fps_d == 0)
-      cur_fps = 0.0;
-    else
-      gst_util_fraction_to_double (fps_n, fps_d, &cur_fps);
-
-    if (best_fps < cur_fps) {
-      best_fps = cur_fps;
-      best_fps_n = fps_n;
-      best_fps_d = fps_d;
-    }
-
-    /* FIXME: Preserve PAR for at least one input when different sized inputs */
-  }
-  GST_OBJECT_UNLOCK (vagg);
-
-  mix_info = &mix->mix_info;
-  gst_video_info_set_format (mix_info, GST_VIDEO_FORMAT_RGBA, best_width,
-      best_height);
-
-  GST_VIDEO_INFO_FPS_N (mix_info) = best_fps_n;
-  GST_VIDEO_INFO_FPS_D (mix_info) = best_fps_d;
-
-  GST_VIDEO_INFO_MULTIVIEW_MODE (mix_info) = GST_VIDEO_MULTIVIEW_MODE_SEPARATED;
-  GST_VIDEO_INFO_VIEWS (mix_info) = 2;
-
-  /* FIXME: If input is marked as flipped or flopped, preserve those flags */
-  GST_VIDEO_INFO_MULTIVIEW_FLAGS (mix_info) = GST_VIDEO_MULTIVIEW_FLAGS_NONE;
-
-  /* Choose our output format based on downstream preferences */
-  blend_caps = gst_video_info_to_caps (mix_info);
-
-  gst_caps_set_features (blend_caps, 0,
-      gst_caps_features_from_string (GST_CAPS_FEATURE_MEMORY_GL_MEMORY));
-
-  tmp_caps = get_converted_caps (GST_GL_STEREO_MIX (vagg), blend_caps);
-  gst_caps_unref (blend_caps);
-
-  if (mix->out_caps)
-    gst_caps_unref (mix->out_caps);
-
-  mix->out_caps = gst_caps_intersect (downstream_caps, tmp_caps);
-  gst_caps_unref (tmp_caps);
-
-  GST_DEBUG_OBJECT (vagg, "Possible output caps %" GST_PTR_FORMAT,
-      mix->out_caps);
-  /* Tell videoaggregator our preferred size. Actual info gets
-   * overridden during caps nego */
-  *best_info = *mix_info;
 }

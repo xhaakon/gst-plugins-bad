@@ -47,7 +47,10 @@ struct _GstGLBufferPool
 
   GstGLContext *context;
 
+  /* <private> */
   GstGLBufferPoolPrivate *priv;
+
+  gpointer _padding[GST_PADDING];
 };
 
 /**
@@ -58,11 +61,12 @@ struct _GstGLBufferPool
 struct _GstGLBufferPoolClass
 {
   GstBufferPoolClass parent_class;
+
+  /* <private> */
+  gpointer _padding[GST_PADDING];
 };
 
 GstBufferPool *gst_gl_buffer_pool_new (GstGLContext * context);
-void gst_gl_buffer_pool_replace_last_buffer (GstGLBufferPool * pool,
-    GstBuffer * buffer);
 
 GstGLAllocationParams * gst_buffer_pool_config_get_gl_allocation_params    (GstStructure * config);
 void                    gst_buffer_pool_config_set_gl_allocation_params    (GstStructure * config,

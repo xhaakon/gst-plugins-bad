@@ -57,6 +57,8 @@ struct _GstDecklinkVideoSrc
   gint device_number;
 
   GstVideoInfo info;
+  GstDecklinkVideoFormat video_format;
+  BMDTimecodeFormat timecode_format;
 
   GstDecklinkInput *input;
 

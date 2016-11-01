@@ -41,21 +41,30 @@ struct _GstWlWindow
 {
   GObject parent_instance;
 
+  GMutex *render_lock;
+
   GstWlDisplay *display;
   struct wl_surface *area_surface;
   struct wl_subsurface *area_subsurface;
-  struct wl_viewport *area_viewport;
+  struct wp_viewport *area_viewport;
   struct wl_surface *video_surface;
   struct wl_subsurface *video_subsurface;
-  struct wl_viewport *video_viewport;
+  struct wp_viewport *video_viewport;
   struct wl_shell_surface *shell_surface;
 
   /* the size and position of the area_(sub)surface */
   GstVideoRectangle render_rectangle;
+
+  /* the size and position of the video_subsurface */
+  GstVideoRectangle video_rectangle;
+
   /* the size of the video in the buffers */
   gint video_width, video_height;
-  /* the size of the video_(sub)surface */
-  gint surface_width, surface_height;
+
+  /* this will be set when viewporter is available and black background has
+   * already been set on the area_subsurface */
+  gboolean no_border_update;
+
 };
 
 struct _GstWlWindowClass
@@ -66,9 +75,9 @@ struct _GstWlWindowClass
 GType gst_wl_window_get_type (void);
 
 GstWlWindow *gst_wl_window_new_toplevel (GstWlDisplay * display,
-        const GstVideoInfo * info);
+        const GstVideoInfo * info, GMutex * render_lock);
 GstWlWindow *gst_wl_window_new_in_surface (GstWlDisplay * display,
-        struct wl_surface * parent);
+        struct wl_surface * parent, GMutex * render_lock);
 
 GstWlDisplay *gst_wl_window_get_display (GstWlWindow * window);
 struct wl_surface *gst_wl_window_get_wl_surface (GstWlWindow * window);

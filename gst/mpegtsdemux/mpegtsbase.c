@@ -125,8 +125,7 @@ mpegts_base_class_init (MpegTSBaseClass * klass)
   element_class = GST_ELEMENT_CLASS (klass);
   element_class->change_state = mpegts_base_change_state;
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_template));
+  gst_element_class_add_static_pad_template (element_class, &sink_template);
 
   gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->dispose = mpegts_base_dispose;
@@ -1024,14 +1023,24 @@ mpegts_base_get_tags_from_eit (MpegTSBase * base, GstMpegtsSection * section)
         if ((desc =
                 gst_mpegts_find_descriptor (event->descriptors,
                     GST_MTS_DESC_DVB_SHORT_EVENT))) {
-          gchar *name;
+          gchar *name = NULL, *text = NULL;
+
           if (gst_mpegts_descriptor_parse_dvb_short_event (desc, NULL, &name,
-                  NULL)) {
+                  &text)) {
+            program->tags = gst_tag_list_new_empty ();
+            if (name) {
+              gst_tag_list_add (program->tags, GST_TAG_MERGE_APPEND,
+                  GST_TAG_TITLE, name, NULL);
+              g_free (name);
+            }
+            if (text) {
+              gst_tag_list_add (program->tags, GST_TAG_MERGE_APPEND,
+                  GST_TAG_DESCRIPTION, text, NULL);
+              g_free (text);
+            }
             /* FIXME : Is it correct to post an event duration as a GST_TAG_DURATION ??? */
-            program->tags =
-                gst_tag_list_new (GST_TAG_TITLE, name, GST_TAG_DURATION,
-                event->duration * GST_SECOND, NULL);
-            g_free (name);
+            gst_tag_list_add (program->tags, GST_TAG_MERGE_APPEND,
+                GST_TAG_DURATION, event->duration * GST_SECOND, NULL);
             return TRUE;
           }
         }
@@ -1327,7 +1336,7 @@ no_initial_pcr:
   mpegts_packetizer_clear (base->packetizer);
   GST_WARNING_OBJECT (base, "Couldn't find any PCR within the first %d bytes",
       10 * 65536);
-  return GST_FLOW_ERROR;
+  return GST_FLOW_OK;
 }
 
 
@@ -1383,9 +1392,7 @@ error:
             (_("Internal data stream error.")),
             ("No program activated before EOS"));
     } else if (ret == GST_FLOW_NOT_LINKED || ret < GST_FLOW_EOS) {
-      GST_ELEMENT_ERROR (base, STREAM, FAILED,
-          (_("Internal data stream error.")),
-          ("stream stopped, reason %s", reason));
+      GST_ELEMENT_FLOW_ERROR (base, ret);
       GST_MPEGTS_BASE_GET_CLASS (base)->push_event (base, gst_event_new_eos ());
     }
     gst_pad_pause_task (base->sinkpad);

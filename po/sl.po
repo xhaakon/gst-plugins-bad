@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 0.10.21.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-09-30 12:19+0300\n"
 "PO-Revision-Date: 2011-04-26 15:21+0100\n"
 "Last-Translator: Klemen Košir <klemen.kosir@gmx.com>\n"
 "Language-Team: Slovenian <translation-team-sl@lists.sourceforge.net>\n"
@@ -21,6 +21,12 @@ msgstr ""
 "X-Poedit-Language: Slovenian\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-SourceCharset: utf-8\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr ""
@@ -69,9 +75,6 @@ msgstr "Datoteke \"%s\" ni mogoče odpreti za branje."
 msgid "Could not start sndio"
 msgstr "DVD-ja ni mogoče prebrati."
 
-msgid "Internal data flow error."
-msgstr "Notranja napaka pretočnosti podatkov."
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 
@@ -91,11 +94,11 @@ msgstr ""
 msgid "Failed to get fragment URL."
 msgstr ""
 
-msgid "Internal data stream error."
-msgstr "Notranja napaka pretoka podatkov."
-
 msgid "Couldn't download fragments"
 msgstr ""
+
+msgid "Internal data stream error."
+msgstr "Notranja napaka pretoka podatkov."
 
 msgid "No file name specified for writing."
 msgstr "Ni navedenega imena datoteke za pisanje."
@@ -135,12 +138,27 @@ msgstr ""
 msgid "Couldn't load DVB channel configuration file: %s"
 msgstr ""
 
-msgid "DVB channel configuration file doesn't contain any channels"
-msgstr ""
-
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr ""
+
+#, c-format
+msgid "No properties for the DVB channel %s"
+msgstr ""
+
+#, c-format
+msgid "Failed to set properties for the DVB channel %s"
+msgstr ""
+
+#, c-format
+msgid "Couldn't find DVB channel configuration file: %s"
+msgstr ""
+
+msgid "DVB channel configuration file doesn't contain any channels"
+msgstr ""
+
+#~ msgid "Internal data flow error."
+#~ msgstr "Notranja napaka pretočnosti podatkov."
 
 #~ msgid "Could not write to file \"%s\"."
 #~ msgstr "V datoteko \"%s\" ni mogoče pisati."

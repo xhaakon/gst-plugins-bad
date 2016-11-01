@@ -295,6 +295,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -316,6 +318,8 @@ EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
 FAAC_LIBS = @FAAC_LIBS@
 FAAD_LIBS = @FAAD_LIBS@
+FDK_AAC_CFLAGS = @FDK_AAC_CFLAGS@
+FDK_AAC_LIBS = @FDK_AAC_LIBS@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
 FLITE_CFLAGS = @FLITE_CFLAGS@
@@ -365,6 +369,8 @@ GST_ALLOCATORS_CFLAGS = @GST_ALLOCATORS_CFLAGS@
 GST_ALLOCATORS_LIBS = @GST_ALLOCATORS_LIBS@
 GST_ALL_LDFLAGS = @GST_ALL_LDFLAGS@
 GST_API_VERSION = @GST_API_VERSION@
+GST_AUDIO_CFLAGS = @GST_AUDIO_CFLAGS@
+GST_AUDIO_LIBS = @GST_AUDIO_LIBS@
 GST_BASE_CFLAGS = @GST_BASE_CFLAGS@
 GST_BASE_LIBS = @GST_BASE_LIBS@
 GST_CFLAGS = @GST_CFLAGS@
@@ -510,6 +516,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -636,8 +644,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -680,8 +686,13 @@ WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
 WAYLAND_EGL_CFLAGS = @WAYLAND_EGL_CFLAGS@
 WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
+WAYLAND_PROTOCOLS_CFLAGS = @WAYLAND_PROTOCOLS_CFLAGS@
+WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
+WAYLAND_PROTOCOLS_LIBS = @WAYLAND_PROTOCOLS_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -798,7 +809,7 @@ DOC_SOURCE_DIR = $(top_srcdir)/gst $(top_srcdir)/ext $(top_srcdir)/sys
 SCAN_OPTIONS = 
 
 # Extra options to supply to gtkdoc-mkdb.
-MKDB_OPTIONS = --sgml-mode --source-suffixes=c,h,cc,m
+MKDB_OPTIONS = --sgml-mode --source-suffixes=c,h,cc,cpp,m
 
 # Extra options to supply to gtkdoc-fixref.
 FIXXREF_OPTIONS = --extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html \
@@ -813,7 +824,8 @@ HFILE_GLOB = \
 
 CFILE_GLOB = \
   $(top_srcdir)/gst/*/*.c $(top_srcdir)/ext/*/*.c $(top_srcdir)/sys/*/*.c \
-  $(top_srcdir)/ext/*/*.cc $(top_srcdir)/sys/*/*.m
+  $(top_srcdir)/ext/*/*.cc $(top_srcdir)/ext/*/*.cpp  $(top_srcdir)/sys/*/*.cpp \
+  $(top_srcdir)/ext/*/*.m $(top_srcdir)/sys/*/*.m
 
 
 # Header files to ignore when scanning.
@@ -845,7 +857,7 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/curl/gstcurlhttpsink.h \
 	$(top_srcdir)/ext/curl/gstcurlsmtpsink.h \
 	$(top_srcdir)/ext/curl/gstcurltlssink.h \
-	$(top_srcdir)/ext/dc1394/gstdc1394.h \
+	$(top_srcdir)/ext/dc1394/gstdc1394src.h \
 	$(top_srcdir)/ext/directfb/dfbvideosink.h \
 	$(top_srcdir)/ext/dts/gstdtsdec.h \
 	$(top_srcdir)/ext/faac/gstfaac.h \
@@ -870,12 +882,13 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/opencv/gstedgedetect.h \
 	$(top_srcdir)/ext/opencv/gstfaceblur.h \
 	$(top_srcdir)/ext/opencv/gstfacedetect.h \
-	$(top_srcdir)/ext/opencv/gstpyramidsegment.h \
 	$(top_srcdir)/ext/opencv/gsttemplatematch.h \
 	$(top_srcdir)/ext/opencv/gsttextoverlay.h \
 	$(top_srcdir)/ext/openni2/gstopenni2src.h \
 	$(top_srcdir)/ext/rsvg/gstrsvgdec.h \
 	$(top_srcdir)/ext/rsvg/gstrsvgoverlay.h \
+	$(top_srcdir)/ext/rtmp/gstrtmpsrc.h \
+	$(top_srcdir)/ext/rtmp/gstrtmpsink.h \
 	$(top_srcdir)/ext/spandsp/gstspanplc.h \
 	$(top_srcdir)/ext/spandsp/gstdtmfdetect.h \
 	$(top_srcdir)/ext/sdl/sdlaudiosink.h \
@@ -884,6 +897,8 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/timidity/gstwildmidi.h \
 	$(top_srcdir)/ext/voaacenc/gstvoaacenc.h \
 	$(top_srcdir)/ext/voamrwbenc/gstvoamrwbenc.h \
+	$(top_srcdir)/ext/webrtcdsp/gstwebrtcdsp.h \
+	$(top_srcdir)/ext/webrtcdsp/gstwebrtcechoprobe.h \
 	$(top_srcdir)/ext/zbar/gstzbar.h \
 	$(top_srcdir)/gst/aiff/aiffparse.h \
 	$(top_srcdir)/gst/aiff/aiffmux.h \
@@ -926,6 +941,8 @@ EXTRA_HFILES = \
 	$(top_srcdir)/gst/geometrictransform/gstwaterripple.h \
 	$(top_srcdir)/gst/ivfparse/gstivfparse.h \
 	$(top_srcdir)/gst/jpegformat/gstjpegparse.h \
+	$(top_srcdir)/gst/mpegtsdemux/tsdemux.h \
+	$(top_srcdir)/gst/mpegtsmux/mpegtsmux.h \
 	$(top_srcdir)/gst/mxf/mxfdemux.h \
 	$(top_srcdir)/gst/mxf/mxfmux.h \
 	$(top_srcdir)/gst/nuvdemux/gstnuvdemux.h \
@@ -1503,9 +1520,13 @@ update: scanobj-update
 @ENABLE_GTK_DOC_TRUE@		$(top_srcdir)/common/plugins.xsl $$a > xml/`basename $$a`; done
 @ENABLE_GTK_DOC_TRUE@	@for f in $(EXAMPLE_CFILES); do \
 @ENABLE_GTK_DOC_TRUE@		$(PYTHON) $(top_srcdir)/common/c-to-xml.py $$f > xml/element-`basename $$f .c`.xml; done
-@ENABLE_GTK_DOC_TRUE@	@gtkdoc-mkdb \
+@ENABLE_GTK_DOC_TRUE@	@_source_dir='' ;						\
+@ENABLE_GTK_DOC_TRUE@	for i in $(DOC_SOURCE_DIR) ; do					\
+@ENABLE_GTK_DOC_TRUE@	    _source_dir="$${_source_dir} --source-dir=$$i" ;	        \
+@ENABLE_GTK_DOC_TRUE@	done ;								\
+@ENABLE_GTK_DOC_TRUE@	gtkdoc-mkdb \
 @ENABLE_GTK_DOC_TRUE@		--module=$(DOC_MODULE) \
-@ENABLE_GTK_DOC_TRUE@		--source-dir=$(DOC_SOURCE_DIR) \
+@ENABLE_GTK_DOC_TRUE@		$${_source_dir} \
 @ENABLE_GTK_DOC_TRUE@		 --expand-content-files="$(expand_content_files)" \
 @ENABLE_GTK_DOC_TRUE@		--main-sgml-file=$(srcdir)/$(DOC_MAIN_SGML_FILE) \
 @ENABLE_GTK_DOC_TRUE@		--output-format=xml \

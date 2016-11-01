@@ -169,7 +169,7 @@ libgstqmlgl_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 am_libgstqmlgl_la_OBJECTS = libgstqmlgl_la-gstqsgtexture.lo \
 	libgstqmlgl_la-gstqtglutility.lo libgstqmlgl_la-qtitem.lo \
 	libgstqmlgl_la-qtwindow.lo libgstqmlgl_la-gstqtsink.lo \
-	libgstqmlgl_la-gstplugin.lo
+	libgstqmlgl_la-gstqtsrc.lo libgstqmlgl_la-gstplugin.lo
 am__objects_1 = libgstqmlgl_la-moc_qtitem.lo \
 	libgstqmlgl_la-moc_qtwindow.lo \
 	libgstqmlgl_la-moc_gstqsgtexture.lo
@@ -330,6 +330,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -351,6 +353,8 @@ EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
 FAAC_LIBS = @FAAC_LIBS@
 FAAD_LIBS = @FAAD_LIBS@
+FDK_AAC_CFLAGS = @FDK_AAC_CFLAGS@
+FDK_AAC_LIBS = @FDK_AAC_LIBS@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
 FLITE_CFLAGS = @FLITE_CFLAGS@
@@ -400,6 +404,8 @@ GST_ALLOCATORS_CFLAGS = @GST_ALLOCATORS_CFLAGS@
 GST_ALLOCATORS_LIBS = @GST_ALLOCATORS_LIBS@
 GST_ALL_LDFLAGS = @GST_ALL_LDFLAGS@
 GST_API_VERSION = @GST_API_VERSION@
+GST_AUDIO_CFLAGS = @GST_AUDIO_CFLAGS@
+GST_AUDIO_LIBS = @GST_AUDIO_LIBS@
 GST_BASE_CFLAGS = @GST_BASE_CFLAGS@
 GST_BASE_LIBS = @GST_BASE_LIBS@
 GST_CFLAGS = @GST_CFLAGS@
@@ -545,6 +551,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -671,8 +679,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -715,8 +721,13 @@ WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
 WAYLAND_EGL_CFLAGS = @WAYLAND_EGL_CFLAGS@
 WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
+WAYLAND_PROTOCOLS_CFLAGS = @WAYLAND_PROTOCOLS_CFLAGS@
+WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
+WAYLAND_PROTOCOLS_LIBS = @WAYLAND_PROTOCOLS_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -831,6 +842,8 @@ libgstqmlgl_la_SOURCES = \
 	qtwindow.cc \
 	gstqtsink.cc \
 	gstqtsink.h \
+	gstqtsrc.cc \
+	gstqtsrc.h \
 	gstqtgl.h \
 	gstplugin.cc
 
@@ -935,6 +948,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstqmlgl_la-gstqsgtexture.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstqmlgl_la-gstqtglutility.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstqmlgl_la-gstqtsink.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstqmlgl_la-gstqtsrc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstqmlgl_la-moc_gstqsgtexture.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstqmlgl_la-moc_qtitem.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstqmlgl_la-moc_qtwindow.Plo@am__quote@
@@ -999,6 +1013,13 @@ libgstqmlgl_la-gstqtsink.lo: gstqtsink.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstqtsink.cc' object='libgstqmlgl_la-gstqtsink.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqmlgl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqmlgl_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstqmlgl_la-gstqtsink.lo `test -f 'gstqtsink.cc' || echo '$(srcdir)/'`gstqtsink.cc
+
+libgstqmlgl_la-gstqtsrc.lo: gstqtsrc.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqmlgl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqmlgl_la_CXXFLAGS) $(CXXFLAGS) -MT libgstqmlgl_la-gstqtsrc.lo -MD -MP -MF $(DEPDIR)/libgstqmlgl_la-gstqtsrc.Tpo -c -o libgstqmlgl_la-gstqtsrc.lo `test -f 'gstqtsrc.cc' || echo '$(srcdir)/'`gstqtsrc.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstqmlgl_la-gstqtsrc.Tpo $(DEPDIR)/libgstqmlgl_la-gstqtsrc.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstqtsrc.cc' object='libgstqmlgl_la-gstqtsrc.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqmlgl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqmlgl_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstqmlgl_la-gstqtsrc.lo `test -f 'gstqtsrc.cc' || echo '$(srcdir)/'`gstqtsrc.cc
 
 libgstqmlgl_la-gstplugin.lo: gstplugin.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstqmlgl_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstqmlgl_la_CXXFLAGS) $(CXXFLAGS) -MT libgstqmlgl_la-gstplugin.lo -MD -MP -MF $(DEPDIR)/libgstqmlgl_la-gstplugin.Tpo -c -o libgstqmlgl_la-gstplugin.lo `test -f 'gstplugin.cc' || echo '$(srcdir)/'`gstplugin.cc

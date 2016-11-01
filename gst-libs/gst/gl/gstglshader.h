@@ -34,12 +34,13 @@ GType gst_gl_shader_get_type (void);
 #define GST_IS_GL_SHADER_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_GL_TYPE_SHADER))
 #define GST_GL_SHADER_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), GST_GL_TYPE_SHADER, GstGLShaderClass))
 
-struct _GstGLShader {
-  /*< private >*/
+struct _GstGLShader
+{
   GstObject parent;
 
   GstGLContext *context;
 
+  /*< private >*/
   GstGLShaderPrivate *priv;
 
   gpointer _padding[GST_PADDING];
@@ -104,6 +105,7 @@ void gst_gl_shader_set_uniform_matrix_4x3fv (GstGLShader *shader, const gchar *n
 
 gint gst_gl_shader_get_attribute_location  (GstGLShader *shader, const gchar *name);
 void gst_gl_shader_bind_attribute_location (GstGLShader * shader, guint index, const gchar * name);
+void gst_gl_shader_bind_frag_data_location (GstGLShader * shader, guint index, const gchar * name);
 
 G_END_DECLS
 

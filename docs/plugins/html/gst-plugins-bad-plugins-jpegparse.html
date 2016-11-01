@@ -6,7 +6,7 @@
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
-<link rel="prev" href="gst-plugins-bad-plugins-gaussianblur.html" title="gaussianblur">
+<link rel="prev" href="gst-plugins-bad-plugins-glviewconvert.html" title="glviewconvert">
 <link rel="next" href="gst-plugins-bad-plugins-kaleidoscope.html" title="kaleidoscope">
 <meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
@@ -20,7 +20,7 @@
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
-<td><a accesskey="p" href="gst-plugins-bad-plugins-gaussianblur.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="p" href="gst-plugins-bad-plugins-glviewconvert.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
 <td><a accesskey="n" href="gst-plugins-bad-plugins-kaleidoscope.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
@@ -32,49 +32,6 @@
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
-<div class="refsect1">
-<a name="gst-plugins-bad-plugins-jpegparse.functions"></a><h2>Functions</h2>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="functions_return">
-<col class="functions_name">
-</colgroup>
-<tbody>
-<tr>
-<td class="define_keyword">#define</td>
-<td class="function_name">
-<a class="link" href="gst-plugins-bad-plugins-jpegparse.html#GST-JPEG-PARSE:CAPS" title="GST_JPEG_PARSE()">GST_JPEG_PARSE</a><span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="define_keyword">#define</td>
-<td class="function_name">
-<a class="link" href="gst-plugins-bad-plugins-jpegparse.html#GST-JPEG-PARSE-CLASS:CAPS" title="GST_JPEG_PARSE_CLASS()">GST_JPEG_PARSE_CLASS</a><span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="define_keyword">#define</td>
-<td class="function_name">
-<a class="link" href="gst-plugins-bad-plugins-jpegparse.html#GST-IS-JPEG-PARSE:CAPS" title="GST_IS_JPEG_PARSE()">GST_IS_JPEG_PARSE</a><span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="define_keyword">#define</td>
-<td class="function_name">
-<a class="link" href="gst-plugins-bad-plugins-jpegparse.html#GST-IS-JPEG-PARSE-CLASS:CAPS" title="GST_IS_JPEG_PARSE_CLASS()">GST_IS_JPEG_PARSE_CLASS</a><span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="function_type">
-<a href="/usr/share/gtk-doc/html/gobjectgobject-Type-Information.html#GType"><span class="returnvalue">GType</span></a>
-</td>
-<td class="function_name">
-<a class="link" href="gst-plugins-bad-plugins-jpegparse.html#gst-jpeg-parse-get-type" title="gst_jpeg_parse_get_type ()">gst_jpeg_parse_get_type</a> <span class="c_punctuation">()</span>
-</td>
-</tr>
-</tbody>
-</table></div>
-</div>
 <a name="GstJpegParse"></a><div class="refsect1">
 <a name="gst-plugins-bad-plugins-jpegparse.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -82,20 +39,10 @@
 <col width="150px" class="name">
 <col class="description">
 </colgroup>
-<tbody>
-<tr>
+<tbody><tr>
 <td class="datatype_keyword">struct</td>
 <td class="function_name"><a class="link" href="gst-plugins-bad-plugins-jpegparse.html#GstJpegParse-struct" title="struct GstJpegParse">GstJpegParse</a></td>
-</tr>
-<tr>
-<td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-jpegparse.html#GstJpegParseClass" title="struct GstJpegParseClass">GstJpegParseClass</a></td>
-</tr>
-<tr>
-<td class="define_keyword">#define</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-jpegparse.html#GST-TYPE-JPEG-PARSE:CAPS" title="GST_TYPE_JPEG_PARSE">GST_TYPE_JPEG_PARSE</a></td>
-</tr>
-</tbody>
+</tr></tbody>
 </table></div>
 </div>
 <div class="refsect1">
@@ -115,7 +62,7 @@ split a continuous stream into single-frame buffers. Also reads the
 image header searching for image properties such as width and height
 among others. Jpegparse can also extract metadata (e.g. xmp).</p>
 <div class="refsect2">
-<a name="id-1.2.41.7.3"></a><h3>Example launch line</h3>
+<a name="id-1.2.88.6.3"></a><h3>Example launch line</h3>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -133,7 +80,7 @@ HTTP and stores it in a matroska file.
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.41.7.4.1"></a><h3>Element Information</h3>
+<a name="id-1.2.88.6.4.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -159,7 +106,7 @@ HTTP and stores it in a matroska file.
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.41.7.4.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.88.6.4.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -213,50 +160,13 @@ HTTP and stores it in a matroska file.
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-jpegparse.functions_details"></a><h2>Functions</h2>
-<div class="refsect2">
-<a name="GST-JPEG-PARSE:CAPS"></a><h3>GST_JPEG_PARSE()</h3>
-<pre class="programlisting">#define             GST_JPEG_PARSE(obj)</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GST-JPEG-PARSE-CLASS:CAPS"></a><h3>GST_JPEG_PARSE_CLASS()</h3>
-<pre class="programlisting">#define             GST_JPEG_PARSE_CLASS(klass)</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GST-IS-JPEG-PARSE:CAPS"></a><h3>GST_IS_JPEG_PARSE()</h3>
-<pre class="programlisting">#define             GST_IS_JPEG_PARSE(obj)</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GST-IS-JPEG-PARSE-CLASS:CAPS"></a><h3>GST_IS_JPEG_PARSE_CLASS()</h3>
-<pre class="programlisting">#define             GST_IS_JPEG_PARSE_CLASS(klass)</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="gst-jpeg-parse-get-type"></a><h3>gst_jpeg_parse_get_type ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/gobjectgobject-Type-Information.html#GType"><span class="returnvalue">GType</span></a>
-gst_jpeg_parse_get_type (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
-</div>
+<p></p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-jpegparse.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
 <a name="GstJpegParse-struct"></a><h3>struct GstJpegParse</h3>
 <pre class="programlisting">struct GstJpegParse;</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GstJpegParseClass"></a><h3>struct GstJpegParseClass</h3>
-<pre class="programlisting">struct GstJpegParseClass {
-  GstBaseParseClass  parent_class;
-};
-</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GST-TYPE-JPEG-PARSE:CAPS"></a><h3>GST_TYPE_JPEG_PARSE</h3>
-<pre class="programlisting">#define             GST_TYPE_JPEG_PARSE</pre>
 </div>
 </div>
 </div>

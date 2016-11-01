@@ -65,6 +65,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_player_debug);
 #define DEFAULT_MUTE FALSE
 #define DEFAULT_RATE 1.0
 #define DEFAULT_POSITION_UPDATE_INTERVAL_MS 100
+#define DEFAULT_AUDIO_VIDEO_OFFSET 0
 
 GQuark
 gst_player_error_quark (void)
@@ -76,6 +77,26 @@ gst_player_error_quark (void)
 
   return quark;
 }
+
+static GQuark QUARK_CONFIG;
+
+/* Keep ConfigQuarkId and _config_quark_strings ordered and synced */
+typedef enum
+{
+  CONFIG_QUARK_USER_AGENT = 0,
+  CONFIG_QUARK_POSITION_INTERVAL_UPDATE,
+
+  CONFIG_QUARK_MAX
+} ConfigQuarkId;
+
+static const gchar *_config_quark_strings[] = {
+  "user-agent",
+  "position-interval-update",
+};
+
+GQuark _config_quark_table[CONFIG_QUARK_MAX];
+
+#define CONFIG_QUARK(q) _config_quark_table[CONFIG_QUARK_##q]
 
 enum
 {
@@ -94,12 +115,15 @@ enum
   PROP_MUTE,
   PROP_RATE,
   PROP_PIPELINE,
-  PROP_POSITION_UPDATE_INTERVAL,
+  PROP_VIDEO_MULTIVIEW_MODE,
+  PROP_VIDEO_MULTIVIEW_FLAGS,
+  PROP_AUDIO_VIDEO_OFFSET,
   PROP_LAST
 };
 
 enum
 {
+  SIGNAL_URI_LOADED,
   SIGNAL_POSITION_UPDATED,
   SIGNAL_DURATION_CHANGED,
   SIGNAL_STATE_CHANGED,
@@ -131,6 +155,7 @@ struct _GstPlayer
   GstPlayerSignalDispatcher *signal_dispatcher;
 
   gchar *uri;
+  gchar *redirect_uri;
   gchar *suburi;
 
   GThread *thread;
@@ -146,7 +171,6 @@ struct _GstPlayer
   GSource *tick_source, *ready_timeout_source;
 
   gdouble rate;
-  guint position_update_interval_ms;
 
   GstPlayerState app_state;
   gint buffering;
@@ -156,11 +180,17 @@ struct _GstPlayer
 
   GstElement *current_vis_element;
 
+  GstStructure *config;
+
   /* Protected by lock */
   gboolean seek_pending;        /* Only set from main context */
   GstClockTime last_seek_time;  /* Only set from main context */
   GSource *seek_source;
   GstClockTime seek_position;
+  /* If TRUE, all signals are inhibited except the
+   * state-changed:GST_PLAYER_STATE_STOPPED/PAUSED. This ensures that no signal
+   * is emitted after gst_player_stop/pause() has been called by the user. */
+  gboolean inhibit_sigs;
 };
 
 struct _GstPlayerClass
@@ -185,12 +215,11 @@ static void gst_player_constructed (GObject * object);
 static gpointer gst_player_main (gpointer data);
 
 static void gst_player_seek_internal_locked (GstPlayer * self);
-static gboolean gst_player_stop_internal (gpointer user_data);
+static void gst_player_stop_internal (GstPlayer * self, gboolean transient);
 static gboolean gst_player_pause_internal (gpointer user_data);
 static gboolean gst_player_play_internal (gpointer user_data);
-static gboolean gst_player_set_rate_internal (gpointer user_data);
-static gboolean gst_player_set_position_update_interval_internal (gpointer
-    user_data);
+static gboolean gst_player_seek_internal (gpointer user_data);
+static void gst_player_set_rate_internal (GstPlayer * self);
 static void change_state (GstPlayer * self, GstPlayerState state);
 
 static GstPlayerMediaInfo *gst_player_media_info_create (GstPlayer * self);
@@ -234,12 +263,35 @@ gst_player_init (GstPlayer * self)
   self->context = g_main_context_new ();
   self->loop = g_main_loop_new (self->context, FALSE);
 
-  self->position_update_interval_ms = DEFAULT_POSITION_UPDATE_INTERVAL_MS;
+  /* *INDENT-OFF* */
+  self->config = gst_structure_new_id (QUARK_CONFIG,
+      CONFIG_QUARK (POSITION_INTERVAL_UPDATE), G_TYPE_UINT, DEFAULT_POSITION_UPDATE_INTERVAL_MS,
+      NULL);
+  /* *INDENT-ON* */
+
   self->seek_pending = FALSE;
   self->seek_position = GST_CLOCK_TIME_NONE;
   self->last_seek_time = GST_CLOCK_TIME_NONE;
+  self->inhibit_sigs = FALSE;
 
   GST_TRACE_OBJECT (self, "Initialized");
+}
+
+static void
+config_quark_initialize (void)
+{
+  gint i;
+
+  QUARK_CONFIG = g_quark_from_static_string ("player-config");
+
+  if (G_N_ELEMENTS (_config_quark_strings) != CONFIG_QUARK_MAX)
+    g_warning ("the quark table is not consistent! %d != %d",
+        (int) G_N_ELEMENTS (_config_quark_strings), CONFIG_QUARK_MAX);
+
+  for (i = 0; i < CONFIG_QUARK_MAX; i++) {
+    _config_quark_table[i] =
+        g_quark_from_static_string (_config_quark_strings[i]);
+  }
 }
 
 static void
@@ -318,14 +370,32 @@ gst_player_class_init (GstPlayerClass * klass)
       g_param_spec_double ("rate", "rate", "Playback rate",
       -64.0, 64.0, DEFAULT_RATE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  param_specs[PROP_POSITION_UPDATE_INTERVAL] =
-      g_param_spec_uint ("position-update-interval", "Position update interval",
-      "Interval in milliseconds between two position-updated signals."
-      "Pass 0 to stop updating the position.",
-      0, 10000, DEFAULT_POSITION_UPDATE_INTERVAL_MS,
+  param_specs[PROP_VIDEO_MULTIVIEW_MODE] =
+      g_param_spec_enum ("video-multiview-mode",
+      "Multiview Mode Override",
+      "Re-interpret a video stream as one of several frame-packed stereoscopic modes.",
+      GST_TYPE_VIDEO_MULTIVIEW_FRAME_PACKING,
+      GST_VIDEO_MULTIVIEW_FRAME_PACKING_NONE,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
+  param_specs[PROP_VIDEO_MULTIVIEW_FLAGS] =
+      g_param_spec_flags ("video-multiview-flags",
+      "Multiview Flags Override",
+      "Override details of the multiview frame layout",
+      GST_TYPE_VIDEO_MULTIVIEW_FLAGS, GST_VIDEO_MULTIVIEW_FLAGS_NONE,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  param_specs[PROP_AUDIO_VIDEO_OFFSET] =
+      g_param_spec_int64 ("audio-video-offset", "Audio Video Offset",
+      "The synchronisation offset between audio and video in nanoseconds",
+      G_MININT64, G_MAXINT64, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (gobject_class, PROP_LAST, param_specs);
+
+  signals[SIGNAL_URI_LOADED] =
+      g_signal_new ("uri-loaded", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, NULL, G_TYPE_NONE, 1, G_TYPE_STRING);
 
   signals[SIGNAL_POSITION_UPDATED] =
       g_signal_new ("position-updated", G_TYPE_FROM_CLASS (klass),
@@ -386,6 +456,8 @@ gst_player_class_init (GstPlayerClass * klass)
       g_signal_new ("seek-done", G_TYPE_FROM_CLASS (klass),
       G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
       NULL, NULL, G_TYPE_NONE, 1, GST_TYPE_CLOCK_TIME);
+
+  config_quark_initialize ();
 }
 
 static void
@@ -419,6 +491,7 @@ gst_player_finalize (GObject * object)
   GST_TRACE_OBJECT (self, "Finalizing");
 
   g_free (self->uri);
+  g_free (self->redirect_uri);
   g_free (self->suburi);
   if (self->global_tags)
     gst_tag_list_unref (self->global_tags);
@@ -428,6 +501,8 @@ gst_player_finalize (GObject * object)
     g_object_unref (self->signal_dispatcher);
   if (self->current_vis_element)
     gst_object_unref (self->current_vis_element);
+  if (self->config)
+    gst_structure_free (self->config);
   g_mutex_clear (&self->lock);
   g_cond_clear (&self->cond);
 
@@ -450,18 +525,51 @@ gst_player_constructed (GObject * object)
   G_OBJECT_CLASS (parent_class)->constructed (object);
 }
 
+typedef struct
+{
+  GstPlayer *player;
+  gchar *uri;
+} UriLoadedSignalData;
+
+static void
+uri_loaded_dispatch (gpointer user_data)
+{
+  UriLoadedSignalData *data = user_data;
+
+  g_signal_emit (data->player, signals[SIGNAL_URI_LOADED], 0, data->uri);
+}
+
+static void
+uri_loaded_signal_data_free (UriLoadedSignalData * data)
+{
+  g_object_unref (data->player);
+  g_free (data->uri);
+  g_free (data);
+}
+
 static gboolean
 gst_player_set_uri_internal (gpointer user_data)
 {
   GstPlayer *self = user_data;
 
-  gst_player_stop_internal (self);
+  gst_player_stop_internal (self, FALSE);
 
   g_mutex_lock (&self->lock);
 
   GST_DEBUG_OBJECT (self, "Changing URI to '%s'", GST_STR_NULL (self->uri));
 
   g_object_set (self->playbin, "uri", self->uri, NULL);
+
+  if (g_signal_handler_find (self, G_SIGNAL_MATCH_ID,
+          signals[SIGNAL_URI_LOADED], 0, NULL, NULL, NULL) != 0) {
+    UriLoadedSignalData *data = g_new (UriLoadedSignalData, 1);
+
+    data->player = g_object_ref (self);
+    data->uri = g_strdup (self->uri);
+    gst_player_signal_dispatcher_dispatch (self->signal_dispatcher, self,
+        uri_loaded_dispatch, data,
+        (GDestroyNotify) uri_loaded_signal_data_free);
+  }
 
   /* if have suburi from previous playback then free it */
   if (self->suburi) {
@@ -486,14 +594,15 @@ gst_player_set_suburi_internal (gpointer user_data)
   target_state = self->target_state;
   position = gst_player_get_position (self);
 
-  gst_player_stop_internal (self);
+  gst_player_stop_internal (self, TRUE);
   g_mutex_lock (&self->lock);
 
   GST_DEBUG_OBJECT (self, "Changing SUBURI to '%s'",
       GST_STR_NULL (self->suburi));
 
   g_object_set (self->playbin, "suburi", self->suburi, NULL);
-  g_object_set (self->playbin, "uri", self->uri, NULL);
+  g_object_set (self->playbin, "uri",
+      self->redirect_uri ? self->redirect_uri : self->uri, NULL);
 
   g_mutex_unlock (&self->lock);
 
@@ -506,6 +615,26 @@ gst_player_set_suburi_internal (gpointer user_data)
     gst_player_play_internal (self);
 
   return G_SOURCE_REMOVE;
+}
+
+static void
+gst_player_set_rate_internal (GstPlayer * self)
+{
+  self->seek_position = gst_player_get_position (self);
+
+  /* If there is no seek being dispatch to the main context currently do that,
+   * otherwise we just updated the rate so that it will be taken by
+   * the seek handler from the main context instead of the old one.
+   */
+  if (!self->seek_source) {
+    /* If no seek is pending then create new seek source */
+    if (!self->seek_pending) {
+      self->seek_source = g_idle_source_new ();
+      g_source_set_callback (self->seek_source,
+          (GSourceFunc) gst_player_seek_internal, self, NULL);
+      g_source_attach (self->seek_source, self->context);
+    }
+  }
 }
 
 static void
@@ -524,6 +653,8 @@ gst_player_set_property (GObject * object, guint prop_id,
     case PROP_URI:{
       g_mutex_lock (&self->lock);
       g_free (self->uri);
+      g_free (self->redirect_uri);
+      self->redirect_uri = NULL;
 
       self->uri = g_value_dup_string (value);
       GST_DEBUG_OBJECT (self, "Set uri=%s", self->uri);
@@ -553,22 +684,27 @@ gst_player_set_property (GObject * object, guint prop_id,
       g_mutex_lock (&self->lock);
       self->rate = g_value_get_double (value);
       GST_DEBUG_OBJECT (self, "Set rate=%lf", g_value_get_double (value));
-      g_mutex_unlock (&self->lock);
-
       gst_player_set_rate_internal (self);
+      g_mutex_unlock (&self->lock);
       break;
     case PROP_MUTE:
       GST_DEBUG_OBJECT (self, "Set mute=%d", g_value_get_boolean (value));
       g_object_set_property (G_OBJECT (self->playbin), "mute", value);
       break;
-    case PROP_POSITION_UPDATE_INTERVAL:
-      g_mutex_lock (&self->lock);
-      self->position_update_interval_ms = g_value_get_uint (value);
-      GST_DEBUG_OBJECT (self, "Set position update interval=%u ms",
-          g_value_get_uint (value));
-      g_mutex_unlock (&self->lock);
-
-      gst_player_set_position_update_interval_internal (self);
+    case PROP_VIDEO_MULTIVIEW_MODE:
+      GST_DEBUG_OBJECT (self, "Set multiview mode=%u",
+          g_value_get_enum (value));
+      g_object_set_property (G_OBJECT (self->playbin), "video-multiview-mode",
+          value);
+      break;
+    case PROP_VIDEO_MULTIVIEW_FLAGS:
+      GST_DEBUG_OBJECT (self, "Set multiview flags=%x",
+          g_value_get_flags (value));
+      g_object_set_property (G_OBJECT (self->playbin), "video-multiview-flags",
+          value);
+      break;
+    case PROP_AUDIO_VIDEO_OFFSET:
+      g_object_set_property (G_OBJECT (self->playbin), "av-offset", value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -647,7 +783,7 @@ gst_player_get_property (GObject * object, guint prop_id,
       break;
     case PROP_RATE:
       g_mutex_lock (&self->lock);
-      g_value_set_double (value, gst_player_get_rate (self));
+      g_value_set_double (value, self->rate);
       g_mutex_unlock (&self->lock);
       break;
     case PROP_MUTE:
@@ -657,10 +793,22 @@ gst_player_get_property (GObject * object, guint prop_id,
     case PROP_PIPELINE:
       g_value_set_object (value, self->playbin);
       break;
-    case PROP_POSITION_UPDATE_INTERVAL:
-      g_mutex_lock (&self->lock);
-      g_value_set_uint (value, gst_player_get_position_update_interval (self));
-      g_mutex_unlock (&self->lock);
+    case PROP_VIDEO_MULTIVIEW_MODE:{
+      g_object_get_property (G_OBJECT (self->playbin), "video-multiview-mode",
+          value);
+      GST_TRACE_OBJECT (self, "Return multiview mode=%d",
+          g_value_get_enum (value));
+      break;
+    }
+    case PROP_VIDEO_MULTIVIEW_FLAGS:{
+      g_object_get_property (G_OBJECT (self->playbin), "video-multiview-flags",
+          value);
+      GST_TRACE_OBJECT (self, "Return multiview flags=%x",
+          g_value_get_flags (value));
+      break;
+    }
+    case PROP_AUDIO_VIDEO_OFFSET:
+      g_object_get_property (G_OBJECT (self->playbin), "av-offset", value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -692,6 +840,10 @@ static void
 state_changed_dispatch (gpointer user_data)
 {
   StateChangedSignalData *data = user_data;
+
+  if (data->player->inhibit_sigs && data->state != GST_PLAYER_STATE_STOPPED
+      && data->state != GST_PLAYER_STATE_PAUSED)
+    return;
 
   g_signal_emit (data->player, signals[SIGNAL_STATE_CHANGED], 0, data->state);
 }
@@ -736,6 +888,9 @@ static void
 position_updated_dispatch (gpointer user_data)
 {
   PositionUpdatedSignalData *data = user_data;
+
+  if (data->player->inhibit_sigs)
+    return;
 
   if (data->player->target_state >= GST_STATE_PAUSED) {
     g_signal_emit (data->player, signals[SIGNAL_POSITION_UPDATED], 0,
@@ -782,13 +937,17 @@ tick_cb (gpointer user_data)
 static void
 add_tick_source (GstPlayer * self)
 {
+  guint position_update_interval_ms;
+
   if (self->tick_source)
     return;
 
-  if (!self->position_update_interval_ms)
+  position_update_interval_ms =
+      gst_player_config_get_position_update_interval (self->config);
+  if (!position_update_interval_ms)
     return;
 
-  self->tick_source = g_timeout_source_new (self->position_update_interval_ms);
+  self->tick_source = g_timeout_source_new (position_update_interval_ms);
   g_source_set_callback (self->tick_source, (GSourceFunc) tick_cb, self, NULL);
   g_source_attach (self->tick_source, self->context);
 }
@@ -852,6 +1011,9 @@ static void
 error_dispatch (gpointer user_data)
 {
   ErrorSignalData *data = user_data;
+
+  if (data->player->inhibit_sigs)
+    return;
 
   g_signal_emit (data->player, signals[SIGNAL_ERROR], 0, data->err);
 }
@@ -938,6 +1100,9 @@ static void
 warning_dispatch (gpointer user_data)
 {
   WarningSignalData *data = user_data;
+
+  if (data->player->inhibit_sigs)
+    return;
 
   g_signal_emit (data->player, signals[SIGNAL_WARNING], 0, data->err);
 }
@@ -1051,7 +1216,12 @@ warning_cb (G_GNUC_UNUSED GstBus * bus, GstMessage * msg, gpointer user_data)
 static void
 eos_dispatch (gpointer user_data)
 {
-  g_signal_emit (user_data, signals[SIGNAL_END_OF_STREAM], 0);
+  GstPlayer *player = user_data;
+
+  if (player->inhibit_sigs)
+    return;
+
+  g_signal_emit (player, signals[SIGNAL_END_OF_STREAM], 0);
 }
 
 static void
@@ -1085,6 +1255,9 @@ static void
 buffering_dispatch (gpointer user_data)
 {
   BufferingSignalData *data = user_data;
+
+  if (data->player->inhibit_sigs)
+    return;
 
   if (data->player->target_state >= GST_STATE_PAUSED) {
     g_signal_emit (data->player, signals[SIGNAL_BUFFERING], 0, data->percent);
@@ -1201,6 +1374,9 @@ video_dimensions_changed_dispatch (gpointer user_data)
 {
   VideoDimensionsChangedSignalData *data = user_data;
 
+  if (data->player->inhibit_sigs)
+    return;
+
   if (data->player->target_state >= GST_STATE_PAUSED) {
     g_signal_emit (data->player, signals[SIGNAL_VIDEO_DIMENSIONS_CHANGED], 0,
         data->width, data->height);
@@ -1286,6 +1462,9 @@ duration_changed_dispatch (gpointer user_data)
 {
   DurationChangedSignalData *data = user_data;
 
+  if (data->player->inhibit_sigs)
+    return;
+
   if (data->player->target_state >= GST_STATE_PAUSED) {
     g_signal_emit (data->player, signals[SIGNAL_DURATION_CHANGED], 0,
         data->duration);
@@ -1329,6 +1508,9 @@ static void
 seek_done_dispatch (gpointer user_data)
 {
   SeekDoneSignalData *data = user_data;
+
+  if (data->player->inhibit_sigs)
+    return;
 
   g_signal_emit (data->player, signals[SIGNAL_SEEK_DONE], 0, data->position);
 }
@@ -1408,8 +1590,10 @@ state_changed_cb (G_GNUC_UNUSED GstBus * bus, GstMessage * msg,
       }
 
       check_video_dimensions_changed (self);
-      gst_element_query_duration (self->playbin, GST_FORMAT_TIME, &duration);
-      emit_duration_changed (self, duration);
+      if (gst_element_query_duration (self->playbin, GST_FORMAT_TIME,
+              &duration)) {
+        emit_duration_changed (self, duration);
+      }
     }
 
     if (new_state == GST_STATE_PAUSED
@@ -1548,14 +1732,7 @@ tags_cb (G_GNUC_UNUSED GstBus * bus, GstMessage * msg, gpointer user_data)
 
   gst_message_parse_tag (msg, &tags);
 
-  /*
-   * NOTE: Inorder to get global tag you must apply the following patches in
-   * your gstreamer build.
-   *
-   * http://cgit.freedesktop.org/gstreamer/gst-plugins-good/commit/?id=9119fbd774093e3ae762c8652acd80d54b2c3b45
-   * http://cgit.freedesktop.org/gstreamer/gstreamer/commit/?id=18b058100940bdcaed86fa412e3582a02871f995
-   */
-  GST_DEBUG_OBJECT (self, "recieved %s tags",
+  GST_DEBUG_OBJECT (self, "received %s tags",
       gst_tag_list_get_scope (tags) ==
       GST_TAG_SCOPE_GLOBAL ? "global" : "stream");
 
@@ -1621,13 +1798,13 @@ element_cb (G_GNUC_UNUSED GstBus * bus, GstMessage * msg, gpointer user_data)
       /* Remember target state and restore after setting the URI */
       target_state = self->target_state;
 
+      gst_player_stop_internal (self, TRUE);
+
       g_mutex_lock (&self->lock);
-      g_free (self->uri);
-
-      self->uri = g_strdup (new_location);
+      g_free (self->redirect_uri);
+      self->redirect_uri = g_strdup (new_location);
+      g_object_set (self->playbin, "uri", self->redirect_uri, NULL);
       g_mutex_unlock (&self->lock);
-
-      gst_player_set_uri_internal (self);
 
       if (target_state == GST_STATE_PAUSED)
         gst_player_pause_internal (self);
@@ -1671,6 +1848,9 @@ static void
 media_info_updated_dispatch (gpointer user_data)
 {
   MediaInfoUpdatedSignalData *data = user_data;
+
+  if (data->player->inhibit_sigs)
+    return;
 
   if (data->player->target_state >= GST_STATE_PAUSED) {
     g_signal_emit (data->player, signals[SIGNAL_MEDIA_INFO_UPDATED], 0,
@@ -2235,6 +2415,7 @@ gst_player_media_info_create (GstPlayer * self)
   media_info = gst_player_media_info_new (self->uri);
   media_info->duration = gst_player_get_duration (self);
   media_info->tags = self->global_tags;
+  media_info->is_live = self->is_live;
   self->global_tags = NULL;
 
   query = gst_query_new_seeking (GST_FORMAT_TIME);
@@ -2256,10 +2437,10 @@ gst_player_media_info_create (GstPlayer * self)
   media_info->image_sample = get_from_tags (self, media_info, get_cover_sample);
 
   GST_DEBUG_OBJECT (self, "uri: %s title: %s duration: %" GST_TIME_FORMAT
-      " seekable: %s container: %s image_sample %p",
+      " seekable: %s live: %s container: %s image_sample %p",
       media_info->uri, media_info->title, GST_TIME_ARGS (media_info->duration),
-      media_info->seekable ? "yes" : "no", media_info->container,
-      media_info->image_sample);
+      media_info->seekable ? "yes" : "no", media_info->is_live ? "yes" : "no",
+      media_info->container, media_info->image_sample);
 
   GST_DEBUG_OBJECT (self, "end");
   return media_info;
@@ -2309,8 +2490,13 @@ subtitle_tags_changed_cb (G_GNUC_UNUSED GstElement * playbin, gint stream_index,
 static void
 volume_changed_dispatch (gpointer user_data)
 {
-  g_signal_emit (user_data, signals[SIGNAL_VOLUME_CHANGED], 0);
-  g_object_notify_by_pspec (G_OBJECT (user_data), param_specs[PROP_VOLUME]);
+  GstPlayer *player = user_data;
+
+  if (player->inhibit_sigs)
+    return;
+
+  g_signal_emit (player, signals[SIGNAL_VOLUME_CHANGED], 0);
+  g_object_notify_by_pspec (G_OBJECT (player), param_specs[PROP_VOLUME]);
 }
 
 static void
@@ -2328,8 +2514,13 @@ volume_notify_cb (G_GNUC_UNUSED GObject * obj, G_GNUC_UNUSED GParamSpec * pspec,
 static void
 mute_changed_dispatch (gpointer user_data)
 {
-  g_signal_emit (user_data, signals[SIGNAL_MUTE_CHANGED], 0);
-  g_object_notify_by_pspec (G_OBJECT (user_data), param_specs[PROP_MUTE]);
+  GstPlayer *player = user_data;
+
+  if (player->inhibit_sigs)
+    return;
+
+  g_signal_emit (player, signals[SIGNAL_MUTE_CHANGED], 0);
+  g_object_notify_by_pspec (G_OBJECT (player), param_specs[PROP_MUTE]);
 }
 
 static void
@@ -2341,6 +2532,26 @@ mute_notify_cb (G_GNUC_UNUSED GObject * obj, G_GNUC_UNUSED GParamSpec * pspec,
     gst_player_signal_dispatcher_dispatch (self->signal_dispatcher, self,
         mute_changed_dispatch, g_object_ref (self),
         (GDestroyNotify) g_object_unref);
+  }
+}
+
+static void
+source_setup_cb (GstElement * playbin, GstElement * source, GstPlayer * self)
+{
+  gchar *user_agent;
+
+  user_agent = gst_player_config_get_user_agent (self->config);
+  if (user_agent) {
+    GParamSpec *prop;
+
+    prop = g_object_class_find_property (G_OBJECT_GET_CLASS (source),
+        "user-agent");
+    if (prop && prop->value_type == G_TYPE_STRING) {
+      GST_INFO_OBJECT (self, "Setting source user-agent: %s", user_agent);
+      g_object_set (source, "user-agent", user_agent, NULL);
+    }
+
+    g_free (user_agent);
   }
 }
 
@@ -2376,14 +2587,7 @@ gst_player_main (gpointer data)
 
   scaletempo = gst_element_factory_make ("scaletempo", NULL);
   if (scaletempo) {
-    if (gst_plugin_feature_check_version (GST_PLUGIN_FEATURE
-            (gst_element_get_factory (scaletempo)), 1, 6, 1)) {
-      g_object_set (self->playbin, "audio-filter", scaletempo, NULL);
-    } else {
-      gst_object_unref (scaletempo);
-      g_warning ("GstPlayer: scaletempo >= 1.6.1 is needed for preserving "
-          "audio pitch during trick modes");
-    }
+    g_object_set (self->playbin, "audio-filter", scaletempo, NULL);
   } else {
     g_warning ("GstPlayer: scaletempo element not available. Audio pitch "
         "will not be preserved during trick modes");
@@ -2433,6 +2637,8 @@ gst_player_main (gpointer data)
       G_CALLBACK (volume_notify_cb), self);
   g_signal_connect (self->playbin, "notify::mute",
       G_CALLBACK (mute_notify_cb), self);
+  g_signal_connect (self->playbin, "source-setup",
+      G_CALLBACK (source_setup_cb), self);
 
   self->target_state = GST_STATE_NULL;
   self->current_state = GST_STATE_NULL;
@@ -2440,6 +2646,7 @@ gst_player_main (gpointer data)
   self->buffering = 100;
   self->is_eos = FALSE;
   self->is_live = FALSE;
+  self->rate = 1.0;
 
   GST_TRACE_OBJECT (self, "Starting main loop");
   g_main_loop_run (self->loop);
@@ -2547,7 +2754,8 @@ gst_player_play_internal (gpointer user_data)
     change_state (self, GST_PLAYER_STATE_BUFFERING);
 
   if (self->current_state >= GST_STATE_PAUSED && !self->is_eos
-      && self->buffering >= 100) {
+      && self->buffering >= 100 && !(self->seek_position != GST_CLOCK_TIME_NONE
+          || self->seek_pending)) {
     state_ret = gst_element_set_state (self->playbin, GST_STATE_PLAYING);
   } else {
     state_ret = gst_element_set_state (self->playbin, GST_STATE_PAUSED);
@@ -2577,7 +2785,7 @@ gst_player_play_internal (gpointer user_data)
         GST_SEEK_FLAG_FLUSH, 0);
     if (!ret) {
       GST_ERROR_OBJECT (self, "Seek to beginning failed");
-      gst_player_stop_internal (self);
+      gst_player_stop_internal (self, TRUE);
       gst_player_play_internal (self);
     }
   }
@@ -2595,6 +2803,10 @@ void
 gst_player_play (GstPlayer * self)
 {
   g_return_if_fail (GST_IS_PLAYER (self));
+
+  g_mutex_lock (&self->lock);
+  self->inhibit_sigs = FALSE;
+  g_mutex_unlock (&self->lock);
 
   g_main_context_invoke_full (self->context, G_PRIORITY_DEFAULT,
       gst_player_play_internal, self, NULL);
@@ -2644,7 +2856,7 @@ gst_player_pause_internal (gpointer user_data)
         GST_SEEK_FLAG_FLUSH, 0);
     if (!ret) {
       GST_ERROR_OBJECT (self, "Seek to beginning failed");
-      gst_player_stop_internal (self);
+      gst_player_stop_internal (self, TRUE);
       gst_player_pause_internal (self);
     }
   }
@@ -2663,16 +2875,18 @@ gst_player_pause (GstPlayer * self)
 {
   g_return_if_fail (GST_IS_PLAYER (self));
 
+  g_mutex_lock (&self->lock);
+  self->inhibit_sigs = FALSE;
+  g_mutex_unlock (&self->lock);
+
   g_main_context_invoke_full (self->context, G_PRIORITY_DEFAULT,
       gst_player_pause_internal, self, NULL);
 }
 
-static gboolean
-gst_player_stop_internal (gpointer user_data)
+static void
+gst_player_stop_internal (GstPlayer * self, gboolean transient)
 {
-  GstPlayer *self = GST_PLAYER (user_data);
-
-  GST_DEBUG_OBJECT (self, "Stop");
+  GST_DEBUG_OBJECT (self, "Stop (transient %d)", transient);
 
   tick_cb (self);
   remove_tick_source (self);
@@ -2686,7 +2900,10 @@ gst_player_stop_internal (gpointer user_data)
   gst_bus_set_flushing (self->bus, TRUE);
   gst_element_set_state (self->playbin, GST_STATE_READY);
   gst_bus_set_flushing (self->bus, FALSE);
-  change_state (self, GST_PLAYER_STATE_STOPPED);
+  change_state (self, transient
+      && self->app_state !=
+      GST_PLAYER_STATE_STOPPED ? GST_PLAYER_STATE_BUFFERING :
+      GST_PLAYER_STATE_STOPPED);
   self->buffering = 100;
   g_mutex_lock (&self->lock);
   if (self->media_info) {
@@ -2707,9 +2924,18 @@ gst_player_stop_internal (gpointer user_data)
   self->last_seek_time = GST_CLOCK_TIME_NONE;
   self->rate = 1.0;
   g_mutex_unlock (&self->lock);
+}
+
+static gboolean
+gst_player_stop_internal_dispatch (gpointer user_data)
+{
+  GstPlayer *self = GST_PLAYER (user_data);
+
+  gst_player_stop_internal (self, FALSE);
 
   return G_SOURCE_REMOVE;
 }
+
 
 /**
  * gst_player_stop:
@@ -2723,8 +2949,12 @@ gst_player_stop (GstPlayer * self)
 {
   g_return_if_fail (GST_IS_PLAYER (self));
 
+  g_mutex_lock (&self->lock);
+  self->inhibit_sigs = TRUE;
+  g_mutex_unlock (&self->lock);
+
   g_main_context_invoke_full (self->context, G_PRIORITY_DEFAULT,
-      gst_player_stop_internal, self, NULL);
+      gst_player_stop_internal_dispatch, self, NULL);
 }
 
 /* Must be called with lock from main context, releases lock! */
@@ -2772,11 +3002,9 @@ gst_player_seek_internal_locked (GstPlayer * self)
 
   flags |= GST_SEEK_FLAG_FLUSH;
 
-#if GST_CHECK_VERSION(1,5,0)
   if (rate != 1.0) {
     flags |= GST_SEEK_FLAG_TRICKMODE;
   }
-#endif
 
   if (rate >= 0.0) {
     s_event = gst_event_new_seek (rate, GST_FORMAT_TIME, flags,
@@ -2809,34 +3037,6 @@ gst_player_seek_internal (gpointer user_data)
   return G_SOURCE_REMOVE;
 }
 
-static gboolean
-gst_player_set_rate_internal (gpointer user_data)
-{
-  GstPlayer *self = user_data;
-
-  g_mutex_lock (&self->lock);
-
-  self->seek_position = gst_player_get_position (self);
-
-  /* If there is no seek being dispatch to the main context currently do that,
-   * otherwise we just updated the rate so that it will be taken by
-   * the seek handler from the main context instead of the old one.
-   */
-  if (!self->seek_source) {
-    /* If no seek is pending then create new seek source */
-    if (!self->seek_pending) {
-      self->seek_source = g_idle_source_new ();
-      g_source_set_callback (self->seek_source,
-          (GSourceFunc) gst_player_seek_internal, self, NULL);
-      g_source_attach (self->seek_source, self->context);
-    }
-  }
-
-  g_mutex_unlock (&self->lock);
-
-  return G_SOURCE_REMOVE;
-}
-
 /**
  * gst_player_set_rate:
  * @player: #GstPlayer instance
@@ -2850,11 +3050,7 @@ gst_player_set_rate (GstPlayer * self, gdouble rate)
   g_return_if_fail (GST_IS_PLAYER (self));
   g_return_if_fail (rate != 0.0);
 
-  g_mutex_lock (&self->lock);
-  self->rate = rate;
-  g_mutex_unlock (&self->lock);
-
-  gst_player_set_rate_internal (self);
+  g_object_set (self, "rate", rate, NULL);
 }
 
 /**
@@ -2866,62 +3062,13 @@ gst_player_set_rate (GstPlayer * self, gdouble rate)
 gdouble
 gst_player_get_rate (GstPlayer * self)
 {
+  gdouble val;
+
   g_return_val_if_fail (GST_IS_PLAYER (self), DEFAULT_RATE);
 
-  return self->rate;
-}
+  g_object_get (self, "rate", &val, NULL);
 
-static gboolean
-gst_player_set_position_update_interval_internal (gpointer user_data)
-{
-  GstPlayer *self = user_data;
-
-  g_mutex_lock (&self->lock);
-
-  if (self->tick_source) {
-    remove_tick_source (self);
-    add_tick_source (self);
-  }
-
-  g_mutex_unlock (&self->lock);
-
-  return G_SOURCE_REMOVE;
-}
-
-/**
- * gst_player_set_position_update_interval:
- * @player: #GstPlayer instance
- * @interval: interval in ms
- *
- * Set interval in milliseconds between two position-updated signals.
- * Pass 0 to stop updating the position.
- */
-void
-gst_player_set_position_update_interval (GstPlayer * self, guint interval)
-{
-  g_return_if_fail (GST_IS_PLAYER (self));
-  g_return_if_fail (interval <= 10000);
-
-  g_mutex_lock (&self->lock);
-  self->position_update_interval_ms = interval;
-  g_mutex_unlock (&self->lock);
-
-  gst_player_set_position_update_interval_internal (self);
-}
-
-/**
- * gst_player_get_position_update_interval:
- * @player: #GstPlayer instance
- *
- * Returns: current position update interval in milliseconds
- */
-guint
-gst_player_get_position_update_interval (GstPlayer * self)
-{
-  g_return_val_if_fail (GST_IS_PLAYER (self),
-      DEFAULT_POSITION_UPDATE_INTERVAL_MS);
-
-  return self->position_update_interval_ms;
+  return val;
 }
 
 /**
@@ -3015,6 +3162,44 @@ gst_player_set_uri (GstPlayer * self, const gchar * val)
   g_return_if_fail (GST_IS_PLAYER (self));
 
   g_object_set (self, "uri", val, NULL);
+}
+
+/**
+ * gst_player_set_subtitle_uri:
+ * @player: #GstPlayer instance
+ * @uri: subtitle URI
+ *
+ * Returns: %TRUE or %FALSE
+ *
+ * Sets the external subtitle URI.
+ */
+void
+gst_player_set_subtitle_uri (GstPlayer * self, const gchar * suburi)
+{
+  g_return_if_fail (GST_IS_PLAYER (self));
+
+  g_object_set (self, "suburi", suburi, NULL);
+}
+
+/**
+ * gst_player_get_subtitle_uri:
+ * @player: #GstPlayer instance
+ *
+ * current subtitle URI
+ *
+ * Returns: (transfer full): URI of the current external subtitle.
+ *   g_free() after usage.
+ */
+gchar *
+gst_player_get_subtitle_uri (GstPlayer * self)
+{
+  gchar *val = NULL;
+
+  g_return_val_if_fail (GST_IS_PLAYER (self), NULL);
+
+  g_object_get (self, "suburi", &val, NULL);
+
+  return val;
 }
 
 /**
@@ -3397,46 +3582,6 @@ gst_player_set_subtitle_track_enabled (GstPlayer * self, gboolean enabled)
 }
 
 /**
- * gst_player_set_subtitle_uri:
- * @player: #GstPlayer instance
- * @uri: subtitle URI
- *
- * Returns: %TRUE or %FALSE
- *
- * Sets the external subtitle URI.
- */
-gboolean
-gst_player_set_subtitle_uri (GstPlayer * self, const gchar * suburi)
-{
-  g_return_val_if_fail (GST_IS_PLAYER (self), FALSE);
-
-  g_object_set (self, "suburi", suburi, NULL);
-
-  return TRUE;
-}
-
-/**
- * gst_player_get_subtitle_uri:
- * @player: #GstPlayer instance
- *
- * current subtitle URI
- *
- * Returns: (transfer full): URI of the current external subtitle.
- *   g_free() after usage.
- */
-gchar *
-gst_player_get_subtitle_uri (GstPlayer * self)
-{
-  gchar *val = NULL;
-
-  g_return_val_if_fail (GST_IS_PLAYER (self), NULL);
-
-  g_object_get (self, "suburi", &val, NULL);
-
-  return val;
-}
-
-/**
  * gst_player_set_visualization:
  * @player: #GstPlayer instance
  * @name: visualization element obtained from
@@ -3656,6 +3801,125 @@ gst_player_get_color_balance (GstPlayer * self, GstPlayerColorBalanceType type)
       (gdouble) channel->min_value);
 }
 
+/**
+ * gst_player_get_multiview_mode:
+ * @player: #GstPlayer instance
+ *
+ * Retrieve the current value of the indicated @type.
+ *
+ * Returns: The current value of @type, Default: -1 "none"
+ *
+ * Since: 1.10
+ */
+GstVideoMultiviewMode
+gst_player_get_multiview_mode (GstPlayer * self)
+{
+  GstVideoMultiviewMode val = GST_VIDEO_MULTIVIEW_MODE_NONE;
+
+  g_return_val_if_fail (GST_IS_PLAYER (self), GST_VIDEO_MULTIVIEW_MODE_NONE);
+
+  g_object_get (self, "video-multiview-mode", &val, NULL);
+
+  return val;
+}
+
+/**
+ * gst_player_set_multiview_mode:
+ * @player: #GstPlayer instance
+ * @mode: The new value for the @type
+ *
+ * Sets the current value of the indicated mode @type to the passed
+ * value.
+ *
+ * Since: 1.10
+ */
+void
+gst_player_set_multiview_mode (GstPlayer * self, GstVideoMultiviewMode mode)
+{
+  g_return_if_fail (GST_IS_PLAYER (self));
+
+  g_object_set (self, "video-multiview-mode", mode, NULL);
+}
+
+/**
+ * gst_player_get_multiview_flags:
+ * @player: #GstPlayer instance
+ *
+ * Retrieve the current value of the indicated @type.
+ *
+ * Returns: The current value of @type, Default: 0x00000000 "none
+ *
+ * Since: 1.10
+ */
+GstVideoMultiviewFlags
+gst_player_get_multiview_flags (GstPlayer * self)
+{
+  GstVideoMultiviewFlags val = GST_VIDEO_MULTIVIEW_FLAGS_NONE;
+
+  g_return_val_if_fail (GST_IS_PLAYER (self), val);
+
+  g_object_get (self, "video-multiview-flags", &val, NULL);
+
+  return val;
+}
+
+/**
+ * gst_player_set_multiview_flags:
+ * @player: #GstPlayer instance
+ * @flags: The new value for the @type
+ *
+ * Sets the current value of the indicated mode @type to the passed
+ * value.
+ *
+ * Since: 1.10
+ */
+void
+gst_player_set_multiview_flags (GstPlayer * self, GstVideoMultiviewFlags flags)
+{
+  g_return_if_fail (GST_IS_PLAYER (self));
+
+  g_object_set (self, "video-multiview-flags", flags, NULL);
+}
+
+/**
+ * gst_player_get_audio_video_offset:
+ * @player: #GstPlayer instance
+ *
+ * Retrieve the current value of audio-video-offset property
+ *
+ * Returns: The current value of audio-video-offset in nanoseconds
+ *
+ * Since 1.10
+ */
+gint64
+gst_player_get_audio_video_offset (GstPlayer * self)
+{
+  gint64 val = 0;
+
+  g_return_val_if_fail (GST_IS_PLAYER (self), DEFAULT_AUDIO_VIDEO_OFFSET);
+
+  g_object_get (self, "audio-video-offset", &val, NULL);
+
+  return val;
+}
+
+/**
+ * gst_player_set_audio_video_offset:
+ * @player: #GstPlayer instance
+ * @offset: #gint64 in nanoseconds
+ *
+ * Sets audio-video-offset property by value of @offset
+ *
+ * Since 1.10
+ */
+void
+gst_player_set_audio_video_offset (GstPlayer * self, gint64 offset)
+{
+  g_return_if_fail (GST_IS_PLAYER (self));
+
+  g_object_set (self, "audio-video-offset", offset, NULL);
+}
+
 #define C_ENUM(v) ((gint) v)
 #define C_FLAGS(v) ((guint) v)
 
@@ -3783,4 +4047,157 @@ gst_player_error_get_name (GstPlayerError error)
 
   g_assert_not_reached ();
   return NULL;
+}
+
+/**
+ * gst_player_set_config:
+ * @player: #GstPlayer instance
+ * @config: (transfer full): a #GstStructure
+ *
+ * Set the configuration of the player. If the player is already configured, and
+ * the configuration haven't change, this function will return %TRUE. If the
+ * player is not in the GST_PLAYER_STATE_STOPPED, this method will return %FALSE
+ * and active configuration will remain.
+ *
+ * @config is a #GstStructure that contains the configuration parameters for
+ * the player.
+ *
+ * This function takes ownership of @config.
+ *
+ * Returns: %TRUE when the configuration could be set.
+ * Since 1.10
+ */
+gboolean
+gst_player_set_config (GstPlayer * self, GstStructure * config)
+{
+  g_return_val_if_fail (GST_IS_PLAYER (self), FALSE);
+  g_return_val_if_fail (config != NULL, FALSE);
+
+  g_mutex_lock (&self->lock);
+
+  if (self->app_state != GST_PLAYER_STATE_STOPPED) {
+    GST_INFO_OBJECT (self, "can't change config while player is %s",
+        gst_player_state_get_name (self->app_state));
+    g_mutex_unlock (&self->lock);
+    return FALSE;
+  }
+
+  if (self->config)
+    gst_structure_free (self->config);
+  self->config = config;
+  g_mutex_unlock (&self->lock);
+
+  return TRUE;
+}
+
+/**
+ * gst_player_get_config:
+ * @player: #GstPlayer instance
+ *
+ * Get a copy of the current configuration of the player. This configuration
+ * can either be modified and used for the gst_player_set_config() call
+ * or it must be freed after usage.
+ *
+ * Returns: (transfer full): a copy of the current configuration of @player. Use
+ * gst_structure_free() after usage or gst_player_set_config().
+ *
+ * Since 1.10
+ */
+GstStructure *
+gst_player_get_config (GstPlayer * self)
+{
+  GstStructure *ret;
+
+  g_return_val_if_fail (GST_IS_PLAYER (self), NULL);
+
+  g_mutex_lock (&self->lock);
+  ret = gst_structure_copy (self->config);
+  g_mutex_unlock (&self->lock);
+
+  return ret;
+}
+
+/**
+ * gst_player_config_set_user_agent:
+ * @config: a #GstPlayer configuration
+ * @agent: the string to use as user agent
+ *
+ * Set the user agent to pass to the server if @player needs to connect
+ * to a server during playback. This is typically used when playing HTTP
+ * or RTSP streams.
+ *
+ * Since 1.10
+ */
+void
+gst_player_config_set_user_agent (GstStructure * config, const gchar * agent)
+{
+  g_return_if_fail (config != NULL);
+  g_return_if_fail (agent != NULL);
+
+  gst_structure_id_set (config,
+      CONFIG_QUARK (USER_AGENT), G_TYPE_STRING, agent, NULL);
+}
+
+/**
+ * gst_player_config_get_user_agent:
+ * @config: a #GstPlayer configuration
+ *
+ * Return the user agent which has been configured using
+ * gst_player_config_set_user_agent() if any.
+ *
+ * Returns: (transfer full): the configured agent, or %NULL
+ * Since 1.10
+ */
+gchar *
+gst_player_config_get_user_agent (const GstStructure * config)
+{
+  gchar *agent = NULL;
+
+  g_return_val_if_fail (config != NULL, NULL);
+
+  gst_structure_id_get (config,
+      CONFIG_QUARK (USER_AGENT), G_TYPE_STRING, &agent, NULL);
+
+  return agent;
+}
+
+/**
+ * gst_player_config_set_position_update_interval:
+ * @config: a #GstPlayer configuration
+ * @interval: interval in ms
+ *
+ * set interval in milliseconds between two position-updated signals.
+ * pass 0 to stop updating the position.
+ * Since 1.10
+ */
+void
+gst_player_config_set_position_update_interval (GstStructure * config,
+    guint interval)
+{
+  g_return_if_fail (config != NULL);
+  g_return_if_fail (interval <= 10000);
+
+  gst_structure_id_set (config,
+      CONFIG_QUARK (POSITION_INTERVAL_UPDATE), G_TYPE_UINT, interval, NULL);
+}
+
+/**
+ * gst_player_config_get_position_update_interval:
+ * @config: a #GstPlayer configuration
+ *
+ * Returns: current position update interval in milliseconds
+ *
+ * Since 1.10
+ */
+guint
+gst_player_config_get_position_update_interval (const GstStructure * config)
+{
+  guint interval = DEFAULT_POSITION_UPDATE_INTERVAL_MS;
+
+  g_return_val_if_fail (config != NULL, DEFAULT_POSITION_UPDATE_INTERVAL_MS);
+
+  gst_structure_id_get (config,
+      CONFIG_QUARK (POSITION_INTERVAL_UPDATE), G_TYPE_UINT, &interval, NULL);
+
+  return interval;
 }

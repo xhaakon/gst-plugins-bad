@@ -42,7 +42,7 @@
 <col width="200px" class="properties_flags">
 </colgroup>
 <tbody><tr>
-<td class="property_type"><span class="type">GstMirrorMode</span></td>
+<td class="property_type"><a class="link" href="gst-plugins-bad-plugins-mirror.html#GstMirrorMode" title="enum GstMirrorMode"><span class="type">GstMirrorMode</span></a></td>
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-mirror.html#GstMirror--mode" title="The “mode” property">mode</a></td>
 <td class="property_flags">Read / Write</td>
 </tr></tbody>
@@ -55,10 +55,16 @@
 <col width="150px" class="name">
 <col class="description">
 </colgroup>
-<tbody><tr>
+<tbody>
+<tr>
 <td class="datatype_keyword">struct</td>
 <td class="function_name"><a class="link" href="gst-plugins-bad-plugins-mirror.html#GstMirror-struct" title="struct GstMirror">GstMirror</a></td>
-</tr></tbody>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-mirror.html#GstMirrorMode" title="enum GstMirrorMode">GstMirrorMode</a></td>
+</tr>
+</tbody>
 </table></div>
 </div>
 <div class="refsect1">
@@ -78,7 +84,7 @@
 <p>Mirror is a geometric transform element. It splits the image into two halves
 and reflects one over each other.</p>
 <div class="refsect2">
-<a name="id-1.2.47.7.3"></a><h3>Example launch line</h3>
+<a name="id-1.2.94.7.3"></a><h3>Example launch line</h3>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -94,7 +100,7 @@ and reflects one over each other.</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.47.7.4.1"></a><h3>Element Information</h3>
+<a name="id-1.2.94.7.4.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -120,7 +126,7 @@ and reflects one over each other.</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.47.7.4.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.94.7.4.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -182,12 +188,48 @@ and reflects one over each other.</p>
 <a name="GstMirror-struct"></a><h3>struct GstMirror</h3>
 <pre class="programlisting">struct GstMirror;</pre>
 </div>
+<hr>
+<div class="refsect2">
+<a name="GstMirrorMode"></a><h3>enum GstMirrorMode</h3>
+<div class="refsect3">
+<a name="GstMirrorMode.members"></a><h4>Members</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="GST-MIRROR-MODE-LEFT:CAPS"></a>GST_MIRROR_MODE_LEFT</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="GST-MIRROR-MODE-RIGHT:CAPS"></a>GST_MIRROR_MODE_RIGHT</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="GST-MIRROR-MODE-TOP:CAPS"></a>GST_MIRROR_MODE_TOP</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="GST-MIRROR-MODE-BOTTOM:CAPS"></a>GST_MIRROR_MODE_BOTTOM</p></td>
+<td> </td>
+<td> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-mirror.property-details"></a><h2>Property Details</h2>
 <div class="refsect2">
 <a name="GstMirror--mode"></a><h3>The <code class="literal">“mode”</code> property</h3>
-<pre class="programlisting">  “mode”                     <span class="type">GstMirrorMode</span></pre>
+<pre class="programlisting">  “mode”                     <a class="link" href="gst-plugins-bad-plugins-mirror.html#GstMirrorMode" title="enum GstMirrorMode"><span class="type">GstMirrorMode</span></a></pre>
 <p>How to split the video frame and which side reflect.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: Split horizontally and reflect left into right</p>

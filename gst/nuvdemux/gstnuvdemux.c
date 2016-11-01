@@ -124,14 +124,11 @@ gst_nuv_demux_base_init (gpointer klass)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&audio_src_template));
-
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&video_src_template));
-
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_template));
+  gst_element_class_add_static_pad_template (element_class,
+      &audio_src_template);
+  gst_element_class_add_static_pad_template (element_class,
+      &video_src_template);
+  gst_element_class_add_static_pad_template (element_class, &sink_template);
   gst_element_class_set_static_metadata (element_class, "Nuv demuxer",
       "Codec/Demuxer",
       "Demultiplex a MythTV NuppleVideo .nuv file into audio and video",
@@ -732,9 +729,7 @@ pause:
   if (res == GST_FLOW_UNEXPECTED) {
     gst_nuv_demux_send_eos (nuv);
   } else if (res == GST_FLOW_NOT_LINKED || res < GST_FLOW_UNEXPECTED) {
-    GST_ELEMENT_ERROR (nuv, STREAM, FAILED,
-        (_("Internal data stream error.")),
-        ("streaming stopped, reason %s", gst_flow_get_name (res)));
+    GST_ELEMENT_FLOW_ERROR (nuv, res);
 
     gst_nuv_demux_send_eos (nuv);
   }

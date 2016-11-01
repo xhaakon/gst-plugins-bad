@@ -161,7 +161,8 @@ _buffer_free (gpointer impl)
 }
 
 static GstStaticCaps _buffer_in_templ =
-GST_STATIC_CAPS ("video/x-raw(" GST_CAPS_FEATURE_MEMORY_VULKAN_BUFFER ")");
+    GST_STATIC_CAPS ("video/x-raw(" GST_CAPS_FEATURE_MEMORY_VULKAN_BUFFER ") ;"
+    "video/x-raw");
 static GstStaticCaps _buffer_out_templ =
 GST_STATIC_CAPS ("video/x-raw(" GST_CAPS_FEATURE_MEMORY_VULKAN_BUFFER ")");
 
@@ -787,6 +788,7 @@ static GstFlowReturn
 gst_vulkan_upload_prepare_output_buffer (GstBaseTransform * bt,
     GstBuffer * inbuf, GstBuffer ** outbuf)
 {
+  GstBaseTransformClass *bclass = GST_BASE_TRANSFORM_GET_CLASS (bt);
   GstVulkanUpload *vk_upload = GST_VULKAN_UPLOAD (bt);
   GstFlowReturn ret;
 
@@ -817,6 +819,12 @@ gst_vulkan_upload_prepare_output_buffer (GstBaseTransform * bt,
       continue;
     }
   } while (FALSE);
+
+  if (ret == GST_FLOW_OK) {
+    /* basetransform doesn't unref if they're the same */
+    if (inbuf != *outbuf)
+      bclass->copy_metadata (bt, inbuf, *outbuf);
+  }
 
   return ret;
 }

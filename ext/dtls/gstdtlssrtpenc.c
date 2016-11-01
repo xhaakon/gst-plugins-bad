@@ -139,14 +139,12 @@ gst_dtls_srtp_enc_class_init (GstDtlsSrtpEncClass * klass)
 
   g_object_class_install_properties (gobject_class, NUM_PROPERTIES, properties);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&rtp_sink_template));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&rtcp_sink_template));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&data_sink_template));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_template));
+  gst_element_class_add_static_pad_template (element_class, &rtp_sink_template);
+  gst_element_class_add_static_pad_template (element_class,
+      &rtcp_sink_template);
+  gst_element_class_add_static_pad_template (element_class,
+      &data_sink_template);
+  gst_element_class_add_static_pad_template (element_class, &src_template);
 
   gst_element_class_set_static_metadata (element_class,
       "DTLS-SRTP Encoder",
@@ -174,19 +172,19 @@ gst_dtls_srtp_enc_init (GstDtlsSrtpEnc * self)
                  +--------------------+     +-----------------+
 */
 
-  self->srtp_enc = gst_element_factory_make ("srtpenc", "srtp-encoder");
+  self->srtp_enc = gst_element_factory_make ("srtpenc", NULL);
   if (!self->srtp_enc) {
     GST_ERROR_OBJECT (self,
         "failed to create srtp encoder, is the srtp plugin registered?");
     return;
   }
   g_return_if_fail (self->srtp_enc);
-  self->bin.dtls_element = gst_element_factory_make ("dtlsenc", "dtls-encoder");
+  self->bin.dtls_element = gst_element_factory_make ("dtlsenc", NULL);
   if (!self->bin.dtls_element) {
     GST_ERROR_OBJECT (self, "failed to create dtls encoder");
     return;
   }
-  self->funnel = gst_element_factory_make ("funnel", "funnel");
+  self->funnel = gst_element_factory_make ("funnel", NULL);
   if (!self->funnel) {
     GST_ERROR_OBJECT (self, "failed to create funnel");
     return;

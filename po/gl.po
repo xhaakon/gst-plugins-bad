@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 0.10.21.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-09-30 12:19+0300\n"
 "PO-Revision-Date: 2011-09-05 12:50+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@ubuntu.com>\n"
 "Language-Team: Galician <proxecto@trasno.net>\n"
@@ -18,6 +18,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "X-Poedit-Language: galego\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr ""
@@ -66,9 +72,6 @@ msgstr "Non foi posíbel abrir o ficheiro «%s» para ler."
 msgid "Could not start sndio"
 msgstr "Non foi posíbel ler o DVD."
 
-msgid "Internal data flow error."
-msgstr "Produciuse un erro interno no fluxo de datos."
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 
@@ -88,11 +91,11 @@ msgstr ""
 msgid "Failed to get fragment URL."
 msgstr ""
 
-msgid "Internal data stream error."
-msgstr "Produciuse un erro interno no fluxo de datos."
-
 msgid "Couldn't download fragments"
 msgstr ""
+
+msgid "Internal data stream error."
+msgstr "Produciuse un erro interno no fluxo de datos."
 
 msgid "No file name specified for writing."
 msgstr "Non se especificou ningún nome de ficheiro para a súa escritura."
@@ -132,12 +135,27 @@ msgstr ""
 msgid "Couldn't load DVB channel configuration file: %s"
 msgstr ""
 
-msgid "DVB channel configuration file doesn't contain any channels"
-msgstr ""
-
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr ""
+
+#, c-format
+msgid "No properties for the DVB channel %s"
+msgstr ""
+
+#, c-format
+msgid "Failed to set properties for the DVB channel %s"
+msgstr ""
+
+#, c-format
+msgid "Couldn't find DVB channel configuration file: %s"
+msgstr ""
+
+msgid "DVB channel configuration file doesn't contain any channels"
+msgstr ""
+
+#~ msgid "Internal data flow error."
+#~ msgstr "Produciuse un erro interno no fluxo de datos."
 
 #~ msgid "Could not write to file \"%s\"."
 #~ msgstr "Non foi posíbel escribir no ficheiro «%s»."

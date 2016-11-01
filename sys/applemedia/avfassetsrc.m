@@ -149,10 +149,8 @@ gst_avf_asset_src_class_init (GstAVFAssetSrcClass * klass)
     "Read and decode samples from AVFoundation assets using the AVFAssetReader API",
     "Andoni Morales Alastruey amorales@fluendo.com");
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&audio_factory));
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&video_factory));
+  gst_element_class_add_static_pad_template (gstelement_class, &audio_factory);
+  gst_element_class_add_static_pad_template (gstelement_class, &video_factory);
 
   gobject_class->set_property = gst_avf_asset_src_set_property;
   gobject_class->get_property = gst_avf_asset_src_get_property;
@@ -537,8 +535,7 @@ gst_avf_asset_src_read_data (GstAVFAssetSrc *self, GstPad *pad,
     }
 
     if (combined_ret != GST_FLOW_OK) {
-      GST_ELEMENT_ERROR (self, STREAM, FAILED, ("Internal data stream error."),
-          ("stream stopped reason %s", gst_flow_get_name (ret)));
+      GST_ELEMENT_FLOW_ERROR (self, ret);
     }
 
     gst_pad_pause_task (pad);
@@ -1073,7 +1070,7 @@ gst_avf_asset_src_uri_handler_init (gpointer g_iface, gpointer iface_data)
     return NULL;
   }
 
-  buf = gst_core_media_buffer_new (cmbuf, FALSE);
+  buf = gst_core_media_buffer_new (cmbuf, FALSE, NULL);
   CFRelease (cmbuf);
   if (buf == NULL)
     return NULL;

@@ -92,34 +92,40 @@ host_triplet = @host@
 target_triplet = @target@
 @HAVE_IOS_TRUE@am__append_1 = -fobjc-abi-version=2 -fobjc-legacy-dispatch
 @HAVE_IOS_TRUE@am__append_2 = \
-@HAVE_IOS_TRUE@	iosassetsrc.m
+@HAVE_IOS_TRUE@	iosassetsrc.m 				\
+@HAVE_IOS_TRUE@	iosglmemory.c
 
 @HAVE_IOS_TRUE@am__append_3 = \
 @HAVE_IOS_TRUE@	-Wl,-framework -Wl,Foundation		\
 @HAVE_IOS_TRUE@	-Wl,-framework -Wl,AssetsLibrary
 
 @HAVE_IOS_FALSE@am__append_4 = \
-@HAVE_IOS_FALSE@	qtkitvideosrc.m 					\
 @HAVE_IOS_FALSE@	iosurfacememory.c
 
 @HAVE_IOS_FALSE@am__append_5 = \
 @HAVE_IOS_FALSE@	-Wl,-framework -Wl,Cocoa		\
-@HAVE_IOS_FALSE@	-Wl,-framework -Wl,QTKit		\
+@HAVE_IOS_FALSE@	-Wl,-framework -Wl,OpenGL 		\
 @HAVE_IOS_FALSE@	-Wl,-framework -Wl,IOSurface
 
-@HAVE_AVFOUNDATION_TRUE@am__append_6 = \
+@HAVE_QTKIT_TRUE@am__append_6 = \
+@HAVE_QTKIT_TRUE@	qtkitvideosrc.m
+
+@HAVE_QTKIT_TRUE@am__append_7 = \
+@HAVE_QTKIT_TRUE@	-Wl,-framework -Wl,QTKit
+
+@HAVE_AVFOUNDATION_TRUE@am__append_8 = \
 @HAVE_AVFOUNDATION_TRUE@	avfvideosrc.m				\
 @HAVE_AVFOUNDATION_TRUE@	avfassetsrc.m				\
 @HAVE_AVFOUNDATION_TRUE@	avsamplevideosink.m
 
-@HAVE_AVFOUNDATION_TRUE@am__append_7 = \
+@HAVE_AVFOUNDATION_TRUE@am__append_9 = \
 @HAVE_AVFOUNDATION_TRUE@	-Wl,-framework -Wl,AVFoundation
 
-@HAVE_VIDEOTOOLBOX_TRUE@am__append_8 = \
+@HAVE_VIDEOTOOLBOX_TRUE@am__append_10 = \
 @HAVE_VIDEOTOOLBOX_TRUE@	vtenc.c 				\
 @HAVE_VIDEOTOOLBOX_TRUE@	vtdec.c
 
-@HAVE_VIDEOTOOLBOX_TRUE@am__append_9 = -Wl,-weak_framework -Wl,VideoToolbox
+@HAVE_VIDEOTOOLBOX_TRUE@am__append_11 = -Wl,-weak_framework -Wl,VideoToolbox
 subdir = sys/applemedia
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
@@ -199,16 +205,18 @@ libgstapplemedia_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/gl/libgstgl-$(GS
 am__libgstapplemedia_la_SOURCES_DIST = plugin.m vtutil.c \
 	corevideomemory.c corevideobuffer.c coremediabuffer.c \
 	videotexturecache.m atdec.c glcontexthelper.c iosassetsrc.m \
-	qtkitvideosrc.m iosurfacememory.c avfvideosrc.m avfassetsrc.m \
-	avsamplevideosink.m vtenc.c vtdec.c
-@HAVE_IOS_TRUE@am__objects_1 = libgstapplemedia_la-iosassetsrc.lo
-@HAVE_IOS_FALSE@am__objects_2 = libgstapplemedia_la-qtkitvideosrc.lo \
+	iosglmemory.c iosurfacememory.c qtkitvideosrc.m avfvideosrc.m \
+	avfassetsrc.m avsamplevideosink.m vtenc.c vtdec.c
+@HAVE_IOS_TRUE@am__objects_1 = libgstapplemedia_la-iosassetsrc.lo \
+@HAVE_IOS_TRUE@	libgstapplemedia_la-iosglmemory.lo
+@HAVE_IOS_FALSE@am__objects_2 =  \
 @HAVE_IOS_FALSE@	libgstapplemedia_la-iosurfacememory.lo
-@HAVE_AVFOUNDATION_TRUE@am__objects_3 =  \
+@HAVE_QTKIT_TRUE@am__objects_3 = libgstapplemedia_la-qtkitvideosrc.lo
+@HAVE_AVFOUNDATION_TRUE@am__objects_4 =  \
 @HAVE_AVFOUNDATION_TRUE@	libgstapplemedia_la-avfvideosrc.lo \
 @HAVE_AVFOUNDATION_TRUE@	libgstapplemedia_la-avfassetsrc.lo \
 @HAVE_AVFOUNDATION_TRUE@	libgstapplemedia_la-avsamplevideosink.lo
-@HAVE_VIDEOTOOLBOX_TRUE@am__objects_4 = libgstapplemedia_la-vtenc.lo \
+@HAVE_VIDEOTOOLBOX_TRUE@am__objects_5 = libgstapplemedia_la-vtenc.lo \
 @HAVE_VIDEOTOOLBOX_TRUE@	libgstapplemedia_la-vtdec.lo
 am_libgstapplemedia_la_OBJECTS = libgstapplemedia_la-plugin.lo \
 	libgstapplemedia_la-vtutil.lo \
@@ -218,7 +226,8 @@ am_libgstapplemedia_la_OBJECTS = libgstapplemedia_la-plugin.lo \
 	libgstapplemedia_la-videotexturecache.lo \
 	libgstapplemedia_la-atdec.lo \
 	libgstapplemedia_la-glcontexthelper.lo $(am__objects_1) \
-	$(am__objects_2) $(am__objects_3) $(am__objects_4)
+	$(am__objects_2) $(am__objects_3) $(am__objects_4) \
+	$(am__objects_5)
 libgstapplemedia_la_OBJECTS = $(am_libgstapplemedia_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -373,6 +382,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -394,6 +405,8 @@ EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
 FAAC_LIBS = @FAAC_LIBS@
 FAAD_LIBS = @FAAD_LIBS@
+FDK_AAC_CFLAGS = @FDK_AAC_CFLAGS@
+FDK_AAC_LIBS = @FDK_AAC_LIBS@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
 FLITE_CFLAGS = @FLITE_CFLAGS@
@@ -443,6 +456,8 @@ GST_ALLOCATORS_CFLAGS = @GST_ALLOCATORS_CFLAGS@
 GST_ALLOCATORS_LIBS = @GST_ALLOCATORS_LIBS@
 GST_ALL_LDFLAGS = @GST_ALL_LDFLAGS@
 GST_API_VERSION = @GST_API_VERSION@
+GST_AUDIO_CFLAGS = @GST_AUDIO_CFLAGS@
+GST_AUDIO_LIBS = @GST_AUDIO_LIBS@
 GST_BASE_CFLAGS = @GST_BASE_CFLAGS@
 GST_BASE_LIBS = @GST_BASE_LIBS@
 GST_CFLAGS = @GST_CFLAGS@
@@ -588,6 +603,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -714,8 +731,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -758,8 +773,13 @@ WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
 WAYLAND_EGL_CFLAGS = @WAYLAND_EGL_CFLAGS@
 WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
+WAYLAND_PROTOCOLS_CFLAGS = @WAYLAND_PROTOCOLS_CFLAGS@
+WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
+WAYLAND_PROTOCOLS_LIBS = @WAYLAND_PROTOCOLS_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -852,7 +872,7 @@ plugin_LTLIBRARIES = libgstapplemedia.la
 libgstapplemedia_la_SOURCES = plugin.m vtutil.c corevideomemory.c \
 	corevideobuffer.c coremediabuffer.c videotexturecache.m \
 	atdec.c glcontexthelper.c $(am__append_2) $(am__append_4) \
-	$(am__append_6) $(am__append_8)
+	$(am__append_6) $(am__append_8) $(am__append_10)
 libgstapplemedia_la_CPPFLAGS = \
 	-Dgst_core_media_buffer_new=gst_core_media_buffer_priv_new		\
 	-Dgst_core_media_buffer_get_type=gst_core_media_buffer_priv_get_type	\
@@ -888,7 +908,8 @@ libgstapplemedia_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) \
 	$(GST_BASE_LDFLAGS) $(GST_PLUGINS_BASE_LDFLAGS) -Wl,-framework \
 	-Wl,CoreFoundation -Wl,-framework -Wl,CoreMedia -Wl,-framework \
 	-Wl,CoreVideo -Wl,-framework -Wl,AudioToolbox $(am__append_3) \
-	$(am__append_5) $(am__append_7) $(am__append_9)
+	$(am__append_5) $(am__append_7) $(am__append_9) \
+	$(am__append_11)
 noinst_HEADERS = \
 	qtkitvideosrc.h				\
 	avfvideosrc.h				\
@@ -904,7 +925,8 @@ noinst_HEADERS = \
 	iosassetsrc.h				\
 	iosurfacememory.h			\
 	avfassetsrc.h  				\
-	glcontexthelper.h
+	glcontexthelper.h 			\
+	iosglmemory.h
 
 all: all-am
 
@@ -993,6 +1015,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-corevideomemory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-glcontexthelper.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-iosassetsrc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-iosglmemory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-iosurfacememory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-plugin.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-qtkitvideosrc.Plo@am__quote@
@@ -1066,6 +1089,13 @@ libgstapplemedia_la-glcontexthelper.lo: glcontexthelper.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='glcontexthelper.c' object='libgstapplemedia_la-glcontexthelper.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_CFLAGS) $(CFLAGS) -c -o libgstapplemedia_la-glcontexthelper.lo `test -f 'glcontexthelper.c' || echo '$(srcdir)/'`glcontexthelper.c
+
+libgstapplemedia_la-iosglmemory.lo: iosglmemory.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_CFLAGS) $(CFLAGS) -MT libgstapplemedia_la-iosglmemory.lo -MD -MP -MF $(DEPDIR)/libgstapplemedia_la-iosglmemory.Tpo -c -o libgstapplemedia_la-iosglmemory.lo `test -f 'iosglmemory.c' || echo '$(srcdir)/'`iosglmemory.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstapplemedia_la-iosglmemory.Tpo $(DEPDIR)/libgstapplemedia_la-iosglmemory.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='iosglmemory.c' object='libgstapplemedia_la-iosglmemory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_CFLAGS) $(CFLAGS) -c -o libgstapplemedia_la-iosglmemory.lo `test -f 'iosglmemory.c' || echo '$(srcdir)/'`iosglmemory.c
 
 libgstapplemedia_la-iosurfacememory.lo: iosurfacememory.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_CFLAGS) $(CFLAGS) -MT libgstapplemedia_la-iosurfacememory.lo -MD -MP -MF $(DEPDIR)/libgstapplemedia_la-iosurfacememory.Tpo -c -o libgstapplemedia_la-iosurfacememory.lo `test -f 'iosurfacememory.c' || echo '$(srcdir)/'`iosurfacememory.c

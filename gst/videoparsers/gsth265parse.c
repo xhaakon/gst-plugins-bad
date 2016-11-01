@@ -124,10 +124,8 @@ gst_h265_parse_class_init (GstH265ParseClass * klass)
   parse_class->sink_event = GST_DEBUG_FUNCPTR (gst_h265_parse_event);
   parse_class->src_event = GST_DEBUG_FUNCPTR (gst_h265_parse_src_event);
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&srctemplate));
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&sinktemplate));
+  gst_element_class_add_static_pad_template (gstelement_class, &srctemplate);
+  gst_element_class_add_static_pad_template (gstelement_class, &sinktemplate);
 
   gst_element_class_set_static_metadata (gstelement_class, "H.265 parser",
       "Codec/Parser/Converter/Video",
@@ -1146,7 +1144,7 @@ gst_h265_parse_make_codec_data (GstH265Parse * h265parse)
     GST_WRITE_UINT16_BE (data, num_vps);
     data += 2;
 
-    for (i = 0; i < num_vps; i++) {
+    for (i = 0; i < GST_H265_MAX_VPS_COUNT; i++) {
       if ((nal = h265parse->vps_nals[i])) {
         gsize nal_size = gst_buffer_get_size (nal);
         GST_WRITE_UINT16_BE (data, nal_size);
@@ -1165,7 +1163,7 @@ gst_h265_parse_make_codec_data (GstH265Parse * h265parse)
     GST_WRITE_UINT16_BE (data, num_sps);
     data += 2;
 
-    for (i = 0; i < num_sps; i++) {
+    for (i = 0; i < GST_H265_MAX_SPS_COUNT; i++) {
       if ((nal = h265parse->sps_nals[i])) {
         gsize nal_size = gst_buffer_get_size (nal);
         GST_WRITE_UINT16_BE (data, nal_size);
@@ -1184,7 +1182,7 @@ gst_h265_parse_make_codec_data (GstH265Parse * h265parse)
     GST_WRITE_UINT16_BE (data, num_pps);
     data += 2;
 
-    for (i = 0; i < num_pps; i++) {
+    for (i = 0; i < GST_H265_MAX_PPS_COUNT; i++) {
       if ((nal = h265parse->pps_nals[i])) {
         gsize nal_size = gst_buffer_get_size (nal);
         GST_WRITE_UINT16_BE (data, nal_size);
@@ -2049,9 +2047,10 @@ gst_h265_parse_set_caps (GstBaseParse * parse, GstCaps * caps)
     off = 23;
     for (i = 0; i < data[22]; i++) {
       num_nals = GST_READ_UINT16_BE (data + off + 1);
+      off += 3;
       for (j = 0; j < num_nals; j++) {
         parseres = gst_h265_parser_identify_nalu_hevc (h265parse->nalparser,
-            data, off + 3, size, 2, &nalu);
+            data, off, size, 2, &nalu);
 
         if (parseres != GST_H265_PARSER_OK) {
           gst_buffer_unmap (codec_data, &map);

@@ -39,40 +39,14 @@
 <col width="150px" class="functions_return">
 <col class="functions_name">
 </colgroup>
-<tbody>
-<tr>
+<tbody><tr>
 <td class="function_type">
 <a class="link" href="GstGLFramebuffer.html" title="GstGLFramebuffer"><span class="returnvalue">GstGLFramebuffer</span></a> *
 </td>
 <td class="function_name">
 <a class="link" href="GstGLFramebuffer.html#gst-gl-framebuffer-new" title="gst_gl_framebuffer_new ()">gst_gl_framebuffer_new</a> <span class="c_punctuation">()</span>
 </td>
-</tr>
-<tr>
-<td class="function_type">
-<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-</td>
-<td class="function_name">
-<a class="link" href="GstGLFramebuffer.html#gst-gl-framebuffer-generate" title="gst_gl_framebuffer_generate ()">gst_gl_framebuffer_generate</a> <span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="function_type">
-<span class="returnvalue">void</span>
-</td>
-<td class="function_name">
-<a class="link" href="GstGLFramebuffer.html#gst-gl-framebuffer-delete" title="gst_gl_framebuffer_delete ()">gst_gl_framebuffer_delete</a> <span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="function_type">
-<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-</td>
-<td class="function_name">
-<a class="link" href="GstGLFramebuffer.html#gst-gl-framebuffer-use-v2" title="gst_gl_framebuffer_use_v2 ()">gst_gl_framebuffer_use_v2</a> <span class="c_punctuation">()</span>
-</td>
-</tr>
-</tbody>
+</tr></tbody>
 </table></div>
 </div>
 <div class="refsect1">
@@ -84,8 +58,8 @@
 </colgroup>
 <tbody>
 <tr>
-<td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="GstGLFramebuffer.html#GstGLFramebuffer-struct" title="struct GstGLFramebuffer">GstGLFramebuffer</a></td>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="GstGLFramebuffer.html#GstGLFramebuffer-struct" title="GstGLFramebuffer">GstGLFramebuffer</a></td>
 </tr>
 <tr>
 <td class="datatype_keyword">struct</td>
@@ -97,7 +71,9 @@
 <div class="refsect1">
 <a name="GstGLFramebuffer.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
-    <span class="lineart">╰──</span> GstGLFramebuffer
+    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
+            <span class="lineart">╰──</span> GstGLFramebuffer
 </pre>
 </div>
 <div class="refsect1">
@@ -110,49 +86,20 @@
 <pre class="programlisting"><a class="link" href="GstGLFramebuffer.html" title="GstGLFramebuffer"><span class="returnvalue">GstGLFramebuffer</span></a> *
 gst_gl_framebuffer_new (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>);</pre>
 </div>
-<hr>
-<div class="refsect2">
-<a name="gst-gl-framebuffer-generate"></a><h3>gst_gl_framebuffer_generate ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-gst_gl_framebuffer_generate (<em class="parameter"><code><a class="link" href="GstGLFramebuffer.html" title="GstGLFramebuffer"><span class="type">GstGLFramebuffer</span></a> *frame</code></em>,
-                             <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> width</code></em>,
-                             <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> height</code></em>,
-                             <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> *fbo</code></em>,
-                             <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> *depthbuffer</code></em>);</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="gst-gl-framebuffer-delete"></a><h3>gst_gl_framebuffer_delete ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>
-gst_gl_framebuffer_delete (<em class="parameter"><code><a class="link" href="GstGLFramebuffer.html" title="GstGLFramebuffer"><span class="type">GstGLFramebuffer</span></a> *frame</code></em>,
-                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> fbo</code></em>,
-                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> depth</code></em>);</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="gst-gl-framebuffer-use-v2"></a><h3>gst_gl_framebuffer_use_v2 ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-gst_gl_framebuffer_use_v2 (<em class="parameter"><code><a class="link" href="GstGLFramebuffer.html" title="GstGLFramebuffer"><span class="type">GstGLFramebuffer</span></a> *frame</code></em>,
-                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> texture_fbo_width</code></em>,
-                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> texture_fbo_height</code></em>,
-                           <em class="parameter"><code><span class="type">GLuint</span> fbo</code></em>,
-                           <em class="parameter"><code><span class="type">GLuint</span> depth_buffer</code></em>,
-                           <em class="parameter"><code><span class="type">GLuint</span> texture_fbo</code></em>,
-                           <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#GLCB-V2:CAPS" title="GLCB_V2 ()"><span class="type">GLCB_V2</span></a> cb</code></em>,
-                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> stuff</code></em>);</pre>
-</div>
 </div>
 <div class="refsect1">
 <a name="GstGLFramebuffer.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstGLFramebuffer-struct"></a><h3>struct GstGLFramebuffer</h3>
-<pre class="programlisting">struct GstGLFramebuffer;</pre>
+<a name="GstGLFramebuffer-struct"></a><h3>GstGLFramebuffer</h3>
+<pre class="programlisting">typedef struct _GstGLFramebuffer GstGLFramebuffer;</pre>
 </div>
 <hr>
 <div class="refsect2">
 <a name="GstGLFramebufferClass"></a><h3>struct GstGLFramebufferClass</h3>
 <pre class="programlisting">struct GstGLFramebufferClass {
-  GObjectClass object_class;
+  GstObjectClass object_class;
+
+  gpointer          _padding[GST_PADDING];
 };
 </pre>
 </div>
