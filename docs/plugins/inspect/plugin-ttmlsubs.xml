@@ -1,26 +1,47 @@
 <plugin>
-  <name>dvbsuboverlay</name>
-  <description>DVB subtitle renderer</description>
-  <filename>../../gst/dvbsuboverlay/.libs/libgstdvbsuboverlay.so</filename>
-  <basename>libgstdvbsuboverlay.so</basename>
-  <version>1.10.0</version>
+  <name>ttmlsubs</name>
+  <description>TTML subtitle handling</description>
+  <filename>../../ext/ttml/.libs/libgstttmlsubs.so</filename>
+  <basename>libgstttmlsubs.so</basename>
+  <version>1.9.90</version>
   <license>LGPL</license>
   <source>gst-plugins-bad</source>
-  <package>GStreamer Bad Plug-ins source release</package>
-  <origin>Unknown package origin</origin>
+  <package>gst-ttml</package>
+  <origin>http://www.bbc.co.uk/rd</origin>
   <elements>
     <element>
-      <name>dvbsuboverlay</name>
-      <longname>DVB Subtitles Overlay</longname>
-      <class>Mixer/Video/Overlay/Subtitle</class>
-      <description>Renders DVB subtitles</description>
-      <author>Mart Raudsepp &lt;mart.raudsepp@collabora.co.uk&gt;</author>
+      <name>ttmlparse</name>
+      <longname>TTML subtitle parser</longname>
+      <class>Codec/Parser/Subtitle</class>
+      <description>Parses TTML subtitle files</description>
+      <author>GStreamer maintainers &lt;gstreamer-devel@lists.sourceforge.net&gt;, Chris Bass &lt;dash@rd.bbc.co.uk&gt;</author>
+      <pads>
+        <caps>
+          <name>sink</name>
+          <direction>sink</direction>
+          <presence>always</presence>
+          <details>application/ttml+xml</details>
+        </caps>
+        <caps>
+          <name>src</name>
+          <direction>source</direction>
+          <presence>always</presence>
+          <details>text/x-raw(meta:GstSubtitleMeta)</details>
+        </caps>
+      </pads>
+    </element>
+    <element>
+      <name>ttmlrender</name>
+      <longname>TTML subtitle renderer</longname>
+      <class>Overlay/Subtitle</class>
+      <description>Renders timed-text subtitles on top of video buffers</description>
+      <author>David Schleef &lt;ds@schleef.org&gt;, Zeeshan Ali &lt;zeeshan.ali@nokia.com&gt;, Chris Bass &lt;dash@rd.bbc.co.uk&gt;</author>
       <pads>
         <caps>
           <name>text_sink</name>
           <direction>sink</direction>
           <presence>always</presence>
-          <details>subpicture/x-dvb</details>
+          <details>text/x-raw(meta:GstSubtitleMeta)</details>
         </caps>
         <caps>
           <name>video_sink</name>

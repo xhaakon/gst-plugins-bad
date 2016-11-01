@@ -64,6 +64,8 @@ struct _MpegTSBaseStream
   guint32             registration_id;
 
   GstMpegtsPMTStream *stream;
+  GstStream          *stream_object;
+  gchar              *stream_id;
 };
 
 struct _MpegTSBaseProgram
@@ -81,6 +83,8 @@ struct _MpegTSBaseProgram
   MpegTSBaseStream  **streams;
   GList              *stream_list;
   gint                patcount;
+
+  GstStreamCollection *collection;
 
   /* Pending Tags for the program */
   GstTagList *tags;
@@ -153,6 +157,10 @@ struct _MpegTSBase {
   /* Whether to push data and/or sections to subclasses */
   gboolean push_data;
   gboolean push_section;
+
+  /* Whether the parent bin is streams-aware, meaning we can
+   * add/remove streams at any point in time */
+  gboolean streams_aware;
 };
 
 struct _MpegTSBaseClass {
@@ -169,13 +177,14 @@ struct _MpegTSBaseClass {
   void (*program_started) (MpegTSBase *base, MpegTSBaseProgram *program);
   /* program_stopped gets called when pat no longer has program's pmt */
   void (*program_stopped) (MpegTSBase *base, MpegTSBaseProgram *program);
+  void (*update_program) (MpegTSBase *base, MpegTSBaseProgram *program);
   /* Whether mpegtbase can deactivate/free a program or whether the subclass will do it
    * If the subclass responds TRUE, it should call mpegts_base_deactivate_and_free_program()
    * when it wants to remove it */
   gboolean (*can_remove_program) (MpegTSBase *base, MpegTSBaseProgram *program);
 
   /* stream_added is called whenever a new stream has been identified */
-  void (*stream_added) (MpegTSBase *base, MpegTSBaseStream *stream, MpegTSBaseProgram *program);
+  gboolean (*stream_added) (MpegTSBase *base, MpegTSBaseStream *stream, MpegTSBaseProgram *program);
   /* stream_removed is called whenever a stream is no longer referenced */
   void (*stream_removed) (MpegTSBase *base, MpegTSBaseStream *stream);
 

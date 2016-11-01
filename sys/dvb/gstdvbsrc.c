@@ -2,7 +2,7 @@
  * Copyright (C) 2006 Zaheer Abbas Merali <zaheerabbas at merali
  *                                         dot org>
  * Copyright (C) 2014 Samsung Electronics. All rights reserved.
- *     @Author: Reynaldo H. Verdejo Pinochet <r.verdejo@sisa.samsung.com>
+ *     @Author: Reynaldo H. Verdejo Pinochet <reynaldo@osg.samsung.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -130,6 +130,8 @@ GST_DEBUG_CATEGORY_STATIC (gstdvbsrc_debug);
 #define GST_CAT_DEFAULT (gstdvbsrc_debug)
 
 /**
+ * NUM_DTV_PROPS:
+ *
  * Can't be greater than DTV_IOCTL_MAX_MSGS but we are
  * not using more than 25 for the largest use case (ISDB-T).
  *
@@ -564,6 +566,8 @@ static gboolean gst_dvbsrc_is_valid_trans_mode (guint delsys, guint mode);
 static gboolean gst_dvbsrc_is_valid_bandwidth (guint delsys, guint bw);
 
 /**
+ * LOOP_WHILE_EINTR:
+ *
  * This loop should be safe enough considering:
  *
  * 1.- EINTR suggest the next ioctl might succeed
@@ -627,7 +631,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
       "Digital Video Broadcast Source",
       "P2P-VCR, C-Lab, University of Paderborn, "
       "Zaheer Abbas Merali <zaheerabbas at merali dot org>\n"
-      "Reynaldo H. Verdejo Pinochet <r.verdejo@sisa.samsung.com>");
+      "Reynaldo H. Verdejo Pinochet <reynaldo@osg.samsung.com>");
 
   gstbasesrc_class->start = GST_DEBUG_FUNCPTR (gst_dvbsrc_start);
   gstbasesrc_class->stop = GST_DEBUG_FUNCPTR (gst_dvbsrc_stop);
@@ -1984,7 +1988,7 @@ gst_dvbsrc_start (GstBaseSrc * bsrc)
     return FALSE;
   }
   if (!gst_dvbsrc_tune (src)) {
-    GST_ERROR_OBJECT (src, "Not able to lock on to the dvb channel");
+    GST_ERROR_OBJECT (src, "Not able to lock on channel");
     goto fail;
   }
   if (!gst_dvbsrc_open_dvr (src)) {
@@ -2078,8 +2082,8 @@ gst_dvbsrc_is_valid_trans_mode (guint delsys, guint mode)
       break;
 #endif
     default:
-      GST_FIXME ("No delsys/transmission-mode sanity checks implemented for "
-          "this delivery system");
+      GST_FIXME ("No transmission-mode sanity checks implemented for this "
+          "delivery system");
       return TRUE;
   }
   return FALSE;
@@ -2108,8 +2112,8 @@ gst_dvbsrc_is_valid_modulation (guint delsys, guint mod)
         return TRUE;
       break;
     default:
-      GST_FIXME ("No delsys/modulation sanity checks implemented for this "
-          "delivery system");
+      GST_FIXME ("No modulation sanity checks implemented for this delivery "
+          "system");
       return TRUE;
   }
   return FALSE;
@@ -2318,12 +2322,12 @@ gst_dvbsrc_tune_fe (GstDvbSrc * object)
   /* If set, confirm the choosen delivery system is actually
    * supported by the hardware */
   if (object->delsys != SYS_UNDEFINED) {
-    GST_DEBUG_OBJECT (object, "Confirming delsys '%u' is supported",
+    GST_DEBUG_OBJECT (object, "Confirming delivery system '%u' is supported",
         object->delsys);
     if (!g_list_find (object->supported_delsys,
             GINT_TO_POINTER (object->delsys))) {
-      GST_WARNING_OBJECT (object, "Adapter does not support delsys '%u'",
-          object->delsys);
+      GST_WARNING_OBJECT (object, "Adapter does not support delivery system "
+          "'%u'", object->delsys);
       return FALSE;
     }
   }
@@ -2489,11 +2493,9 @@ gst_dvbsrc_set_fe_params (GstDvbSrc * object, struct dtv_properties *props)
   /* first 3 entries are reserved */
   n = 3;
 
-  /**
-   * We are not dropping out but issuing a warning in case of wrong
+  /* We are not dropping out but issuing a warning in case of wrong
    * parameter combinations as failover behavior should be mandated
-   * by the driver. Worst case scenario it will just fail at tuning.
-   */
+   * by the driver. Worst case scenario it will just fail at tuning. */
 
   switch (object->delsys) {
     case SYS_DVBS:
