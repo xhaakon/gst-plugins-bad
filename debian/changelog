@@ -1,7 +1,7 @@
 gst-plugins-bad1.0 (1.9.90-2) UNRELEASED; urgency=medium
 
   [ Sebastian Dröge ]
-  * New upstream stable release (Closes: #841413).
+  * New upstream stable release (Closes: #841413, #828335).
 
   [ Helmut Grohne ]
   * Mark gstreamer1.0-doc Multi-Arch: foreign (Closes: #842526).
