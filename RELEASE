@@ -1,15 +1,13 @@
 
-Release notes for GStreamer Bad Plugins 1.8.3
+Release notes for GStreamer Bad Plugins 1.9.90
 
-The GStreamer team is proud to announce the third bugfix release in the stable
-1.8 release series of your favourite cross-platform multimedia framework!
-
-
-This release only contains bugfixes and it is safe to update from 1.8.x. For a
-full list of bugfixes see Bugzilla.
+The GStreamer team is pleased to announce the first release candidate of the
+stable 1.10 release series. The 1.10 release series is adding new features on
+top of the 1.0, 1.2, 1.4, 1.6 and 1.8 series and is part of the API and
+ABI-stable 1.x release series of the GStreamer multimedia framework.
 
 
-See /releases/1.8/ for the full release notes.
+Binaries for Android, iOS, Mac OS X and Windows will be provided in the next days.
 
 
 "That an accusation?"
@@ -60,16 +58,29 @@ contains a set of codecs plugins based on libav (formerly gst-ffmpeg)
 
 Bugs fixed in this release
      
-      * 769210 : GLMemory created by avfvideosrc and vtdec on iOS (EAGL/gles3) can't be mapped
-      * 761260 : qml: add Windows support
-      * 763044 : Enable  qmlglsink on Rasperry PI
-      * 766163 : Some header files missing in sys/applemedia/ in gst-plugins-bad-1.8.1.tar.xz
-      * 767492 : avfassetsrc: Escapes already escaped URIs wrongly, fails to work because of that
-      * 767553 : qmlglsink: Add Wayland support
-      * 767635 : gleffects: fix little rectangel appears at the center when use squeeze and tunnel effects
-      * 767792 : h264parse: fix default time_offset_length
-      * 768146 : d3dvideosink: leak on caps string
-      * 769376 : aiffparse: seeking in aiff can create audio artifacts if there's extra data at the end
+      * 738079 : wayland: Destory the scaler interface while finalizing display object
+      * 761987 : waylandsink relies on wl_scaler
+      * 766018 : gl/dispmanx: Implements set_render_rectangle to adjust the position of window
+      * 767422 : kmssink: Uses scaled size to specify input buffer region
+      * 767671 : waylandsink: update from scaler protocol to viewporter protocol
+      * 768158 : waylandsink : memory leak of gst_wayland_sink_get_caps() and scaler of wldisplay
+      * 770146 : kmssink won't compile
+      * 770221 : rtponviftimestamp: Implement property " Immediate " 
+      * 770455 : fdkaacdec: asserts on HE-AAC v2 sample
+      * 770925 : qmlglsink: check qt_context_ first in GstQSGTexture::bind()
+      * 770933 : srtpenc: deadlock in create_session
+      * 771021 : Duplicate GL_CFLAGS in gst-libs/gst/gl/Makefile.am
+      * 771023 : tests/examples/gl/clutter/Makefile.am references deprecated variable $(GST_PLUGINS_GL_LIBS)
+      * 771198 : mpegtsdemux: Trying to set NULL string on field 'title' on taglist
+      * 771382 : dvbsuboverlay: map with READWRITE for overlay blend
+      * 771780 : build: add missing $(GST_PLUGINS_BASE_LIBS)
+      * 771794 : wayland/Makefile.am: add missing libs
+      * 771817 : dx9screencapsrc: throw error for invalid screen index
+      * 771871 : lv2 plugin doesn't do processing in case of mono sound
+      * 771970 : h265parse: Fix parsing of multiple NALs in the hvcC box
+      * 772067 : fdkaacenc: fix enc ! dec case
+      * 772108 : fdkaacenc: set framed=true on src caps
+      * 772186 : fdkaac: misc memory related fixes
 
 ==== Download ====
 
@@ -106,18 +117,30 @@ subscribe to the gstreamer-devel list.
         
 Contributors to this release
     
-      * Bernhard Miller
-      * Guillaume Desmottes
+      * Alessandro Decina
+      * Alistair Buxton
+      * Arun Raghavan
+      * Florian Zwoch
+      * Graham Leggett
+      * Gwang Yoon Hwang
       * Haihua Hu
+      * Hyunjun Ko
       * Jan Schmidt
-      * Jonathan Roy
+      * Joakim Johansson
+      * Julien Isorce
+      * Kyungyong Kim
+      * Martin Kelly
       * Matthew Waters
-      * Michael Olbrich
-      * Nirbheek Chauhan
+      * Nicolas Dufresne
+      * Olivier Crête
+      * Philippe Normand
+      * Scott D Phillips
       * Sebastian Dröge
-      * Sergei Saveliev
-      * Sergey Borovkov
+      * Sergey Mamonov
       * Thiago Santos
+      * Thibault Saunier
       * Tim-Philipp Müller
-      * Vineeth TM
+      * Vincent Penquerc'h
+      * Víctor Manuel Jáquez Leal
+      * Wonchul Lee
  

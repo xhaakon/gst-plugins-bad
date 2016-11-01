@@ -345,7 +345,7 @@ gst_gl_allocation_params_init (<em class="parameter"><code><a class="link" href=
                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> alloc_size</code></em>,
                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocationParams-struct"><span class="type">GstAllocationParams</span></a> *alloc_params</code></em>,
                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> wrapped_data</code></em>,
-                               <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> gl_handle</code></em>,
+                               <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> gl_handle</code></em>,
                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>,
                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> notify</code></em>);</pre>
 <p><em class="parameter"><code>notify</code></em>
@@ -970,13 +970,13 @@ gst_gl_base_memory_memcpy (<em class="parameter"><code><a class="link" href="gst
 
   GstGLBaseMemoryAllocatorCreateFunction        create;
   GstGLBaseMemoryAllocatorMapFunction           map;
+  GstGLBaseMemoryAllocatorUnmapFunction         unmap;
+  GstGLBaseMemoryAllocatorCopyFunction          copy;
+  GstGLBaseMemoryAllocatorDestroyFunction       destroy;
 #if 0
   GstGLBaseMemoryAllocatorFlushFunction         flush;        /* make CPU writes visible to the GPU */
   GstGLBaseMemoryAllocatorInvalidateFunction    invalidate;   /* make GPU writes visible to the CPU */
 #endif
-  GstGLBaseMemoryAllocatorUnmapFunction         unmap;
-  GstGLBaseMemoryAllocatorCopyFunction          copy;
-  GstGLBaseMemoryAllocatorDestroyFunction       destroy;
 } GstGLBaseMemoryAllocatorClass;
 </pre>
 <div class="refsect3">
@@ -1004,16 +1004,6 @@ gst_gl_base_memory_memcpy (<em class="parameter"><code><a class="link" href="gst
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">GstGLBaseMemoryAllocatorFlushFunction</span> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.flush"></a>flush</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><span class="type">GstGLBaseMemoryAllocatorInvalidateFunction</span> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.invalidate"></a>invalidate</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
 <td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorUnmapFunction" title="GstGLBaseMemoryAllocatorUnmapFunction ()"><span class="type">GstGLBaseMemoryAllocatorUnmapFunction</span></a> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.unmap"></a>unmap</code></em>;</p></td>
 <td class="struct_member_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorUnmapFunction" title="GstGLBaseMemoryAllocatorUnmapFunction ()"><span class="type">GstGLBaseMemoryAllocatorUnmapFunction</span></a></p></td>
 <td class="struct_member_annotations"> </td>
@@ -1027,6 +1017,16 @@ gst_gl_base_memory_memcpy (<em class="parameter"><code><a class="link" href="gst
 <td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorDestroyFunction" title="GstGLBaseMemoryAllocatorDestroyFunction ()"><span class="type">GstGLBaseMemoryAllocatorDestroyFunction</span></a> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.destroy"></a>destroy</code></em>;</p></td>
 <td class="struct_member_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorDestroyFunction" title="GstGLBaseMemoryAllocatorDestroyFunction ()"><span class="type">GstGLBaseMemoryAllocatorDestroyFunction</span></a></p></td>
 <td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">GstGLBaseMemoryAllocatorFlushFunction</span> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.flush"></a>flush</code></em>;</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">GstGLBaseMemoryAllocatorInvalidateFunction</span> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.invalidate"></a>invalidate</code></em>;</p></td>
+<td> </td>
+<td> </td>
 </tr>
 </tbody>
 </table></div>
@@ -1145,7 +1145,7 @@ you are writing to OpenGL. Conversely, combining <a class="link" href="gst-plugi
   /* GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_SYSMEM only */
   gpointer                          wrapped_data;
   /* GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_GPU_HANDLE only */
-  guint                             gl_handle;
+  gpointer                          gl_handle;
 };
 </pre>
 <div class="refsect3">
@@ -1209,7 +1209,7 @@ with</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstGLAllocationParams.gl-handle"></a>gl_handle</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> <em class="structfield"><code><a name="GstGLAllocationParams.gl-handle"></a>gl_handle</code></em>;</p></td>
 <td class="struct_member_description"><p>the wrapped OpenGL handle</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>

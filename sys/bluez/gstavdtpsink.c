@@ -244,7 +244,7 @@ gst_avdtp_sink_event (GstBaseSink * basesink, GstEvent * event)
     gst_tag_list_foreach (taglist, gst_avdtp_sink_tag, self);
   }
 
-  return TRUE;
+  return GST_BASE_SINK_CLASS (parent_class)->event (basesink, event);
 }
 
 static gboolean
@@ -381,8 +381,8 @@ gst_avdtp_sink_class_init (GstAvdtpSinkClass * klass)
   GST_DEBUG_CATEGORY_INIT (avdtp_sink_debug, "avdtpsink", 0,
       "A2DP headset sink element");
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&avdtp_sink_factory));
+  gst_element_class_add_static_pad_template (element_class,
+      &avdtp_sink_factory);
 
   gst_element_class_set_static_metadata (element_class, "Bluetooth AVDTP sink",
       "Sink/Audio", "Plays audio to an A2DP device",
@@ -425,21 +425,6 @@ gst_avdtp_sink_get_device_caps (GstAvdtpSink * sink)
     return NULL;
 
   return gst_caps_copy (sink->dev_caps);
-}
-
-gboolean
-gst_avdtp_sink_set_device_caps (GstAvdtpSink * self, GstCaps * caps)
-{
-  GST_DEBUG_OBJECT (self, "setting device caps");
-  GST_AVDTP_SINK_MUTEX_LOCK (self);
-
-  if (self->stream_caps)
-    gst_caps_unref (self->stream_caps);
-  self->stream_caps = gst_caps_ref (caps);
-
-  GST_AVDTP_SINK_MUTEX_UNLOCK (self);
-
-  return TRUE;
 }
 
 guint

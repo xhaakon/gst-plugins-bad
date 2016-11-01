@@ -112,6 +112,12 @@ else
  FAAD_DIR=
 endif
 
+if USE_FDK_AAC
+ FDK_AAC_DIR=fdkaac
+else
+ FDK_AAC_DIR=
+endif
+
 if USE_VOAACENC
  VOAACENC_DIR=voaacenc
 else
@@ -412,6 +418,12 @@ else
 VULKAN_DIR=
 endif
 
+if USE_WEBRTCDSP
+WEBRTCDSP_DIR=webrtcdsp
+else
+WEBRTCDSP_DIR=
+endif
+
 SUBDIRS=\
 	$(VOAACENC_DIR) \
 	$(ASSRENDER_DIR) \
@@ -434,6 +446,7 @@ SUBDIRS=\
 	$(QT_DIR) \
 	$(FAAC_DIR) \
 	$(FAAD_DIR) \
+	$(FDK_AAC_DIR) \
 	$(FLITE_DIR) \
 	$(FLUIDSYNTH_DIR) \
 	$(GSM_DIR) \
@@ -481,7 +494,8 @@ SUBDIRS=\
 	$(WEBP_DIR) \
 	$(X265_DIR) \
 	$(DTLS_DIR) \
-	$(VULKAN_DIR)
+	$(VULKAN_DIR) \
+	$(WEBRTCDSP_DIR)
 
 DIST_SUBDIRS = \
 	assrender \
@@ -496,6 +510,7 @@ DIST_SUBDIRS = \
 	wayland \
 	faac \
 	faad \
+	fdkaac \
 	flite \
 	fluidsynth \
 	gsm \
@@ -549,6 +564,7 @@ DIST_SUBDIRS = \
 	webp \
 	x265 \
 	dtls \
-	vulkan
+	vulkan \
+	webrtcdsp
 
 include $(top_srcdir)/common/parallel-subdirs.mak

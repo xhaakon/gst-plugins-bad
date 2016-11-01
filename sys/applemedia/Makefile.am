@@ -78,12 +78,14 @@ noinst_HEADERS =				\
 	iosassetsrc.h				\
 	iosurfacememory.h			\
 	avfassetsrc.h  				\
-	glcontexthelper.h
+	glcontexthelper.h 			\
+	iosglmemory.h
 
 if HAVE_IOS
 
 libgstapplemedia_la_SOURCES +=			\
-	iosassetsrc.m
+	iosassetsrc.m 				\
+	iosglmemory.c
 
 libgstapplemedia_la_LDFLAGS +=			\
 	-Wl,-framework -Wl,Foundation		\
@@ -92,14 +94,21 @@ libgstapplemedia_la_LDFLAGS +=			\
 else
 
 libgstapplemedia_la_SOURCES +=			\
-	qtkitvideosrc.m 					\
 	iosurfacememory.c
 
 libgstapplemedia_la_LDFLAGS +=			\
 	-Wl,-framework -Wl,Cocoa		\
-	-Wl,-framework -Wl,QTKit		\
+	-Wl,-framework -Wl,OpenGL 		\
 	-Wl,-framework -Wl,IOSurface
 
+endif
+
+if HAVE_QTKIT
+libgstapplemedia_la_SOURCES +=			\
+	qtkitvideosrc.m
+
+libgstapplemedia_la_LDFLAGS +=			\
+	-Wl,-framework -Wl,QTKit
 endif
 
 if HAVE_AVFOUNDATION

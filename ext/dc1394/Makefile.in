@@ -164,8 +164,9 @@ am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstdc1394_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am_libgstdc1394_la_OBJECTS = libgstdc1394_la-gstdc1394.lo
+am_libgstdc1394_la_OBJECTS = libgstdc1394_la-gstdc1394src.lo
 libgstdc1394_la_OBJECTS = $(am_libgstdc1394_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -302,6 +303,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -323,6 +326,8 @@ EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
 FAAC_LIBS = @FAAC_LIBS@
 FAAD_LIBS = @FAAD_LIBS@
+FDK_AAC_CFLAGS = @FDK_AAC_CFLAGS@
+FDK_AAC_LIBS = @FDK_AAC_LIBS@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
 FLITE_CFLAGS = @FLITE_CFLAGS@
@@ -372,6 +377,8 @@ GST_ALLOCATORS_CFLAGS = @GST_ALLOCATORS_CFLAGS@
 GST_ALLOCATORS_LIBS = @GST_ALLOCATORS_LIBS@
 GST_ALL_LDFLAGS = @GST_ALL_LDFLAGS@
 GST_API_VERSION = @GST_API_VERSION@
+GST_AUDIO_CFLAGS = @GST_AUDIO_CFLAGS@
+GST_AUDIO_LIBS = @GST_AUDIO_LIBS@
 GST_BASE_CFLAGS = @GST_BASE_CFLAGS@
 GST_BASE_LIBS = @GST_BASE_LIBS@
 GST_CFLAGS = @GST_CFLAGS@
@@ -517,6 +524,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -643,8 +652,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -687,8 +694,13 @@ WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
 WAYLAND_EGL_CFLAGS = @WAYLAND_EGL_CFLAGS@
 WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
+WAYLAND_PROTOCOLS_CFLAGS = @WAYLAND_PROTOCOLS_CFLAGS@
+WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
+WAYLAND_PROTOCOLS_LIBS = @WAYLAND_PROTOCOLS_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -777,17 +789,33 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
-plugin_LTLIBRARIES = libgstdc1394.la
-libgstdc1394_la_SOURCES = gstdc1394.c 
-libgstdc1394_la_CFLAGS = $(GST_CFLAGS) \
-				$(LIBDC1394_CFLAGS)
+plugin_LTLIBRARIES = \
+    libgstdc1394.la
 
-libgstdc1394_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstdc1394_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
-libgstdc1394_la_LIBADD = $(GST_BASE_LIBS) \
-				$(LIBDC1394_LIBS) 
+libgstdc1394_la_SOURCES = \
+    gstdc1394src.c
 
-noinst_HEADERS = gstdc1394.h
+libgstdc1394_la_CFLAGS = \
+    $(LIBDC1394_CFLAGS) \
+    $(GST_PLUGINS_BASE_CFLAGS) \
+    $(GST_BASE_CFLAGS) \
+    $(GST_CFLAGS)
+
+libgstdc1394_la_LIBADD = \
+    $(LIBDC1394_LIBS) \
+    $(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
+    $(GST_BASE_LIBS) \
+    $(GST_LIBS)
+
+libgstdc1394_la_LDFLAGS = \
+    $(GST_PLUGIN_LDFLAGS)
+
+libgstdc1394_la_LIBTOOLFLAGS = \
+    $(GST_PLUGIN_LIBTOOLFLAGS)
+
+noinst_HEADERS = \
+    gstdc1394src.h
+
 all: all-am
 
 .SUFFIXES:
@@ -866,7 +894,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstdc1394_la-gstdc1394.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstdc1394_la-gstdc1394src.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -892,12 +920,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-libgstdc1394_la-gstdc1394.lo: gstdc1394.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstdc1394_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstdc1394_la_CFLAGS) $(CFLAGS) -MT libgstdc1394_la-gstdc1394.lo -MD -MP -MF $(DEPDIR)/libgstdc1394_la-gstdc1394.Tpo -c -o libgstdc1394_la-gstdc1394.lo `test -f 'gstdc1394.c' || echo '$(srcdir)/'`gstdc1394.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstdc1394_la-gstdc1394.Tpo $(DEPDIR)/libgstdc1394_la-gstdc1394.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstdc1394.c' object='libgstdc1394_la-gstdc1394.lo' libtool=yes @AMDEPBACKSLASH@
+libgstdc1394_la-gstdc1394src.lo: gstdc1394src.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstdc1394_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstdc1394_la_CFLAGS) $(CFLAGS) -MT libgstdc1394_la-gstdc1394src.lo -MD -MP -MF $(DEPDIR)/libgstdc1394_la-gstdc1394src.Tpo -c -o libgstdc1394_la-gstdc1394src.lo `test -f 'gstdc1394src.c' || echo '$(srcdir)/'`gstdc1394src.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstdc1394_la-gstdc1394src.Tpo $(DEPDIR)/libgstdc1394_la-gstdc1394src.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstdc1394src.c' object='libgstdc1394_la-gstdc1394src.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstdc1394_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstdc1394_la_CFLAGS) $(CFLAGS) -c -o libgstdc1394_la-gstdc1394.lo `test -f 'gstdc1394.c' || echo '$(srcdir)/'`gstdc1394.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstdc1394_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstdc1394_la_CFLAGS) $(CFLAGS) -c -o libgstdc1394_la-gstdc1394src.lo `test -f 'gstdc1394src.c' || echo '$(srcdir)/'`gstdc1394src.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

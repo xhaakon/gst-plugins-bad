@@ -217,34 +217,6 @@ _gl_mem_create (GstGLMemoryPBO * gl_mem, GError ** error)
   return TRUE;
 }
 
-static void
-_gl_mem_init (GstGLMemoryPBO * mem, GstAllocator * allocator,
-    GstMemory * parent, GstGLContext * context, GstGLTextureTarget target,
-    GstAllocationParams * params, GstVideoInfo * info,
-    guint plane, GstVideoAlignment * valign, gpointer user_data,
-    GDestroyNotify notify)
-{
-  gst_gl_memory_init ((GstGLMemory *) mem, allocator, parent,
-      context, target, params, info, plane, valign, user_data, notify);
-}
-
-static GstGLMemoryPBO *
-_gl_mem_new (GstAllocator * allocator, GstMemory * parent,
-    GstGLContext * context, GstGLTextureTarget target,
-    GstAllocationParams * params, GstVideoInfo * info,
-    guint plane, GstVideoAlignment * valign, gpointer user_data,
-    GDestroyNotify notify)
-{
-  GstGLMemoryPBO *mem;
-  mem = g_new0 (GstGLMemoryPBO, 1);
-  mem->mem.texture_wrapped = FALSE;
-
-  _gl_mem_init (mem, allocator, parent, context, target, params, info, plane,
-      valign, user_data, notify);
-
-  return mem;
-}
-
 static gboolean
 _read_pixels_to_pbo (GstGLMemoryPBO * gl_mem)
 {
@@ -457,7 +429,7 @@ _gl_mem_copy_thread (GstGLContext * context, gpointer data)
     in_gl_type = GL_UNSIGNED_SHORT_5_6_5;
 
   if (!gl->GenFramebuffers) {
-    gst_gl_context_set_error (context,
+    GST_CAT_ERROR (GST_CAT_GL_MEMORY,
         "Context, EXT_framebuffer_object not supported");
     goto error;
   }
@@ -467,9 +439,9 @@ _gl_mem_copy_thread (GstGLContext * context, gpointer data)
 
   if (copy_params->respecify) {
     if (in_size != out_size) {
-      GST_ERROR ("Cannot copy between textures with backing data of different"
-          "sizes. input %" G_GSIZE_FORMAT " output %" G_GSIZE_FORMAT, in_size,
-          out_size);
+      GST_CAT_ERROR (GST_CAT_GL_MEMORY, "Cannot copy between textures with "
+          "backing data of different sizes. input %" G_GSIZE_FORMAT " output %"
+          G_GSIZE_FORMAT, in_size, out_size);
       goto error;
     }
   }
@@ -515,7 +487,7 @@ _gl_mem_copy_thread (GstGLContext * context, gpointer data)
     GstMapInfo pbo_info;
 
     if (!gl->GenBuffers || !src->pbo) {
-      gst_gl_context_set_error (context, "Cannot reinterpret texture contents "
+      GST_CAT_ERROR (GST_CAT_GL_MEMORY, "Cannot reinterpret texture contents "
           "without pixel buffer objects");
       gl->BindTexture (out_tex_target, 0);
       goto fbo_error;
@@ -523,7 +495,7 @@ _gl_mem_copy_thread (GstGLContext * context, gpointer data)
 
     if (gst_gl_context_get_gl_api (context) & GST_GL_API_GLES2
         && (in_gl_format != GL_RGBA || in_gl_type != GL_UNSIGNED_BYTE)) {
-      gst_gl_context_set_error (context, "Cannot copy non RGBA/UNSIGNED_BYTE "
+      GST_CAT_ERROR (GST_CAT_GL_MEMORY, "Cannot copy non RGBA/UNSIGNED_BYTE "
           "textures on GLES2");
       gl->BindTexture (out_tex_target, 0);
       goto fbo_error;
@@ -601,18 +573,12 @@ _gl_mem_copy (GstGLMemoryPBO * src, gssize offset, gssize size)
         size);
   }
 
-  dest = (GstMemory *) _gl_mem_new (allocator, NULL, src->mem.mem.context,
-      src->mem.tex_target, &params, &src->mem.info, src->mem.plane,
-      &src->mem.valign, NULL, NULL);
+  dest = (GstMemory *) g_new0 (GstGLMemoryPBO, 1);
+  gst_gl_memory_init (GST_GL_MEMORY_CAST (dest), allocator, NULL,
+      src->mem.mem.context, src->mem.tex_target, src->mem.tex_type, &params,
+      &src->mem.info, src->mem.plane, &src->mem.valign, NULL, NULL);
 
-  if (GST_MEMORY_FLAG_IS_SET (src, GST_GL_BASE_MEMORY_TRANSFER_NEED_UPLOAD)) {
-    if (!gst_gl_base_memory_memcpy ((GstGLBaseMemory *) src,
-            (GstGLBaseMemory *) dest, offset, size)) {
-      GST_CAT_WARNING (GST_CAT_GL_MEMORY, "Could not copy GL Memory");
-      gst_memory_unref (GST_MEMORY_CAST (dest));
-      return NULL;
-    }
-  } else {
+  if (!GST_MEMORY_FLAG_IS_SET (src, GST_GL_BASE_MEMORY_TRANSFER_NEED_UPLOAD)) {
     GstMapInfo dinfo;
 
     if (!gst_memory_map (GST_MEMORY_CAST (dest), &dinfo,
@@ -628,11 +594,18 @@ _gl_mem_copy (GstGLMemoryPBO * src, gssize offset, gssize size)
             src->mem.tex_type, src->mem.tex_width, GL_MEM_HEIGHT (src))) {
       GST_CAT_WARNING (GST_CAT_GL_MEMORY, "Could not copy GL Memory");
       gst_memory_unmap (GST_MEMORY_CAST (dest), &dinfo);
-      gst_memory_unref (GST_MEMORY_CAST (dest));
-      return NULL;
+      goto memcpy;
     }
 
     gst_memory_unmap (GST_MEMORY_CAST (dest), &dinfo);
+  } else {
+  memcpy:
+    if (!gst_gl_base_memory_memcpy ((GstGLBaseMemory *) src,
+            (GstGLBaseMemory *) dest, offset, size)) {
+      GST_CAT_WARNING (GST_CAT_GL_MEMORY, "Could not copy GL Memory");
+      gst_memory_unref (GST_MEMORY_CAST (dest));
+      return NULL;
+    }
   }
 
   return dest;
@@ -674,14 +647,14 @@ _gl_mem_pbo_alloc (GstGLBaseMemoryAllocator * allocator,
   mem = g_new0 (GstGLMemoryPBO, 1);
 
   if (alloc_flags & GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_GPU_HANDLE) {
-    mem->mem.tex_id = params->parent.gl_handle;
+    mem->mem.tex_id = GPOINTER_TO_UINT (params->parent.gl_handle);
     mem->mem.texture_wrapped = TRUE;
   }
 
-  _gl_mem_init (mem, GST_ALLOCATOR_CAST (allocator), NULL,
-      params->parent.context, params->target, params->parent.alloc_params,
-      params->v_info, params->plane, params->valign, params->parent.user_data,
-      params->parent.notify);
+  gst_gl_memory_init (GST_GL_MEMORY_CAST (mem), GST_ALLOCATOR_CAST (allocator),
+      NULL, params->parent.context, params->target, params->tex_type,
+      params->parent.alloc_params, params->v_info, params->plane,
+      params->valign, params->parent.user_data, params->parent.notify);
 
   if (alloc_flags & GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_GPU_HANDLE) {
     GST_MINI_OBJECT_FLAG_SET (mem, GST_GL_BASE_MEMORY_TRANSFER_NEED_DOWNLOAD);
@@ -864,6 +837,8 @@ gst_gl_memory_pbo_init_once (void)
     GST_DEBUG_CATEGORY_INIT (GST_CAT_GL_MEMORY, "glmemory", 0, "OpenGL Memory");
 
     _gl_allocator = g_object_new (GST_TYPE_GL_MEMORY_PBO_ALLOCATOR, NULL);
+    /* The allocator is never unreffed */
+    GST_OBJECT_FLAG_SET (_gl_allocator, GST_OBJECT_FLAG_MAY_BE_LEAKED);
 
     gst_allocator_register (GST_GL_MEMORY_PBO_ALLOCATOR_NAME,
         gst_object_ref (_gl_allocator));

@@ -1697,7 +1697,7 @@ already been parsed</p></td>
   gint width, height;
   gint crop_rect_width, crop_rect_height;
   gint crop_rect_x, crop_rect_y;
-  gint fps_num, fps_den;
+  gint fps_num_removed, fps_den_removed; /* FIXME: remove */
   gboolean valid;
 
   /* Subset SPS extensions */
@@ -1953,12 +1953,12 @@ already been parsed</p></td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> <em class="structfield"><code><a name="GstH264SPS.fps-num"></a>fps_num</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> <em class="structfield"><code><a name="GstH264SPS.fps-num-removed"></a>fps_num_removed</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> <em class="structfield"><code><a name="GstH264SPS.fps-den"></a>fps_den</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> <em class="structfield"><code><a name="GstH264SPS.fps-den-removed"></a>fps_den_removed</code></em>;</p></td>
 <td> </td>
 <td> </td>
 </tr>
@@ -2214,7 +2214,7 @@ indicates the vertical size of the sample aspect ratio</p></td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.overscan-info-present-flag"></a>overscan_info_present_flag</code></em>;</p></td>
-<td class="struct_member_description"><p><a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> overscan_appropriate_flag is present <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize</p></td>
+<td class="struct_member_description"><p><a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> overscan_appropriate_flag is present <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
@@ -2264,7 +2264,7 @@ transfer_characteristics and matrix_coefficients are present</p></td>
 <tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.chroma-loc-info-present-flag"></a>chroma_loc_info_present_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> specifies that chroma_sample_loc_type_top_field and
-chroma_sample_loc_type_bottom_field are present, <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize</p></td>
+chroma_sample_loc_type_bottom_field are present, <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
@@ -2300,7 +2300,7 @@ time_scale: is the number of time units that pass in one second</p></td>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.fixed-frame-rate-flag"></a>fixed_frame_rate_flag</code></em>;</p></td>
 <td class="struct_member_description"><p><a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> indicates that the temporal distance between the HRD output times
 of any two consecutive pictures in output order is constrained as specified in the spec, <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>
-otherwize.</p></td>
+otherwise.</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>

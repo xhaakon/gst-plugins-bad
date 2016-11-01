@@ -335,10 +335,8 @@ dvb_base_bin_class_init (DvbBaseBinClass * klass)
   element_class->request_new_pad = dvb_base_bin_request_new_pad;
   element_class->release_pad = dvb_base_bin_release_pad;
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&program_template));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_template));
+  gst_element_class_add_static_pad_template (element_class, &program_template);
+  gst_element_class_add_static_pad_template (element_class, &src_template);
 
   gst_element_class_set_static_metadata (element_class, "DVB bin",
       "Source/Bin/Video",
@@ -539,7 +537,7 @@ dvb_base_bin_init (DvbBaseBin * dvbbasebin)
   dvbbasebin->task =
       gst_task_new ((GstTaskFunction) dvb_base_bin_task, dvbbasebin, NULL);
   gst_task_set_lock (dvbbasebin->task, &dvbbasebin->lock);
-  dvbbasebin->poll = gst_poll_new_timer ();
+  dvbbasebin->poll = gst_poll_new (TRUE);
 }
 
 static void
@@ -1175,14 +1173,13 @@ dvb_base_bin_uri_set_uri (GstURIHandler * handler, const gchar * uri,
   if (location == NULL)
     goto no_location;
 
+  /* FIXME: here is where we parse channels.conf */
   if (!set_properties_for_channel (GST_ELEMENT (dvbbasebin), location, &err))
     goto set_properties_failed;
 
-  /* FIXME: here is where we parse channels.conf */
-
   g_free (location);
   return TRUE;
-/* ERRORS */
+
 post_error_and_exit:
   {
     gst_element_message_full (GST_ELEMENT (dvbbasebin), GST_MESSAGE_ERROR,
@@ -1200,6 +1197,9 @@ no_location:
 set_properties_failed:
   {
     g_free (location);
+    if (!err)
+      g_set_error (&err, GST_URI_ERROR, GST_URI_ERROR_BAD_REFERENCE,
+          "Could not find information for channel");
     goto post_error_and_exit;
   }
 }

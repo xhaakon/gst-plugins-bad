@@ -59,8 +59,7 @@ struct _GstGLColorConvert
   GstBuffer *    outbuf;
 
   /* used for the conversion */
-  GLuint           fbo;
-  GLuint           depth_buffer;
+  GstGLFramebuffer *fbo;
   GstGLShader     *shader;
 
   /* <private> */
@@ -77,6 +76,9 @@ struct _GstGLColorConvert
 struct _GstGLColorConvertClass
 {
   GstObjectClass object_class;
+
+  /* <private> */
+  gpointer _padding[GST_PADDING];
 };
 
 /**

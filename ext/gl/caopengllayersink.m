@@ -227,8 +227,7 @@ gst_ca_opengl_layer_sink_class_init (GstCAOpenGLLayerSinkClass * klass)
       "Sink/Video", "A video sink based on CAOpenGLLayer",
       "Matthew Waters <matthew@centricular.com>");
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_ca_opengl_layer_sink_template));
+  gst_element_class_add_static_pad_template (element_class, &gst_ca_opengl_layer_sink_template);
 
   gobject_class->finalize = gst_ca_opengl_layer_sink_finalize;
 
@@ -384,7 +383,6 @@ static gboolean
 gst_ca_opengl_layer_sink_query (GstBaseSink * bsink, GstQuery * query)
 {
   GstCAOpenGLLayerSink *ca_sink = GST_CA_OPENGL_LAYER_SINK (bsink);
-  gboolean res = FALSE;
 
   switch (GST_QUERY_TYPE (query)) {
     case GST_QUERY_CONTEXT:
@@ -494,7 +492,6 @@ gst_ca_opengl_layer_sink_change_state (GstElement * element, GstStateChange tran
       _ensure_gl_setup (ca_sink);
       break;
     case GST_STATE_CHANGE_READY_TO_PAUSED:
-      g_atomic_int_set (&ca_sink->to_quit, 0);
       break;
     case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
       break;
@@ -741,12 +738,6 @@ gst_ca_opengl_layer_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
     gst_buffer_unref (stored_buffer);
   if (old_sync)
     gst_buffer_unref (old_sync);
-
-  if (g_atomic_int_get (&ca_sink->to_quit) != 0) {
-    GST_ELEMENT_ERROR (ca_sink, RESOURCE, NOT_FOUND,
-        ("%s", gst_gl_context_get_error ()), (NULL));
-    return GST_FLOW_ERROR;
-  }
 
   return GST_FLOW_OK;
 }

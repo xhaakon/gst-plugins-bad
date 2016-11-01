@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.7.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-09-30 12:19+0300\n"
 "PO-Revision-Date: 2016-02-21 21:03+0200\n"
 "Last-Translator: Alexander Shopov <ash@kambanaria.org>\n"
 "Language-Team: Bulgarian <dict@ludost.net>\n"
@@ -17,6 +17,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr "форматът не е бил уточнен преди извикване на функцията за получаване"
@@ -62,9 +68,6 @@ msgstr "Не може да се настрои sndio"
 msgid "Could not start sndio"
 msgstr "Не може да се стартира sndio"
 
-msgid "Internal data flow error."
-msgstr "Вътрешна грешка в потока на данни."
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 "Генерираният файл е с по-дълго време за буфериране отколкото е самата му "
@@ -86,11 +89,11 @@ msgstr "Форматът на подкартината не е бил уточн
 msgid "Failed to get fragment URL."
 msgstr "Неуспешно получаване на адреса на фрагмента."
 
-msgid "Internal data stream error."
-msgstr "Вътрешна грешка в потока на данни."
-
 msgid "Couldn't download fragments"
 msgstr "Фрагментите не могат да бъдат свалени"
+
+msgid "Internal data stream error."
+msgstr "Вътрешна грешка в потока на данни."
 
 msgid "No file name specified for writing."
 msgstr "Не е указано име на файл за запис."
@@ -136,11 +139,28 @@ msgstr ""
 "Файлът с настройките на цифровото видеоръзпръскване (DVB) „%s“ не може да "
 "бъде прочетен"
 
+#, c-format
+msgid "Couldn't find details for DVB channel %s"
+msgstr "Липсват данни за канала за цифрово видеоръзпръскване (DVB) „%s“"
+
+#, fuzzy, c-format
+msgid "No properties for the DVB channel %s"
+msgstr "Липсват данни за канала за цифрово видеоръзпръскване (DVB) „%s“"
+
+#, fuzzy, c-format
+msgid "Failed to set properties for the DVB channel %s"
+msgstr "Липсват данни за канала за цифрово видеоръзпръскване (DVB) „%s“"
+
+#, fuzzy, c-format
+msgid "Couldn't find DVB channel configuration file: %s"
+msgstr ""
+"Файлът с настройките на цифровото видеоръзпръскване (DVB) не може да бъде "
+"открит"
+
 msgid "DVB channel configuration file doesn't contain any channels"
 msgstr ""
 "Файлът с настройките на цифровото видеоръзпръскване (DVB) не съдържа никакви "
 "канали"
 
-#, c-format
-msgid "Couldn't find details for DVB channel %s"
-msgstr "Липсват данни за канала за цифрово видеоръзпръскване (DVB) „%s“"
+#~ msgid "Internal data flow error."
+#~ msgstr "Вътрешна грешка в потока на данни."

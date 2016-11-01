@@ -67,7 +67,8 @@
 #endif
 #if GST_GL_HAVE_PLATFORM_EGL
 #include <gst/gl/egl/gstgldisplay_egl.h>
-#include <gst/gl/egl/gsteglimagememory.h>
+#include <gst/gl/egl/gsteglimage.h>
+#include <gst/gl/egl/gstglmemoryegl.h>
 #endif
 
 GST_DEBUG_CATEGORY_STATIC (gst_context);
@@ -141,9 +142,10 @@ gst_gl_display_init (GstGLDisplay * display)
 
   gst_gl_buffer_init_once ();
   gst_gl_memory_pbo_init_once ();
+  gst_gl_renderbuffer_init_once ();
 
 #if GST_GL_HAVE_PLATFORM_EGL
-  gst_egl_image_memory_init ();
+  gst_gl_memory_egl_init_once ();
 #endif
 }
 
@@ -211,8 +213,7 @@ gst_gl_display_new (void)
     display = GST_GL_DISPLAY (gst_gl_display_egl_new ());
 #endif
   if (!display) {
-    /* subclass returned a NULL window */
-    GST_WARNING ("Could not create display. user specified %s "
+    GST_INFO ("Could not create platform/winsys display. user specified %s "
         "(platform: %s), creating dummy",
         GST_STR_NULL (user_choice), GST_STR_NULL (platform_choice));
 
@@ -432,13 +433,17 @@ _get_gl_context_for_thread_unlocked (GstGLDisplay * display, GThread * thread)
     if (!context) {
       /* remove dead contexts */
       g_weak_ref_clear (l->data);
+      g_free (l->data);
       display->priv->contexts = g_list_delete_link (display->priv->contexts, l);
       l = prev ? prev->next : display->priv->contexts;
       continue;
     }
 
-    if (thread == NULL)
+    if (thread == NULL) {
+      GST_DEBUG_OBJECT (display, "Returning GL context %" GST_PTR_FORMAT " for "
+          "NULL thread", context);
       return context;
+    }
 
     context_thread = gst_gl_context_get_thread (context);
     if (thread != context_thread) {
@@ -451,9 +456,13 @@ _get_gl_context_for_thread_unlocked (GstGLDisplay * display, GThread * thread)
 
     if (context_thread)
       g_thread_unref (context_thread);
+
+    GST_DEBUG_OBJECT (display, "Returning GL context %" GST_PTR_FORMAT " for "
+        "thread %p", context, thread);
     return context;
   }
 
+  GST_DEBUG_OBJECT (display, "No GL context for thread %p", thread);
   return NULL;
 }
 
@@ -549,11 +558,15 @@ gst_gl_display_add_context (GstGLDisplay * display, GstGLContext * context)
 
     /* adding the same context is a no-op */
     if (context == collision) {
+      GST_LOG_OBJECT (display, "Attempting to add the same GL context %"
+          GST_PTR_FORMAT ". Ignoring", context);
       ret = TRUE;
       goto out;
     }
 
     if (_check_collision (context, collision)) {
+      GST_DEBUG_OBJECT (display, "Collision detected adding GL context "
+          "%" GST_PTR_FORMAT, context);
       ret = FALSE;
       goto out;
     }
@@ -562,6 +575,7 @@ gst_gl_display_add_context (GstGLDisplay * display, GstGLContext * context)
   ref = g_new0 (GWeakRef, 1);
   g_weak_ref_init (ref, context);
 
+  GST_DEBUG_OBJECT (display, "Adding GL context %" GST_PTR_FORMAT, context);
   display->priv->contexts = g_list_prepend (display->priv->contexts, ref);
 
 out:

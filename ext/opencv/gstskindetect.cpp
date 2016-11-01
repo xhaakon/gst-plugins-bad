@@ -60,7 +60,6 @@
 
 #include "gstskindetect.h"
 #include <opencv2/imgproc/imgproc_c.h>
-#include <opencv2/legacy/compat.hpp>
 
 GST_DEBUG_CATEGORY_STATIC (gst_skin_detect_debug);
 #define GST_CAT_DEFAULT gst_skin_detect_debug
@@ -163,10 +162,8 @@ gst_skin_detect_class_init (GstSkinDetectClass * klass)
       "Performs non-parametric skin detection on input",
       "Miguel Casas-Sanchez <miguelecasassanchez@gmail.com>");
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_factory));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_factory));
+  gst_element_class_add_static_pad_template (element_class, &src_factory);
+  gst_element_class_add_static_pad_template (element_class, &sink_factory);
 
   basesrc_class->stop = gst_skin_detect_stop;
   gstopencvbasefilter_class->cv_set_caps = gst_skin_detect_set_caps;
@@ -341,7 +338,7 @@ gst_skin_detect_transform (GstOpencvVideoFilter * base, GstBuffer * buf,
 
     cvCvtColor (filter->cvSkinPixels1, filter->cvRGB, CV_GRAY2RGB);
   } else if (RGB == filter->method) {
-    cvCvtPixToPlane (filter->cvRGB, filter->cvR, filter->cvG, filter->cvB, 0);  /*  Extract the 3 color components. */
+    cvSplit (filter->cvRGB, filter->cvR, filter->cvG, filter->cvB, 0);  /*  Extract the 3 color components. */
     cvAdd (filter->cvR, filter->cvG, filter->cvAll, NULL);
     cvAdd (filter->cvB, filter->cvAll, filter->cvAll, NULL);    /*  All = R + G + B */
     cvDiv (filter->cvR, filter->cvAll, filter->cvRp, 1.0);      /*  R' = R / ( R + G + B) */

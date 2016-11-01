@@ -410,6 +410,7 @@ static void
 gst_player_media_info_init (GstPlayerMediaInfo * info)
 {
   info->duration = -1;
+  info->is_live = FALSE;
   info->seekable = FALSE;
 }
 
@@ -558,6 +559,7 @@ gst_player_media_info_copy (GstPlayerMediaInfo * ref)
   info = gst_player_media_info_new (ref->uri);
   info->duration = ref->duration;
   info->seekable = ref->seekable;
+  info->is_live = ref->is_live;
   if (ref->tags)
     info->tags = gst_tag_list_ref (ref->tags);
   if (ref->title)
@@ -641,6 +643,20 @@ gst_player_media_info_is_seekable (const GstPlayerMediaInfo * info)
   g_return_val_if_fail (GST_IS_PLAYER_MEDIA_INFO (info), FALSE);
 
   return info->seekable;
+}
+
+/**
+ * gst_player_media_info_is_live:
+ * @info: a #GstPlayerMediaInfo
+ *
+ * Returns: %TRUE if the media is live.
+ */
+gboolean
+gst_player_media_info_is_live (const GstPlayerMediaInfo * info)
+{
+  g_return_val_if_fail (GST_IS_PLAYER_MEDIA_INFO (info), FALSE);
+
+  return info->is_live;
 }
 
 /**

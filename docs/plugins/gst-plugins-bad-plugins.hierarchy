@@ -36,12 +36,14 @@ GObject
           ADPCMDec
           GstDtsDec
           GstFaad
+          GstFdkAacDec
           GstGSMDec
           GstSbcDec
           GstSirenDec
         GstAudioEncoder
           ADPCMEnc
           GstFaac
+          GstFdkAacEnc
           GstGSMEnc
           GstSbcEnc
           GstSirenEnc
@@ -60,11 +62,15 @@ GObject
           GstH265Parse
           GstIRTSPParse
           GstIvfParse
+          GstJPEG2000Parse
           GstJpegParse
           GstMpeg4VParse
           GstMpegvParse
           GstOpusParse
           GstPngParse
+          GstRawBaseParse
+            GstRawAudioParse
+            GstRawVideoParse
           GstVC1Parse
         GstBaseSink
           GstAudioBaseSink
@@ -108,11 +114,13 @@ GObject
             GstAudioBaseSrc
               GstAudioSrc
                 GstOpenalSrc
+            GstDC1394Src
             GstDecklinkAudioSrc
             GstDecklinkVideoSrc
             GstDvbSrc
             GstGLTestSrc
             GstMMS
+            GstQtSrc
             GstRTMPSrc
             GstRfbSrc
             GstShmSrc
@@ -136,6 +144,8 @@ GObject
               ladspa-sine-so-sine-fcaa
             GstOFA
             GstStereo
+            GstWebrtcDsp
+            GstWebrtcEchoProbe
           GstBayer2RGB
           GstDebugSpy
           GstDtmfDetect
@@ -179,6 +189,7 @@ GObject
           GstIvtc
           GstRGB2Bayer
           GstRemoveSilence
+          GstTimeCodeStamper
           GstVideoFilter
             GstBurn
             GstChromaHold
@@ -222,7 +233,6 @@ GObject
               GstHanddetect
               GstMotioncells
               GstOpencvTextOverlay
-              GstPyramidSegment
               GstSkinDetect
               GstTemplateMatch
             GstRetinex
@@ -246,6 +256,7 @@ GObject
             GstDashDemux
             GstHLSDemux
             GstMssDemux
+          GstAudioParse
           GstAutoConvert
           GstAutoVideoConvert
           GstBaseCameraSrc
@@ -265,6 +276,10 @@ GObject
           GstPipeline
             GstCameraBin
           GstSDPDemux
+          GstSdpSrc
+          GstUnalignedAudioParse
+          GstUnalignedVideoParse
+          GstVideoParse
           GstViewfinderBin
           RsnDvdBin
         GstBz2dec
@@ -300,14 +315,12 @@ GObject
         GstMpeg2enc
         GstMpegPSDemux
         GstMplex
+        GstMusepackDec
         GstNetSim
         GstPcapParse
         GstPitch
         GstRTPBasePayload
           GstRtpAsfPay
-        GstRawParse
-          GstAudioParse
-          GstVideoParse
         GstRtpOnvifParse
         GstRtpOnvifTimestamp
         GstSFDec
@@ -322,6 +335,7 @@ GObject
         GstTagMux
           GstId3Mux
         GstTeletextDec
+        GstTimeCodeWait
         GstUvcH264MjpgDemux
         GstVideoDecoder
           GstLibde265Dec

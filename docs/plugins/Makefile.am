@@ -25,7 +25,7 @@ DOC_SOURCE_DIR = $(top_srcdir)/gst $(top_srcdir)/ext $(top_srcdir)/sys
 SCAN_OPTIONS=
 
 # Extra options to supply to gtkdoc-mkdb.
-MKDB_OPTIONS=--sgml-mode --source-suffixes=c,h,cc,m
+MKDB_OPTIONS=--sgml-mode --source-suffixes=c,h,cc,cpp,m
 
 # Extra options to supply to gtkdoc-fixref.
 FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html \
@@ -38,7 +38,8 @@ HFILE_GLOB= \
   $(top_srcdir)/ext/*/*.hh
 CFILE_GLOB= \
   $(top_srcdir)/gst/*/*.c $(top_srcdir)/ext/*/*.c $(top_srcdir)/sys/*/*.c \
-  $(top_srcdir)/ext/*/*.cc $(top_srcdir)/sys/*/*.m
+  $(top_srcdir)/ext/*/*.cc $(top_srcdir)/ext/*/*.cpp  $(top_srcdir)/sys/*/*.cpp \
+  $(top_srcdir)/ext/*/*.m $(top_srcdir)/sys/*/*.m
 
 # Header files to ignore when scanning.
 IGNORE_HFILES =
@@ -69,7 +70,7 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/curl/gstcurlhttpsink.h \
 	$(top_srcdir)/ext/curl/gstcurlsmtpsink.h \
 	$(top_srcdir)/ext/curl/gstcurltlssink.h \
-	$(top_srcdir)/ext/dc1394/gstdc1394.h \
+	$(top_srcdir)/ext/dc1394/gstdc1394src.h \
 	$(top_srcdir)/ext/directfb/dfbvideosink.h \
 	$(top_srcdir)/ext/dts/gstdtsdec.h \
 	$(top_srcdir)/ext/faac/gstfaac.h \
@@ -94,12 +95,13 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/opencv/gstedgedetect.h \
 	$(top_srcdir)/ext/opencv/gstfaceblur.h \
 	$(top_srcdir)/ext/opencv/gstfacedetect.h \
-	$(top_srcdir)/ext/opencv/gstpyramidsegment.h \
 	$(top_srcdir)/ext/opencv/gsttemplatematch.h \
 	$(top_srcdir)/ext/opencv/gsttextoverlay.h \
 	$(top_srcdir)/ext/openni2/gstopenni2src.h \
 	$(top_srcdir)/ext/rsvg/gstrsvgdec.h \
 	$(top_srcdir)/ext/rsvg/gstrsvgoverlay.h \
+	$(top_srcdir)/ext/rtmp/gstrtmpsrc.h \
+	$(top_srcdir)/ext/rtmp/gstrtmpsink.h \
 	$(top_srcdir)/ext/spandsp/gstspanplc.h \
 	$(top_srcdir)/ext/spandsp/gstdtmfdetect.h \
 	$(top_srcdir)/ext/sdl/sdlaudiosink.h \
@@ -108,6 +110,8 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/timidity/gstwildmidi.h \
 	$(top_srcdir)/ext/voaacenc/gstvoaacenc.h \
 	$(top_srcdir)/ext/voamrwbenc/gstvoamrwbenc.h \
+	$(top_srcdir)/ext/webrtcdsp/gstwebrtcdsp.h \
+	$(top_srcdir)/ext/webrtcdsp/gstwebrtcechoprobe.h \
 	$(top_srcdir)/ext/zbar/gstzbar.h \
 	$(top_srcdir)/gst/aiff/aiffparse.h \
 	$(top_srcdir)/gst/aiff/aiffmux.h \
@@ -150,6 +154,8 @@ EXTRA_HFILES = \
 	$(top_srcdir)/gst/geometrictransform/gstwaterripple.h \
 	$(top_srcdir)/gst/ivfparse/gstivfparse.h \
 	$(top_srcdir)/gst/jpegformat/gstjpegparse.h \
+	$(top_srcdir)/gst/mpegtsdemux/tsdemux.h \
+	$(top_srcdir)/gst/mpegtsmux/mpegtsmux.h \
 	$(top_srcdir)/gst/mxf/mxfdemux.h \
 	$(top_srcdir)/gst/mxf/mxfmux.h \
 	$(top_srcdir)/gst/nuvdemux/gstnuvdemux.h \

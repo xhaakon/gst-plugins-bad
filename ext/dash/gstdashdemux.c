@@ -189,6 +189,9 @@ enum
   PROP_MAX_BUFFERING_TIME,
   PROP_BANDWIDTH_USAGE,
   PROP_MAX_BITRATE,
+  PROP_MAX_VIDEO_WIDTH,
+  PROP_MAX_VIDEO_HEIGHT,
+  PROP_MAX_VIDEO_FRAMERATE,
   PROP_PRESENTATION_DELAY,
   PROP_LAST
 };
@@ -196,7 +199,11 @@ enum
 /* Default values for properties */
 #define DEFAULT_MAX_BUFFERING_TIME       30     /* in seconds */
 #define DEFAULT_BANDWIDTH_USAGE         0.8     /* 0 to 1     */
-#define DEFAULT_MAX_BITRATE        24000000     /* in bit/s  */
+#define DEFAULT_MAX_BITRATE               0     /* in bit/s  */
+#define DEFAULT_MAX_VIDEO_WIDTH           0
+#define DEFAULT_MAX_VIDEO_HEIGHT          0
+#define DEFAULT_MAX_VIDEO_FRAMERATE_N     0
+#define DEFAULT_MAX_VIDEO_FRAMERATE_D     1
 #define DEFAULT_PRESENTATION_DELAY     NULL     /* zero */
 
 /* Clock drift compensation for live streams */
@@ -215,6 +222,12 @@ struct _GstDashDemuxClockDrift
   GTimeSpan clock_compensation;
   GstClock *ntp_clock;
 };
+
+typedef struct
+{
+  guint64 start_offset, end_offset;
+  /* TODO: Timestamp and duration */
+} GstDashStreamSyncSample;
 
 /* GObject */
 static void gst_dash_demux_set_property (GObject * object, guint prop_id,
@@ -253,10 +266,15 @@ gst_dash_demux_stream_get_fragment_waiting_time (GstAdaptiveDemuxStream *
 static void gst_dash_demux_advance_period (GstAdaptiveDemux * demux);
 static gboolean gst_dash_demux_has_next_period (GstAdaptiveDemux * demux);
 static GstFlowReturn gst_dash_demux_data_received (GstAdaptiveDemux * demux,
+    GstAdaptiveDemuxStream * stream, GstBuffer * buffer);
+static gboolean
+gst_dash_demux_stream_fragment_start (GstAdaptiveDemux * demux,
     GstAdaptiveDemuxStream * stream);
 static GstFlowReturn
 gst_dash_demux_stream_fragment_finished (GstAdaptiveDemux * demux,
     GstAdaptiveDemuxStream * stream);
+static gboolean gst_dash_demux_need_another_chunk (GstAdaptiveDemuxStream *
+    stream);
 
 /* GstDashDemux */
 static gboolean gst_dash_demux_setup_all_streams (GstDashDemux * demux);
@@ -266,7 +284,8 @@ static GstCaps *gst_dash_demux_get_input_caps (GstDashDemux * demux,
     GstActiveStream * stream);
 static GstPad *gst_dash_demux_create_pad (GstDashDemux * demux,
     GstActiveStream * stream);
-static GstDashDemuxClockDrift *gst_dash_demux_clock_drift_new (void);
+static GstDashDemuxClockDrift *gst_dash_demux_clock_drift_new (GstDashDemux *
+    demux);
 static void gst_dash_demux_clock_drift_free (GstDashDemuxClockDrift *);
 static gboolean gst_dash_demux_poll_clock_drift (GstDashDemux * demux);
 static GTimeSpan gst_dash_demux_get_clock_compensation (GstDashDemux * demux);
@@ -313,10 +332,12 @@ gst_dash_demux_get_live_seek_range (GstAdaptiveDemux * demux, gint64 * start,
   GDateTime *now;
   GDateTime *mstart;
   GTimeSpan stream_now;
+  GstClockTime seg_duration;
 
   if (self->client->mpd_node->availabilityStartTime == NULL)
     return FALSE;
 
+  seg_duration = gst_mpd_client_get_maximum_segment_duration (self->client);
   now = gst_dash_demux_get_server_now_utc (self);
   mstart =
       gst_date_time_to_g_date_time (self->client->
@@ -337,6 +358,17 @@ gst_dash_demux_get_live_seek_range (GstAdaptiveDemux * demux, gint64 * start,
     if (*start < 0)
       *start = 0;
   }
+
+  /* As defined in 5.3.9.5.3 of the DASH specification, a segment does
+     not become available until the sum of:
+     * the value of the MPD@availabilityStartTime,
+     * the PeriodStart time of the containing Period
+     * the MPD start time of the Media Segment, and
+     * the MPD duration of the Media Segment.
+     Therefore we need to subtract the media segment duration from the stop
+     time.
+   */
+  *stop -= seg_duration;
   return TRUE;
 }
 
@@ -393,8 +425,27 @@ gst_dash_demux_class_init (GstDashDemuxClass * klass)
 
   g_object_class_install_property (gobject_class, PROP_MAX_BITRATE,
       g_param_spec_uint ("max-bitrate", "Max bitrate",
-          "Max of bitrate supported by target decoder",
-          1000, G_MAXUINT, DEFAULT_MAX_BITRATE,
+          "Max of bitrate supported by target video decoder (0 = no maximum)",
+          0, G_MAXUINT, DEFAULT_MAX_BITRATE,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_MAX_VIDEO_WIDTH,
+      g_param_spec_uint ("max-video-width", "Max video width",
+          "Max video width to select (0 = no maximum)",
+          0, G_MAXUINT, DEFAULT_MAX_VIDEO_WIDTH,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_MAX_VIDEO_HEIGHT,
+      g_param_spec_uint ("max-video-height", "Max video height",
+          "Max video height to select (0 = no maximum)",
+          0, G_MAXUINT, DEFAULT_MAX_VIDEO_HEIGHT,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_MAX_VIDEO_FRAMERATE,
+      gst_param_spec_fraction ("max-video-framerate", "Max video framerate",
+          "Max video framerate to select (0/1 = no maximum)",
+          0, 1, G_MAXINT, 1, DEFAULT_MAX_VIDEO_FRAMERATE_N,
+          DEFAULT_MAX_VIDEO_FRAMERATE_D,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_PRESENTATION_DELAY,
@@ -403,15 +454,14 @@ gst_dash_demux_class_init (GstDashDemuxClass * klass)
           DEFAULT_PRESENTATION_DELAY,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&gst_dash_demux_audiosrc_template));
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&gst_dash_demux_videosrc_template));
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&gst_dash_demux_subtitlesrc_template));
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &gst_dash_demux_audiosrc_template);
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &gst_dash_demux_videosrc_template);
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &gst_dash_demux_subtitlesrc_template);
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&sinktemplate));
+  gst_element_class_add_static_pad_template (gstelement_class, &sinktemplate);
 
   gst_element_class_set_static_metadata (gstelement_class,
       "DASH Demuxer",
@@ -454,9 +504,12 @@ gst_dash_demux_class_init (GstDashDemuxClass * klass)
   gstadaptivedemux_class->get_period_start_time =
       gst_dash_demux_get_period_start_time;
 
+  gstadaptivedemux_class->start_fragment = gst_dash_demux_stream_fragment_start;
   gstadaptivedemux_class->finish_fragment =
       gst_dash_demux_stream_fragment_finished;
   gstadaptivedemux_class->data_received = gst_dash_demux_data_received;
+  gstadaptivedemux_class->need_another_chunk =
+      gst_dash_demux_need_another_chunk;
 }
 
 static void
@@ -465,6 +518,10 @@ gst_dash_demux_init (GstDashDemux * demux)
   /* Properties */
   demux->max_buffering_time = DEFAULT_MAX_BUFFERING_TIME * GST_SECOND;
   demux->max_bitrate = DEFAULT_MAX_BITRATE;
+  demux->max_video_width = DEFAULT_MAX_VIDEO_WIDTH;
+  demux->max_video_height = DEFAULT_MAX_VIDEO_HEIGHT;
+  demux->max_video_framerate_n = DEFAULT_MAX_VIDEO_FRAMERATE_N;
+  demux->max_video_framerate_d = DEFAULT_MAX_VIDEO_FRAMERATE_D;
   demux->default_presentation_delay = DEFAULT_PRESENTATION_DELAY;
 
   g_mutex_init (&demux->client_lock);
@@ -489,6 +546,16 @@ gst_dash_demux_set_property (GObject * object, guint prop_id,
       break;
     case PROP_MAX_BITRATE:
       demux->max_bitrate = g_value_get_uint (value);
+      break;
+    case PROP_MAX_VIDEO_WIDTH:
+      demux->max_video_width = g_value_get_uint (value);
+      break;
+    case PROP_MAX_VIDEO_HEIGHT:
+      demux->max_video_height = g_value_get_uint (value);
+      break;
+    case PROP_MAX_VIDEO_FRAMERATE:
+      demux->max_video_framerate_n = gst_value_get_fraction_numerator (value);
+      demux->max_video_framerate_d = gst_value_get_fraction_denominator (value);
       break;
     case PROP_PRESENTATION_DELAY:
       g_free (demux->default_presentation_delay);
@@ -516,6 +583,16 @@ gst_dash_demux_get_property (GObject * object, guint prop_id, GValue * value,
       break;
     case PROP_MAX_BITRATE:
       g_value_set_uint (value, demux->max_bitrate);
+      break;
+    case PROP_MAX_VIDEO_WIDTH:
+      g_value_set_uint (value, demux->max_video_width);
+      break;
+    case PROP_MAX_VIDEO_HEIGHT:
+      g_value_set_uint (value, demux->max_video_height);
+      break;
+    case PROP_MAX_VIDEO_FRAMERATE:
+      gst_value_set_fraction (value, demux->max_video_framerate_n,
+          demux->max_video_framerate_d);
       break;
     case PROP_PRESENTATION_DELAY:
       if (demux->default_presentation_delay == NULL)
@@ -571,6 +648,7 @@ gst_dash_demux_setup_all_streams (GstDashDemux * demux)
     GstDashDemuxStream *stream;
     GstActiveStream *active_stream;
     GstCaps *caps;
+    GstStructure *s;
     GstPad *srcpad;
     gchar *lang = NULL;
     GstTagList *tags = NULL;
@@ -578,6 +656,13 @@ gst_dash_demux_setup_all_streams (GstDashDemux * demux)
     active_stream = gst_mpdparser_get_active_stream_by_index (demux->client, i);
     if (active_stream == NULL)
       continue;
+
+    if (demux->trickmode_no_audio
+        && active_stream->mimeType == GST_STREAM_AUDIO) {
+      GST_DEBUG_OBJECT (demux,
+          "Skipping audio stream %d because of TRICKMODE_NO_AUDIO flag", i);
+      continue;
+    }
 
     srcpad = gst_dash_demux_create_pad (demux, active_stream);
     if (srcpad == NULL)
@@ -614,6 +699,11 @@ gst_dash_demux_setup_all_streams (GstDashDemux * demux)
     stream = (GstDashDemuxStream *)
         gst_adaptive_demux_stream_new (GST_ADAPTIVE_DEMUX_CAST (demux), srcpad);
     stream->active_stream = active_stream;
+    s = gst_caps_get_structure (caps, 0);
+    stream->is_isobmff = gst_structure_has_name (s, "video/quicktime");
+    stream->first_sync_sample_always_after_moof = TRUE;
+    if (stream->is_isobmff)
+      stream->isobmff_adapter = gst_adapter_new ();
     gst_adaptive_demux_stream_set_caps (GST_ADAPTIVE_DEMUX_STREAM_CAST (stream),
         caps);
     if (tags)
@@ -631,6 +721,8 @@ gst_dash_demux_setup_all_streams (GstDashDemux * demux)
     }
 
     gst_isoff_sidx_parser_init (&stream->sidx_parser);
+    if (gst_mpd_client_has_isoff_ondemand_profile (demux->client))
+      stream->sidx_adapter = gst_adapter_new ();
   }
 
   return TRUE;
@@ -712,7 +804,7 @@ gst_dash_demux_setup_streams (GstAdaptiveDemux * demux)
           SUPPORTED_CLOCK_FORMATS, NULL);
       if (urls) {
         GST_DEBUG_OBJECT (dashdemux, "Found a supported UTCTiming element");
-        dashdemux->clock_drift = gst_dash_demux_clock_drift_new ();
+        dashdemux->clock_drift = gst_dash_demux_clock_drift_new (dashdemux);
         gst_dash_demux_poll_clock_drift (dashdemux);
       }
     }
@@ -878,6 +970,10 @@ gst_dash_demux_reset (GstAdaptiveDemux * ademux)
 
   demux->n_audio_streams = 0;
   demux->n_video_streams = 0;
+  demux->n_subtitle_streams = 0;
+
+  demux->trickmode_no_audio = FALSE;
+  demux->allow_trickmode_key_units = TRUE;
 }
 
 static GstCaps *
@@ -1020,6 +1116,9 @@ gst_dash_demux_stream_update_fragment_info (GstAdaptiveDemuxStream * stream)
 
   isombff = gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client);
 
+  /* Reset chunk size if any */
+  stream->fragment.chunk_size = 0;
+
   if (GST_ADAPTIVE_DEMUX_STREAM_NEED_HEADER (stream) && isombff) {
     gst_dash_demux_stream_update_headers_info (stream);
     dashstream->sidx_base_offset = stream->fragment.index_range_end + 1;
@@ -1028,6 +1127,24 @@ gst_dash_demux_stream_update_fragment_info (GstAdaptiveDemuxStream * stream)
        * stream to a subsegment */
       return GST_FLOW_OK;
     }
+  }
+
+  if (dashstream->moof_sync_samples
+      && GST_ADAPTIVE_DEMUX (dashdemux)->
+      segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
+    GstDashStreamSyncSample *sync_sample =
+        &g_array_index (dashstream->moof_sync_samples, GstDashStreamSyncSample,
+        dashstream->current_sync_sample);
+
+    gst_mpd_client_get_next_fragment (dashdemux->client, dashstream->index,
+        &fragment);
+    stream->fragment.uri = fragment.uri;
+    stream->fragment.timestamp = GST_CLOCK_TIME_NONE;
+    stream->fragment.duration = GST_CLOCK_TIME_NONE;
+    stream->fragment.range_start = sync_sample->start_offset;
+    stream->fragment.range_end = sync_sample->end_offset;
+
+    return GST_FLOW_OK;
   }
 
   if (gst_mpd_client_get_next_fragment_timestamp (dashdemux->client,
@@ -1090,9 +1207,7 @@ gst_dash_demux_stream_sidx_seek (GstDashDemuxStream * dashstream,
   gint idx = sidx->entries_count;
 
   /* check whether ts is already past the last element or not */
-  if (sidx->entries[idx - 1].pts + sidx->entries[idx - 1].duration < ts) {
-    dashstream->sidx_current_remaining = 0;
-  } else {
+  if (sidx->entries[idx - 1].pts + sidx->entries[idx - 1].duration >= ts) {
     GstSearchMode mode = GST_SEARCH_MODE_BEFORE;
 
     if ((flags & GST_SEEK_FLAG_SNAP_NEAREST) == GST_SEEK_FLAG_SNAP_NEAREST) {
@@ -1120,8 +1235,6 @@ gst_dash_demux_stream_sidx_seek (GstDashDemuxStream * dashstream,
           ABS (sidx->entries[idx].pts - ts))
         idx += 1;
     }
-
-    dashstream->sidx_current_remaining = sidx->entries[idx].size;
   }
 
   sidx->entry_index = idx;
@@ -1142,6 +1255,14 @@ gst_dash_demux_stream_seek (GstAdaptiveDemuxStream * stream, gboolean forward,
   GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
   GstDashDemux *dashdemux = GST_DASH_DEMUX_CAST (stream->demux);
 
+  if (dashstream->moof)
+    gst_isoff_moof_box_free (dashstream->moof);
+  dashstream->moof = NULL;
+  if (dashstream->moof_sync_samples)
+    g_array_free (dashstream->moof_sync_samples, TRUE);
+  dashstream->moof_sync_samples = NULL;
+  dashstream->current_sync_sample = -1;
+
   if (gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client)) {
     if (dashstream->sidx_parser.status == GST_ISOFF_SIDX_PARSER_FINISHED) {
       gst_dash_demux_stream_sidx_seek (dashstream, forward, flags, ts,
@@ -1151,11 +1272,33 @@ gst_dash_demux_stream_seek (GstAdaptiveDemuxStream * stream, gboolean forward,
       /* FIXME - the final_ts won't be correct here */
       dashstream->pending_seek_ts = ts;
     }
+
+    return GST_FLOW_OK;
   }
 
   gst_mpd_client_stream_seek (dashdemux->client, dashstream->active_stream,
       forward, flags, ts, final_ts);
   return GST_FLOW_OK;
+}
+
+static gboolean
+gst_dash_demux_stream_has_next_sync_sample (GstAdaptiveDemuxStream * stream)
+{
+  GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
+
+  if (dashstream->moof_sync_samples
+      && GST_ADAPTIVE_DEMUX (stream->demux)->
+      segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
+    if (stream->demux->segment.rate > 0.0) {
+      if (dashstream->current_sync_sample + 1 <
+          dashstream->moof_sync_samples->len)
+        return TRUE;
+    } else {
+      if (dashstream->current_sync_sample >= 1)
+        return TRUE;
+    }
+  }
+  return FALSE;
 }
 
 static gboolean
@@ -1177,6 +1320,43 @@ gst_dash_demux_stream_has_next_subfragment (GstAdaptiveDemuxStream * stream)
 }
 
 static gboolean
+gst_dash_demux_stream_advance_sync_sample (GstAdaptiveDemuxStream * stream)
+{
+  GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
+  gboolean fragment_finished = FALSE;
+
+  if (dashstream->moof_sync_samples
+      && GST_ADAPTIVE_DEMUX (stream->demux)->
+      segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
+    if (stream->demux->segment.rate > 0.0) {
+      dashstream->current_sync_sample++;
+      if (dashstream->current_sync_sample >= dashstream->moof_sync_samples->len) {
+        fragment_finished = TRUE;
+      }
+    } else {
+      if (dashstream->current_sync_sample == -1) {
+        dashstream->current_sync_sample =
+            dashstream->moof_sync_samples->len - 1;
+      } else if (dashstream->current_sync_sample == 0) {
+        dashstream->current_sync_sample = -1;
+        fragment_finished = TRUE;
+      } else {
+        dashstream->current_sync_sample--;
+      }
+    }
+  }
+
+  GST_DEBUG_OBJECT (stream->pad,
+      "Advancing sync sample #%d fragment_finished:%d",
+      dashstream->current_sync_sample, fragment_finished);
+
+  if (!fragment_finished)
+    stream->discont = TRUE;
+
+  return !fragment_finished;
+}
+
+static gboolean
 gst_dash_demux_stream_advance_subfragment (GstAdaptiveDemuxStream * stream)
 {
   GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
@@ -1190,8 +1370,10 @@ gst_dash_demux_stream_advance_subfragment (GstAdaptiveDemuxStream * stream)
       if (sidx->entry_index < sidx->entries_count) {
         fragment_finished = FALSE;
       }
+      dashstream->sidx_index++;
     } else {
       sidx->entry_index--;
+      dashstream->sidx_index--;
       if (sidx->entry_index >= 0) {
         fragment_finished = FALSE;
       }
@@ -1202,9 +1384,6 @@ gst_dash_demux_stream_advance_subfragment (GstAdaptiveDemuxStream * stream)
       "Finished fragment: %d", sidx->entry_index, sidx->entries_count,
       fragment_finished);
 
-  if (!fragment_finished) {
-    dashstream->sidx_current_remaining = sidx->entries[sidx->entry_index].size;
-  }
   return !fragment_finished;
 }
 
@@ -1213,6 +1392,13 @@ gst_dash_demux_stream_has_next_fragment (GstAdaptiveDemuxStream * stream)
 {
   GstDashDemux *dashdemux = GST_DASH_DEMUX_CAST (stream->demux);
   GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
+
+  if (dashstream->moof_sync_samples
+      && GST_ADAPTIVE_DEMUX (dashdemux)->
+      segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
+    if (gst_dash_demux_stream_has_next_sync_sample (stream))
+      return TRUE;
+  }
 
   if (gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client)) {
     if (gst_dash_demux_stream_has_next_subfragment (stream))
@@ -1223,6 +1409,32 @@ gst_dash_demux_stream_has_next_fragment (GstAdaptiveDemuxStream * stream)
       dashstream->active_stream, stream->demux->segment.rate > 0.0);
 }
 
+static void
+gst_dash_demux_clear_pending_stream_data (GstDashDemux * dashdemux,
+    GstDashDemuxStream * dashstream)
+{
+  gst_isoff_sidx_parser_clear (&dashstream->sidx_parser);
+  gst_isoff_sidx_parser_init (&dashstream->sidx_parser);
+  if (dashstream->sidx_adapter)
+    gst_adapter_clear (dashstream->sidx_adapter);
+
+  /* Reset ISOBMFF box parsing state */
+  if (dashstream->isobmff_adapter)
+    gst_adapter_clear (dashstream->isobmff_adapter);
+  dashstream->isobmff_parser.current_fourcc = 0;
+  dashstream->isobmff_parser.current_start_offset = 0;
+  dashstream->isobmff_parser.current_offset = 0;
+  dashstream->isobmff_parser.current_size = 0;
+
+  if (dashstream->moof)
+    gst_isoff_moof_box_free (dashstream->moof);
+  dashstream->moof = NULL;
+  if (dashstream->moof_sync_samples)
+    g_array_free (dashstream->moof_sync_samples, TRUE);
+  dashstream->moof_sync_samples = NULL;
+  dashstream->current_sync_sample = -1;
+}
+
 static GstFlowReturn
 gst_dash_demux_stream_advance_fragment (GstAdaptiveDemuxStream * stream)
 {
@@ -1231,10 +1443,38 @@ gst_dash_demux_stream_advance_fragment (GstAdaptiveDemuxStream * stream)
 
   GST_DEBUG_OBJECT (stream->pad, "Advance fragment");
 
+  /* If downloading only keyframes, switch to the next one or fall through */
+  if (dashstream->moof_sync_samples
+      && GST_ADAPTIVE_DEMUX (dashdemux)->
+      segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
+    if (gst_dash_demux_stream_advance_sync_sample (stream))
+      return GST_FLOW_OK;
+  }
+
+  if (dashstream->isobmff_adapter)
+    gst_adapter_clear (dashstream->isobmff_adapter);
+  dashstream->isobmff_parser.current_fourcc = 0;
+  dashstream->isobmff_parser.current_start_offset = 0;
+  dashstream->isobmff_parser.current_offset = 0;
+  dashstream->isobmff_parser.current_size = 0;
+
+  if (dashstream->moof)
+    gst_isoff_moof_box_free (dashstream->moof);
+  dashstream->moof = NULL;
+  if (dashstream->moof_sync_samples)
+    g_array_free (dashstream->moof_sync_samples, TRUE);
+  dashstream->moof_sync_samples = NULL;
+  dashstream->current_sync_sample = -1;
+
   if (gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client)) {
     if (gst_dash_demux_stream_advance_subfragment (stream))
       return GST_FLOW_OK;
   }
+
+  gst_isoff_sidx_parser_clear (&dashstream->sidx_parser);
+  gst_isoff_sidx_parser_init (&dashstream->sidx_parser);
+  if (dashstream->sidx_adapter)
+    gst_adapter_clear (dashstream->sidx_adapter);
 
   return gst_mpd_client_advance_segment (dashdemux->client,
       dashstream->active_stream, stream->demux->segment.rate > 0.0);
@@ -1247,6 +1487,7 @@ gst_dash_demux_stream_select_bitrate (GstAdaptiveDemuxStream * stream,
   GstActiveStream *active_stream = NULL;
   GList *rep_list = NULL;
   gint new_index;
+  GstAdaptiveDemux *base_demux = stream->demux;
   GstDashDemux *demux = GST_DASH_DEMUX_CAST (stream->demux);
   GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
   gboolean ret = FALSE;
@@ -1266,8 +1507,24 @@ gst_dash_demux_stream_select_bitrate (GstAdaptiveDemuxStream * stream,
   GST_DEBUG_OBJECT (stream->pad,
       "Trying to change to bitrate: %" G_GUINT64_FORMAT, bitrate);
 
+  if (active_stream->mimeType == GST_STREAM_VIDEO && demux->max_bitrate) {
+    bitrate = MIN (demux->max_bitrate, bitrate);
+  }
+
   /* get representation index with current max_bandwidth */
-  new_index = gst_mpdparser_get_rep_idx_with_max_bandwidth (rep_list, bitrate);
+  if ((base_demux->segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) ||
+      ABS (base_demux->segment.rate) <= 1.0) {
+    new_index =
+        gst_mpdparser_get_rep_idx_with_max_bandwidth (rep_list, bitrate,
+        demux->max_video_width, demux->max_video_height,
+        demux->max_video_framerate_n, demux->max_video_framerate_d);
+  } else {
+    new_index =
+        gst_mpdparser_get_rep_idx_with_max_bandwidth (rep_list,
+        bitrate / ABS (base_demux->segment.rate), demux->max_video_width,
+        demux->max_video_height, demux->max_video_framerate_n,
+        demux->max_video_framerate_d);
+  }
 
   /* if no representation has the required bandwidth, take the lowest one */
   if (new_index == -1)
@@ -1291,16 +1548,13 @@ gst_dash_demux_stream_select_bitrate (GstAdaptiveDemuxStream * stream,
     }
   }
 
-  if (gst_mpd_client_has_isoff_ondemand_profile (demux->client)) {
+  if (ret) {
+    gst_dash_demux_clear_pending_stream_data (demux, dashstream);
 
-    /* store our current position to change to the same one in a different
-     * representation if needed */
-    dashstream->sidx_index = SIDX (dashstream)->entry_index;
-    if (ret) {
-      /* TODO cache indexes to avoid re-downloading and parsing */
-      /* if we switched, we need a new index */
-      gst_isoff_sidx_parser_clear (&dashstream->sidx_parser);
-      gst_isoff_sidx_parser_init (&dashstream->sidx_parser);
+    if (gst_mpd_client_has_isoff_ondemand_profile (demux->client)) {
+      /* store our current position to change to the same one in a different
+       * representation if needed */
+      dashstream->sidx_index = SIDX (dashstream)->entry_index;
     }
   }
 
@@ -1324,9 +1578,9 @@ gst_dash_demux_seek (GstAdaptiveDemux * demux, GstEvent * seek)
   GstClockTime current_pos, target_pos;
   guint current_period;
   GstStreamPeriod *period;
-  GList *iter;
+  GList *iter, *streams = NULL;
   GstDashDemux *dashdemux = GST_DASH_DEMUX_CAST (demux);
-  gboolean switched_period = FALSE;
+  gboolean trickmode_no_audio;
 
   gst_event_parse_seek (seek, &rate, &format, &flags, &start_type, &start,
       &stop_type, &stop);
@@ -1367,27 +1621,39 @@ gst_dash_demux_seek (GstAdaptiveDemux * demux, GstEvent * seek)
     GST_WARNING_OBJECT (demux, "Could not find seeked Period");
     return FALSE;
   }
+
+  trickmode_no_audio = ! !(flags & GST_SEEK_FLAG_TRICKMODE_NO_AUDIO);
+
+  streams = demux->streams;
   if (current_period != gst_mpd_client_get_period_index (dashdemux->client)) {
     GST_DEBUG_OBJECT (demux, "Seeking to Period %d", current_period);
 
     /* clean old active stream list, if any */
     gst_active_streams_free (dashdemux->client);
+    dashdemux->trickmode_no_audio = trickmode_no_audio;
 
     /* setup video, audio and subtitle streams, starting from the new Period */
     if (!gst_mpd_client_set_period_index (dashdemux->client, current_period)
         || !gst_dash_demux_setup_all_streams (dashdemux))
       return FALSE;
-    switched_period = TRUE;
+    streams = demux->next_streams;
+  } else if (dashdemux->trickmode_no_audio != trickmode_no_audio) {
+    /* clean old active stream list, if any */
+    gst_active_streams_free (dashdemux->client);
+    dashdemux->trickmode_no_audio = trickmode_no_audio;
+
+    /* setup video, audio and subtitle streams, starting from the new Period */
+    if (!gst_dash_demux_setup_all_streams (dashdemux))
+      return FALSE;
+    streams = demux->next_streams;
   }
 
   /* Update the current sequence on all streams */
-  for (iter = (switched_period ? demux->next_streams : demux->streams); iter;
-      iter = g_list_next (iter)) {
+  for (iter = streams; iter; iter = g_list_next (iter)) {
     GstDashDemuxStream *dashstream = iter->data;
 
     if (flags & GST_SEEK_FLAG_FLUSH) {
-      gst_isoff_sidx_parser_clear (&dashstream->sidx_parser);
-      gst_isoff_sidx_parser_init (&dashstream->sidx_parser);
+      gst_dash_demux_clear_pending_stream_data (dashdemux, dashstream);
     }
     gst_dash_demux_stream_seek (iter->data, rate >= 0, 0, target_pos, NULL);
   }
@@ -1541,8 +1807,12 @@ gst_dash_demux_stream_get_fragment_waiting_time (GstAdaptiveDemuxStream *
     gint64 diff;
     GstDateTime *cur_time;
 
-    cur_time = gst_date_time_new_now_utc ();
-    diff = gst_mpd_client_calculate_time_difference (cur_time,
+    cur_time =
+        gst_date_time_new_from_g_date_time
+        (gst_adaptive_demux_get_client_now_utc (GST_ADAPTIVE_DEMUX_CAST
+            (dashdemux)));
+    diff =
+        gst_mpd_client_calculate_time_difference (cur_time,
         segmentAvailability);
     gst_date_time_unref (segmentAvailability);
     gst_date_time_unref (cur_time);
@@ -1603,6 +1873,33 @@ _gst_buffer_split (GstBuffer * buffer, gint offset, gsize size)
   return newbuf;
 }
 
+static gboolean
+gst_dash_demux_stream_fragment_start (GstAdaptiveDemux * demux,
+    GstAdaptiveDemuxStream * stream)
+{
+  GstDashDemux *dashdemux = GST_DASH_DEMUX_CAST (demux);
+  GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
+
+  dashstream->sidx_index_header_or_data = 0;
+  dashstream->sidx_current_offset = -1;
+
+  dashstream->isobmff_parser.index_header_or_data = 0;
+  dashstream->isobmff_parser.current_offset = -1;
+
+  /* We need to mark every first buffer of a key unit as discont,
+   * and also every first buffer of a moov and moof. This ensures
+   * that qtdemux takes note of our buffer offsets for each of those
+   * buffers instead of keeping track of them itself from the first
+   * buffer. We need offsets to be consistent between moof and mdat
+   */
+  if (dashstream->is_isobmff && dashdemux->allow_trickmode_key_units
+      && (demux->segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS)
+      && dashstream->active_stream->mimeType == GST_STREAM_VIDEO)
+    stream->discont = TRUE;
+
+  return TRUE;
+}
+
 static GstFlowReturn
 gst_dash_demux_stream_fragment_finished (GstAdaptiveDemux * demux,
     GstAdaptiveDemuxStream * stream)
@@ -1610,8 +1907,24 @@ gst_dash_demux_stream_fragment_finished (GstAdaptiveDemux * demux,
   GstDashDemux *dashdemux = GST_DASH_DEMUX_CAST (demux);
   GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
 
-  if (gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client) &&
-      dashstream->sidx_parser.status == GST_ISOFF_SIDX_PARSER_FINISHED) {
+  /* We need to mark every first buffer of a key unit as discont,
+   * and also every first buffer of a moov and moof. This ensures
+   * that qtdemux takes note of our buffer offsets for each of those
+   * buffers instead of keeping track of them itself from the first
+   * buffer. We need offsets to be consistent between moof and mdat
+   */
+  if (dashstream->is_isobmff && dashdemux->allow_trickmode_key_units
+      && (demux->segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS)
+      && dashstream->active_stream->mimeType == GST_STREAM_VIDEO)
+    stream->discont = TRUE;
+
+  /* Only handle fragment advancing specifically for SIDX if we're not
+   * in key unit mode */
+  if (!(dashstream->moof_sync_samples
+          && GST_ADAPTIVE_DEMUX (dashdemux)->
+          segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS)
+      && gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client)
+      && dashstream->sidx_parser.status == GST_ISOFF_SIDX_PARSER_FINISHED) {
     /* fragment is advanced on data_received when byte limits are reached */
     if (gst_dash_demux_stream_has_next_fragment (stream))
       return GST_FLOW_OK;
@@ -1625,26 +1938,617 @@ gst_dash_demux_stream_fragment_finished (GstAdaptiveDemux * demux,
       stream->fragment.duration);
 }
 
-static GstFlowReturn
-gst_dash_demux_data_received (GstAdaptiveDemux * demux,
+static gboolean
+gst_dash_demux_need_another_chunk (GstAdaptiveDemuxStream * stream)
+{
+  GstDashDemux *dashdemux = (GstDashDemux *) stream->demux;
+  GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
+
+  /* We're chunked downloading for ISOBMFF in KEY_UNITS mode for the actual
+   * fragment until we parsed the moof and arrived at the mdat. 8192 is a
+   * random guess for the moof size
+   */
+  if (dashstream->is_isobmff
+      && (GST_ADAPTIVE_DEMUX (stream->demux)->
+          segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS)
+      && dashstream->active_stream->mimeType == GST_STREAM_VIDEO
+      && !stream->downloading_header && !stream->downloading_index
+      && dashdemux->allow_trickmode_key_units) {
+    if (dashstream->isobmff_parser.current_fourcc != GST_ISOFF_FOURCC_MDAT) {
+      /* Need to download the moof first to know anything */
+
+      stream->fragment.chunk_size = 8192;
+      /* Do we have the first fourcc already or are we in the middle */
+      if (dashstream->isobmff_parser.current_fourcc == 0) {
+        stream->fragment.chunk_size += dashstream->moof_average_size;
+        if (dashstream->first_sync_sample_always_after_moof)
+          stream->fragment.chunk_size +=
+              dashstream->first_sync_sample_average_size;
+      }
+
+      if (gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client) &&
+          dashstream->sidx_parser.sidx.entries) {
+        guint64 sidx_end_offset =
+            dashstream->sidx_base_offset +
+            SIDX_CURRENT_ENTRY (dashstream)->offset +
+            SIDX_CURRENT_ENTRY (dashstream)->size;
+
+        if (stream->fragment.chunk_size +
+            dashstream->isobmff_parser.current_offset > sidx_end_offset) {
+          stream->fragment.chunk_size =
+              sidx_end_offset - dashstream->isobmff_parser.current_offset;
+        }
+      }
+    } else if (dashstream->moof && dashstream->moof_sync_samples) {
+      /* Have the moof, either we're done now or we want to download the
+       * directly following sync sample */
+      if (dashstream->first_sync_sample_after_moof
+          && dashstream->current_sync_sample == 0) {
+        GstDashStreamSyncSample *sync_sample =
+            &g_array_index (dashstream->moof_sync_samples,
+            GstDashStreamSyncSample, 0);
+        guint64 end_offset = sync_sample->end_offset + 1;
+
+        if (gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client) &&
+            dashstream->sidx_parser.sidx.entries) {
+          guint64 sidx_end_offset =
+              dashstream->sidx_base_offset +
+              SIDX_CURRENT_ENTRY (dashstream)->offset +
+              SIDX_CURRENT_ENTRY (dashstream)->size;
+
+          if (end_offset > sidx_end_offset) {
+            end_offset = sidx_end_offset;
+          }
+        }
+
+        if (dashstream->isobmff_parser.current_offset < end_offset) {
+          stream->fragment.chunk_size =
+              end_offset - dashstream->isobmff_parser.current_offset;
+        } else {
+          stream->fragment.chunk_size = 0;
+        }
+      } else {
+        stream->fragment.chunk_size = 0;
+      }
+    } else {
+      /* Have moof but can't do key-units mode, just download until the end */
+      stream->fragment.chunk_size = -1;
+    }
+  } else {
+    /* We might've decided that we can't allow key-unit only
+     * trickmodes while doing chunked downloading. In that case
+     * just download from here to the end now */
+    if (dashstream->moof
+        && (GST_ADAPTIVE_DEMUX (stream->demux)->
+            segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS))
+      stream->fragment.chunk_size = -1;
+    else
+      stream->fragment.chunk_size = 0;
+  }
+
+  return stream->fragment.chunk_size != 0;
+}
+
+static GstBuffer *
+gst_dash_demux_parse_isobmff (GstAdaptiveDemux * demux,
+    GstDashDemuxStream * dash_stream, GstBuffer * buffer)
+{
+  GstAdaptiveDemuxStream *stream = (GstAdaptiveDemuxStream *) dash_stream;
+  gsize available;
+  guint index_header_or_data;
+  GstMapInfo map;
+  GstByteReader reader;
+  guint32 fourcc;
+  guint header_size;
+  guint64 size, buffer_offset;
+
+  /* This must not be called when we're in the mdat. We only look at the mdat
+   * header and then stop parsing the boxes as we're only interested in the
+   * metadata! Handling mdat is the job of the surrounding code, as well as
+   * stopping or starting the next fragment when mdat is over (=> sidx)
+   */
+  g_assert (dash_stream->isobmff_parser.current_fourcc !=
+      GST_ISOFF_FOURCC_MDAT);
+
+  if (stream->downloading_index)
+    index_header_or_data = 1;
+  else if (stream->downloading_header)
+    index_header_or_data = 2;
+  else
+    index_header_or_data = 3;
+
+  if (dash_stream->isobmff_parser.index_header_or_data != index_header_or_data) {
+    /* Clear pending data */
+    if (gst_adapter_available (dash_stream->isobmff_adapter) != 0)
+      GST_ERROR_OBJECT (stream->pad,
+          "Had pending ISOBMFF data after switch between index/header/data");
+    gst_adapter_clear (dash_stream->isobmff_adapter);
+    dash_stream->isobmff_parser.current_fourcc = 0;
+    dash_stream->isobmff_parser.current_start_offset = 0;
+    dash_stream->isobmff_parser.current_offset = -1;
+    dash_stream->isobmff_parser.current_size = 0;
+    dash_stream->isobmff_parser.index_header_or_data = index_header_or_data;
+  }
+
+  if (dash_stream->isobmff_parser.current_offset == -1) {
+    dash_stream->isobmff_parser.current_offset =
+        GST_BUFFER_OFFSET_IS_VALID (buffer) ? GST_BUFFER_OFFSET (buffer) : 0;
+  }
+
+  gst_adapter_push (dash_stream->isobmff_adapter, buffer);
+
+  available = gst_adapter_available (dash_stream->isobmff_adapter);
+  buffer = gst_adapter_take_buffer (dash_stream->isobmff_adapter, available);
+  buffer_offset = dash_stream->isobmff_parser.current_offset;
+
+  /* Always at the start of a box here */
+  g_assert (dash_stream->isobmff_parser.current_size == 0);
+
+  /* At the start of a box => Parse it */
+  gst_buffer_map (buffer, &map, GST_MAP_READ);
+  gst_byte_reader_init (&reader, map.data, map.size);
+
+  /* While there are more boxes left to parse ... */
+  dash_stream->isobmff_parser.current_start_offset =
+      dash_stream->isobmff_parser.current_offset;
+  do {
+    dash_stream->isobmff_parser.current_fourcc = 0;
+    dash_stream->isobmff_parser.current_size = 0;
+
+    if (!gst_isoff_parse_box_header (&reader, &fourcc, NULL, &header_size,
+            &size)) {
+      break;
+    }
+
+    dash_stream->isobmff_parser.current_fourcc = fourcc;
+    if (size == 0) {
+      /* We assume this is mdat, anything else with "size until end"
+       * does not seem to make sense */
+      g_assert (dash_stream->isobmff_parser.current_fourcc ==
+          GST_ISOFF_FOURCC_MDAT);
+      dash_stream->isobmff_parser.current_size = -1;
+      break;
+    }
+
+    dash_stream->isobmff_parser.current_size = size;
+
+    /* Do we have the complete box or are at MDAT */
+    if (gst_byte_reader_get_remaining (&reader) < size - header_size ||
+        dash_stream->isobmff_parser.current_fourcc == GST_ISOFF_FOURCC_MDAT) {
+      /* Reset byte reader to the beginning of the box */
+      gst_byte_reader_set_pos (&reader,
+          gst_byte_reader_get_pos (&reader) - header_size);
+      break;
+    }
+
+    GST_LOG_OBJECT (stream->pad,
+        "box %" GST_FOURCC_FORMAT " at offset %" G_GUINT64_FORMAT " size %"
+        G_GUINT64_FORMAT, GST_FOURCC_ARGS (fourcc),
+        dash_stream->isobmff_parser.current_offset +
+        gst_byte_reader_get_pos (&reader) - header_size, size);
+
+    if (dash_stream->isobmff_parser.current_fourcc == GST_ISOFF_FOURCC_MOOF) {
+      GstByteReader sub_reader;
+
+      g_assert (dash_stream->moof == NULL);
+      g_assert (dash_stream->moof_sync_samples == NULL);
+      gst_byte_reader_get_sub_reader (&reader, &sub_reader, size - header_size);
+      dash_stream->moof = gst_isoff_moof_box_parse (&sub_reader);
+      dash_stream->moof_offset =
+          dash_stream->isobmff_parser.current_start_offset;
+      dash_stream->moof_size = size;
+      dash_stream->current_sync_sample = -1;
+
+      if (dash_stream->moof_average_size) {
+        if (dash_stream->moof_average_size < size)
+          dash_stream->moof_average_size =
+              (size * 3 + dash_stream->moof_average_size) / 4;
+        else
+          dash_stream->moof_average_size =
+              (size + dash_stream->moof_average_size + 3) / 4;
+      } else {
+        dash_stream->moof_average_size = size;
+      }
+    } else {
+      gst_byte_reader_skip (&reader, size - header_size);
+    }
+
+    dash_stream->isobmff_parser.current_fourcc = 0;
+    dash_stream->isobmff_parser.current_start_offset += size;
+    dash_stream->isobmff_parser.current_size = 0;
+  } while (gst_byte_reader_get_remaining (&reader) > 0);
+
+  gst_buffer_unmap (buffer, &map);
+
+  /* mdat? Push all we have and wait for it to be over */
+  if (dash_stream->isobmff_parser.current_fourcc == GST_ISOFF_FOURCC_MDAT) {
+    GstBuffer *pending;
+
+    GST_LOG_OBJECT (stream->pad,
+        "box %" GST_FOURCC_FORMAT " at offset %" G_GUINT64_FORMAT " size %"
+        G_GUINT64_FORMAT, GST_FOURCC_ARGS (fourcc),
+        dash_stream->isobmff_parser.current_offset +
+        gst_byte_reader_get_pos (&reader) - header_size,
+        dash_stream->isobmff_parser.current_size);
+
+    /* At mdat. Move the start of the mdat to the adapter and have everything
+     * else be pushed. We parsed all header boxes at this point and are not
+     * supposed to be called again until the next moof */
+    pending = _gst_buffer_split (buffer, gst_byte_reader_get_pos (&reader), -1);
+    gst_adapter_push (dash_stream->isobmff_adapter, pending);
+    dash_stream->isobmff_parser.current_offset +=
+        gst_byte_reader_get_pos (&reader);
+    dash_stream->isobmff_parser.current_size = 0;
+
+    GST_BUFFER_OFFSET (buffer) = buffer_offset;
+    GST_BUFFER_OFFSET_END (buffer) =
+        buffer_offset + gst_buffer_get_size (buffer);
+    return buffer;
+  } else if (gst_byte_reader_get_pos (&reader) != 0) {
+    GstBuffer *pending;
+
+    /* Multiple complete boxes and no mdat? Push them and keep the remainder,
+     * which is the start of the next box if any remainder */
+
+    pending = _gst_buffer_split (buffer, gst_byte_reader_get_pos (&reader), -1);
+    gst_adapter_push (dash_stream->isobmff_adapter, pending);
+    dash_stream->isobmff_parser.current_offset +=
+        gst_byte_reader_get_pos (&reader);
+    dash_stream->isobmff_parser.current_size = 0;
+
+    GST_BUFFER_OFFSET (buffer) = buffer_offset;
+    GST_BUFFER_OFFSET_END (buffer) =
+        buffer_offset + gst_buffer_get_size (buffer);
+    return buffer;
+  }
+
+  /* Not even a single complete, non-mdat box, wait */
+  dash_stream->isobmff_parser.current_size = 0;
+  gst_adapter_push (dash_stream->isobmff_adapter, buffer);
+
+  return NULL;
+}
+
+static gboolean
+gst_dash_demux_find_sync_samples (GstAdaptiveDemux * demux,
     GstAdaptiveDemuxStream * stream)
+{
+  GstDashDemux *dashdemux = (GstDashDemux *) stream->demux;
+  GstDashDemuxStream *dash_stream = (GstDashDemuxStream *) stream;
+  guint i;
+  guint32 track_id = 0;
+  guint64 prev_traf_end;
+  gboolean trex_sample_flags = FALSE;
+
+  if (!dash_stream->moof) {
+    dashdemux->allow_trickmode_key_units = FALSE;
+    return FALSE;
+  }
+
+  dash_stream->current_sync_sample = -1;
+  dash_stream->moof_sync_samples =
+      g_array_new (FALSE, FALSE, sizeof (GstDashStreamSyncSample));
+
+  prev_traf_end = dash_stream->moof_offset;
+
+  /* generate table of keyframes and offsets */
+  for (i = 0; i < dash_stream->moof->traf->len; i++) {
+    GstTrafBox *traf = &g_array_index (dash_stream->moof->traf, GstTrafBox, i);
+    guint64 traf_offset = 0, prev_trun_end;
+    guint j;
+
+    if (i == 0) {
+      track_id = traf->tfhd.track_id;
+    } else if (track_id != traf->tfhd.track_id) {
+      GST_ERROR_OBJECT (stream->pad,
+          "moof with trafs of different track ids (%u != %u)", track_id,
+          traf->tfhd.track_id);
+      g_array_free (dash_stream->moof_sync_samples, TRUE);
+      dash_stream->moof_sync_samples = NULL;
+      dashdemux->allow_trickmode_key_units = FALSE;
+      return FALSE;
+    }
+
+    if (traf->tfhd.flags & GST_TFHD_FLAGS_BASE_DATA_OFFSET_PRESENT) {
+      traf_offset = traf->tfhd.base_data_offset;
+    } else if (traf->tfhd.flags & GST_TFHD_FLAGS_DEFAULT_BASE_IS_MOOF) {
+      traf_offset = dash_stream->moof_offset;
+    } else {
+      traf_offset = prev_traf_end;
+    }
+
+    prev_trun_end = traf_offset;
+
+    for (j = 0; j < traf->trun->len; j++) {
+      GstTrunBox *trun = &g_array_index (traf->trun, GstTrunBox, j);
+      guint64 trun_offset, prev_sample_end;
+      guint k;
+
+      if (trun->flags & GST_TRUN_FLAGS_DATA_OFFSET_PRESENT) {
+        trun_offset = traf_offset + trun->data_offset;
+      } else {
+        trun_offset = prev_trun_end;
+      }
+
+      prev_sample_end = trun_offset;
+      for (k = 0; k < trun->samples->len; k++) {
+        GstTrunSample *sample =
+            &g_array_index (trun->samples, GstTrunSample, k);
+        guint64 sample_offset;
+        guint32 sample_flags;
+#if 0
+        guint32 sample_duration;
+#endif
+
+        sample_offset = prev_sample_end;
+
+        if (trun->flags & GST_TRUN_FLAGS_SAMPLE_FLAGS_PRESENT) {
+          sample_flags = sample->sample_flags;
+        } else if ((trun->flags & GST_TRUN_FLAGS_FIRST_SAMPLE_FLAGS_PRESENT)
+            && k == 0) {
+          sample_flags = trun->first_sample_flags;
+        } else if (traf->
+            tfhd.flags & GST_TFHD_FLAGS_DEFAULT_SAMPLE_FLAGS_PRESENT) {
+          sample_flags = traf->tfhd.default_sample_flags;
+        } else {
+          trex_sample_flags = TRUE;
+          continue;
+        }
+
+#if 0
+        if (trun->flags & GST_TRUN_FLAGS_SAMPLE_DURATION_PRESENT) {
+          sample_duration = sample->sample_duration;
+        } else if (traf->
+            tfhd.flags & GST_TFHD_FLAGS_DEFAULT_SAMPLE_DURATION_PRESENT) {
+          sample_duration = traf->tfhd.default_sample_duration;
+        } else {
+          GST_FIXME_OBJECT (stream->pad,
+              "Sample duration given by trex - can't download only keyframes");
+          g_array_free (dash_stream->moof_sync_samples, TRUE);
+          dash_stream->moof_sync_samples = NULL;
+          return FALSE;
+        }
+#endif
+
+        if (trun->flags & GST_TRUN_FLAGS_SAMPLE_SIZE_PRESENT) {
+          prev_sample_end += sample->sample_size;
+        } else if (traf->
+            tfhd.flags & GST_TFHD_FLAGS_DEFAULT_SAMPLE_SIZE_PRESENT) {
+          prev_sample_end += traf->tfhd.default_sample_size;
+        } else {
+          GST_FIXME_OBJECT (stream->pad,
+              "Sample size given by trex - can't download only keyframes");
+          g_array_free (dash_stream->moof_sync_samples, TRUE);
+          dash_stream->moof_sync_samples = NULL;
+          dashdemux->allow_trickmode_key_units = FALSE;
+          return FALSE;
+        }
+
+        /* Non-non-sync sample aka sync sample */
+        if (!GST_ISOFF_SAMPLE_FLAGS_SAMPLE_IS_NON_SYNC_SAMPLE (sample_flags) ||
+            GST_ISOFF_SAMPLE_FLAGS_SAMPLE_DEPENDS_ON (sample_flags) == 2) {
+          GstDashStreamSyncSample sync_sample =
+              { sample_offset, prev_sample_end - 1 };
+          /* TODO: need timestamps so we can decide to download or not */
+          g_array_append_val (dash_stream->moof_sync_samples, sync_sample);
+        }
+      }
+
+      prev_trun_end = prev_sample_end;
+    }
+
+    prev_traf_end = prev_trun_end;
+  }
+
+  if (trex_sample_flags) {
+    if (dash_stream->moof_sync_samples->len > 0) {
+      GST_LOG_OBJECT (stream->pad,
+          "Some sample flags given by trex but still found sync samples");
+    } else {
+      GST_FIXME_OBJECT (stream->pad,
+          "Sample flags given by trex - can't download only keyframes");
+      g_array_free (dash_stream->moof_sync_samples, TRUE);
+      dash_stream->moof_sync_samples = NULL;
+      dashdemux->allow_trickmode_key_units = FALSE;
+      return FALSE;
+    }
+  }
+
+  if (dash_stream->moof_sync_samples->len == 0) {
+    GST_LOG_OBJECT (stream->pad, "No sync samples found in fragment");
+    g_array_free (dash_stream->moof_sync_samples, TRUE);
+    dash_stream->moof_sync_samples = NULL;
+    dashdemux->allow_trickmode_key_units = FALSE;
+    return FALSE;
+  }
+
+  {
+    GstDashStreamSyncSample *sync_sample =
+        &g_array_index (dash_stream->moof_sync_samples, GstDashStreamSyncSample,
+        0);
+    guint size = sync_sample->end_offset + 1 - sync_sample->start_offset;
+
+    if (dash_stream->first_sync_sample_average_size) {
+      if (dash_stream->first_sync_sample_average_size < size)
+        dash_stream->first_sync_sample_average_size =
+            (size * 3 + dash_stream->first_sync_sample_average_size) / 4;
+      else
+        dash_stream->first_sync_sample_average_size =
+            (size + dash_stream->first_sync_sample_average_size * 3) / 4;
+    } else {
+      dash_stream->first_sync_sample_average_size = size;
+    }
+
+    if (dash_stream->moof_offset + dash_stream->moof_size + 8 <
+        sync_sample->start_offset) {
+      dash_stream->first_sync_sample_after_moof = FALSE;
+      dash_stream->first_sync_sample_always_after_moof = FALSE;
+    } else {
+      dash_stream->first_sync_sample_after_moof =
+          (dash_stream->moof_sync_samples->len == 1
+          || demux->segment.rate > 0.0);
+    }
+  }
+
+  return TRUE;
+}
+
+
+static GstFlowReturn
+gst_dash_demux_handle_isobmff_buffer (GstAdaptiveDemux * demux,
+    GstAdaptiveDemuxStream * stream, GstBuffer * buffer)
 {
   GstDashDemuxStream *dash_stream = (GstDashDemuxStream *) stream;
   GstDashDemux *dashdemux = GST_DASH_DEMUX_CAST (demux);
   GstFlowReturn ret = GST_FLOW_OK;
-  GstBuffer *buffer;
-  gsize available;
 
-  if (!gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client))
-    return GST_ADAPTIVE_DEMUX_CLASS (parent_class)->data_received (demux,
-        stream);
+  if (dashdemux->allow_trickmode_key_units) {
+    if (dash_stream->isobmff_parser.current_fourcc != GST_ISOFF_FOURCC_MDAT) {
+      buffer = gst_dash_demux_parse_isobmff (demux, dash_stream, buffer);
+
+      if (buffer
+          && (ret =
+              gst_adaptive_demux_stream_push_buffer (stream,
+                  buffer)) != GST_FLOW_OK)
+        return ret;
+      if (dash_stream->isobmff_parser.current_fourcc != GST_ISOFF_FOURCC_MDAT)
+        return ret;
+
+      /* Jump to the next sync sample. As we're doing chunked downloading
+       * here, just drop data until our chunk is over so we can reuse the
+       * HTTP connection instead of having to create a new one or
+       * reuse the data if the sync sample follows the moof */
+      if (dash_stream->active_stream->mimeType == GST_STREAM_VIDEO
+          && gst_dash_demux_find_sync_samples (demux, stream) &&
+          GST_ADAPTIVE_DEMUX (stream->demux)->
+          segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
+
+        if (dash_stream->first_sync_sample_after_moof) {
+          /* If we're here, don't throw away data but collect sync
+           * sample while we're at it below. We're doing chunked
+           * downloading so might need to adjust the next chunk size for
+           * the remainder */
+          dash_stream->current_sync_sample = 0;
+        } else {
+          gst_adapter_clear (dash_stream->isobmff_adapter);
+        }
+      }
+
+      if (gst_adapter_available (dash_stream->isobmff_adapter) == 0)
+        return ret;
+
+      /* We have some data from the mdat available in the adapter, handle it
+       * below in the push code */
+      buffer =
+          gst_adapter_take_buffer (dash_stream->isobmff_adapter,
+          gst_adapter_available (dash_stream->isobmff_adapter));
+    } else {
+      if (dash_stream->isobmff_parser.current_offset == -1) {
+        dash_stream->isobmff_parser.current_offset =
+            GST_BUFFER_OFFSET_IS_VALID (buffer) ? GST_BUFFER_OFFSET (buffer) :
+            0;
+      }
+    }
+
+    /* At mdat and isobmff and trick modes are allowed */
+
+    /* We're actually running in key-units trick mode */
+    if (dash_stream->active_stream->mimeType == GST_STREAM_VIDEO
+        && dash_stream->moof_sync_samples
+        && GST_ADAPTIVE_DEMUX (stream->demux)->
+        segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
+
+      if (dash_stream->current_sync_sample == -1) {
+        /* We're doing chunked downloading and wait for finishing the current
+         * chunk so we can jump to the first keyframe */
+        gst_buffer_unref (buffer);
+        return GST_FLOW_OK;
+      } else if (dash_stream->first_sync_sample_after_moof
+          && dash_stream->current_sync_sample == 0) {
+        GstDashStreamSyncSample *sync_sample =
+            &g_array_index (dash_stream->moof_sync_samples,
+            GstDashStreamSyncSample, 0);
+        guint64 end_offset =
+            dash_stream->isobmff_parser.current_offset +
+            gst_buffer_get_size (buffer);
+
+        /* If the first keyframe follows directly the moof and we're
+         * downloading it here, make sure to not download too much */
+
+        if (end_offset > sync_sample->end_offset + 1) {
+          guint64 remaining =
+              sync_sample->end_offset + 1 -
+              dash_stream->isobmff_parser.current_offset;
+
+          if (remaining) {
+            GstBuffer *sub =
+                gst_buffer_copy_region (buffer, GST_BUFFER_COPY_ALL, 0,
+                remaining);
+            gst_buffer_unref (buffer);
+            buffer = sub;
+          } else {
+            gst_buffer_unref (buffer);
+            return GST_FLOW_OK;
+          }
+        }
+      }
+    }
+
+    GST_BUFFER_OFFSET (buffer) = dash_stream->isobmff_parser.current_offset;
+    dash_stream->isobmff_parser.current_offset += gst_buffer_get_size (buffer);
+    GST_BUFFER_OFFSET_END (buffer) = dash_stream->isobmff_parser.current_offset;
+  }
+
+  return gst_adaptive_demux_stream_push_buffer (stream, buffer);
+}
+
+static GstFlowReturn
+gst_dash_demux_data_received (GstAdaptiveDemux * demux,
+    GstAdaptiveDemuxStream * stream, GstBuffer * buffer)
+{
+  GstDashDemuxStream *dash_stream = (GstDashDemuxStream *) stream;
+  GstDashDemux *dashdemux = GST_DASH_DEMUX_CAST (demux);
+  GstFlowReturn ret = GST_FLOW_OK;
+  guint index_header_or_data;
+
+  if (!gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client)) {
+    if (dash_stream->is_isobmff)
+      return gst_dash_demux_handle_isobmff_buffer (demux, stream, buffer);
+    else
+      return gst_adaptive_demux_stream_push_buffer (stream, buffer);
+  }
+
+  if (stream->downloading_index)
+    index_header_or_data = 1;
+  else if (stream->downloading_header)
+    index_header_or_data = 2;
+  else
+    index_header_or_data = 3;
+
+  if (dash_stream->sidx_index_header_or_data != index_header_or_data) {
+    /* Clear pending data */
+    if (gst_adapter_available (dash_stream->sidx_adapter) != 0)
+      GST_ERROR_OBJECT (stream->pad,
+          "Had pending SIDX data after switch between index/header/data");
+    gst_adapter_clear (dash_stream->sidx_adapter);
+    dash_stream->sidx_index_header_or_data = index_header_or_data;
+    dash_stream->sidx_current_offset = -1;
+  }
+
+  if (dash_stream->sidx_current_offset == -1)
+    dash_stream->sidx_current_offset =
+        GST_BUFFER_OFFSET_IS_VALID (buffer) ? GST_BUFFER_OFFSET (buffer) : 0;
+
+  gst_adapter_push (dash_stream->sidx_adapter, buffer);
+  buffer = NULL;
 
   if (stream->downloading_index) {
     GstIsoffParserResult res;
     guint consumed;
+    gsize available;
 
-    available = gst_adapter_available (stream->adapter);
-    buffer = gst_adapter_take_buffer (stream->adapter, available);
+    available = gst_adapter_available (dash_stream->sidx_adapter);
+    buffer = gst_adapter_take_buffer (dash_stream->sidx_adapter, available);
 
     if (dash_stream->sidx_parser.status != GST_ISOFF_SIDX_PARSER_FINISHED) {
       res =
@@ -1666,52 +2570,97 @@ gst_dash_demux_data_received (GstAdaptiveDemux * demux,
           } else {
             SIDX (dash_stream)->entry_index = dash_stream->sidx_index;
           }
-          dash_stream->sidx_current_remaining =
-              SIDX_CURRENT_ENTRY (dash_stream)->size;
         } else if (consumed < available) {
           GstBuffer *pending;
           /* we still need to keep some data around for the next parsing round
            * so just push what was already processed by the parser */
           pending = _gst_buffer_split (buffer, consumed, -1);
-          gst_adapter_push (stream->adapter, pending);
+          gst_adapter_push (dash_stream->sidx_adapter, pending);
         }
       }
     }
+    GST_BUFFER_OFFSET (buffer) = dash_stream->sidx_current_offset;
+    GST_BUFFER_OFFSET_END (buffer) =
+        GST_BUFFER_OFFSET (buffer) + gst_buffer_get_size (buffer);
+    dash_stream->sidx_current_offset = GST_BUFFER_OFFSET_END (buffer);
     ret = gst_adaptive_demux_stream_push_buffer (stream, buffer);
   } else if (dash_stream->sidx_parser.status == GST_ISOFF_SIDX_PARSER_FINISHED) {
+    gsize available;
 
     while (ret == GST_FLOW_OK
-        && ((available = gst_adapter_available (stream->adapter)) > 0)) {
+        && ((available =
+                gst_adapter_available (dash_stream->sidx_adapter)) > 0)) {
       gboolean advance = FALSE;
+      guint64 sidx_end_offset =
+          dash_stream->sidx_base_offset +
+          SIDX_CURRENT_ENTRY (dash_stream)->offset +
+          SIDX_CURRENT_ENTRY (dash_stream)->size;
 
-      if (available < dash_stream->sidx_current_remaining) {
-        buffer = gst_adapter_take_buffer (stream->adapter, available);
-        dash_stream->sidx_current_remaining -= available;
+      if (dash_stream->sidx_current_offset + available < sidx_end_offset) {
+        buffer = gst_adapter_take_buffer (dash_stream->sidx_adapter, available);
       } else {
-        buffer =
-            gst_adapter_take_buffer (stream->adapter,
-            dash_stream->sidx_current_remaining);
-        dash_stream->sidx_current_remaining = 0;
-        advance = TRUE;
+        /* In key-units mode, we advance the fragments manually once the
+         * current key-unit is over but throw away all data that is after
+         * the current sidx entry end */
+        if (dash_stream->moof_sync_samples
+            && (GST_ADAPTIVE_DEMUX (stream->demux)->
+                segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS)) {
+          if (sidx_end_offset <= dash_stream->sidx_current_offset) {
+            buffer = NULL;
+            gst_adapter_clear (dash_stream->sidx_adapter);
+          } else {
+            buffer =
+                gst_adapter_take_buffer (dash_stream->sidx_adapter,
+                sidx_end_offset - dash_stream->sidx_current_offset);
+          }
+        } else {
+          buffer =
+              gst_adapter_take_buffer (dash_stream->sidx_adapter,
+              sidx_end_offset - dash_stream->sidx_current_offset);
+          advance = TRUE;
+        }
       }
-      ret = gst_adaptive_demux_stream_push_buffer (stream, buffer);
-      if (advance) {
-        GstFlowReturn new_ret;
-        new_ret =
-            gst_adaptive_demux_stream_advance_fragment (demux, stream,
-            SIDX_CURRENT_ENTRY (dash_stream)->duration);
 
-        /* only overwrite if it was OK before */
-        if (ret == GST_FLOW_OK)
-          ret = new_ret;
+      if (buffer != NULL) {
+        GST_BUFFER_OFFSET (buffer) = dash_stream->sidx_current_offset;
+        GST_BUFFER_OFFSET_END (buffer) =
+            GST_BUFFER_OFFSET (buffer) + gst_buffer_get_size (buffer);
+        dash_stream->sidx_current_offset = GST_BUFFER_OFFSET_END (buffer);
+
+        if (dash_stream->is_isobmff)
+          ret = gst_dash_demux_handle_isobmff_buffer (demux, stream, buffer);
+        else
+          ret = gst_adaptive_demux_stream_push_buffer (stream, buffer);
+
+        if (!(dash_stream->moof_sync_samples
+                && (GST_ADAPTIVE_DEMUX (stream->demux)->
+                    segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS))
+            && advance) {
+          GstFlowReturn new_ret;
+          new_ret =
+              gst_adaptive_demux_stream_advance_fragment (demux, stream,
+              SIDX_CURRENT_ENTRY (dash_stream)->duration);
+
+          /* only overwrite if it was OK before */
+          if (ret == GST_FLOW_OK)
+            ret = new_ret;
+        }
       }
     }
   } else {
     /* this should be the main header, just push it all */
-    ret =
-        gst_adaptive_demux_stream_push_buffer (stream,
-        gst_adapter_take_buffer (stream->adapter,
-            gst_adapter_available (stream->adapter)));
+    buffer = gst_adapter_take_buffer (dash_stream->sidx_adapter,
+        gst_adapter_available (dash_stream->sidx_adapter));
+
+    GST_BUFFER_OFFSET (buffer) = dash_stream->sidx_current_offset;
+    GST_BUFFER_OFFSET_END (buffer) =
+        GST_BUFFER_OFFSET (buffer) + gst_buffer_get_size (buffer);
+    dash_stream->sidx_current_offset = GST_BUFFER_OFFSET_END (buffer);
+
+    if (dash_stream->is_isobmff)
+      return gst_dash_demux_handle_isobmff_buffer (demux, stream, buffer);
+    else
+      return gst_adaptive_demux_stream_push_buffer (stream, buffer);
   }
 
   return ret;
@@ -1723,16 +2672,22 @@ gst_dash_demux_stream_free (GstAdaptiveDemuxStream * stream)
   GstDashDemuxStream *dash_stream = (GstDashDemuxStream *) stream;
 
   gst_isoff_sidx_parser_clear (&dash_stream->sidx_parser);
+  if (dash_stream->sidx_adapter)
+    g_object_unref (dash_stream->sidx_adapter);
+  if (dash_stream->isobmff_adapter)
+    g_object_unref (dash_stream->isobmff_adapter);
 }
 
 static GstDashDemuxClockDrift *
-gst_dash_demux_clock_drift_new (void)
+gst_dash_demux_clock_drift_new (GstDashDemux * demux)
 {
   GstDashDemuxClockDrift *clock_drift;
 
   clock_drift = g_slice_new0 (GstDashDemuxClockDrift);
   g_mutex_init (&clock_drift->clock_lock);
-  clock_drift->next_update = g_get_monotonic_time ();
+  clock_drift->next_update =
+      GST_TIME_AS_USECONDS (gst_adaptive_demux_get_monotonic_time
+      (GST_ADAPTIVE_DEMUX_CAST (demux)));
   return clock_drift;
 }
 
@@ -2021,7 +2976,9 @@ gst_dash_demux_poll_clock_drift (GstDashDemux * demux)
   g_return_val_if_fail (demux != NULL, FALSE);
   g_return_val_if_fail (demux->clock_drift != NULL, FALSE);
   clock_drift = demux->clock_drift;
-  now = g_get_monotonic_time ();
+  now =
+      GST_TIME_AS_USECONDS (gst_adaptive_demux_get_monotonic_time
+      (GST_ADAPTIVE_DEMUX_CAST (demux)));
   if (now < clock_drift->next_update) {
     /*TODO: If a fragment fails to download in adaptivedemux, it waits
        for a manifest reload before another attempt to fetch a fragment.
@@ -2051,7 +3008,8 @@ gst_dash_demux_poll_clock_drift (GstDashDemux * demux)
       goto quit;
     }
   }
-  start = g_date_time_new_now_utc ();
+  start =
+      gst_adaptive_demux_get_client_now_utc (GST_ADAPTIVE_DEMUX_CAST (demux));
   if (!value) {
     GstFragment *download;
     gint64 range_start = 0, range_end = -1;
@@ -2079,7 +3037,7 @@ gst_dash_demux_poll_clock_drift (GstDashDemux * demux)
         urls[clock_drift->selected_url]);
     goto quit;
   }
-  end = g_date_time_new_now_utc ();
+  end = gst_adaptive_demux_get_client_now_utc (GST_ADAPTIVE_DEMUX_CAST (demux));
   if (!value && method == GST_MPD_UTCTIMING_TYPE_HTTP_NTP) {
     value = gst_dash_demux_parse_http_ntp (clock_drift, buffer);
   } else if (!value) {
@@ -2156,8 +3114,13 @@ gst_dash_demux_get_clock_compensation (GstDashDemux * demux)
 static GDateTime *
 gst_dash_demux_get_server_now_utc (GstDashDemux * demux)
 {
-  GDateTime *client_now = g_date_time_new_now_utc ();
-  GDateTime *server_now = g_date_time_add (client_now,
+  GDateTime *client_now;
+  GDateTime *server_now;
+
+  client_now =
+      gst_adaptive_demux_get_client_now_utc (GST_ADAPTIVE_DEMUX_CAST (demux));
+  server_now =
+      g_date_time_add (client_now,
       gst_dash_demux_get_clock_compensation (demux));
   g_date_time_unref (client_now);
   return server_now;

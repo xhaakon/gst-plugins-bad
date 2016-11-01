@@ -48,6 +48,18 @@ gst_core_media_meta_add (GstBuffer * buffer, CMSampleBufferRef sample_buf,
     meta->pixel_buf = NULL;
 }
 
+static gboolean
+gst_core_media_meta_init (GstCoreMediaMeta * meta, gpointer params,
+    GstBuffer * buf)
+{
+  meta->sample_buf = NULL;
+  meta->image_buf = NULL;
+  meta->pixel_buf = NULL;
+  meta->block_buf = NULL;
+
+  return TRUE;
+}
+
 static void
 gst_core_media_meta_free (GstCoreMediaMeta * meta, GstBuffer * buf)
 {
@@ -99,7 +111,7 @@ gst_core_media_meta_get_info (void)
   if (g_once_init_enter (&core_media_meta_info)) {
     const GstMetaInfo *meta = gst_meta_register (GST_CORE_MEDIA_META_API_TYPE,
         "GstCoreMediaMeta", sizeof (GstCoreMediaMeta),
-        (GstMetaInitFunction) NULL,
+        (GstMetaInitFunction) gst_core_media_meta_init,
         (GstMetaFreeFunction) gst_core_media_meta_free,
         (GstMetaTransformFunction) gst_core_media_meta_transform);
     g_once_init_leave (&core_media_meta_info, meta);
@@ -228,7 +240,7 @@ gst_video_info_init_from_pixel_buffer (GstVideoInfo * info,
 
 GstBuffer *
 gst_core_media_buffer_new (CMSampleBufferRef sample_buf,
-    gboolean use_video_meta)
+    gboolean use_video_meta, GstVideoTextureCache * cache)
 {
   CVImageBufferRef image_buf;
   CMBlockBufferRef block_buf;
@@ -250,7 +262,8 @@ gst_core_media_buffer_new (CMSampleBufferRef sample_buf,
       goto error;
     }
 
-    gst_core_video_wrap_pixel_buffer (buf, &info, pixel_buf, &has_padding);
+    gst_core_video_wrap_pixel_buffer (buf, &info, pixel_buf, cache,
+        &has_padding);
 
     /* If the video meta API is not supported, remove padding by
      * copying the core media buffer to a system memory buffer */

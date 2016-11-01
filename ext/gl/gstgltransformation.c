@@ -55,6 +55,15 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define gst_gl_transformation_parent_class parent_class
 
+#define VEC4_FORMAT "%f,%f,%f,%f"
+#define VEC4_ARGS(v) graphene_vec4_get_x (v), graphene_vec4_get_y (v), graphene_vec4_get_z (v), graphene_vec4_get_w (v)
+#define VEC3_FORMAT "%f,%f,%f"
+#define VEC3_ARGS(v) graphene_vec3_get_x (v), graphene_vec3_get_y (v), graphene_vec3_get_z (v)
+#define VEC2_FORMAT "%f,%f"
+#define VEC2_ARGS(v) graphene_vec2_get_x (v), graphene_vec2_get_y (v)
+#define POINT3D_FORMAT "%f,%f,%f"
+#define POINT3D_ARGS(p) (p)->x, (p)->y, (p)->z
+
 enum
 {
   PROP_0,
@@ -89,40 +98,25 @@ static gboolean gst_gl_transformation_set_caps (GstGLFilter * filter,
     GstCaps * incaps, GstCaps * outcaps);
 static gboolean gst_gl_transformation_src_event (GstBaseTransform * trans,
     GstEvent * event);
+static gboolean gst_gl_transformation_filter_meta (GstBaseTransform * trans,
+    GstQuery * query, GType api, const GstStructure * params);
+static gboolean gst_gl_transformation_decide_allocation (GstBaseTransform *
+    trans, GstQuery * query);
 
 static void gst_gl_transformation_reset_gl (GstGLFilter * filter);
 static gboolean gst_gl_transformation_stop (GstBaseTransform * trans);
 static gboolean gst_gl_transformation_init_shader (GstGLFilter * filter);
-static void gst_gl_transformation_callback (gpointer stuff);
+static gboolean gst_gl_transformation_callback (gpointer stuff);
 static void gst_gl_transformation_build_mvp (GstGLTransformation *
     transformation);
 
+static GstFlowReturn
+gst_gl_transformation_prepare_output_buffer (GstBaseTransform * trans,
+    GstBuffer * inbuf, GstBuffer ** outbuf);
+static gboolean gst_gl_transformation_filter (GstGLFilter * filter,
+    GstBuffer * inbuf, GstBuffer * outbuf);
 static gboolean gst_gl_transformation_filter_texture (GstGLFilter * filter,
-    guint in_tex, guint out_tex);
-
-/* vertex source */
-static const gchar *cube_v_src =
-    "attribute vec4 position;                     \n"
-    "attribute vec2 uv;                           \n"
-    "uniform mat4 mvp;                            \n"
-    "varying vec2 out_uv;                         \n"
-    "void main()                                  \n"
-    "{                                            \n"
-    "   gl_Position = mvp * position;             \n"
-    "   out_uv = uv;                              \n"
-    "}                                            \n";
-
-/* fragment source */
-static const gchar *cube_f_src =
-    "#ifdef GL_ES                                 \n"
-    "  precision mediump float;                   \n"
-    "#endif                                       \n"
-    "varying vec2 out_uv;                         \n"
-    "uniform sampler2D texture;                   \n"
-    "void main()                                  \n"
-    "{                                            \n"
-    "  gl_FragColor = texture2D (texture, out_uv);\n"
-    "}                                            \n";
+    GstGLMemory * in_tex, GstGLMemory * out_tex);
 
 static void
 gst_gl_transformation_class_init (GstGLTransformationClass * klass)
@@ -139,14 +133,20 @@ gst_gl_transformation_class_init (GstGLTransformationClass * klass)
   gobject_class->get_property = gst_gl_transformation_get_property;
 
   base_transform_class->src_event = gst_gl_transformation_src_event;
+  base_transform_class->decide_allocation =
+      gst_gl_transformation_decide_allocation;
+  base_transform_class->filter_meta = gst_gl_transformation_filter_meta;
 
   GST_GL_FILTER_CLASS (klass)->init_fbo = gst_gl_transformation_init_shader;
   GST_GL_FILTER_CLASS (klass)->display_reset_cb =
       gst_gl_transformation_reset_gl;
   GST_GL_FILTER_CLASS (klass)->set_caps = gst_gl_transformation_set_caps;
+  GST_GL_FILTER_CLASS (klass)->filter = gst_gl_transformation_filter;
   GST_GL_FILTER_CLASS (klass)->filter_texture =
       gst_gl_transformation_filter_texture;
   GST_BASE_TRANSFORM_CLASS (klass)->stop = gst_gl_transformation_stop;
+  GST_BASE_TRANSFORM_CLASS (klass)->prepare_output_buffer =
+      gst_gl_transformation_prepare_output_buffer;
 
   g_object_class_install_property (gobject_class, PROP_FOV,
       g_param_spec_float ("fov", "Fov", "Field of view angle in degrees",
@@ -212,14 +212,14 @@ gst_gl_transformation_class_init (GstGLTransformationClass * klass)
   g_object_class_install_property (gobject_class, PROP_PIVOT_X,
       g_param_spec_float ("pivot-x", "X Pivot",
           "Rotation pivot point X coordinate, where 0 is the center,"
-          " -1 the lef +1 the right boarder and <-1, >1 outside.",
+          " -1 the left border, +1 the right border and <-1, >1 outside.",
           -G_MAXFLOAT, G_MAXFLOAT, 0.0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_PIVOT_Y,
       g_param_spec_float ("pivot-y", "Y Pivot",
           "Rotation pivot point X coordinate, where 0 is the center,"
-          " -1 the lef +1 the right boarder and <-1, >1 outside.",
+          " -1 the left border, +1 the right border and <-1, >1 outside.",
           -G_MAXFLOAT, G_MAXFLOAT, 0.0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
@@ -227,7 +227,7 @@ gst_gl_transformation_class_init (GstGLTransformationClass * klass)
       g_param_spec_float ("pivot-z", "Z Pivot",
           "Relevant for rotation in 3D space. You look into the negative Z axis direction",
           -G_MAXFLOAT, G_MAXFLOAT, 0.0,
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   /* MVP */
   g_object_class_install_property (gobject_class, PROP_MVP,
@@ -286,14 +286,13 @@ gst_gl_transformation_build_mvp (GstGLTransformation * transformation)
 
     graphene_point3d_t negative_pivot_vector;
 
-    graphene_vec3_t eye;
     graphene_vec3_t center;
     graphene_vec3_t up;
 
     gboolean current_passthrough;
     gboolean passthrough;
 
-    graphene_vec3_init (&eye, 0.f, 0.f, 1.f);
+    graphene_vec3_init (&transformation->camera_position, 0.f, 0.f, 1.f);
     graphene_vec3_init (&center, 0.f, 0.f, 0.f);
     graphene_vec3_init (&up, 0.f, 1.f, 0.f);
 
@@ -332,8 +331,8 @@ gst_gl_transformation_build_mvp (GstGLTransformation * transformation)
           transformation->aspect, transformation->znear, transformation->zfar);
     }
 
-    graphene_matrix_init_look_at (&transformation->view_matrix, &eye, &center,
-        &up);
+    graphene_matrix_init_look_at (&transformation->view_matrix,
+        &transformation->camera_position, &center, &up);
 
     current_passthrough =
         gst_base_transform_is_passthrough (GST_BASE_TRANSFORM (transformation));
@@ -354,6 +353,13 @@ gst_gl_transformation_build_mvp (GstGLTransformation * transformation)
       &transformation->view_matrix, &modelview_matrix);
   graphene_matrix_multiply (&modelview_matrix,
       &transformation->projection_matrix, &transformation->mvp_matrix);
+
+  graphene_matrix_inverse (&transformation->model_matrix,
+      &transformation->inv_model_matrix);
+  graphene_matrix_inverse (&transformation->view_matrix,
+      &transformation->inv_view_matrix);
+  graphene_matrix_inverse (&transformation->projection_matrix,
+      &transformation->inv_projection_matrix);
 }
 
 static void
@@ -456,6 +462,7 @@ gst_gl_transformation_get_property (GObject * object, guint prop_id,
       g_value_set_float (value, filter->zpivot);
       break;
     case PROP_MVP:
+      /* FIXME: need to decompose this to support navigation events */
       g_value_set_boxed (value, (gconstpointer) & filter->mvp_matrix);
       break;
     default:
@@ -482,142 +489,198 @@ gst_gl_transformation_set_caps (GstGLFilter * filter, GstCaps * incaps,
 }
 
 static void
-_find_plane_normal (const graphene_point3d_t * A, const graphene_point3d_t * B,
-    const graphene_point3d_t * C, graphene_vec3_t * plane_normal)
+_intersect_plane_and_ray (graphene_plane_t * video_plane, graphene_ray_t * ray,
+    graphene_point3d_t * result)
 {
-  graphene_vec3_t U, V, A_v, B_v, C_v;
-
-  graphene_point3d_to_vec3 (A, &A_v);
-  graphene_point3d_to_vec3 (B, &B_v);
-  graphene_point3d_to_vec3 (C, &C_v);
-
-  graphene_vec3_subtract (&B_v, &A_v, &U);
-  graphene_vec3_subtract (&C_v, &A_v, &V);
-
-  graphene_vec3_cross (&U, &V, plane_normal);
-  graphene_vec3_normalize (plane_normal, plane_normal);
+  float t = graphene_ray_get_distance_to_plane (ray, video_plane);
+  GST_TRACE ("Calculated a distance of %f to the plane", t);
+  graphene_ray_get_position_at (ray, t, result);
 }
 
 static void
-_find_model_coords (GstGLTransformation * transformation,
-    const graphene_point3d_t * screen_coords, graphene_point3d_t * res)
+_screen_coord_to_world_ray (GstGLTransformation * transformation, float x,
+    float y, graphene_ray_t * ray)
 {
-  graphene_matrix_t modelview, inverse_proj, inverse_modelview;
-  graphene_vec4_t v1, v2;
-  graphene_point3d_t p1;
-  gfloat w;
+  GstGLFilter *filter = GST_GL_FILTER (transformation);
+  gfloat w = (gfloat) GST_VIDEO_INFO_WIDTH (&filter->in_info);
+  gfloat h = (gfloat) GST_VIDEO_INFO_HEIGHT (&filter->in_info);
+  graphene_vec3_t ray_eye_vec3, ray_world_dir, *ray_origin, *ray_direction;
+  graphene_vec3_t ray_ortho_dir;
+  graphene_point3d_t ray_clip, ray_eye;
+  graphene_vec2_t screen_coord;
 
-  graphene_vec4_init (&v1, screen_coords->x, screen_coords->y, screen_coords->z,
-      1.);
-  graphene_matrix_inverse (&transformation->projection_matrix, &inverse_proj);
-  graphene_matrix_transform_vec4 (&inverse_proj, &v1, &v2);
+  /* GL is y-flipped. i.e. 0, 0 is the bottom left corner in screen space */
+  graphene_vec2_init (&screen_coord, (2. * x / w - 1.) / transformation->aspect,
+      1. - 2. * y / h);
 
-  /* perspective division */
-  w = graphene_vec4_get_w (&v2);
-  p1.x = graphene_vec4_get_x (&v2) / w;
-  p1.y = graphene_vec4_get_y (&v2) / w;
-  p1.z = graphene_vec4_get_z (&v2) / w;
+  graphene_point3d_init (&ray_clip, graphene_vec2_get_x (&screen_coord),
+      graphene_vec2_get_y (&screen_coord), -1.);
+  graphene_matrix_transform_point3d (&transformation->inv_projection_matrix,
+      &ray_clip, &ray_eye);
 
-  graphene_matrix_multiply (&transformation->model_matrix,
-      &transformation->view_matrix, &modelview);
-  graphene_matrix_inverse (&modelview, &inverse_modelview);
-  graphene_matrix_transform_point3d (&inverse_modelview, &p1, res);
+  graphene_vec3_init (&ray_eye_vec3, ray_eye.x, ray_eye.y, -1.);
+
+  if (transformation->ortho) {
+    graphene_vec3_init (&ray_ortho_dir, 0., 0., 1.);
+
+    ray_origin = &ray_eye_vec3;
+    ray_direction = &ray_ortho_dir;
+  } else {
+    graphene_matrix_transform_vec3 (&transformation->inv_view_matrix,
+        &ray_eye_vec3, &ray_world_dir);
+    graphene_vec3_normalize (&ray_world_dir, &ray_world_dir);
+
+    ray_origin = &transformation->camera_position;
+    ray_direction = &ray_world_dir;
+  }
+
+  graphene_ray_init_from_vec3 (ray, ray_origin, ray_direction);
+
+  GST_TRACE_OBJECT (transformation, "Calculated ray origin: " VEC3_FORMAT
+      " direction: " VEC3_FORMAT " from screen coordinates: " VEC2_FORMAT
+      " with %s projection",
+      VEC3_ARGS (ray_origin), VEC3_ARGS (ray_direction),
+      VEC2_ARGS (&screen_coord),
+      transformation->ortho ? "ortho" : "perspection");
 }
+
+static void
+_init_world_video_plane (GstGLTransformation * transformation,
+    graphene_plane_t * video_plane)
+{
+  graphene_point3d_t bottom_left, bottom_right, top_left, top_right;
+  graphene_point3d_t world_bottom_left, world_bottom_right;
+  graphene_point3d_t world_top_left, world_top_right;
+
+  graphene_point3d_init (&top_left, -transformation->aspect, 1., 0.);
+  graphene_point3d_init (&top_right, transformation->aspect, 1., 0.);
+  graphene_point3d_init (&bottom_left, -transformation->aspect, -1., 0.);
+  graphene_point3d_init (&bottom_right, transformation->aspect, -1., 0.);
+
+  graphene_matrix_transform_point3d (&transformation->model_matrix,
+      &bottom_left, &world_bottom_left);
+  graphene_matrix_transform_point3d (&transformation->model_matrix,
+      &bottom_right, &world_bottom_right);
+  graphene_matrix_transform_point3d (&transformation->model_matrix,
+      &top_left, &world_top_left);
+  graphene_matrix_transform_point3d (&transformation->model_matrix,
+      &top_right, &world_top_right);
+
+  graphene_plane_init_from_points (video_plane, &world_bottom_left,
+      &world_top_right, &world_top_left);
+}
+
+static gboolean
+_screen_coord_to_model_coord (GstGLTransformation * transformation,
+    double x, double y, double *res_x, double *res_y)
+{
+  GstGLFilter *filter = GST_GL_FILTER (transformation);
+  double w = (double) GST_VIDEO_INFO_WIDTH (&filter->in_info);
+  double h = (double) GST_VIDEO_INFO_HEIGHT (&filter->in_info);
+  graphene_point3d_t world_point, model_coord;
+  graphene_plane_t video_plane;
+  graphene_ray_t ray;
+  double new_x, new_y;
+
+  _init_world_video_plane (transformation, &video_plane);
+  _screen_coord_to_world_ray (transformation, x, y, &ray);
+  _intersect_plane_and_ray (&video_plane, &ray, &world_point);
+  graphene_matrix_transform_point3d (&transformation->inv_model_matrix,
+      &world_point, &model_coord);
+
+  /* ndc to pixels.  We render the frame Y-flipped so need to unflip the
+   * y coordinate */
+  new_x = (model_coord.x + 1.) * w / 2;
+  new_y = (1. - model_coord.y) * h / 2;
+
+  if (new_x < 0. || new_x > w || new_y < 0. || new_y > h)
+    /* coords off video surface */
+    return FALSE;
+
+  GST_DEBUG_OBJECT (transformation, "converted %f,%f to %f,%f", x, y, new_x,
+      new_y);
+
+  if (res_x)
+    *res_x = new_x;
+  if (res_y)
+    *res_y = new_y;
+
+  return TRUE;
+}
+
+#if 0
+/* debugging facilities for transforming vertices from model space to screen
+ * space */
+static void
+_ndc_to_viewport (GstGLTransformation * transformation, graphene_vec3_t * ndc,
+    int x, int y, int w, int h, float near, float far, graphene_vec3_t * result)
+{
+  GstGLFilter *filter = GST_GL_FILTER (transformation);
+  /* center of the viewport */
+  int o_x = x + w / 2;
+  int o_y = y + h / 2;
+
+  graphene_vec3_init (result, graphene_vec3_get_x (ndc) * w / 2 + o_x,
+      graphene_vec3_get_y (ndc) * h / 2 + o_y,
+      (far - near) * graphene_vec3_get_z (ndc) / 2 + (far + near) / 2);
+}
+
+static void
+_perspective_division (graphene_vec4_t * clip, graphene_vec3_t * result)
+{
+  float w = graphene_vec4_get_w (clip);
+
+  graphene_vec3_init (result, graphene_vec4_get_x (clip) / w,
+      graphene_vec4_get_y (clip) / w, graphene_vec4_get_z (clip) / w);
+}
+
+static void
+_vertex_to_screen_coord (GstGLTransformation * transformation,
+    graphene_vec4_t * vertex, graphene_vec3_t * view)
+{
+  GstGLFilter *filter = GST_GL_FILTER (transformation);
+  gint w = GST_VIDEO_INFO_WIDTH (&filter->in_info);
+  gint h = GST_VIDEO_INFO_HEIGHT (&filter->in_info);
+  graphene_vec4_t clip;
+  graphene_vec3_t ndc;
+
+  graphene_matrix_transform_vec4 (&transformation->mvp_matrix, vertex, &clip);
+  _perspective_division (&clip, &ndc);
+  _ndc_to_viewport (transformation, &ndc, 0, 0, w, h, 0., 1., view);
+}
+#endif
 
 static gboolean
 gst_gl_transformation_src_event (GstBaseTransform * trans, GstEvent * event)
 {
   GstGLTransformation *transformation = GST_GL_TRANSFORMATION (trans);
-  GstGLFilter *filter = GST_GL_FILTER (trans);
-  gdouble new_x, new_y, x, y;
   GstStructure *structure;
   gboolean ret;
 
   GST_DEBUG_OBJECT (trans, "handling %s event", GST_EVENT_TYPE_NAME (event));
 
   switch (GST_EVENT_TYPE (event)) {
-    case GST_EVENT_NAVIGATION:
+    case GST_EVENT_NAVIGATION:{
+      gdouble x, y;
       event =
           GST_EVENT (gst_mini_object_make_writable (GST_MINI_OBJECT (event)));
 
       structure = (GstStructure *) gst_event_get_structure (event);
       if (gst_structure_get_double (structure, "pointer_x", &x) &&
           gst_structure_get_double (structure, "pointer_y", &y)) {
-        gfloat w = (gfloat) GST_VIDEO_INFO_WIDTH (&filter->in_info);
-        gfloat h = (gfloat) GST_VIDEO_INFO_HEIGHT (&filter->in_info);
-        graphene_point3d_t screen_point_near, screen_point_far;
-        graphene_point3d_t model_coord_near, model_coord_far;
-        graphene_point3d_t bottom_left, bottom_right, top_left, top_right;
-        graphene_point3d_t result;
-        graphene_vec3_t plane_normal;
-        graphene_plane_t video_plane;
-        gfloat d;
+        gdouble new_x, new_y;
 
-        GST_DEBUG_OBJECT (trans, "converting %f,%f", x, y);
-
-        graphene_point3d_init (&top_left, -1., 1., 0.);
-        graphene_point3d_init (&top_right, 1., 1., 0.);
-        graphene_point3d_init (&bottom_left, -1., -1., 0.);
-        graphene_point3d_init (&bottom_right, 1., -1., 0.);
-        /* to NDC */
-        graphene_point3d_init (&screen_point_near, 2. * x / w - 1.,
-            2. * y / h - 1., -1.);
-        graphene_point3d_init (&screen_point_far, 2. * x / w - 1.,
-            2. * y / h - 1., 1.);
-
-        _find_plane_normal (&bottom_left, &top_left, &top_right, &plane_normal);
-        graphene_plane_init_from_point (&video_plane, &plane_normal, &top_left);
-        d = graphene_plane_get_constant (&video_plane);
-
-        /* get the closest and furthest points in the viewing area for the
-         * specified screen coordinate in order to construct a ray */
-        _find_model_coords (transformation, &screen_point_near,
-            &model_coord_near);
-        _find_model_coords (transformation, &screen_point_far,
-            &model_coord_far);
-
-        {
-          graphene_vec3_t model_coord_near_vec3, model_coord_far_vec3;
-          graphene_vec3_t tmp, intersection, coord_dir;
-          gfloat num, denom, t;
-
-          /* get the direction of the ray */
-          graphene_point3d_to_vec3 (&model_coord_near, &model_coord_near_vec3);
-          graphene_point3d_to_vec3 (&model_coord_far, &model_coord_far_vec3);
-          graphene_vec3_subtract (&model_coord_near_vec3, &model_coord_far_vec3,
-              &coord_dir);
-
-          /* Intersect the ray with the video plane to find the distance, t:
-           * Ray: P = P0 + t Pdir
-           * Plane: P dot N + d = 0
-           *
-           * Substituting for P and rearranging gives:
-           *
-           * t = (P0 dot N + d) / (Pdir dot N) */
-          denom = graphene_vec3_dot (&coord_dir, &plane_normal);
-          num = graphene_vec3_dot (&model_coord_near_vec3, &plane_normal);
-          t = -(num + d) / denom;
-
-          /* video coord = P0 + t Pdir */
-          graphene_vec3_scale (&coord_dir, t, &tmp);
-          graphene_vec3_add (&tmp, &model_coord_near_vec3, &intersection);
-          graphene_point3d_init_from_vec3 (&result, &intersection);
-        }
-
-        new_x = (result.x / transformation->aspect + 1.) * w / 2;
-        new_y = (result.y + 1.) * h / 2;
-
-        if (new_x < 0. || new_x > w || new_y < 0 || new_y > h) {
-          /* coords off video surface */
+        if (!_screen_coord_to_model_coord (transformation, x, y, &new_x,
+                &new_y)) {
           gst_event_unref (event);
           return TRUE;
         }
 
-        GST_DEBUG_OBJECT (trans, "to %fx%f", new_x, new_y);
         gst_structure_set (structure, "pointer_x", G_TYPE_DOUBLE, new_x,
             "pointer_y", G_TYPE_DOUBLE, new_y, NULL);
       }
       break;
+    }
     default:
       break;
   }
@@ -625,6 +688,39 @@ gst_gl_transformation_src_event (GstBaseTransform * trans, GstEvent * event)
   ret = GST_BASE_TRANSFORM_CLASS (parent_class)->src_event (trans, event);
 
   return ret;
+}
+
+static gboolean
+gst_gl_transformation_filter_meta (GstBaseTransform * trans, GstQuery * query,
+    GType api, const GstStructure * params)
+{
+  if (api == GST_VIDEO_AFFINE_TRANSFORMATION_META_API_TYPE)
+    return TRUE;
+
+  if (api == GST_GL_SYNC_META_API_TYPE)
+    return TRUE;
+
+  return FALSE;
+}
+
+static gboolean
+gst_gl_transformation_decide_allocation (GstBaseTransform * trans,
+    GstQuery * query)
+{
+  GstGLTransformation *transformation = GST_GL_TRANSFORMATION (trans);
+
+  if (!GST_BASE_TRANSFORM_CLASS (parent_class)->decide_allocation (trans,
+          query))
+    return FALSE;
+
+  if (gst_query_find_allocation_meta (query,
+          GST_VIDEO_AFFINE_TRANSFORMATION_META_API_TYPE, NULL)) {
+    transformation->downstream_supports_affine_meta = TRUE;
+  } else {
+    transformation->downstream_supports_affine_meta = FALSE;
+  }
+
+  return TRUE;
 }
 
 static void
@@ -682,25 +778,91 @@ gst_gl_transformation_init_shader (GstGLFilter * filter)
   if (gst_gl_context_get_gl_api (GST_GL_BASE_FILTER (filter)->context)) {
     /* blocking call, wait until the opengl thread has compiled the shader */
     return gst_gl_context_gen_shader (GST_GL_BASE_FILTER (filter)->context,
-        cube_v_src, cube_f_src, &transformation->shader);
+        gst_gl_shader_string_vertex_mat4_vertex_transform,
+        gst_gl_shader_string_fragment_default, &transformation->shader);
   }
   return TRUE;
 }
 
+static const gfloat from_ndc_matrix[] = {
+  0.5f, 0.0f, 0.0, 0.5f,
+  0.0f, 0.5f, 0.0, 0.5f,
+  0.0f, 0.0f, 0.5, 0.5f,
+  0.0f, 0.0f, 0.0, 1.0f,
+};
+
+static const gfloat to_ndc_matrix[] = {
+  2.0f, 0.0f, 0.0, -1.0f,
+  0.0f, 2.0f, 0.0, -1.0f,
+  0.0f, 0.0f, 2.0, -1.0f,
+  0.0f, 0.0f, 0.0, 1.0f,
+};
+
+static GstFlowReturn
+gst_gl_transformation_prepare_output_buffer (GstBaseTransform * trans,
+    GstBuffer * inbuf, GstBuffer ** outbuf)
+{
+  GstGLTransformation *transformation = GST_GL_TRANSFORMATION (trans);
+  GstGLFilter *filter = GST_GL_FILTER (trans);
+
+  if (transformation->downstream_supports_affine_meta &&
+      gst_video_info_is_equal (&filter->in_info, &filter->out_info)) {
+    GstVideoAffineTransformationMeta *af_meta;
+    graphene_matrix_t upstream_matrix, from_ndc, to_ndc, tmp, tmp2, inv_aspect;
+
+    *outbuf = gst_buffer_make_writable (inbuf);
+
+    af_meta = gst_buffer_get_video_affine_transformation_meta (inbuf);
+    if (!af_meta)
+      af_meta = gst_buffer_add_video_affine_transformation_meta (*outbuf);
+
+    GST_LOG_OBJECT (trans, "applying transformation to existing affine "
+        "transformation meta");
+
+    /* apply the transformation to the existing affine meta */
+    graphene_matrix_init_from_float (&from_ndc, from_ndc_matrix);
+    graphene_matrix_init_from_float (&to_ndc, to_ndc_matrix);
+    graphene_matrix_init_from_float (&upstream_matrix, af_meta->matrix);
+
+    graphene_matrix_init_scale (&inv_aspect, transformation->aspect, 1., 1.);
+
+    graphene_matrix_multiply (&from_ndc, &upstream_matrix, &tmp);
+    graphene_matrix_multiply (&tmp, &transformation->mvp_matrix, &tmp2);
+    graphene_matrix_multiply (&tmp2, &inv_aspect, &tmp);
+    graphene_matrix_multiply (&tmp, &to_ndc, &tmp2);
+
+    graphene_matrix_to_float (&tmp2, af_meta->matrix);
+    return GST_FLOW_OK;
+  }
+
+  return GST_BASE_TRANSFORM_CLASS (parent_class)->prepare_output_buffer (trans,
+      inbuf, outbuf);
+}
+
 static gboolean
-gst_gl_transformation_filter_texture (GstGLFilter * filter, guint in_tex,
-    guint out_tex)
+gst_gl_transformation_filter (GstGLFilter * filter,
+    GstBuffer * inbuf, GstBuffer * outbuf)
+{
+  GstGLTransformation *transformation = GST_GL_TRANSFORMATION (filter);
+
+  if (transformation->downstream_supports_affine_meta &&
+      gst_video_info_is_equal (&filter->in_info, &filter->out_info)) {
+    return TRUE;
+  } else {
+    return gst_gl_filter_filter_texture (filter, inbuf, outbuf);
+  }
+}
+
+static gboolean
+gst_gl_transformation_filter_texture (GstGLFilter * filter,
+    GstGLMemory * in_tex, GstGLMemory * out_tex)
 {
   GstGLTransformation *transformation = GST_GL_TRANSFORMATION (filter);
 
   transformation->in_tex = in_tex;
 
-  /* blocking call, use a FBO */
-  gst_gl_context_use_fbo_v2 (GST_GL_BASE_FILTER (filter)->context,
-      GST_VIDEO_INFO_WIDTH (&filter->out_info),
-      GST_VIDEO_INFO_HEIGHT (&filter->out_info),
-      filter->fbo, filter->depthbuffer,
-      out_tex, gst_gl_transformation_callback, (gpointer) transformation);
+  gst_gl_framebuffer_draw_to_texture (filter->fbo, out_tex,
+      (GstGLFramebufferFunc) gst_gl_transformation_callback, transformation);
 
   return TRUE;
 }
@@ -762,7 +924,7 @@ _unbind_buffer (GstGLTransformation * transformation)
   gl->DisableVertexAttribArray (transformation->attr_texture);
 }
 
-static void
+static gboolean
 gst_gl_transformation_callback (gpointer stuff)
 {
   GstGLFilter *filter = GST_GL_FILTER (stuff);
@@ -780,20 +942,21 @@ gst_gl_transformation_callback (gpointer stuff)
   gst_gl_shader_use (transformation->shader);
 
   gl->ActiveTexture (GL_TEXTURE0);
-  gl->BindTexture (GL_TEXTURE_2D, transformation->in_tex);
+  gl->BindTexture (GL_TEXTURE_2D, transformation->in_tex->tex_id);
   gst_gl_shader_set_uniform_1i (transformation->shader, "texture", 0);
 
   graphene_matrix_to_float (&transformation->mvp_matrix, temp_matrix);
-  gst_gl_shader_set_uniform_matrix_4fv (transformation->shader, "mvp",
-      1, GL_FALSE, temp_matrix);
+  gst_gl_shader_set_uniform_matrix_4fv (transformation->shader,
+      "u_transformation", 1, GL_FALSE, temp_matrix);
 
   if (!transformation->vertex_buffer) {
     transformation->attr_position =
         gst_gl_shader_get_attribute_location (transformation->shader,
-        "position");
+        "a_position");
 
     transformation->attr_texture =
-        gst_gl_shader_get_attribute_location (transformation->shader, "uv");
+        gst_gl_shader_get_attribute_location (transformation->shader,
+        "a_texcoord");
 
     if (gl->GenVertexArrays) {
       gl->GenVertexArrays (1, &transformation->vao);
@@ -829,4 +992,6 @@ gst_gl_transformation_callback (gpointer stuff)
 
   gst_gl_context_clear_shader (GST_GL_BASE_FILTER (filter)->context);
   transformation->caps_change = FALSE;
+
+  return TRUE;
 }

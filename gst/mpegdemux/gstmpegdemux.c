@@ -228,7 +228,7 @@ gst_ps_demux_base_init (GstPsDemuxClass * klass)
   gst_element_class_add_pad_template (element_class, klass->sink_template);
 
   gst_element_class_set_static_metadata (element_class,
-      "The Fluendo MPEG Program Stream Demuxer", "Codec/Demuxer",
+      "MPEG Program Stream Demuxer", "Codec/Demuxer",
       "Demultiplexes MPEG Program Streams", "Wim Taymans <wim@fluendo.com>");
 }
 
@@ -1274,7 +1274,7 @@ gst_ps_demux_handle_seek_pull (GstPsDemux * demux, GstEvent * event)
   }
 
   /* check the limits */
-  if (seeksegment.rate > 0.0) {
+  if (seeksegment.rate > 0.0 && first_pts != G_MAXUINT64) {
     if (seeksegment.start < first_pts - demux->base_time) {
       seeksegment.start = first_pts - demux->base_time;
       seeksegment.position = seeksegment.start;
@@ -2401,13 +2401,14 @@ gst_ps_demux_is_pes_sync (guint32 sync)
 
 static inline gboolean
 gst_ps_demux_scan_ts (GstPsDemux * demux, const guint8 * data,
-    SCAN_MODE mode, guint64 * rts)
+    SCAN_MODE mode, guint64 * rts, const guint8 * end)
 {
   gboolean ret = FALSE;
   guint32 scr1, scr2;
   guint64 scr;
   guint64 pts, dts;
   guint32 code;
+  guint16 len;
 
   /* read the 4 bytes for the sync code */
   code = GST_READ_UINT32_BE (data);
@@ -2422,6 +2423,7 @@ gst_ps_demux_scan_ts (GstPsDemux * demux, const guint8 * data,
 
   /* start parsing the stream */
   if ((*data & 0xc0) == 0x40) {
+    /* MPEG-2 PACK header */
     guint32 scr_ext;
     guint32 next32;
     guint8 stuffing_bytes;
@@ -2461,6 +2463,7 @@ gst_ps_demux_scan_ts (GstPsDemux * demux, const guint8 * data,
         goto beach;
     }
   } else {
+    /* MPEG-1 pack header */
     /* check markers */
     if ((scr1 & 0xf1000100) != 0x21000100)
       goto beach;
@@ -2482,8 +2485,27 @@ gst_ps_demux_scan_ts (GstPsDemux * demux, const guint8 * data,
     goto beach;
   }
 
-  /* read the 4 bytes for the PES sync code */
+  /* Possible optional System header here */
   code = GST_READ_UINT32_BE (data);
+  len = GST_READ_UINT16_BE (data + 4);
+
+  if (code == ID_PS_SYSTEM_HEADER_START_CODE) {
+    /* Found a system header, skip it */
+    /* Check for sufficient data - system header, plus enough
+     * left over for the PES packet header */
+    if (data + 6 + len + 6 > end)
+      return FALSE;
+    data += len + 6;
+
+    /* read the 4 bytes for the PES sync code */
+    code = GST_READ_UINT32_BE (data);
+    len = GST_READ_UINT16_BE (data + 4);
+  }
+
+  /* Check we have enough data left for reading the PES packet */
+  if (data + 6 + len > end)
+    return FALSE;
+
   if (!gst_ps_demux_is_pes_sync (code))
     goto beach;
 
@@ -2597,9 +2619,11 @@ gst_ps_demux_scan_forward_ts (GstPsDemux * demux, guint64 * pos,
   GstMapInfo map;
 
   do {
+    /* Check we can get at least scan_sz bytes */
     if (offset + scan_sz > demux->sink_segment.stop)
       return FALSE;
 
+    /* Don't go further than 'limit' bytes */
     if (limit && offset > *pos + limit)
       return FALSE;
 
@@ -2624,7 +2648,8 @@ gst_ps_demux_scan_forward_ts (GstPsDemux * demux, guint64 * pos,
 
     /* scan the block */
     for (cursor = 0; !found && cursor <= end_scan; cursor++) {
-      found = gst_ps_demux_scan_ts (demux, map.data + cursor, mode, &ts);
+      found = gst_ps_demux_scan_ts (demux, map.data + cursor, mode, &ts,
+          map.data + map.size);
     }
 
     /* done with the buffer, unref it */
@@ -2658,10 +2683,12 @@ gst_ps_demux_scan_backward_ts (GstPsDemux * demux, guint64 * pos,
   GstMapInfo map;
 
   do {
+    /* Check we have at least scan_sz bytes available */
     if (offset < scan_sz - 1)
       return FALSE;
 
-    if (limit && offset < *pos - limit)
+    /* Don't go backward past the start or 'limit' bytes */
+    if (limit && offset + limit < *pos)
       return FALSE;
 
     if (offset > BLOCK_SZ)
@@ -2690,7 +2717,8 @@ gst_ps_demux_scan_backward_ts (GstPsDemux * demux, guint64 * pos,
 
     /* scan the block */
     for (cursor = (start_scan + 1); !found && cursor > 0; cursor--) {
-      found = gst_ps_demux_scan_ts (demux, data--, mode, &ts);
+      found = gst_ps_demux_scan_ts (demux, data--, mode, &ts,
+          map.data + map.size);
     }
 
     /* done with the buffer, unref it */
@@ -2750,7 +2778,8 @@ gst_ps_sink_get_duration (GstPsDemux * demux)
   demux->first_scr_offset = offset;
   /* scan for last SCR in the stream */
   offset = demux->sink_segment.stop;
-  gst_ps_demux_scan_backward_ts (demux, &offset, SCAN_SCR, &demux->last_scr, 0);
+  gst_ps_demux_scan_backward_ts (demux, &offset, SCAN_SCR, &demux->last_scr,
+      DURATION_SCAN_LIMIT);
   GST_DEBUG_OBJECT (demux, "Last SCR: %" G_GINT64_FORMAT " %" GST_TIME_FORMAT
       " in packet starting at %" G_GUINT64_FORMAT,
       demux->last_scr, GST_TIME_ARGS (MPEGTIME_TO_GSTTIME (demux->last_scr)),
@@ -2976,9 +3005,7 @@ pause:
         }
       }
     } else if (ret == GST_FLOW_NOT_LINKED || ret < GST_FLOW_EOS) {
-      GST_ELEMENT_ERROR (demux, STREAM, FAILED,
-          ("Internal data stream error."),
-          ("stream stopped, reason %s", reason));
+      GST_ELEMENT_FLOW_ERROR (demux, ret);
       gst_ps_demux_send_event (demux, gst_event_new_eos ());
     }
 

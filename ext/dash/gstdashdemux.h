@@ -67,11 +67,35 @@ struct _GstDashDemuxStream
   GstMediaFragmentInfo current_fragment;
 
   /* index parsing */
+  GstAdapter *sidx_adapter;
   GstSidxParser sidx_parser;
-  gsize sidx_current_remaining;
   gint sidx_index;
   gint64 sidx_base_offset;
   GstClockTime pending_seek_ts;
+  /* sidx offset tracking */
+  guint64 sidx_current_offset;
+  /* index = 1, header = 2, data = 3 */
+  guint sidx_index_header_or_data;
+
+  /* ISOBMFF box parsing */
+  gboolean is_isobmff;
+  GstAdapter *isobmff_adapter;
+  struct {
+    /* index = 1, header = 2, data = 3 */
+    guint index_header_or_data;
+    guint32 current_fourcc;
+    guint64 current_start_offset;
+    guint64 current_offset;
+    guint64 current_size;
+  } isobmff_parser;
+
+  GstMoofBox *moof;
+  guint64 moof_offset, moof_size;
+  GArray *moof_sync_samples;
+  guint current_sync_sample;
+
+  guint64 moof_average_size, first_sync_sample_average_size;
+  gboolean first_sync_sample_after_moof, first_sync_sample_always_after_moof;
 };
 
 /**
@@ -96,11 +120,16 @@ struct _GstDashDemux
   /* Properties */
   GstClockTime max_buffering_time;      /* Maximum buffering time accumulated during playback */
   guint64 max_bitrate;          /* max of bitrate supported by target decoder         */
+  gint max_video_width, max_video_height;
+  gint max_video_framerate_n, max_video_framerate_d;
   gchar* default_presentation_delay; /* presentation time delay if MPD@suggestedPresentationDelay is not present */
 
   gint n_audio_streams;
   gint n_video_streams;
   gint n_subtitle_streams;
+
+  gboolean trickmode_no_audio;
+  gboolean allow_trickmode_key_units;
 };
 
 struct _GstDashDemuxClass

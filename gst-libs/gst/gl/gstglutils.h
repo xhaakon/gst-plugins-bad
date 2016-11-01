@@ -22,78 +22,16 @@
 #define __GST_GL_UTILS_H__
 
 #include <gst/video/video.h>
+#include <gst/video/gstvideoaffinetransformationmeta.h>
 
 #include <gst/gl/gstgl_fwd.h>
 
 G_BEGIN_DECLS
 
-/**
- * GstGLContextProjection:
- *
- * %GST_GL_DISPLAY_PROJECTION_ORTHO2D: Orthogonal projection
- * %GST_GL_DISPLAY_CONVERSION_MATRIX: Perspective projection 
- */
-typedef enum
-{
-  GST_GL_DISPLAY_PROJECTION_ORTHO2D,
-  GST_GL_DISPLAY_PROJECTION_PERSPECTIVE
-} GstGLDisplayProjection;
-
-/**
- * CDCB:
- * @texture: texture to draw
- * @width: new width
- * @height: new height:
- * @data: user data
- *
- * client draw callback
- */
-typedef gboolean (*CDCB) (GLuint texture, GLuint width, GLuint height, gpointer data);
-/**
- * GLCB:
- * @width: the width
- * @height: the height
- * @texture: texture
- * @stuff: user data
- *
- * callback definition for operating on textures
- */
-typedef void (*GLCB) (gint, gint, guint, gpointer stuff);
-/**
- * GLCB_V2:
- * @stuff: user data
- *
- * callback definition for operating through a Framebuffer object
- */
-typedef void (*GLCB_V2) (gpointer stuff);
-
-/* deprecated. replaced by GstGLMemory */
-void gst_gl_context_gen_texture (GstGLContext * context, GLuint * pTexture,
-    GstVideoFormat v_format, GLint width, GLint height);
-/* deprecated. replaced by GstGLMemory */
-void gst_gl_context_del_texture (GstGLContext * context, GLuint * pTexture);
-
-/* deprecated. replaced by GstGLMemory */
-void gst_gl_generate_texture_full (GstGLContext * context, const GstVideoInfo * info,
-    const guint comp, gint stride[], gsize offset[], gsize size[], GLuint * pTexture);
-
-gboolean gst_gl_context_gen_fbo (GstGLContext * context, gint width, gint height,
-    GLuint * fbo, GLuint * depthbuffer);
-gboolean gst_gl_context_use_fbo_v2 (GstGLContext * context, gint texture_fbo_width,
-    gint texture_fbo_height, GLuint fbo, GLuint depth_buffer,
-    GLuint texture_fbo, GLCB_V2 cb, gpointer stuff);
-void gst_gl_context_del_fbo (GstGLContext * context, GLuint fbo,
-    GLuint depth_buffer);
-
 gboolean gst_gl_context_gen_shader (GstGLContext * context,
     const gchar * shader_vertex_source,
     const gchar * shader_fragment_source, GstGLShader ** shader);
 void gst_gl_context_del_shader (GstGLContext * context, GstGLShader * shader);
-
-gboolean gst_gl_context_check_framebuffer_status (GstGLContext * context);
-
-void gst_gl_context_set_error (GstGLContext * context, const char * format, ...);
-gchar *gst_gl_context_get_error (void);
 
 gboolean gst_gl_ensure_element_data (gpointer element,
     GstGLDisplay **display_ptr, GstGLContext ** other_context_ptr);
@@ -115,6 +53,10 @@ gboolean gst_gl_value_set_texture_target_from_mask (GValue * value,
     GstGLTextureTarget target_mask);
 gboolean gst_gl_value_set_texture_target (GValue * value, GstGLTextureTarget target);
 GstGLTextureTarget gst_gl_value_get_texture_target_mask (const GValue * value);
+
+void gst_gl_multiply_matrix4 (const gfloat * a, const gfloat * b, gfloat * result);
+void gst_gl_get_affine_transformation_meta_as_ndc (GstVideoAffineTransformationMeta *
+    meta, gfloat * matrix);
 
 G_END_DECLS
 

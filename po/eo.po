@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 0.10.21.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-09-30 12:19+0300\n"
 "PO-Revision-Date: 2011-06-04 22:18+0200\n"
 "Last-Translator: Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>\n"
 "Language-Team: Esperanto <translation-team-eo@lists.sourceforge.net>\n"
@@ -16,6 +16,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr ""
@@ -64,9 +70,6 @@ msgstr "Ne eblis malfermi la dosieron \"%s\" por legi."
 msgid "Could not start sndio"
 msgstr "Ne eblis legi la DVD-n."
 
-msgid "Internal data flow error."
-msgstr "Interna datum-flu-eraro."
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 
@@ -86,11 +89,11 @@ msgstr ""
 msgid "Failed to get fragment URL."
 msgstr ""
 
-msgid "Internal data stream error."
-msgstr "Interna datum-flu-eraro."
-
 msgid "Couldn't download fragments"
 msgstr ""
+
+msgid "Internal data stream error."
+msgstr "Interna datum-flu-eraro."
 
 msgid "No file name specified for writing."
 msgstr "Neniu dosiernomo estas specifite por skribi."
@@ -130,12 +133,27 @@ msgstr ""
 msgid "Couldn't load DVB channel configuration file: %s"
 msgstr ""
 
-msgid "DVB channel configuration file doesn't contain any channels"
-msgstr ""
-
 #, c-format
 msgid "Couldn't find details for DVB channel %s"
 msgstr ""
+
+#, c-format
+msgid "No properties for the DVB channel %s"
+msgstr ""
+
+#, c-format
+msgid "Failed to set properties for the DVB channel %s"
+msgstr ""
+
+#, c-format
+msgid "Couldn't find DVB channel configuration file: %s"
+msgstr ""
+
+msgid "DVB channel configuration file doesn't contain any channels"
+msgstr ""
+
+#~ msgid "Internal data flow error."
+#~ msgstr "Interna datum-flu-eraro."
 
 #~ msgid "Could not write to file \"%s\"."
 #~ msgstr "Ne eblis skribi al dosiero \"%s\"."

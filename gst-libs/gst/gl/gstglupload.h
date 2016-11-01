@@ -47,8 +47,9 @@ typedef enum
 
   GST_GL_UPLOAD_ERROR = -1,
   GST_GL_UPLOAD_UNSUPPORTED = -2,
+  GST_GL_UPLOAD_RECONFIGURE = -3,
   /* <private> */
-  GST_GL_UPLOAD_UNSHARED_GL_CONTEXT = -3,
+  GST_GL_UPLOAD_UNSHARED_GL_CONTEXT = -100,
 } GstGLUploadReturn;
 
 /**
@@ -58,11 +59,11 @@ typedef enum
  */
 struct _GstGLUpload
 {
-  /* <private> */
   GstObject        parent;
 
   GstGLContext    *context;
 
+  /* <private> */
   GstGLUploadPrivate *priv;
 
   gpointer _reserved[GST_PADDING];
@@ -76,13 +77,20 @@ struct _GstGLUpload
 struct _GstGLUploadClass
 {
   GstObjectClass object_class;
+
+  /* <private> */
+  gpointer _padding[GST_PADDING];
 };
 
 GstCaps *     gst_gl_upload_get_input_template_caps (void);
 
 GstGLUpload * gst_gl_upload_new                    (GstGLContext * context);
 
-GstCaps *     gst_gl_upload_transform_caps         (GstGLContext * context,
+void          gst_gl_upload_set_context            (GstGLUpload * upload,
+                                                    GstGLContext * context);
+
+GstCaps *     gst_gl_upload_transform_caps         (GstGLUpload * upload,
+                                                    GstGLContext * context,
                                                     GstPadDirection direction,
                                                     GstCaps * caps,
                                                     GstCaps * filter);

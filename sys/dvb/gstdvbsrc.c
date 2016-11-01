@@ -23,7 +23,7 @@
  * SECTION:element-dvbsrc
  *
  * dvbsrc can be used to capture media from DVB cards. Supported DTV
- * broadcasting standards include DVB-T/C/S, ATSC ,ISDB-T and DTMB.
+ * broadcasting standards include DVB-T/C/S, ATSC, ISDB-T and DTMB.
  *
  * <refsect2>
  * <title>Example launch line</title>
@@ -37,8 +37,11 @@
  * gst-launch-1.0 dvbsrc polarity="h" frequency=11302000 symbol-rate=27500 diseqc-source=0 pids=50:102:103 ! mpegtsdemux name=demux ! queue max-size-buffers=0 max-size-time=0 ! mpeg2dec ! xvimagesink demux. ! queue max-size-buffers=0 max-size-time=0 ! mad ! alsasink
  * ]| Captures and renders a transport stream from DVB card 0 that is a DVB-S card for a program at tuned frequency 11302000 kHz, symbol rate of 27500 kBd (kilo bauds) with PMT PID of 50 and elementary stream PIDs of 102 and 103.
  * |[
- gst-launch-1.0 dvbsrc frequency=515142857 guard=16 trans-mode="8k" isdbt-layer-enabled=7 isdbt-partial-reception=1 isdbt-layera-fec="2/3" isdbt-layera-modulation="QPSK" isdbt-layera-segment-count=1 isdbt-layera-time-interleaving=4 isdbt-layerb-fec="3/4" isdbt-layerb-modulation="qam-64" isdbt-layerb-segment-count=12 isdbt-layerb-time-interleaving=2 isdbt-layerc-fec="1/2" isdbt-layerc-modulation="qam-64" isdbt-layerc-segment-count=0 isdbt-layerc-time-interleaving=0 delsys="isdb-t" ! tsdemux ! "video/x-h264" ! h264parse ! queue ! avdec_h264 ! videoconvert ! queue ! autovideosink
+ * gst-launch-1.0 dvbsrc frequency=515142857 guard=16 trans-mode="8k" isdbt-layer-enabled=7 isdbt-partial-reception=1 isdbt-layera-fec="2/3" isdbt-layera-modulation="QPSK" isdbt-layera-segment-count=1 isdbt-layera-time-interleaving=4 isdbt-layerb-fec="3/4" isdbt-layerb-modulation="qam-64" isdbt-layerb-segment-count=12 isdbt-layerb-time-interleaving=2 isdbt-layerc-fec="1/2" isdbt-layerc-modulation="qam-64" isdbt-layerc-segment-count=0 isdbt-layerc-time-interleaving=0 delsys="isdb-t" ! tsdemux ! "video/x-h264" ! h264parse ! queue ! avdec_h264 ! videoconvert ! queue ! autovideosink
  * ]| Captures and renders the video track of TV Paraíba HD (Globo affiliate) in Campina Grande, Brazil. This is an ISDB-T (Brazilian ISDB-Tb variant) broadcast.
+ * |[
+ *  gst-launch-1.0 dvbsrc frequency=503000000 delsys="atsc" modulation="8vsb" pids=48:49:52 ! decodebin name=dec dec. ! videoconvert ! autovideosink dec. ! audioconvert ! autoaudiosink
+ * ]| Captures and renders KOFY-HD in San Jose, California. This is an ATSC broadcast, PMT ID 48, Audio/Video elementary stream PIDs 49 and 52 respectively.
  * </refsect2>
  */
 
@@ -551,11 +554,14 @@ static void gst_dvbsrc_do_tune (GstDvbSrc * src);
 static gboolean gst_dvbsrc_tune (GstDvbSrc * object);
 static gboolean gst_dvbsrc_set_fe_params (GstDvbSrc * object,
     struct dtv_properties *props);
+static void gst_dvbsrc_guess_delsys (GstDvbSrc * object);
 static gboolean gst_dvbsrc_tune_fe (GstDvbSrc * object);
 
 static void gst_dvbsrc_set_pes_filters (GstDvbSrc * object);
 static void gst_dvbsrc_unset_pes_filters (GstDvbSrc * object);
 static gboolean gst_dvbsrc_is_valid_modulation (guint delsys, guint mod);
+static gboolean gst_dvbsrc_is_valid_trans_mode (guint delsys, guint mode);
+static gboolean gst_dvbsrc_is_valid_bandwidth (guint delsys, guint bw);
 
 /**
  * This loop should be safe enough considering:
@@ -614,8 +620,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
 
   gstelement_class->change_state = GST_DEBUG_FUNCPTR (gst_dvbsrc_change_state);
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&ts_src_factory));
+  gst_element_class_add_static_pad_template (gstelement_class, &ts_src_factory);
 
   gst_element_class_set_static_metadata (gstelement_class, "DVB Source",
       "Source/Video",
@@ -660,7 +665,9 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
 
   g_object_class_install_property (gobject_class, ARG_DVBSRC_PIDS,
       g_param_spec_string ("pids", "pids",
-          "Colon seperated list of pids (eg. 110:120)",
+          "Colon-separated list of PIDs (eg. 110:120) to capture. ACT and CAT "
+          "are automatically included but PMT should be added explicitly. "
+          "Special value 8192 gets full MPEG-TS",
           DEFAULT_PIDS, GST_PARAM_MUTABLE_PLAYING | G_PARAM_WRITABLE));
 
   g_object_class_install_property (gobject_class, ARG_DVBSRC_SYM_RATE,
@@ -681,11 +688,9 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
           "DiSEqC switch. Otherwise leave at -1 (disabled)", -1, 7,
           DEFAULT_DISEQC_SRC, GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
 
-  /* DVB-T, additional properties */
-
   g_object_class_install_property (gobject_class, ARG_DVBSRC_BANDWIDTH_HZ,
       g_param_spec_uint ("bandwidth-hz", "bandwidth-hz",
-          "(DVB-T) Bandwidth in Hz", 0, G_MAXUINT, DEFAULT_BANDWIDTH_HZ,
+          "Channel bandwidth in Hz", 0, G_MAXUINT, DEFAULT_BANDWIDTH_HZ,
           GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
 
 #ifndef GST_REMOVE_DEPRECATED
@@ -797,7 +802,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class,
       ARG_DVBSRC_ISDBT_LAYER_ENABLED,
       g_param_spec_uint ("isdbt-layer-enabled",
-          "ISB-T layer enabled",
+          "ISDB-T layer enabled",
           "(ISDB-T) Layer Enabled (7 = All layers)", 1, 7,
           DEFAULT_ISDBT_LAYER_ENABLED,
           GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
@@ -805,7 +810,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class,
       ARG_DVBSRC_ISDBT_PARTIAL_RECEPTION,
       g_param_spec_int ("isdbt-partial-reception",
-          "ISB-T partial reception",
+          "ISDB-T partial reception",
           "(ISDB-T) Partial Reception (-1 = AUTO)", -1, 1,
           DEFAULT_ISDBT_PARTIAL_RECEPTION,
           GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
@@ -813,7 +818,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class,
       ARG_DVBSRC_ISDBT_SOUND_BROADCASTING,
       g_param_spec_int ("isdbt-sound-broadcasting",
-          "ISB-T sound broadcasting",
+          "ISDB-T sound broadcasting",
           "(ISDB-T) Sound Broadcasting", 0, 1,
           DEFAULT_ISDBT_SOUND_BROADCASTING,
           GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
@@ -821,7 +826,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class,
       ARG_DVBSRC_ISDBT_SB_SUBCHANNEL_ID,
       g_param_spec_int ("isdbt-sb-subchannel-id",
-          "ISB-T SB subchannel ID",
+          "ISDB-T SB subchannel ID",
           "(ISDB-T) SB Subchannel ID (-1 = AUTO)", -1, 41,
           DEFAULT_ISDBT_SB_SEGMENT_IDX,
           GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
@@ -829,7 +834,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class,
       ARG_DVBSRC_ISDBT_SB_SEGMENT_IDX,
       g_param_spec_int ("isdbt-sb-segment-idx",
-          "ISB-T SB segment IDX",
+          "ISDB-T SB segment IDX",
           "(ISDB-T) SB segment IDX", 0, 12,
           DEFAULT_ISDBT_SB_SEGMENT_IDX,
           GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
@@ -837,7 +842,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class,
       ARG_DVBSRC_ISDBT_SB_SEGMENT_COUNT,
       g_param_spec_uint ("isdbt-sb-segment-count",
-          "ISB-T SB segment count",
+          "ISDB-T SB segment count",
           "(ISDB-T) SB segment count", 1, 13,
           DEFAULT_ISDBT_SB_SEGMENT_COUNT,
           GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
@@ -884,7 +889,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class,
       ARG_DVBSRC_ISDBT_LAYERA_SEGMENT_COUNT,
       g_param_spec_int ("isdbt-layera-segment-count",
-          "ISB-T layer A segment count",
+          "ISDB-T layer A segment count",
           "(ISDB-T) Layer A segment count (-1 = AUTO)", -1, 13,
           DEFAULT_ISDBT_LAYERA_SEGMENT_COUNT,
           GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
@@ -892,7 +897,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class,
       ARG_DVBSRC_ISDBT_LAYERB_SEGMENT_COUNT,
       g_param_spec_int ("isdbt-layerb-segment-count",
-          "ISB-T layer B segment count",
+          "ISDB-T layer B segment count",
           "(ISDB-T) Layer B segment count (-1 = AUTO)", -1, 13,
           DEFAULT_ISDBT_LAYERB_SEGMENT_COUNT,
           GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
@@ -900,7 +905,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class,
       ARG_DVBSRC_ISDBT_LAYERC_SEGMENT_COUNT,
       g_param_spec_int ("isdbt-layerc-segment-count",
-          "ISB-T layer C segment count",
+          "ISDB-T layer C segment count",
           "(ISDB-T) Layer C segment count (-1 = AUTO)", -1, 13,
           DEFAULT_ISDBT_LAYERC_SEGMENT_COUNT,
           GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
@@ -908,7 +913,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class,
       ARG_DVBSRC_ISDBT_LAYERA_TIME_INTERLEAVING,
       g_param_spec_int ("isdbt-layera-time-interleaving",
-          "ISB-T layer A time interleaving ",
+          "ISDB-T layer A time interleaving",
           "(ISDB-T) Layer A time interleaving (-1 = AUTO)", -1, 8,
           DEFAULT_ISDBT_LAYERA_TIME_INTERLEAVING,
           GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
@@ -916,7 +921,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class,
       ARG_DVBSRC_ISDBT_LAYERB_TIME_INTERLEAVING,
       g_param_spec_int ("isdbt-layerb-time-interleaving",
-          "ISB-T layer B time interleaving ",
+          "ISDB-T layer B time interleaving",
           "(ISDB-T) Layer B time interleaving (-1 = AUTO)", -1, 8,
           DEFAULT_ISDBT_LAYERB_TIME_INTERLEAVING,
           GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
@@ -924,7 +929,7 @@ gst_dvbsrc_class_init (GstDvbSrcClass * klass)
   g_object_class_install_property (gobject_class,
       ARG_DVBSRC_ISDBT_LAYERC_TIME_INTERLEAVING,
       g_param_spec_int ("isdbt-layerc-time-interleaving",
-          "ISB-T layer C time interleaving ",
+          "ISDB-T layer C time interleaving",
           "(ISDB-T) Layer C time interleaving (-1 = AUTO)", -1, 8,
           DEFAULT_ISDBT_LAYERC_TIME_INTERLEAVING,
           GST_PARAM_MUTABLE_PLAYING | G_PARAM_READWRITE));
@@ -1013,7 +1018,6 @@ gst_dvbsrc_init (GstDvbSrc * object)
 {
   int i = 0;
 
-  GST_INFO_OBJECT (object, "gst_dvbsrc_init");
   GST_DEBUG_OBJECT (object, "Kernel DVB API version %d.%d", DVB_API_VERSION,
       DVB_API_VERSION_MINOR);
 
@@ -1025,13 +1029,15 @@ gst_dvbsrc_init (GstDvbSrc * object)
 
   object->fd_frontend = -1;
   object->fd_dvr = -1;
+  object->supported_delsys = NULL;
 
   for (i = 0; i < MAX_FILTERS; i++) {
-    object->pids[i] = G_MAXUINT16;
     object->fd_filters[i] = -1;
   }
+
   /* PID 8192 on DVB gets the whole transport stream */
   object->pids[0] = 8192;
+  object->pids[1] = G_MAXUINT16;
   object->dvb_buffer_size = DEFAULT_DVB_BUFFER_SIZE;
   object->adapter_number = DEFAULT_ADAPTER;
   object->frontend_number = DEFAULT_FRONTEND;
@@ -1090,48 +1096,46 @@ gst_dvbsrc_init (GstDvbSrc * object)
 static void
 gst_dvbsrc_set_pids (GstDvbSrc * dvbsrc, const gchar * pid_string)
 {
+  int pid = 0;
+  int pid_count;
+  gchar **pids;
+  char **tmp;
+
   if (!strcmp (pid_string, "8192")) {
-    /* get the whole ts */
-    int pid_count = 1;
+    /* get the whole TS */
     dvbsrc->pids[0] = 8192;
-    while (pid_count < MAX_FILTERS) {
-      dvbsrc->pids[pid_count++] = G_MAXUINT16;
-    }
-  } else {
-    int pid = 0;
-    int pid_count;
-    gchar **pids;
-    char **tmp;
-
-    tmp = pids = g_strsplit (pid_string, ":", MAX_FILTERS);
-
-    /* always add the PAT and CAT pids */
-    dvbsrc->pids[0] = 0;
-    dvbsrc->pids[1] = 1;
-
-    pid_count = 2;
-    while (*pids != NULL && pid_count < MAX_FILTERS) {
-      pid = strtol (*pids, NULL, 0);
-      if (pid > 1 && pid <= 8192) {
-        GST_INFO_OBJECT (dvbsrc, "\tParsed Pid: %d", pid);
-        dvbsrc->pids[pid_count] = pid;
-        pid_count++;
-      }
-      pids++;
-    }
-    while (pid_count < MAX_FILTERS) {
-      dvbsrc->pids[pid_count++] = G_MAXUINT16;
-    }
-
-    g_strfreev (tmp);
+    dvbsrc->pids[1] = G_MAXUINT16;
+    goto done;
   }
-  /* if we are in playing or paused, then set filters now */
-  GST_INFO_OBJECT (dvbsrc, "checking if playing for setting pes filters");
-  if (GST_ELEMENT (dvbsrc)->current_state == GST_STATE_PLAYING ||
-      GST_ELEMENT (dvbsrc)->current_state == GST_STATE_PAUSED) {
-    GST_INFO_OBJECT (dvbsrc, "Setting pes filters now");
+
+  /* always add the PAT and CAT pids */
+  dvbsrc->pids[0] = 0;
+  dvbsrc->pids[1] = 1;
+  pid_count = 2;
+
+  tmp = pids = g_strsplit (pid_string, ":", MAX_FILTERS);
+
+  while (*pids != NULL && pid_count < MAX_FILTERS) {
+    pid = strtol (*pids, NULL, 0);
+    if (pid > 1 && pid <= 8192) {
+      GST_INFO_OBJECT (dvbsrc, "Parsed PID: %d", pid);
+      dvbsrc->pids[pid_count] = pid;
+      pid_count++;
+    }
+    pids++;
+  }
+
+  g_strfreev (tmp);
+
+  if (pid_count < MAX_FILTERS)
+    dvbsrc->pids[pid_count] = G_MAXUINT16;
+
+done:
+  if (GST_ELEMENT (dvbsrc)->current_state > GST_STATE_READY) {
+    GST_INFO_OBJECT (dvbsrc, "Setting PES filters now");
     gst_dvbsrc_set_pes_filters (dvbsrc);
-  }
+  } else
+    GST_INFO_OBJECT (dvbsrc, "Not setting PES filters because state < PAUSED");
 }
 
 static void
@@ -1169,9 +1173,8 @@ gst_dvbsrc_set_property (GObject * _object, guint prop_id,
       s = g_value_get_string (value);
       if (s != NULL) {
         object->pol = (s[0] == 'h' || s[0] == 'H') ? DVB_POL_H : DVB_POL_V;
-        GST_INFO_OBJECT (object, "Set Property: ARG_DVBSRC_POLARITY");
-        GST_INFO_OBJECT (object, "\t%s", (s[0] == 'h'
-                || s[0] == 'H') ? "DVB_POL_H" : "DVB_POL_V");
+        GST_INFO_OBJECT (object, "Set Property: ARG_DVBSRC_POLARITY to %s",
+            object->pol ? "Vertical" : "Horizontal");
       }
       break;
     }
@@ -1574,6 +1577,11 @@ gst_dvbsrc_open_frontend (GstDvbSrc * object, gboolean writable)
     return FALSE;
   }
 
+  if (object->supported_delsys)
+    goto delsys_detection_done;
+
+  /* Perform delivery system autodetection */
+
   GST_DEBUG_OBJECT (object, "Device opened, querying information");
 
   LOOP_WHILE_EINTR (err, ioctl (object->fd_frontend, FE_GET_INFO, &fe_info));
@@ -1587,7 +1595,7 @@ gst_dvbsrc_open_frontend (GstDvbSrc * object, gboolean writable)
     return FALSE;
   }
 
-  GST_DEBUG_OBJECT (object, "check delivery systems");
+  GST_DEBUG_OBJECT (object, "Get list of supported delivery systems");
 
   dvb_prop[0].cmd = DTV_ENUM_DELSYS;
   props.num = 1;
@@ -1604,7 +1612,7 @@ gst_dvbsrc_open_frontend (GstDvbSrc * object, gboolean writable)
     return FALSE;
   }
 
-  GST_DEBUG_OBJECT (object, "Got information about adapter : %s", fe_info.name);
+  GST_INFO_OBJECT (object, "Got information about adapter: %s", fe_info.name);
 
   adapter_name = g_strdup (fe_info.name);
 
@@ -1621,116 +1629,135 @@ gst_dvbsrc_open_frontend (GstDvbSrc * object, gboolean writable)
 
   /* Capability delivery systems */
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBC_ANNEX_A)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_DVBC_ANNEX_A));
     gst_structure_set (adapter_structure, "dvb-c-a", G_TYPE_STRING,
         "DVB-C ANNEX A", NULL);
-    object->best_guess_delsys = SYS_DVBC_ANNEX_A;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBC_ANNEX_B)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_DVBC_ANNEX_B));
     gst_structure_set (adapter_structure, "dvb-c-b", G_TYPE_STRING,
         "DVB-C ANNEX C", NULL);
-    object->best_guess_delsys = SYS_DVBC_ANNEX_B;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBT)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_DVBT));
     gst_structure_set (adapter_structure, "dvb-t", G_TYPE_STRING, "DVB-T",
         NULL);
-    object->best_guess_delsys = SYS_DVBT;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DSS)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_DSS));
     gst_structure_set (adapter_structure, "dss", G_TYPE_STRING, "DSS", NULL);
-    object->best_guess_delsys = SYS_DSS;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBS)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_DVBS));
     gst_structure_set (adapter_structure, "dvb-s", G_TYPE_STRING, "DVB-S",
         NULL);
-    object->best_guess_delsys = SYS_DVBS;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBS2)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_DVBS2));
     gst_structure_set (adapter_structure, "dvb-s2", G_TYPE_STRING, "DVB-S2",
         NULL);
-    object->best_guess_delsys = SYS_DVBS2;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBH)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_DVBH));
     gst_structure_set (adapter_structure, "dvb-h", G_TYPE_STRING, "DVB-H",
         NULL);
-    object->best_guess_delsys = SYS_DVBH;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_ISDBT)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_ISDBT));
     gst_structure_set (adapter_structure, "isdb-t", G_TYPE_STRING, "ISDB-T",
         NULL);
-    object->best_guess_delsys = SYS_ISDBT;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_ISDBS)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_ISDBS));
     gst_structure_set (adapter_structure, "isdb-s", G_TYPE_STRING, "ISDB-S",
         NULL);
-    object->best_guess_delsys = SYS_ISDBS;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_ISDBC)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_ISDBC));
     gst_structure_set (adapter_structure, "isdb-c", G_TYPE_STRING, "ISDB-C",
         NULL);
-    object->best_guess_delsys = SYS_ISDBC;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_ATSC)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_ATSC));
     gst_structure_set (adapter_structure, "atsc", G_TYPE_STRING, "ATSC", NULL);
-    object->best_guess_delsys = SYS_ATSC;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_ATSCMH)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_ATSCMH));
     gst_structure_set (adapter_structure, "atsc-mh", G_TYPE_STRING, "ATSC-MH",
         NULL);
-    object->best_guess_delsys = SYS_ATSCMH;
   }
 #if HAVE_V5_MINOR(7)
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DTMB)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_DTMB));
     gst_structure_set (adapter_structure, "dtmb", G_TYPE_STRING, "DTMB", NULL);
-    object->best_guess_delsys = SYS_DTMB;
   }
 #endif
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_CMMB)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_CMMB));
     gst_structure_set (adapter_structure, "cmmb", G_TYPE_STRING, "CMMB", NULL);
-    object->best_guess_delsys = SYS_CMMB;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DAB)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_DAB));
     gst_structure_set (adapter_structure, "dab", G_TYPE_STRING, "DAB", NULL);
-    object->best_guess_delsys = SYS_DAB;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBT2)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_DVBT2));
     gst_structure_set (adapter_structure, "dvb-t2", G_TYPE_STRING, "DVB-T2",
         NULL);
-    object->best_guess_delsys = SYS_DVBT2;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_TURBO)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_TURBO));
     gst_structure_set (adapter_structure, "turbo", G_TYPE_STRING, "TURBO",
         NULL);
-    object->best_guess_delsys = SYS_TURBO;
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBC_ANNEX_C)) {
+    object->supported_delsys = g_list_append (object->supported_delsys,
+        GINT_TO_POINTER (SYS_DVBC_ANNEX_C));
     gst_structure_set (adapter_structure, "dvb-c-c", G_TYPE_STRING,
         "DVB-C ANNEX C", NULL);
-    object->best_guess_delsys = SYS_DVBC_ANNEX_C;
   }
 
-  GST_INFO_OBJECT (object, "DVB card: %s ", adapter_name);
   GST_TRACE_OBJECT (object, "%s description: %" GST_PTR_FORMAT, adapter_name,
       adapter_structure);
   gst_element_post_message (GST_ELEMENT_CAST (object), gst_message_new_element
       (GST_OBJECT (object), adapter_structure));
-  g_free (frontend_dev);
   g_free (adapter_name);
+
+delsys_detection_done:
+  g_free (frontend_dev);
 
   return TRUE;
 }
@@ -1743,7 +1770,7 @@ gst_dvbsrc_open_dvr (GstDvbSrc * object)
 
   dvr_dev = g_strdup_printf ("/dev/dvb/adapter%d/dvr%d",
       object->adapter_number, object->frontend_number);
-  GST_INFO_OBJECT (object, "Using dvr device: %s", dvr_dev);
+  GST_INFO_OBJECT (object, "Using DVR device: %s", dvr_dev);
 
   /* open DVR */
   if ((object->fd_dvr = open (dvr_dev, O_RDONLY | O_NONBLOCK)) < 0) {
@@ -1763,7 +1790,7 @@ gst_dvbsrc_open_dvr (GstDvbSrc * object)
   }
   g_free (dvr_dev);
 
-  GST_INFO_OBJECT (object, "Setting DVB kernel buffer size to %d ",
+  GST_INFO_OBJECT (object, "Setting DVB kernel buffer size to %d",
       object->dvb_buffer_size);
   LOOP_WHILE_EINTR (err, ioctl (object->fd_dvr, DMX_SET_BUFFER_SIZE,
           object->dvb_buffer_size));
@@ -1931,7 +1958,10 @@ gst_dvbsrc_change_state (GstElement * element, GstStateChange transition)
   switch (transition) {
     case GST_STATE_CHANGE_NULL_TO_READY:
       /* open frontend then close it again, just so caps sent */
-      gst_dvbsrc_open_frontend (src, FALSE);
+      if (!gst_dvbsrc_open_frontend (src, FALSE)) {
+        GST_ERROR_OBJECT (src, "Could not open frontend device");
+        ret = GST_STATE_CHANGE_FAILURE;
+      }
       if (src->fd_frontend) {
         close (src->fd_frontend);
       }
@@ -1949,35 +1979,35 @@ gst_dvbsrc_start (GstBaseSrc * bsrc)
 {
   GstDvbSrc *src = GST_DVBSRC (bsrc);
 
-  gst_dvbsrc_open_frontend (src, TRUE);
-  if (!gst_dvbsrc_tune (src)) {
-    GST_ERROR_OBJECT (src, "Not able to lock on to the dvb channel");
-    gst_dvbsrc_unset_pes_filters (src);
-    close (src->fd_frontend);
+  if (!gst_dvbsrc_open_frontend (src, TRUE)) {
+    GST_ERROR_OBJECT (src, "Could not open frontend device");
     return FALSE;
   }
+  if (!gst_dvbsrc_tune (src)) {
+    GST_ERROR_OBJECT (src, "Not able to lock on to the dvb channel");
+    goto fail;
+  }
   if (!gst_dvbsrc_open_dvr (src)) {
-    GST_ERROR_OBJECT (src, "Not able to open dvr_device");
-    /* unset filters also */
-    gst_dvbsrc_unset_pes_filters (src);
-    close (src->fd_frontend);
-    return FALSE;
+    GST_ERROR_OBJECT (src, "Not able to open DVR device");
+    goto fail;
   }
   if (!(src->poll = gst_poll_new (TRUE))) {
     GST_ELEMENT_ERROR (src, RESOURCE, OPEN_READ_WRITE, (NULL),
-        ("could not create an fdset: %s (%d)", g_strerror (errno), errno));
-    /* unset filters also */
-    gst_dvbsrc_unset_pes_filters (src);
-    close (src->fd_frontend);
-    return FALSE;
-  } else {
-    gst_poll_fd_init (&src->poll_fd_dvr);
-    src->poll_fd_dvr.fd = src->fd_dvr;
-    gst_poll_add_fd (src->poll, &src->poll_fd_dvr);
-    gst_poll_fd_ctl_read (src->poll, &src->poll_fd_dvr, TRUE);
+        ("Could not create an fd set: %s (%d)", g_strerror (errno), errno));
+    goto fail;
   }
 
+  gst_poll_fd_init (&src->poll_fd_dvr);
+  src->poll_fd_dvr.fd = src->fd_dvr;
+  gst_poll_add_fd (src->poll, &src->poll_fd_dvr);
+  gst_poll_fd_ctl_read (src->poll, &src->poll_fd_dvr, TRUE);
+
   return TRUE;
+
+fail:
+  gst_dvbsrc_unset_pes_filters (src);
+  close (src->fd_frontend);
+  return FALSE;
 }
 
 static gboolean
@@ -1986,6 +2016,8 @@ gst_dvbsrc_stop (GstBaseSrc * bsrc)
   GstDvbSrc *src = GST_DVBSRC (bsrc);
 
   gst_dvbsrc_close_devices (src);
+  g_list_free (src->supported_delsys);
+  src->supported_delsys = NULL;
   if (src->poll) {
     gst_poll_free (src->poll);
     src->poll = NULL;
@@ -2019,6 +2051,41 @@ gst_dvbsrc_is_seekable (GstBaseSrc * bsrc)
 }
 
 static gboolean
+gst_dvbsrc_is_valid_trans_mode (guint delsys, guint mode)
+{
+  /* FIXME: check valid transmission modes for other broadcast standards */
+  switch (delsys) {
+    case SYS_DVBT:
+      if (mode == TRANSMISSION_MODE_AUTO || mode == TRANSMISSION_MODE_2K ||
+          mode == TRANSMISSION_MODE_8K) {
+        return TRUE;
+      }
+      break;
+    case SYS_DVBT2:
+      if (mode == TRANSMISSION_MODE_AUTO || mode == TRANSMISSION_MODE_1K ||
+          mode == TRANSMISSION_MODE_2K || mode == TRANSMISSION_MODE_4K ||
+          mode == TRANSMISSION_MODE_8K || mode == TRANSMISSION_MODE_16K ||
+          mode == TRANSMISSION_MODE_32K) {
+        return TRUE;
+      }
+      break;
+#if HAVE_V5_MINOR(7)
+    case SYS_DTMB:
+      if (mode == TRANSMISSION_MODE_AUTO || mode == TRANSMISSION_MODE_C1 ||
+          mode == TRANSMISSION_MODE_C3780) {
+        return TRUE;
+      }
+      break;
+#endif
+    default:
+      GST_FIXME ("No delsys/transmission-mode sanity checks implemented for "
+          "this delivery system");
+      return TRUE;
+  }
+  return FALSE;
+}
+
+static gboolean
 gst_dvbsrc_is_valid_modulation (guint delsys, guint mod)
 {
   /* FIXME: check valid modulations for other broadcast standards */
@@ -2028,8 +2095,51 @@ gst_dvbsrc_is_valid_modulation (guint delsys, guint mod)
           mod == QAM_64 || mod == DQPSK)
         return TRUE;
       break;
+    case SYS_ATSC:
+      if (mod == VSB_8 || mod == VSB_16)
+        return TRUE;
+      break;
+    case SYS_DVBT:
+      if (mod == QPSK || mod == QAM_16 || mod == QAM_64)
+        return TRUE;
+      break;
+    case SYS_DVBT2:
+      if (mod == QPSK || mod == QAM_16 || mod == QAM_64 || mod == QAM_256)
+        return TRUE;
+      break;
     default:
       GST_FIXME ("No delsys/modulation sanity checks implemented for this "
+          "delivery system");
+      return TRUE;
+  }
+  return FALSE;
+}
+
+static gboolean
+gst_dvbsrc_is_valid_bandwidth (guint delsys, guint bw)
+{
+  /* FIXME: check valid bandwidth values for other broadcast standards */
+
+  /* Bandwidth == 0 means auto, this should be valid for every delivery system
+   * for which the bandwidth parameter makes sense */
+
+  switch (delsys) {
+    case SYS_DVBT:
+      if (bw == 6000000 || bw == 7000000 || bw == 8000000 || bw == 0)
+        return TRUE;
+      break;
+    case SYS_DVBT2:
+      if (bw == 1172000 || bw == 5000000 || bw == 6000000 || bw == 0 ||
+          bw == 7000000 || bw == 8000000 || bw == 10000000) {
+        return TRUE;
+      }
+      break;
+    case SYS_ISDBT:
+      if (bw == 6000000 || bw == 0)
+        return TRUE;
+      break;
+    default:
+      GST_FIXME ("No bandwidth sanity checks implemented for this "
           "delivery system");
       return TRUE;
   }
@@ -2055,7 +2165,7 @@ static void
 gst_dvbsrc_output_frontend_stats (GstDvbSrc * src)
 {
   fe_status_t status;
-  guint16 snr, _signal;
+  guint16 snr, signal;
   guint32 ber, bad_blks;
   GstMessage *message;
   GstStructure *structure;
@@ -2063,36 +2173,41 @@ gst_dvbsrc_output_frontend_stats (GstDvbSrc * src)
   gint err;
 
   LOOP_WHILE_EINTR (err, ioctl (fe_fd, FE_READ_STATUS, &status));
-  if (err)
-    goto error_out;
+  if (!err) {
+    structure = gst_structure_new ("dvb-frontend-stats",
+        "status", G_TYPE_INT, status,
+        "lock", G_TYPE_BOOLEAN, status & FE_HAS_LOCK, NULL);
+  } else {
+    GST_ERROR_OBJECT (src, "Error getting frontend status: '%s'",
+        g_strerror (errno));
+    return;
+  }
 
-  LOOP_WHILE_EINTR (err, ioctl (fe_fd, FE_READ_SIGNAL_STRENGTH, &_signal));
-  if (err)
-    goto error_out;
+  errno = 0;
+  LOOP_WHILE_EINTR (err, ioctl (fe_fd, FE_READ_SIGNAL_STRENGTH, &signal));
+  if (!err)
+    gst_structure_set (structure, "signal", G_TYPE_INT, signal, NULL);
 
   LOOP_WHILE_EINTR (err, ioctl (fe_fd, FE_READ_SNR, &snr));
-  if (err)
-    goto error_out;
+  if (!err)
+    gst_structure_set (structure, "snr", G_TYPE_INT, snr, NULL);
 
   LOOP_WHILE_EINTR (err, ioctl (fe_fd, FE_READ_BER, &ber));
-  if (err)
-    goto error_out;
+  if (!err)
+    gst_structure_set (structure, "ber", G_TYPE_INT, ber, NULL);
 
   LOOP_WHILE_EINTR (err, ioctl (fe_fd, FE_READ_UNCORRECTED_BLOCKS, &bad_blks));
-  if (err)
-    goto error_out;
+  if (!err)
+    gst_structure_set (structure, "unc", G_TYPE_INT, bad_blks, NULL);
 
-  structure = gst_structure_new ("dvb-frontend-stats", "status", G_TYPE_INT,
-      status, "signal", G_TYPE_INT, _signal, "snr", G_TYPE_INT, snr,
-      "ber", G_TYPE_INT, ber, "unc", G_TYPE_INT, bad_blks,
-      "lock", G_TYPE_BOOLEAN, status & FE_HAS_LOCK, NULL);
+  if (errno)
+    GST_WARNING_OBJECT (src,
+        "There were errors getting frontend status information: '%s'",
+        g_strerror (errno));
+
+  GST_INFO_OBJECT (src, "Frontend stats: %" GST_PTR_FORMAT, structure);
   message = gst_message_new_element (GST_OBJECT (src), structure);
   gst_element_post_message (GST_ELEMENT (src), message);
-  return;
-
-error_out:
-  GST_WARNING_OBJECT (src, "Failed to get statistics from the device: %s",
-      g_strerror (errno));
 }
 
 struct diseqc_cmd
@@ -2186,12 +2301,10 @@ set_prop (struct dtv_property *props, int *n, guint32 cmd, guint32 data)
 static gboolean
 gst_dvbsrc_tune_fe (GstDvbSrc * object)
 {
-  GstPoll *poll_set;
-  GstPollFD fe_fd;
   fe_status_t status;
   struct dtv_properties props;
   struct dtv_property dvb_prop[NUM_DTV_PROPS];
-  GstClockTimeDiff elapsed_time, timeout_step = 500 * GST_MSECOND;
+  GstClockTimeDiff elapsed_time;
   GstClockTime start;
   gint err;
 
@@ -2202,46 +2315,27 @@ gst_dvbsrc_tune_fe (GstDvbSrc * object)
     return FALSE;
   }
 
-  GST_DEBUG_OBJECT (object, "check delivery systems");
-
-  dvb_prop[0].cmd = DTV_ENUM_DELSYS;
-  props.num = 1;
-  props.props = dvb_prop;
-
-  LOOP_WHILE_EINTR (err, ioctl (object->fd_frontend, FE_GET_PROPERTY, &props));
-  if (err) {
-    GST_WARNING_OBJECT (object, "Error enumerating delsys: %s",
-        g_strerror (errno));
-
-    return FALSE;
-  }
-
-  /* If there's no delivery system set yet. Choose the
-   * last from the list of frontend supported ones */
-  if (object->delsys == SYS_UNDEFINED) {
-    object->delsys = object->best_guess_delsys;
-  } else if (!gst_dvbsrc_check_delsys (&dvb_prop[0], object->delsys)) {
-    GST_WARNING_OBJECT (object, "Delsys fail %u", object->delsys);
-    return FALSE;
+  /* If set, confirm the choosen delivery system is actually
+   * supported by the hardware */
+  if (object->delsys != SYS_UNDEFINED) {
+    GST_DEBUG_OBJECT (object, "Confirming delsys '%u' is supported",
+        object->delsys);
+    if (!g_list_find (object->supported_delsys,
+            GINT_TO_POINTER (object->delsys))) {
+      GST_WARNING_OBJECT (object, "Adapter does not support delsys '%u'",
+          object->delsys);
+      return FALSE;
+    }
   }
 
   gst_dvbsrc_unset_pes_filters (object);
 
   g_mutex_lock (&object->tune_mutex);
 
-  gst_poll_fd_init (&fe_fd);
-  fe_fd.fd = object->fd_frontend;
-  poll_set = gst_poll_new (TRUE);
-
-  if (!gst_poll_add_fd (poll_set, &fe_fd)) {
-    GST_WARNING_OBJECT (object, "Could not add frontend fd to poll set");
-    goto fail;
-  }
-
-  gst_poll_fd_ctl_read (poll_set, &fe_fd, TRUE);
-
   memset (dvb_prop, 0, sizeof (dvb_prop));
   dvb_prop[0].cmd = DTV_CLEAR;
+  props.num = 1;
+  props.props = dvb_prop;
 
   LOOP_WHILE_EINTR (err, ioctl (object->fd_frontend, FE_SET_PROPERTY, &props));
   if (err) {
@@ -2265,21 +2359,11 @@ gst_dvbsrc_tune_fe (GstDvbSrc * object)
   }
 
   g_signal_emit (object, gst_dvbsrc_signals[SIGNAL_TUNING_START], 0);
-
-  LOOP_WHILE_EINTR (err, ioctl (object->fd_frontend, FE_READ_STATUS, &status));
-  if (err) {
-    GST_WARNING_OBJECT (object, "Failed querying frontend for tuning status:"
-        " %s (%d)", g_strerror (errno), errno);
-    goto fail_with_signal;
-  }
-
-  /* signal locking loop */
   elapsed_time = 0;
   start = gst_util_get_timestamp ();
 
-  while (!(status & FE_HAS_LOCK) && elapsed_time <= object->tuning_timeout) {
-    if (gst_poll_wait (poll_set, timeout_step) == -1)
-      goto fail_with_signal;
+  /* signal locking loop */
+  do {
     LOOP_WHILE_EINTR (err, ioctl (object->fd_frontend, FE_READ_STATUS,
             &status));
     if (err) {
@@ -2292,9 +2376,9 @@ gst_dvbsrc_tune_fe (GstDvbSrc * object)
     if (object->tuning_timeout)
       elapsed_time = GST_CLOCK_DIFF (start, gst_util_get_timestamp ());
     GST_LOG_OBJECT (object,
-        "Tuning. Time elapsed %" GST_STIME_FORMAT " Limit %" G_GUINT64_FORMAT,
-        GST_STIME_ARGS (elapsed_time), object->tuning_timeout);
-  }
+        "Tuning. Time elapsed %" GST_STIME_FORMAT " Limit %" GST_TIME_FORMAT,
+        GST_STIME_ARGS (elapsed_time), GST_TIME_ARGS (object->tuning_timeout));
+  } while (!(status & FE_HAS_LOCK) && elapsed_time <= object->tuning_timeout);
 
   if (!(status & FE_HAS_LOCK)) {
     GST_WARNING_OBJECT (object,
@@ -2307,7 +2391,6 @@ gst_dvbsrc_tune_fe (GstDvbSrc * object)
   g_signal_emit (object, gst_dvbsrc_signals[SIGNAL_TUNING_DONE], 0);
   GST_DEBUG_OBJECT (object, "Successfully set frontend tuning params");
 
-  gst_poll_free (poll_set);
   g_mutex_unlock (&object->tune_mutex);
   return TRUE;
 
@@ -2315,9 +2398,78 @@ fail_with_signal:
   g_signal_emit (object, gst_dvbsrc_signals[SIGNAL_TUNING_FAIL], 0);
 fail:
   GST_WARNING_OBJECT (object, "Could not tune to desired frequency");
-  gst_poll_free (poll_set);
   g_mutex_unlock (&object->tune_mutex);
   return FALSE;
+}
+
+static void
+gst_dvbsrc_guess_delsys (GstDvbSrc * object)
+{
+  GList *valid, *candidate;
+  guint alternatives;
+
+  if (g_list_length (object->supported_delsys) == 1) {
+    object->delsys = GPOINTER_TO_INT (object->supported_delsys->data);
+    GST_DEBUG_OBJECT (object, "Adapter supports a single delsys: '%u'",
+        object->delsys);
+    goto autoselection_done;
+  }
+
+  /* Automatic delivery system selection based on known-correct
+   * parameter combinations */
+
+  valid = g_list_copy (object->supported_delsys);
+
+  candidate = valid;
+  while (candidate) {
+    GList *next = candidate->next;
+    if (!gst_dvbsrc_is_valid_modulation (GPOINTER_TO_INT (candidate->data),
+            object->modulation) ||
+        !gst_dvbsrc_is_valid_trans_mode (GPOINTER_TO_INT (candidate->data),
+            object->transmission_mode) ||
+        !gst_dvbsrc_is_valid_bandwidth (GPOINTER_TO_INT (candidate->data),
+            object->bandwidth)) {
+      valid = g_list_delete_link (valid, candidate);
+    }
+    candidate = next;
+  }
+
+  alternatives = g_list_length (valid);
+
+  switch (alternatives) {
+    case 0:
+      GST_WARNING_OBJECT (object, "Delivery system autodetection provided no "
+          "valid alternative");
+      candidate = g_list_last (object->supported_delsys);
+      break;
+    case 1:
+      candidate = g_list_last (valid);
+      GST_DEBUG_OBJECT (object, "Delivery system autodetection provided only "
+          "one valid alternative: '%d'", GPOINTER_TO_INT (candidate->data));
+      break;
+    default:
+      /* More than one alternative. Selection based on best guess */
+      if (g_list_find (valid, GINT_TO_POINTER (SYS_DVBT)) &&
+          g_list_find (valid, GINT_TO_POINTER (SYS_DVBT2))) {
+        /* There is no way to tell one over the other when parameters seem valid
+         * for DVB-T and DVB-T2 and the adapter supports both. Reason to go with
+         * the former here is that, from experience, most DVB-T2 channels out
+         * there seem to use parameters that are not valid for DVB-T, like
+         * QAM_256 */
+        GST_WARNING_OBJECT (object, "Channel parameters valid for DVB-T and "
+            "DVB-T2. Choosing DVB-T");
+        candidate = g_list_find (valid, GINT_TO_POINTER (SYS_DVBT));
+      } else {
+        candidate = g_list_last (valid);
+      }
+  }
+
+  object->delsys = GPOINTER_TO_INT (candidate->data);
+  g_list_free (valid);
+
+autoselection_done:
+  GST_INFO_OBJECT (object, "Automatically selecting delivery system '%u'",
+      object->delsys);
 }
 
 static gboolean
@@ -2329,6 +2481,10 @@ gst_dvbsrc_set_fe_params (GstDvbSrc * object, struct dtv_properties *props)
   int inversion = object->inversion;
   int n;
   gint err;
+
+  /* If delsys hasn't been set, ask for it to be automatically selected */
+  if (object->delsys == SYS_UNDEFINED)
+    gst_dvbsrc_guess_delsys (object);
 
   /* first 3 entries are reserved */
   n = 3;
@@ -2391,6 +2547,11 @@ gst_dvbsrc_set_fe_params (GstDvbSrc * object, struct dtv_properties *props)
         set_prop (props->props, &n, DTV_MODULATION, object->modulation);
 
       if (object->delsys == SYS_DVBS2) {
+        if (object->stream_id > 255) {
+          GST_WARNING_OBJECT (object, "Invalid (> 255) DVB-S2 stream ID '%d'. "
+              "Disabling sub-stream filtering", object->stream_id);
+          object->stream_id = NO_STREAM_ID_FILTER;
+        }
         set_prop (props->props, &n, DTV_PILOT, object->pilot);
         set_prop (props->props, &n, DTV_ROLLOFF, object->rolloff);
         set_prop (props->props, &n, DTV_STREAM_ID, object->stream_id);
@@ -2398,31 +2559,6 @@ gst_dvbsrc_set_fe_params (GstDvbSrc * object, struct dtv_properties *props)
       break;
     case SYS_DVBT:
     case SYS_DVBT2:
-      if (object->delsys == SYS_DVBT) {
-        if (object->transmission_mode != TRANSMISSION_MODE_AUTO &&
-            object->transmission_mode != TRANSMISSION_MODE_2K &&
-            object->transmission_mode != TRANSMISSION_MODE_8K) {
-          GST_WARNING_OBJECT (object, "Wrong DVB-T parameter combination: "
-              "transmission mode should be either AUTO, 2K or 8K");
-        }
-        if (object->bandwidth != 6000000 && object->bandwidth != 7000000 &&
-            object->bandwidth != 8000000) {
-          GST_WARNING_OBJECT (object, "Wrong DVB-T parameter value: bandwidth "
-              "is %d but only 6, 7 and 8 MHz are allowed", object->bandwidth);
-        }
-      } else if (object->delsys == SYS_DVBT2) {
-        if (object->transmission_mode != TRANSMISSION_MODE_AUTO &&
-            object->transmission_mode != TRANSMISSION_MODE_1K &&
-            object->transmission_mode != TRANSMISSION_MODE_2K &&
-            object->transmission_mode != TRANSMISSION_MODE_4K &&
-            object->transmission_mode != TRANSMISSION_MODE_8K &&
-            object->transmission_mode != TRANSMISSION_MODE_16K &&
-            object->transmission_mode != TRANSMISSION_MODE_32K) {
-          GST_WARNING_OBJECT (object, "Wrong DVB-T2 parameter combination: "
-              "transmission mode should be either AUTO, 1K, 2K, 4K, 8K, 16K "
-              "or 32K");
-        }
-      }
       set_prop (props->props, &n, DTV_BANDWIDTH_HZ, object->bandwidth);
       set_prop (props->props, &n, DTV_CODE_RATE_HP, object->code_rate_hp);
       set_prop (props->props, &n, DTV_CODE_RATE_LP, object->code_rate_lp);
@@ -2431,7 +2567,13 @@ gst_dvbsrc_set_fe_params (GstDvbSrc * object, struct dtv_properties *props)
           object->transmission_mode);
       set_prop (props->props, &n, DTV_GUARD_INTERVAL, object->guard_interval);
       set_prop (props->props, &n, DTV_HIERARCHY, object->hierarchy_information);
+
       if (object->delsys == SYS_DVBT2) {
+        if (object->stream_id > 255) {
+          GST_WARNING_OBJECT (object, "Invalid (> 255) DVB-T2 stream ID '%d'. "
+              "Disabling sub-stream filtering", object->stream_id);
+          object->stream_id = NO_STREAM_ID_FILTER;
+        }
         set_prop (props->props, &n, DTV_STREAM_ID, object->stream_id);
       }
 
@@ -2474,11 +2616,6 @@ gst_dvbsrc_set_fe_params (GstDvbSrc * object, struct dtv_properties *props)
           object->isdbt_layerb_modulation != DQPSK) {
         GST_WARNING_OBJECT (object, "Wrong ISDB-T parameter combination: "
             "layer C modulation is DQPSK but layer B modulation is different");
-      }
-
-      if (object->bandwidth != 6000000) {
-        GST_WARNING_OBJECT (object, "Wrong ISDB-T parameter value: bandwidth "
-            "is %d but only 6 MHz is allowed", object->bandwidth);
       }
 
       GST_INFO_OBJECT (object, "Tuning ISDB-T to %d", freq);
@@ -2547,9 +2684,22 @@ gst_dvbsrc_set_fe_params (GstDvbSrc * object, struct dtv_properties *props)
       return FALSE;
   }
 
+  /* Informative checks */
   if (!gst_dvbsrc_is_valid_modulation (object->delsys, object->modulation)) {
     GST_WARNING_OBJECT (object,
-        "Attempting an invalid modulation/delsys combination");
+        "Attempting invalid modulation '%u' for delivery system '%u'",
+        object->modulation, object->delsys);
+  }
+  if (!gst_dvbsrc_is_valid_trans_mode (object->delsys,
+          object->transmission_mode)) {
+    GST_WARNING_OBJECT (object,
+        "Attempting invalid transmission mode '%u' for delivery system '%u'",
+        object->transmission_mode, object->delsys);
+  }
+  if (!gst_dvbsrc_is_valid_bandwidth (object->delsys, object->bandwidth)) {
+    GST_WARNING_OBJECT (object,
+        "Attempting invalid bandwidth '%u' for delivery system '%u'",
+        object->bandwidth, object->delsys);
   }
 
   set_prop (props->props, &n, DTV_TUNE, 0);
@@ -2611,6 +2761,12 @@ gst_dvbsrc_set_pes_filters (GstDvbSrc * object)
 
   GST_INFO_OBJECT (object, "Setting PES filter");
 
+  /* Set common params for all filters */
+  pes_filter.input = DMX_IN_FRONTEND;
+  pes_filter.output = DMX_OUT_TS_TAP;
+  pes_filter.pes_type = DMX_PES_OTHER;
+  pes_filter.flags = DMX_IMMEDIATE_START;
+
   for (i = 0; i < MAX_FILTERS; i++) {
     if (object->pids[i] == G_MAXUINT16)
       break;
@@ -2628,12 +2784,8 @@ gst_dvbsrc_set_pes_filters (GstDvbSrc * object)
     g_return_if_fail (*fd != -1);
 
     pes_filter.pid = pid;
-    pes_filter.input = DMX_IN_FRONTEND;
-    pes_filter.output = DMX_OUT_TS_TAP;
-    pes_filter.pes_type = DMX_PES_OTHER;
-    pes_filter.flags = DMX_IMMEDIATE_START;
 
-    GST_INFO_OBJECT (object, "Setting pes-filter, pid = %d, type = %d",
+    GST_INFO_OBJECT (object, "Setting PES filter: pid = %d, type = %d",
         pes_filter.pid, pes_filter.pes_type);
 
     LOOP_WHILE_EINTR (err, ioctl (*fd, DMX_SET_PES_FILTER, &pes_filter));
