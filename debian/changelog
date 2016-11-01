@@ -1,8 +1,45 @@
-gst-plugins-bad1.0 (1.8.3-1) unstable; urgency=medium
+gst-plugins-bad1.0 (1.9.90-2) UNRELEASED; urgency=medium
 
-  * New upstream bugfix release.
+  [ Sebastian Dröge ]
+  * New upstream stable release (Closes: #841413).
 
- -- Sebastian Dröge <slomo@debian.org>  Fri, 19 Aug 2016 12:01:55 +0300
+  [ Helmut Grohne ]
+  * Mark gstreamer1.0-doc Multi-Arch: foreign (Closes: #842526).
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 31 Oct 2016 09:31:43 +0200
+
+gst-plugins-bad1.0 (1.9.90-1) experimental; urgency=medium
+
+  * New upstream unstable release:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GStreamer >= 1.9.90.
+
+ -- Sebastian Dröge <slomo@debian.org>  Fri, 30 Sep 2016 12:38:21 +0300
+
+gst-plugins-bad1.0 (1.9.2-1) experimental; urgency=medium
+
+  * New upstream unstable release:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GStreamer >= 1.9.2.
+    + debian/build-deps.in,
+      debian/gstreamer-plugins-bad.install:
+      - Include new timecode and webrtcdsp plugins.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 01 Sep 2016 12:13:09 +0300
+
+gst-plugins-bad1.0 (1.9.1-1) experimental; urgency=medium
+
+  * New upstream unstable release:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GStreamer >= 1.9.1.
+    + debian/build-deps.in,
+      debian/gstreamer-plugins-bad.install:
+      - Include new musepack, dc1394 and lv2 plugins.
+
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 06 Jul 2016 13:01:53 +0300
 
 gst-plugins-bad1.0 (1.8.2-1) unstable; urgency=medium
 
