@@ -7,7 +7,7 @@
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
 <link rel="prev" href="GstGLShader.html" title="GstGLShader">
-<link rel="next" href=".html" title="GstGLSLStage">
+<link rel="next" href="GstGLSLStage.html" title="GstGLSLStage">
 <meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -20,7 +20,7 @@
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="gl.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
 <td><a accesskey="p" href="GstGLShader.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
-<td><a accesskey="n" href=".html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+<td><a accesskey="n" href="GstGLSLStage.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
 <a name="gst-plugins-bad-libs-GstGLSL"></a><div class="titlepage"></div>
@@ -232,6 +232,7 @@ gst_gl_version_to_glsl_version (<em class="parameter"><code><a class="link" href
 <hr>
 <div class="refsect2">
 <a name="GstGLSLError"></a><h3>enum GstGLSLError</h3>
+<p>Compilation stage that caused an error</p>
 <div class="refsect3">
 <a name="GstGLSLError.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -243,26 +244,34 @@ gst_gl_version_to_glsl_version (<em class="parameter"><code><a class="link" href
 <tbody>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-ERROR-COMPILE:CAPS"></a>GST_GLSL_ERROR_COMPILE</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>Compilation error occured</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-ERROR-LINK:CAPS"></a>GST_GLSL_ERROR_LINK</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>Link error occured</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-ERROR-PROGRAM:CAPS"></a>GST_GLSL_ERROR_PROGRAM</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>General program error occured</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 </tbody>
 </table></div>
 </div>
+<p class="since">Since: 1.8</p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="GstGLSLProfile"></a><h3>enum GstGLSLProfile</h3>
+<p>GLSL profiles</p>
 <div class="refsect3">
 <a name="GstGLSLProfile.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -274,36 +283,48 @@ gst_gl_version_to_glsl_version (<em class="parameter"><code><a class="link" href
 <tbody>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-PROFILE-NONE:CAPS"></a>GST_GLSL_PROFILE_NONE</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>no profile supported/available</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-PROFILE-ES:CAPS"></a>GST_GLSL_PROFILE_ES</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>OpenGL|ES profile</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-PROFILE-CORE:CAPS"></a>GST_GLSL_PROFILE_CORE</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>OpenGL core profile</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-PROFILE-COMPATIBILITY:CAPS"></a>GST_GLSL_PROFILE_COMPATIBILITY</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>OpenGL compatibility profile</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-PROFILE-ANY:CAPS"></a>GST_GLSL_PROFILE_ANY</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>any OpenGL/OpenGL|ES profile</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 </tbody>
 </table></div>
 </div>
+<p class="since">Since: 1.8</p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="GstGLSLVersion"></a><h3>enum GstGLSLVersion</h3>
+<p>GLSL version list</p>
 <div class="refsect3">
 <a name="GstGLSLVersion.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -315,102 +336,132 @@ gst_gl_version_to_glsl_version (<em class="parameter"><code><a class="link" href
 <tbody>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-NONE:CAPS"></a>GST_GLSL_VERSION_NONE</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p>no version</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-100:CAPS"></a>GST_GLSL_VERSION_100</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 100 (only valid for ES)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-110:CAPS"></a>GST_GLSL_VERSION_110</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 110 (only valid for compatibility desktop GL)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-120:CAPS"></a>GST_GLSL_VERSION_120</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 120 (only valid for compatibility desktop GL)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-130:CAPS"></a>GST_GLSL_VERSION_130</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 130 (only valid for compatibility desktop GL)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-140:CAPS"></a>GST_GLSL_VERSION_140</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 140 (only valid for compatibility desktop GL)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-150:CAPS"></a>GST_GLSL_VERSION_150</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 150 (valid for compatibility/core desktop GL)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-300:CAPS"></a>GST_GLSL_VERSION_300</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 300 (only valid for ES)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-310:CAPS"></a>GST_GLSL_VERSION_310</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 310 (only valid for ES)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-320:CAPS"></a>GST_GLSL_VERSION_320</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 320 (only valid for ES)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-330:CAPS"></a>GST_GLSL_VERSION_330</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 330 (valid for compatibility/core desktop GL)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-400:CAPS"></a>GST_GLSL_VERSION_400</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 400 (valid for compatibility/core desktop GL)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-410:CAPS"></a>GST_GLSL_VERSION_410</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 410 (valid for compatibility/core desktop GL)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-420:CAPS"></a>GST_GLSL_VERSION_420</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 420 (valid for compatibility/core desktop GL)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-430:CAPS"></a>GST_GLSL_VERSION_430</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 430 (valid for compatibility/core desktop GL)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-440:CAPS"></a>GST_GLSL_VERSION_440</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 440 (valid for compatibility/core desktop GL)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-GLSL-VERSION-450:CAPS"></a>GST_GLSL_VERSION_450</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="enum_member_name"><p><a name="GST-GLSL-VERSION-ANY:CAPS"></a>GST_GLSL_VERSION_ANY</p></td>
-<td> </td>
-<td> </td>
+<td class="enum_member_description">
+<p><span class="type">version</span> 450 (valid for compatibility/core desktop GL)</p>
+</td>
+<td class="enum_member_annotations"> </td>
 </tr>
 </tbody>
 </table></div>
 </div>
+<p class="since">Since: 1.8</p>
 </div>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-GstGLSL.see-also"></a><h2>See Also</h2>
-<p><a class="link" href=".html#GstGLSLStage"><span class="type">GstGLSLStage</span></a>, <a class="link" href="GstGLShader.html" title="GstGLShader"><span class="type">GstGLShader</span></a></p>
+<p><a class="link" href="GstGLSLStage.html" title="GstGLSLStage"><span class="type">GstGLSLStage</span></a>, <a class="link" href="GstGLShader.html" title="GstGLShader"><span class="type">GstGLShader</span></a></p>
 </div>
 </div>
 <div class="footer">

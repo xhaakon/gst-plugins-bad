@@ -6,8 +6,8 @@
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
-<link rel="prev" href="gst-plugins-bad-libs-GstGLAPI.html" title="GstGLAPI">
-<link rel="next" href="GstGLBaseFilter.html" title="GstGLBaseFilter">
+<link rel="prev" href="GstGLBaseFilter.html" title="GstGLBaseFilter">
+<link rel="next" href="gst-plugins-bad-libs-GstGLBuffer.html" title="GstGLBuffer">
 <meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -20,8 +20,8 @@
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="gl.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
-<td><a accesskey="p" href="gst-plugins-bad-libs-GstGLAPI.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
-<td><a accesskey="n" href="GstGLBaseFilter.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+<td><a accesskey="p" href="GstGLBaseFilter.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="gst-plugins-bad-libs-GstGLBuffer.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
 <a name="gst-plugins-bad-libs-gstglbasememory"></a><div class="titlepage"></div>
@@ -66,7 +66,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="returnvalue">GstGLAllocationParams</span></a> *
+<a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="returnvalue">GstGLAllocationParams</span></a> *
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#gst-gl-allocation-params-copy" title="gst_gl_allocation_params_copy ()">gst_gl_allocation_params_copy</a> <span class="c_punctuation">()</span>
@@ -195,7 +195,7 @@
 </tbody>
 </table></div>
 </div>
-<a name="GstGLBaseMemoryAllocator"></a><div class="refsect1">
+<a name="GstGLBaseMemoryAllocator"></a><a name="GstGLAllocationParams"></a><div class="refsect1">
 <a name="gst-plugins-bad-libs-gstglbasememory.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
@@ -233,7 +233,7 @@
 </tr>
 <tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams">GstGLAllocationParams</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams-struct" title="struct GstGLAllocationParams">GstGLAllocationParams</a></td>
 </tr>
 <tr>
 <td class="define_keyword">#define</td>
@@ -260,7 +260,9 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-gstglbasememory.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
+<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-Boxed-Types.html">GBoxed</a>
+    <span class="lineart">╰──</span> GstGLAllocationParams
+    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
     <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
         <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
             <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocator-struct">GstAllocator</a>
@@ -280,8 +282,8 @@ for the mapping of GL buffers.</p>
 <div class="refsect2">
 <a name="GstGLAllocationParamsCopyFunc"></a><h3>GstGLAllocationParamsCopyFunc ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
-<span class="c_punctuation">(</span>*GstGLAllocationParamsCopyFunc<span class="c_punctuation">)</span> (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *src</code></em>,
-                                  <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *dest</code></em>);</pre>
+<span class="c_punctuation">(</span>*GstGLAllocationParamsCopyFunc<span class="c_punctuation">)</span> (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *src</code></em>,
+                                  <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *dest</code></em>);</pre>
 <p>Copies the parameters from <em class="parameter"><code>src</code></em>
  into <em class="parameter"><code>dest</code></em>
 .  The subclass must compose copy
@@ -297,12 +299,12 @@ functions from the superclass.</p>
 <tbody>
 <tr>
 <td class="parameter_name"><p>src</p></td>
-<td class="parameter_description"><p>the source <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to copy from</p></td>
+<td class="parameter_description"><p>the source <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to copy from</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
 <td class="parameter_name"><p>dest</p></td>
-<td class="parameter_description"><p>the source <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to copy</p></td>
+<td class="parameter_description"><p>the source <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to copy</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 </tbody>
@@ -326,7 +328,7 @@ free.</p>
 </colgroup>
 <tbody><tr>
 <td class="parameter_name"><p>params</p></td>
-<td class="parameter_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a></p></td>
+<td class="parameter_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr></tbody>
 </table></div>
@@ -336,7 +338,7 @@ free.</p>
 <div class="refsect2">
 <a name="gst-gl-allocation-params-init"></a><h3>gst_gl_allocation_params_init ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-gst_gl_allocation_params_init (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *params</code></em>,
+gst_gl_allocation_params_init (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *params</code></em>,
                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> struct_size</code></em>,
                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> alloc_flags</code></em>,
                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParamsCopyFunc" title="GstGLAllocationParamsCopyFunc ()"><span class="type">GstGLAllocationParamsCopyFunc</span></a> copy</code></em>,
@@ -363,7 +365,7 @@ when freeing the memory.</p>
 <tbody>
 <tr>
 <td class="parameter_name"><p>params</p></td>
-<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to initialize</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to initialize</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -434,8 +436,8 @@ with. </p></td>
 <hr>
 <div class="refsect2">
 <a name="gst-gl-allocation-params-copy"></a><h3>gst_gl_allocation_params_copy ()</h3>
-<pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="returnvalue">GstGLAllocationParams</span></a> *
-gst_gl_allocation_params_copy (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *src</code></em>);</pre>
+<pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="returnvalue">GstGLAllocationParams</span></a> *
+gst_gl_allocation_params_copy (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *src</code></em>);</pre>
 <div class="refsect3">
 <a name="gst-gl-allocation-params-copy.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -446,16 +448,17 @@ gst_gl_allocation_params_copy (<em class="parameter"><code><a class="link" href=
 </colgroup>
 <tbody><tr>
 <td class="parameter_name"><p>src</p></td>
-<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to initialize</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to initialize</p></td>
 <td class="parameter_annotations"> </td>
 </tr></tbody>
 </table></div>
 </div>
 <div class="refsect3">
 <a name="gst-gl-allocation-params-copy.returns"></a><h4>Returns</h4>
-<p> a copy of the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> specified by <em class="parameter"><code>src</code></em>
-or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> on
-failure</p>
+<p> a copy of the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> specified by
+<em class="parameter"><code>src</code></em>
+or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> on failure. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
 </div>
 <p class="since">Since: 1.8</p>
 </div>
@@ -463,8 +466,8 @@ failure</p>
 <div class="refsect2">
 <a name="gst-gl-allocation-params-free"></a><h3>gst_gl_allocation_params_free ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
-gst_gl_allocation_params_free (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *params</code></em>);</pre>
-<p>Frees the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> and all associated data.</p>
+gst_gl_allocation_params_free (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *params</code></em>);</pre>
+<p>Frees the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> and all associated data.</p>
 <div class="refsect3">
 <a name="gst-gl-allocation-params-free.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -475,7 +478,7 @@ gst_gl_allocation_params_free (<em class="parameter"><code><a class="link" href=
 </colgroup>
 <tbody><tr>
 <td class="parameter_name"><p>params</p></td>
-<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to initialize</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to initialize</p></td>
 <td class="parameter_annotations"> </td>
 </tr></tbody>
 </table></div>
@@ -486,7 +489,7 @@ gst_gl_allocation_params_free (<em class="parameter"><code><a class="link" href=
 <div class="refsect2">
 <a name="gst-gl-allocation-params-free-data"></a><h3>gst_gl_allocation_params_free_data ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
-gst_gl_allocation_params_free_data (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *params</code></em>);</pre>
+gst_gl_allocation_params_free_data (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *params</code></em>);</pre>
 <p>Frees the dynamically allocated data in <em class="parameter"><code>params</code></em>
 .  Direct subclasses
 should call this function in their own overriden free function.</p>
@@ -500,7 +503,7 @@ should call this function in their own overriden free function.</p>
 </colgroup>
 <tbody><tr>
 <td class="parameter_name"><p>params</p></td>
-<td class="parameter_description"><p>the source <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a></p></td>
+<td class="parameter_description"><p>the source <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr></tbody>
 </table></div>
@@ -511,8 +514,8 @@ should call this function in their own overriden free function.</p>
 <div class="refsect2">
 <a name="gst-gl-allocation-params-copy-data"></a><h3>gst_gl_allocation_params_copy_data ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
-gst_gl_allocation_params_copy_data (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *src</code></em>,
-                                    <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *dest</code></em>);</pre>
+gst_gl_allocation_params_copy_data (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *src</code></em>,
+                                    <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *dest</code></em>);</pre>
 <p>Copies the dynamically allocated data from <em class="parameter"><code>src</code></em>
  to <em class="parameter"><code>dest</code></em>
 .  Direct subclasses
@@ -528,12 +531,12 @@ should call this function in their own overriden copy function.</p>
 <tbody>
 <tr>
 <td class="parameter_name"><p>src</p></td>
-<td class="parameter_description"><p>the source <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a></p></td>
+<td class="parameter_description"><p>the source <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
 <td class="parameter_name"><p>dest</p></td>
-<td class="parameter_description"><p>the destination <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a></p></td>
+<td class="parameter_description"><p>the destination <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 </tbody>
@@ -653,7 +656,7 @@ is a <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMe
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemory" title="GstGLBaseMemory"><span class="returnvalue">GstGLBaseMemory</span></a> *
 <span class="c_punctuation">(</span>*GstGLBaseMemoryAllocatorAllocFunction<span class="c_punctuation">)</span>
                                (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocator"><span class="type">GstGLBaseMemoryAllocator</span></a> *allocator</code></em>,
-                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *params</code></em>);</pre>
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *params</code></em>);</pre>
 <p>Note: not called with a GL context current</p>
 <div class="refsect3">
 <a name="GstGLBaseMemoryAllocatorAllocFunction.parameters"></a><h4>Parameters</h4>
@@ -671,7 +674,7 @@ is a <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMe
 </tr>
 <tr>
 <td class="parameter_name"><p>params</p></td>
-<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to allocate the memory with</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to allocate the memory with</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 </tbody>
@@ -868,7 +871,7 @@ function to allocate and OpenGL resources needed for your application</p>
 <a name="gst-gl-base-memory-alloc"></a><h3>gst_gl_base_memory_alloc ()</h3>
 <pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemory" title="GstGLBaseMemory"><span class="returnvalue">GstGLBaseMemory</span></a> *
 gst_gl_base_memory_alloc (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocator"><span class="type">GstGLBaseMemoryAllocator</span></a> *allocator</code></em>,
-                          <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *params</code></em>);</pre>
+                          <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> *params</code></em>);</pre>
 <div class="refsect3">
 <a name="gst-gl-base-memory-alloc.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -885,7 +888,7 @@ gst_gl_base_memory_alloc (<em class="parameter"><code><a class="link" href="gst-
 </tr>
 <tr>
 <td class="parameter_name"><p>params</p></td>
-<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams" title="struct GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to allocate the memory with</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> to allocate the memory with</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 </tbody>
@@ -973,10 +976,6 @@ gst_gl_base_memory_memcpy (<em class="parameter"><code><a class="link" href="gst
   GstGLBaseMemoryAllocatorUnmapFunction         unmap;
   GstGLBaseMemoryAllocatorCopyFunction          copy;
   GstGLBaseMemoryAllocatorDestroyFunction       destroy;
-#if 0
-  GstGLBaseMemoryAllocatorFlushFunction         flush;        /* make CPU writes visible to the GPU */
-  GstGLBaseMemoryAllocatorInvalidateFunction    invalidate;   /* make GPU writes visible to the CPU */
-#endif
 } GstGLBaseMemoryAllocatorClass;
 </pre>
 <div class="refsect3">
@@ -1017,16 +1016,6 @@ gst_gl_base_memory_memcpy (<em class="parameter"><code><a class="link" href="gst
 <td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorDestroyFunction" title="GstGLBaseMemoryAllocatorDestroyFunction ()"><span class="type">GstGLBaseMemoryAllocatorDestroyFunction</span></a> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.destroy"></a>destroy</code></em>;</p></td>
 <td class="struct_member_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorDestroyFunction" title="GstGLBaseMemoryAllocatorDestroyFunction ()"><span class="type">GstGLBaseMemoryAllocatorDestroyFunction</span></a></p></td>
 <td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><span class="type">GstGLBaseMemoryAllocatorFlushFunction</span> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.flush"></a>flush</code></em>;</p></td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><span class="type">GstGLBaseMemoryAllocatorInvalidateFunction</span> <em class="structfield"><code><a name="GstGLBaseMemoryAllocatorClass.invalidate"></a>invalidate</code></em>;</p></td>
-<td> </td>
-<td> </td>
 </tr>
 </tbody>
 </table></div>
@@ -1129,7 +1118,7 @@ you are writing to OpenGL. Conversely, combining <a class="link" href="gst-plugi
 </div>
 <hr>
 <div class="refsect2">
-<a name="GstGLAllocationParams"></a><h3>struct GstGLAllocationParams</h3>
+<a name="GstGLAllocationParams-struct"></a><h3>struct GstGLAllocationParams</h3>
 <pre class="programlisting">struct GstGLAllocationParams {
   gsize                             struct_size;
   GstGLAllocationParamsCopyFunc     copy;
@@ -1158,58 +1147,58 @@ you are writing to OpenGL. Conversely, combining <a class="link" href="gst-plugi
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> <em class="structfield"><code><a name="GstGLAllocationParams.struct-size"></a>struct_size</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> <em class="structfield"><code><a name="GstGLAllocationParams-struct.struct-size"></a>struct_size</code></em>;</p></td>
 <td class="struct_member_description"><p>the size of the struct (including and subclass data)</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParamsCopyFunc" title="GstGLAllocationParamsCopyFunc ()"><span class="type">GstGLAllocationParamsCopyFunc</span></a> <em class="structfield"><code><a name="GstGLAllocationParams.copy"></a>copy</code></em>;</p></td>
+<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParamsCopyFunc" title="GstGLAllocationParamsCopyFunc ()"><span class="type">GstGLAllocationParamsCopyFunc</span></a> <em class="structfield"><code><a name="GstGLAllocationParams-struct.copy"></a>copy</code></em>;</p></td>
 <td class="struct_member_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParamsCopyFunc" title="GstGLAllocationParamsCopyFunc ()"><span class="type">GstGLAllocationParamsCopyFunc</span></a></p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParamsFreeFunc" title="GstGLAllocationParamsFreeFunc ()"><span class="type">GstGLAllocationParamsFreeFunc</span></a> <em class="structfield"><code><a name="GstGLAllocationParams.free"></a>free</code></em>;</p></td>
+<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParamsFreeFunc" title="GstGLAllocationParamsFreeFunc ()"><span class="type">GstGLAllocationParamsFreeFunc</span></a> <em class="structfield"><code><a name="GstGLAllocationParams-struct.free"></a>free</code></em>;</p></td>
 <td class="struct_member_description"><p>a <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParamsFreeFunc" title="GstGLAllocationParamsFreeFunc ()"><span class="type">GstGLAllocationParamsFreeFunc</span></a></p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstGLAllocationParams.alloc-flags"></a>alloc_flags</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstGLAllocationParams-struct.alloc-flags"></a>alloc_flags</code></em>;</p></td>
 <td class="struct_member_description"><p>allocation flags</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> <em class="structfield"><code><a name="GstGLAllocationParams.alloc-size"></a>alloc_size</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> <em class="structfield"><code><a name="GstGLAllocationParams-struct.alloc-size"></a>alloc_size</code></em>;</p></td>
 <td class="struct_member_description"><p>the allocation size</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocationParams-struct"><span class="type">GstAllocationParams</span></a> *<em class="structfield"><code><a name="GstGLAllocationParams.alloc-params"></a>alloc_params</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocationParams-struct"><span class="type">GstAllocationParams</span></a> *<em class="structfield"><code><a name="GstGLAllocationParams-struct.alloc-params"></a>alloc_params</code></em>;</p></td>
 <td class="struct_member_description"><p>the <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocationParams-struct"><span class="type">GstAllocationParams</span></a></p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *<em class="structfield"><code><a name="GstGLAllocationParams.context"></a>context</code></em>;</p></td>
+<td class="struct_member_name"><p><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *<em class="structfield"><code><a name="GstGLAllocationParams-struct.context"></a>context</code></em>;</p></td>
 <td class="struct_member_description"><p>a <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a></p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> <em class="structfield"><code><a name="GstGLAllocationParams.notify"></a>notify</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> <em class="structfield"><code><a name="GstGLAllocationParams-struct.notify"></a>notify</code></em>;</p></td>
 <td class="struct_member_description"><p>a <a href="/usr/share/gtk-doc/html/glibglib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a></p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> <em class="structfield"><code><a name="GstGLAllocationParams.user-data"></a>user_data</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> <em class="structfield"><code><a name="GstGLAllocationParams-struct.user-data"></a>user_data</code></em>;</p></td>
 <td class="struct_member_description"><p>argument to call <em class="parameter"><code>notify</code></em>
 with</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> <em class="structfield"><code><a name="GstGLAllocationParams.wrapped-data"></a>wrapped_data</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> <em class="structfield"><code><a name="GstGLAllocationParams-struct.wrapped-data"></a>wrapped_data</code></em>;</p></td>
 <td class="struct_member_description"><p>the wrapped data pointer</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> <em class="structfield"><code><a name="GstGLAllocationParams.gl-handle"></a>gl_handle</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> <em class="structfield"><code><a name="GstGLAllocationParams-struct.gl-handle"></a>gl_handle</code></em>;</p></td>
 <td class="struct_member_description"><p>the wrapped OpenGL handle</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>

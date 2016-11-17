@@ -22,6 +22,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
+/**
+ * SECTION:gstglmemoryegl
+ * @short_description: memory subclass for EGLImage's
+ * @see_also: #GstGLMemory, #GstGLAllocator, #GstGLBufferPool
+ *
+ * #GstGLMemoryEGL is created or wrapped through gst_gl_base_memory_alloc()
+ * with #GstGLVideoAllocationParams.
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -39,6 +48,14 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_GL_MEMORY);
 G_DEFINE_TYPE (GstGLMemoryEGLAllocator, gst_gl_memory_egl_allocator,
     GST_TYPE_GL_MEMORY_ALLOCATOR);
 
+/**
+ * gst_is_gl_memory_egl:
+ * @mem: a #GstMemory to test
+ *
+ * Returns: whether @mem is a #GstGLMemoryEGL
+ *
+ * Since: 1.10
+ */
 gboolean
 gst_is_gl_memory_egl (GstMemory * mem)
 {
@@ -54,6 +71,14 @@ _gl_mem_get_parent (GstGLMemoryEGL * gl_mem)
   return parent ? parent : gl_mem;
 }
 
+/**
+ * gst_gl_memory_egl_get_image:
+ * @mem: a #GstGLMemoryEGL
+ *
+ * Returns: The EGLImage held by @mem
+ *
+ * Since: 1.10
+ */
 EGLImageKHR
 gst_gl_memory_egl_get_image (GstGLMemoryEGL * mem)
 {
@@ -62,6 +87,14 @@ gst_gl_memory_egl_get_image (GstGLMemoryEGL * mem)
   return gst_egl_image_get_image (_gl_mem_get_parent (mem)->image);
 }
 
+/**
+ * gst_gl_memory_egl_get_display:
+ * @mem: a #GstGLMemoryEGL
+ *
+ * Returns: The EGLDisplay @mem is associated with
+ *
+ * Since: 1.10
+ */
 EGLDisplay
 gst_gl_memory_egl_get_display (GstGLMemoryEGL * mem)
 {
@@ -70,6 +103,14 @@ gst_gl_memory_egl_get_display (GstGLMemoryEGL * mem)
       context)->egl_display;
 }
 
+/**
+ * gst_gl_memory_egl_get_orientation:
+ * @mem: a #GstGLMemoryEGL
+ *
+ * Returns: The orientation of @mem
+ *
+ * Since: 1.10
+ */
 GstVideoGLTextureOrientation
 gst_gl_memory_egl_get_orientation (GstGLMemoryEGL * mem)
 {
@@ -225,6 +266,8 @@ gst_gl_memory_egl_allocator_init (GstGLMemoryEGLAllocator * allocator)
  *
  * Initializes the GL Memory allocator. It is safe to call this function
  * multiple times.  This must be called before any other GstGLMemoryEGL operation.
+ *
+ * Since: 1.10
  */
 void
 gst_gl_memory_egl_init_once (void)

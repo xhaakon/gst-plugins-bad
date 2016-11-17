@@ -1,33 +1,33 @@
 # Indonesian translations for gst-plugins-bad package.
 # This file is put in the public domain.
 # Andika Triwidada <andika@gmail.com>, 2013.
-# Andhika Padmawan <andhika.padmawan@gmail.com>, 2009-2014.
+# Andhika Padmawan <andhika.padmawan@gmail.com>, 2009-2016.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.3.2\n"
+"Project-Id-Version: gst-plugins-bad 1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-11-01 17:49+0200\n"
-"PO-Revision-Date: 2014-05-31 22:16+0700\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
+"PO-Revision-Date: 2016-11-14 20:38+0700\n"
 "Last-Translator: Andhika Padmawan <andhika.padmawan@gmail.com>\n"
 "Language-Team: Indonesian <translation-team-id@lists.sourceforge.net>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 
 msgid "failed to draw pattern"
-msgstr ""
+msgstr "gagal menggambar pola"
 
 msgid "A GL error occured"
-msgstr ""
+msgstr "Sebuah galat GL terjadi"
 
 msgid "format wasn't negotiated before get function"
-msgstr ""
+msgstr "format tidak dinegosiasikan sebelum mendapat fungsi"
 
 msgid "OpenCV failed to load template image"
-msgstr ""
+msgstr "OpenCV gagal memuat templat gambar"
 
 msgid "Could not read title information for DVD."
 msgstr "Tak dapat membaca informasi judul untuk DVD."
@@ -80,7 +80,7 @@ msgid "File location is set to NULL, please set it to a valid filename"
 msgstr "Lokasi berkas diisi NULL, harap isi dengan nama berkas yang valid"
 
 msgid "Digitalzoom element couldn't be created"
-msgstr ""
+msgstr "Elemen Digitalzoom tidak dapat dibuat"
 
 msgid "Subpicture format was not configured before data flow"
 msgstr "Format subgambar tak ditata sebelum aliran data"
@@ -128,39 +128,37 @@ msgstr ""
 msgid "Could not open file \"%s\" for reading."
 msgstr "Tak dapat membuka berkas \"%s\" untuk dibaca."
 
-#, fuzzy
 msgid "Couldn't find channel configuration file"
-msgstr "Tak bisa temukan berkas konfigurasi kanal DVB"
+msgstr "Tak bisa temukan berkas konfigurasi kanal"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't load channel configuration file: '%s'"
-msgstr "Tak bisa memuat berka konfigurasi kanal DVB: %s"
+msgstr "Tak bisa memuat berkas konfigurasi kanal: ‘%s’"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't find details for channel '%s'"
-msgstr "Tak bisa temukan rincian untuk kanal DVB %s"
+msgstr "Tak bisa temukan rincian untuk kanal ‘%s’"
 
-#, fuzzy, c-format
+#, c-format
 msgid "No properties for channel '%s'"
-msgstr "Tak bisa temukan rincian untuk kanal DVB %s"
+msgstr "Tak ada properti untuk kanal ‘%s’"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to set properties for channel '%s'"
-msgstr "Tak bisa temukan rincian untuk kanal DVB %s"
+msgstr "Gagal mengatur properti untuk kanal '%s'"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't find channel configuration file: '%s'"
-msgstr "Tak bisa temukan berkas konfigurasi kanal DVB"
+msgstr "Tak bisa temukan berkas konfigurasi kanal: ‘%s’"
 
-#, fuzzy
 msgid "Channel configuration file doesn't contain any channels"
-msgstr "Berkas konfigurasi kanal DVB tak memuat kanal apapun"
-
-#~ msgid "Internal data flow error."
-#~ msgstr "Galat arus data internal."
+msgstr "Berkas konfigurasi kanal tak memuat kanal apapun"
 
 #~ msgid "Couldn't get the Manifest's URI"
 #~ msgstr "Tak bisa memperoleh URI Manifes"
 
 #~ msgid "Could not write to file \"%s\"."
 #~ msgstr "Tak dapat menulis ke berkas \"%s\"."
+
+#~ msgid "Internal data flow error."
+#~ msgstr "Galat arus data internal."

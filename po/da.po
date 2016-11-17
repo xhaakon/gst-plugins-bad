@@ -2,26 +2,27 @@
 # Copyright (C) 2015 Mogens Jaeger og Joe Hansen.
 # This file is distributed under the same license as the gst-plugins-bad package.
 # Mogens Jaeger <mogens@jaeger.tf>, 2007.
-# Joe Hansen <joedalton2@yahoo.dk>, 2008, 2009, 2011, 2013, 2014, 2015.
+# Joe Hansen <joedalton2@yahoo.dk>, 2008, 2009, 2011, 2013, 2014, 2015, 2016.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad-1.6.0\n"
+"Project-Id-Version: gst-plugins-bad-1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-11-01 17:49+0200\n"
-"PO-Revision-Date: 2015-12-05 11:28+0200\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
+"PO-Revision-Date: 2016-11-03 11:28+0200\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 
 msgid "failed to draw pattern"
-msgstr ""
+msgstr "kunne ikke tegne mønster"
 
 msgid "A GL error occured"
-msgstr ""
+msgstr "Der opstod en GL-fejl"
 
 msgid "format wasn't negotiated before get function"
 msgstr "format blev ikke forhandlet før hent funktion"
@@ -126,145 +127,29 @@ msgstr "Kunne opregne leveringssystemer fra forende-enheden »%s«."
 msgid "Could not open file \"%s\" for reading."
 msgstr "Kunne ikke åbne filen »%s« for læsning."
 
-#, fuzzy
 msgid "Couldn't find channel configuration file"
-msgstr "Kunne ikke finde DVB-kanalens konfigurationsfil"
+msgstr "Kunne ikke finde kanalkonfigurationsfil"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't load channel configuration file: '%s'"
-msgstr "Kunne ikke indlæse DVB-kanalens konfigurationsfil: %s"
+msgstr "Kunne ikke indlæse kanalkonfigurationsfilen: »%s«"
 
-#, fuzzy, c-format
+# måske om kanalen
+#, c-format
 msgid "Couldn't find details for channel '%s'"
-msgstr "Kunne ikke finde detaljer for DVB-kanalen %s"
+msgstr "Kunne ikke finde detaljer for kanalen »%s«"
 
-#, fuzzy, c-format
+#, c-format
 msgid "No properties for channel '%s'"
-msgstr "Kunne ikke finde detaljer for DVB-kanalen %s"
+msgstr "Ingen egenskaber for kanalen »%s«"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to set properties for channel '%s'"
-msgstr "Kunne ikke finde detaljer for DVB-kanalen %s"
+msgstr "Kunne ikke angive egenskaber for kanalen »%s«"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't find channel configuration file: '%s'"
-msgstr "Kunne ikke finde DVB-kanalens konfigurationsfil"
+msgstr "Kunne ikke finde kanalkonfigurationsfilen: »%s«"
 
-#, fuzzy
 msgid "Channel configuration file doesn't contain any channels"
-msgstr "DVB-kanalens konfigurationsfil indeholder ikke nogen kanaler"
-
-#~ msgid "Internal data flow error."
-#~ msgstr "Intern datastrømfejl."
-
-#~ msgid "default GStreamer sound events audiosink"
-#~ msgstr "standardlydkanal for GStreamers lydhændelser"
-
-#~ msgid ""
-#~ "GStreamer can play audio using any number of output elements. Some "
-#~ "possible choices are osssink, pulsesink and alsasink. The audiosink can "
-#~ "be a partial pipeline instead of just one element."
-#~ msgstr ""
-#~ "GStreamer kan afspille lyd via et antal udgangselementer. Nogle mulige "
-#~ "valg er osssink, pulsesink og alsasink. Lydudgangen kan være en delvis "
-#~ "datakanal i stedet for bare et element."
-
-#~ msgid "description for default GStreamer sound events audiosink"
-#~ msgstr "beskrivelse af standardlydkanal for GStreamers lydhændelser"
-
-#~ msgid "Describes the selected audiosink element."
-#~ msgstr "Beskriver det valge lydkanalelement."
-
-#~ msgid "default GStreamer audiosink for Audio/Video Conferencing"
-#~ msgstr "standardlydkanal til GStreamers lyd/video-konference"
-
-#~ msgid ""
-#~ "description for default GStreamer audiosink for Audio/Video Conferencing"
-#~ msgstr ""
-#~ "beskrivelse for standardlydkanal til GStreamers lyd/video-konference"
-
-#~ msgid "default GStreamer audiosink for Music and Movies"
-#~ msgstr "standardlydkanal til GStreamers musik og film"
-
-#~ msgid "description for default GStreamer audiosink for Music and Movies"
-#~ msgstr "beskrivelse for standardlydkanal til GStreamers musik og film"
-
-#~ msgid "default GStreamer videosink"
-#~ msgstr "standardlydkanal for GStreamer"
-
-#~ msgid ""
-#~ "GStreamer can play video using any number of output elements. Some "
-#~ "possible choices are xvimagesink, ximagesink, sdlvideosink and aasink. "
-#~ "The videosink can be a partial pipeline instead of just one element."
-#~ msgstr ""
-#~ "GStreamer kan afspille video via et antal udgangselementer. Nogle mulige "
-#~ "valg er xvimagesink, ximagesink, sdlvideosink og aasink. Videoudgangen "
-#~ "kan være en delvis datakanal i stedet for bare et element."
-
-#~ msgid "description for default GStreamer videosink"
-#~ msgstr "beskrivelse for standardvideokanal for GStreamer"
-
-#~ msgid "Describes the selected videosink element."
-#~ msgstr "Beskriver den valgte videokanalselement."
-
-#~ msgid "default GStreamer audiosrc"
-#~ msgstr "standardlydoptagelse for GStreamer"
-
-#~ msgid ""
-#~ "GStreamer can record audio using any number of input elements. Some "
-#~ "possible choices are osssrc, pulsesrc and alsasrc. The audio source can "
-#~ "be a partial pipeline instead of just one element."
-#~ msgstr ""
-#~ "GStreamer kan optage lyd via et antal indgangselementer. Nogle mulige "
-#~ "valg er osssrc, pulsesrc og alsasrc. Lydkilden kan være en delvis "
-#~ "datakanal i stedet for bare et element."
-
-#~ msgid "description for default GStreamer audiosrc"
-#~ msgstr "beskrivelse for standardlydoptagelsen til GStreamer"
-
-#~ msgid "Describes the selected audiosrc element."
-#~ msgstr "Beskriver det valgte lydoptagelseselement."
-
-#~ msgid "default GStreamer videosrc"
-#~ msgstr "standardvideooptager for GStreamer"
-
-#~ msgid ""
-#~ "GStreamer can record video from any number of input elements. Some "
-#~ "possible choices are v4lsrc, v4l2src and videotestsrc. The video source "
-#~ "can be a partial pipeline instead of just one element."
-#~ msgstr ""
-#~ "GStreamer kan optage video via et antal indgangselementer. Nogle mulige "
-#~ "valg er v4lsrc, v4l2src og videotestsrc. Videokilden kan være en delvis "
-#~ "datakanal i stedet for bare et element."
-
-#~ msgid "description for default GStreamer videosrc"
-#~ msgstr "beskrivelse for standardvideooptageren til GStreamer"
-
-#~ msgid "Describes the selected videosrc element."
-#~ msgstr "Beskriver det valgte videooptagerelement."
-
-#~ msgid "default GStreamer visualization"
-#~ msgstr "Standardvisualisering for GStreamer"
-
-#~ msgid ""
-#~ "GStreamer can put visualization plugins in a pipeline to transform audio "
-#~ "streams in video frames. Some possible choices are goom, goom2k1 and "
-#~ "synaesthesia. The visualization plugin can be a partial pipeline instead "
-#~ "of just one element."
-#~ msgstr ""
-#~ "GStreamer kan placere visualiseringsudvidelsesmoduler i en datakanal for "
-#~ "at transformere lydstrømme i videobilleder. Nogle mulige valg er goom, "
-#~ "goom2k1 og synaesthesia. Visualiseringsudvidelsesmodulerne kan være en "
-#~ "delvis datakanal i stedet for bare et element."
-
-#~ msgid "description for default GStreamer visualization"
-#~ msgstr "beskrivelse for standardvisualisering til GStreamer"
-
-#~ msgid "Describes the selected visualization element."
-#~ msgstr "Beskriver det valgte visualiseringselement."
-
-#~ msgid "Couldn't get the Manifest's URI"
-#~ msgstr "Kunne ikke indhente Manifestens adresse"
-
-#~ msgid "Could not write to file \"%s\"."
-#~ msgstr "Kunne ikke skrive til fil »%s«."
+msgstr "Kanalkonfigurationsfilen indeholder ikke nogen kanaler"
