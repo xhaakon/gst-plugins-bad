@@ -1731,6 +1731,7 @@ uninstall-am: uninstall-girDATA uninstall-libLTLIBRARIES \
 @HAVE_INTROSPECTION_TRUE@		--library=libgstgl-@GST_API_VERSION@.la \
 @HAVE_INTROSPECTION_TRUE@		--include=Gst-@GST_API_VERSION@ \
 @HAVE_INTROSPECTION_TRUE@		--include=GstBase-@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--include=GstVideo-@GST_API_VERSION@ \
 @HAVE_INTROSPECTION_TRUE@		--libtool="$(top_builddir)/libtool" \
 @HAVE_INTROSPECTION_TRUE@		--pkg gstreamer-@GST_API_VERSION@ \
 @HAVE_INTROSPECTION_TRUE@		--pkg gstreamer-base-@GST_API_VERSION@ \

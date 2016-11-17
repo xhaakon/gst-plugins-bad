@@ -3,28 +3,29 @@
 # This file is distributed under the same license as the gst-plugins-bad package.
 #
 # Maxim V. Dziumanenko <dziumanenko@gmail.com>, 2004-2007.
-# Yuri Chornoivan <yurchor@ukr.net>, 2011, 2013, 2014, 2015.
+# Yuri Chornoivan <yurchor@ukr.net>, 2011, 2013, 2014, 2015, 2016.
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.6.0\n"
+"Project-Id-Version: gst-plugins-bad 1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-11-01 17:49+0200\n"
-"PO-Revision-Date: 2015-10-15 20:44+0300\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
+"PO-Revision-Date: 2016-11-01 20:55+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation-team-uk@lists.sourceforge.net>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Lokalize 1.5\n"
 
 msgid "failed to draw pattern"
-msgstr ""
+msgstr "не вдалося намалювати візерунок"
 
 msgid "A GL error occured"
-msgstr ""
+msgstr "Сталася помилка GL"
 
 msgid "format wasn't negotiated before get function"
 msgstr "формат не було узгоджено до виклику функції get"
@@ -135,36 +136,31 @@ msgstr ""
 msgid "Could not open file \"%s\" for reading."
 msgstr "Не вдалося відкрити файл «%s» для читання."
 
-#, fuzzy
 msgid "Couldn't find channel configuration file"
-msgstr "Не вдалося знайти файла налаштувань каналів DVB"
+msgstr "Не вдалося знайти файл налаштувань каналів"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't load channel configuration file: '%s'"
-msgstr "Не вдалося завантажити файл налаштувань каналів DVB: %s"
+msgstr "Не вдалося завантажити файл налаштувань каналів: «%s»"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't find details for channel '%s'"
-msgstr "Не вдалося знайти параметрів каналу DVB %s"
+msgstr "Не вдалося знайти параметрів каналу «%s»"
 
-#, fuzzy, c-format
+#, c-format
 msgid "No properties for channel '%s'"
-msgstr "Не вдалося знайти параметрів каналу DVB %s"
+msgstr "Немає властивостей каналу «%s»"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to set properties for channel '%s'"
-msgstr "Не вдалося знайти параметрів каналу DVB %s"
+msgstr "Не вдалося встановити властивості каналу «%s»"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't find channel configuration file: '%s'"
-msgstr "Не вдалося знайти файла налаштувань каналів DVB"
+msgstr "Не вдалося знайти файл налаштувань каналів DVB: «%s»"
 
-#, fuzzy
 msgid "Channel configuration file doesn't contain any channels"
-msgstr "У файлі налаштувань каналів DVB не міститься даних щодо жодного каналу"
-
-#~ msgid "Internal data flow error."
-#~ msgstr "Помилка внутрішнього перенесення даних."
+msgstr "У файлі налаштувань каналів не міститься даних щодо жодного каналу"
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "типовий приймач звукових подій GStreamer"
@@ -276,6 +272,9 @@ msgstr "У файлі налаштувань каналів DVB не місти�
 
 #~ msgid "Describes the selected visualization element."
 #~ msgstr "Описує вибраний елемент візуалізації."
+
+#~ msgid "Internal data flow error."
+#~ msgstr "Помилка внутрішнього перенесення даних."
 
 #~ msgid "Couldn't get the Manifest's URI"
 #~ msgstr "Не вдалося отримати адреси Manifest"

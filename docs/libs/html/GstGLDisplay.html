@@ -6,8 +6,8 @@
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
-<link rel="prev" href="gst-plugins-bad-libs-GstGLContextWGL.html" title="GstGLContextWGL">
-<link rel="next" href="gst-plugins-bad-libs-GstEGLImageMemory.html" title="GstEGLImageMemory">
+<link rel="prev" href="GstGLContext.html" title="GstGLContext">
+<link rel="next" href="gst-plugins-bad-libs-GstGLDisplayWayland.html" title="GstGLDisplayWayland">
 <meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -21,8 +21,8 @@
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="gl.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
-<td><a accesskey="p" href="gst-plugins-bad-libs-GstGLContextWGL.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
-<td><a accesskey="n" href="gst-plugins-bad-libs-GstEGLImageMemory.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+<td><a accesskey="p" href="GstGLContext.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="gst-plugins-bad-libs-GstGLDisplayWayland.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
 <a name="GstGLDisplay"></a><div class="titlepage"></div>
@@ -376,6 +376,26 @@ or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><co
 <a name="gst-gl-display-get-handle"></a><h3>gst_gl_display_get_handle ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guintptr"><span class="returnvalue">guintptr</span></a>
 gst_gl_display_get_handle (<em class="parameter"><code><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> *display</code></em>);</pre>
+<div class="refsect3">
+<a name="gst-gl-display-get-handle.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>display</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-gl-display-get-handle.returns"></a><h4>Returns</h4>
+<p> the native handle for the display</p>
+</div>
+<p class="since">Since: 1.4</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -402,18 +422,18 @@ gst_gl_display_create_context (<em class="parameter"><code><a class="link" href=
 </tr>
 <tr>
 <td class="parameter_name"><p>other_context</p></td>
-<td class="parameter_description"><p>other <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> to share resources with.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p> other <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> to share resources with. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>p_context</p></td>
-<td class="parameter_description"><p>resulting <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a></p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p> resulting <a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>][<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>error</p></td>
-<td class="parameter_description"><p>resulting <a href="/usr/share/gtk-doc/html/glibglib-Error-Reporting.html#GError"><span class="type">GError</span></a></p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p> resulting <a href="/usr/share/gtk-doc/html/glibglib-Error-Reporting.html#GError"><span class="type">GError</span></a>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
 </tr>
 </tbody>
 </table></div>
@@ -609,8 +629,8 @@ display's object lock held.</p>
 </tr>
 <tr>
 <td class="parameter_name"><p>context</p></td>
-<td class="parameter_description"><p>other context to share resources with.</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p> other context to share resources with. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>user_data</p></td>
@@ -622,7 +642,8 @@ display's object lock held.</p>
 </div>
 <div class="refsect3">
 <a name="GstGLDisplay-create-context.returns"></a><h4>Returns</h4>
-<p> the new context.</p>
+<p> the new context. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
 </div>
 <p>Flags: <a href="/usr/share/gtk-doc/html/gobjectgobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></p>
 </div>
