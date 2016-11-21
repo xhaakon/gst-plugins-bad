@@ -17,6 +17,13 @@
  * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  */
+
+/**
+ * SECTION:gstglutils
+ * @short_description: some miscellaneous utilities for OpenGL
+ * @see_also: #GstGLContext
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -36,344 +43,11 @@
 #include <gst/gl/wayland/gstgldisplay_wayland.h>
 #endif
 
-#ifndef GL_FRAMEBUFFER_UNDEFINED
-#define GL_FRAMEBUFFER_UNDEFINED          0x8219
-#endif
-#ifndef GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT
-#define GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT 0x8CD6
-#endif
-#ifndef GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT
-#define GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT 0x8CD7
-#endif
-#ifndef GL_FRAMEBUFFER_UNSUPPORTED
-#define GL_FRAMEBUFFER_UNSUPPORTED        0x8CDD
-#endif
-#ifndef GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS
-#define GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS 0x8CD9
-#endif
-
 #define USING_OPENGL(context) (gst_gl_context_check_gl_version (context, GST_GL_API_OPENGL, 1, 0))
 #define USING_OPENGL3(context) (gst_gl_context_check_gl_version (context, GST_GL_API_OPENGL3, 3, 1))
 #define USING_GLES(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES, 1, 0))
 #define USING_GLES2(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES2, 2, 0))
 #define USING_GLES3(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES2, 3, 0))
-
-static gchar *error_message;
-
-/* called in the gl thread */
-gboolean
-gst_gl_context_check_framebuffer_status (GstGLContext * context)
-{
-  GLenum status = 0;
-  status = context->gl_vtable->CheckFramebufferStatus (GL_FRAMEBUFFER);
-
-  switch (status) {
-    case GL_FRAMEBUFFER_COMPLETE:
-      return TRUE;
-      break;
-
-    case GL_FRAMEBUFFER_UNSUPPORTED:
-      GST_ERROR ("GL_FRAMEBUFFER_UNSUPPORTED");
-      break;
-
-    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-      GST_ERROR ("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
-      break;
-
-    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-      GST_ERROR ("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
-      break;
-    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
-      GST_ERROR ("GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS");
-      break;
-#if GST_GL_HAVE_OPENGL
-    case GL_FRAMEBUFFER_UNDEFINED:
-      GST_ERROR ("GL_FRAMEBUFFER_UNDEFINED");
-      break;
-#endif
-    default:
-      GST_ERROR ("General FBO error");
-  }
-
-  return FALSE;
-}
-
-typedef struct _GenTexture
-{
-  guint width, height;
-  GstVideoFormat format;
-  guint result;
-} GenTexture;
-
-static void
-_gen_texture (GstGLContext * context, GenTexture * data)
-{
-  const GstGLFuncs *gl = context->gl_vtable;
-  GLenum internal_format;
-
-  GST_TRACE ("Generating texture format:%u dimensions:%ux%u", data->format,
-      data->width, data->height);
-
-  gl->GenTextures (1, &data->result);
-  gl->BindTexture (GL_TEXTURE_2D, data->result);
-
-  internal_format =
-      gst_gl_sized_gl_format_from_gl_format_type (context, GL_RGBA,
-      GL_UNSIGNED_BYTE);
-  if (data->width > 0 && data->height > 0)
-    gl->TexImage2D (GL_TEXTURE_2D, 0, internal_format,
-        data->width, data->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-  gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-  GST_LOG ("generated texture id:%d", data->result);
-}
-
-/* deprecated. replaced by GstGLMemory */
-void
-gst_gl_context_gen_texture (GstGLContext * context, GLuint * pTexture,
-    GstVideoFormat v_format, GLint width, GLint height)
-{
-  GenTexture data = { width, height, v_format, 0 };
-
-  gst_gl_context_thread_add (context, (GstGLContextThreadFunc) _gen_texture,
-      &data);
-
-  *pTexture = data.result;
-}
-
-static void
-_del_texture (GstGLContext * context, guint * texture)
-{
-  context->gl_vtable->DeleteTextures (1, texture);
-}
-
-/* deprecated. replaced by GstGLMemory */
-void
-gst_gl_context_del_texture (GstGLContext * context, GLuint * pTexture)
-{
-  gst_gl_context_thread_add (context, (GstGLContextThreadFunc) _del_texture,
-      pTexture);
-}
-
-typedef struct _GenTextureFull
-{
-  const GstVideoInfo *info;
-  const gint comp;
-  guint result;
-} GenTextureFull;
-
-static void
-_gen_texture_full (GstGLContext * context, GenTextureFull * data)
-{
-  const GstGLFuncs *gl = context->gl_vtable;
-  GstVideoGLTextureType tex_type;
-  GstVideoFormat v_format;
-  GLint glinternalformat = 0;
-  GLenum glformat = 0;
-  GLenum gltype = 0;
-
-  gl->GenTextures (1, &data->result);
-  gl->BindTexture (GL_TEXTURE_2D, data->result);
-
-  v_format = GST_VIDEO_INFO_FORMAT (data->info);
-  tex_type = gst_gl_texture_type_from_format (context, v_format, data->comp);
-  glformat = gst_gl_format_from_gl_texture_type (tex_type);
-  gltype = GL_UNSIGNED_BYTE;
-  if (v_format == GST_VIDEO_FORMAT_RGB16)
-    gltype = GL_UNSIGNED_SHORT_5_6_5;
-  glinternalformat = gst_gl_sized_gl_format_from_gl_format_type (context,
-      glformat, gltype);
-
-  gl->TexImage2D (GL_TEXTURE_2D, 0, glinternalformat,
-      GST_VIDEO_INFO_COMP_WIDTH (data->info, data->comp),
-      GST_VIDEO_INFO_COMP_HEIGHT (data->info, data->comp), 0, glformat, gltype,
-      NULL);
-
-  gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  gl->TexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-}
-
-/* deprecated. replaced by GstGLMemory */
-void
-gst_gl_generate_texture_full (GstGLContext * context, const GstVideoInfo * info,
-    const guint comp, gint stride[], gsize offset[], gsize size[],
-    GLuint * pTexture)
-{
-  GenTextureFull data = { info, comp, 0 };
-
-  switch (GST_VIDEO_INFO_FORMAT (info)) {
-    case GST_VIDEO_FORMAT_RGB:
-    case GST_VIDEO_FORMAT_BGR:
-    {
-      stride[0] = GST_ROUND_UP_4 (GST_VIDEO_INFO_WIDTH (info) * 3);
-      offset[0] = 0;
-      size[0] = stride[0] * GST_VIDEO_INFO_HEIGHT (info);
-      break;
-    }
-    case GST_VIDEO_FORMAT_RGB16:
-    {
-      stride[0] = GST_ROUND_UP_4 (GST_VIDEO_INFO_WIDTH (info) * 2);
-      offset[0] = 0;
-      size[0] = stride[0] * GST_VIDEO_INFO_HEIGHT (info);
-      break;
-    }
-    case GST_VIDEO_FORMAT_RGBA:
-    case GST_VIDEO_FORMAT_BGRA:
-    case GST_VIDEO_FORMAT_ARGB:
-    case GST_VIDEO_FORMAT_ABGR:
-    case GST_VIDEO_FORMAT_RGBx:
-    case GST_VIDEO_FORMAT_BGRx:
-    case GST_VIDEO_FORMAT_xRGB:
-    case GST_VIDEO_FORMAT_xBGR:
-    case GST_VIDEO_FORMAT_AYUV:
-    {
-      stride[0] = GST_ROUND_UP_4 (GST_VIDEO_INFO_WIDTH (info) * 4);
-      offset[0] = 0;
-      size[0] = stride[0] * GST_VIDEO_INFO_HEIGHT (info);
-      break;
-    }
-    case GST_VIDEO_FORMAT_NV12:
-    case GST_VIDEO_FORMAT_NV21:
-    {
-      size[comp] = stride[comp] * GST_VIDEO_INFO_COMP_HEIGHT (info, comp);
-      if (comp == 0) {
-        stride[0] = GST_ROUND_UP_4 (GST_VIDEO_INFO_COMP_WIDTH (info, 1));
-        offset[0] = 0;
-      } else {
-        stride[1] = GST_ROUND_UP_4 (GST_VIDEO_INFO_COMP_WIDTH (info, 1) * 2);
-        offset[1] = size[0];
-      }
-      break;
-    }
-    case GST_VIDEO_FORMAT_I420:
-    case GST_VIDEO_FORMAT_YV12:
-    case GST_VIDEO_FORMAT_Y444:
-    case GST_VIDEO_FORMAT_Y42B:
-    case GST_VIDEO_FORMAT_Y41B:
-    {
-      stride[comp] = GST_ROUND_UP_4 (GST_VIDEO_INFO_COMP_WIDTH (info, comp));
-      size[comp] = stride[comp] * GST_VIDEO_INFO_COMP_HEIGHT (info, comp);
-      if (comp == 0)
-        offset[0] = 0;
-      else if (comp == 1)
-        offset[1] = size[0];
-      else
-        offset[2] = offset[1] + size[1];
-      break;
-    }
-    default:
-      GST_WARNING ("unsupported %s",
-          gst_video_format_to_string (GST_VIDEO_INFO_FORMAT (info)));
-      break;
-  }
-
-  gst_gl_context_thread_add (context,
-      (GstGLContextThreadFunc) _gen_texture_full, &data);
-
-  *pTexture = data.result;
-}
-
-typedef struct _GenFBO
-{
-  GstGLFramebuffer *frame;
-  gint width, height;
-  GLuint *fbo, *depth;
-} GenFBO;
-
-static void
-_gen_fbo (GstGLContext * context, GenFBO * data)
-{
-  gst_gl_framebuffer_generate (data->frame, data->width, data->height,
-      data->fbo, data->depth);
-}
-
-gboolean
-gst_gl_context_gen_fbo (GstGLContext * context, gint width, gint height,
-    GLuint * fbo, GLuint * depthbuffer)
-{
-  GstGLFramebuffer *frame = gst_gl_framebuffer_new (context);
-
-  GenFBO data = { frame, width, height, fbo, depthbuffer };
-
-  gst_gl_context_thread_add (context, (GstGLContextThreadFunc) _gen_fbo, &data);
-
-  gst_object_unref (frame);
-
-  return TRUE;
-}
-
-typedef struct _UseFBO2
-{
-  GstGLFramebuffer *frame;
-  gint texture_fbo_width;
-  gint texture_fbo_height;
-  GLuint fbo;
-  GLuint depth_buffer;
-  GLuint texture_fbo;
-  GLCB_V2 cb;
-  gpointer stuff;
-} UseFBO2;
-
-static void
-_use_fbo_v2 (GstGLContext * context, UseFBO2 * data)
-{
-  gst_gl_framebuffer_use_v2 (data->frame, data->texture_fbo_width,
-      data->texture_fbo_height, data->fbo, data->depth_buffer,
-      data->texture_fbo, data->cb, data->stuff);
-}
-
-gboolean
-gst_gl_context_use_fbo_v2 (GstGLContext * context, gint texture_fbo_width,
-    gint texture_fbo_height, GLuint fbo, GLuint depth_buffer,
-    GLuint texture_fbo, GLCB_V2 cb, gpointer stuff)
-{
-  GstGLFramebuffer *frame = gst_gl_framebuffer_new (context);
-
-  UseFBO2 data =
-      { frame, texture_fbo_width, texture_fbo_height, fbo, depth_buffer,
-    texture_fbo, cb, stuff
-  };
-
-  gst_gl_context_thread_add (context, (GstGLContextThreadFunc) _use_fbo_v2,
-      &data);
-
-  gst_object_unref (frame);
-
-  return TRUE;
-}
-
-typedef struct _DelFBO
-{
-  GstGLFramebuffer *frame;
-  GLuint fbo;
-  GLuint depth;
-} DelFBO;
-
-/* Called in the gl thread */
-static void
-_del_fbo (GstGLContext * context, DelFBO * data)
-{
-  gst_gl_framebuffer_delete (data->frame, data->fbo, data->depth);
-}
-
-/* Called by gltestsrc and glfilter */
-void
-gst_gl_context_del_fbo (GstGLContext * context, GLuint fbo, GLuint depth_buffer)
-{
-  GstGLFramebuffer *frame = gst_gl_framebuffer_new (context);
-
-  DelFBO data = { frame, fbo, depth_buffer };
-
-  gst_gl_context_thread_add (context, (GstGLContextThreadFunc) _del_fbo, &data);
-
-  gst_object_unref (frame);
-}
 
 struct _compile_shader
 {
@@ -454,26 +128,6 @@ gst_gl_context_gen_shader (GstGLContext * context, const gchar * vert_src,
       &data);
 
   return *shader != NULL;
-}
-
-void
-gst_gl_context_set_error (GstGLContext * context, const char *format, ...)
-{
-  va_list args;
-
-  g_free (error_message);
-
-  va_start (args, format);
-  error_message = g_strdup_vprintf (format, args);
-  va_end (args);
-
-  GST_WARNING ("%s", error_message);
-}
-
-gchar *
-gst_gl_context_get_error (void)
-{
-  return error_message;
 }
 
 /* Called by glfilter */
@@ -1065,5 +719,65 @@ gst_gl_value_set_texture_target_from_mask (GValue * value,
     }
 
     return ret;
+  }
+}
+
+static const gfloat identity_matrix[] = {
+  1.0f, 0.0f, 0.0, 0.0f,
+  0.0f, 1.0f, 0.0, 0.0f,
+  0.0f, 0.0f, 1.0, 0.0f,
+  0.0f, 0.0f, 0.0, 1.0f,
+};
+
+static const gfloat from_ndc_matrix[] = {
+  0.5f, 0.0f, 0.0, 0.5f,
+  0.0f, 0.5f, 0.0, 0.5f,
+  0.0f, 0.0f, 0.5, 0.5f,
+  0.0f, 0.0f, 0.0, 1.0f,
+};
+
+static const gfloat to_ndc_matrix[] = {
+  2.0f, 0.0f, 0.0, -1.0f,
+  0.0f, 2.0f, 0.0, -1.0f,
+  0.0f, 0.0f, 2.0, -1.0f,
+  0.0f, 0.0f, 0.0, 1.0f,
+};
+
+void
+gst_gl_multiply_matrix4 (const gfloat * a, const gfloat * b, gfloat * result)
+{
+  int i, j, k;
+  gfloat tmp[16] = { 0.0f };
+
+  if (!a || !b || !result)
+    return;
+
+  for (i = 0; i < 4; i++) {
+    for (j = 0; j < 4; j++) {
+      for (k = 0; k < 4; k++) {
+        tmp[i + (j * 4)] += a[i + (k * 4)] * b[k + (j * 4)];
+      }
+    }
+  }
+
+  for (i = 0; i < 16; i++)
+    result[i] = tmp[i];
+}
+
+void
+gst_gl_get_affine_transformation_meta_as_ndc (GstVideoAffineTransformationMeta *
+    meta, gfloat * matrix)
+{
+  if (!meta) {
+    int i;
+
+    for (i = 0; i < 16; i++) {
+      matrix[i] = identity_matrix[i];
+    }
+  } else {
+    gfloat tmp[16] = { 0.0f };
+
+    gst_gl_multiply_matrix4 (from_ndc_matrix, meta->matrix, tmp);
+    gst_gl_multiply_matrix4 (tmp, to_ndc_matrix, matrix);
   }
 }

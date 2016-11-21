@@ -25,11 +25,6 @@
 
 #define GST_TEST_HTTP_SRC_NAME            "testhttpsrc"
 
-struct _GstAdaptiveDemuxTestCaseClass
-{
-  GObjectClass parent_class;
-};
-
 #define gst_adaptive_demux_test_case_parent_class parent_class
 
 static void gst_adaptive_demux_test_case_dispose (GObject * object);
@@ -202,11 +197,6 @@ gst_adaptive_demux_test_check_received_data (GstAdaptiveDemuxTestEngine *
 
   gst_buffer_map (buffer, &info, GST_MAP_READ);
 
-  GST_DEBUG
-      ("segment_start = %" G_GUINT64_FORMAT " segment_received_size = %"
-      G_GUINT64_FORMAT " bufferSize=%d",
-      stream->segment_start, stream->segment_received_size, (gint) info.size);
-
   pattern = streamOffset - streamOffset % sizeof (pattern);
   for (guint64 i = 0; i != info.size; ++i) {
     guint received = info.data[i];
@@ -242,8 +232,19 @@ gst_adaptive_demux_test_check_received_data (GstAdaptiveDemuxTestEngine *
   return TRUE;
 }
 
-/* function to check total size of data received by AppSink
- * will be called when AppSink receives eos.
+/* AppSink EOS callback.
+ * To be used by tests that don't expect AppSink to receive EOS.
+ */
+void
+gst_adaptive_demux_test_unexpected_eos (GstAdaptiveDemuxTestEngine *
+    engine, GstAdaptiveDemuxTestOutputStream * stream, gpointer user_data)
+{
+  fail_if (TRUE);
+}
+
+/* AppSink EOS callback.
+ * To be used by tests that expect AppSink to receive EOS.
+ * Will check total size of data received by AppSink.
  */
 void
 gst_adaptive_demux_test_check_size_of_received_data (GstAdaptiveDemuxTestEngine
@@ -430,6 +431,7 @@ testSeekOnStateChanged (GstBus * bus, GstMessage * msg, gpointer user_data)
         TEST_TASK_STATE_WAITING_FOR_TESTSRC_STATE_CHANGE) {
       GST_DEBUG ("changing test_task_state");
       testData->test_task_state = TEST_TASK_STATE_EXITING;
+      gst_bus_remove_signal_watch (bus);
       g_cond_signal (&testData->test_task_state_cond);
     }
     g_mutex_unlock (&testData->test_task_state_lock);
@@ -453,6 +455,7 @@ testSeekPreTestCallback (GstAdaptiveDemuxTestEngine * engine,
   gst_bus_add_signal_watch (bus);
   g_signal_connect (bus, "message::state-changed",
       G_CALLBACK (testSeekOnStateChanged), testData);
+  gst_object_unref (bus);
 }
 
 static void

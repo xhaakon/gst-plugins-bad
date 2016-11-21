@@ -86,7 +86,7 @@
 #define GST_PACKAGE_ORIGIN "Unknown package origin"
 
 /* GStreamer package release date/time for plugins as YYYY-MM-DD */
-#define GST_PACKAGE_RELEASE_DATETIME "2016-08-19"
+#define GST_PACKAGE_RELEASE_DATETIME "2016-11-17"
 
 /* Define if static plugins should be built */
 #undef GST_PLUGIN_BUILD_STATIC
@@ -226,6 +226,9 @@
 /* Define to enable DVB Source (used by dvb). */
 #undef HAVE_DVB
 
+/* Define to 1 if the system has the type `EGLAttrib'. */
+#undef HAVE_EGLATTRIB
+
 /* Define to enable building of experimental plug-ins. */
 #undef HAVE_EXPERIMENTAL
 
@@ -243,6 +246,9 @@
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
+
+/* Define to enable fdkaac plugin (used by fdkaac). */
+#undef HAVE_FDK_AAC
 
 /* FIONREAD ioctl found in sys/filio.h */
 #undef HAVE_FIONREAD_IN_SYS_FILIO
@@ -325,6 +331,9 @@
 /* Define to enable Kate (used by kate). */
 #undef HAVE_KATE
 
+/* Define to enable drm/kms libraries (used by kms). */
+#undef HAVE_KMS
+
 /* Define to enable ladspa (used by ladspa). */
 #undef HAVE_LADSPA
 
@@ -351,6 +360,9 @@
 
 /* Define to enable libvisual visualization library (used by libvisual). */
 #undef HAVE_LIBVISUAL
+
+/* Define if we have liblilv >= 0.22 */
+#undef HAVE_LILV_0_22
 
 /* Define to enable Linear Systems SDI plugin (used by linsys). */
 #undef HAVE_LINSYS
@@ -418,14 +430,8 @@
 /* Define to enable opencv plugins (used by opencv). */
 #undef HAVE_OPENCV
 
-/* Define to 1 if you have the <opencv2/contrib/contrib.hpp> header file. */
-#undef HAVE_OPENCV2_CONTRIB_CONTRIB_HPP
-
 /* Define to 1 if you have the <opencv2/core/core_c.h> header file. */
 #undef HAVE_OPENCV2_CORE_CORE_C_H
-
-/* Define to 1 if you have the <opencv2/core/types_c.h> header file. */
-#undef HAVE_OPENCV2_CORE_TYPES_C_H
 
 /* Define to 1 if you have the <opencv2/core/version.hpp> header file. */
 #undef HAVE_OPENCV2_CORE_VERSION_HPP
@@ -438,12 +444,6 @@
 
 /* Define to 1 if you have the <opencv2/imgproc/imgproc.hpp> header file. */
 #undef HAVE_OPENCV2_IMGPROC_IMGPROC_HPP
-
-/* Define to 1 if you have the <opencv2/legacy/compat.hpp> header file. */
-#undef HAVE_OPENCV2_LEGACY_COMPAT_HPP
-
-/* Define to 1 if you have the <opencv2/legacy/legacy.hpp> header file. */
-#undef HAVE_OPENCV2_LEGACY_LEGACY_HPP
 
 /* Define to 1 if you have the <opencv2/objdetect/objdetect.hpp> header file.
    */
@@ -503,6 +503,9 @@
 
 /* Define to enable Qt elements (used by qt). */
 #undef HAVE_QT
+
+/* Define if building with QTKit */
+#undef HAVE_QTKIT
 
 /* Define if Qt eglfs integration is installed */
 #undef HAVE_QT_EGLFS
@@ -651,6 +654,9 @@
 /* Define to enable WebP (used by webp ). */
 #undef HAVE_WEBP
 
+/* Define to enable WebRTC Audio Processing (used by webrtcdsp). */
+#undef HAVE_WEBRTCDSP
+
 /* Define to enable wildmidi midi soft synth plugin (used by wildmidi). */
 #undef HAVE_WILDMIDI
 
@@ -731,7 +737,7 @@
 #define PACKAGE_NAME "GStreamer Bad Plug-ins"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "GStreamer Bad Plug-ins 1.8.3"
+#define PACKAGE_STRING "GStreamer Bad Plug-ins 1.10.1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "gst-plugins-bad"
@@ -740,7 +746,7 @@
 #undef PACKAGE_URL
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.8.3"
+#define PACKAGE_VERSION "1.10.1"
 
 /* directory where plugins are located */
 #ifdef _DEBUG
@@ -784,7 +790,7 @@
 #undef USE_EGL_RPI
 
 /* Version number of package */
-#define VERSION "1.8.3"
+#define VERSION "1.10.1"
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */

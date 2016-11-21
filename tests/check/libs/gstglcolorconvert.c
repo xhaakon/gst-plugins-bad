@@ -85,14 +85,21 @@ setup (void)
 }
 
 static void
-teardown (void)
+_check_gl_error (GstGLContext * context, gpointer data)
 {
   GLuint error = context->gl_vtable->GetError ();
   fail_if (error != GL_NONE, "GL error 0x%x encountered during processing\n",
       error);
+}
 
+static void
+teardown (void)
+{
   gst_object_unref (convert);
   gst_object_unref (window);
+
+  gst_gl_context_thread_add (context, (GstGLContextThreadFunc) _check_gl_error,
+      NULL);
   gst_object_unref (context);
   gst_object_unref (display);
 }
@@ -141,13 +148,15 @@ check_conversion (TestFrame * frames, guint size)
     /* create GL buffer */
     inbuf = gst_buffer_new ();
     for (j = 0; j < GST_VIDEO_INFO_N_PLANES (&in_info); j++) {
+      GstVideoGLTextureType tex_type = gst_gl_texture_type_from_format (context,
+          GST_VIDEO_INFO_FORMAT (&in_info), j);
       GstGLVideoAllocationParams *params;
       GstGLBaseMemory *mem;
 
       ref_count++;
       params = gst_gl_video_allocation_params_new_wrapped_data (context, NULL,
-          &in_info, j, NULL, GST_GL_TEXTURE_TARGET_2D, frames[i].data[j],
-          &ref_count, _frame_unref);
+          &in_info, j, NULL, GST_GL_TEXTURE_TARGET_2D, tex_type,
+          frames[i].data[j], &ref_count, _frame_unref);
 
       mem = gst_gl_base_memory_alloc (base_mem_alloc,
           (GstGLAllocationParams *) params);

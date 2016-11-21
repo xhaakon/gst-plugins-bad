@@ -27,6 +27,7 @@
 
 G_BEGIN_DECLS
 
+GST_EXPORT
 GType gst_gl_upload_get_type (void);
 #define GST_TYPE_GL_UPLOAD (gst_gl_upload_get_type())
 #define GST_GL_UPLOAD(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_GL_UPLOAD,GstGLUpload))
@@ -47,8 +48,9 @@ typedef enum
 
   GST_GL_UPLOAD_ERROR = -1,
   GST_GL_UPLOAD_UNSUPPORTED = -2,
+  GST_GL_UPLOAD_RECONFIGURE = -3,
   /* <private> */
-  GST_GL_UPLOAD_UNSHARED_GL_CONTEXT = -3,
+  GST_GL_UPLOAD_UNSHARED_GL_CONTEXT = -100,
 } GstGLUploadReturn;
 
 /**
@@ -58,11 +60,11 @@ typedef enum
  */
 struct _GstGLUpload
 {
-  /* <private> */
   GstObject        parent;
 
   GstGLContext    *context;
 
+  /* <private> */
   GstGLUploadPrivate *priv;
 
   gpointer _reserved[GST_PADDING];
@@ -76,26 +78,41 @@ struct _GstGLUpload
 struct _GstGLUploadClass
 {
   GstObjectClass object_class;
+
+  /* <private> */
+  gpointer _padding[GST_PADDING];
 };
 
+GST_EXPORT
 GstCaps *     gst_gl_upload_get_input_template_caps (void);
 
+GST_EXPORT
 GstGLUpload * gst_gl_upload_new                    (GstGLContext * context);
 
-GstCaps *     gst_gl_upload_transform_caps         (GstGLContext * context,
+GST_EXPORT
+void          gst_gl_upload_set_context            (GstGLUpload * upload,
+                                                    GstGLContext * context);
+
+GST_EXPORT
+GstCaps *     gst_gl_upload_transform_caps         (GstGLUpload * upload,
+                                                    GstGLContext * context,
                                                     GstPadDirection direction,
                                                     GstCaps * caps,
                                                     GstCaps * filter);
+GST_EXPORT
 gboolean      gst_gl_upload_set_caps               (GstGLUpload * upload,
                                                     GstCaps * in_caps,
                                                     GstCaps * out_caps);
+GST_EXPORT
 void          gst_gl_upload_get_caps               (GstGLUpload * upload,
                                                     GstCaps ** in_caps,
                                                     GstCaps ** out_caps);
+GST_EXPORT
 void          gst_gl_upload_propose_allocation     (GstGLUpload * upload,
                                                     GstQuery * decide_query,
                                                     GstQuery * query);
 
+GST_EXPORT
 GstGLUploadReturn gst_gl_upload_perform_with_buffer (GstGLUpload * upload,
                                                     GstBuffer * buffer,
                                                     GstBuffer ** outbuf_ptr);

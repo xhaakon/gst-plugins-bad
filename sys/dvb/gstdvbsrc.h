@@ -2,7 +2,7 @@
  * Copyright (C) 2006 Zaheer Abbas Merali <zaheerabbas at merali
  *                                         dot org>
  * Copyright (C) 2014 Samsung Electronics. All rights reserved.
- *     @Author: Reynaldo H. Verdejo Pinochet <r.verdejo@sisa.samsung.com>
+ *     @Author: Reynaldo H. Verdejo Pinochet <reynaldo@osg.samsung.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -64,8 +64,8 @@ struct _GstDvbSrc
   GMutex tune_mutex;
   gboolean need_tune;
 
+  GList * supported_delsys;
   guchar delsys;
-  guchar best_guess_delsys;
 
   int adapter_number;
   int frontend_number;

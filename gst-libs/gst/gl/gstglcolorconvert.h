@@ -28,6 +28,7 @@
 
 G_BEGIN_DECLS
 
+GST_EXPORT
 GType gst_gl_color_convert_get_type (void);
 #define GST_TYPE_GL_COLOR_CONVERT (gst_gl_color_convert_get_type())
 #define GST_GL_COLOR_CONVERT(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_GL_COLOR_CONVERT,GstGLColorConvert))
@@ -59,8 +60,7 @@ struct _GstGLColorConvert
   GstBuffer *    outbuf;
 
   /* used for the conversion */
-  GLuint           fbo;
-  GLuint           depth_buffer;
+  GstGLFramebuffer *fbo;
   GstGLShader     *shader;
 
   /* <private> */
@@ -76,7 +76,10 @@ struct _GstGLColorConvert
  */
 struct _GstGLColorConvertClass
 {
+  /* <private> */
   GstObjectClass object_class;
+
+  gpointer _padding[GST_PADDING];
 };
 
 /**
@@ -110,22 +113,28 @@ struct _GstGLColorConvertClass
     "framerate = " GST_VIDEO_FPS_RANGE ", "                             \
     "texture-target = (string) { 2D, rectangle, external-oes }"
 
+GST_EXPORT
 GstGLColorConvert * gst_gl_color_convert_new (GstGLContext * context);
 
-GstCaps *   gst_gl_color_convert_transform_caps (GstGLContext * convert,
+GST_EXPORT
+GstCaps *   gst_gl_color_convert_transform_caps (GstGLContext * context,
                                                  GstPadDirection direction,
                                                  GstCaps * caps,
                                                  GstCaps * filter);
-GstCaps *   gst_gl_color_convert_fixate_caps    (GstGLContext * convert,
+GST_EXPORT
+GstCaps *   gst_gl_color_convert_fixate_caps    (GstGLContext * context,
                                                  GstPadDirection direction,
                                                  GstCaps * caps,
                                                  GstCaps * other);
+GST_EXPORT
 gboolean    gst_gl_color_convert_set_caps    (GstGLColorConvert * convert,
                                               GstCaps           * in_caps,
                                               GstCaps           * out_caps);
+GST_EXPORT
 gboolean    gst_gl_color_convert_decide_allocation (GstGLColorConvert   * convert,
                                                     GstQuery            * query);
 
+GST_EXPORT
 GstBuffer * gst_gl_color_convert_perform    (GstGLColorConvert * convert, GstBuffer * inbuf);
 
 G_END_DECLS

@@ -30,6 +30,7 @@
 G_BEGIN_DECLS
 
 #define GST_TYPE_GL_BUFFER_ALLOCATOR (gst_gl_buffer_allocator_get_type())
+GST_EXPORT
 GType gst_gl_buffer_allocator_get_type(void);
 
 #define GST_IS_GL_BUFFER_ALLOCATOR(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GST_TYPE_GL_ALLOCATOR))
@@ -42,7 +43,6 @@ GType gst_gl_buffer_allocator_get_type(void);
 /**
  * GstGLBuffer:
  * @mem: the parent object
- * @context: the #GstGLContext to use for GL operations
  * @id: the buffer id for this memory
  * @target: the OpenGL target of this texture for binding purposes
  * @usage_hints: the OpenGL usage hints this buffer was created with
@@ -74,8 +74,12 @@ struct _GstGLBufferAllocationParams
 
   guint                     gl_target;
   guint                     gl_usage;
+
+  /* <private> */
+  gpointer                  _padding[GST_PADDING];
 };
 
+GST_EXPORT
 GstGLBufferAllocationParams *   gst_gl_buffer_allocation_params_new     (GstGLContext * context,
                                                                          gsize alloc_size,
                                                                          GstAllocationParams * alloc_params,
@@ -90,6 +94,9 @@ GstGLBufferAllocationParams *   gst_gl_buffer_allocation_params_new     (GstGLCo
 struct _GstGLBufferAllocator
 {
   GstGLBaseMemoryAllocator parent;
+
+  /* <private> */
+  gpointer _padding[GST_PADDING];
 };
 
 /**
@@ -100,6 +107,9 @@ struct _GstGLBufferAllocator
 struct _GstGLBufferAllocatorClass
 {
   GstGLBaseMemoryAllocatorClass parent_class;
+
+  /* <private> */
+  gpointer _padding[GST_PADDING];
 };
 
 #define GST_CAPS_FEATURE_MEMORY_GL_BUFFER "memory:GLBuffer"
@@ -111,9 +121,12 @@ struct _GstGLBufferAllocatorClass
  */
 #define GST_GL_BUFFER_ALLOCATOR_NAME   "GLBuffer"
 
+GST_EXPORT
 void          gst_gl_buffer_init_once (void);
+GST_EXPORT
 gboolean      gst_is_gl_buffer        (GstMemory * mem);
 
+GST_EXPORT
 GstGLBuffer * gst_gl_buffer_alloc     (GstGLContext * context,
                                        guint gl_target,
                                        guint gl_usage,

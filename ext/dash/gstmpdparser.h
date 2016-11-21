@@ -538,6 +538,7 @@ gboolean gst_mpd_client_setup_streaming (GstMpdClient * client, GstAdaptationSet
 gboolean gst_mpd_client_setup_representation (GstMpdClient *client, GstActiveStream *stream, GstRepresentationNode *representation);
 GstClockTime gst_mpd_client_get_next_fragment_duration (GstMpdClient * client, GstActiveStream * stream);
 GstClockTime gst_mpd_client_get_media_presentation_duration (GstMpdClient *client);
+GstClockTime gst_mpd_client_get_maximum_segment_duration (GstMpdClient * client);
 gboolean gst_mpd_client_get_last_fragment_timestamp_end (GstMpdClient * client, guint stream_idx, GstClockTime * ts);
 gboolean gst_mpd_client_get_next_fragment_timestamp (GstMpdClient * client, guint stream_idx, GstClockTime * ts);
 gboolean gst_mpd_client_get_next_fragment (GstMpdClient *client, guint indexStream, GstMediaFragmentInfo * fragment);
@@ -560,7 +561,7 @@ gboolean gst_mpd_client_has_next_period (GstMpdClient *client);
 gboolean gst_mpd_client_has_previous_period (GstMpdClient * client);
 
 /* Representation selection */
-gint gst_mpdparser_get_rep_idx_with_max_bandwidth (GList *Representations, gint max_bandwidth);
+gint gst_mpdparser_get_rep_idx_with_max_bandwidth (GList *Representations, gint max_bandwidth, gint max_video_width, gint max_video_height, gint max_video_framerate_n, gint max_video_framerate_d);
 gint gst_mpdparser_get_rep_idx_with_min_bandwidth (GList * Representations);
 
 /* URL management */

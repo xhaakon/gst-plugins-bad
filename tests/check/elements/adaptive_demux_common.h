@@ -77,7 +77,11 @@ typedef struct _GstAdaptiveDemuxTestExpectedOutput
   gboolean segment_verification_needed;
 } GstAdaptiveDemuxTestExpectedOutput;
 
-typedef struct _GstAdaptiveDemuxTestCaseClass GstAdaptiveDemuxTestCaseClass;
+typedef struct _GstAdaptiveDemuxTestCaseClass
+{
+  GObjectClass parent_class;
+} GstAdaptiveDemuxTestCaseClass;
+
 typedef struct _GstAdaptiveDemuxTestCase
 {
   GObject parent;
@@ -147,6 +151,19 @@ void gst_adaptive_demux_test_seek (const gchar * element_name,
     GstAdaptiveDemuxTestCase *testData);
 
 /* Utility functions for use within a unit test */
+
+/**
+ * gst_adaptive_demux_test_unexpected_eos:
+ * @engine: The #GstAdaptiveDemuxTestEngine that caused this callback
+ * @stream: The #GstAdaptiveDemuxTestOutputStream that caused this callback
+ * @user_data: A pointer to a #GstAdaptiveDemuxTestCase object
+ *
+ * This function can be used as an EOS callback by tests that don't expect
+ * AppSink to receive EOS.
+ */
+void
+gst_adaptive_demux_test_unexpected_eos (GstAdaptiveDemuxTestEngine *
+    engine, GstAdaptiveDemuxTestOutputStream * stream, gpointer user_data);
 
 /**
  * gst_adaptive_demux_test_check_size_of_received_data:

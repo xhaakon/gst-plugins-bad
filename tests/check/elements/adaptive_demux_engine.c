@@ -19,6 +19,7 @@
  */
 
 #include <gst/check/gstcheck.h>
+#include <gst/check/gsttestclock.h>
 #include "adaptive_demux_engine.h"
 
 typedef struct _GstAdaptiveDemuxTestEnginePrivate
@@ -26,6 +27,7 @@ typedef struct _GstAdaptiveDemuxTestEnginePrivate
   GstAdaptiveDemuxTestEngine engine;
   const GstAdaptiveDemuxTestCallbacks *callbacks;
   gpointer user_data;
+  guint clock_update_id;
 } GstAdaptiveDemuxTestEnginePrivate;
 
 
@@ -193,6 +195,29 @@ on_demux_sent_data (GstPad * pad, GstPadProbeInfo * info, gpointer data)
   return GST_PAD_PROBE_OK;
 }
 
+/* callback called when dash sends event to AppSink */
+static GstPadProbeReturn
+on_demux_sent_event (GstPad * pad, GstPadProbeInfo * info, gpointer data)
+{
+  GstAdaptiveDemuxTestEnginePrivate *priv =
+      (GstAdaptiveDemuxTestEnginePrivate *) data;
+  GstAdaptiveDemuxTestOutputStream *stream = NULL;
+  GstEvent *event;
+
+  event = GST_PAD_PROBE_INFO_EVENT (info);
+
+  GST_TEST_LOCK (&priv->engine);
+
+  if (priv->callbacks->demux_sent_event) {
+    stream = getTestOutputDataByPad (priv, pad, TRUE);
+    (*priv->callbacks->demux_sent_event) (&priv->engine,
+        stream, event, priv->user_data);
+  }
+
+  GST_TEST_UNLOCK (&priv->engine);
+  return GST_PAD_PROBE_OK;
+}
+
 /* callback called when demux receives events from GstFakeSoupHTTPSrc */
 static GstPadProbeReturn
 on_demuxReceivesEvent (GstPad * pad, GstPadProbeInfo * info, gpointer data)
@@ -308,6 +333,9 @@ on_demuxNewPad (GstElement * demux, GstPad * pad, gpointer user_data)
 
   gst_pad_add_probe (pad, GST_PAD_PROBE_TYPE_BUFFER,
       (GstPadProbeCallback) on_demux_sent_data, priv, NULL);
+  gst_pad_add_probe (pad, GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM |
+      GST_PAD_PROBE_TYPE_EVENT_FLUSH,
+      (GstPadProbeCallback) on_demux_sent_event, priv, NULL);
   gobject_class = G_OBJECT_GET_CLASS (sink);
   if (g_object_class_find_property (gobject_class, "sync")) {
     GST_DEBUG ("Setting sync=FALSE on AppSink");
@@ -399,6 +427,38 @@ on_ErrorMessageOnBus (GstBus * bus, GstMessage * msg, gpointer user_data)
 }
 
 static gboolean
+gst_adaptive_demux_update_test_clock (gpointer user_data)
+{
+  GstAdaptiveDemuxTestEnginePrivate *priv =
+      (GstAdaptiveDemuxTestEnginePrivate *) user_data;
+  GstClockID id;
+  GstClockTime next_entry;
+  GstTestClock *clock = GST_TEST_CLOCK (priv->engine.clock);
+
+  fail_unless (clock != NULL);
+  next_entry = gst_test_clock_get_next_entry_time (clock);
+  if (next_entry != GST_CLOCK_TIME_NONE) {
+    /* tests that do not want the manifest to update will set the update period
+     * to a big value, eg 500s. The manifest update task will register an alarm
+     * for that value.
+     * We do not want the clock to jump to that. If it does, the manifest update
+     * task will keep scheduling and use all the cpu power, starving the other
+     * threads.
+     * Usually the test require the clock to update with approx 3s, so we will
+     * allow only updates smaller than 100s
+     */
+    GstClockTime curr_time = gst_clock_get_time (GST_CLOCK (clock));
+    if (next_entry - curr_time < 100 * GST_SECOND) {
+      gst_test_clock_set_time (clock, next_entry);
+      id = gst_test_clock_process_next_clock_id (clock);
+      fail_unless (id != NULL);
+      gst_clock_id_unref (id);
+    }
+  }
+  return TRUE;
+}
+
+static gboolean
 start_pipeline_playing (gpointer user_data)
 {
   GstAdaptiveDemuxTestEnginePrivate *priv =
@@ -473,6 +533,20 @@ gst_adaptive_demux_test_run (const gchar * element_name,
   ret = gst_element_link (manifest_source, demux);
   fail_unless_equals_int (ret, TRUE);
 
+  priv->engine.clock = gst_system_clock_obtain ();
+  if (GST_IS_TEST_CLOCK (priv->engine.clock)) {
+    /*
+     * live tests will want to manipulate the clock, so they will register a
+     * gst_test_clock as the system clock.
+     * The on demand tests do not care about the clock, so they will let the
+     * system clock to the default one.
+     * If a gst_test_clock was installed as system clock, we register a
+     * periodic callback to update its value.
+     */
+    priv->clock_update_id =
+        g_timeout_add (100, gst_adaptive_demux_update_test_clock, priv);
+  }
+
   /* call a test callback before we start the pipeline */
   if (callbacks->pre_test)
     (*callbacks->pre_test) (&priv->engine, priv->user_data);
@@ -514,10 +588,14 @@ gst_adaptive_demux_test_run (const gchar * element_name,
       priv);
 
   GST_DEBUG ("main thread pipeline stopped");
+  if (priv->clock_update_id != 0)
+    g_source_remove (priv->clock_update_id);
+  gst_object_unref (priv->engine.clock);
   gst_object_unref (priv->engine.pipeline);
   priv->engine.pipeline = NULL;
   g_main_loop_unref (priv->engine.loop);
   g_ptr_array_unref (priv->engine.output_streams);
+  gst_object_unref (bus);
 
   GST_TEST_UNLOCK (priv);
   g_mutex_clear (&priv->engine.lock);

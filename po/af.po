@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins 0.7.6\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
 "PO-Revision-Date: 2004-03-18 14:16+0200\n"
 "Last-Translator: Petri Jooste <rkwjpj@puk.ac.za>\n"
 "Language-Team: Afrikaans <i18n@af.org.za>\n"
@@ -15,6 +15,12 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr ""
@@ -63,9 +69,6 @@ msgstr "Kon nie oudio-toestel \"%s\" konfigureer nie."
 msgid "Could not start sndio"
 msgstr "Kon nie skryf na lêer \"%s\" nie."
 
-msgid "Internal data flow error."
-msgstr ""
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 
@@ -85,10 +88,10 @@ msgstr ""
 msgid "Failed to get fragment URL."
 msgstr ""
 
-msgid "Internal data stream error."
+msgid "Couldn't download fragments"
 msgstr ""
 
-msgid "Couldn't download fragments"
+msgid "Internal data stream error."
 msgstr ""
 
 #, fuzzy
@@ -123,18 +126,30 @@ msgstr "Kon nie genoeg buffers vanaf toestel \"%s\" kry nie."
 msgid "Could not open file \"%s\" for reading."
 msgstr "Kon nie lêer \"%s\" oopmaak om te lees nie."
 
-msgid "Couldn't find DVB channel configuration file"
+msgid "Couldn't find channel configuration file"
 msgstr ""
 
 #, c-format
-msgid "Couldn't load DVB channel configuration file: %s"
-msgstr ""
-
-msgid "DVB channel configuration file doesn't contain any channels"
+msgid "Couldn't load channel configuration file: '%s'"
 msgstr ""
 
 #, c-format
-msgid "Couldn't find details for DVB channel %s"
+msgid "Couldn't find details for channel '%s'"
+msgstr ""
+
+#, c-format
+msgid "No properties for channel '%s'"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "Failed to set properties for channel '%s'"
+msgstr "Kon nie beheertoestel \"%s\" toemaak nie."
+
+#, c-format
+msgid "Couldn't find channel configuration file: '%s'"
+msgstr ""
+
+msgid "Channel configuration file doesn't contain any channels"
 msgstr ""
 
 #~ msgid "Could not write to file \"%s\"."

@@ -1,24 +1,32 @@
 # Vietnamese translation for GST Plugins Bad.
-# Copyright © 2015 Free Software Foundation, Inc.
+# Bản dịch tiếng Việt dành cho GST Plugins Bad.
+# Copyright © 2016 Free Software Foundation, Inc.
 # This file is distributed under the same license as the gst-plugins-bad package.
 # Clytie Siddall <clytie@riverland.net.au>, 2007-2010.
-# Trần Ngọc Quân <vnwildman@gmail.com>, 2012-2014, 2015.
+# Trần Ngọc Quân <vnwildman@gmail.com>, 2012-2014, 2015, 2016.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.6.0\n"
+"Project-Id-Version: gst-plugins-bad 1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
-"PO-Revision-Date: 2015-10-16 08:27+0700\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
+"PO-Revision-Date: 2016-11-02 13:38+0700\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: Vietnamese <translation-team-vi@lists.sourceforge.net>\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Language-Team-Website: <http://translationproject.org/team/vi.html>\n"
 "X-Generator: Gtranslator 2.91.7\n"
+
+msgid "failed to draw pattern"
+msgstr "gặp lỗi khi vẽ mẫu"
+
+msgid "A GL error occured"
+msgstr "Đã nảy sinh lỗi GL"
 
 msgid "format wasn't negotiated before get function"
 msgstr "định dạng không được dàn xếp trước hàm"
@@ -64,9 +72,6 @@ msgstr "Không thể cấu hình sndio"
 msgid "Could not start sndio"
 msgstr "Không thể khởi chạy sndio"
 
-msgid "Internal data flow error."
-msgstr "Lỗi tràn luồng dữ liệu nội bộ."
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 "Tập tin đã tạo có thời gian cuộn trước lớn hơn thời lượng của dòng dữ liệu"
@@ -88,11 +93,11 @@ msgstr "Định dạng ảnh phụ chưa được cấu hình trước khi dữ 
 msgid "Failed to get fragment URL."
 msgstr "Gặp lỗi khi lấy URL phân mảnh."
 
-msgid "Internal data stream error."
-msgstr "Lỗi luồng dữ liệu nội bộ."
-
 msgid "Couldn't download fragments"
 msgstr "Không thể tải về các phân mảnh"
+
+msgid "Internal data stream error."
+msgstr "Lỗi luồng dữ liệu nội bộ."
 
 msgid "No file name specified for writing."
 msgstr "Chưa chỉ định tên tập tin để ghi vào."
@@ -128,19 +133,31 @@ msgstr ""
 msgid "Could not open file \"%s\" for reading."
 msgstr "Không thể mở tập tin “%s” để đọc."
 
-msgid "Couldn't find DVB channel configuration file"
-msgstr "Không thể tìm thấy tập tin cấu hình kênh DVB"
+msgid "Couldn't find channel configuration file"
+msgstr "Không thể tìm thấy tập tin cấu hình kênh"
 
 #, c-format
-msgid "Couldn't load DVB channel configuration file: %s"
-msgstr "Không thể tải tập tin cấu hình kênh DVB: %s"
-
-msgid "DVB channel configuration file doesn't contain any channels"
-msgstr "Tập tin cấu hình kênh DVB chẳng chứa kênh nào cả"
+msgid "Couldn't load channel configuration file: '%s'"
+msgstr "Không thể tải tập tin cấu hình kênh: “%s”"
 
 #, c-format
-msgid "Couldn't find details for DVB channel %s"
-msgstr "Không thể tìm thấy chi tiết cho kênh DVB %s"
+msgid "Couldn't find details for channel '%s'"
+msgstr "Không thể tìm thấy chi tiết cho kênh “%s”"
+
+#, c-format
+msgid "No properties for channel '%s'"
+msgstr "Không có thuộc tính cho kênh “%s”"
+
+#, c-format
+msgid "Failed to set properties for channel '%s'"
+msgstr "Gặp lỗi khi đặt thuộc tính cho kênh “%s”"
+
+#, c-format
+msgid "Couldn't find channel configuration file: '%s'"
+msgstr "Không thể tìm thấy tập tin cấu hình kênh: “%s”"
+
+msgid "Channel configuration file doesn't contain any channels"
+msgstr "Tập tin cấu hình kênh chẳng chứa kênh nào cả"
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "các sự kiện âm thanh GStreamer mặc định cho “audiosink”"
@@ -247,6 +264,9 @@ msgstr "Không thể tìm thấy chi tiết cho kênh DVB %s"
 
 #~ msgid "Describes the selected visualization element."
 #~ msgstr "Mô tả về phần tử hiện hình đã chọn."
+
+#~ msgid "Internal data flow error."
+#~ msgstr "Lỗi tràn luồng dữ liệu nội bộ."
 
 #~ msgid "Couldn't get the Manifest's URI"
 #~ msgstr "Không thể lấy URI của Manifest"

@@ -39,8 +39,13 @@
 #  include <OpenGLES/ES2/gl.h>
 #  include <OpenGLES/ES2/glext.h>
 # else
-#  include <GLES2/gl2.h>
-#  include <GLES2/gl2ext.h>
+#  if GST_GL_HAVE_GLES3
+#   include <GLES3/gl3.h>
+#   include <GLES3/gl3ext.h>
+#  else
+#   include <GLES2/gl2.h>
+#   include <GLES2/gl2ext.h>
+#  endif
 # endif
 # if !GST_GL_HAVE_OPENGL
 #  include <gst/gl/glprototypes/gstgl_gles2compat.h>
@@ -57,6 +62,9 @@
 #   include <OpenGL/gl3.h>
 #  endif
 # else
+#  if defined(_MSC_VER)
+#   include <windows.h>
+#  endif
 #  include <GL/gl.h>
 #  if defined(__WIN32__) || defined(_WIN32)
 #   include <GL/glext.h>
@@ -68,7 +76,7 @@
 #pragma GCC diagnostic pop
 #endif
 
-#ifdef WINAPI
+#if defined(WINAPI)
 #define GSTGLAPI WINAPI
 #else
 #define GSTGLAPI
@@ -166,10 +174,14 @@ typedef struct _GstGLFuncs
 #undef GST_GL_EXT_FUNCTION
 #undef GST_GL_EXT_END
 
+GST_EXPORT
 gchar * gst_gl_api_to_string (GstGLAPI api);
+GST_EXPORT
 GstGLAPI gst_gl_api_from_string (const gchar * api_s);
 
+GST_EXPORT
 gchar * gst_gl_platform_to_string (GstGLPlatform platform);
+GST_EXPORT
 GstGLPlatform gst_gl_platform_from_string (const gchar * platform_s);
 
 G_END_DECLS

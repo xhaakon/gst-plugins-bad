@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.6.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
 "PO-Revision-Date: 2015-12-22 21:08+0100\n"
 "Last-Translator: Johnny A. Solbu <johnny@solbu.net>\n"
 "Language-Team: Norwegian Bokmaal <i18n-nb@lister.ping.uio.no>\n"
@@ -17,6 +17,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.6.9\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr "formatet ble ikke forhandlet før get-funksjon"
@@ -62,9 +68,6 @@ msgstr "Kunne ikke konfigurere sndio"
 msgid "Could not start sndio"
 msgstr "Kunne ikke starte sndio"
 
-msgid "Internal data flow error."
-msgstr "Intern feil i datastrøm."
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr "Genererte filen har en større preroll tid enn strømmens varighet"
 
@@ -85,11 +88,11 @@ msgstr "Underbildeformat er ikke konfigurert før dataflyt"
 msgid "Failed to get fragment URL."
 msgstr "Klarte ikke å hente fragment-nettadresse."
 
-msgid "Internal data stream error."
-msgstr "Intern feil i datastrøm."
-
 msgid "Couldn't download fragments"
 msgstr "Kunne ikke laste ned fragmenter"
+
+msgid "Internal data stream error."
+msgstr "Intern feil i datastrøm."
 
 msgid "No file name specified for writing."
 msgstr "Ingen filnavn oppgitt for skriving."
@@ -122,19 +125,36 @@ msgstr "Kan ikke nummerere leveringssystemer fra frontenhet «%s»."
 msgid "Could not open file \"%s\" for reading."
 msgstr "Kunne ikke åpne filen «%s» for lesing."
 
-msgid "Couldn't find DVB channel configuration file"
+#, fuzzy
+msgid "Couldn't find channel configuration file"
 msgstr "Kunne ikke finne DVB-kanal-konfigurasjonsfil"
 
-#, c-format
-msgid "Couldn't load DVB channel configuration file: %s"
+#, fuzzy, c-format
+msgid "Couldn't load channel configuration file: '%s'"
 msgstr "Kunne ikke finne DVB-kanalkonfigurasjonsfil: %s"
 
-msgid "DVB channel configuration file doesn't contain any channels"
+#, fuzzy, c-format
+msgid "Couldn't find details for channel '%s'"
+msgstr "Kunne ikke finne detaljer for DVB-kanal %s"
+
+#, fuzzy, c-format
+msgid "No properties for channel '%s'"
+msgstr "Kunne ikke finne detaljer for DVB-kanal %s"
+
+#, fuzzy, c-format
+msgid "Failed to set properties for channel '%s'"
+msgstr "Kunne ikke finne detaljer for DVB-kanal %s"
+
+#, fuzzy, c-format
+msgid "Couldn't find channel configuration file: '%s'"
+msgstr "Kunne ikke finne DVB-kanal-konfigurasjonsfil"
+
+#, fuzzy
+msgid "Channel configuration file doesn't contain any channels"
 msgstr "DVB-kanalkonfigurasjonsfilen inneholder ingen kanaler"
 
-#, c-format
-msgid "Couldn't find details for DVB channel %s"
-msgstr "Kunne ikke finne detaljer for DVB-kanal %s"
+#~ msgid "Internal data flow error."
+#~ msgstr "Intern feil i datastrøm."
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "standard GStreamer lydhendelser-audiosink"

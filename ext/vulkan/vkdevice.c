@@ -143,10 +143,14 @@ _physical_device_info (GstVulkanDevice * device, GError ** error)
 
   vkGetPhysicalDeviceProperties (gpu, &props);
 
-  GST_INFO_OBJECT (device, "device name %s type %s api version %u, "
-      "driver version %u vendor ID 0x%x, device ID 0x%x", props.deviceName,
-      _device_type_to_string (props.deviceType), props.apiVersion,
-      props.driverVersion, props.vendorID, props.deviceID);
+  GST_INFO_OBJECT (device, "device name %s type %s api version %u.%u.%u, "
+      "driver version %u.%u.%u vendor ID 0x%x, device ID 0x%x",
+      props.deviceName, _device_type_to_string (props.deviceType),
+      VK_VERSION_MAJOR (props.apiVersion), VK_VERSION_MINOR (props.apiVersion),
+      VK_VERSION_PATCH (props.apiVersion),
+      VK_VERSION_MAJOR (props.driverVersion),
+      VK_VERSION_MINOR (props.driverVersion),
+      VK_VERSION_PATCH (props.driverVersion), props.vendorID, props.deviceID);
 
   return TRUE;
 }
@@ -289,8 +293,13 @@ gst_vulkan_device_open (GstVulkanDevice * device, GError ** error)
     device_info.pNext = NULL;
     device_info.queueCreateInfoCount = 1;
     device_info.pQueueCreateInfos = &queue_info;
+#if 0
     device_info.enabledLayerCount = enabled_layer_count;
     device_info.ppEnabledLayerNames = (const char *const *) enabled_layers;
+#else
+    device_info.enabledLayerCount = 0;
+    device_info.ppEnabledLayerNames = NULL;
+#endif
     device_info.enabledExtensionCount = enabled_extension_count;
     device_info.ppEnabledExtensionNames = (const char *const *) extension_names;
     device_info.pEnabledFeatures = NULL;
@@ -535,11 +544,11 @@ gst_vulkan_device_run_context_query (GstElement * element,
     gst_query_parse_context (query, &context);
     if (context)
       gst_context_get_vulkan_device (context, device);
+
+    gst_query_unref (query);
   }
 
   GST_DEBUG_OBJECT (element, "found device %p", *device);
-
-  gst_query_unref (query);
 
   if (*device)
     return TRUE;

@@ -14,6 +14,7 @@ libgstgl_@GST_API_VERSION@_la_SOURCES = \
 	gstglbuffer.c \
 	gstglmemory.c \
 	gstglmemorypbo.c \
+	gstglrenderbuffer.c \
 	gstglbufferpool.c \
 	gstglfilter.c \
 	gstglformat.c \
@@ -45,6 +46,7 @@ libgstgl_@GST_API_VERSION@include_HEADERS = \
 	gstglbuffer.h \
 	gstglmemory.h \
 	gstglmemorypbo.h \
+	gstglrenderbuffer.h \
 	gstglbufferpool.h \
 	gstglfilter.h \
 	gstglformat.h \
@@ -127,9 +129,9 @@ configexecincludedir = $(libdir)/gstreamer-@GST_API_VERSION@/include/gst/gl
 nodist_configexecinclude_HEADERS = $(built_sys_header_configure)
 
 libgstgl_@GST_API_VERSION@_la_CFLAGS = \
+	-DGST_EXPORTS \
 	-I$(top_srcdir)/gst-libs \
 	-I$(top_builddir)/gst-libs \
-	$(GL_CFLAGS) \
 	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_BASE_CFLAGS) \
 	$(GST_CFLAGS) \
@@ -168,6 +170,7 @@ GstGL-@GST_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libgstgl-@GST_API_VERSION@
 		--library=libgstgl-@GST_API_VERSION@.la \
 		--include=Gst-@GST_API_VERSION@ \
 		--include=GstBase-@GST_API_VERSION@ \
+		--include=GstVideo-@GST_API_VERSION@ \
 		--libtool="$(top_builddir)/libtool" \
 		--pkg gstreamer-@GST_API_VERSION@ \
 		--pkg gstreamer-base-@GST_API_VERSION@ \

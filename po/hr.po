@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.7.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
 "PO-Revision-Date: 2016-05-27 12:45-0700\n"
 "Last-Translator: Božidar Putanec <bozidarp@yahoo.com>\n"
 "Language-Team: Croatian <lokalizacija@linux.hr>\n"
@@ -18,6 +18,12 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 "X-Generator: Lokalize 2.0\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr "format nije bio dogovoren prije ‘get’ funkcije"
@@ -65,9 +71,6 @@ msgstr "‘sndio’ nije moguće konfigurirati"
 msgid "Could not start sndio"
 msgstr "‘sndio’ nije moguće pokrenuti"
 
-msgid "Internal data flow error."
-msgstr "Interna greška u protoku podataka."
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 "U generiranoj datoteci priprema (preroll vrijeme) je duža od ukupnog "
@@ -90,11 +93,11 @@ msgstr ""
 msgid "Failed to get fragment URL."
 msgstr "Nije uspjelo dobiti fragmente adrese URL-a."
 
-msgid "Internal data stream error."
-msgstr "Interna greška toka (stream) podataka."
-
 msgid "Couldn't download fragments"
 msgstr "Nije moguće preuzeti fragmente"
+
+msgid "Internal data stream error."
+msgstr "Interna greška toka (stream) podataka."
 
 msgid "No file name specified for writing."
 msgstr "Nedostaje naziv (nema ga) datoteke za pisanje."
@@ -130,19 +133,36 @@ msgstr ""
 msgid "Could not open file \"%s\" for reading."
 msgstr "Datoteku „%s“ nije moguće otvoriti za čitanje."
 
-msgid "Couldn't find DVB channel configuration file"
+#, fuzzy
+msgid "Couldn't find channel configuration file"
 msgstr "Konfiguracijsku datoteku za DVB kanal nije moguće pronaći"
 
-#, c-format
-msgid "Couldn't load DVB channel configuration file: %s"
+#, fuzzy, c-format
+msgid "Couldn't load channel configuration file: '%s'"
 msgstr "Nije moguće učitati konfiguracijsku datoteku za DVB kanal: %s"
 
-msgid "DVB channel configuration file doesn't contain any channels"
+#, fuzzy, c-format
+msgid "Couldn't find details for channel '%s'"
+msgstr "Pojedinosti za DVB kanal %s nije moguće pronaći"
+
+#, fuzzy, c-format
+msgid "No properties for channel '%s'"
+msgstr "Pojedinosti za DVB kanal %s nije moguće pronaći"
+
+#, fuzzy, c-format
+msgid "Failed to set properties for channel '%s'"
+msgstr "Pojedinosti za DVB kanal %s nije moguće pronaći"
+
+#, fuzzy, c-format
+msgid "Couldn't find channel configuration file: '%s'"
+msgstr "Konfiguracijsku datoteku za DVB kanal nije moguće pronaći"
+
+#, fuzzy
+msgid "Channel configuration file doesn't contain any channels"
 msgstr "Konfiguracijska datoteka za DVB kanal ne sadrži nijedan kanal"
 
-#, c-format
-msgid "Couldn't find details for DVB channel %s"
-msgstr "Pojedinosti za DVB kanal %s nije moguće pronaći"
+#~ msgid "Internal data flow error."
+#~ msgstr "Interna greška u protoku podataka."
 
 #~ msgid "Could not write to file \"%s\"."
 #~ msgstr "Ne mogu pisati u datoteku „%s”."

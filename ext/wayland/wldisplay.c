@@ -75,6 +75,9 @@ gst_wl_display_finalize (GObject * gobject)
   g_hash_table_unref (self->buffers);
   g_mutex_clear (&self->buffers_mutex);
 
+  if (self->viewporter)
+    wp_viewporter_destroy (self->viewporter);
+
   if (self->shm)
     wl_shm_destroy (self->shm);
 
@@ -161,8 +164,9 @@ registry_handle_global (void *data, struct wl_registry *registry,
   } else if (g_strcmp0 (interface, "wl_shm") == 0) {
     self->shm = wl_registry_bind (registry, id, &wl_shm_interface, 1);
     wl_shm_add_listener (self->shm, &shm_listener, self);
-  } else if (g_strcmp0 (interface, "wl_scaler") == 0) {
-    self->scaler = wl_registry_bind (registry, id, &wl_scaler_interface, 2);
+  } else if (g_strcmp0 (interface, "wp_viewporter") == 0) {
+    self->viewporter =
+        wl_registry_bind (registry, id, &wp_viewporter_interface, 1);
   }
 }
 
@@ -266,9 +270,16 @@ gst_wl_display_new_existing (struct wl_display * display,
   VERIFY_INTERFACE_EXISTS (subcompositor, "wl_subcompositor");
   VERIFY_INTERFACE_EXISTS (shell, "wl_shell");
   VERIFY_INTERFACE_EXISTS (shm, "wl_shm");
-  VERIFY_INTERFACE_EXISTS (scaler, "wl_scaler");
 
 #undef VERIFY_INTERFACE_EXISTS
+
+  /* We make the viewporter optional even though it may cause bad display.
+   * This is so one can test wayland display on older compositor or on
+   * compositor that don't implement this extension. */
+  if (!self->viewporter) {
+    g_warning ("Wayland compositor is missing the ability to scale, video "
+        "display may not work properly.");
+  }
 
   self->thread = g_thread_try_new ("GstWlDisplay", gst_wl_display_thread_run,
       self, &err);

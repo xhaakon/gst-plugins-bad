@@ -171,8 +171,7 @@ gst_decklink_audio_src_class_init (GstDecklinkAudioSrcClass * klass)
           G_MAXINT, DEFAULT_BUFFER_SIZE,
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_template));
+  gst_element_class_add_static_pad_template (element_class, &sink_template);
 
   gst_element_class_set_static_metadata (element_class, "Decklink Audio Source",
       "Audio/Src", "Decklink Source", "David Schleef <ds@entropywave.com>, "
@@ -279,14 +278,24 @@ gst_decklink_audio_src_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
   GST_DEBUG_OBJECT (self, "Setting caps %" GST_PTR_FORMAT, caps);
 
   if ((current_caps = gst_pad_get_current_caps (GST_BASE_SRC_PAD (bsrc)))) {
+    GstCaps *curcaps_cp;
+    GstStructure *cur_st, *caps_st;
+
     GST_DEBUG_OBJECT (self, "Pad already has caps %" GST_PTR_FORMAT, caps);
 
-    if (!gst_caps_is_equal (caps, current_caps)) {
-      GST_ERROR_OBJECT (self, "New caps are not equal to old caps");
+    curcaps_cp = gst_caps_make_writable (current_caps);
+    cur_st = gst_caps_get_structure (curcaps_cp, 0);
+    caps_st = gst_caps_get_structure (caps, 0);
+    gst_structure_remove_field (cur_st, "channel-mask");
+
+    if (!gst_structure_can_intersect (caps_st, cur_st)) {
+      GST_ERROR_OBJECT (self, "New caps are not compatible with old caps");
       gst_caps_unref (current_caps);
+      gst_caps_unref (curcaps_cp);
       return FALSE;
     } else {
       gst_caps_unref (current_caps);
+      gst_caps_unref (curcaps_cp);
       return TRUE;
     }
   }
@@ -368,7 +377,7 @@ gst_decklink_audio_src_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
         self->input->config->SetInt (bmdDeckLinkConfigAudioInputConnection,
         conn);
     if (ret != S_OK) {
-      GST_ERROR ("set configuration (audio input connection)");
+      GST_ERROR ("set configuration (audio input connection): 0x%08x", ret);
       return FALSE;
     }
   }
@@ -376,7 +385,7 @@ gst_decklink_audio_src_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
   ret = self->input->input->EnableAudioInput (bmdAudioSampleRate48kHz,
       sample_depth, 2);
   if (ret != S_OK) {
-    GST_WARNING_OBJECT (self, "Failed to enable audio input");
+    GST_WARNING_OBJECT (self, "Failed to enable audio input: 0x%08x", ret);
     return FALSE;
   }
 
@@ -492,8 +501,10 @@ retry:
   sample_count = p->packet->GetSampleFrameCount ();
   data_size = self->info.bpf * sample_count;
 
-  if (p->capture_time == GST_CLOCK_TIME_NONE && self->next_offset == (guint64) - 1) {
-    GST_DEBUG_OBJECT (self, "Got packet without timestamp before initial "
+  if (p->capture_time == GST_CLOCK_TIME_NONE
+      && self->next_offset == (guint64) - 1) {
+    GST_DEBUG_OBJECT (self,
+        "Got packet without timestamp before initial "
         "timestamp after discont - dropping");
     capture_packet_free (p);
     goto retry;

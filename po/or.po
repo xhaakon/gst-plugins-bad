@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-0.8.3\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
 "PO-Revision-Date: 2004-09-27 13:32+0530\n"
 "Last-Translator: Gora Mohanty <gora_mohanty@yahoo.co.in>\n"
 "Language-Team: Oriya <gora_mohanty@yahoo.co.in>\n"
@@ -16,6 +16,12 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr ""
@@ -64,9 +70,6 @@ msgstr "\"%s\" ଧ୍ବନି ଯନ୍ତ୍ର ବିନ୍ଯାସ କର�
 msgid "Could not start sndio"
 msgstr "\"%s\" ଫାଇଲ ଲେଖିହେଲା ନାହିଁ."
 
-msgid "Internal data flow error."
-msgstr ""
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 
@@ -86,10 +89,10 @@ msgstr ""
 msgid "Failed to get fragment URL."
 msgstr ""
 
-msgid "Internal data stream error."
+msgid "Couldn't download fragments"
 msgstr ""
 
-msgid "Couldn't download fragments"
+msgid "Internal data stream error."
 msgstr ""
 
 #, fuzzy
@@ -124,18 +127,30 @@ msgstr "\"%s\" ଯନ୍ତ୍ରରୁ ପର୍ଯ୍ଯାପ୍ତ ଅସ୍
 msgid "Could not open file \"%s\" for reading."
 msgstr "\"%s\" ଫାଇଲ ପଢ଼ିବା ପାଇଁ ଖୋଲିହେଲା ନାହିଁ."
 
-msgid "Couldn't find DVB channel configuration file"
+msgid "Couldn't find channel configuration file"
 msgstr ""
 
 #, c-format
-msgid "Couldn't load DVB channel configuration file: %s"
-msgstr ""
-
-msgid "DVB channel configuration file doesn't contain any channels"
+msgid "Couldn't load channel configuration file: '%s'"
 msgstr ""
 
 #, c-format
-msgid "Couldn't find details for DVB channel %s"
+msgid "Couldn't find details for channel '%s'"
+msgstr ""
+
+#, c-format
+msgid "No properties for channel '%s'"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "Failed to set properties for channel '%s'"
+msgstr "\"%s\" ନିୟନ୍ତ୍ରଣ ଯନ୍ତ୍ର ବନ୍ଦ କରିହେଲା ନାହିଁ."
+
+#, c-format
+msgid "Couldn't find channel configuration file: '%s'"
+msgstr ""
+
+msgid "Channel configuration file doesn't contain any channels"
 msgstr ""
 
 #~ msgid "Could not write to file \"%s\"."

@@ -2,6 +2,7 @@ plugin_LTLIBRARIES = libgstandroidmedia.la
 
 libgstandroidmedia_la_SOURCES = \
 	gstahcsrc.c \
+	gstahssrc.c \
 	gstamcaudiodec.c \
 	gstamc.c \
 	gstamcsurface.c \
@@ -9,12 +10,13 @@ libgstandroidmedia_la_SOURCES = \
 	gstamcvideodec.c \
 	gstamcvideoenc.c \
 	gst-android-graphics-imageformat.c \
-	gst-android-graphics-surfacetexture.c \
 	gst-android-hardware-camera.c \
+	gst-android-hardware-sensor.c \
 	gstjniutils.c
 
 noinst_HEADERS = \
 	gstahcsrc.h \
+	gstahssrc.h \
 	gstamcaudiodec.h \
 	gstamc-constants.h \
 	gstamc.h \
@@ -23,8 +25,8 @@ noinst_HEADERS = \
 	gstamcvideodec.h \
 	gstamcvideoenc.h \
 	gst-android-graphics-imageformat.h \
-	gst-android-graphics-surfacetexture.h \
 	gst-android-hardware-camera.h \
+	gst-android-hardware-sensor.h \
 	gstjniutils.h
 
 libgstandroidmedia_la_CFLAGS = \
@@ -52,4 +54,5 @@ libgstandroidmedia_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 androidmedia_java_classesdir = $(datadir)/gst-android/ndk-build/androidmedia/
 androidmedia_java_classes_DATA = \
 	org/freedesktop/gstreamer/androidmedia/GstAhcCallback.java \
+	org/freedesktop/gstreamer/androidmedia/GstAhsCallback.java \
 	org/freedesktop/gstreamer/androidmedia/GstAmcOnFrameAvailableListener.java

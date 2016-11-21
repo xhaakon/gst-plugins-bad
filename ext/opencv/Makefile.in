@@ -178,7 +178,6 @@ am_libgstopencv_la_OBJECTS = libgstopencv_la-gstopencv.lo \
 	libgstopencv_la-gstedgedetect.lo \
 	libgstopencv_la-gstfaceblur.lo \
 	libgstopencv_la-gsthanddetect.lo \
-	libgstopencv_la-gstpyramidsegment.lo \
 	libgstopencv_la-gsttemplatematch.lo \
 	libgstopencv_la-gsttextoverlay.lo \
 	libgstopencv_la-gstmotioncells.lo \
@@ -325,6 +324,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -346,6 +347,8 @@ EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
 FAAC_LIBS = @FAAC_LIBS@
 FAAD_LIBS = @FAAD_LIBS@
+FDK_AAC_CFLAGS = @FDK_AAC_CFLAGS@
+FDK_AAC_LIBS = @FDK_AAC_LIBS@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
 FLITE_CFLAGS = @FLITE_CFLAGS@
@@ -395,6 +398,8 @@ GST_ALLOCATORS_CFLAGS = @GST_ALLOCATORS_CFLAGS@
 GST_ALLOCATORS_LIBS = @GST_ALLOCATORS_LIBS@
 GST_ALL_LDFLAGS = @GST_ALL_LDFLAGS@
 GST_API_VERSION = @GST_API_VERSION@
+GST_AUDIO_CFLAGS = @GST_AUDIO_CFLAGS@
+GST_AUDIO_LIBS = @GST_AUDIO_LIBS@
 GST_BASE_CFLAGS = @GST_BASE_CFLAGS@
 GST_BASE_LIBS = @GST_BASE_LIBS@
 GST_CFLAGS = @GST_CFLAGS@
@@ -540,6 +545,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -666,8 +673,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -710,8 +715,13 @@ WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
 WAYLAND_EGL_CFLAGS = @WAYLAND_EGL_CFLAGS@
 WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
+WAYLAND_PROTOCOLS_CFLAGS = @WAYLAND_PROTOCOLS_CFLAGS@
+WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
+WAYLAND_PROTOCOLS_LIBS = @WAYLAND_PROTOCOLS_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -816,7 +826,6 @@ libgstopencv_la_SOURCES = gstopencv.cpp \
 			gstedgedetect.cpp \
 			gstfaceblur.cpp \
 			gsthanddetect.cpp \
-			gstpyramidsegment.cpp \
 			gsttemplatematch.cpp \
 			gsttextoverlay.cpp \
 			gstmotioncells.cpp \
@@ -862,7 +871,6 @@ noinst_HEADERS = gstopencvvideofilter.h gstopencvutils.h \
 		gstfaceblur.h \
 		gstfacedetect.h \
 		gsthanddetect.h \
-		gstpyramidsegment.h \
 		gsttemplatematch.h \
 		gsttextoverlay.h \
 		gstskindetect.h \
@@ -973,7 +981,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstopencv.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstopencvutils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstopencvvideofilter.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstpyramidsegment.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstretinex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstsegmentation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstskindetect.Plo@am__quote@
@@ -1095,13 +1102,6 @@ libgstopencv_la-gsthanddetect.lo: gsthanddetect.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gsthanddetect.cpp' object='libgstopencv_la-gsthanddetect.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gsthanddetect.lo `test -f 'gsthanddetect.cpp' || echo '$(srcdir)/'`gsthanddetect.cpp
-
-libgstopencv_la-gstpyramidsegment.lo: gstpyramidsegment.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstpyramidsegment.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstpyramidsegment.Tpo -c -o libgstopencv_la-gstpyramidsegment.lo `test -f 'gstpyramidsegment.cpp' || echo '$(srcdir)/'`gstpyramidsegment.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstpyramidsegment.Tpo $(DEPDIR)/libgstopencv_la-gstpyramidsegment.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstpyramidsegment.cpp' object='libgstopencv_la-gstpyramidsegment.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstpyramidsegment.lo `test -f 'gstpyramidsegment.cpp' || echo '$(srcdir)/'`gstpyramidsegment.cpp
 
 libgstopencv_la-gsttemplatematch.lo: gsttemplatematch.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gsttemplatematch.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gsttemplatematch.Tpo -c -o libgstopencv_la-gsttemplatematch.lo `test -f 'gsttemplatematch.cpp' || echo '$(srcdir)/'`gsttemplatematch.cpp

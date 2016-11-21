@@ -33,16 +33,30 @@ G_BEGIN_DECLS
 #define GST_GL_VIEW_CONVERT_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj) ,GST_TYPE_GL_VIEW_CONVERT,GstGLViewConvertClass))
 
 #define GST_TYPE_GL_STEREO_DOWNMIX_MODE_TYPE gst_gl_stereo_downmix_mode_get_type()
+GST_EXPORT
 GType gst_gl_stereo_downmix_mode_get_type (void);
 
+/**
+ * GstGLStereoDownmix:
+ * @GST_GL_STEREO_DOWNMIX_ANAGLYPH_GREEN_MAGENTA_DUBOIS: Dubois optimised Green-Magenta anaglyph
+ * @GST_GL_STEREO_DOWNMIX_ANAGLYPH_RED_CYAN_DUBOIS: Dubois optimised Red-Cyan anaglyph
+ * @GST_GL_STEREO_DOWNMIX_ANAGLYPH_AMBER_BLUE_DUBOIS: Dubois optimised Amber-Blue anaglyph
+ *
+ * Output anaglyph type to generate when downmixing to mono
+ */
 enum _GstGLStereoDownmix {
   GST_GL_STEREO_DOWNMIX_ANAGLYPH_GREEN_MAGENTA_DUBOIS,
   GST_GL_STEREO_DOWNMIX_ANAGLYPH_RED_CYAN_DUBOIS,
   GST_GL_STEREO_DOWNMIX_ANAGLYPH_AMBER_BLUE_DUBOIS,
 };
-
 typedef enum _GstGLStereoDownmix GstGLStereoDownmix;
 
+/**
+ * GstGLViewConvert:
+ *
+ * #GstGLViewConvert is an opaque struct and should only be accessed through the
+ * provided api.
+ */
 struct _GstGLViewConvert
 {
   GstObject object;
@@ -68,32 +82,52 @@ struct _GstGLViewConvert
   gboolean initted;
   gboolean reconfigure;
 
-  GLuint fbo;
-  GLuint depth_buffer;
+  GstGLFramebuffer *fbo;
 
+  /* <private> */
   GstGLViewConvertPrivate *priv;
+
+  gpointer _padding[GST_PADDING];
 };
 
+/**
+ * GstGLViewConvertClass:
+ *
+ * Opaque #GstGLViewConvertClass struct
+ */
 struct _GstGLViewConvertClass
 {
+  /* <private> */
   GstObjectClass object_class;
+
+  gpointer                  _padding[GST_PADDING];
 };
 
+GST_EXPORT
 GType gst_gl_view_convert_get_type (void);
+GST_EXPORT
 GstGLViewConvert * gst_gl_view_convert_new (void);
 
+GST_EXPORT
 gboolean  gst_gl_view_convert_set_caps (GstGLViewConvert * viewconvert, GstCaps * in_caps, GstCaps * out_caps);
+GST_EXPORT
 GstCaps * gst_gl_view_convert_transform_caps (GstGLViewConvert * viewconvert,
     GstPadDirection direction, GstCaps * caps, GstCaps * filter);
+GST_EXPORT
 GstCaps * gst_gl_view_convert_fixate_caps (GstGLViewConvert *viewconvert,
     GstPadDirection direction, GstCaps * caps, GstCaps * othercaps);
+GST_EXPORT
 GstFlowReturn gst_gl_view_convert_submit_input_buffer (GstGLViewConvert *viewconvert,
     gboolean is_discont, GstBuffer * input);
+GST_EXPORT
 GstFlowReturn gst_gl_view_convert_get_output (GstGLViewConvert *viewconvert,
     GstBuffer ** outbuf_ptr);
 
+GST_EXPORT
 GstBuffer * gst_gl_view_convert_perform (GstGLViewConvert * viewconvert, GstBuffer *inbuf);
+GST_EXPORT
 void gst_gl_view_convert_reset (GstGLViewConvert * viewconvert);
+GST_EXPORT
 void gst_gl_view_convert_set_context (GstGLViewConvert *viewconvert, GstGLContext * context);
 
 G_END_DECLS

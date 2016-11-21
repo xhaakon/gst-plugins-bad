@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad-1.6.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
 "PO-Revision-Date: 2015-12-24 11:34+0200\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
@@ -17,6 +17,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr "запис није договорен пре функције добављања (get)"
@@ -62,9 +68,6 @@ msgstr "Не могу да подесим улаз/излаз звука"
 msgid "Could not start sndio"
 msgstr "Не могу да покренем улаз/излаз звука"
 
-msgid "Internal data flow error."
-msgstr "Унутрашња грешка протока података."
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr "Створена датотека има дуже време припреме од трајања њеног тока"
 
@@ -85,11 +88,11 @@ msgstr "Запис подслике није подешен пре проток�
 msgid "Failed to get fragment URL."
 msgstr "Нисам успео да добијем адресу одломка."
 
-msgid "Internal data stream error."
-msgstr "Унутрашња грешка тока података."
-
 msgid "Couldn't download fragments"
 msgstr "Не могу да преузмем одломке"
+
+msgid "Internal data stream error."
+msgstr "Унутрашња грешка тока података."
 
 msgid "No file name specified for writing."
 msgstr "Није наведен назив датотеке за упис."
@@ -124,19 +127,36 @@ msgstr "Не могу да нумеришем системе доставе са
 msgid "Could not open file \"%s\" for reading."
 msgstr "Не могу да отворим датотеку „%s“ за читање."
 
-msgid "Couldn't find DVB channel configuration file"
+#, fuzzy
+msgid "Couldn't find channel configuration file"
 msgstr "Не могу да пронађем датотеку подешавања ДВБ канала"
 
-#, c-format
-msgid "Couldn't load DVB channel configuration file: %s"
+#, fuzzy, c-format
+msgid "Couldn't load channel configuration file: '%s'"
 msgstr "Не могу да учитам датотеку подешавања ДВБ канала: %s"
 
-msgid "DVB channel configuration file doesn't contain any channels"
+#, fuzzy, c-format
+msgid "Couldn't find details for channel '%s'"
+msgstr "Не могу да пронађем податке за ДВБ канал „%s“"
+
+#, fuzzy, c-format
+msgid "No properties for channel '%s'"
+msgstr "Не могу да пронађем податке за ДВБ канал „%s“"
+
+#, fuzzy, c-format
+msgid "Failed to set properties for channel '%s'"
+msgstr "Не могу да пронађем податке за ДВБ канал „%s“"
+
+#, fuzzy, c-format
+msgid "Couldn't find channel configuration file: '%s'"
+msgstr "Не могу да пронађем датотеку подешавања ДВБ канала"
+
+#, fuzzy
+msgid "Channel configuration file doesn't contain any channels"
 msgstr "Датотека подешавања ДВБ канала не садржи ниједан канал"
 
-#, c-format
-msgid "Couldn't find details for DVB channel %s"
-msgstr "Не могу да пронађем податке за ДВБ канал „%s“"
+#~ msgid "Internal data flow error."
+#~ msgstr "Унутрашња грешка протока података."
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "основни аудио усклађивач звучних догађаја Гстримера"

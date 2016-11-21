@@ -38,44 +38,44 @@ gst_decklink_mode_get_type (void)
 {
   static gsize id = 0;
   static const GEnumValue modes[] = {
-    {GST_DECKLINK_MODE_AUTO, "auto", "Automatic detection"},
+    {GST_DECKLINK_MODE_AUTO, "Automatic detection", "auto"},
 
-    {GST_DECKLINK_MODE_NTSC, "ntsc", "NTSC SD 60i"},
-    {GST_DECKLINK_MODE_NTSC2398, "ntsc2398", "NTSC SD 60i (24 fps)"},
-    {GST_DECKLINK_MODE_PAL, "pal", "PAL SD 50i"},
-    {GST_DECKLINK_MODE_NTSC_P, "ntsc-p", "NTSC SD 60p"},
-    {GST_DECKLINK_MODE_PAL_P, "pal-p", "PAL SD 50p"},
+    {GST_DECKLINK_MODE_NTSC, "NTSC SD 60i", "ntsc"},
+    {GST_DECKLINK_MODE_NTSC2398, "NTSC SD 60i (24 fps)", "ntsc2398"},
+    {GST_DECKLINK_MODE_PAL, "PAL SD 50i", "pal"},
+    {GST_DECKLINK_MODE_NTSC_P, "NTSC SD 60p", "ntsc-p"},
+    {GST_DECKLINK_MODE_PAL_P, "PAL SD 50p", "pal-p"},
 
-    {GST_DECKLINK_MODE_1080p2398, "1080p2398", "HD1080 23.98p"},
-    {GST_DECKLINK_MODE_1080p24, "1080p24", "HD1080 24p"},
-    {GST_DECKLINK_MODE_1080p25, "1080p25", "HD1080 25p"},
-    {GST_DECKLINK_MODE_1080p2997, "1080p2997", "HD1080 29.97p"},
-    {GST_DECKLINK_MODE_1080p30, "1080p30", "HD1080 30p"},
+    {GST_DECKLINK_MODE_1080p2398, "HD1080 23.98p", "1080p2398"},
+    {GST_DECKLINK_MODE_1080p24, "HD1080 24p", "1080p24"},
+    {GST_DECKLINK_MODE_1080p25, "HD1080 25p", "1080p25"},
+    {GST_DECKLINK_MODE_1080p2997, "HD1080 29.97p", "1080p2997"},
+    {GST_DECKLINK_MODE_1080p30, "HD1080 30p", "1080p30"},
 
-    {GST_DECKLINK_MODE_1080i50, "1080i50", "HD1080 50i"},
-    {GST_DECKLINK_MODE_1080i5994, "1080i5994", "HD1080 59.94i"},
-    {GST_DECKLINK_MODE_1080i60, "1080i60", "HD1080 60i"},
+    {GST_DECKLINK_MODE_1080i50, "HD1080 50i", "1080i50"},
+    {GST_DECKLINK_MODE_1080i5994, "HD1080 59.94i", "1080i5994"},
+    {GST_DECKLINK_MODE_1080i60, "HD1080 60i", "1080i60"},
 
-    {GST_DECKLINK_MODE_1080p50, "1080p50", "HD1080 50p"},
-    {GST_DECKLINK_MODE_1080p5994, "1080p5994", "HD1080 59.94p"},
-    {GST_DECKLINK_MODE_1080p60, "1080p60", "HD1080 60p"},
+    {GST_DECKLINK_MODE_1080p50, "HD1080 50p", "1080p50"},
+    {GST_DECKLINK_MODE_1080p5994, "HD1080 59.94p", "1080p5994"},
+    {GST_DECKLINK_MODE_1080p60, "HD1080 60p", "1080p60"},
 
-    {GST_DECKLINK_MODE_720p50, "720p50", "HD720 50p"},
-    {GST_DECKLINK_MODE_720p5994, "720p5994", "HD720 59.94p"},
-    {GST_DECKLINK_MODE_720p60, "720p60", "HD720 60p"},
+    {GST_DECKLINK_MODE_720p50, "HD720 50p", "720p50"},
+    {GST_DECKLINK_MODE_720p5994, "HD720 59.94p", "720p5994"},
+    {GST_DECKLINK_MODE_720p60, "HD720 60p", "720p60"},
 
-    {GST_DECKLINK_MODE_1556p2398, "1556p2398", "2k 23.98p"},
-    {GST_DECKLINK_MODE_1556p24, "1556p24", "2k 24p"},
-    {GST_DECKLINK_MODE_1556p25, "1556p25", "2k 25p"},
+    {GST_DECKLINK_MODE_1556p2398, "2k 23.98p", "1556p2398"},
+    {GST_DECKLINK_MODE_1556p24, "2k 24p", "1556p24"},
+    {GST_DECKLINK_MODE_1556p25, "2k 25p", "1556p25"},
 
-    {GST_DECKLINK_MODE_2160p2398, "2160p2398", "4k 23.98p"},
-    {GST_DECKLINK_MODE_2160p24, "2160p24", "4k 24p"},
-    {GST_DECKLINK_MODE_2160p25, "2160p25", "4k 25p"},
-    {GST_DECKLINK_MODE_2160p2997, "2160p2997", "4k 29.97p"},
-    {GST_DECKLINK_MODE_2160p30, "2160p30", "4k 30p"},
-    {GST_DECKLINK_MODE_2160p50, "2160p50", "4k 50p"},
-    {GST_DECKLINK_MODE_2160p5994, "2160p5994", "4k 59.94p"},
-    {GST_DECKLINK_MODE_2160p60, "2160p60", "4k 60p"},
+    {GST_DECKLINK_MODE_2160p2398, "4k 23.98p", "2160p2398"},
+    {GST_DECKLINK_MODE_2160p24, "4k 24p", "2160p24"},
+    {GST_DECKLINK_MODE_2160p25, "4k 25p", "2160p25"},
+    {GST_DECKLINK_MODE_2160p2997, "4k 29.97p", "2160p2997"},
+    {GST_DECKLINK_MODE_2160p30, "4k 30p", "2160p30"},
+    {GST_DECKLINK_MODE_2160p50, "4k 50p", "2160p50"},
+    {GST_DECKLINK_MODE_2160p5994, "4k 59.94p", "2160p5994"},
+    {GST_DECKLINK_MODE_2160p60, "4k 60p", "2160p60"},
 
     {0, NULL, NULL}
   };
@@ -93,13 +93,13 @@ gst_decklink_connection_get_type (void)
 {
   static gsize id = 0;
   static const GEnumValue connections[] = {
-    {GST_DECKLINK_CONNECTION_AUTO, "auto", "Auto"},
-    {GST_DECKLINK_CONNECTION_SDI, "sdi", "SDI"},
-    {GST_DECKLINK_CONNECTION_HDMI, "hdmi", "HDMI"},
-    {GST_DECKLINK_CONNECTION_OPTICAL_SDI, "optical-sdi", "Optical SDI"},
-    {GST_DECKLINK_CONNECTION_COMPONENT, "component", "Component"},
-    {GST_DECKLINK_CONNECTION_COMPOSITE, "composite", "Composite"},
-    {GST_DECKLINK_CONNECTION_SVIDEO, "svideo", "S-Video"},
+    {GST_DECKLINK_CONNECTION_AUTO, "Auto", "auto"},
+    {GST_DECKLINK_CONNECTION_SDI, "SDI", "sdi"},
+    {GST_DECKLINK_CONNECTION_HDMI, "HDMI", "hdmi"},
+    {GST_DECKLINK_CONNECTION_OPTICAL_SDI, "Optical SDI", "optical-sdi"},
+    {GST_DECKLINK_CONNECTION_COMPONENT, "Component", "component"},
+    {GST_DECKLINK_CONNECTION_COMPOSITE, "Composite", "composite"},
+    {GST_DECKLINK_CONNECTION_SVIDEO, "S-Video", "svideo"},
     {0, NULL, NULL}
   };
 
@@ -112,19 +112,74 @@ gst_decklink_connection_get_type (void)
 }
 
 GType
+gst_decklink_video_format_get_type (void)
+{
+  static gsize id = 0;
+  static const GEnumValue types[] = {
+    {GST_DECKLINK_VIDEO_FORMAT_AUTO, "Auto", "auto"},
+    {GST_DECKLINK_VIDEO_FORMAT_8BIT_YUV, "bmdFormat8BitYUV", "8bit-yuv"},
+    {GST_DECKLINK_VIDEO_FORMAT_10BIT_YUV, "bmdFormat10BitYUV", "10bit-yuv"},
+    {GST_DECKLINK_VIDEO_FORMAT_8BIT_ARGB, "bmdFormat8BitARGB", "8bit-argb"},
+    {GST_DECKLINK_VIDEO_FORMAT_8BIT_BGRA, "bmdFormat8BitBGRA", "8bit-bgra"},
+    /* Not yet supported:
+       {GST_DECKLINK_VIDEO_FORMAT_10BIT_RGB, "bmdFormat10BitRGB", "10bit-rgb"},
+       {GST_DECKLINK_VIDEO_FORMAT_12BIT_RGB, "bmdFormat12BitRGB", "12bit-rgb"},
+       {GST_DECKLINK_VIDEO_FORMAT_12BIT_RGBLE, "bmdFormat12BitRGBLE", "12bit-rgble"},
+       {GST_DECKLINK_VIDEO_FORMAT_10BIT_RGBXLE, "bmdFormat10BitRGBXLE", "10bit-rgbxle"},
+       {GST_DECKLINK_VIDEO_FORMAT_10BIT_RGBX, "bmdFormat10BitRGBX", "10bit-rgbx"},
+     */
+    {0, NULL, NULL}
+  };
+
+  if (g_once_init_enter (&id)) {
+    GType tmp = g_enum_register_static ("GstDecklinkVideoFormat", types);
+    g_once_init_leave (&id, tmp);
+  }
+
+  return (GType) id;
+}
+
+GType
+gst_decklink_timecode_format_get_type (void)
+{
+  static gsize id = 0;
+  static const GEnumValue timecodeformats[] = {
+    {GST_DECKLINK_TIMECODE_FORMAT_RP188VITC1, "bmdTimecodeRP188VITC1",
+        "rp188vitc1"},
+    {GST_DECKLINK_TIMECODE_FORMAT_RP188VITC2, "bmdTimecodeRP188VITC2",
+        "rp188vitc2"},
+    {GST_DECKLINK_TIMECODE_FORMAT_RP188LTC, "bmdTimecodeRP188LTC", "rp188ltc"},
+    {GST_DECKLINK_TIMECODE_FORMAT_RP188ANY, "bmdTimecodeRP188Any", "rp188any"},
+    {GST_DECKLINK_TIMECODE_FORMAT_VITC, "bmdTimecodeVITC", "vitc"},
+    {GST_DECKLINK_TIMECODE_FORMAT_VITCFIELD2, "bmdTimecodeVITCField2",
+        "vitcfield2"},
+    {GST_DECKLINK_TIMECODE_FORMAT_SERIAL, "bmdTimecodeSerial", "serial"},
+    {0, NULL, NULL}
+  };
+
+  if (g_once_init_enter (&id)) {
+    GType tmp =
+        g_enum_register_static ("GstDecklinkTimecodeFormat", timecodeformats);
+    g_once_init_leave (&id, tmp);
+  }
+
+  return (GType) id;
+}
+
+GType
 gst_decklink_audio_connection_get_type (void)
 {
   static gsize id = 0;
   static const GEnumValue connections[] = {
-    {GST_DECKLINK_AUDIO_CONNECTION_AUTO, "auto", "Automatic"},
-    {GST_DECKLINK_AUDIO_CONNECTION_EMBEDDED, "embedded",
-        "SDI/HDMI embedded audio"},
-    {GST_DECKLINK_AUDIO_CONNECTION_AES_EBU, "aes", "AES/EBU input"},
-    {GST_DECKLINK_AUDIO_CONNECTION_ANALOG, "analog", "Analog input"},
-    {GST_DECKLINK_AUDIO_CONNECTION_ANALOG_XLR, "analog-xlr",
-        "Analog input (XLR)"},
-    {GST_DECKLINK_AUDIO_CONNECTION_ANALOG_RCA, "analog-rca",
-        "Analog input (RCA)"},
+    {GST_DECKLINK_AUDIO_CONNECTION_AUTO, "Automatic", "auto"},
+    {GST_DECKLINK_AUDIO_CONNECTION_EMBEDDED, "SDI/HDMI embedded audio",
+        "embedded"},
+    {GST_DECKLINK_AUDIO_CONNECTION_AES_EBU, "AES/EBU input", "aes"},
+    {GST_DECKLINK_AUDIO_CONNECTION_ANALOG, "Analog input", "analog"},
+    {GST_DECKLINK_AUDIO_CONNECTION_ANALOG_XLR, "Analog input (XLR)",
+        "analog-xlr"},
+    {GST_DECKLINK_AUDIO_CONNECTION_ANALOG_RCA, "Analog input (RCA)",
+        "analog-rca"},
     {0, NULL, NULL}
   };
 
@@ -181,6 +236,43 @@ static const GstDecklinkMode modes[] = {
   {bmdMode4K2160p50, 3840, 2160, 50, 1, false, UHD},
   {bmdMode4K2160p5994, 3840, 2160, 60000, 1001, false, UHD},
   {bmdMode4K2160p60, 3840, 2160, 60, 1, false, UHD}
+};
+
+static const struct
+{
+  BMDPixelFormat format;
+  gint bpp;
+  GstVideoFormat vformat;
+} formats[] = {
+  /* *INDENT-OFF* */
+  {bmdFormat8BitYUV, 2, GST_VIDEO_FORMAT_UYVY},  /* auto */
+  {bmdFormat8BitYUV, 2, GST_VIDEO_FORMAT_UYVY},
+  {bmdFormat10BitYUV, 4, GST_VIDEO_FORMAT_v210},
+  {bmdFormat8BitARGB, 4, GST_VIDEO_FORMAT_ARGB},
+  {bmdFormat8BitBGRA, 4, GST_VIDEO_FORMAT_BGRA},
+/* Not yet supported
+  {bmdFormat10BitRGB, FIXME, FIXME},
+  {bmdFormat12BitRGB, FIXME, FIXME},
+  {bmdFormat12BitRGBLE, FIXME, FIXME},
+  {bmdFormat10BitRGBXLE, FIXME, FIXME},
+  {bmdFormat10BitRGBX, FIXME, FIXME} */
+  /* *INDENT-ON* */
+};
+
+static const struct
+{
+  BMDTimecodeFormat format;
+  GstDecklinkTimecodeFormat gstformat;
+} tcformats[] = {
+  /* *INDENT-OFF* */
+  {bmdTimecodeRP188VITC1, GST_DECKLINK_TIMECODE_FORMAT_RP188VITC1},
+  {bmdTimecodeRP188VITC2, GST_DECKLINK_TIMECODE_FORMAT_RP188VITC2},
+  {bmdTimecodeRP188LTC, GST_DECKLINK_TIMECODE_FORMAT_RP188LTC},
+  {bmdTimecodeRP188Any, GST_DECKLINK_TIMECODE_FORMAT_RP188ANY},
+  {bmdTimecodeVITC, GST_DECKLINK_TIMECODE_FORMAT_VITC},
+  {bmdTimecodeVITCField2, GST_DECKLINK_TIMECODE_FORMAT_VITCFIELD2},
+  {bmdTimecodeSerial, GST_DECKLINK_TIMECODE_FORMAT_SERIAL}
+  /* *INDENT-ON* */
 };
 
 const GstDecklinkMode *
@@ -293,6 +385,50 @@ gst_decklink_get_mode_enum_from_bmd (BMDDisplayMode mode)
   return displayMode;
 }
 
+const BMDPixelFormat
+gst_decklink_pixel_format_from_type (GstDecklinkVideoFormat t)
+{
+  return formats[t].format;
+}
+
+const gint
+gst_decklink_bpp_from_type (GstDecklinkVideoFormat t)
+{
+  return formats[t].bpp;
+}
+
+const GstDecklinkVideoFormat
+gst_decklink_type_from_video_format (GstVideoFormat f)
+{
+  guint i;
+
+  for (i = 1; i < G_N_ELEMENTS (formats); i++) {
+    if (formats[i].vformat == f)
+      return (GstDecklinkVideoFormat) i;
+  }
+  g_assert_not_reached ();
+  return GST_DECKLINK_VIDEO_FORMAT_AUTO;
+}
+
+const BMDTimecodeFormat
+gst_decklink_timecode_format_from_enum (GstDecklinkTimecodeFormat f)
+{
+  return tcformats[f].format;
+}
+
+const GstDecklinkTimecodeFormat
+gst_decklink_timecode_format_to_enum (BMDTimecodeFormat f)
+{
+  guint i;
+
+  for (i = 0; i < G_N_ELEMENTS (tcformats); i++) {
+    if (tcformats[i].format == f)
+      return (GstDecklinkTimecodeFormat) i;
+  }
+  g_assert_not_reached ();
+  return GST_DECKLINK_TIMECODE_FORMAT_RP188ANY;
+}
+
 static const BMDVideoConnection connections[] = {
   0,                            /* auto */
   bmdVideoConnectionSDI,
@@ -315,6 +451,21 @@ gst_decklink_get_connection (GstDecklinkConnectionEnum e)
   return connections[e];
 }
 
+static gboolean
+gst_decklink_caps_get_pixel_format (GstCaps * caps, BMDPixelFormat * format)
+{
+  GstVideoInfo vinfo;
+  GstVideoFormat f;
+
+  if (gst_video_info_from_caps (&vinfo, caps) == FALSE) {
+    GST_ERROR ("Could not get video info from caps: %" GST_PTR_FORMAT, caps);
+    return FALSE;
+  }
+
+  f = vinfo.finfo->format;
+  return gst_decklink_type_from_video_format (f);
+}
+
 static GstStructure *
 gst_decklink_mode_get_structure (GstDecklinkModeEnum e, BMDPixelFormat f)
 {
@@ -323,29 +474,30 @@ gst_decklink_mode_get_structure (GstDecklinkModeEnum e, BMDPixelFormat f)
       "width", G_TYPE_INT, mode->width,
       "height", G_TYPE_INT, mode->height,
       "pixel-aspect-ratio", GST_TYPE_FRACTION, mode->par_n, mode->par_d,
-      "interlace-mode", G_TYPE_STRING, mode->interlaced ? "interleaved" : "progressive",
+      "interlace-mode", G_TYPE_STRING,
+      mode->interlaced ? "interleaved" : "progressive",
       "framerate", GST_TYPE_FRACTION, mode->fps_n, mode->fps_d, NULL);
 
   switch (f) {
-    case bmdFormat8BitYUV: /* '2vuy' */
+    case bmdFormat8BitYUV:     /* '2vuy' */
       gst_structure_set (s, "format", G_TYPE_STRING, "UYVY",
           "colorimetry", G_TYPE_STRING, mode->colorimetry,
           "chroma-site", G_TYPE_STRING, "mpeg2", NULL);
       break;
-    case bmdFormat10BitYUV: /* 'v210' */
+    case bmdFormat10BitYUV:    /* 'v210' */
       gst_structure_set (s, "format", G_TYPE_STRING, "v210", NULL);
       break;
-    case bmdFormat8BitARGB: /* 'ARGB' */
+    case bmdFormat8BitARGB:    /* 'ARGB' */
       gst_structure_set (s, "format", G_TYPE_STRING, "ARGB", NULL);
       break;
-    case bmdFormat8BitBGRA: /* 'BGRA' */
+    case bmdFormat8BitBGRA:    /* 'BGRA' */
       gst_structure_set (s, "format", G_TYPE_STRING, "BGRA", NULL);
       break;
-    case bmdFormat10BitRGB: /* 'r210' Big-endian RGB 10-bit per component with SMPTE video levels (64-960). Packed as 2:10:10:10 */
-    case bmdFormat12BitRGB: /* 'R12B' Big-endian RGB 12-bit per component with full range (0-4095). Packed as 12-bit per component */
-    case bmdFormat12BitRGBLE: /* 'R12L' Little-endian RGB 12-bit per component with full range (0-4095). Packed as 12-bit per component */
+    case bmdFormat10BitRGB:    /* 'r210' Big-endian RGB 10-bit per component with SMPTE video levels (64-960). Packed as 2:10:10:10 */
+    case bmdFormat12BitRGB:    /* 'R12B' Big-endian RGB 12-bit per component with full range (0-4095). Packed as 12-bit per component */
+    case bmdFormat12BitRGBLE:  /* 'R12L' Little-endian RGB 12-bit per component with full range (0-4095). Packed as 12-bit per component */
     case bmdFormat10BitRGBXLE: /* 'R10l' Little-endian 10-bit RGB with SMPTE video levels (64-940) */
-    case bmdFormat10BitRGBX: /* 'R10b' Big-endian 10-bit RGB with SMPTE video levels (64-940) */
+    case bmdFormat10BitRGBX:   /* 'R10b' Big-endian 10-bit RGB with SMPTE video levels (64-940) */
     default:
       GST_WARNING ("format not supported %d", f);
       gst_structure_free (s);
@@ -362,7 +514,39 @@ gst_decklink_mode_get_caps (GstDecklinkModeEnum e, BMDPixelFormat f)
   GstCaps *caps;
 
   caps = gst_caps_new_empty ();
-  gst_caps_append_structure (caps, gst_decklink_mode_get_structure (e, f));
+  caps =
+      gst_caps_merge_structure (caps, gst_decklink_mode_get_structure (e, f));
+
+  return caps;
+}
+
+GstCaps *
+gst_decklink_mode_get_caps_all_formats (GstDecklinkModeEnum e)
+{
+  GstCaps *caps;
+  guint i;
+
+  caps = gst_caps_new_empty ();
+  for (i = 1; i < G_N_ELEMENTS (formats); i++)
+    caps =
+        gst_caps_merge_structure (caps, gst_decklink_mode_get_structure (e,
+            formats[i].format));
+
+  return caps;
+}
+
+GstCaps *
+gst_decklink_pixel_format_get_caps (BMDPixelFormat f)
+{
+  int i;
+  GstCaps *caps;
+  GstStructure *s;
+
+  caps = gst_caps_new_empty ();
+  for (i = 1; i < (int) G_N_ELEMENTS (modes); i++) {
+    s = gst_decklink_mode_get_structure ((GstDecklinkModeEnum) i, f);
+    caps = gst_caps_merge_structure (caps, s);
+  }
 
   return caps;
 }
@@ -372,27 +556,29 @@ gst_decklink_mode_get_template_caps (void)
 {
   int i;
   GstCaps *caps;
-  GstStructure *s;
 
   caps = gst_caps_new_empty ();
-  for (i = 1; i < (int) G_N_ELEMENTS (modes); i++) {
-    s = gst_decklink_mode_get_structure ((GstDecklinkModeEnum) i, bmdFormat8BitYUV);
-    gst_caps_append_structure (caps, s);
-    s = gst_decklink_mode_get_structure ((GstDecklinkModeEnum) i, bmdFormat8BitARGB);
-    gst_caps_append_structure (caps, s);
-  }
+  for (i = 1; i < (int) G_N_ELEMENTS (modes); i++)
+    caps =
+        gst_caps_merge (caps,
+        gst_decklink_mode_get_caps_all_formats ((GstDecklinkModeEnum) i));
 
   return caps;
 }
 
 const GstDecklinkMode *
-gst_decklink_find_mode_for_caps (GstCaps * caps)
+gst_decklink_find_mode_and_format_for_caps (GstCaps * caps,
+    BMDPixelFormat * format)
 {
   int i;
   GstCaps *mode_caps;
 
+  g_return_val_if_fail (gst_caps_is_fixed (caps), NULL);
+  if (!gst_decklink_caps_get_pixel_format (caps, format))
+    return NULL;
+
   for (i = 1; i < (int) G_N_ELEMENTS (modes); i++) {
-    mode_caps = gst_decklink_mode_get_caps ((GstDecklinkModeEnum) i, bmdFormat8BitYUV);
+    mode_caps = gst_decklink_mode_get_caps ((GstDecklinkModeEnum) i, *format);
     if (gst_caps_can_intersect (caps, mode_caps)) {
       gst_caps_unref (mode_caps);
       return gst_decklink_get_mode ((GstDecklinkModeEnum) i);
@@ -401,6 +587,14 @@ gst_decklink_find_mode_for_caps (GstCaps * caps)
   }
 
   return NULL;
+}
+
+const GstDecklinkMode *
+gst_decklink_find_mode_for_caps (GstCaps * caps)
+{
+  BMDPixelFormat format;
+
+  return gst_decklink_find_mode_and_format_for_caps (caps, &format);
 }
 
 #define GST_TYPE_DECKLINK_CLOCK \
@@ -528,13 +722,21 @@ public:
     GstElement *videosrc = NULL, *audiosrc = NULL;
     void (*got_video_frame) (GstElement * videosrc,
         IDeckLinkVideoInputFrame * frame, GstDecklinkModeEnum mode,
-        GstClockTime capture_time, GstClockTime capture_duration) = NULL;
+        GstClockTime capture_time, GstClockTime capture_duration, guint hours,
+        guint minutes, guint seconds, guint frames, BMDTimecodeFlags bflags) =
+        NULL;
     void (*got_audio_packet) (GstElement * videosrc,
-        IDeckLinkAudioInputPacket * packet, GstClockTime capture_time, gboolean discont) = NULL;
+        IDeckLinkAudioInputPacket * packet, GstClockTime capture_time,
+        gboolean discont) = NULL;
     GstDecklinkModeEnum mode;
-    BMDTimeValue capture_time = GST_CLOCK_TIME_NONE, capture_duration = GST_CLOCK_TIME_NONE;
+    BMDTimeValue capture_time = GST_CLOCK_TIME_NONE, capture_duration =
+        GST_CLOCK_TIME_NONE;
     HRESULT res;
+    IDeckLinkTimecode *dtc;
+    uint8_t hours, minutes, seconds, frames;
+    BMDTimecodeFlags bflags;
 
+    hours = minutes = seconds = frames = bflags = 0;
     if (video_frame == NULL)
       goto no_video_frame;
 
@@ -545,6 +747,36 @@ public:
       GST_ERROR ("Failed to get capture time: 0x%08x", res);
       capture_time = GST_CLOCK_TIME_NONE;
       capture_duration = GST_CLOCK_TIME_NONE;
+    }
+
+    if (m_input->videosrc) {
+      /* FIXME: Avoid circularity between gstdecklink.cpp and
+       * gstdecklinkvideosrc.cpp */
+      videosrc = GST_ELEMENT_CAST (gst_object_ref (m_input->videosrc));
+      res =
+          video_frame->
+          GetTimecode (GST_DECKLINK_VIDEO_SRC (videosrc)->timecode_format,
+          &dtc);
+
+      if (res != S_OK) {
+        GST_DEBUG_OBJECT (videosrc, "Failed to get timecode: 0x%08x", res);
+        dtc = NULL;
+      } else {
+        res = dtc->GetComponents (&hours, &minutes, &seconds, &frames);
+        if (res != S_OK) {
+          GST_ERROR ("Could not get components for timecode %p: 0x%08x", dtc,
+              res);
+          hours = 0;
+          minutes = 0;
+          seconds = 0;
+          frames = 0;
+          bflags = 0;
+        } else {
+          GST_DEBUG_OBJECT (videosrc, "Got timecode %02d:%02d:%02d:%02d", hours,
+              minutes, seconds, frames);
+          bflags = dtc->GetFlags ();
+        }
+      }
     }
 
     g_mutex_lock (&m_input->lock);
@@ -560,7 +792,6 @@ public:
       capture_time = 0;
 
     if (m_input->videosrc) {
-      videosrc = GST_ELEMENT_CAST (gst_object_ref (m_input->videosrc));
       got_video_frame = m_input->got_video_frame;
     }
     mode = gst_decklink_get_mode_enum_from_bmd (m_input->mode->mode);
@@ -573,17 +804,20 @@ public:
 
     if (got_video_frame && videosrc) {
       got_video_frame (videosrc, video_frame, mode, capture_time,
-          capture_duration);
+          capture_duration, (guint8) hours, (guint8) minutes, (guint8) seconds,
+          (guint8) frames, bflags);
     }
 
-no_video_frame:
+  no_video_frame:
     if (got_audio_packet && audiosrc && audio_packet) {
-      m_input->got_audio_packet (audiosrc, audio_packet, capture_time, m_input->audio_discont);
+      m_input->got_audio_packet (audiosrc, audio_packet, capture_time,
+          m_input->audio_discont);
       m_input->audio_discont = FALSE;
     } else {
       m_input->audio_discont = TRUE;
       if (!audio_packet)
-        GST_DEBUG ("Received no audio packet at %" GST_TIME_FORMAT, GST_TIME_ARGS (capture_time));
+        GST_DEBUG ("Received no audio packet at %" GST_TIME_FORMAT,
+            GST_TIME_ARGS (capture_time));
     }
 
     gst_object_replace ((GstObject **) & videosrc, NULL);
@@ -681,7 +915,8 @@ init_devices (gpointer data)
     ret = decklink->QueryInterface (IID_IDeckLinkInput,
         (void **) &devices[i].input.input);
     if (ret != S_OK) {
-      GST_WARNING ("selected device does not have input interface");
+      GST_WARNING ("selected device does not have input interface: 0x%08x",
+          ret);
     } else {
       devices[i].input.device = decklink;
       devices[i].input.clock = gst_decklink_clock_new ("GstDecklinkInputClock");
@@ -695,7 +930,8 @@ init_devices (gpointer data)
     ret = decklink->QueryInterface (IID_IDeckLinkOutput,
         (void **) &devices[i].output.output);
     if (ret != S_OK) {
-      GST_WARNING ("selected device does not have output interface");
+      GST_WARNING ("selected device does not have output interface: 0x%08x",
+          ret);
     } else {
       devices[i].output.device = decklink;
       devices[i].output.clock =
@@ -707,13 +943,16 @@ init_devices (gpointer data)
     ret = decklink->QueryInterface (IID_IDeckLinkConfiguration,
         (void **) &devices[i].input.config);
     if (ret != S_OK) {
-      GST_WARNING ("selected device does not have config interface");
+      GST_WARNING ("selected device does not have config interface: 0x%08x",
+          ret);
     }
 
     ret = decklink->QueryInterface (IID_IDeckLinkAttributes,
         (void **) &devices[i].input.attributes);
+    devices[i].output.attributes = devices[i].input.attributes;
     if (ret != S_OK) {
-      GST_WARNING ("selected device does not have attributes interface");
+      GST_WARNING ("selected device does not have attributes interface: 0x%08x",
+          ret);
     }
 
     ret = iterator->Next (&decklink);

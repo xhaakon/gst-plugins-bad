@@ -170,8 +170,9 @@ libgsthls_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/uridownloader/libgsturi
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 am_libgsthls_la_OBJECTS = libgsthls_la-m3u8.lo \
-	libgsthls_la-gsthlsdemux.lo libgsthls_la-gsthlsplugin.lo \
-	libgsthls_la-gsthlssink.lo libgsthls_la-gstm3u8playlist.lo
+	libgsthls_la-gsthlsdemux.lo libgsthls_la-gsthlsdemux-util.lo \
+	libgsthls_la-gsthlsplugin.lo libgsthls_la-gsthlssink.lo \
+	libgsthls_la-gstm3u8playlist.lo
 libgsthls_la_OBJECTS = $(am_libgsthls_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -308,6 +309,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -329,6 +332,8 @@ EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
 FAAC_LIBS = @FAAC_LIBS@
 FAAD_LIBS = @FAAD_LIBS@
+FDK_AAC_CFLAGS = @FDK_AAC_CFLAGS@
+FDK_AAC_LIBS = @FDK_AAC_LIBS@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
 FLITE_CFLAGS = @FLITE_CFLAGS@
@@ -378,6 +383,8 @@ GST_ALLOCATORS_CFLAGS = @GST_ALLOCATORS_CFLAGS@
 GST_ALLOCATORS_LIBS = @GST_ALLOCATORS_LIBS@
 GST_ALL_LDFLAGS = @GST_ALL_LDFLAGS@
 GST_API_VERSION = @GST_API_VERSION@
+GST_AUDIO_CFLAGS = @GST_AUDIO_CFLAGS@
+GST_AUDIO_LIBS = @GST_AUDIO_LIBS@
 GST_BASE_CFLAGS = @GST_BASE_CFLAGS@
 GST_BASE_LIBS = @GST_BASE_LIBS@
 GST_CFLAGS = @GST_CFLAGS@
@@ -523,6 +530,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -649,8 +658,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -693,8 +700,13 @@ WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
 WAYLAND_EGL_CFLAGS = @WAYLAND_EGL_CFLAGS@
 WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
+WAYLAND_PROTOCOLS_CFLAGS = @WAYLAND_PROTOCOLS_CFLAGS@
+WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
+WAYLAND_PROTOCOLS_LIBS = @WAYLAND_PROTOCOLS_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -787,6 +799,7 @@ plugin_LTLIBRARIES = libgsthls.la
 libgsthls_la_SOURCES = \
 	m3u8.c					\
 	gsthlsdemux.c				\
+	gsthlsdemux-util.c  \
 	gsthlsplugin.c 			\
 	gsthlssink.c 				\
 	gstm3u8playlist.c
@@ -795,7 +808,7 @@ libgsthls_la_CFLAGS = $(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) $(GST
 libgsthls_la_LIBADD = \
 	$(top_builddir)/gst-libs/gst/uridownloader/libgsturidownloader-@GST_API_VERSION@.la \
         $(top_builddir)/gst-libs/gst/adaptivedemux/libgstadaptivedemux-@GST_API_VERSION@.la \
-	$(GST_PLUGINS_BASE_LIBS) -lgstpbutils-$(GST_API_VERSION) -lgstvideo-$(GST_API_VERSION) \
+	$(GST_PLUGINS_BASE_LIBS) -lgstpbutils-$(GST_API_VERSION) -lgstvideo-$(GST_API_VERSION) -lgsttag-$(GST_API_VERSION) \
 	$(GST_BASE_LIBS) $(GST_LIBS) $(LIBM) $(LIBGCRYPT_LIBS) $(NETTLE_LIBS) $(OPENSSL_LIBS)
 
 libgsthls_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) -no-undefined
@@ -887,6 +900,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgsthls_la-gsthlsdemux-util.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgsthls_la-gsthlsdemux.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgsthls_la-gsthlsplugin.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgsthls_la-gsthlssink.Plo@am__quote@
@@ -930,6 +944,13 @@ libgsthls_la-gsthlsdemux.lo: gsthlsdemux.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gsthlsdemux.c' object='libgsthls_la-gsthlsdemux.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsthls_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsthls_la_CFLAGS) $(CFLAGS) -c -o libgsthls_la-gsthlsdemux.lo `test -f 'gsthlsdemux.c' || echo '$(srcdir)/'`gsthlsdemux.c
+
+libgsthls_la-gsthlsdemux-util.lo: gsthlsdemux-util.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsthls_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsthls_la_CFLAGS) $(CFLAGS) -MT libgsthls_la-gsthlsdemux-util.lo -MD -MP -MF $(DEPDIR)/libgsthls_la-gsthlsdemux-util.Tpo -c -o libgsthls_la-gsthlsdemux-util.lo `test -f 'gsthlsdemux-util.c' || echo '$(srcdir)/'`gsthlsdemux-util.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgsthls_la-gsthlsdemux-util.Tpo $(DEPDIR)/libgsthls_la-gsthlsdemux-util.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gsthlsdemux-util.c' object='libgsthls_la-gsthlsdemux-util.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsthls_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsthls_la_CFLAGS) $(CFLAGS) -c -o libgsthls_la-gsthlsdemux-util.lo `test -f 'gsthlsdemux-util.c' || echo '$(srcdir)/'`gsthlsdemux-util.c
 
 libgsthls_la-gsthlsplugin.lo: gsthlsplugin.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsthls_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsthls_la_CFLAGS) $(CFLAGS) -MT libgsthls_la-gsthlsplugin.lo -MD -MP -MF $(DEPDIR)/libgsthls_la-gsthlsplugin.Tpo -c -o libgsthls_la-gsthlsplugin.lo `test -f 'gsthlsplugin.c' || echo '$(srcdir)/'`gsthlsplugin.c

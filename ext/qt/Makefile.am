@@ -26,6 +26,8 @@ libgstqmlgl_la_SOURCES = \
 	qtwindow.cc \
 	gstqtsink.cc \
 	gstqtsink.h \
+	gstqtsrc.cc \
+	gstqtsrc.h \
 	gstqtgl.h \
 	gstplugin.cc
 

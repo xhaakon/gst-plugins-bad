@@ -30,6 +30,7 @@
 G_BEGIN_DECLS
 
 /* buffer pool functions */
+GST_EXPORT
 GType gst_gl_buffer_pool_get_type (void);
 #define GST_TYPE_GL_BUFFER_POOL      (gst_gl_buffer_pool_get_type())
 #define GST_IS_GL_BUFFER_POOL(obj)   (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GST_TYPE_GL_BUFFER_POOL))
@@ -47,7 +48,10 @@ struct _GstGLBufferPool
 
   GstGLContext *context;
 
+  /* <private> */
   GstGLBufferPoolPrivate *priv;
+
+  gpointer _padding[GST_PADDING];
 };
 
 /**
@@ -58,13 +62,17 @@ struct _GstGLBufferPool
 struct _GstGLBufferPoolClass
 {
   GstBufferPoolClass parent_class;
+
+  /* <private> */
+  gpointer _padding[GST_PADDING];
 };
 
+GST_EXPORT
 GstBufferPool *gst_gl_buffer_pool_new (GstGLContext * context);
-void gst_gl_buffer_pool_replace_last_buffer (GstGLBufferPool * pool,
-    GstBuffer * buffer);
 
+GST_EXPORT
 GstGLAllocationParams * gst_buffer_pool_config_get_gl_allocation_params    (GstStructure * config);
+GST_EXPORT
 void                    gst_buffer_pool_config_set_gl_allocation_params    (GstStructure * config,
                                                                             GstGLAllocationParams * params);
 

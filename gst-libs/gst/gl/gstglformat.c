@@ -18,6 +18,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
+/**
+ * SECTION:gstglformat
+ * @short_description: utilities for dealing with OpenGL formats
+ * @see_also: #GstGLBaseMemory, #GstGLMemory, #GstGLFramebuffer, #GstGLBuffer
+ *
+ * Some useful utilities for converting between various formats and OpenGL
+ * formats.
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -31,22 +40,6 @@
 #define USING_GLES2(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES2, 2, 0))
 #define USING_GLES3(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES2, 3, 0))
 
-#ifndef GL_RGBA8
-#define GL_RGBA8 0x8058
-#endif
-#ifndef GL_RED
-#define GL_RED 0x1903
-#endif
-#ifndef GL_RG
-#define GL_RG 0x8227
-#endif
-#ifndef GL_R8
-#define GL_R8 0x8229
-#endif
-#ifndef GL_RG8
-#define GL_RG8 0x822B
-#endif
-
 #ifndef GL_TEXTURE_RECTANGLE
 #define GL_TEXTURE_RECTANGLE 0x84F5
 #endif
@@ -59,21 +52,21 @@ _gl_format_n_components (guint format)
 {
   switch (format) {
     case GST_VIDEO_GL_TEXTURE_TYPE_RGBA:
-    case GL_RGBA:
+    case GST_GL_RGBA:
       return 4;
     case GST_VIDEO_GL_TEXTURE_TYPE_RGB:
     case GST_VIDEO_GL_TEXTURE_TYPE_RGB16:
-    case GL_RGB:
+    case GST_GL_RGB:
       return 3;
     case GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE_ALPHA:
     case GST_VIDEO_GL_TEXTURE_TYPE_RG:
-    case GL_LUMINANCE_ALPHA:
-    case GL_RG:
+    case GST_GL_LUMINANCE_ALPHA:
+    case GST_GL_RG:
       return 2;
     case GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE:
     case GST_VIDEO_GL_TEXTURE_TYPE_R:
-    case GL_LUMINANCE:
-    case GL_RED:
+    case GST_GL_LUMINANCE:
+    case GST_GL_RED:
       return 1;
     default:
       return 0;
@@ -153,20 +146,20 @@ gst_gl_format_from_gl_texture_type (GstVideoGLTextureType tex_format)
 {
   switch (tex_format) {
     case GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE_ALPHA:
-      return GL_LUMINANCE_ALPHA;
+      return GST_GL_LUMINANCE_ALPHA;
     case GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE:
-      return GL_LUMINANCE;
+      return GST_GL_LUMINANCE;
     case GST_VIDEO_GL_TEXTURE_TYPE_RGBA:
-      return GL_RGBA;
+      return GST_GL_RGBA;
     case GST_VIDEO_GL_TEXTURE_TYPE_RGB:
     case GST_VIDEO_GL_TEXTURE_TYPE_RGB16:
-      return GL_RGB;
+      return GST_GL_RGB;
     case GST_VIDEO_GL_TEXTURE_TYPE_RG:
-      return GL_RG;
+      return GST_GL_RG;
     case GST_VIDEO_GL_TEXTURE_TYPE_R:
-      return GL_RED;
+      return GST_GL_RED;
     default:
-      return GST_VIDEO_GL_TEXTURE_TYPE_RGBA;
+      return tex_format;
   }
 }
 
@@ -273,51 +266,52 @@ gst_gl_sized_gl_format_from_gl_format_type (GstGLContext * context,
       gst_gl_context_check_feature (context, "GL_EXT_texture_rg");
 
   switch (format) {
-    case GL_RGBA:
+    case GST_GL_RGBA:
       switch (type) {
         case GL_UNSIGNED_BYTE:
           return USING_GLES2 (context)
-              && !USING_GLES3 (context) ? GL_RGBA : GL_RGBA8;
+              && !USING_GLES3 (context) ? GST_GL_RGBA : GST_GL_RGBA8;
           break;
       }
       break;
-    case GL_RGB:
+    case GST_GL_RGB:
       switch (type) {
         case GL_UNSIGNED_BYTE:
-          return GL_RGB8;
+          return GST_GL_RGB8;
           break;
         case GL_UNSIGNED_SHORT_5_6_5:
-          return GL_RGB;
+          return GST_GL_RGB;
           break;
       }
       break;
-    case GL_RG:
+    case GST_GL_RG:
       switch (type) {
         case GL_UNSIGNED_BYTE:
           if (!USING_GLES3 (context) && USING_GLES2 (context) && ext_texture_rg)
-            return GL_RG;
-          return GL_RG8;
+            return GST_GL_RG;
+          return GST_GL_RG8;
           break;
       }
       break;
-    case GL_RED:
+    case GST_GL_RED:
       switch (type) {
         case GL_UNSIGNED_BYTE:
           if (!USING_GLES3 (context) && USING_GLES2 (context) && ext_texture_rg)
-            return GL_RED;
-          return GL_R8;
+            return GST_GL_RED;
+          return GST_GL_R8;
           break;
       }
       break;
-    case GL_LUMINANCE:
-      return GL_LUMINANCE;
-      break;
-    case GL_LUMINANCE_ALPHA:
-      return GL_LUMINANCE_ALPHA;
-      break;
-    case GL_ALPHA:
-      return GL_ALPHA;
-      break;
+    case GST_GL_RGBA8:
+    case GST_GL_RGB8:
+    case GST_GL_RG8:
+    case GST_GL_R8:
+    case GST_GL_LUMINANCE:
+    case GST_GL_LUMINANCE_ALPHA:
+    case GST_GL_ALPHA:
+    case GST_GL_DEPTH_COMPONENT16:
+    case GST_GL_DEPTH24_STENCIL8:
+      return format;
     default:
       break;
   }
@@ -348,7 +342,7 @@ gst_gl_texture_target_to_string (GstGLTextureTarget target)
 }
 
 /**
- * gst_gl_texture_target_to_string:
+ * gst_gl_texture_target_from_string:
  * @str: a string equivalant to one of the GST_GL_TEXTURE_TARGET_*_STR values
  *
  * Returns: the #GstGLTextureTarget represented by @str or

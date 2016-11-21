@@ -33,6 +33,21 @@
  * @see_also: #GstGLSLStage, #GstGLShader
  */
 
+#define GST_CAT_DEFAULT gst_glsl_debug
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+
+static void
+_init_debug (void)
+{
+  static volatile gsize _init = 0;
+
+  if (g_once_init_enter (&_init)) {
+    GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "glsl", 0,
+        "OpenGL Shading Language");
+    g_once_init_leave (&_init, 1);
+  }
+}
+
 GQuark
 gst_glsl_error_quark (void)
 {
@@ -176,11 +191,11 @@ _is_valid_version_profile (GstGLSLVersion version, GstGLSLProfile profile)
     return profile == GST_GLSL_PROFILE_ES;
 
   /* required profile and no ES profile for normal GL contexts */
-  if (version >= GST_GLSL_VERSION_330)
+  if (version == GST_GLSL_VERSION_150 || version >= GST_GLSL_VERSION_330)
     return profile == GST_GLSL_PROFILE_NONE || profile == GST_GLSL_PROFILE_CORE
         || profile == GST_GLSL_PROFILE_COMPATIBILITY;
 
-  if (version <= GST_GLSL_VERSION_150)
+  if (version <= GST_GLSL_VERSION_140)
     return profile == GST_GLSL_PROFILE_NONE
         || profile == GST_GLSL_PROFILE_COMPATIBILITY;
 
@@ -198,7 +213,7 @@ gst_glsl_version_profile_to_string (GstGLSLVersion version,
 
   version_s = gst_glsl_version_to_string (version);
   /* no profiles in GL/ES <= 150 */
-  if (version <= GST_GLSL_VERSION_150)
+  if (version <= GST_GLSL_VERSION_140)
     profile_s = NULL;
   else
     profile_s = gst_glsl_profile_to_string (profile);
@@ -218,10 +233,10 @@ _fixup_version_profile (GstGLSLVersion * version, GstGLSLProfile * profile)
   if (*version == GST_GLSL_VERSION_100 || *version == GST_GLSL_VERSION_300
       || *version == GST_GLSL_VERSION_310 || *version == GST_GLSL_VERSION_320)
     *profile = GST_GLSL_PROFILE_ES;
-  else if (*version <= GST_GLSL_VERSION_150)
+  else if (*version <= GST_GLSL_VERSION_140)
     *profile = GST_GLSL_PROFILE_COMPATIBILITY;
   else if (*profile == GST_GLSL_PROFILE_NONE
-      && *version >= GST_GLSL_VERSION_330)
+      && (*version >= GST_GLSL_VERSION_150 || *version >= GST_GLSL_VERSION_330))
     *profile = GST_GLSL_PROFILE_CORE;
 }
 
@@ -255,6 +270,8 @@ gst_glsl_version_profile_from_string (const gchar * string,
   GstGLSLProfile profile = GST_GLSL_PROFILE_NONE;
   gint i;
 
+  _init_debug ();
+
   if (!string)
     goto error;
 
@@ -265,6 +282,7 @@ gst_glsl_version_profile_from_string (const gchar * string,
   if (str[0] == '#') {
     if (!(version_s =
             (gchar *) _check_valid_version_preprocessor_string (version_s))) {
+      GST_WARNING ("Invalid preprocesser directive detected: %s", version_s);
       g_free (str);
       goto error;
     }
@@ -277,6 +295,8 @@ gst_glsl_version_profile_from_string (const gchar * string,
     i++;
   /* wrong version length */
   if (i != 3) {
+    GST_WARNING ("version number has the wrong number of digits: %s",
+        version_s);
     g_free (str);
     goto error;
   }
@@ -293,13 +313,24 @@ gst_glsl_version_profile_from_string (const gchar * string,
   g_free (str);
 
   /* check whether the parsed data is valid */
-  if (!version)
+  if (!version) {
+    GST_WARNING ("Could not map the version number to a valid GLSL version:");
     goto error;
-  if (!_is_valid_version_profile (version, profile))
+  }
+  if (!_is_valid_version_profile (version, profile)) {
+    GST_WARNING ("Invalid version/profile combination specified: %s %s",
+        gst_glsl_version_to_string (version),
+        gst_glsl_profile_to_string (profile));
     goto error;
+  }
   /* got a profile when none was expected */
-  if (version <= GST_GLSL_VERSION_150 && profile != GST_GLSL_PROFILE_NONE)
+  if (version <= GST_GLSL_VERSION_140 && profile != GST_GLSL_PROFILE_NONE) {
+    GST_WARNING
+        ("Found a profile (%s) with a version (%s) that does not support "
+        "profiles", gst_glsl_version_to_string (version),
+        gst_glsl_profile_to_string (profile));
     goto error;
+  }
 
   _fixup_version_profile (&version, &profile);
 
@@ -328,6 +359,8 @@ _gst_glsl_shader_string_find_version (const gchar * str)
   gboolean ml_comment = FALSE;
   gboolean newline = TRUE;
   gint i = 0;
+
+  _init_debug ();
 
   /* search for #version while allowing for preceeding comments/whitespace as
    * permitted by the GLSL specification */
@@ -366,8 +399,10 @@ _gst_glsl_shader_string_find_version (const gchar * str)
     }
 
     if (str[i] == '#') {
-      if (newline && _check_valid_version_preprocessor_string (&str[i]))
+      if (newline && _check_valid_version_preprocessor_string (&str[i])) {
+        GST_DEBUG ("found #version declaration at index %i", i);
         return &str[i];
+      }
       break;
     }
 
@@ -375,6 +410,8 @@ _gst_glsl_shader_string_find_version (const gchar * str)
     newline = FALSE;
     i++;
   }
+
+  GST_DEBUG ("no #version declaration found in the first 1K");
 
   return NULL;
 }
@@ -410,6 +447,8 @@ gst_gl_version_to_glsl_version (GstGLAPI gl_api, gint maj, gint min)
 {
   g_return_val_if_fail (gl_api != GST_GL_API_NONE, 0);
 
+  _init_debug ();
+
   if (gl_api & GST_GL_API_GLES2) {
     if (maj == 2 && min == 0)
       return 100;
@@ -417,6 +456,7 @@ gst_gl_version_to_glsl_version (GstGLAPI gl_api, gint maj, gint min)
     if (maj == 3 && min >= 0 && min <= 2)
       return maj * 100 + min * 10;
 
+    GST_WARNING ("unknown GLES version");
     return 0;
   }
 
@@ -436,9 +476,11 @@ gst_gl_version_to_glsl_version (GstGLAPI gl_api, gint maj, gint min)
     if (maj == 2 && min == 0)
       return 110;
 
+    GST_WARNING ("unknown GL version");
     return 0;
   }
 
+  GST_WARNING ("unknown GL API");
   return 0;
 }
 
@@ -550,4 +592,270 @@ _gst_glsl_funcs_fill (GstGLSLFuncs * vtable, GstGLContext * context)
 
   vtable->initialized = TRUE;
   return TRUE;
+}
+
+static gchar *
+_mangle_external_image_extension (const gchar * str, GstGLContext * context,
+    GstGLTextureTarget from, GstGLTextureTarget to, GstGLSLVersion version,
+    GstGLSLProfile profile)
+{
+  GST_DEBUG ("is oes? %d, profile == ES? %d, version >= 300? %d, "
+      "have essl3? %d", to == GST_GL_TEXTURE_TARGET_EXTERNAL_OES,
+      profile == GST_GLSL_PROFILE_ES, version >= GST_GLSL_VERSION_300,
+      gst_gl_context_check_feature (context,
+          "GL_OES_EGL_image_external_essl3"));
+
+  /* replace GL_OES_EGL_image_external with GL_OES_EGL_image_external_essl3 where supported */
+  if (to == GST_GL_TEXTURE_TARGET_EXTERNAL_OES && profile == GST_GLSL_PROFILE_ES
+      && version >= GST_GLSL_VERSION_300) {
+    if (gst_gl_context_check_feature (context,
+            "GL_OES_EGL_image_external_essl3")) {
+      GRegex *regex = g_regex_new (
+          /* '#extension ' with optional spacing */
+          "(#[ \\t]*extension[ \\t]+)"
+          /* what we're looking to replace */
+          "GL_OES_EGL_image_external"
+          /* ':' with optional spacing */
+          "([ \\t]*:[ \\t]*"
+          /* some word like require, disable, etc followed by spacing and a newline */
+          "\\S+[ \\t]*\\R)",
+          0, 0, NULL);
+      gchar *tmp = g_regex_replace (regex, str, -1, 0,
+          "\\1GL_OES_EGL_image_external_essl3\\2", 0, NULL);
+      g_regex_unref (regex);
+      return tmp;
+    } else {
+      GST_FIXME ("Undefined situation detected. GLES3 supported but "
+          "GL_OES_EGL_image_external_essl3 not supported.  Falling back to the "
+          "older GL_OES_EGL_image_external extension");
+      return g_strdup (str);
+    }
+  } else {
+    return g_strdup (str);
+  }
+}
+
+static gchar *
+_mangle_texture_access (const gchar * str, GstGLContext * context,
+    GstGLTextureTarget from, GstGLTextureTarget to, GstGLSLVersion version,
+    GstGLSLProfile profile)
+{
+  const gchar *from_str = NULL, *to_str = NULL;
+  gchar *ret, *tmp;
+  gchar *regex_find;
+  GRegex *regex;
+
+  if (from == GST_GL_TEXTURE_TARGET_2D)
+    from_str = "texture2D";
+  if (from == GST_GL_TEXTURE_TARGET_RECTANGLE)
+    from_str = "texture2DRect";
+  if (from == GST_GL_TEXTURE_TARGET_EXTERNAL_OES)
+    from_str = "texture2D";
+
+  /* GL3 || gles3 but not when external-oes unless the image_external_essl3 extension is supported */
+  if (profile == GST_GLSL_PROFILE_CORE || (profile == GST_GLSL_PROFILE_ES
+          && version >= GST_GLSL_VERSION_300
+          && (to != GST_GL_TEXTURE_TARGET_EXTERNAL_OES
+              || gst_gl_context_check_feature (context,
+                  "GL_OES_EGL_image_external_essl3")))) {
+    to_str = "texture";
+  } else {
+    if (to == GST_GL_TEXTURE_TARGET_2D)
+      to_str = "texture2D";
+    if (to == GST_GL_TEXTURE_TARGET_RECTANGLE)
+      to_str = "texture2DRect";
+    if (to == GST_GL_TEXTURE_TARGET_EXTERNAL_OES)
+      to_str = "texture2D";
+  }
+
+  /* followed by any amount of whitespace then a bracket */
+  regex_find = g_strdup_printf ("%s(?=\\s*\\()", from_str);
+  regex = g_regex_new (regex_find, 0, 0, NULL);
+  tmp = g_regex_replace_literal (regex, str, -1, 0, to_str, 0, NULL);
+  g_free (regex_find);
+  g_regex_unref (regex);
+
+  if (tmp) {
+    ret = tmp;
+  } else {
+    GST_FIXME ("Couldn't mangle texture access successfully from %s to %s",
+        from_str, to_str);
+    ret = g_strdup (str);
+  }
+
+  return ret;
+}
+
+static gchar *
+_mangle_sampler_type (const gchar * str, GstGLTextureTarget from,
+    GstGLTextureTarget to)
+{
+  const gchar *from_str = NULL, *to_str = NULL;
+  gchar *ret, *tmp;
+  gchar *regex_find;
+  GRegex *regex;
+
+  if (from == GST_GL_TEXTURE_TARGET_2D)
+    from_str = "sampler2D";
+  if (from == GST_GL_TEXTURE_TARGET_RECTANGLE)
+    from_str = "sampler2DRect";
+  if (from == GST_GL_TEXTURE_TARGET_EXTERNAL_OES)
+    from_str = "samplerExternalOES";
+
+  if (to == GST_GL_TEXTURE_TARGET_2D)
+    to_str = "sampler2D";
+  if (to == GST_GL_TEXTURE_TARGET_RECTANGLE)
+    to_str = "sampler2DRect";
+  if (to == GST_GL_TEXTURE_TARGET_EXTERNAL_OES)
+    to_str = "samplerExternalOES";
+
+  /* followed by some whitespace  */
+  regex_find = g_strdup_printf ("%s(?=\\s)", from_str);
+  regex = g_regex_new (regex_find, 0, 0, NULL);
+  tmp = g_regex_replace_literal (regex, str, -1, 0, to_str, 0, NULL);
+  g_free (regex_find);
+  g_regex_unref (regex);
+
+  if (tmp) {
+    ret = tmp;
+  } else {
+    GST_FIXME ("Couldn't mangle sampler type successfully from %s to %s",
+        from_str, to_str);
+    ret = g_strdup (str);
+  }
+
+  return ret;
+}
+
+static gchar *
+_mangle_varying_attribute (const gchar * str, guint shader_type,
+    GstGLSLVersion version, GstGLSLProfile profile)
+{
+  if (shader_type == GL_VERTEX_SHADER) {
+    if (profile == GST_GLSL_PROFILE_CORE || (profile == GST_GLSL_PROFILE_ES
+            && version >= GST_GLSL_VERSION_300)) {
+      gchar *tmp, *tmp2;
+      GRegex *regex;
+
+      /* followed by some whitespace  */
+      regex = g_regex_new ("varying(?=\\s)", 0, 0, NULL);
+      tmp = g_regex_replace_literal (regex, str, -1, 0, "out", 0, NULL);
+      g_regex_unref (regex);
+
+      /* followed by some whitespace  */
+      regex = g_regex_new ("attribute(?=\\s)", 0, 0, NULL);
+      tmp2 = g_regex_replace_literal (regex, tmp, -1, 0, "in", 0, NULL);
+      g_regex_unref (regex);
+
+      g_free (tmp);
+      return tmp2;
+    }
+  } else if (shader_type == GL_FRAGMENT_SHADER) {
+    if (profile == GST_GLSL_PROFILE_CORE || (profile == GST_GLSL_PROFILE_ES
+            && version >= GST_GLSL_VERSION_300)) {
+      gchar *tmp;
+      GRegex *regex;
+
+      /* followed by some whitespace  */
+      regex = g_regex_new ("varying(?=\\s)", 0, 0, NULL);
+      tmp = g_regex_replace_literal (regex, str, -1, 0, "in", 0, NULL);
+      g_regex_unref (regex);
+
+      return tmp;
+    }
+  }
+  return g_strdup (str);
+}
+
+static gchar *
+_mangle_frag_color_data (const gchar * str)
+{
+  GRegex *regex;
+  gchar *ret, *tmp;
+
+  regex = g_regex_new ("gl_FragColor", 0, 0, NULL);
+  ret = g_regex_replace_literal (regex, str, -1, 0, "fragColor", 0, NULL);
+  g_regex_unref (regex);
+
+  tmp = ret;
+  /* search and replace 'gl_FragData[NUM]' into fragColor_NUM */
+  regex = g_regex_new ("gl_FragData\\[(\\d+)\\]", 0, 0, NULL);
+  ret = g_regex_replace (regex, tmp, -1, 0, "fragColor_\\1", 0, NULL);
+  g_regex_unref (regex);
+  g_free (tmp);
+
+  return ret;
+}
+
+static void
+_mangle_version_profile_from_gl_api (GstGLContext * context,
+    GstGLTextureTarget from, GstGLTextureTarget to, GstGLSLVersion * version,
+    GstGLSLProfile * profile)
+{
+  GstGLAPI gl_api;
+  gint gl_major, gl_minor;
+
+  gl_api = gst_gl_context_get_gl_api (context);
+  gst_gl_context_get_gl_version (context, &gl_major, &gl_minor);
+
+  *version = GST_GLSL_VERSION_NONE;
+  *profile = GST_GLSL_PROFILE_NONE;
+
+  if (gl_api & GST_GL_API_OPENGL3) {
+    if (gl_major > 3 || gl_minor >= 3) {
+      *version = GST_GLSL_VERSION_330;
+      *profile = GST_GLSL_PROFILE_CORE;
+    } else {
+      *version = GST_GLSL_VERSION_150;
+      *profile = GST_GLSL_PROFILE_NONE;
+    }
+  } else if (gl_api & GST_GL_API_GLES2) {
+    /* We don't know which texture function to use if we have GLES3 and
+     * don't have the essl3 extension */
+    if (gl_major >= 3 && (to != GST_GL_TEXTURE_TARGET_EXTERNAL_OES
+            || gst_gl_context_check_feature (context,
+                "GL_OES_EGL_image_external_essl3"))) {
+      *version = GST_GLSL_VERSION_300;
+      *profile = GST_GLSL_PROFILE_ES;
+    } else if (gl_major >= 2) {
+      *version = GST_GLSL_VERSION_100;
+      *profile = GST_GLSL_PROFILE_ES;
+    }
+  } else if (gl_api & GST_GL_API_OPENGL) {
+    *version = GST_GLSL_VERSION_110;
+    *profile = GST_GLSL_PROFILE_COMPATIBILITY;
+  }
+}
+
+gchar *
+_gst_glsl_mangle_shader (const gchar * str, guint shader_type,
+    GstGLTextureTarget from, GstGLTextureTarget to, GstGLContext * context,
+    GstGLSLVersion * version, GstGLSLProfile * profile)
+{
+  gchar *tmp, *tmp2;
+
+  _init_debug ();
+
+  g_return_val_if_fail (GST_IS_GL_CONTEXT (context), NULL);
+
+  _mangle_version_profile_from_gl_api (context, from, to, version, profile);
+  tmp2 =
+      _mangle_external_image_extension (str, context, from, to, *version,
+      *profile);
+  tmp = _mangle_texture_access (tmp2, context, from, to, *version, *profile);
+  g_free (tmp2);
+  tmp2 = _mangle_sampler_type (tmp, from, to);
+  g_free (tmp);
+  tmp = _mangle_varying_attribute (tmp2, shader_type, *version, *profile);
+  g_free (tmp2);
+  if (shader_type == GL_FRAGMENT_SHADER) {
+    if ((*profile == GST_GLSL_PROFILE_ES && *version >= GST_GLSL_VERSION_300)
+        || (*profile == GST_GLSL_PROFILE_CORE
+            && *version >= GST_GLSL_VERSION_150)) {
+      tmp2 = _mangle_frag_color_data (tmp);
+      g_free (tmp);
+      tmp = tmp2;
+    }
+  }
+  return tmp;
 }

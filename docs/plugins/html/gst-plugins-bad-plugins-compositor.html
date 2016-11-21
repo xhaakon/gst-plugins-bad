@@ -16,7 +16,8 @@
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-compositor.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-compositor.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-compositor.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_interfaces">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-compositor.implemented-interfaces" class="shortcut">Implemented Interfaces</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-compositor.properties" class="shortcut">Properties</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
@@ -42,26 +43,47 @@
 <col width="200px" class="properties_flags">
 </colgroup>
 <tbody><tr>
-<td class="property_type"><span class="type">GstCompositorBackground</span></td>
+<td class="property_type"><a class="link" href="gst-plugins-bad-plugins-compositor.html#GstCompositorBackground" title="enum GstCompositorBackground"><span class="type">GstCompositorBackground</span></a></td>
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-compositor.html#GstCompositor--background" title="The “background” property">background</a></td>
 <td class="property_flags">Read / Write</td>
 </tr></tbody>
 </table></div>
 </div>
-<a name="GstCompositor"></a><a name="GstCompositorPad"></a><div class="refsect1">
+<a name="GstCompositor"></a><div class="refsect1">
+<a name="gst-plugins-bad-plugins-compositor.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-compositor.html#GstCompositor-struct" title="struct GstCompositor">GstCompositor</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-compositor.html#GstCompositorBackground" title="enum GstCompositorBackground">GstCompositorBackground</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
 <a name="gst-plugins-bad-plugins-compositor.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
     <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
         <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
-            <span class="lineart">├──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstElement.html#GstElement-struct">GstElement</a>
-            <span class="lineart">│</span>   <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0gst-plugins-bad-libs-GstAggregator.html#GstAggregator">GstAggregator</a>
-            <span class="lineart">│</span>       <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregator">GstVideoAggregator</a>
-            <span class="lineart">│</span>           <span class="lineart">╰──</span> GstCompositor
-            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstPad.html#GstPad-struct">GstPad</a>
-                <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad">GstAggregatorPad</a>
-                    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPad">GstVideoAggregatorPad</a>
-                        <span class="lineart">╰──</span> GstCompositorPad
+            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstElement.html#GstElement-struct">GstElement</a>
+                <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0gst-plugins-bad-libs-GstAggregator.html#GstAggregator">GstAggregator</a>
+                    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregator">GstVideoAggregator</a>
+                        <span class="lineart">╰──</span> GstCompositor
 </pre>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-compositor.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
+<p>
+GstCompositor implements
+ <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstChildProxy.html#GstChildProxy-struct">GstChildProxy</a>.</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-compositor.description"></a><h2>Description</h2>
@@ -71,7 +93,7 @@ output parameters. Indeed output video frames will have the geometry of the
 biggest incoming video stream and the framerate of the fastest incoming one.</p>
 <p>Compositor will do colorspace conversion.</p>
 <p>Individual parameters for each input stream can be configured on the
-<a class="link" href="gst-plugins-bad-plugins-compositor.html#GstCompositorPad"><span class="type">GstCompositorPad</span></a>:</p>
+<span class="type">GstCompositorPad</span>:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
 "xpos": The x-coordinate position of the top-left corner of the picture
@@ -100,7 +122,7 @@ is a simple copy when fully-transparent (0.0) and fully-opaque (1.0).
 </li>
 </ul></div>
 <div class="refsect2">
-<a name="id-1.2.16.7.6"></a><h3>Sample pipelines</h3>
+<a name="id-1.2.17.8.6"></a><h3>Sample pipelines</h3>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -128,7 +150,7 @@ is a simple copy when fully-transparent (0.0) and fully-opaque (1.0).
  A pipeline to demonstrate compositor used together with videobox.
 This should show a 320x240 pixels video test source with some transparency
 showing the background checker pattern. Another video test source with just
-the snow pattern of 100x100 pixels is overlayed on top of the first one on
+the snow pattern of 100x100 pixels is overlaid on top of the first one on
 the left vertically centered with a small transparency showing the first
 video test source behind and the checker pattern under it. Note that the
 framerate of the output video is 10 frames per second.
@@ -199,7 +221,7 @@ framerate of the output video is 10 frames per second.
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.16.7.7.1"></a><h3>Element Information</h3>
+<a name="id-1.2.17.8.7.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -225,7 +247,7 @@ framerate of the output video is 10 frames per second.
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.16.7.7.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.17.8.7.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -283,12 +305,53 @@ framerate of the output video is 10 frames per second.
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-compositor.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="GstCompositor-struct"></a><h3>struct GstCompositor</h3>
+<pre class="programlisting">struct GstCompositor;</pre>
+<p>The opaque <a class="link" href="gst-plugins-bad-plugins-compositor.html#GstCompositor"><span class="type">GstCompositor</span></a> structure.</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstCompositorBackground"></a><h3>enum GstCompositorBackground</h3>
+<div class="refsect3">
+<a name="GstCompositorBackground.members"></a><h4>Members</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="COMPOSITOR-BACKGROUND-CHECKER:CAPS"></a>COMPOSITOR_BACKGROUND_CHECKER</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="COMPOSITOR-BACKGROUND-BLACK:CAPS"></a>COMPOSITOR_BACKGROUND_BLACK</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="COMPOSITOR-BACKGROUND-WHITE:CAPS"></a>COMPOSITOR_BACKGROUND_WHITE</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="COMPOSITOR-BACKGROUND-TRANSPARENT:CAPS"></a>COMPOSITOR_BACKGROUND_TRANSPARENT</p></td>
+<td> </td>
+<td> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-compositor.property-details"></a><h2>Property Details</h2>
 <div class="refsect2">
 <a name="GstCompositor--background"></a><h3>The <code class="literal">“background”</code> property</h3>
-<pre class="programlisting">  “background”               <span class="type">GstCompositorBackground</span></pre>
+<pre class="programlisting">  “background”               <a class="link" href="gst-plugins-bad-plugins-compositor.html#GstCompositorBackground" title="enum GstCompositorBackground"><span class="type">GstCompositorBackground</span></a></pre>
 <p>Background type.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: Checker pattern</p>

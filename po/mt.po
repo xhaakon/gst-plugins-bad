@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad-0.10.8.3\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
 "PO-Revision-Date: 2008-10-26 20:27+0100\n"
 "Last-Translator: Michel Bugeja <michelbugeja@rabatmalta.com>\n"
 "Language-Team: Maltese <translation-team-mt@lists.sourceforge.net>\n"
@@ -17,6 +17,12 @@ msgstr ""
 "X-Poedit-Country: MALTA\n"
 "X-Poedit-SourceCharset: utf-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr ""
@@ -64,9 +70,6 @@ msgstr "Ma nistax naqra mill-fajl \"%s\"."
 msgid "Could not start sndio"
 msgstr "Ma stajtx naqra informazzjoni fuq it-titlu tad-DVD."
 
-msgid "Internal data flow error."
-msgstr "Internal data flow error."
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 
@@ -86,11 +89,11 @@ msgstr ""
 msgid "Failed to get fragment URL."
 msgstr ""
 
-msgid "Internal data stream error."
-msgstr "Internal data stream error."
-
 msgid "Couldn't download fragments"
 msgstr ""
+
+msgid "Internal data stream error."
+msgstr "Internal data stream error."
 
 msgid "No file name specified for writing."
 msgstr "L-ebda isem speċifikat biex nikteb."
@@ -124,19 +127,34 @@ msgid "Could not open file \"%s\" for reading."
 msgstr "Ma nistax naqra mill-fajl \"%s\"."
 
 #, fuzzy
-msgid "Couldn't find DVB channel configuration file"
+msgid "Couldn't find channel configuration file"
 msgstr "Virtual mixer channel configuration"
 
 #, fuzzy, c-format
-msgid "Couldn't load DVB channel configuration file: %s"
+msgid "Couldn't load channel configuration file: '%s'"
 msgstr "Virtual mixer channel configuration"
 
-msgid "DVB channel configuration file doesn't contain any channels"
+#, c-format
+msgid "Couldn't find details for channel '%s'"
 msgstr ""
 
 #, c-format
-msgid "Couldn't find details for DVB channel %s"
+msgid "No properties for channel '%s'"
 msgstr ""
+
+#, fuzzy, c-format
+msgid "Failed to set properties for channel '%s'"
+msgstr "Problema biex niftaħ apparat tad-DVD '%s'."
+
+#, fuzzy, c-format
+msgid "Couldn't find channel configuration file: '%s'"
+msgstr "Virtual mixer channel configuration"
+
+msgid "Channel configuration file doesn't contain any channels"
+msgstr ""
+
+#~ msgid "Internal data flow error."
+#~ msgstr "Internal data flow error."
 
 #~ msgid "Could not write to file \"%s\"."
 #~ msgstr "Ma nistax nikteb fil-fajl \"%s\". "

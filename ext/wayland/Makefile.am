@@ -1,13 +1,16 @@
 plugin_LTLIBRARIES = libgstwaylandsink.la
 
+BUILT_SOURCES = viewporter-protocol.c viewporter-client-protocol.h
+
 libgstwaylandsink_la_SOURCES =  \
 	gstwaylandsink.c \
 	wlshmallocator.c \
 	wlbuffer.c \
 	wldisplay.c \
 	wlwindow.c \
-	wlvideoformat.c \
-	scaler-protocol.c
+	wlvideoformat.c
+
+nodist_libgstwaylandsink_la_SOURCES = viewporter-protocol.c
 
 libgstwaylandsink_la_CFLAGS = $(GST_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
                                $(WAYLAND_CFLAGS) $(GST_PLUGINS_BAD_CFLAGS)
@@ -26,24 +29,22 @@ noinst_HEADERS = \
 	wlbuffer.h \
 	wldisplay.h \
 	wlwindow.h \
-	wlvideoformat.h \
-	scaler-client-protocol.h
+	wlvideoformat.h
 
-EXTRA_DIST = scaler.xml
-CLEANFILES = scaler-protocol.c scaler-client-protocol.h
+CLEANFILES = $(BUILT_SOURCES)
 
-%-protocol.c : %.xml
-	$(wayland_scanner) code < $< > $@
+.SECONDEXPANSION:
 
-%-client-protocol.h : %.xml
-	$(wayland_scanner) client-header < $< > $@
+define protostability
+$(if $(findstring unstable,$1),unstable,stable)
+endef
 
-gstwaylandsink.c: scaler-client-protocol.h
+define protoname
+$(shell echo $1 | sed 's/\([a-z\-]\+\)-[a-z]\+-v[0-9]\+/\1/')
+endef
 
-wlshmallocator.c: scaler-client-protocol.h
+%-protocol.c : $(WAYLAND_PROTOCOLS_DATADIR)/$$(call protostability,$$*)/$$(call protoname,$$*)/$$*.xml
+	$(AM_V_GEN)$(wayland_scanner) code < $< > $@
 
-wlbuffer.c: scaler-client-protocol.h
-
-wldisplay.c: scaler-client-protocol.h
-
-wlwindow.c: scaler-client-protocol.h
+%-client-protocol.h : $(WAYLAND_PROTOCOLS_DATADIR)/$$(call protostability,$$*)/$$(call protoname,$$*)/$$*.xml
+	$(AM_V_GEN)$(wayland_scanner) client-header < $< > $@

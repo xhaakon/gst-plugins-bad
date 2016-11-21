@@ -36,27 +36,31 @@ typedef struct _GstGLSLFuncs
 {
   gboolean initialized;
 
-  GLuint GSTGLAPI (*CreateProgram) (void);
-  void GSTGLAPI (*DeleteProgram) (GLuint program);
-  void GSTGLAPI (*UseProgram) (GLuint program);
-  void GSTGLAPI (*GetAttachedShaders) (GLuint program, GLsizei maxcount,
+  GLuint (GSTGLAPI *CreateProgram) (void);
+  void (GSTGLAPI *DeleteProgram) (GLuint program);
+  void (GSTGLAPI *UseProgram) (GLuint program);
+  void (GSTGLAPI *GetAttachedShaders) (GLuint program, GLsizei maxcount,
       GLsizei * count, GLuint * shaders);
 
-  GLuint GSTGLAPI (*CreateShader) (GLenum shaderType);
-  void GSTGLAPI (*DeleteShader) (GLuint shader);
-  void GSTGLAPI (*AttachShader) (GLuint program, GLuint shader);
-  void GSTGLAPI (*DetachShader) (GLuint program, GLuint shader);
+  GLuint (GSTGLAPI *CreateShader) (GLenum shaderType);
+  void (GSTGLAPI *DeleteShader) (GLuint shader);
+  void (GSTGLAPI *AttachShader) (GLuint program, GLuint shader);
+  void (GSTGLAPI *DetachShader) (GLuint program, GLuint shader);
 
-  void GSTGLAPI (*GetShaderiv) (GLuint program, GLenum pname, GLint * params);
-  void GSTGLAPI (*GetProgramiv) (GLuint program, GLenum pname, GLint * params);
-  void GSTGLAPI (*GetShaderInfoLog) (GLuint shader, GLsizei maxLength,
+  void (GSTGLAPI *GetShaderiv) (GLuint program, GLenum pname, GLint * params);
+  void (GSTGLAPI *GetProgramiv) (GLuint program, GLenum pname, GLint * params);
+  void (GSTGLAPI *GetShaderInfoLog) (GLuint shader, GLsizei maxLength,
       GLsizei * length, char *log);
-  void GSTGLAPI (*GetProgramInfoLog) (GLuint shader, GLsizei maxLength,
+  void (GSTGLAPI *GetProgramInfoLog) (GLuint shader, GLsizei maxLength,
       GLsizei * length, char *log);
 } GstGLSLFuncs;
 
 G_GNUC_INTERNAL gboolean _gst_glsl_funcs_fill (GstGLSLFuncs * vtable, GstGLContext * context);
 G_GNUC_INTERNAL const gchar * _gst_glsl_shader_string_find_version (const gchar * str);
+
+G_GNUC_INTERNAL gchar *
+_gst_glsl_mangle_shader (const gchar * str, guint shader_type, GstGLTextureTarget from,
+    GstGLTextureTarget to, GstGLContext * context, GstGLSLVersion * version, GstGLSLProfile * profile);
 
 G_END_DECLS
 

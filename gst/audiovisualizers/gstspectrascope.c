@@ -40,15 +40,17 @@
 
 #include "gstspectrascope.h"
 
+#if G_BYTE_ORDER == G_BIG_ENDIAN
+#define RGB_ORDER "xRGB"
+#else
+#define RGB_ORDER "BGRx"
+#endif
+
 static GstStaticPadTemplate gst_spectra_scope_src_template =
 GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-#if G_BYTE_ORDER == G_BIG_ENDIAN
-    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE ("xRGB"))
-#else
-    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE ("BGRx"))
-#endif
+    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE (RGB_ORDER))
     );
 
 static GstStaticPadTemplate gst_spectra_scope_sink_template =
@@ -88,10 +90,10 @@ gst_spectra_scope_class_init (GstSpectraScopeClass * g_class)
       "Frequency spectrum scope", "Visualization",
       "Simple frequency spectrum scope", "Stefan Kost <ensonic@users.sf.net>");
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_spectra_scope_src_template));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_spectra_scope_sink_template));
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_spectra_scope_src_template);
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_spectra_scope_sink_template);
 
   scope_class->setup = GST_DEBUG_FUNCPTR (gst_spectra_scope_setup);
   scope_class->render = GST_DEBUG_FUNCPTR (gst_spectra_scope_render);

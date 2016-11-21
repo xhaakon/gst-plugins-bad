@@ -14,12 +14,9 @@ if USE_WGL
 libgstgl_win32_la_SOURCES += gstglcontext_wgl.c
 noinst_HEADERS += gstglcontext_wgl.h
 endif
-#if USE_EGL
-#libgstgl_win32_la_SOURCES += gstglwindow_win32_egl.c
-#noinst_HEADERS += gstglwindow_win32_egl.h
-#endif
 
 libgstgl_win32_la_CFLAGS = \
+	-DGST_EXPORTS \
 	-I$(top_srcdir)/gst-libs \
 	-I$(top_builddir)/gst-libs \
 	$(GL_CFLAGS) \

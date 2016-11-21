@@ -31,6 +31,7 @@
 
 G_BEGIN_DECLS
 
+GST_EXPORT
 GType gst_gl_base_filter_get_type(void);
 #define GST_TYPE_GL_BASE_FILTER            (gst_gl_base_filter_get_type())
 #define GST_GL_BASE_FILTER(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_GL_BASE_FILTER,GstGLBaseFilter))
@@ -58,7 +59,7 @@ struct _GstGLBaseFilter
   GstCaps           *out_caps;
 
   /* <private> */
-  gpointer _padding[GST_PADDING];
+  gpointer           _padding[GST_PADDING];
 
   GstGLBaseFilterPrivate *priv;
 };

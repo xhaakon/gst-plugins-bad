@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.8.3\n"
+"Project-Id-Version: gst-plugins-bad 1.10.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,39 +16,47 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ext/gl/gstgltestsrc.c:680
+#: ext/gl/gstgltestsrc.c:521
+msgid "failed to draw pattern"
+msgstr ""
+
+#: ext/gl/gstgltestsrc.c:522
+msgid "A GL error occured"
+msgstr ""
+
+#: ext/gl/gstgltestsrc.c:528
 msgid "format wasn't negotiated before get function"
 msgstr ""
 
-#: ext/opencv/gsttemplatematch.cpp:188
+#: ext/opencv/gsttemplatematch.cpp:186
 msgid "OpenCV failed to load template image"
 msgstr ""
 
-#: ext/resindvd/resindvdsrc.c:362
+#: ext/resindvd/resindvdsrc.c:361
 msgid "Could not read title information for DVD."
 msgstr ""
 
-#: ext/resindvd/resindvdsrc.c:368
+#: ext/resindvd/resindvdsrc.c:367
 #, c-format
 msgid "Failed to open DVD device '%s'."
 msgstr ""
 
-#: ext/resindvd/resindvdsrc.c:374
+#: ext/resindvd/resindvdsrc.c:373
 msgid "Failed to set PGC based seeking."
 msgstr ""
 
-#: ext/resindvd/resindvdsrc.c:1165
+#: ext/resindvd/resindvdsrc.c:1164
 msgid ""
 "Could not read DVD. This may be because the DVD is encrypted and a DVD "
 "decryption library is not installed."
 msgstr ""
 
-#: ext/resindvd/resindvdsrc.c:1170 ext/resindvd/resindvdsrc.c:1179
+#: ext/resindvd/resindvdsrc.c:1169 ext/resindvd/resindvdsrc.c:1178
 msgid "Could not read DVD."
 msgstr ""
 
 #: ext/smoothstreaming/gstmssdemux.c:405
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:647
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:695
 msgid "This file contains no playable streams."
 msgstr ""
 
@@ -56,37 +64,33 @@ msgstr ""
 msgid "Could not open sndfile stream for reading."
 msgstr ""
 
-#: ext/sndio/sndiosink.c:324 ext/sndio/sndiosrc.c:321
+#: ext/sndio/sndiosink.c:324 ext/sndio/sndiosrc.c:320
 msgid "Could not establish connection to sndio"
 msgstr ""
 
-#: ext/sndio/sndiosink.c:331 ext/sndio/sndiosrc.c:328
+#: ext/sndio/sndiosink.c:331 ext/sndio/sndiosrc.c:327
 msgid "Failed to query sndio capabilities"
 msgstr ""
 
-#: ext/sndio/sndiosink.c:424 ext/sndio/sndiosrc.c:422
+#: ext/sndio/sndiosink.c:424 ext/sndio/sndiosrc.c:421
 msgid "Could not configure sndio"
 msgstr ""
 
-#: ext/sndio/sndiosink.c:430 ext/sndio/sndiosrc.c:428
+#: ext/sndio/sndiosink.c:430 ext/sndio/sndiosrc.c:427
 msgid "Could not start sndio"
 msgstr ""
 
-#: gst/aiff/aiffparse.c:1504
-msgid "Internal data flow error."
-msgstr ""
-
-#: gst/asfmux/gstasfmux.c:1832
+#: gst/asfmux/gstasfmux.c:1831
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 
-#: gst/camerabin2/camerabingeneral.c:166 gst/camerabin2/gstcamerabin2.c:1876
-#: gst/camerabin2/gstdigitalzoom.c:282 gst/camerabin2/gstviewfinderbin.c:271
+#: gst/camerabin2/camerabingeneral.c:166 gst/camerabin2/gstcamerabin2.c:1875
+#: gst/camerabin2/gstdigitalzoom.c:282 gst/camerabin2/gstviewfinderbin.c:270
 #, c-format
 msgid "Missing element '%s' - check your GStreamer installation."
 msgstr ""
 
-#: gst/camerabin2/gstcamerabin2.c:364
+#: gst/camerabin2/gstcamerabin2.c:363
 msgid "File location is set to NULL, please set it to a valid filename"
 msgstr ""
 
@@ -94,23 +98,21 @@ msgstr ""
 msgid "Digitalzoom element couldn't be created"
 msgstr ""
 
-#: gst/dvdspu/gstdvdspu.c:1042
+#: gst/dvdspu/gstdvdspu.c:1041
 msgid "Subpicture format was not configured before data flow"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2740
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3111
 msgid "Failed to get fragment URL."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:2975
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3170
-#: gst/mpegtsdemux/mpegtsbase.c:1383 gst/mpegtsdemux/mpegtsbase.c:1387
-#: gst/nuvdemux/gstnuvdemux.c:736
-msgid "Internal data stream error."
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3462
+msgid "Couldn't download fragments"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3087
-msgid "Couldn't download fragments"
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3551
+#: gst/mpegtsdemux/mpegtsbase.c:1608
+msgid "Internal data stream error."
 msgstr ""
 
 #: gst/videomeasure/gstvideomeasure_collector.c:294
@@ -127,45 +129,60 @@ msgstr ""
 msgid "Could not open file \"%s\" for writing."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1564 sys/dvb/gstdvbsrc.c:1753
+#: sys/dvb/gstdvbsrc.c:1571 sys/dvb/gstdvbsrc.c:1784
 #, c-format
 msgid "Device \"%s\" does not exist."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1568
+#: sys/dvb/gstdvbsrc.c:1575
 #, c-format
 msgid "Could not open frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1582
+#: sys/dvb/gstdvbsrc.c:1594
 #, c-format
 msgid "Could not get settings from frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1599
+#: sys/dvb/gstdvbsrc.c:1611
 #, c-format
 msgid "Cannot enumerate delivery systems from frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1757
+#: sys/dvb/gstdvbsrc.c:1788
 #, c-format
 msgid "Could not open file \"%s\" for reading."
 msgstr ""
 
-#: sys/dvb/parsechannels.c:165
-msgid "Couldn't find DVB channel configuration file"
+#: sys/dvb/parsechannels.c:410
+msgid "Couldn't find channel configuration file"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:168
+#: sys/dvb/parsechannels.c:413 sys/dvb/parsechannels.c:563
 #, c-format
-msgid "Couldn't load DVB channel configuration file: %s"
+msgid "Couldn't load channel configuration file: '%s'"
 msgstr ""
 
-#: sys/dvb/parsechannels.c:175
-msgid "DVB channel configuration file doesn't contain any channels"
-msgstr ""
-
-#: sys/dvb/parsechannels.c:449
+#: sys/dvb/parsechannels.c:421 sys/dvb/parsechannels.c:846
 #, c-format
-msgid "Couldn't find details for DVB channel %s"
+msgid "Couldn't find details for channel '%s'"
+msgstr ""
+
+#: sys/dvb/parsechannels.c:430
+#, c-format
+msgid "No properties for channel '%s'"
+msgstr ""
+
+#: sys/dvb/parsechannels.c:439
+#, c-format
+msgid "Failed to set properties for channel '%s'"
+msgstr ""
+
+#: sys/dvb/parsechannels.c:560
+#, c-format
+msgid "Couldn't find channel configuration file: '%s'"
+msgstr ""
+
+#: sys/dvb/parsechannels.c:570
+msgid "Channel configuration file doesn't contain any channels"
 msgstr ""

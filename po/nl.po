@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.7.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
 "PO-Revision-Date: 2016-02-20 12:35+0100\n"
 "Last-Translator: Freek de Kruijf <f.de.kruijf@gmail.com>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
@@ -17,6 +17,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Lokalize 1.5\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr "formaat is niet onderhandeld vóór get-functie"
@@ -62,9 +68,6 @@ msgstr "Kon sndio niet instellen"
 msgid "Could not start sndio"
 msgstr "Kon sndio niet starten"
 
-msgid "Internal data flow error."
-msgstr "Interne fout met gegevensdoorvoer."
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 "Gegenereerd bestand heeft een grotere voorlooptijd dan de duur van zijn "
@@ -88,11 +91,11 @@ msgstr ""
 msgid "Failed to get fragment URL."
 msgstr "Verkrijgen van de URL van het fragment is mislukt."
 
-msgid "Internal data stream error."
-msgstr "Interne fout in gegevensstroom."
-
 msgid "Couldn't download fragments"
 msgstr "Kan fragmenten niet downloaden"
+
+msgid "Internal data stream error."
+msgstr "Interne fout in gegevensstroom."
 
 msgid "No file name specified for writing."
 msgstr "Geen bestandsnaam gespecificeerd voor de uitvoer."
@@ -127,19 +130,36 @@ msgstr "Kan de afleversystemen van het frontend-apparaat \"%s\" niet opnoemen."
 msgid "Could not open file \"%s\" for reading."
 msgstr "Kan bestand \"%s\" niet openen om te lezen."
 
-msgid "Couldn't find DVB channel configuration file"
+#, fuzzy
+msgid "Couldn't find channel configuration file"
 msgstr "Kon het instellingenbestand van het DVB-kanaal niet vinden"
 
-#, c-format
-msgid "Couldn't load DVB channel configuration file: %s"
+#, fuzzy, c-format
+msgid "Couldn't load channel configuration file: '%s'"
 msgstr "Kon het instellingenbestand \"%s\" van het DVB-kanaal niet laden"
 
-msgid "DVB channel configuration file doesn't contain any channels"
+#, fuzzy, c-format
+msgid "Couldn't find details for channel '%s'"
+msgstr "Kon de details voor het DVB-kanaal %s niet vinden"
+
+#, fuzzy, c-format
+msgid "No properties for channel '%s'"
+msgstr "Kon de details voor het DVB-kanaal %s niet vinden"
+
+#, fuzzy, c-format
+msgid "Failed to set properties for channel '%s'"
+msgstr "Kon de details voor het DVB-kanaal %s niet vinden"
+
+#, fuzzy, c-format
+msgid "Couldn't find channel configuration file: '%s'"
+msgstr "Kon het instellingenbestand van het DVB-kanaal niet vinden"
+
+#, fuzzy
+msgid "Channel configuration file doesn't contain any channels"
 msgstr "Het instellingenbestand van het DVB-kanaal bevat geen kanalen"
 
-#, c-format
-msgid "Couldn't find details for DVB channel %s"
-msgstr "Kon de details voor het DVB-kanaal %s niet vinden"
+#~ msgid "Internal data flow error."
+#~ msgstr "Interne fout met gegevensdoorvoer."
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "standaard GStreamer audiosink voor geluidsgebeurtenissen"

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.6.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
 "PO-Revision-Date: 2015-10-15 20:54+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
@@ -21,6 +21,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: Gtranslator 2.91.7\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr "formát nebyl vyjednán před získáním funkce"
@@ -66,9 +72,6 @@ msgstr "Nelze nastavit sndio"
 msgid "Could not start sndio"
 msgstr "Nelze spustit sndio"
 
-msgid "Internal data flow error."
-msgstr "Vnitřní chyba datového toku."
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 "Vygenerovaný soubor má delší čas videa vloženého před začátek (preroll) než "
@@ -92,11 +95,11 @@ msgstr "Formát podřízeného obrázku nebyl nastaven před datovým tokem"
 msgid "Failed to get fragment URL."
 msgstr "Selhalo získání adresy URL fragmentu."
 
-msgid "Internal data stream error."
-msgstr "Chyba proudu vnitřních dat."
-
 msgid "Couldn't download fragments"
 msgstr "Nelze stáhnout fragmenty"
+
+msgid "Internal data stream error."
+msgstr "Chyba proudu vnitřních dat."
 
 msgid "No file name specified for writing."
 msgstr "K zápisu nebyl zadán žádný název souboru."
@@ -131,19 +134,36 @@ msgstr ""
 msgid "Could not open file \"%s\" for reading."
 msgstr "Nezdařilo se otevření souboru „%s“ ke čtení."
 
-msgid "Couldn't find DVB channel configuration file"
+#, fuzzy
+msgid "Couldn't find channel configuration file"
 msgstr "Nelze najít soubor s nastavením kanálů DVB"
 
-#, c-format
-msgid "Couldn't load DVB channel configuration file: %s"
+#, fuzzy, c-format
+msgid "Couldn't load channel configuration file: '%s'"
 msgstr "Nelze načíst soubor s nastavením kanálu DVB: %s"
 
-msgid "DVB channel configuration file doesn't contain any channels"
+#, fuzzy, c-format
+msgid "Couldn't find details for channel '%s'"
+msgstr "Nelze najít podrobnosti ke kanálu DVB %s"
+
+#, fuzzy, c-format
+msgid "No properties for channel '%s'"
+msgstr "Nelze najít podrobnosti ke kanálu DVB %s"
+
+#, fuzzy, c-format
+msgid "Failed to set properties for channel '%s'"
+msgstr "Nelze najít podrobnosti ke kanálu DVB %s"
+
+#, fuzzy, c-format
+msgid "Couldn't find channel configuration file: '%s'"
+msgstr "Nelze najít soubor s nastavením kanálů DVB"
+
+#, fuzzy
+msgid "Channel configuration file doesn't contain any channels"
 msgstr "Soubor s nastavením kanálů DVB neobsahuje žádné kanály"
 
-#, c-format
-msgid "Couldn't find details for DVB channel %s"
-msgstr "Nelze najít podrobnosti ke kanálu DVB %s"
+#~ msgid "Internal data flow error."
+#~ msgstr "Vnitřní chyba datového toku."
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "výchozí zvukový cíl GStreamer pro zvukové události"

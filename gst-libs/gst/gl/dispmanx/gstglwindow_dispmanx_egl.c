@@ -57,7 +57,8 @@ static void gst_gl_window_dispmanx_egl_close (GstGLWindow * window);
 static gboolean gst_gl_window_dispmanx_egl_open (GstGLWindow * window,
     GError ** error);
 static guintptr gst_gl_window_dispmanx_egl_get_display (GstGLWindow * window);
-
+static gboolean gst_gl_window_dispmanx_egl_set_render_rectangle (GstGLWindow *
+    window, gint x, gint y, gint width, gint height);
 
 static void window_resize (GstGLWindowDispmanxEGL * window_egl, guint width,
     guint height, gboolean visible);
@@ -78,6 +79,8 @@ gst_gl_window_dispmanx_egl_class_init (GstGLWindowDispmanxEGLClass * klass)
       GST_DEBUG_FUNCPTR (gst_gl_window_dispmanx_egl_get_display);
   window_class->set_preferred_size =
       GST_DEBUG_FUNCPTR (gst_gl_window_dispmanx_egl_set_preferred_size);
+  window_class->set_render_rectangle =
+      GST_DEBUG_FUNCPTR (gst_gl_window_dispmanx_egl_set_render_rectangle);
 }
 
 static void
@@ -92,6 +95,13 @@ gst_gl_window_dispmanx_egl_init (GstGLWindowDispmanxEGL * window_egl)
   window_egl->native.element = 0;
   window_egl->native.width = 0;
   window_egl->native.height = 0;
+  window_egl->foreign.element = 0;
+  window_egl->foreign.width = 0;
+  window_egl->foreign.height = 0;
+  window_egl->render_rect.x = 0;
+  window_egl->render_rect.y = 0;
+  window_egl->render_rect.w = 0;
+  window_egl->render_rect.h = 0;
 }
 
 /* Must be called in the gl thread */
@@ -115,7 +125,7 @@ gst_gl_window_dispmanx_egl_close (GstGLWindow * window)
 
   window_egl = GST_GL_WINDOW_DISPMANX_EGL (window);
 
-  if (window_egl->native.element) {
+  if (window_egl->native.element && window_egl->native.element != window_egl->foreign.element) {
     dispman_update = vc_dispmanx_update_start (0);
     vc_dispmanx_element_remove (dispman_update, window_egl->native.element);
     vc_dispmanx_update_submit_sync (dispman_update);
@@ -168,6 +178,21 @@ static void
 gst_gl_window_dispmanx_egl_set_window_handle (GstGLWindow * window,
     guintptr handle)
 {
+  GstGLWindowDispmanxEGL *window_egl = GST_GL_WINDOW_DISPMANX_EGL (window);
+  EGL_DISPMANX_WINDOW_T *foreign_window = (EGL_DISPMANX_WINDOW_T *)handle;
+  DISPMANX_UPDATE_HANDLE_T dispman_update;
+
+  GST_DEBUG_OBJECT (window, "set window handle with size %dx%d", foreign_window->width, foreign_window->height);
+
+  if (window_egl->native.element) {
+    dispman_update = vc_dispmanx_update_start (0);
+    vc_dispmanx_element_remove (dispman_update, window_egl->native.element);
+    vc_dispmanx_update_submit_sync (dispman_update);
+  }
+
+  window_egl->native.element = window_egl->foreign.element = foreign_window->element;
+  window_egl->native.width =  window_egl->foreign.width = foreign_window->width;
+  window_egl->native.height =  window_egl->foreign.height = foreign_window->height;
 }
 
 static void
@@ -194,20 +219,27 @@ window_resize (GstGLWindowDispmanxEGL * window_egl, guint width, guint height,
   if (window_egl->display) {
     VC_RECT_T dst_rect;
     VC_RECT_T src_rect;
-    GstVideoRectangle src, dst, res;
+    GstVideoRectangle src, res;
     DISPMANX_UPDATE_HANDLE_T dispman_update;
     uint32_t opacity = visible ? 255 : 0;
     VC_DISPMANX_ALPHA_T alpha =
         { DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS, opacity, 0 };
 
-    /* Center width*height frame inside dp_width*dp_height */
     src.w = width;
     src.h = height;
     src.x = src.y = 0;
-    dst.w = window_egl->dp_width;
-    dst.h = window_egl->dp_height;
-    dst.x = dst.y = 0;
-    gst_video_sink_center_rect (src, dst, &res, FALSE);
+
+    /* If there is no render rectangle, center the width*height frame
+     *  inside dp_width*dp_height */
+    if (window_egl->render_rect.w <= 0 || window_egl->render_rect.h <= 0) {
+      GstVideoRectangle dst;
+      dst.w = window_egl->dp_width;
+      dst.h = window_egl->dp_height;
+      dst.x = dst.y = 0;
+      gst_video_sink_center_rect (src, dst, &res, FALSE);
+    } else {
+      gst_video_sink_center_rect (src, window_egl->render_rect, &res, FALSE);
+    }
 
     dst_rect.x = res.x;
     dst_rect.y = res.y;
@@ -243,14 +275,31 @@ window_resize (GstGLWindowDispmanxEGL * window_egl, guint width, guint height,
   window_egl->native.height = height;
 }
 
+static gboolean
+gst_gl_window_dispmanx_egl_set_render_rectangle (GstGLWindow * window,
+    gint x, gint y, gint width, gint height)
+{
+  GstGLWindowDispmanxEGL *window_egl = GST_GL_WINDOW_DISPMANX_EGL (window);
+  window_egl->render_rect.x = x;
+  window_egl->render_rect.y = y;
+  window_egl->render_rect.w = width;
+  window_egl->render_rect.h = height;
+
+  window_resize (window_egl, window_egl->render_rect.w,
+      window_egl->render_rect.h, TRUE);
+  return TRUE;
+}
+
 static void
 gst_gl_window_dispmanx_egl_show (GstGLWindow * window)
 {
   GstGLWindowDispmanxEGL *window_egl = GST_GL_WINDOW_DISPMANX_EGL (window);
 
   if (!window_egl->visible) {
-    window_resize (window_egl, window_egl->preferred_width,
-        window_egl->preferred_height, TRUE);
+    if (window_egl->render_rect.w <= 0 || window_egl->render_rect.h <= 0) {
+      window_resize (window_egl, window_egl->preferred_width,
+          window_egl->preferred_height, TRUE);
+    }
     window_egl->visible = TRUE;
   }
 }

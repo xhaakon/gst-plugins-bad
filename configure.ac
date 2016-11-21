@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.8.3],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.10.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 803, 0, 803)
+AS_LIBTOOL(GST, 1001, 0, 1001)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.8.0
-GSTPB_REQ=1.8.0
+GST_REQ=1.10.0
+GSTPB_REQ=1.10.0
 
 dnl *** autotools stuff ****
 
@@ -201,6 +201,10 @@ AG_GST_CHECK_GST_BASE($GST_API_VERSION, [$GST_REQ], yes)
 AG_GST_CHECK_GST_CHECK($GST_API_VERSION, [$GST_REQ], no)
 AG_GST_CHECK_GST_CONTROLLER($GST_API_VERSION, [$GST_REQ], yes)
 AG_GST_CHECK_GST_NET($GST_API_VERSION, [$GST_REQ], yes)
+AG_GST_PKG_CHECK_MODULES(GST_VIDEO, gstreamer-video-[$GST_API_VERSION], [$GST_REQ], yes)
+AG_GST_PKG_CHECK_MODULES(GST_AUDIO, gstreamer-audio-[$GST_API_VERSION], [$GST_REQ], yes)
+AG_GST_PKG_CHECK_MODULES(GST_PBUTILS, gstreamer-pbutils-[$GST_API_VERSION], [$GST_REQ], yes)
+
 AM_CONDITIONAL(HAVE_GST_CHECK, test "x$HAVE_GST_CHECK" = "xyes")
 
 AG_GST_CHECK_GST_PLUGINS_BASE($GST_API_VERSION, [$GSTPB_REQ], yes)
@@ -310,7 +314,7 @@ AM_CONDITIONAL(HAVE_XCOMPOSITE, test "x$HAVE_XCOMPOSITE" = "xyes")
 
 dnl graphene-1.0 is optional and used in gltransformation
 HAVE_GRAPHENE=NO
-PKG_CHECK_MODULES(GRAPHENE, graphene-1.0 >= 1.0.0, HAVE_GRAPHENE=yes, HAVE_GRAPHENE=no)
+PKG_CHECK_MODULES(GRAPHENE, graphene-1.0 >= 1.4.0, HAVE_GRAPHENE=yes, HAVE_GRAPHENE=no)
 if test "x$HAVE_GRAPHENE" = "xyes"; then
   AC_DEFINE(HAVE_GRAPHENE, [1] , [Use graphene])
 fi
@@ -396,6 +400,12 @@ fi
 AC_SUBST(GST_PLUGIN_LIBTOOLFLAGS)
 AM_CONDITIONAL(GST_PLUGIN_BUILD_STATIC, test "x$enable_static_plugins" = "xyes")
 
+dnl If only building static libraries, define GST_STATIC_COMPILATION. This is
+dnl needed only on Windows, but it doesn't hurt to have it everywhere.
+if test x$enable_static = xyes -a x$enable_shared = xno; then
+  GST_STATIC_CFLAGS="-DGST_STATIC_COMPILATION"
+fi
+
 AC_ARG_WITH([player-tests],
   AS_HELP_STRING([--with-player-tests],[Enable GstPlayer tests that need network access (default: no)]))
 if test x$with_player_tests = xyes; then
@@ -450,10 +460,11 @@ GST_PLUGINS_NONPORTED=" cdxaparse \
  sdi tta \
  videomeasure \
  linsys \
- apexsink dc1394 \
- musepack nas sdl timidity \
+ apexsink \
+ nas sdl timidity \
  wininet \
- xvid lv2 sndio libvisual"
+ xvid sndio libvisual"
+
 AC_SUBST(GST_PLUGINS_NONPORTED)
 
 dnl these are all the gst plug-ins, compilable without additional libs
@@ -517,6 +528,7 @@ AG_GST_CHECK_PLUGIN(smooth)
 AG_GST_CHECK_PLUGIN(speed)
 AG_GST_CHECK_PLUGIN(subenc)
 AG_GST_CHECK_PLUGIN(stereo)
+AG_GST_CHECK_PLUGIN(timecode)
 AG_GST_CHECK_PLUGIN(tta)
 AG_GST_CHECK_PLUGIN(videofilters)
 AG_GST_CHECK_PLUGIN(videomeasure)
@@ -531,6 +543,7 @@ dnl *** plug-ins to exclude ***
 AC_CHECK_HEADER(AVFoundation/AVFoundation.h, HAVE_AVFOUNDATION="yes", HAVE_AVFOUNDATION="no", [-])
 AC_CHECK_HEADER(MobileCoreServices/MobileCoreServices.h, HAVE_IOS="yes", HAVE_IOS="no", [-])
 AC_CHECK_HEADER(VideoToolbox/VideoToolbox.h, HAVE_VIDEOTOOLBOX="yes", HAVE_VIDEOTOOLBOX="no", [-])
+AC_CHECK_HEADER(QTKit/QTKit.h, HAVE_QTKIT="yes", HAVE_QTKIT="no", [-])
 
 if test "x$HAVE_VIDEOTOOLBOX" = "xyes"; then
   old_LIBS=$LIBS
@@ -557,6 +570,10 @@ if test "x$HAVE_VIDEOTOOLBOX" = "xyes"; then
   AC_DEFINE(HAVE_VIDEOTOOLBOX, 1, [Define if building with VideoToolbox])
 fi
 
+AM_CONDITIONAL(HAVE_QTKIT, test "x$HAVE_QTKIT" = "xyes")
+if test "x$HAVE_QTKIT" = "xyes"; then
+  AC_DEFINE(HAVE_QTKIT, 1, [Define if building with QTKit])
+fi
 dnl disable gst plugins we might not be able to build on this
 dnl platform: (ugly but minimally invasive)
 dnl FIXME: maybe move to sys, or make work with winsock2
@@ -681,6 +698,7 @@ save_LIBS="$LIBS"
 
 HAVE_GL=no
 HAVE_GLES2=no
+HAVE_GLES3_H=no
 HAVE_WAYLAND_EGL=no
 
 HAVE_EGL_RPI=no
@@ -707,6 +725,7 @@ case $host in
       if test "x$HAVE_GLES2" != "xyes"; then
         AG_GST_CHECK_LIBHEADER(GLES2, GLESv2, glTexImage2D,, GLES2/gl2.h)
       fi
+      AC_CHECK_HEADER([GLES3/gl3.h], [HAVE_GLES3_H=yes])
     fi
     if test "x$NEED_EGL" != "xno"; then
       AG_GST_PKG_CHECK_MODULES(EGL, egl)
@@ -780,6 +799,17 @@ case $host in
     CFLAGS=$old_CFLAGS
 
     PKG_CHECK_MODULES(WAYLAND_EGL, wayland-client >= 1.0 wayland-cursor >= 1.0 wayland-egl >= 9.0, HAVE_WAYLAND_EGL=yes, HAVE_WAYLAND_EGL=no)
+
+    # OS X and iOS always have GL available
+    case $host in
+      *-darwin*)
+        if test "x$HAVE_IOS" = "xyes"; then
+          HAVE_GLES2=yes
+        else
+          HAVE_GL=yes
+        fi
+      ;;
+    esac
   ;;
 esac
 
@@ -857,6 +887,10 @@ fi
 
 dnl check if we can include both GL and GLES2 at the same time
 if test "x$HAVE_GL" = "xyes" -a "x$HAVE_GLES2" = "xyes"; then
+  GLES3_H_DEFINE=0
+  if test "x$HAVE_GLES3_H" == "xyes"; then
+    GLES3_H_DEFINE=1
+  fi
   GL_INCLUDES="
 #ifdef __GNUC__
 #  pragma GCC diagnostic push
@@ -869,8 +903,13 @@ if test "x$HAVE_GL" = "xyes" -a "x$HAVE_GLES2" = "xyes"; then
 #  include <OpenGLES/ES2/gl.h>
 #  include <OpenGLES/ES2/glext.h>
 # else
-#  include <GLES2/gl2.h>
-#  include <GLES2/gl2ext.h>
+#  if $GLES3_H_DEFINE
+#   include <GLES3/gl3.h>
+#   include <GLES3/gl3ext.h>
+#  else
+#   include <GLES2/gl2.h>
+#   include <GLES2/gl2ext.h>
+#  endif
 # endif
 # ifdef __APPLE__
 #  include <OpenGL/OpenGL.h>
@@ -906,6 +945,7 @@ int main (int argc, char **argv) { return 0; }
     else
       AC_MSG_WARN([Disabling GL|ES 2.0 support])
       HAVE_GLES2=no
+      HAVE_GLES3_H=no
     fi
   ])
   CFLAGS="$save_CFLAGS"
@@ -1149,6 +1189,9 @@ fi
 if test "x$USE_GLES2" = "xyes"; then
   GL_APIS="gles2 $GL_APIS"
   GST_GL_HAVE_GLES2=1
+  if test "x$HAVE_GLES3_H" = "xyes"; then
+    GST_GL_HAVE_GLES3=1
+  fi
 fi
 
 GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
@@ -1318,8 +1361,13 @@ if test "x$USE_GLES2" = "xyes"; then
 #  include <OpenGLES/ES2/gl.h>
 #  include <OpenGLES/ES2/glext.h>
 # else
-#  include <GLES2/gl2.h>
-#  include <GLES2/gl2ext.h>
+#  if $GST_GL_HAVE_GLES3
+#   include <GLES3/gl3.h>
+#   include <GLES3/gl3ext.h>
+#  else
+#   include <GLES2/gl2.h>
+#   include <GLES2/gl2ext.h>
+#  endif
 # endif
 "
 fi
@@ -1345,6 +1393,7 @@ GST_GL_HAVE_GLINTPTR=0
 GST_GL_HAVE_GLSYNC=0
 GST_GL_HAVE_GLUINT64=0
 GST_GL_HAVE_GLINT64=0
+GST_GL_HAVE_EGLATTRIB=0
 
 old_CFLAGS=$CFLAGS
 CFLAGS="$GL_CFLAGS $CFLAGS"
@@ -1384,6 +1433,17 @@ if test "x$ac_cv_type_GLint64" = "xyes"; then
   GST_GL_HAVE_GLINT64=1
 fi
 
+if test "x$USE_EGL" = "xyes"; then
+  EGL_INCLUDES="$GL_INCLUDES
+  #include <EGL/egl.h>
+  #include <EGL/eglext.h>
+  "
+  AC_CHECK_TYPES(EGLAttrib, [], [], [[$EGL_INCLUDES]])
+  if test "x$ac_cv_type_EGLAttrib" = "xyes"; then
+    GST_GL_HAVE_EGLATTRIB=1
+  fi
+fi
+
 CFLAGS=$old_CFLAGS
 
 GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
@@ -1394,6 +1454,7 @@ GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
 #define GST_GL_HAVE_GLSYNC $GST_GL_HAVE_GLSYNC
 #define GST_GL_HAVE_GLUINT64 $GST_GL_HAVE_GLUINT64
 #define GST_GL_HAVE_GLINT64 $GST_GL_HAVE_GLINT64
+#define GST_GL_HAVE_EGLATTRIB $GST_GL_HAVE_EGLATTRIB
 "
 
 AC_CONFIG_COMMANDS([gst-libs/gst/gl/gstglconfig.h], [
@@ -1470,15 +1531,14 @@ AC_SUBST(HAVE_JPEG)
 AM_CONDITIONAL(HAVE_JPEG, test "x$HAVE_JPEG" = "xyes")
 
 dnl Vulkan
-VULKAN_CONFIG_DEFINES=""
+PKG_CHECK_MODULES(XCB, xcb >= 1.10, GST_VULKAN_HAVE_WINDOW_XCB=1, GST_VULKAN_HAVE_WINDOW_XCB=0)
+AM_CONDITIONAL(USE_XCB, test "x$GST_VULKAN_HAVE_WINDOW_XCB" = "x1")
 
-PKG_CHECK_MODULES(XCB, xcb >= 1.10, HAVE_XCB=yes, HAVE_XCB=no)
-
-AM_CONDITIONAL(USE_XCB, test "x$HAVE_XCB" = "xyes")
-if test "x$HAVE_XCB" = "xyes"; then
-  VULKAN_CONFIG_DEFINES="$VULKAN_CONFIG_DEFINES
-  #define GST_VULKAN_HAVE_WINDOW_XCB 1"
-fi
+PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.4, GST_VULKAN_HAVE_WINDOW_WAYLAND=1, GST_VULKAN_HAVE_WINDOW_WAYLAND=0)
+AM_CONDITIONAL(USE_WAYLAND, test "x$GST_VULKAN_HAVE_WINDOW_WAYLAND" = "x1")
+VULKAN_CONFIG_DEFINES="
+#define GST_VULKAN_HAVE_WINDOW_XCB $GST_VULKAN_HAVE_WINDOW_XCB
+#define GST_VULKAN_HAVE_WINDOW_WAYLAND $GST_VULKAN_HAVE_WINDOW_WAYLAND"
 
 AC_CONFIG_COMMANDS([ext/vulkan/vkconfig.h], [
 	outfile=vkconfig.h-tmp
@@ -1850,8 +1910,6 @@ AC_SUBST(LIBUSB_LIBS)
 dnl *** NVENC ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_NVENC, true)
 AG_GST_CHECK_FEATURE(NVENC, [NVIDIA Encode API], nvenc, [
-  AG_GST_PKG_CHECK_MODULES(GST_VIDEO, gstreamer-video-1.0)
-  AG_GST_PKG_CHECK_MODULES(GST_PBUTILS, gstreamer-pbutils-1.0)
   AC_ARG_WITH([cuda-prefix],
           AS_HELP_STRING([--with-cuda-prefix],
           [Use the provided prefix for detecting the cuda installation]),
@@ -2161,13 +2219,17 @@ translit(dnm, m, l) AM_CONDITIONAL(USE_WAYLAND, true)
 AC_PATH_PROG([wayland_scanner], [wayland-scanner])
 AG_GST_CHECK_FEATURE(WAYLAND, [wayland sink], wayland , [
   PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.4.0, [
-    if test "x$wayland_scanner" != "x"; then
-      HAVE_WAYLAND="yes"
-    else
-      AC_MSG_RESULT([wayland-scanner is required to build the wayland plugin])
-      HAVE_WAYLAND="no"
-    fi
-    ],
+    PKG_CHECK_MODULES(WAYLAND_PROTOCOLS, wayland-protocols >= 1.4, [
+      if test "x$wayland_scanner" != "x"; then
+        HAVE_WAYLAND="yes"
+        AC_SUBST(WAYLAND_PROTOCOLS_DATADIR, `$PKG_CONFIG --variable=pkgdatadir wayland-protocols`)
+      else
+        AC_MSG_RESULT([wayland-scanner is required to build the wayland plugin])
+        HAVE_WAYLAND="no"
+      fi
+      ],
+      [ HAVE_WAYLAND="no"
+    ])],
     [ HAVE_WAYLAND="no"
   ])
 ])
@@ -2258,6 +2320,14 @@ AG_GST_CHECK_FEATURE(FBDEV, [linux framebuffer], fbdevsink, [
   fi
 ])
 
+dnl *** fdkaac ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_FDK_AAC, true)
+AG_GST_CHECK_FEATURE(FDK_AAC, [fdkaac plugin], fdkaac, [
+  PKG_CHECK_MODULES(FDK_AAC, fdk-aac, HAVE_FDK_AAC="yes", [
+    HAVE_FDK_AAC="no"
+  ])
+])
+
 dnl *** flite ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_FLITE, true)
 AG_GST_CHECK_FEATURE(FLITE, [Flite plugin], flite, [
@@ -2311,6 +2381,13 @@ AG_GST_CHECK_FEATURE(KATE, [Kate], kate, [
   AC_SUBST(TIGER_LIBS)
 ],,,[AM_CONDITIONAL(USE_TIGER, false)])
 
+dnl *** kms ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_KMS, true)
+AG_GST_CHECK_FEATURE(KMS, [drm/kms libraries], kms, [
+  AG_GST_PKG_CHECK_MODULES(GST_ALLOCATORS, gstreamer-allocators-1.0)
+  PKG_CHECK_MODULES([DRM], [libdrm >= 2.4.55 libkms], HAVE_KMS=yes, HAVE_KMS=no)
+])
+
 dnl *** ladspa ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_LADSPA, true)
 AG_GST_CHECK_FEATURE(LADSPA, [ladspa], ladspa, [
@@ -2327,9 +2404,15 @@ AG_GST_CHECK_FEATURE(LADSPA, [ladspa], ladspa, [
 dnl *** LV2 ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_LV2, true)
 AG_GST_CHECK_FEATURE(LV2, [lv2], lv2, [
-  PKG_CHECK_MODULES(SLV2, slv2 >= 0.6.6, HAVE_LV2="yes", HAVE_LV2="no")
-  AC_SUBST(SLV2_CFLAGS)
-  AC_SUBST(SLV2_LIBS)
+  PKG_CHECK_MODULES(LILV, lilv-0 >= 0.22, [
+    HAVE_LV2="yes",
+    HAVE_LILV_0_22="yes"
+    AC_DEFINE(HAVE_LILV_0_22, 1, [Define if we have liblilv >= 0.22])
+  ],[
+    PKG_CHECK_MODULES(LILV, lilv-0 >= 0.16, HAVE_LV2="yes", HAVE_LV2="no")
+  ])
+  AC_SUBST(LILV_CFLAGS)
+  AC_SUBST(LILV_LIBS)
 ])
 
 dnl *** libde265 ***
@@ -2657,21 +2740,17 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
   dnl a new version and the no-backward-compatibility define. (There doesn't
   dnl seem to be a switch to suppress the warnings the cvcompat.h header
   dnl causes.)
-  PKG_CHECK_MODULES(OPENCV, opencv >= 2.3.0 opencv < 2.5.0 , [
+  PKG_CHECK_MODULES(OPENCV, opencv >= 2.3.0 opencv <= 3.1.0 , [
     AC_PROG_CXX
     AC_LANG([C++])
     OLD_CPPFLAGS=$CPPFLAGS
     CPPFLAGS=$OPENCV_CFLAGS
     something_not_found=no
-    AC_CHECK_HEADERS([opencv2/contrib/contrib.hpp \
-                      opencv2/core/core_c.h \
-                      opencv2/core/types_c.h \
+    AC_CHECK_HEADERS([opencv2/core/core_c.h \
                       opencv2/core/version.hpp \
                       opencv2/highgui/highgui_c.h \
                       opencv2/imgproc/imgproc.hpp \
                       opencv2/imgproc/imgproc_c.h \
-                      opencv2/legacy/compat.hpp \
-                      opencv2/legacy/legacy.hpp \
                       opencv2/objdetect/objdetect.hpp \
                       opencv2/video/background_segm.hpp], [], [something_not_found=yes])
     CPPFLAGS=$OLD_CPPFLAGS
@@ -2923,14 +3002,15 @@ AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
 dnl *** Vulkan ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_VULKAN, true)
 AG_GST_CHECK_FEATURE(VULKAN, [Vulkan elements], vulkan, [
-  HAVE_VULKAN=no
   AC_CHECK_HEADER(vulkan/vulkan.h, [
     AC_CHECK_LIB(vulkan, vkCreateDevice, [
       VULKAN_LIBS="-lvulkan"
       AC_SUBST(VULKAN_LIBS)
-      dnl TODO check platform support (x11, win32, wayland, android, etc)
-      if test "x$HAVE_XCB" = "xyes"; then
-        HAVE_VULKAN=yes
+      if test "x$GST_VULKAN_HAVE_WINDOW_XCB" = "x1"; then
+        HAVE_VULKAN="yes"
+      fi
+      if test "x$GST_VULKAN_HAVE_WINDOW_WAYLAND" = "x1"; then
+        HAVE_VULKAN="yes"
       fi
     ], [])
   ], [])
@@ -3334,6 +3414,32 @@ AG_GST_CHECK_FEATURE(X265, [x265 plug-in], x265, [
   AG_GST_PKG_CHECK_MODULES(X265, x265)
 ])
 
+dnl *** WebRTC Audio Processing ***
+dnl Note: We test for a specific version as there is no API stability
+translit(dnm, m, l) AM_CONDITIONAL(USE_WEBRTCDSP, true)
+AG_GST_CHECK_FEATURE(WEBRTCDSP, [WebRTC Audio Processing], webrtcdsp, [
+
+  AG_GST_PKG_CHECK_MODULES(WEBRTCDSP, webrtc-audio-processing >= 0.2 webrtc-audio-processing < 0.4)
+
+  # On Android, C++ headers comes with the STL implementation
+  AS_CASE(["${host}"],
+    [*android*],
+      [
+        PKG_CHECK_MODULES(GNUSTL, gnustl, [
+          WEBRTCDSP_CFLAGS="$WEBRTCDSP_CFLAGS $GNUSTL_CFLAGS"
+          WEBRTCDSP_LIBS="$WEBRTCDSP_LIBS $GNUSTL_LIBS"])
+      ])
+  AC_SUBST([WEBRTCDSP_CFLAGS])
+  AC_SUBST([WEBRTCDSP_LIBS])
+
+  AC_LANG_PUSH([C++])
+  old_CPPFLAGS=$CPPFLAGS
+  CPPFLAGS="-std=c++11 $CPPFLAGS $GNUSTL_CFLAGS"
+  AC_CHECK_HEADER([vector],[],[HAVE_WEBRTCDSP=no])
+  CPPFLAGS=$old_CPPFLAGS
+  AC_LANG_POP([C++])
+])
+
 else
 
 dnl not building plugins with external dependencies,
@@ -3361,6 +3467,7 @@ AM_CONDITIONAL(USE_RESINDVD, false)
 AM_CONDITIONAL(USE_FAAC, false)
 AM_CONDITIONAL(USE_FAAD, false)
 AM_CONDITIONAL(USE_FBDEV, false)
+AM_CONDITIONAL(USE_FDK_AAC, false)
 AM_CONDITIONAL(USE_FLITE, false)
 AM_CONDITIONAL(USE_FLUIDSYNTH, false)
 AM_CONDITIONAL(USE_GL, false)
@@ -3369,6 +3476,7 @@ AM_CONDITIONAL(USE_GTK3, false)
 AM_CONDITIONAL(USE_GTK3_GL, false)
 AM_CONDITIONAL(USE_HLS, false)
 AM_CONDITIONAL(USE_KATE, false)
+AM_CONDITIONAL(USE_KMS, false)
 AM_CONDITIONAL(USE_TIGER, false)
 AM_CONDITIONAL(USE_LADSPA, false)
 AM_CONDITIONAL(USE_LV2, false)
@@ -3416,9 +3524,11 @@ AM_CONDITIONAL(USE_TELETEXTDEC, false)
 AM_CONDITIONAL(USE_SNDIO, false)
 AM_CONDITIONAL(USE_UVCH264, false)
 AM_CONDITIONAL(USE_WEBP, false)
+AM_CONDITIONAL(USE_WEBRTCDSP, false)
 AM_CONDITIONAL(USE_OPENH264, false)
 AM_CONDITIONAL(USE_X265, false)
 AM_CONDITIONAL(USE_DTLS, false)
+AM_CONDITIONAL(USE_VULKAN, false)
 
 fi dnl of EXT plugins
 
@@ -3459,7 +3569,7 @@ dnl FIXME: do we want to rename to GST_ALL_* ?
 dnl prefer internal headers to already installed ones
 dnl also add builddir include for enumtypes and marshal
 dnl add GST_OPTION_CFLAGS, but overridable
-GST_CFLAGS="$GST_CFLAGS -DGST_USE_UNSTABLE_API"
+GST_CFLAGS="$GST_CFLAGS $GST_STATIC_CFLAGS -DGST_USE_UNSTABLE_API"
 GST_CXXFLAGS="$GST_CFLAGS $GLIB_EXTRA_CFLAGS \$(GST_OPTION_CXXFLAGS)"
 GST_OBJCFLAGS="$GST_CFLAGS $GLIB_EXTRA_CFLAGS \$(GST_OPTION_OBJCFLAGS)"
 GST_CFLAGS="$GST_CFLAGS $GLIB_EXTRA_CFLAGS \$(GST_OPTION_CFLAGS)"
@@ -3567,6 +3677,7 @@ gst/speed/Makefile
 gst/subenc/Makefile
 gst/stereo/Makefile
 gst/tta/Makefile
+gst/timecode/Makefile
 gst/videofilters/Makefile
 gst/videomeasure/Makefile
 gst/videoparsers/Makefile
@@ -3605,7 +3716,6 @@ sys/acmenc/Makefile
 sys/acmmp3dec/Makefile
 sys/androidmedia/Makefile
 sys/applemedia/Makefile
-sys/applemedia-nonpublic/Makefile
 sys/avc/Makefile
 sys/bluez/Makefile
 sys/d3dvideosink/Makefile
@@ -3615,6 +3725,7 @@ sys/dshowsrcwrapper/Makefile
 sys/dshowvideosink/Makefile
 sys/dvb/Makefile
 sys/fbdev/Makefile
+sys/kms/Makefile
 sys/linsys/Makefile
 sys/nvenc/Makefile
 sys/opensles/Makefile
@@ -3645,7 +3756,6 @@ tests/examples/gl/generic/cubeyuv/Makefile
 tests/examples/gl/generic/doublecube/Makefile
 tests/examples/gl/generic/recordgraphic/Makefile
 tests/examples/gl/gtk/Makefile
-tests/examples/gl/gtk/gtkvideooverlay/Makefile
 tests/examples/gl/gtk/3dvideo/Makefile
 tests/examples/gl/gtk/filternovideooverlay/Makefile
 tests/examples/gl/gtk/filtervideooverlay/Makefile
@@ -3678,6 +3788,7 @@ ext/gl/Makefile
 ext/gtk/Makefile
 ext/faac/Makefile
 ext/faad/Makefile
+ext/fdkaac/Makefile
 ext/flite/Makefile
 ext/fluidsynth/Makefile
 ext/gsm/Makefile
@@ -3723,11 +3834,13 @@ ext/spc/Makefile
 ext/timidity/Makefile
 ext/vulkan/Makefile
 ext/vulkan/xcb/Makefile
+ext/vulkan/wayland/Makefile
 ext/webp/Makefile
 ext/x265/Makefile
 ext/xvid/Makefile
 ext/zbar/Makefile
 ext/dtls/Makefile
+ext/webrtcdsp/Makefile
 po/Makefile.in
 docs/Makefile
 docs/plugins/Makefile

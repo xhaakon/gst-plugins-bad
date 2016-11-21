@@ -96,7 +96,8 @@ static GstStaticPadTemplate gst_vtdec_sink_template =
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS ("video/x-h264, stream-format=avc, alignment=au,"
         " width=(int)[1, MAX], height=(int)[1, MAX];"
-        "video/mpeg, mpegversion=2;" "image/jpeg")
+        "video/mpeg, mpegversion=2, systemstream=false, parsed=true;"
+        "image/jpeg")
     );
 
 /* define EnableHardwareAcceleratedVideoDecoder in < 10.9 */
@@ -126,8 +127,8 @@ gst_vtdec_class_init (GstVtdecClass * klass)
 
   /* Setting up pads and setting metadata should be moved to
      base_class_init if you intend to subclass this class. */
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_vtdec_sink_template));
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_vtdec_sink_template);
   gst_element_class_add_pad_template (element_class,
       gst_pad_template_new ("src", GST_PAD_SRC, GST_PAD_ALWAYS,
           gst_caps_from_string (VIDEO_SRC_CAPS)));
@@ -232,12 +233,30 @@ gst_vtdec_negotiate (GstVideoDecoder * decoder)
   vtdec = GST_VTDEC (decoder);
   if (vtdec->session)
     gst_vtdec_push_frames_if_needed (vtdec, TRUE, FALSE);
-  templcaps =
-      gst_pad_get_pad_template_caps (GST_VIDEO_DECODER_SRC_PAD (decoder));
+
+  output_state = gst_video_decoder_get_output_state (GST_VIDEO_DECODER (vtdec));
+  if (output_state) {
+    prevcaps = gst_caps_ref (output_state->caps);
+    gst_video_codec_state_unref (output_state);
+  }
+
   peercaps = gst_pad_peer_query_caps (GST_VIDEO_DECODER_SRC_PAD (vtdec), NULL);
-  caps =
-      gst_caps_intersect_full (peercaps, templcaps, GST_CAPS_INTERSECT_FIRST);
-  gst_caps_unref (templcaps);
+  if (prevcaps && gst_caps_can_intersect (prevcaps, peercaps)) {
+    /* The hardware decoder can become (temporarily) unavailable across
+     * VTDecompressionSessionCreate/Destroy calls. So if the currently configured
+     * caps are still accepted by downstream we keep them so we don't have to
+     * destroy and recreate the session.
+     */
+    GST_INFO_OBJECT (vtdec,
+        "current and peer caps are compatible, keeping current caps");
+    caps = gst_caps_ref (prevcaps);
+  } else {
+    templcaps =
+        gst_pad_get_pad_template_caps (GST_VIDEO_DECODER_SRC_PAD (decoder));
+    caps =
+        gst_caps_intersect_full (peercaps, templcaps, GST_CAPS_INTERSECT_FIRST);
+    gst_caps_unref (templcaps);
+  }
   gst_caps_unref (peercaps);
 
   caps = gst_caps_truncate (gst_caps_make_writable (caps));
@@ -247,12 +266,6 @@ gst_vtdec_negotiate (GstVideoDecoder * decoder)
   features = gst_caps_get_features (caps, 0);
   if (features)
     features = gst_caps_features_copy (features);
-
-  output_state = gst_video_decoder_get_output_state (GST_VIDEO_DECODER (vtdec));
-  if (output_state) {
-    prevcaps = gst_caps_ref (output_state->caps);
-    gst_video_codec_state_unref (output_state);
-  }
 
   output_state = gst_video_decoder_set_output_state (GST_VIDEO_DECODER (vtdec),
       format, vtdec->video_info.width, vtdec->video_info.height,
@@ -761,7 +774,9 @@ gst_vtdec_session_output_callback (void *decompression_output_ref_con,
       GST_WARNING_OBJECT (vtdec, "Output state not configured, release buffer");
       frame->flags &= VTDEC_FRAME_FLAG_SKIP;
     } else {
-      buf = gst_core_video_buffer_new (image_buffer, &state->info);
+      buf =
+          gst_core_video_buffer_new (image_buffer, &state->info,
+          vtdec->texture_cache);
       gst_video_codec_state_unref (state);
       GST_BUFFER_PTS (buf) = pts.value;
       GST_BUFFER_DURATION (buf) = duration.value;
@@ -805,13 +820,6 @@ gst_vtdec_push_frames_if_needed (GstVtdec * vtdec, gboolean drain,
   while ((g_async_queue_length (vtdec->reorder_queue) >=
           vtdec->reorder_queue_length) || drain || flush) {
     frame = (GstVideoCodecFrame *) g_async_queue_try_pop (vtdec->reorder_queue);
-    if (frame && frame->output_buffer && vtdec->texture_cache != NULL) {
-      frame->output_buffer =
-          gst_video_texture_cache_get_gl_buffer (vtdec->texture_cache,
-          frame->output_buffer);
-      if (!frame->output_buffer)
-        GST_ERROR_OBJECT (vtdec, "couldn't get textures from buffer");
-    }
 
     /* we need to check this in case reorder_queue_length=0 (jpeg for
      * example) or we're draining/flushing

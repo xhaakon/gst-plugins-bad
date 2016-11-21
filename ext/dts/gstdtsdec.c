@@ -38,8 +38,11 @@
 #include "config.h"
 #endif
 
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
+
 #include <string.h>
-#include "_stdint.h"
 #include <stdlib.h>
 
 #include <gst/gst.h>
@@ -128,7 +131,7 @@ G_DEFINE_TYPE (GstDtsDec, gst_dtsdec, GST_TYPE_AUDIO_DECODER);
 static gboolean gst_dtsdec_start (GstAudioDecoder * dec);
 static gboolean gst_dtsdec_stop (GstAudioDecoder * dec);
 static gboolean gst_dtsdec_set_format (GstAudioDecoder * bdec, GstCaps * caps);
-static gboolean gst_dtsdec_parse (GstAudioDecoder * dec, GstAdapter * adapter,
+static GstFlowReturn gst_dtsdec_parse (GstAudioDecoder * dec, GstAdapter * adapter,
     gint * offset, gint * length);
 static GstFlowReturn gst_dtsdec_handle_frame (GstAudioDecoder * dec,
     GstBuffer * buffer);
@@ -156,10 +159,8 @@ gst_dtsdec_class_init (GstDtsDecClass * klass)
   gobject_class->set_property = gst_dtsdec_set_property;
   gobject_class->get_property = gst_dtsdec_get_property;
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&sink_factory));
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&src_factory));
+  gst_element_class_add_static_pad_template (gstelement_class, &sink_factory);
+  gst_element_class_add_static_pad_template (gstelement_class, &src_factory);
   gst_element_class_set_static_metadata (gstelement_class, "DTS audio decoder",
       "Codec/Decoder/Audio",
       "Decodes DTS audio streams",

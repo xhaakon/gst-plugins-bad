@@ -40,8 +40,8 @@
  *
  */
 
-#ifndef __COGL_FEATURE_PRIVATE_H
-#define __COGL_FEATURE_PRIVATE_H
+#ifndef __GST_GL_FEATURE_H__
+#define __GST_GL_FEATURE_H__
 
 #include <gst/gst.h>
 
@@ -94,7 +94,7 @@ struct _GstGLFeatureData
   const GstGLFeatureFunction *functions;
 };
 
-gboolean
+GST_EXPORT gboolean
 gst_gl_check_extension (const char *name, const gchar * ext);
 
 G_GNUC_INTERNAL gboolean
@@ -113,4 +113,4 @@ _gst_gl_feature_check_ext_functions (GstGLContext *context,
 
 G_END_DECLS
 
-#endif /* __COGL_FEATURE_PRIVATE_H */
+#endif /* __GST_GL_FEATURE_H__ */

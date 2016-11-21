@@ -48,22 +48,22 @@
 
 typedef struct _GstGLShaderVTable
 {
-  GLuint GSTGLAPI (*CreateProgram) (void);
-  void GSTGLAPI (*DeleteProgram) (GLuint program);
-  void GSTGLAPI (*UseProgram) (GLuint program);
-  void GSTGLAPI (*GetAttachedShaders) (GLuint program, GLsizei maxcount,
+  GLuint (GSTGLAPI *CreateProgram) (void);
+  void (GSTGLAPI *DeleteProgram) (GLuint program);
+  void (GSTGLAPI *UseProgram) (GLuint program);
+  void (GSTGLAPI *GetAttachedShaders) (GLuint program, GLsizei maxcount,
       GLsizei * count, GLuint * shaders);
 
-  GLuint GSTGLAPI (*CreateShader) (GLenum shaderType);
-  void GSTGLAPI (*DeleteShader) (GLuint shader);
-  void GSTGLAPI (*AttachShader) (GLuint program, GLuint shader);
-  void GSTGLAPI (*DetachShader) (GLuint program, GLuint shader);
+  GLuint (GSTGLAPI *CreateShader) (GLenum shaderType);
+  void (GSTGLAPI *DeleteShader) (GLuint shader);
+  void (GSTGLAPI *AttachShader) (GLuint program, GLuint shader);
+  void (GSTGLAPI *DetachShader) (GLuint program, GLuint shader);
 
-  void GSTGLAPI (*GetShaderiv) (GLuint program, GLenum pname, GLint * params);
-  void GSTGLAPI (*GetProgramiv) (GLuint program, GLenum pname, GLint * params);
-  void GSTGLAPI (*GetShaderInfoLog) (GLuint shader, GLsizei maxLength,
+  void (GSTGLAPI *GetShaderiv) (GLuint program, GLenum pname, GLint * params);
+  void (GSTGLAPI *GetProgramiv) (GLuint program, GLenum pname, GLint * params);
+  void (GSTGLAPI *GetShaderInfoLog) (GLuint shader, GLsizei maxLength,
       GLsizei * length, char *log);
-  void GSTGLAPI (*GetProgramInfoLog) (GLuint shader, GLsizei maxLength,
+  void (GSTGLAPI *GetProgramInfoLog) (GLuint shader, GLsizei maxLength,
       GLsizei * length, char *log);
 } GstGLShaderVTable;
 
@@ -1305,4 +1305,24 @@ gst_gl_shader_bind_attribute_location (GstGLShader * shader, GLuint index,
       (int) priv->program_handle, name, index);
 
   gl->BindAttribLocation (priv->program_handle, index, name);
+}
+
+void
+gst_gl_shader_bind_frag_data_location (GstGLShader * shader,
+    guint index, const gchar * name)
+{
+  GstGLShaderPrivate *priv;
+  GstGLFuncs *gl;
+
+  g_return_if_fail (shader != NULL);
+  if (!_ensure_program (shader))
+    g_return_if_fail (shader->priv->program_handle);
+  priv = shader->priv;
+  gl = shader->context->gl_vtable;
+  g_return_if_fail (gl->BindFragDataLocation);
+
+  GST_TRACE_OBJECT (shader, "binding program %i frag data \'%s\' location %i",
+      (int) priv->program_handle, name, index);
+
+  gl->BindFragDataLocation (priv->program_handle, index, name);
 }

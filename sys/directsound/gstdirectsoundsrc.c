@@ -213,8 +213,8 @@ gst_directsound_src_class_init (GstDirectSoundSrcClass * klass)
       "Capture from a soundcard via DirectSound",
       "Joni Valtanen <joni.valtanen@movial.fi>");
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&directsound_src_src_factory));
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &directsound_src_src_factory);
 
   g_object_class_install_property
       (gobject_class, PROP_DEVICE_NAME,
@@ -818,7 +818,7 @@ gst_directsound_src_mixer_find (GstDirectSoundSrc * dsoundsrc,
     if (mmres != MMSYSERR_NOERROR)
       continue;
 
-    mmres = mixerGetDevCaps (GPOINTER_TO_UINT (dsoundsrc->mixer),
+    mmres = mixerGetDevCaps ((UINT_PTR)dsoundsrc->mixer,
         mixer_caps, sizeof (MIXERCAPS));
 
     if (mmres != MMSYSERR_NOERROR) {

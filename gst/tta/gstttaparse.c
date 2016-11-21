@@ -92,10 +92,8 @@ gst_tta_parse_base_init (GstTtaParseClass * klass)
 
   GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_factory));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_factory));
+  gst_element_class_add_static_pad_template (element_class, &src_factory);
+  gst_element_class_add_static_pad_template (element_class, &sink_factory);
   gst_element_class_set_static_metadata (element_class, "TTA file parser",
       "Codec/Demuxer/Audio",
       "Parses TTA files", "Arwed v. Merkatz <v.merkatz@gmx.net>");
@@ -470,9 +468,7 @@ pause:
   if (ret == GST_FLOW_UNEXPECTED) {
     gst_pad_push_event (ttaparse->srcpad, gst_event_new_eos ());
   } else if (ret < GST_FLOW_UNEXPECTED || ret == GST_FLOW_NOT_LINKED) {
-    GST_ELEMENT_ERROR (ttaparse, STREAM, FAILED,
-        ("Internal data stream error."),
-        ("streaming stopped, reason %s", gst_flow_get_name (ret)));
+    GST_ELEMENT_FLOW_ERROR (ttaparse, ret);
     gst_pad_push_event (ttaparse->srcpad, gst_event_new_eos ());
   }
 }

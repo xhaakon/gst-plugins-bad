@@ -38,7 +38,14 @@ GType gst_gl_context_egl_get_type     (void);
 #define GST_IS_GL_CONTEXT_EGL_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_GL_TYPE_CONTEXT_EGL))
 #define GST_GL_CONTEXT_EGL_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), GST_GL_TYPE_CONTEXT_EGL, GstGLContextEGLClass))
 
-struct _GstGLContextEGL {
+/**
+ * GstGLContextEGL:
+ *
+ * Opaque #GstGLContextEGL struct
+ */
+struct _GstGLContextEGL
+{
+  /* <private> */
   GstGLContext context;
 
   EGLContext egl_context;
@@ -46,19 +53,31 @@ struct _GstGLContextEGL {
   EGLSurface egl_surface;
   EGLConfig  egl_config;
 
+  gint egl_major;
+  gint egl_minor;
+
   GstGLAPI gl_api;
 
   const gchar *egl_exts;
 
-  EGLImageKHR (*eglCreateImage) (EGLDisplay dpy, EGLContext ctx, EGLenum target,
+  EGLImageKHR (*eglCreateImageKHR) (EGLDisplay dpy, EGLContext ctx, EGLenum target,
       EGLClientBuffer buffer, const EGLint *attrib_list);
+  EGLImageKHR (*eglCreateImage) (EGLDisplay dpy, EGLContext ctx, EGLenum target,
+      EGLClientBuffer buffer, const EGLAttrib *attrib_list);
   EGLBoolean (*eglDestroyImage) (EGLDisplay dpy, EGLImageKHR image);
 
   /* Cached handle */
   EGLNativeWindowType window_handle;
 };
 
-struct _GstGLContextEGLClass {
+/**
+ * GstGLContextEGLCLass:
+ *
+ * Opaque #GstGLContextEGLClass struct
+ */
+struct _GstGLContextEGLClass
+{
+  /* <private> */
   GstGLContextClass parent;
 };
 

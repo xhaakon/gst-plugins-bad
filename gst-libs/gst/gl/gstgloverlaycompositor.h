@@ -33,6 +33,7 @@
 
 G_BEGIN_DECLS
 
+GST_EXPORT
 GType gst_gl_overlay_compositor_get_type (void);
 
 /**
@@ -43,7 +44,10 @@ GType gst_gl_overlay_compositor_get_type (void);
 struct _GstGLOverlayCompositor
 {
   GstObject parent;
+
   GstGLContext *context;
+
+  /* <private> */
   guint last_window_width;
   guint last_window_height;
 
@@ -52,6 +56,8 @@ struct _GstGLOverlayCompositor
   GstGLShader *shader;
   GLint  position_attrib;
   GLint  texcoord_attrib;
+
+  gpointer _padding[GST_PADDING];
 };
 
 /**
@@ -61,17 +67,25 @@ struct _GstGLOverlayCompositor
 struct _GstGLOverlayCompositorClass
 {
   GstObjectClass object_class;
+
+  /* <private> */
+  gpointer _padding[GST_PADDING];
 };
 
+GST_EXPORT
 GstGLOverlayCompositor *gst_gl_overlay_compositor_new (GstGLContext * context);
 
+GST_EXPORT
 void gst_gl_overlay_compositor_free_overlays (GstGLOverlayCompositor * compositor);
 
+GST_EXPORT
 void gst_gl_overlay_compositor_upload_overlays (GstGLOverlayCompositor * compositor,
         GstBuffer * buf);
 
+GST_EXPORT
 void gst_gl_overlay_compositor_draw_overlays (GstGLOverlayCompositor * compositor);
 
+GST_EXPORT
 GstCaps * gst_gl_overlay_compositor_add_caps(GstCaps * caps);
 
 G_END_DECLS

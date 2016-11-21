@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 0.10.21.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
 "PO-Revision-Date: 2011-10-02 15:47+0200\n"
 "Last-Translator: Jorge González González <aloriel@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -16,6 +16,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr ""
@@ -64,9 +70,6 @@ msgstr "No se pudo abrir el archivo «%s» para leer."
 msgid "Could not start sndio"
 msgstr "No se pudo leer el DVD."
 
-msgid "Internal data flow error."
-msgstr "Error en el flujo de datos interno."
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 
@@ -86,11 +89,11 @@ msgstr ""
 msgid "Failed to get fragment URL."
 msgstr ""
 
-msgid "Internal data stream error."
-msgstr "Error en el flujo de datos interno."
-
 msgid "Couldn't download fragments"
 msgstr ""
+
+msgid "Internal data stream error."
+msgstr "Error en el flujo de datos interno."
 
 msgid "No file name specified for writing."
 msgstr "No se especificó un nombre de archivo para su escritura."
@@ -124,19 +127,34 @@ msgid "Could not open file \"%s\" for reading."
 msgstr "No se pudo abrir el archivo «%s» para leer."
 
 #, fuzzy
-msgid "Couldn't find DVB channel configuration file"
+msgid "Couldn't find channel configuration file"
 msgstr "Configuración del canal del mezclador virtual"
 
 #, fuzzy, c-format
-msgid "Couldn't load DVB channel configuration file: %s"
+msgid "Couldn't load channel configuration file: '%s'"
 msgstr "Configuración del canal del mezclador virtual"
 
-msgid "DVB channel configuration file doesn't contain any channels"
+#, c-format
+msgid "Couldn't find details for channel '%s'"
 msgstr ""
 
 #, c-format
-msgid "Couldn't find details for DVB channel %s"
+msgid "No properties for channel '%s'"
 msgstr ""
+
+#, fuzzy, c-format
+msgid "Failed to set properties for channel '%s'"
+msgstr "Falló abrir el dispositivo DVD «%s»."
+
+#, fuzzy, c-format
+msgid "Couldn't find channel configuration file: '%s'"
+msgstr "Configuración del canal del mezclador virtual"
+
+msgid "Channel configuration file doesn't contain any channels"
+msgstr ""
+
+#~ msgid "Internal data flow error."
+#~ msgstr "Error en el flujo de datos interno."
 
 #~ msgid "Could not write to file \"%s\"."
 #~ msgstr "No se pudo escribir en el archivo «%s»."

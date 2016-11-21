@@ -22,6 +22,7 @@
 #define __GST_PLAYER_H__
 
 #include <gst/gst.h>
+#include <gst/video/video.h>
 #include <gst/player/gstplayer-types.h>
 #include <gst/player/gstplayer-signal-dispatcher.h>
 #include <gst/player/gstplayer-video-renderer.h>
@@ -109,13 +110,13 @@ void         gst_player_set_rate                      (GstPlayer    * player,
                                                        gdouble        rate);
 gdouble      gst_player_get_rate                      (GstPlayer    * player);
 
-void         gst_player_set_position_update_interval  (GstPlayer    * player,
-                                                       guint          interval);
-guint        gst_player_get_position_update_interval  (GstPlayer    * player);
-
 gchar *      gst_player_get_uri                       (GstPlayer    * player);
 void         gst_player_set_uri                       (GstPlayer    * player,
                                                        const gchar  * uri);
+
+gchar *      gst_player_get_subtitle_uri              (GstPlayer    * player);
+void         gst_player_set_subtitle_uri              (GstPlayer    * player,
+                                                       const gchar *uri);
 
 GstClockTime gst_player_get_position                  (GstPlayer    * player);
 GstClockTime gst_player_get_duration                  (GstPlayer    * player);
@@ -159,10 +160,6 @@ GstPlayerVideoInfo * gst_player_get_current_video_track
 GstPlayerSubtitleInfo * gst_player_get_current_subtitle_track
                                                       (GstPlayer    * player);
 
-gboolean     gst_player_set_subtitle_uri              (GstPlayer    * player,
-                                                       const gchar *uri);
-gchar *      gst_player_get_subtitle_uri              (GstPlayer    * player);
-
 gboolean     gst_player_set_visualization             (GstPlayer    * player,
                                                        const gchar *name);
 
@@ -177,6 +174,33 @@ void         gst_player_set_color_balance             (GstPlayer    * player,
                                                        gdouble value);
 gdouble      gst_player_get_color_balance             (GstPlayer    * player,
                                                        GstPlayerColorBalanceType type);
+
+
+GstVideoMultiviewMode	 gst_player_get_multiview_mode (GstPlayer    * player);
+void                     gst_player_set_multiview_mode (GstPlayer    * player,
+                                                        GstVideoMultiviewMode mode);
+
+GstVideoMultiviewFlags  gst_player_get_multiview_flags  (GstPlayer  * player);
+void                    gst_player_set_multiview_flags  (GstPlayer  * player,
+                                                         GstVideoMultiviewFlags flags);
+
+gint64       gst_player_get_audio_video_offset        (GstPlayer    * player);
+void         gst_player_set_audio_video_offset        (GstPlayer    * player,
+                                                       gint64 offset);
+
+gboolean       gst_player_set_config                  (GstPlayer * player,
+                                                       GstStructure * config);
+GstStructure * gst_player_get_config                  (GstPlayer * player);
+
+/* helpers for configuring the config structure */
+
+void           gst_player_config_set_user_agent       (GstStructure * config,
+                                                       const gchar * agent);
+gchar *        gst_player_config_get_user_agent       (const GstStructure * config);
+
+void           gst_player_config_set_position_update_interval  (GstStructure * config,
+                                                                guint          interval);
+guint          gst_player_config_get_position_update_interval  (const GstStructure * config);
 
 G_END_DECLS
 

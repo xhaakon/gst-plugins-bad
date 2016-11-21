@@ -182,6 +182,7 @@ am_libgstcodecparsers_@GST_API_VERSION@_la_OBJECTS =  \
 	libgstcodecparsers_@GST_API_VERSION@_la-vp8utils.lo \
 	libgstcodecparsers_@GST_API_VERSION@_la-gstjpegparser.lo \
 	libgstcodecparsers_@GST_API_VERSION@_la-gstmpegvideometa.lo \
+	libgstcodecparsers_@GST_API_VERSION@_la-gstjpeg2000sampling.lo \
 	libgstcodecparsers_@GST_API_VERSION@_la-gstvp9parser.lo \
 	libgstcodecparsers_@GST_API_VERSION@_la-vp9utils.lo
 libgstcodecparsers_@GST_API_VERSION@_la_OBJECTS =  \
@@ -323,6 +324,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
+DRM_CFLAGS = @DRM_CFLAGS@
+DRM_LIBS = @DRM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -344,6 +347,8 @@ EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
 FAAC_LIBS = @FAAC_LIBS@
 FAAD_LIBS = @FAAD_LIBS@
+FDK_AAC_CFLAGS = @FDK_AAC_CFLAGS@
+FDK_AAC_LIBS = @FDK_AAC_LIBS@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
 FLITE_CFLAGS = @FLITE_CFLAGS@
@@ -393,6 +398,8 @@ GST_ALLOCATORS_CFLAGS = @GST_ALLOCATORS_CFLAGS@
 GST_ALLOCATORS_LIBS = @GST_ALLOCATORS_LIBS@
 GST_ALL_LDFLAGS = @GST_ALL_LDFLAGS@
 GST_API_VERSION = @GST_API_VERSION@
+GST_AUDIO_CFLAGS = @GST_AUDIO_CFLAGS@
+GST_AUDIO_LIBS = @GST_AUDIO_LIBS@
 GST_BASE_CFLAGS = @GST_BASE_CFLAGS@
 GST_BASE_LIBS = @GST_BASE_LIBS@
 GST_CFLAGS = @GST_CFLAGS@
@@ -538,6 +545,8 @@ LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
 LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
+LILV_CFLAGS = @LILV_CFLAGS@
+LILV_LIBS = @LILV_LIBS@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LOCALEDIR = @LOCALEDIR@
@@ -664,8 +673,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
-SLV2_CFLAGS = @SLV2_CFLAGS@
-SLV2_LIBS = @SLV2_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
 SNDIO_LIBS = @SNDIO_LIBS@
@@ -708,8 +715,13 @@ WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
 WAYLAND_EGL_CFLAGS = @WAYLAND_EGL_CFLAGS@
 WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
+WAYLAND_PROTOCOLS_CFLAGS = @WAYLAND_PROTOCOLS_CFLAGS@
+WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
+WAYLAND_PROTOCOLS_LIBS = @WAYLAND_PROTOCOLS_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
+WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
+WEBRTCDSP_LIBS = @WEBRTCDSP_LIBS@
 WGET = @WGET@
 WILDMIDI_CFLAGS = @WILDMIDI_CFLAGS@
 WILDMIDI_LIBS = @WILDMIDI_LIBS@
@@ -805,6 +817,7 @@ libgstcodecparsers_@GST_API_VERSION@_la_SOURCES = \
 	parserutils.c nalutils.c dboolhuff.c vp8utils.c \
 	gstjpegparser.c \
 	gstmpegvideometa.c \
+	gstjpeg2000sampling.c \
 	gstvp9parser.c vp9utils.c
 
 libgstcodecparsers_@GST_API_VERSION@includedir = \
@@ -816,6 +829,7 @@ libgstcodecparsers_@GST_API_VERSION@include_HEADERS = \
 	gsth265parser.h gstvp8parser.h gstvp8rangedecoder.h \
 	gstjpegparser.h \
 	gstmpegvideometa.h \
+	gstjpeg2000sampling.h \
 	gstvp9parser.h
 
 libgstcodecparsers_@GST_API_VERSION@_la_CFLAGS = \
@@ -918,6 +932,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-dboolhuff.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gsth264parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gsth265parser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstjpeg2000sampling.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstjpegparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstmpeg4parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstmpegvideometa.Plo@am__quote@
@@ -1045,6 +1060,13 @@ libgstcodecparsers_@GST_API_VERSION@_la-gstmpegvideometa.lo: gstmpegvideometa.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstmpegvideometa.c' object='libgstcodecparsers_@GST_API_VERSION@_la-gstmpegvideometa.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcodecparsers_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstcodecparsers_@GST_API_VERSION@_la-gstmpegvideometa.lo `test -f 'gstmpegvideometa.c' || echo '$(srcdir)/'`gstmpegvideometa.c
+
+libgstcodecparsers_@GST_API_VERSION@_la-gstjpeg2000sampling.lo: gstjpeg2000sampling.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcodecparsers_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstcodecparsers_@GST_API_VERSION@_la-gstjpeg2000sampling.lo -MD -MP -MF $(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstjpeg2000sampling.Tpo -c -o libgstcodecparsers_@GST_API_VERSION@_la-gstjpeg2000sampling.lo `test -f 'gstjpeg2000sampling.c' || echo '$(srcdir)/'`gstjpeg2000sampling.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstjpeg2000sampling.Tpo $(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstjpeg2000sampling.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstjpeg2000sampling.c' object='libgstcodecparsers_@GST_API_VERSION@_la-gstjpeg2000sampling.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcodecparsers_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -c -o libgstcodecparsers_@GST_API_VERSION@_la-gstjpeg2000sampling.lo `test -f 'gstjpeg2000sampling.c' || echo '$(srcdir)/'`gstjpeg2000sampling.c
 
 libgstcodecparsers_@GST_API_VERSION@_la-gstvp9parser.lo: gstvp9parser.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcodecparsers_@GST_API_VERSION@_la_CFLAGS) $(CFLAGS) -MT libgstcodecparsers_@GST_API_VERSION@_la-gstvp9parser.lo -MD -MP -MF $(DEPDIR)/libgstcodecparsers_@GST_API_VERSION@_la-gstvp9parser.Tpo -c -o libgstcodecparsers_@GST_API_VERSION@_la-gstvp9parser.lo `test -f 'gstvp9parser.c' || echo '$(srcdir)/'`gstvp9parser.c

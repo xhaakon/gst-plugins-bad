@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.7.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-08-19 11:59+0300\n"
+"POT-Creation-Date: 2016-11-17 15:03+0200\n"
 "PO-Revision-Date: 2016-02-20 16:27+0100\n"
 "Last-Translator: Stéphane Aulery <lkppo@free.fr>\n"
 "Language-Team: French <traduc@traduc.org>\n"
@@ -17,6 +17,12 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+msgid "failed to draw pattern"
+msgstr ""
+
+msgid "A GL error occured"
+msgstr ""
 
 msgid "format wasn't negotiated before get function"
 msgstr "Format non négocié avant l'appel de la fonction get"
@@ -62,9 +68,6 @@ msgstr "Impossible de configurer sndio"
 msgid "Could not start sndio"
 msgstr "Impossible de démarrer sndio"
 
-msgid "Internal data flow error."
-msgstr "Erreur du flux de données interne."
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 "Le fichier généré a un temps de lancement plus long que la durée du flux"
@@ -87,11 +90,11 @@ msgstr "Le format de sous-image n’était pas configuré avant le flux de donn�
 msgid "Failed to get fragment URL."
 msgstr "Échec de la récupération de l’URL de fragment."
 
-msgid "Internal data stream error."
-msgstr "Erreur interne de flux de données."
-
 msgid "Couldn't download fragments"
 msgstr "Impossible de télécharger les fragments"
+
+msgid "Internal data stream error."
+msgstr "Erreur interne de flux de données."
 
 msgid "No file name specified for writing."
 msgstr "Aucun nom de fichier indiqué en écriture."
@@ -127,19 +130,36 @@ msgstr ""
 msgid "Could not open file \"%s\" for reading."
 msgstr "Impossible d’ouvrir le fichier « %s » en lecture."
 
-msgid "Couldn't find DVB channel configuration file"
+#, fuzzy
+msgid "Couldn't find channel configuration file"
 msgstr "Impossible de trouver le fichier de configuration de canal DVB"
 
-#, c-format
-msgid "Couldn't load DVB channel configuration file: %s"
+#, fuzzy, c-format
+msgid "Couldn't load channel configuration file: '%s'"
 msgstr "Impossible de charger le fichier de configuration de canal DVB : %s"
 
-msgid "DVB channel configuration file doesn't contain any channels"
+#, fuzzy, c-format
+msgid "Couldn't find details for channel '%s'"
+msgstr "Impossible de trouver des informations sur le canal DVB %s"
+
+#, fuzzy, c-format
+msgid "No properties for channel '%s'"
+msgstr "Impossible de trouver des informations sur le canal DVB %s"
+
+#, fuzzy, c-format
+msgid "Failed to set properties for channel '%s'"
+msgstr "Impossible de trouver des informations sur le canal DVB %s"
+
+#, fuzzy, c-format
+msgid "Couldn't find channel configuration file: '%s'"
+msgstr "Impossible de trouver le fichier de configuration de canal DVB"
+
+#, fuzzy
+msgid "Channel configuration file doesn't contain any channels"
 msgstr "Le fichier de configuration de canal DVB ne contient aucun canal"
 
-#, c-format
-msgid "Couldn't find details for DVB channel %s"
-msgstr "Impossible de trouver des informations sur le canal DVB %s"
+#~ msgid "Internal data flow error."
+#~ msgstr "Erreur du flux de données interne."
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "récepteur audio GStreamer par défaut pour les événements sonores"

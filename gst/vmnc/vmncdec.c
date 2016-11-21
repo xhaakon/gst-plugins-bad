@@ -93,13 +93,12 @@ gst_vmnc_dec_class_init (GstVMncDecClass * klass)
   decoder_class->set_format = gst_vmnc_dec_set_format;
   decoder_class->sink_event = gst_vmnc_dec_sink_event;
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&vmnc_dec_src_factory));
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&vmnc_dec_sink_factory));
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &vmnc_dec_src_factory);
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &vmnc_dec_sink_factory);
   gst_element_class_set_static_metadata (gstelement_class, "VMnc video decoder",
-      "Codec/Decoder/Video",
-      "Decode VmWare video to raw (RGB) video",
+      "Codec/Decoder/Video", "Decode VmWare video to raw (RGB) video",
       "Michael Smith <msmith@xiph.org>");
 
   GST_DEBUG_CATEGORY_INIT (vmnc_debug, "vmncdec", 0, "VMnc decoder");
@@ -261,7 +260,7 @@ vmnc_handle_wmvi_rectangle (GstVMncDec * dec, struct RfbRectangle *rect,
   gst_video_codec_state_unref (state);
 
   g_free (dec->imagedata);
-  dec->imagedata = g_malloc (dec->format.width * dec->format.height *
+  dec->imagedata = g_malloc0 (dec->format.width * dec->format.height *
       dec->format.bytes_per_pixel);
   GST_DEBUG_OBJECT (dec, "Allocated image data at %p", dec->imagedata);
 
@@ -791,6 +790,10 @@ vmnc_handle_packet (GstVMncDec * dec, const guint8 * data, int len,
             GST_WARNING_OBJECT (dec, "Rectangle out of range, type %d", r.type);
             return ERROR_INVALID;
           }
+        } else if (r.width > 16384 || r.height > 16384) {
+          GST_WARNING_OBJECT (dec, "Width or height too high: %ux%u", r.width,
+              r.height);
+          return ERROR_INVALID;
         }
 
         switch (r.type) {

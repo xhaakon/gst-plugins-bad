@@ -1,3 +1,55 @@
+gst-plugins-bad1.0 (1.10.1-1) unstable; urgency=medium
+
+  * debian/rules:
+    + Add wayland-protocols to the build-dependencies as required for jessie.
+      Nowadays it is automatically pulled in somehow. Patch by Marc Leeman.
+  * New upstream bugfix release
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 17 Nov 2016 15:04:49 +0200
+
+gst-plugins-bad1.0 (1.10.0-1) unstable; urgency=medium
+
+  [ Helmut Grohne ]
+  * Mark gstreamer1.0-doc Multi-Arch: foreign (Closes: #842526).
+
+  [ Sebastian Dröge ]
+  * New upstream stable release (Closes: #841413, #828335).
+
+ -- Sebastian Dröge <slomo@debian.org>  Tue, 01 Nov 2016 17:52:23 +0200
+
+gst-plugins-bad1.0 (1.9.90-1) experimental; urgency=medium
+
+  * New upstream unstable release:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GStreamer >= 1.9.90.
+
+ -- Sebastian Dröge <slomo@debian.org>  Fri, 30 Sep 2016 12:38:21 +0300
+
+gst-plugins-bad1.0 (1.9.2-1) experimental; urgency=medium
+
+  * New upstream unstable release:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GStreamer >= 1.9.2.
+    + debian/build-deps.in,
+      debian/gstreamer-plugins-bad.install:
+      - Include new timecode and webrtcdsp plugins.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 01 Sep 2016 12:13:09 +0300
+
+gst-plugins-bad1.0 (1.9.1-1) experimental; urgency=medium
+
+  * New upstream unstable release:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GStreamer >= 1.9.1.
+    + debian/build-deps.in,
+      debian/gstreamer-plugins-bad.install:
+      - Include new musepack, dc1394 and lv2 plugins.
+
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 06 Jul 2016 13:01:53 +0300
+
 gst-plugins-bad1.0 (1.8.3-1ubuntu1) yakkety; urgency=medium
 
   * Merge with Debian unstable; remaining changes:
@@ -22,12 +74,6 @@ gst-plugins-bad1.0 (1.8.3-1ubuntu1) yakkety; urgency=medium
     + debian/watch: Update Vcs-* for new URL scheme
 
  -- Iain Lane <iain.lane@canonical.com>  Thu, 01 Sep 2016 12:49:25 +0100
-
-gst-plugins-bad1.0 (1.8.3-1) unstable; urgency=medium
-
-  * New upstream bugfix release.
-
- -- Sebastian Dröge <slomo@debian.org>  Fri, 19 Aug 2016 12:01:55 +0300
 
 gst-plugins-bad1.0 (1.8.2-1ubuntu4) yakkety; urgency=medium
 

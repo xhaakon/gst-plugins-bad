@@ -15,6 +15,7 @@ Homepage: http://gstreamer.freedesktop.org/modules/gst-plugins-bad.html
 
 Package: @GST_PKGNAME@-plugins-bad-doc
 Architecture: all
+Multi-Arch: foreign
 Section: doc
 Depends: ${misc:Depends},
          gstreamer@GST_ABI@-doc,

@@ -144,8 +144,7 @@ gst_dshowvideosrc_class_init (GstDshowVideoSrcClass * klass)
           "Human-readable name of the sound device", NULL,
           static_cast < GParamFlags > (G_PARAM_READWRITE)));
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&src_template));
+  gst_element_class_add_static_pad_template (gstelement_class, &src_template);
 
   gst_element_class_set_static_metadata (gstelement_class,
       "DirectShow video capture source", "Source/Video",
@@ -681,6 +680,12 @@ gst_dshowvideosrc_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
         if (gst_dshow_is_pin_connected (input_pin)) {
           GST_DEBUG_OBJECT (src, "input_pin already connected, disconnecting");
           src->filter_graph->Disconnect (input_pin);
+        }
+
+        hres = src->pVSC->SetFormat(pin_mediatype->mediatype);
+        if (FAILED (hres)) {
+          GST_ERROR ("Failed to set capture pin format (error=0x%x)", hres);
+          goto error;
         }
 
         hres = src->filter_graph->ConnectDirect (pin_mediatype->capture_pin,

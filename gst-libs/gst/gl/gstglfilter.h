@@ -30,6 +30,7 @@
 
 G_BEGIN_DECLS
 
+GST_EXPORT
 GType gst_gl_filter_get_type(void);
 #define GST_TYPE_GL_FILTER            (gst_gl_filter_get_type())
 #define GST_GL_FILTER(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_GL_FILTER,GstGLFilter))
@@ -39,20 +40,24 @@ GType gst_gl_filter_get_type(void);
 #define GST_GL_FILTER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj) ,GST_TYPE_GL_FILTER,GstGLFilterClass))
 
 /**
+ * GstGLFilterRenderFunc:
+ * @filter: the #GstGLFIlter
+ * @in_tex: the input #GstGLMemory to render
+ * @user_data: user data
+ *
+ * Returns: whether the render succeeded
+ *
+ * Since: 1.10
+ */
+typedef gboolean (*GstGLFilterRenderFunc) (GstGLFilter * filter, GstGLMemory * in_tex, gpointer user_data);
+
+/**
  * GstGLFilter:
- * @base_transform: parent #GstBaseTransform
- * @pool: the currently configured #GstBufferPool
- * @display: the currently configured #GstGLDisplay
+ * @parent: parent #GstGLBaseFilter
  * @in_info: the video info for input buffers
  * @out_info: the video info for output buffers
- * @fbo: GL Framebuffer object used for transformations
- * @depthbuffer: GL renderbuffer attached to @fbo
- * @upload: the object used for uploading data, if needed
- * @download: the object used for downloading data, if needed
- *
- * #GstGLFilter is a base class that provides the logic of getting the GL context
- * from downstream and automatic upload/download for non-#GstGLMemory
- * #GstBuffer<!--  -->s.
+ * @out_caps: the output #GstCaps
+ * @fbo: #GstGLFramebuffer object used for transformations
  */
 struct _GstGLFilter
 {
@@ -63,12 +68,13 @@ struct _GstGLFilter
 
   GstCaps           *out_caps;
 
-  /* <private> */
-  GLuint             fbo;
-  GLuint             depthbuffer;
+  /* <protected> */
+  GstGLFramebuffer  *fbo;
 
-  GLuint             in_tex_id;
-  GLuint             out_tex_id;
+  /* <private> */
+  gboolean           gl_result;
+  GstBuffer         *inbuf;
+  GstBuffer         *outbuf;
 
   GstGLShader       *default_shader;
   gboolean           valid_attributes;
@@ -78,11 +84,13 @@ struct _GstGLFilter
   GLuint             vertex_buffer;
   GLint              draw_attr_position_loc;
   GLint              draw_attr_texture_loc;
+
+  gpointer          _padding[GST_PADDING];
 };
 
 /**
  * GstGLFilterClass:
- * @base_transform_class: parent class
+ * @parent_class: parent #GstGLBaseFilterClass
  * @set_caps: mirror from #GstBaseTransform
  * @filter: perform operations on the input and output buffers.  In general,
  *          you should avoid using this method if at all possible. One valid
@@ -102,7 +110,7 @@ struct _GstGLFilterClass
 
   gboolean (*set_caps)          (GstGLFilter* filter, GstCaps* incaps, GstCaps* outcaps);
   gboolean (*filter)            (GstGLFilter *filter, GstBuffer *inbuf, GstBuffer *outbuf);
-  gboolean (*filter_texture)    (GstGLFilter *filter, guint in_tex, guint out_tex);
+  gboolean (*filter_texture)    (GstGLFilter *filter, GstGLMemory *in_tex, GstGLMemory *out_tex);
   gboolean (*init_fbo)          (GstGLFilter *filter);
 
   GstCaps *(*transform_internal_caps) (GstGLFilter *filter,
@@ -111,18 +119,29 @@ struct _GstGLFilterClass
   /* useful to init and cleanup custom gl resources */
   void (*display_init_cb)       (GstGLFilter *filter);
   void (*display_reset_cb)      (GstGLFilter *filter);
+
+  /* <private> */
+  gpointer                      _padding[GST_PADDING];
 };
 
+GST_EXPORT
 gboolean gst_gl_filter_filter_texture (GstGLFilter * filter, GstBuffer * inbuf,
                                        GstBuffer * outbuf);
 
-void gst_gl_filter_render_to_target (GstGLFilter *filter, gboolean resize, GLuint input,
-                                     GLuint target, GLCB func, gpointer data);
+GST_EXPORT
+gboolean gst_gl_filter_render_to_target             (GstGLFilter *filter,
+                                                     GstGLMemory * input,
+                                                     GstGLMemory * output,
+                                                     GstGLFilterRenderFunc func,
+                                                     gpointer data);
 
-void gst_gl_filter_render_to_target_with_shader (GstGLFilter * filter, gboolean resize,
-                                                 GLuint input, GLuint target, GstGLShader *shader);
-
-void gst_gl_filter_draw_texture (GstGLFilter *filter, GLuint texture, guint width, guint height);
+GST_EXPORT
+void gst_gl_filter_draw_fullscreen_quad             (GstGLFilter *filter);
+GST_EXPORT
+void gst_gl_filter_render_to_target_with_shader     (GstGLFilter * filter,
+                                                     GstGLMemory * input,
+                                                     GstGLMemory * output,
+                                                     GstGLShader *shader);
 
 G_END_DECLS
 

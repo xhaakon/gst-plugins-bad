@@ -93,7 +93,7 @@ static GstFlowReturn gst_schro_dec_parse (GstVideoDecoder *
     gboolean at_eos);
 static GstFlowReturn gst_schro_dec_handle_frame (GstVideoDecoder * decoder,
     GstVideoCodecFrame * frame);
-static gboolean gst_schro_dec_finish (GstVideoDecoder * base_video_decoder);
+static GstFlowReturn gst_schro_dec_finish (GstVideoDecoder * base_video_decoder);
 static void gst_schrodec_send_tags (GstSchroDec * schro_dec);
 static gboolean gst_schro_dec_decide_allocation (GstVideoDecoder * decoder,
     GstQuery * query);
@@ -128,10 +128,10 @@ gst_schro_dec_class_init (GstSchroDecClass * klass)
 
   gobject_class->finalize = gst_schro_dec_finalize;
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_schro_dec_src_template));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_schro_dec_sink_template));
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_schro_dec_src_template);
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_schro_dec_sink_template);
 
   gst_element_class_set_static_metadata (element_class, "Dirac Decoder",
       "Codec/Decoder/Video",
@@ -557,7 +557,7 @@ gst_schro_dec_handle_frame (GstVideoDecoder * base_video_decoder,
   return gst_schro_dec_process (schro_dec, FALSE);
 }
 
-gboolean
+GstFlowReturn
 gst_schro_dec_finish (GstVideoDecoder * base_video_decoder)
 {
   GstSchroDec *schro_dec;

@@ -606,7 +606,7 @@ gst_gl_allocation_params_init (GstGLAllocationParams * params,
     gsize struct_size, guint alloc_flags, GstGLAllocationParamsCopyFunc copy,
     GstGLAllocationParamsFreeFunc free, GstGLContext * context,
     gsize alloc_size, GstAllocationParams * alloc_params,
-    gpointer wrapped_data, guint gl_handle, gpointer user_data,
+    gpointer wrapped_data, gpointer gl_handle, gpointer user_data,
     GDestroyNotify notify)
 {
   memset (params, 0, sizeof (*params));
@@ -636,8 +636,8 @@ gst_gl_allocation_params_init (GstGLAllocationParams * params,
  * gst_gl_allocation_params_copy:
  * @src: the #GstGLAllocationParams to initialize
  *
- * Returns: a copy of the #GstGLAllocationParams specified by @src or %NULL on
- *          failure
+ * Returns: (transfer full): a copy of the #GstGLAllocationParams specified by
+ *          @src or %NULL on failure
  *
  * Since: 1.8
  */
@@ -731,6 +731,8 @@ gst_gl_base_memory_alloc (GstGLBaseMemoryAllocator * allocator,
     GstGLAllocationParams * params)
 {
   GstGLBaseMemoryAllocatorClass *alloc_class;
+
+  g_return_val_if_fail (GST_IS_GL_BASE_MEMORY_ALLOCATOR (allocator), NULL);
 
   alloc_class = GST_GL_BASE_MEMORY_ALLOCATOR_GET_CLASS (allocator);
 

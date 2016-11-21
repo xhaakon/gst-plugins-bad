@@ -307,7 +307,7 @@ gst_mpeg_video_parse_sequence_header (<em class="parameter"><code><a class="link
 </div>
 <div class="refsect3">
 <a name="gst-mpeg-video-parse-sequence-header.returns"></a><h4>Returns</h4>
-<p> <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the seqhdr could be parsed correctly, <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize.</p>
+<p> <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the seqhdr could be parsed correctly, <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
 </div>
 </div>
 <hr>
@@ -361,7 +361,7 @@ gst_mpeg_video_parse_picture_header (<em class="parameter"><code><a class="link"
 <div class="refsect3">
 <a name="gst-mpeg-video-parse-picture-header.returns"></a><h4>Returns</h4>
 <p> <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the picture sequence could be parsed correctly, <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>
-otherwize.</p>
+otherwise.</p>
 </div>
 </div>
 <hr>
@@ -416,7 +416,7 @@ gst_mpeg_video_parse_picture_extension
 <div class="refsect3">
 <a name="gst-mpeg-video-parse-picture-extension.returns"></a><h4>Returns</h4>
 <p> <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the picture extension could be parsed correctly,
-<a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize.</p>
+<a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
 </div>
 </div>
 <hr>
@@ -469,7 +469,7 @@ gst_mpeg_video_parse_gop (<em class="parameter"><code><a class="link" href="gst-
 </div>
 <div class="refsect3">
 <a name="gst-mpeg-video-parse-gop.returns"></a><h4>Returns</h4>
-<p> <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the gop could be parsed correctly, <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize.</p>
+<p> <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the gop could be parsed correctly, <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
 </div>
 </div>
 <hr>
@@ -524,7 +524,7 @@ gst_mpeg_video_parse_sequence_extension
 </div>
 <div class="refsect3">
 <a name="gst-mpeg-video-parse-sequence-extension.returns"></a><h4>Returns</h4>
-<p> <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the seqext could be parsed correctly, <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize.</p>
+<p> <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the seqext could be parsed correctly, <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
 </div>
 </div>
 <hr>
@@ -591,7 +591,7 @@ gst_mpeg_video_parse_quant_matrix_extension
 <div class="refsect3">
 <a name="gst-mpeg-video-parse-quant-matrix-extension.returns"></a><h4>Returns</h4>
 <p> <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the quant matrix extension could be parsed correctly,
-<a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize.</p>
+<a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
 </div>
 </div>
 <hr>
@@ -1016,7 +1016,9 @@ Picture may occur together or separately.</p>
 
   guint8  constrained_parameters_flag;
 
+  guint8  load_intra_quantiser_matrix;
   guint8  intra_quantizer_matrix[64];
+  guint8  load_non_intra_quantiser_matrix;
   guint8  non_intra_quantizer_matrix[64];
 
   /* Calculated values */
@@ -1071,8 +1073,18 @@ Picture may occur together or separately.</p>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.load-intra-quantiser-matrix"></a>load_intra_quantiser_matrix</code></em>;</p></td>
+<td class="struct_member_description"><p><a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> indicates the presence of intra_quantiser_matrix</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.intra-quantizer-matrix"></a>intra_quantizer_matrix</code></em>[64];</p></td>
 <td class="struct_member_description"><p>intra-quantization table, in zigzag scan order</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoSequenceHdr.load-non-intra-quantiser-matrix"></a>load_non_intra_quantiser_matrix</code></em>;</p></td>
+<td class="struct_member_description"><p><a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> indicates the presence of non_intra_quantiser_matrix</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
@@ -1216,6 +1228,7 @@ fields is different.</p></td>
 <pre class="programlisting">struct GstMpegVideoPictureHdr {
   guint16 tsn;
   guint8 pic_type;
+  guint16 vbv_delay;
 
   guint8 full_pel_forward_vector, full_pel_backward_vector;
 
@@ -1241,6 +1254,11 @@ fields is different.</p></td>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.pic-type"></a>pic_type</code></em>;</p></td>
 <td class="struct_member_description"><p>Type of the frame</p></td>
 <td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint16"><span class="type">guint16</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.vbv-delay"></a>vbv_delay</code></em>;</p></td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureHdr.full-pel-forward-vector"></a>full_pel_forward_vector</code></em>;</p></td>
@@ -1416,7 +1434,7 @@ of the frame: 0 or 1.</p></td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstMpegVideoPictureExt.progressive-frame"></a>progressive_frame</code></em>;</p></td>
-<td class="struct_member_description"><p><a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the frame is progressive <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwize</p></td>
+<td class="struct_member_description"><p><a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the frame is progressive <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
