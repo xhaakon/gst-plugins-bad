@@ -616,10 +616,11 @@ mxf_ul_array_parse (MXFUL ** array, guint32 * count, const guint8 * data,
 
   g_return_val_if_fail (array != NULL, FALSE);
   g_return_val_if_fail (count != NULL, FALSE);
-  g_return_val_if_fail (data != NULL, FALSE);
 
   if (size < 8)
     return FALSE;
+
+  g_return_val_if_fail (data != NULL, FALSE);
 
   element_count = GST_READ_UINT32_BE (data);
   data += 4;
@@ -641,7 +642,7 @@ mxf_ul_array_parse (MXFUL ** array, guint32 * count, const guint8 * data,
     return FALSE;
   }
 
-  if (16 * element_count < size) {
+  if (element_count > size / 16) {
     *array = NULL;
     *count = 0;
     return FALSE;

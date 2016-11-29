@@ -1304,6 +1304,9 @@ gst_mxf_demux_handle_metadata (GstMXFDemux * demux, const MXFUL * key,
     return GST_FLOW_OK;
   }
 
+  if (gst_buffer_get_size (buffer) == 0)
+    return GST_FLOW_OK;
+
   gst_buffer_map (buffer, &map, GST_MAP_READ);
   metadata =
       mxf_metadata_new (type, &demux->current_partition->primer, demux->offset,
@@ -1768,7 +1771,7 @@ gst_mxf_demux_handle_generic_container_essence_element (GstMXFDemux * demux,
 
       index->offset = demux->offset - demux->run_in;
       index->keyframe = keyframe;
-    } else {
+    } else if (etrack->position < G_MAXINT) {
       GstMXFDemuxIndex index;
 
       index.offset = demux->offset - demux->run_in;
@@ -2330,13 +2333,11 @@ next_try:
   buffer = NULL;
 
   if (demux->current_partition->partition.header_byte_count == 0) {
-    if (demux->current_partition->partition.prev_partition == 0
-        || demux->current_partition->partition.this_partition == 0)
+    if (demux->current_partition->partition.this_partition == 0)
       goto out;
 
     demux->offset =
-        demux->run_in + demux->current_partition->partition.this_partition -
-        demux->current_partition->partition.prev_partition;
+        demux->run_in + demux->current_partition->partition.prev_partition;
     goto next_try;
   }
 
@@ -2345,10 +2346,10 @@ next_try:
         gst_mxf_demux_pull_klv_packet (demux, demux->offset, &key, &buffer,
         &read);
     if (G_UNLIKELY (flow != GST_FLOW_OK)) {
+      if (!demux->current_partition->partition.prev_partition)
+        goto out;
       demux->offset =
-          demux->run_in +
-          demux->current_partition->partition.this_partition -
-          demux->current_partition->partition.prev_partition;
+          demux->run_in + demux->current_partition->partition.prev_partition;
       goto next_try;
     }
 
@@ -2363,9 +2364,10 @@ next_try:
           demux->offset += read;
           gst_buffer_unref (buffer);
           buffer = NULL;
+          if (!demux->current_partition->partition.prev_partition)
+            goto out;
           demux->offset =
               demux->run_in +
-              demux->current_partition->partition.this_partition -
               demux->current_partition->partition.prev_partition;
           goto next_try;
         }
@@ -2377,10 +2379,10 @@ next_try:
     } else {
       gst_buffer_unref (buffer);
       buffer = NULL;
+      if (!demux->current_partition->partition.prev_partition)
+        goto out;
       demux->offset =
-          demux->run_in +
-          demux->current_partition->partition.this_partition -
-          demux->current_partition->partition.prev_partition;
+          demux->run_in + demux->current_partition->partition.prev_partition;
       goto next_try;
     }
   }
@@ -2393,10 +2395,10 @@ next_try:
         gst_mxf_demux_pull_klv_packet (demux, demux->offset, &key, &buffer,
         &read);
     if (G_UNLIKELY (flow != GST_FLOW_OK)) {
+      if (!demux->current_partition->partition.prev_partition)
+        goto out;
       demux->offset =
-          demux->run_in +
-          demux->current_partition->partition.this_partition -
-          demux->current_partition->partition.prev_partition;
+          demux->run_in + demux->current_partition->partition.prev_partition;
       goto next_try;
     }
 
@@ -2408,10 +2410,10 @@ next_try:
 
       if (G_UNLIKELY (flow != GST_FLOW_OK)) {
         gst_mxf_demux_reset_metadata (demux);
+        if (!demux->current_partition->partition.prev_partition)
+          goto out;
         demux->offset =
-            demux->run_in +
-            demux->current_partition->partition.this_partition -
-            demux->current_partition->partition.prev_partition;
+            demux->run_in + demux->current_partition->partition.prev_partition;
         goto next_try;
       }
     } else if (mxf_is_descriptive_metadata (&key)) {
@@ -2438,13 +2440,13 @@ next_try:
   }
 
   /* resolve references etc */
-
-  if (gst_mxf_demux_resolve_references (demux) !=
+  if (!demux->preface || gst_mxf_demux_resolve_references (demux) !=
       GST_FLOW_OK || gst_mxf_demux_update_tracks (demux) != GST_FLOW_OK) {
     demux->current_partition->parsed_metadata = TRUE;
+    if (!demux->current_partition->partition.prev_partition)
+      goto out;
     demux->offset =
-        demux->run_in + demux->current_partition->partition.this_partition -
-        demux->current_partition->partition.prev_partition;
+        demux->run_in + demux->current_partition->partition.prev_partition;
     goto next_try;
   }
 
@@ -3066,7 +3068,11 @@ pause:
 
     if (flow == GST_FLOW_EOS) {
       /* perform EOS logic */
-      if (demux->segment.flags & GST_SEEK_FLAG_SEGMENT) {
+      if (demux->src->len == 0) {
+        GST_ELEMENT_ERROR (demux, STREAM, WRONG_TYPE,
+            ("This stream contains no data."),
+            ("got eos and didn't find any streams"));
+      } else if (demux->segment.flags & GST_SEEK_FLAG_SEGMENT) {
         gint64 stop;
         GstMessage *m;
         GstEvent *e;
@@ -3556,11 +3562,18 @@ collect_index_table_segments (GstMXFDemux * demux)
 
     start = segment->index_start_position;
     end = start + segment->index_duration;
+    if (end > G_MAXINT / sizeof (GstMXFDemuxIndex)) {
+      demux->index_tables = g_list_remove (demux->index_tables, t);
+      g_array_free (t->offsets, TRUE);
+      g_free (t);
+      continue;
+    }
 
     if (t->offsets->len < end)
       g_array_set_size (t->offsets, end);
 
-    for (i = 0; i < segment->n_index_entries; i++) {
+    for (i = 0; i < segment->n_index_entries && start + i < t->offsets->len;
+        i++) {
       GstMXFDemuxIndex *index =
           &g_array_index (t->offsets, GstMXFDemuxIndex, start + i);
       guint64 offset = segment->index_entries[i].stream_offset;
@@ -4074,6 +4087,12 @@ gst_mxf_demux_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
     case GST_EVENT_EOS:{
       GstMXFDemuxPad *p = NULL;
       guint i;
+
+      if (demux->src->len == 0) {
+        GST_ELEMENT_ERROR (demux, STREAM, WRONG_TYPE,
+            ("This stream contains no data."),
+            ("got eos and didn't find any streams"));
+      }
 
       for (i = 0; i < demux->essence_tracks->len; i++) {
         GstMXFDemuxEssenceTrack *t =
