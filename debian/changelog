@@ -1,3 +1,14 @@
+gst-plugins-bad1.0 (1.10.2-1) unstable; urgency=medium
+
+  * debian/build-deps.in,
+    debian/gstreamer-plugins-bad.install:
+    + Drop mimic plugin (Closes: #765534). Library is RM candidate and
+      upstream just removed the plugin today.
+    + Drop schroedinger plugin, see #845037.
+  * New upstream bugfix release
+
+ -- Sebastian Dröge <slomo@debian.org>  Tue, 29 Nov 2016 15:53:26 +0200
+
 gst-plugins-bad1.0 (1.10.1-1ubuntu1) zesty; urgency=medium
 
   * Merge with Debian unstable; remaining changes:

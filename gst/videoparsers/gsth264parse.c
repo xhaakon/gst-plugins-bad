@@ -1131,8 +1131,10 @@ gst_h264_parse_handle_frame (GstBaseParse * parse,
         goto skip;
         break;
       default:
-        g_assert_not_reached ();
-        break;
+        /* should not really occur either */
+        GST_ELEMENT_ERROR (h264parse, STREAM, FORMAT,
+            ("Error parsing H.264 stream"), ("Invalid H.264 stream"));
+        goto invalid_stream;
     }
   }
 
@@ -1829,8 +1831,8 @@ gst_h264_parse_update_src_caps (GstH264Parse * h264parse, GstCaps * caps)
       /* Pass through or set output stereo/multiview config */
       if (s && gst_structure_has_field (s, "multiview-mode")) {
         caps_mview_mode = gst_structure_get_string (s, "multiview-mode");
-        gst_structure_get_flagset (s, "multiview-flags", (guint*) &mview_flags,
-            NULL);
+        gst_structure_get_flagset (s, "multiview-flags",
+            (guint *) & mview_flags, NULL);
       } else if (mview_mode != GST_VIDEO_MULTIVIEW_MODE_NONE) {
         if (gst_video_multiview_guess_half_aspect (mview_mode,
                 width, height, par_n, par_d)) {
@@ -2583,6 +2585,10 @@ gst_h264_parse_set_caps (GstBaseParse * parse, GstCaps * caps)
       off = nalu.offset + nalu.size;
     }
 
+    if (off >= size) {
+      gst_buffer_unmap (codec_data, &map);
+      goto avcc_too_small;
+    }
     num_pps = data[off];
     off++;
 

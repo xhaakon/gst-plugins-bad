@@ -928,7 +928,7 @@ mpegts_packetizer_push_section (MpegTSPacketizer2 * packetizer,
   MpegTSPacketizerStream *stream;
   gboolean long_packet;
   guint8 pointer = 0, table_id;
-  guint16 subtable_extension = 0;
+  guint16 subtable_extension;
   gsize to_read;
   guint section_length;
   /* data points to the current read location
@@ -1051,9 +1051,16 @@ accumulate_data:
       res = section;
   }
 
-  /* FIXME : We need at least 8 bytes with current algorithm :(
+section_start:
+  subtable_extension = 0;
+  version_number = 0;
+  last_section_number = 0;
+  section_number = 0;
+  table_id = 0;
+
+  /* FIXME : We need at least 3 bytes (or 8 for long packets) with current algorithm :(
    * We might end up losing sections that start across two packets (srsl...) */
-  if (data > packet->data_end - 8 || *data == 0xff) {
+  if (data > packet->data_end - 3 || *data == 0xff) {
     /* flush stuffing bytes and leave */
     mpegts_packetizer_clear_section (stream);
     goto out;
@@ -1062,8 +1069,6 @@ accumulate_data:
   /* We have more data to process ... */
   GST_DEBUG ("PID 0x%04x, More section present in packet (remaining bytes:%"
       G_GSIZE_FORMAT ")", stream->pid, (gsize) (packet->data_end - data));
-
-section_start:
   GST_MEMDUMP ("section_start", data, packet->data_end - data);
   data_start = data;
   /* Beginning of a new section */
@@ -1116,6 +1121,10 @@ section_start:
   data += 2;
 
   if (long_packet) {
+    /* Do we have enough data for a long packet? */
+    if (data > packet->data_end - 5)
+      goto out;
+
     /* subtable_extension (always present, we are in a long section) */
     /* subtable extension              : 16 bit */
     subtable_extension = GST_READ_UINT16_BE (data);
@@ -1864,14 +1873,20 @@ _set_current_group (MpegTSPCR * pcrtable,
 static inline void
 _append_group_values (PCROffsetGroup * group, PCROffset pcroffset)
 {
-  group->last_value++;
-  /* Resize values if needed */
-  if (G_UNLIKELY (group->nb_allocated == group->last_value)) {
-    group->nb_allocated += DEFAULT_ALLOCATED_OFFSET;
-    group->values =
-        g_realloc (group->values, group->nb_allocated * sizeof (PCROffset));
+  /* Only append if new values */
+  if (group->values[group->last_value].offset == pcroffset.offset &&
+      group->values[group->last_value].pcr == pcroffset.pcr) {
+    GST_DEBUG ("Same values, ignoring");
+  } else {
+    group->last_value++;
+    /* Resize values if needed */
+    if (G_UNLIKELY (group->nb_allocated == group->last_value)) {
+      group->nb_allocated += DEFAULT_ALLOCATED_OFFSET;
+      group->values =
+          g_realloc (group->values, group->nb_allocated * sizeof (PCROffset));
+    }
+    group->values[group->last_value] = pcroffset;
   }
-  group->values[group->last_value] = pcroffset;
 
   GST_DEBUG ("First PCR:%" GST_TIME_FORMAT " offset:%" G_GUINT64_FORMAT
       " PCR_offset:%" GST_TIME_FORMAT,

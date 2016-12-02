@@ -326,10 +326,11 @@ mxf_uuid_array_parse (MXFUUID ** array, guint32 * count, const guint8 * data,
 
   g_return_val_if_fail (array != NULL, FALSE);
   g_return_val_if_fail (count != NULL, FALSE);
-  g_return_val_if_fail (data != NULL, FALSE);
 
   if (size < 8)
     return FALSE;
+
+  g_return_val_if_fail (data != NULL, FALSE);
 
   element_count = GST_READ_UINT32_BE (data);
   data += 4;
@@ -351,7 +352,7 @@ mxf_uuid_array_parse (MXFUUID ** array, guint32 * count, const guint8 * data,
     return FALSE;
   }
 
-  if (16 * element_count < size) {
+  if (element_count > size / 16) {
     *array = NULL;
     *count = 0;
     return FALSE;
@@ -492,13 +493,14 @@ mxf_umid_init (MXFUMID * umid)
 gboolean
 mxf_timestamp_parse (MXFTimestamp * timestamp, const guint8 * data, guint size)
 {
-  g_return_val_if_fail (data != NULL, FALSE);
   g_return_val_if_fail (timestamp != NULL, FALSE);
 
   memset (timestamp, 0, sizeof (MXFTimestamp));
 
   if (size < 8)
     return FALSE;
+
+  g_return_val_if_fail (data != NULL, FALSE);
 
   timestamp->year = GST_READ_UINT16_BE (data);
   timestamp->month = GST_READ_UINT8 (data + 2);
@@ -597,12 +599,13 @@ gboolean
 mxf_fraction_parse (MXFFraction * fraction, const guint8 * data, guint size)
 {
   g_return_val_if_fail (fraction != NULL, FALSE);
-  g_return_val_if_fail (data != NULL, FALSE);
 
   memset (fraction, 0, sizeof (MXFFraction));
 
   if (size < 8)
     return FALSE;
+
+  g_return_val_if_fail (data != NULL, FALSE);
 
   fraction->n = GST_READ_UINT32_BE (data);
   fraction->d = GST_READ_UINT32_BE (data + 4);
@@ -669,12 +672,13 @@ mxf_product_version_parse (MXFProductVersion * product_version,
     const guint8 * data, guint size)
 {
   g_return_val_if_fail (product_version != NULL, FALSE);
-  g_return_val_if_fail (data != NULL, FALSE);
 
   memset (product_version, 0, sizeof (MXFProductVersion));
 
   if (size < 9)
     return FALSE;
+
+  g_return_val_if_fail (data != NULL, FALSE);
 
   product_version->major = GST_READ_UINT16_BE (data);
   product_version->minor = GST_READ_UINT16_BE (data + 2);
@@ -769,8 +773,10 @@ mxf_partition_pack_parse (const MXFUL * ul, MXFPartitionPack * pack,
   gchar str[48];
 #endif
 
+  if (size < 84)
+    return FALSE;
+
   g_return_val_if_fail (data != NULL, FALSE);
-  g_return_val_if_fail (size >= 84, FALSE);
 
   memset (pack, 0, sizeof (MXFPartitionPack));
 
@@ -991,11 +997,12 @@ mxf_random_index_pack_parse (const MXFUL * ul, const guint8 * data, guint size,
   guint len, i;
   MXFRandomIndexPackEntry entry;
 
-  g_return_val_if_fail (data != NULL, FALSE);
   g_return_val_if_fail (array != NULL, FALSE);
 
   if (size < 4)
     return FALSE;
+
+  g_return_val_if_fail (data != NULL, FALSE);
 
   if ((size - 4) % 12 != 0)
     return FALSE;
@@ -1072,12 +1079,13 @@ mxf_index_table_segment_parse (const MXFUL * ul,
   const guint8 *tag_data;
 
   g_return_val_if_fail (ul != NULL, FALSE);
-  g_return_val_if_fail (data != NULL, FALSE);
 
   memset (segment, 0, sizeof (MXFIndexTableSegment));
 
   if (size < 70)
     return FALSE;
+
+  g_return_val_if_fail (data != NULL, FALSE);
 
   GST_DEBUG ("Parsing index table segment:");
 
@@ -1167,7 +1175,7 @@ mxf_index_table_segment_parse (const MXFUL * ul,
         tag_data += 4;
         tag_size -= 4;
 
-        if (tag_size < len * 6)
+        if (tag_size / 6 < len)
           goto error;
 
         segment->delta_entries = g_new (MXFDeltaEntry, len);
@@ -1216,7 +1224,8 @@ mxf_index_table_segment_parse (const MXFUL * ul,
         tag_data += 4;
         tag_size -= 4;
 
-        if (tag_size < len * 11)
+        if (tag_size / (11 + 4 * segment->slice_count +
+                8 * segment->pos_table_count) < len)
           goto error;
 
         segment->index_entries = g_new0 (MXFIndexEntry, len);
@@ -1289,9 +1298,11 @@ mxf_index_table_segment_reset (MXFIndexTableSegment * segment)
 
   g_return_if_fail (segment != NULL);
 
-  for (i = 0; i < segment->n_index_entries; i++) {
-    g_free (segment->index_entries[i].slice_offset);
-    g_free (segment->index_entries[i].pos_table);
+  if (segment->index_entries) {
+    for (i = 0; i < segment->n_index_entries; i++) {
+      g_free (segment->index_entries[i].slice_offset);
+      g_free (segment->index_entries[i].pos_table);
+    }
   }
 
   g_free (segment->index_entries);
@@ -1434,8 +1445,10 @@ mxf_primer_pack_parse (const MXFUL * ul, MXFPrimerPack * pack,
   guint i;
   guint32 n;
 
+  if (size < 8)
+    return FALSE;
+
   g_return_val_if_fail (data != NULL, FALSE);
-  g_return_val_if_fail (size >= 8, FALSE);
 
   memset (pack, 0, sizeof (MXFPrimerPack));
 
@@ -1447,14 +1460,16 @@ mxf_primer_pack_parse (const MXFUL * ul, MXFPrimerPack * pack,
 
   n = GST_READ_UINT32_BE (data);
   data += 4;
+  size -= 4;
 
   GST_DEBUG ("  number of mappings = %u", n);
 
   if (GST_READ_UINT32_BE (data) != 18)
     goto error;
   data += 4;
+  size -= 4;
 
-  if (size < 8 + n * 18)
+  if (size / 18 < n)
     goto error;
 
   for (i = 0; i < n; i++) {
@@ -1610,18 +1625,21 @@ gboolean
 mxf_local_tag_parse (const guint8 * data, guint size, guint16 * tag,
     guint16 * tag_size, const guint8 ** tag_data)
 {
-  g_return_val_if_fail (data != NULL, FALSE);
-
   if (size < 4)
     return FALSE;
+
+  g_return_val_if_fail (data != NULL, FALSE);
 
   *tag = GST_READ_UINT16_BE (data);
   *tag_size = GST_READ_UINT16_BE (data + 2);
 
-  if (size < 4 + *tag_size)
+  data += 4;
+  size -= 4;
+
+  if (size < *tag_size)
     return FALSE;
 
-  *tag_data = data + 4;
+  *tag_data = data;
 
   return TRUE;
 }
@@ -1645,7 +1663,7 @@ mxf_local_tag_add_to_hash_table (const MXFPrimerPack * primer,
   MXFUL *ul;
 
   g_return_val_if_fail (primer != NULL, FALSE);
-  g_return_val_if_fail (tag_data != NULL, FALSE);
+  g_return_val_if_fail (tag_size == 0 || tag_data != NULL, FALSE);
   g_return_val_if_fail (hash_table != NULL, FALSE);
   g_return_val_if_fail (primer->mappings != NULL, FALSE);
 
@@ -1671,7 +1689,7 @@ mxf_local_tag_add_to_hash_table (const MXFPrimerPack * primer,
     local_tag = g_slice_new0 (MXFLocalTag);
     memcpy (&local_tag->ul, ul, sizeof (MXFUL));
     local_tag->size = tag_size;
-    local_tag->data = g_memdup (tag_data, tag_size);
+    local_tag->data = tag_size == 0 ? NULL : g_memdup (tag_data, tag_size);
     local_tag->g_slice = FALSE;
 
     g_hash_table_insert (*hash_table, &local_tag->ul, local_tag);

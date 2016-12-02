@@ -38,11 +38,9 @@ libx11-dev
 libass-dev (>= 0.10.4)
 libmodplug-dev
 libkate-dev (>= 0.1.7)
-libschroedinger-dev (>= 1.0.7)
 libmedia-dev (>= 0.1.0+git20131207+e452e83-0ubuntu3) [i386 armhf]
 libplatform-api1-dev [i386 armhf]
 libmirclient-dev [i386 armhf]
-libmimic-dev (>= 1.0)
 libgme-dev
 librsvg2-dev (>= 2.36.2)
 libcairo2-dev

@@ -414,7 +414,7 @@ static gpointer
 _parse_pat (GstMpegtsSection * section)
 {
   GPtrArray *pat;
-  guint16 i = 0, nb_programs;
+  guint16 i, nb_programs;
   GstMpegtsPatProgram *program;
   guint8 *data, *end;
 
@@ -430,7 +430,9 @@ _parse_pat (GstMpegtsSection * section)
       g_ptr_array_new_full (nb_programs,
       (GDestroyNotify) _mpegts_pat_program_free);
 
-  while (data < end - 4) {
+  GST_LOG ("nb_programs %u", nb_programs);
+
+  for (i = 0; i < nb_programs; i++) {
     program = g_slice_new0 (GstMpegtsPatProgram);
     program->program_number = GST_READ_UINT16_BE (data);
     data += 2;
@@ -439,8 +441,6 @@ _parse_pat (GstMpegtsSection * section)
     data += 2;
 
     g_ptr_array_index (pat, i) = program;
-
-    i++;
   }
   pat->len = nb_programs;
 
@@ -632,7 +632,8 @@ _gst_mpegts_pmt_free (GstMpegtsPMT * pmt)
 {
   if (pmt->descriptors)
     g_ptr_array_unref (pmt->descriptors);
-  g_ptr_array_unref (pmt->streams);
+  if (pmt->streams)
+    g_ptr_array_unref (pmt->streams);
   g_slice_free (GstMpegtsPMT, pmt);
 }
 
@@ -714,6 +715,11 @@ _parse_pmt (GstMpegtsSection * section)
     i += 1;
   }
 
+  /* Section length was longer than the actual content of the PMT */
+  if (data < end - 4)
+    goto error;
+
+  /* Ensure we did not read after the end of our array */
   g_assert (data == end - 4);
 
   return (gpointer) pmt;
@@ -1178,12 +1184,19 @@ gst_mpegts_section_new (guint16 pid, guint8 * data, gsize data_size)
   GstMpegtsSection *res = NULL;
   guint8 tmp;
   guint8 table_id;
-  guint16 section_length;
+  guint16 section_length = 0;
+
+  /* The smallest section ever is 3 bytes */
+  if (G_UNLIKELY (data_size < 3))
+    goto short_packet;
 
   /* Check for length */
   section_length = GST_READ_UINT16_BE (data + 1) & 0x0FFF;
   if (G_UNLIKELY (data_size < section_length + 3))
     goto short_packet;
+
+  GST_LOG ("data_size:%" G_GSIZE_FORMAT " section_length:%u",
+      data_size, section_length);
 
   /* Table id is in first byte */
   table_id = *data;
@@ -1199,6 +1212,13 @@ gst_mpegts_section_new (guint16 pid, guint8 * data, gsize data_size)
   /* section_length (already parsed) : 12 bit */
   res->section_length = section_length + 3;
   if (!res->short_section) {
+    /* A long packet needs to be at least 11 bytes long
+     * _ 3 for the bytes above
+     * _ 5 for the bytes below
+     * _ 4 for the CRC */
+    if (G_UNLIKELY (data_size < 11))
+      goto bad_long_packet;
+
     /* CRC is after section_length (-4 for the size of the CRC) */
     res->crc = GST_READ_UINT32_BE (res->data + res->section_length - 4);
     /* Skip to after section_length */
@@ -1226,6 +1246,13 @@ short_packet:
         ("PID 0x%04x section extends past provided data (got:%" G_GSIZE_FORMAT
         ", need:%d)", pid, data_size, section_length + 3);
     g_free (data);
+    return NULL;
+  }
+bad_long_packet:
+  {
+    GST_WARNING ("PID 0x%04x long section is too short (%" G_GSIZE_FORMAT
+        " bytes, need at least 11)", pid, data_size);
+    gst_mpegts_section_unref (res);
     return NULL;
   }
 }
