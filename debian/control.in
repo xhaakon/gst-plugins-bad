@@ -117,7 +117,8 @@ Depends: ${misc:Depends},
          libgstreamer-plugins-bad@GST_DEB_ABI@ (= ${binary:Version}),
          libgstreamer@GST_ABI@-dev,
          libgstreamer-plugins-base@GST_ABI@-dev,
-         gir1.2-gst-plugins-bad-@GST_ABI@ (= ${binary:Version})
+         gir1.2-gst-plugins-bad-@GST_ABI@ (= ${binary:Version}),
+         libopencv-dev (>= 2.3.0)
 Description: GStreamer development files for libraries from the "bad" set
  GStreamer is a streaming media framework, based on graphs of filters
  which operate on media data.  Applications using this library can do

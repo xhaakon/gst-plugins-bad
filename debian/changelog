@@ -1,3 +1,9 @@
+gst-plugins-bad1.0 (1.11.1-1) experimental; urgency=medium
+
+  * New upstream development release.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 12 Jan 2017 15:19:46 +0200
+
 gst-plugins-bad1.0 (1.10.2-1) unstable; urgency=medium
 
   * debian/build-deps.in,
