@@ -63,6 +63,7 @@
  *   DTV_ISDBS_TS_ID_LEGACY (was DVB_ISDBS_TS_ID)
  *   DTV_DVBT2_PLP_ID_LEGACY (was DVB_DVBT2_PLP_ID)
  *   NO_STREAM_ID_FILTER
+ *   DTV_STREAM_ID
  *   INTERLEAVING_AUTO
  *
  * Minor 7 (DTMB Support)
@@ -116,12 +117,10 @@
 #define SYS_DVBC_ANNEX_A SYS_DVBC_ANNEX_AC
 #endif
 
-/* NO_STREAM_ID_FILTER introduced in minor 8 */
+/* NO_STREAM_ID_FILTER & DTV_STREAMID introduced in minor 8 */
 #ifndef NO_STREAM_ID_FILTER
 #define NO_STREAM_ID_FILTER    (~0U)
 #endif
-
-/* DTV_STREAM_ID introduced in minor 8 (redefine) */
 #ifndef DTV_STREAM_ID
 #define DTV_STREAM_ID DTV_ISDBS_TS_ID
 #endif
@@ -274,7 +273,9 @@ gst_dvbsrc_code_rate_get_type (void)
     {FEC_AUTO, "AUTO", "auto"},
     {FEC_3_5, "3/5", "3/5"},
     {FEC_9_10, "9/10", "9/10"},
+#if HAVE_V5_MINOR(7)
     {FEC_2_5, "2/5", "2/5"},
+#endif
     {0, NULL, NULL},
   };
 
@@ -1021,6 +1022,7 @@ static void
 gst_dvbsrc_init (GstDvbSrc * object)
 {
   int i = 0;
+  const gchar *adapter;
 
   GST_DEBUG_OBJECT (object, "Kernel DVB API version %d.%d", DVB_API_VERSION,
       DVB_API_VERSION_MINOR);
@@ -1043,7 +1045,13 @@ gst_dvbsrc_init (GstDvbSrc * object)
   object->pids[0] = 8192;
   object->pids[1] = G_MAXUINT16;
   object->dvb_buffer_size = DEFAULT_DVB_BUFFER_SIZE;
-  object->adapter_number = DEFAULT_ADAPTER;
+
+  adapter = g_getenv ("GST_DVB_ADAPTER");
+  if (adapter)
+    object->adapter_number = atoi (adapter);
+  else
+    object->adapter_number = DEFAULT_ADAPTER;
+
   object->frontend_number = DEFAULT_FRONTEND;
   object->diseqc_src = DEFAULT_DISEQC_SRC;
   object->send_diseqc = (DEFAULT_DISEQC_SRC != -1);
@@ -1643,7 +1651,7 @@ gst_dvbsrc_open_frontend (GstDvbSrc * object, gboolean writable)
     object->supported_delsys = g_list_append (object->supported_delsys,
         GINT_TO_POINTER (SYS_DVBC_ANNEX_B));
     gst_structure_set (adapter_structure, "dvb-c-b", G_TYPE_STRING,
-        "DVB-C ANNEX C", NULL);
+        "DVB-C ANNEX B", NULL);
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBT)) {
@@ -1746,13 +1754,14 @@ gst_dvbsrc_open_frontend (GstDvbSrc * object, gboolean writable)
     gst_structure_set (adapter_structure, "turbo", G_TYPE_STRING, "TURBO",
         NULL);
   }
-
+#if HAVE_V5_MINOR(6)
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBC_ANNEX_C)) {
     object->supported_delsys = g_list_append (object->supported_delsys,
         GINT_TO_POINTER (SYS_DVBC_ANNEX_C));
     gst_structure_set (adapter_structure, "dvb-c-c", G_TYPE_STRING,
         "DVB-C ANNEX C", NULL);
   }
+#endif
 
   GST_TRACE_OBJECT (object, "%s description: %" GST_PTR_FORMAT, adapter_name,
       adapter_structure);
@@ -2112,8 +2121,8 @@ gst_dvbsrc_is_valid_modulation (guint delsys, guint mod)
         return TRUE;
       break;
     default:
-      GST_FIXME ("No modulation sanity checks implemented for this delivery "
-          "system");
+      GST_FIXME ("No modulation sanity-checks implemented for delivery "
+          "system: '%d'", delsys);
       return TRUE;
   }
   return FALSE;
@@ -2214,14 +2223,8 @@ gst_dvbsrc_output_frontend_stats (GstDvbSrc * src)
   gst_element_post_message (GST_ELEMENT (src), message);
 }
 
-struct diseqc_cmd
-{
-  struct dvb_diseqc_master_cmd cmd;
-  guint32 wait;
-};
-
 static void
-diseqc_send_msg (int fd, fe_sec_voltage_t v, struct diseqc_cmd *cmd,
+diseqc_send_msg (int fd, fe_sec_voltage_t v, struct dvb_diseqc_master_cmd *cmd,
     fe_sec_tone_mode_t t, fe_sec_mini_cmd_t b)
 {
   gint err;
@@ -2239,17 +2242,15 @@ diseqc_send_msg (int fd, fe_sec_voltage_t v, struct diseqc_cmd *cmd,
   }
 
   g_usleep (15 * 1000);
-  GST_LOG ("diseqc: 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x", cmd->cmd.msg[0],
-      cmd->cmd.msg[1], cmd->cmd.msg[2], cmd->cmd.msg[3], cmd->cmd.msg[4],
-      cmd->cmd.msg[5]);
+  GST_LOG ("diseqc: 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x", cmd->msg[0],
+      cmd->msg[1], cmd->msg[2], cmd->msg[3], cmd->msg[4], cmd->msg[5]);
 
-  LOOP_WHILE_EINTR (err, ioctl (fd, FE_DISEQC_SEND_MASTER_CMD, &cmd->cmd));
+  LOOP_WHILE_EINTR (err, ioctl (fd, FE_DISEQC_SEND_MASTER_CMD, cmd));
   if (err) {
     GST_ERROR ("Sending DiSEqC command failed");
     return;
   }
 
-  g_usleep (cmd->wait * 1000);
   g_usleep (15 * 1000);
 
   LOOP_WHILE_EINTR (err, ioctl (fd, FE_DISEQC_SEND_BURST, b));
@@ -2274,12 +2275,13 @@ diseqc_send_msg (int fd, fe_sec_voltage_t v, struct diseqc_cmd *cmd,
 static void
 diseqc (int secfd, int sat_no, int voltage, int tone)
 {
-  struct diseqc_cmd cmd = { {{0xe0, 0x10, 0x38, 0xf0, 0x00, 0x00}, 4}, 0 };
+  struct dvb_diseqc_master_cmd cmd =
+      { {0xe0, 0x10, 0x38, 0xf0, 0x00, 0x00}, 4 };
 
   /* param: high nibble: reset bits, low nibble set bits,
    * bits are: option, position, polarizaion, band
    */
-  cmd.cmd.msg[3] =
+  cmd.msg[3] =
       0xf0 | (((sat_no * 4) & 0x0f) | (tone == SEC_TONE_ON ? 1 : 0) |
       (voltage == SEC_VOLTAGE_13 ? 0 : 2));
   /* send twice because some DiSEqC switches do not respond correctly the

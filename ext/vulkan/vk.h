@@ -29,6 +29,8 @@
 #include "vkinstance.h"
 #include "vkdevice.h"
 #include "vkqueue.h"
+#include "vkfence.h"
+#include "vktrash.h"
 #include "vkdisplay.h"
 #include "vkwindow.h"
 #include "vkswapper.h"

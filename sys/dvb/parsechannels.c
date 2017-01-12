@@ -1,7 +1,7 @@
 /*
- * parsechannels.c - 
+ * parsechannels.c -
  * Copyright (C) 2008 Zaheer Abbas Merali
- * 
+ *
  * Authors:
  *   Zaheer Abbas Merali <zaheerabbas at merali dot org>
  *
@@ -885,7 +885,6 @@ set_properties_for_channel (GstElement * dvbbasebin,
 {
   gboolean ret = FALSE;
   gchar *filename;
-  const gchar *adapter;
 
   filename = g_strdup (g_getenv ("GST_DVB_CHANNELS_CONF"));
   if (filename == NULL) {
@@ -893,16 +892,12 @@ set_properties_for_channel (GstElement * dvbbasebin,
         "gstreamer-" GST_API_VERSION, "dvb-channels.conf", NULL);
   }
 
-  adapter = g_getenv ("GST_DVB_ADAPTER");
-  if (adapter)
-    g_object_set (dvbbasebin, "adapter", atoi (adapter), NULL);
-
   switch (detect_file_format (filename)) {
     case CHANNEL_CONF_FORMAT_DVBV5:
       if (!parse_and_configure_from_v5_conf_file (dvbbasebin, filename,
               channel_name, error)) {
-        GST_WARNING_OBJECT (dvbbasebin, "Could not parse libdvbv5 channel "
-            "configuration file '%s'", filename);
+        GST_WARNING_OBJECT (dvbbasebin, "Problem finding information for "
+            "channel '%s' in configuration file '%s'", channel_name, filename);
       } else {
         GST_INFO_OBJECT (dvbbasebin, "Parsed libdvbv5 channel configuration "
             "file");
@@ -912,8 +907,8 @@ set_properties_for_channel (GstElement * dvbbasebin,
     case CHANNEL_CONF_FORMAT_ZAP:
       if (!parse_and_configure_from_zap_conf_file (dvbbasebin, filename,
               channel_name, error)) {
-        GST_WARNING_OBJECT (dvbbasebin, "Could not parse ZAP channel "
-            "configuration file '%s'", filename);
+        GST_WARNING_OBJECT (dvbbasebin, "Problem finding information for "
+            "channel '%s' in configuration file '%s'", channel_name, filename);
       } else {
         GST_INFO_OBJECT (dvbbasebin, "Parsed ZAP channel configuration file");
         ret = TRUE;

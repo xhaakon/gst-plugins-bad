@@ -41,7 +41,7 @@ const gchar *WlEGLErrorString ();
 
 #define gst_gl_window_wayland_egl_parent_class parent_class
 G_DEFINE_TYPE (GstGLWindowWaylandEGL, gst_gl_window_wayland_egl,
-    GST_GL_TYPE_WINDOW);
+    GST_TYPE_GL_WINDOW);
 
 static guintptr gst_gl_window_wayland_egl_get_window_handle (GstGLWindow *
     window);
@@ -360,7 +360,7 @@ gst_gl_window_wayland_egl_new (GstGLDisplay * display)
 
   GST_DEBUG ("creating Wayland EGL window");
 
-  return g_object_new (GST_GL_TYPE_WINDOW_WAYLAND_EGL, NULL);
+  return g_object_new (GST_TYPE_GL_WINDOW_WAYLAND_EGL, NULL);
 }
 
 static void
@@ -408,7 +408,7 @@ gst_gl_window_wayland_egl_open (GstGLWindow * window, GError ** error)
   if (!GST_GL_WINDOW_CLASS (parent_class)->open (window, error))
     return FALSE;
 
-  g_source_attach (window_egl->wl_source, g_main_context_get_thread_default ());
+  g_source_attach (window_egl->wl_source, window->main_context);
 
   return TRUE;
 }

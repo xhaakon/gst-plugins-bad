@@ -227,10 +227,9 @@ static GstUri *combine_urls (GstUri * base, GList * list, gchar ** query,
     guint idx);
 
 static GList *gst_mpd_client_fetch_external_period (GstMpdClient * client,
-    GstPeriodNode * period_node, gboolean * error);
+    GstPeriodNode * period_node);
 static GList *gst_mpd_client_fetch_external_adaptation_set (GstMpdClient *
-    client, GstPeriodNode * period, GstAdaptationSetNode * adapt_set,
-    gboolean * error);
+    client, GstPeriodNode * period, GstAdaptationSetNode * adapt_set);
 
 struct GstMpdParserUtcTimingMethod
 {
@@ -1631,7 +1630,6 @@ gst_mpdparser_parse_mult_seg_base_type_ext (GstMultSegmentBaseType ** pointer,
         /* parse frees the segmenttimeline if any */
         gst_mpdparser_parse_segment_timeline_node
             (&mult_seg_base_type->SegmentTimeline, cur_node);
-        has_timeline = TRUE;
       } else if (xmlStrcmp (cur_node->name,
               (xmlChar *) "BitstreamSwitching") == 0) {
         /* parse frees the old url before setting the new one */
@@ -1734,6 +1732,40 @@ error:
 }
 
 static void
+gst_mpdparser_parse_content_protection_node (GList ** list, xmlNode * a_node)
+{
+  gchar *value = NULL;
+  if (gst_mpdparser_get_xml_prop_string (a_node, "value", &value)) {
+    if (!g_strcmp0 (value, "MSPR 2.0")) {
+      xmlNode *cur_node;
+      for (cur_node = a_node->children; cur_node; cur_node = cur_node->next) {
+        if (cur_node->type == XML_ELEMENT_NODE) {
+          if (xmlStrcmp (cur_node->name, (xmlChar *) "pro") == 0) {
+            GstDescriptorType *new_descriptor;
+            new_descriptor = g_slice_new0 (GstDescriptorType);
+            *list = g_list_append (*list, new_descriptor);
+
+            gst_mpdparser_get_xml_prop_string_stripped (a_node, "schemeIdUri",
+                &new_descriptor->schemeIdUri);
+
+            gst_mpdparser_get_xml_node_content (cur_node,
+                &new_descriptor->value);
+            goto beach;
+          }
+        }
+      }
+    } else {
+      gst_mpdparser_parse_descriptor_type_node (list, a_node);
+    }
+  } else {
+    gst_mpdparser_parse_descriptor_type_node (list, a_node);
+  }
+beach:
+  if (value)
+    g_free (value);
+}
+
+static void
 gst_mpdparser_parse_representation_base_type (GstRepresentationBaseType **
     pointer, xmlNode * a_node)
 {
@@ -1788,7 +1820,7 @@ gst_mpdparser_parse_representation_base_type (GstRepresentationBaseType **
             (&representation_base->AudioChannelConfiguration, cur_node);
       } else if (xmlStrcmp (cur_node->name,
               (xmlChar *) "ContentProtection") == 0) {
-        gst_mpdparser_parse_descriptor_type_node
+        gst_mpdparser_parse_content_protection_node
             (&representation_base->ContentProtection, cur_node);
       }
     }
@@ -2206,7 +2238,9 @@ gst_mpdparser_parse_utctiming_node (GList ** list, xmlNode * a_node)
 
   GST_LOG ("attributes of UTCTiming node:");
   if (gst_mpdparser_get_xml_prop_string (a_node, "schemeIdUri", &method)) {
-    for (int i = 0; gst_mpdparser_utc_timing_methods[i].name; ++i) {
+    int i;
+
+    for (i = 0; gst_mpdparser_utc_timing_methods[i].name; ++i) {
       if (g_ascii_strncasecmp (gst_mpdparser_utc_timing_methods[i].name,
               method, strlen (gst_mpdparser_utc_timing_methods[i].name)) == 0) {
         new_timing->method = gst_mpdparser_utc_timing_methods[i].method;
@@ -2514,20 +2548,17 @@ gst_mpd_client_fetch_external_segment_list (GstMpdClient * client,
     GstPeriodNode * Period,
     GstAdaptationSetNode * AdaptationSet,
     GstRepresentationNode * Representation,
-    GstSegmentListNode * parent, GstSegmentListNode * segment_list,
-    gboolean * error)
+    GstSegmentListNode * parent, GstSegmentListNode * segment_list)
 {
   GstFragment *download;
   GstBuffer *segment_list_buffer;
   GstMapInfo map;
   GError *err = NULL;
-  xmlDocPtr doc;
+  xmlDocPtr doc = NULL;
   GstUri *base_uri, *uri;
   gchar *query = NULL;
   gchar *uri_string;
   GstSegmentListNode *new_segment_list = NULL;
-
-  *error = FALSE;
 
   /* ISO/IEC 23009-1:2014 5.5.3 4)
    * Remove nodes that resolve to nothing when resolving
@@ -2538,7 +2569,6 @@ gst_mpd_client_fetch_external_segment_list (GstMpdClient * client,
   }
 
   if (!client->downloader) {
-    *error = TRUE;
     return NULL;
   }
 
@@ -2582,7 +2612,6 @@ gst_mpd_client_fetch_external_segment_list (GstMpdClient * client,
     GST_ERROR ("Failed to download external SegmentList node at '%s': %s",
         segment_list->xlink_href, err->message);
     g_clear_error (&err);
-    *error = TRUE;
     return NULL;
   }
 
@@ -2594,31 +2623,36 @@ gst_mpd_client_fetch_external_segment_list (GstMpdClient * client,
   doc =
       xmlReadMemory ((const gchar *) map.data, map.size, "noname.xml", NULL,
       XML_PARSE_NONET);
+
+  gst_buffer_unmap (segment_list_buffer, &map);
+  gst_buffer_unref (segment_list_buffer);
+
+  /* NOTE: ISO/IEC 23009-1:2014 5.3.9.3.2 is saying that one or multiple SegmentList
+   * in external xml is allowed, however, multiple SegmentList does not make sense
+   * because Period/AdaptationSet/Representation allow only one SegmentList */
   if (doc) {
     xmlNode *root_element = xmlDocGetRootElement (doc);
 
     if (root_element->type != XML_ELEMENT_NODE ||
         xmlStrcmp (root_element->name, (xmlChar *) "SegmentList") != 0) {
-      xmlFreeDoc (doc);
-      gst_buffer_unmap (segment_list_buffer, &map);
-      gst_buffer_unref (segment_list_buffer);
-      *error = TRUE;
-      return NULL;
+      goto error;
     }
 
     gst_mpdparser_parse_segment_list_node (&new_segment_list, root_element,
         parent);
   } else {
-    GST_ERROR ("Failed to parse adaptation set node XML");
-    gst_buffer_unmap (segment_list_buffer, &map);
-    gst_buffer_unref (segment_list_buffer);
-    *error = TRUE;
-    return NULL;
+    goto error;
   }
-  gst_buffer_unmap (segment_list_buffer, &map);
-  gst_buffer_unref (segment_list_buffer);
+
+done:
+  if (doc)
+    xmlFreeDoc (doc);
 
   return new_segment_list;
+
+error:
+  GST_ERROR ("Failed to parse segment list node XML");
+  goto done;
 }
 
 static GstSegmentListNode *
@@ -2645,11 +2679,14 @@ gst_mpdparser_get_segment_list (GstMpdClient * client, GstPeriodNode * Period,
   /* Resolve external segment list here. */
   if (*SegmentList && (*SegmentList)->xlink_href) {
     GstSegmentListNode *new_segment_list;
-    gboolean error;
 
+    /* TODO: Use SegmentList of parent if
+     * - Parent has its own SegmentList
+     * - Fail to get SegmentList from external xml
+     */
     new_segment_list =
         gst_mpd_client_fetch_external_segment_list (client, Period,
-        AdaptationSet, Representation, ParentSegmentList, *SegmentList, &error);
+        AdaptationSet, Representation, ParentSegmentList, *SegmentList);
 
     gst_mpdparser_free_segment_list_node (*SegmentList);
     *SegmentList = new_segment_list;
@@ -3592,7 +3629,7 @@ gst_mpd_client_check_profiles (GstMpdClient * client)
   }
 }
 
-static gboolean
+static void
 gst_mpd_client_fetch_on_load_external_resources (GstMpdClient * client)
 {
   GList *l;
@@ -3603,13 +3640,8 @@ gst_mpd_client_fetch_on_load_external_resources (GstMpdClient * client)
 
     if (period->xlink_href && period->actuate == GST_XLINK_ACTUATE_ON_LOAD) {
       GList *new_periods, *prev, *next;
-      gboolean error;
 
-      new_periods =
-          gst_mpd_client_fetch_external_period (client, period, &error);
-
-      if (!new_periods && error)
-        goto syntax_error;
+      new_periods = gst_mpd_client_fetch_external_period (client, period);
 
       prev = l->prev;
       client->mpd_node->Periods =
@@ -3643,14 +3675,10 @@ gst_mpd_client_fetch_on_load_external_resources (GstMpdClient * client)
     if (period->SegmentList && period->SegmentList->xlink_href
         && period->SegmentList->actuate == GST_XLINK_ACTUATE_ON_LOAD) {
       GstSegmentListNode *new_segment_list;
-      gboolean error;
 
       new_segment_list =
           gst_mpd_client_fetch_external_segment_list (client, period, NULL,
-          NULL, NULL, period->SegmentList, &error);
-
-      if (!new_segment_list && error)
-        goto syntax_error;
+          NULL, NULL, period->SegmentList);
 
       gst_mpdparser_free_segment_list_node (period->SegmentList);
       period->SegmentList = new_segment_list;
@@ -3663,14 +3691,10 @@ gst_mpd_client_fetch_on_load_external_resources (GstMpdClient * client)
       if (adapt_set->xlink_href
           && adapt_set->actuate == GST_XLINK_ACTUATE_ON_LOAD) {
         GList *new_adapt_sets, *prev, *next;
-        gboolean error;
 
         new_adapt_sets =
             gst_mpd_client_fetch_external_adaptation_set (client, period,
-            adapt_set, &error);
-
-        if (!new_adapt_sets && error)
-          goto syntax_error;
+            adapt_set);
 
         prev = l->prev;
         period->AdaptationSets = g_list_delete_link (period->AdaptationSets, l);
@@ -3703,15 +3727,10 @@ gst_mpd_client_fetch_on_load_external_resources (GstMpdClient * client)
       if (adapt_set->SegmentList && adapt_set->SegmentList->xlink_href
           && adapt_set->SegmentList->actuate == GST_XLINK_ACTUATE_ON_LOAD) {
         GstSegmentListNode *new_segment_list;
-        gboolean error;
 
         new_segment_list =
             gst_mpd_client_fetch_external_segment_list (client, period,
-            adapt_set, NULL, period->SegmentList, adapt_set->SegmentList,
-            &error);
-
-        if (!new_segment_list && error)
-          goto syntax_error;
+            adapt_set, NULL, period->SegmentList, adapt_set->SegmentList);
 
         gst_mpdparser_free_segment_list_node (adapt_set->SegmentList);
         adapt_set->SegmentList = new_segment_list;
@@ -3726,15 +3745,11 @@ gst_mpd_client_fetch_on_load_external_resources (GstMpdClient * client)
             GST_XLINK_ACTUATE_ON_LOAD) {
 
           GstSegmentListNode *new_segment_list;
-          gboolean error;
 
           new_segment_list =
               gst_mpd_client_fetch_external_segment_list (client, period,
               adapt_set, representation, adapt_set->SegmentList,
-              representation->SegmentList, &error);
-
-          if (!new_segment_list && error)
-            goto syntax_error;
+              representation->SegmentList);
 
           gst_mpdparser_free_segment_list_node (representation->SegmentList);
           representation->SegmentList = new_segment_list;
@@ -3747,12 +3762,6 @@ gst_mpd_client_fetch_on_load_external_resources (GstMpdClient * client)
 
     l = l->next;
   }
-
-  return TRUE;
-
-syntax_error:
-
-  return FALSE;
 }
 
 gboolean
@@ -3798,9 +3807,7 @@ gst_mpd_parse (GstMpdClient * client, const gchar * data, gint size)
 
     if (ret) {
       gst_mpd_client_check_profiles (client);
-
-      if (!gst_mpd_client_fetch_on_load_external_resources (client))
-        return FALSE;
+      gst_mpd_client_fetch_on_load_external_resources (client);
     }
   }
 
@@ -4102,7 +4109,9 @@ gst_mpd_client_setup_representation (GstMpdClient * client,
   /* clip duration of segments to stop at period end */
   if (stream->segments && stream->segments->len) {
     if (GST_CLOCK_TIME_IS_VALID (PeriodEnd)) {
-      for (guint n = 0; n < stream->segments->len; ++n) {
+      guint n;
+
+      for (n = 0; n < stream->segments->len; ++n) {
         GstMediaSegment *media_segment =
             g_ptr_array_index (stream->segments, n);
         if (media_segment) {
@@ -4152,21 +4161,23 @@ gst_mpd_client_setup_representation (GstMpdClient * client,
   return TRUE;
 }
 
+#define CUSTOM_WRAPPER_START "<custom_wrapper>"
+#define CUSTOM_WRAPPER_END "</custom_wrapper>"
+
 static GList *
 gst_mpd_client_fetch_external_period (GstMpdClient * client,
-    GstPeriodNode * period_node, gboolean * error)
+    GstPeriodNode * period_node)
 {
   GstFragment *download;
+  GstAdapter *adapter;
   GstBuffer *period_buffer;
-  GstMapInfo map;
   GError *err = NULL;
-  xmlDocPtr doc;
+  xmlDocPtr doc = NULL;
   GstUri *base_uri, *uri;
   gchar *query = NULL;
-  gchar *uri_string;
+  gchar *uri_string, *wrapper;
   GList *new_periods = NULL;
-
-  *error = FALSE;
+  const gchar *data;
 
   /* ISO/IEC 23009-1:2014 5.5.3 4)
    * Remove nodes that resolve to nothing when resolving
@@ -4177,7 +4188,6 @@ gst_mpd_client_fetch_external_period (GstMpdClient * client,
   }
 
   if (!client->downloader) {
-    *error = TRUE;
     return NULL;
   }
 
@@ -4207,41 +4217,73 @@ gst_mpd_client_fetch_external_period (GstMpdClient * client,
     GST_ERROR ("Failed to download external Period node at '%s': %s",
         period_node->xlink_href, err->message);
     g_clear_error (&err);
-    *error = TRUE;
     return NULL;
   }
 
   period_buffer = gst_fragment_get_buffer (download);
   g_object_unref (download);
 
-  gst_buffer_map (period_buffer, &map, GST_MAP_READ);
+  /* external xml could have multiple period without root xmlNode.
+   * To avoid xml parsing error caused by no root node, wrapping it with
+   * custom root node */
+  adapter = gst_adapter_new ();
+
+  wrapper = g_new (gchar, strlen (CUSTOM_WRAPPER_START));
+  memcpy (wrapper, CUSTOM_WRAPPER_START, strlen (CUSTOM_WRAPPER_START));
+  gst_adapter_push (adapter,
+      gst_buffer_new_wrapped (wrapper, strlen (CUSTOM_WRAPPER_START)));
+
+  gst_adapter_push (adapter, period_buffer);
+
+  wrapper = g_strdup (CUSTOM_WRAPPER_END);
+  gst_adapter_push (adapter,
+      gst_buffer_new_wrapped (wrapper, strlen (CUSTOM_WRAPPER_END) + 1));
+
+  data = gst_adapter_map (adapter, gst_adapter_available (adapter));
 
   doc =
-      xmlReadMemory ((const gchar *) map.data, map.size, "noname.xml", NULL,
+      xmlReadMemory (data, gst_adapter_available (adapter), "noname.xml", NULL,
       XML_PARSE_NONET);
+
+  gst_adapter_unmap (adapter);
+  gst_adapter_clear (adapter);
+  gst_object_unref (adapter);
+
   if (doc) {
     xmlNode *root_element = xmlDocGetRootElement (doc);
-    if (root_element->type != XML_ELEMENT_NODE ||
-        xmlStrcmp (root_element->name, (xmlChar *) "Period") != 0) {
-      xmlFreeDoc (doc);
-      gst_buffer_unmap (period_buffer, &map);
-      gst_buffer_unref (period_buffer);
-      *error = TRUE;
-      return NULL;
-    }
+    xmlNode *iter;
 
-    gst_mpdparser_parse_period_node (&new_periods, root_element);
+    if (root_element->type != XML_ELEMENT_NODE)
+      goto error;
+
+    for (iter = root_element->children; iter; iter = iter->next) {
+      if (iter->type == XML_ELEMENT_NODE) {
+        if (xmlStrcmp (iter->name, (xmlChar *) "Period") == 0) {
+          gst_mpdparser_parse_period_node (&new_periods, iter);
+        } else {
+          goto error;
+        }
+      }
+    }
   } else {
-    GST_ERROR ("Failed to parse period node XML");
-    gst_buffer_unmap (period_buffer, &map);
-    gst_buffer_unref (period_buffer);
-    *error = TRUE;
-    return NULL;
+    goto error;
   }
-  gst_buffer_unmap (period_buffer, &map);
-  gst_buffer_unref (period_buffer);
+
+done:
+  if (doc)
+    xmlFreeDoc (doc);
 
   return new_periods;
+
+error:
+  GST_ERROR ("Failed to parse period node XML");
+
+  if (new_periods) {
+    g_list_free_full (new_periods,
+        (GDestroyNotify) gst_mpdparser_free_period_node);
+    new_periods = NULL;
+  }
+  goto done;
 }
 
 gboolean
@@ -4305,13 +4347,9 @@ gst_mpd_client_setup_media_presentation (GstMpdClient * client,
     /* Download external period */
     if (period_node->xlink_href) {
       GList *new_periods;
-      gboolean error = FALSE;
       GList *prev;
 
-      new_periods =
-          gst_mpd_client_fetch_external_period (client, period_node, &error);
-      if (!new_periods && error)
-        goto syntax_error;
+      new_periods = gst_mpd_client_fetch_external_period (client, period_node);
 
       prev = list->prev;
       client->mpd_node->Periods =
@@ -4380,15 +4418,10 @@ gst_mpd_client_setup_media_presentation (GstMpdClient * client,
       next_period_node = next->data;
 
       if (next_period_node->xlink_href) {
-        gboolean next_error;
         GList *new_periods;
 
         new_periods =
-            gst_mpd_client_fetch_external_period (client, next_period_node,
-            &next_error);
-
-        if (!new_periods && next_error)
-          goto syntax_error;
+            gst_mpd_client_fetch_external_period (client, next_period_node);
 
         client->mpd_node->Periods =
             g_list_delete_link (client->mpd_node->Periods, next);
@@ -4492,19 +4525,17 @@ syntax_error:
 
 static GList *
 gst_mpd_client_fetch_external_adaptation_set (GstMpdClient * client,
-    GstPeriodNode * period, GstAdaptationSetNode * adapt_set, gboolean * error)
+    GstPeriodNode * period, GstAdaptationSetNode * adapt_set)
 {
   GstFragment *download;
   GstBuffer *adapt_set_buffer;
   GstMapInfo map;
   GError *err = NULL;
-  xmlDocPtr doc;
+  xmlDocPtr doc = NULL;
   GstUri *base_uri, *uri;
   gchar *query = NULL;
   gchar *uri_string;
   GList *new_adapt_sets = NULL;
-
-  *error = FALSE;
 
   /* ISO/IEC 23009-1:2014 5.5.3 4)
    * Remove nodes that resolve to nothing when resolving
@@ -4514,7 +4545,6 @@ gst_mpd_client_fetch_external_adaptation_set (GstMpdClient * client,
   }
 
   if (!client->downloader) {
-    *error = TRUE;
     return NULL;
   }
 
@@ -4548,7 +4578,6 @@ gst_mpd_client_fetch_external_adaptation_set (GstMpdClient * client,
     GST_ERROR ("Failed to download external AdaptationSet node at '%s': %s",
         adapt_set->xlink_href, err->message);
     g_clear_error (&err);
-    *error = TRUE;
     return NULL;
   }
 
@@ -4560,31 +4589,35 @@ gst_mpd_client_fetch_external_adaptation_set (GstMpdClient * client,
   doc =
       xmlReadMemory ((const gchar *) map.data, map.size, "noname.xml", NULL,
       XML_PARSE_NONET);
+
+  gst_buffer_unmap (adapt_set_buffer, &map);
+  gst_buffer_unref (adapt_set_buffer);
+
+  /* NOTE: ISO/IEC 23009-1:2014 5.3.3.2 is saying that exactly one AdaptationSet
+   * in external xml is allowed */
   if (doc) {
     xmlNode *root_element = xmlDocGetRootElement (doc);
 
     if (root_element->type != XML_ELEMENT_NODE ||
         xmlStrcmp (root_element->name, (xmlChar *) "AdaptationSet") != 0) {
-      xmlFreeDoc (doc);
-      gst_buffer_unmap (adapt_set_buffer, &map);
-      gst_buffer_unref (adapt_set_buffer);
-      *error = TRUE;
-      return NULL;
+      goto error;
     }
 
     gst_mpdparser_parse_adaptation_set_node (&new_adapt_sets, root_element,
         period);
   } else {
-    GST_ERROR ("Failed to parse adaptation set node XML");
-    gst_buffer_unmap (adapt_set_buffer, &map);
-    gst_buffer_unref (adapt_set_buffer);
-    *error = TRUE;
-    return NULL;
+    goto error;
   }
-  gst_buffer_unmap (adapt_set_buffer, &map);
-  gst_buffer_unref (adapt_set_buffer);
+
+done:
+  if (doc)
+    xmlFreeDoc (doc);
 
   return new_adapt_sets;
+
+error:
+  GST_ERROR ("Failed to parse adaptation set node XML");
+  goto done;
 }
 
 static GList *
@@ -4603,7 +4636,6 @@ gst_mpd_client_get_adaptation_sets_for_period (GstMpdClient * client,
       /* advanced explicitely below */ ) {
     GstAdaptationSetNode *adapt_set = (GstAdaptationSetNode *) list->data;
     GList *new_adapt_sets = NULL, *prev, *next;
-    gboolean error;
 
     if (!adapt_set->xlink_href) {
       list = list->next;
@@ -4612,7 +4644,7 @@ gst_mpd_client_get_adaptation_sets_for_period (GstMpdClient * client,
 
     new_adapt_sets =
         gst_mpd_client_fetch_external_adaptation_set (client, period->period,
-        adapt_set, &error);
+        adapt_set);
 
     prev = list->prev;
     period->period->AdaptationSets =

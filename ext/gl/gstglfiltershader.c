@@ -29,7 +29,28 @@
  * |[
  * gst-launch-1.0 videotestsrc ! glupload ! glshader fragment="\"`cat myshader.frag`\"" ! glimagesink
  * ]|
- * FBO (Frame Buffer Object) and GLSL (OpenGL Shading Language) are required. A #version header is required
+ * FBO (Frame Buffer Object) and GLSL (OpenGL Shading Language) are required.
+ * Depending on the exact OpenGL version chosen and the exact requirements of
+ * the OpenGL implementation, a #version header may be required.
+ *
+ * The following is a simple OpenGL ES (also usable with OpenGL 3 core contexts)
+ * passthrough shader with the required inputs.
+ * |[
+ * #version 100
+ * #ifdef GL_ES
+ * precision mediump float;
+ * #endif
+ * varying vec2 v_texcoord;
+ * uniform sampler2D tex;
+ * uniform float time;
+ * uniform float width;
+ * uniform float height;
+ * 
+ * void main () {
+ *   gl_FragColor = texture2D( tex, v_texcoord );
+ * }
+ * ]|
+ *
  * </refsect2>
  */
 #ifdef HAVE_CONFIG_H
@@ -101,7 +122,7 @@ gst_gl_filtershader_class_init (GstGLFilterShaderClass * klass)
 
   g_object_class_install_property (gobject_class, PROP_SHADER,
       g_param_spec_object ("shader", "Shader object",
-          "GstGLShader to use", GST_GL_TYPE_SHADER,
+          "GstGLShader to use", GST_TYPE_GL_SHADER,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_VERTEX,
@@ -137,7 +158,7 @@ gst_gl_filtershader_class_init (GstGLFilterShaderClass * klass)
   gst_gl_shader_signals[SIGNAL_CREATE_SHADER] =
       g_signal_new ("create-shader", G_TYPE_FROM_CLASS (klass),
       G_SIGNAL_RUN_LAST, 0, NULL, NULL, g_cclosure_marshal_generic,
-      GST_GL_TYPE_SHADER, 0);
+      GST_TYPE_GL_SHADER, 0);
 
   gst_element_class_set_metadata (element_class,
       "OpenGL fragment shader filter", "Filter/Effect",

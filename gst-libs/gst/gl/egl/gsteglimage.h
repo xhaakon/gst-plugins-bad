@@ -27,7 +27,7 @@
 #include <gst/video/video.h>
 
 #include <gst/gl/gl.h>
-#include <gst/gl/egl/gstglcontext_egl.h>
+#include <gst/gl/egl/gstegl.h>
 
 G_BEGIN_DECLS
 
@@ -51,26 +51,27 @@ struct _GstEGLImage
 {
   GstMiniObject parent;
 
-  GstGLContextEGL *context;
+  GstGLContext *context;
   EGLImageKHR image;
   GstVideoGLTextureType type;
-  /* FIXME: remove this and use the affine transformation meta instead */
-  GstVideoGLTextureOrientation orientation;
 
   /* <private> */
   gpointer destroy_data;
   GstEGLImageDestroyNotify destroy_notify;
+
+  gpointer _padding[GST_PADDING];
 };
 
 GstEGLImage *             gst_egl_image_new_wrapped             (GstGLContext * context,
                                                                  EGLImageKHR image,
                                                                  GstVideoGLTextureType type,
-                                                                 GstVideoGLTextureOrientation orientation,
                                                                  gpointer user_data,
                                                                  GstEGLImageDestroyNotify user_data_destroy);
 EGLImageKHR             gst_egl_image_get_image                 (GstEGLImage * image);
-GstVideoGLTextureOrientation gst_egl_image_get_orientation      (GstEGLImage * image);
 
+GstEGLImage *           gst_egl_image_from_texture              (GstGLContext * context,
+                                                                 GstGLMemory * gl_mem,
+                                                                 guintptr * attribs);
 #if GST_GL_HAVE_DMABUF
 GstEGLImage *           gst_egl_image_from_dmabuf               (GstGLContext * context,
                                                                  gint dmabuf,

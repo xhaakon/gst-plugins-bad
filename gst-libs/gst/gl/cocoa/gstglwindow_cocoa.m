@@ -56,7 +56,7 @@
 /* =============================================================*/
 
 #define GST_GL_WINDOW_COCOA_GET_PRIVATE(o)  \
-  (G_TYPE_INSTANCE_GET_PRIVATE((o), GST_GL_TYPE_WINDOW_COCOA, GstGLWindowCocoaPrivate))
+  (G_TYPE_INSTANCE_GET_PRIVATE((o), GST_TYPE_GL_WINDOW_COCOA, GstGLWindowCocoaPrivate))
 
 #define GST_CAT_DEFAULT gst_gl_window_cocoa_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -64,7 +64,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 #define DEBUG_INIT \
   GST_DEBUG_CATEGORY_GET (GST_CAT_DEFAULT, "glwindow");
 #define gst_gl_window_cocoa_parent_class parent_class
-G_DEFINE_TYPE_WITH_CODE (GstGLWindowCocoa, gst_gl_window_cocoa, GST_GL_TYPE_WINDOW, DEBUG_INIT);
+G_DEFINE_TYPE_WITH_CODE (GstGLWindowCocoa, gst_gl_window_cocoa, GST_TYPE_GL_WINDOW, DEBUG_INIT);
 static void gst_gl_window_cocoa_finalize (GObject * object);
 
 static gboolean gst_gl_window_cocoa_open (GstGLWindow *window, GError **err);
@@ -147,7 +147,7 @@ gst_gl_window_cocoa_new (GstGLDisplay * display)
     /* we require an cocoa display to create CGL windows */
     return NULL;
 
-  return g_object_new (GST_GL_TYPE_WINDOW_COCOA, NULL);
+  return g_object_new (GST_TYPE_GL_WINDOW_COCOA, NULL);
 }
 
 /* Must be called from the main thread */
@@ -197,6 +197,7 @@ gst_gl_window_cocoa_close (GstGLWindow *window)
 {
   GstGLWindowCocoa *window_cocoa = GST_GL_WINDOW_COCOA (window);
 
+  [[window_cocoa->priv->internal_win_id contentView] removeFromSuperview];
   [window_cocoa->priv->internal_win_id release];
   window_cocoa->priv->internal_win_id = nil;
 }
@@ -329,14 +330,12 @@ gst_gl_cocoa_draw_cb (GstGLWindowCocoa *window_cocoa)
   GstGLWindowCocoaPrivate *priv = window_cocoa->priv;
   GstGLWindow *window = GST_GL_WINDOW (window_cocoa);
 
-  if (gst_gl_window_is_running (window)) {
-    if (![priv->internal_win_id isClosed]) {
-     GstGLWindow *window = GST_GL_WINDOW (window_cocoa);
+  if (window_cocoa->priv->internal_win_id && ![priv->internal_win_id isClosed]) {
+   GstGLWindow *window = GST_GL_WINDOW (window_cocoa);
 
-      /* draw opengl scene in the back buffer */
-      if (window->draw)
-        window->draw (window->draw_data);
-    }
+    /* draw opengl scene in the back buffer */
+    if (window->draw)
+      window->draw (window->draw_data);
   }
 }
 
@@ -348,7 +347,7 @@ gst_gl_cocoa_resize_cb (GstGLNSView * view, guint width, guint height)
   GstGLWindow *window = GST_GL_WINDOW (window_cocoa);
   GstGLContext *context = gst_gl_window_get_context (window);
 
-  if (gst_gl_window_is_running (window) && ![window_cocoa->priv->internal_win_id isClosed]) {
+  if (window_cocoa->priv->internal_win_id && ![window_cocoa->priv->internal_win_id isClosed]) {
     const GstGLFuncs *gl;
     NSRect bounds = [view bounds];
     NSRect visibleRect = [view visibleRect];
@@ -438,17 +437,6 @@ gst_gl_window_cocoa_send_message_async (GstGLWindow * window,
   [self setBackgroundColor:[NSColor blackColor]];
 
   [self orderOut:window_cocoa->priv->internal_win_id];
-
-  if (window_cocoa->priv->external_view) {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSView *view = [window_cocoa->priv->internal_win_id contentView];
-
-    [window_cocoa->priv->external_view addSubview: view];
-    [view setFrame: [window_cocoa->priv->external_view bounds]];
-    [view setAutoresizingMask: NSViewWidthSizable|NSViewHeightSizable];
-
-    [pool release];
-  }
 
   return self;
 }

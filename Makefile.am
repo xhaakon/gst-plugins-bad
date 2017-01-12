@@ -12,7 +12,7 @@ DIST_SUBDIRS = \
 include $(top_srcdir)/common/win32.mak
 
 EXTRA_DIST = \
-	gst-plugins-bad.spec depcomp \
+	depcomp \
 	AUTHORS COPYING NEWS README RELEASE REQUIREMENTS \
 	ChangeLog gst-plugins-bad.doap autogen.sh \
 	$(win32)
@@ -39,10 +39,6 @@ build-checks:
 	true
 endif
 
-win32-update:
-	cp $(top_builddir)/win32/common/config.h-new \
-	    $(top_srcdir)/win32/common/config.h
-
 include $(top_srcdir)/common/coverage/lcov.mak
 
 check: check-exports
@@ -50,6 +46,8 @@ check: check-exports
 # cruft: plugins that have been merged or moved or renamed
 
 CRUFT_FILES = \
+	$(top_builddir)/win32/common/config.h-new \
+	$(top_builddir)/gst-plugins-bad.spec \
 	$(top_builddir)/common/shave \
 	$(top_builddir)/common/shave-libtool \
 	$(top_builddir)/ext/alsaspdif/.libs/*.{so,dll,DLL,dylib} \
@@ -78,12 +76,14 @@ CRUFT_FILES = \
 	$(top_builddir)/tests/check/elements/{aac,ac3,amr,flac,mpegaudio,dca}parse \
 	$(top_builddir)/tests/check/elements/autocolorspace \
 	$(top_builddir)/tests/check/elements/capssetter \
+	$(top_builddir)/tests/check/elements/dataurisrc \
 	$(top_builddir)/tests/check/elements/imagefreeze \
 	$(top_builddir)/tests/check/elements/qtmux \
 	$(top_builddir)/tests/check/elements/rtpmux \
 	$(top_builddir)/tests/check/elements/selector \
 	$(top_builddir)/tests/check/elements/valve \
 	$(top_builddir)/tests/check/pipelines/metadata \
+	$(top_builddir)/tests/check/pipelines/mimic \
 	$(top_builddir)/tests/examples/jack/jack_client \
 	$(top_builddir)/tests/examples/scaletempo/scaletempo-demo \
 	$(top_builddir)/tests/examples/switch/switcher \
@@ -96,6 +96,7 @@ CRUFT_DIRS = \
 	$(top_srcdir)/gst/aacparse \
 	$(top_srcdir)/gst/amrparse \
 	$(top_srcdir)/gst/camerabin \
+	$(top_srcdir)/gst/dataurisrc \
 	$(top_srcdir)/gst/flacparse \
 	$(top_srcdir)/gst/hls \
 	$(top_srcdir)/gst/imagefreeze \
@@ -125,6 +126,7 @@ CRUFT_DIRS = \
 	$(top_srcdir)/ext/ivorbis \
 	$(top_srcdir)/ext/jack \
 	$(top_srcdir)/ext/metadata \
+	$(top_srcdir)/ext/mimic \
 	$(top_srcdir)/ext/mpg123 \
 	$(top_srcdir)/ext/swfdec \
 	$(top_srcdir)/ext/tarkin \

@@ -192,6 +192,26 @@ gst_decklink_audio_connection_get_type (void)
   return (GType) id;
 }
 
+GType
+gst_decklink_audio_channels_get_type (void)
+{
+  static gsize id = 0;
+  static const GEnumValue connections[] = {
+    {GST_DECKLINK_AUDIO_CHANNELS_2, "2 Channels", "2"},
+    {GST_DECKLINK_AUDIO_CHANNELS_8, "8 Channels", "8"},
+    {GST_DECKLINK_AUDIO_CHANNELS_16, "16 Channels", "16"},
+    {0, NULL, NULL}
+  };
+
+  if (g_once_init_enter (&id)) {
+    GType tmp =
+        g_enum_register_static ("GstDecklinkAudioChannels", connections);
+    g_once_init_leave (&id, tmp);
+  }
+
+  return (GType) id;
+}
+
 #define NTSC 10, 11, false, "bt601"
 #define PAL 12, 11, true, "bt601"
 #define HD 1, 1, true, "bt709"
@@ -467,7 +487,8 @@ gst_decklink_caps_get_pixel_format (GstCaps * caps, BMDPixelFormat * format)
 }
 
 static GstStructure *
-gst_decklink_mode_get_structure (GstDecklinkModeEnum e, BMDPixelFormat f, gboolean input)
+gst_decklink_mode_get_structure (GstDecklinkModeEnum e, BMDPixelFormat f,
+    gboolean input)
 {
   const GstDecklinkMode *mode = &modes[e];
   GstStructure *s = gst_structure_new ("video/x-raw",
@@ -480,9 +501,11 @@ gst_decklink_mode_get_structure (GstDecklinkModeEnum e, BMDPixelFormat f, gboole
 
   if (input && mode->interlaced) {
     if (mode->tff)
-      gst_structure_set (s, "field-order", G_TYPE_STRING, "top-field-first", NULL);
+      gst_structure_set (s, "field-order", G_TYPE_STRING, "top-field-first",
+          NULL);
     else
-      gst_structure_set (s, "field-order", G_TYPE_STRING, "bottom-field-first", NULL);
+      gst_structure_set (s, "field-order", G_TYPE_STRING, "bottom-field-first",
+          NULL);
   }
 
   switch (f) {
@@ -516,13 +539,15 @@ gst_decklink_mode_get_structure (GstDecklinkModeEnum e, BMDPixelFormat f, gboole
 }
 
 GstCaps *
-gst_decklink_mode_get_caps (GstDecklinkModeEnum e, BMDPixelFormat f, gboolean input)
+gst_decklink_mode_get_caps (GstDecklinkModeEnum e, BMDPixelFormat f,
+    gboolean input)
 {
   GstCaps *caps;
 
   caps = gst_caps_new_empty ();
   caps =
-      gst_caps_merge_structure (caps, gst_decklink_mode_get_structure (e, f, input));
+      gst_caps_merge_structure (caps, gst_decklink_mode_get_structure (e, f,
+          input));
 
   return caps;
 }
@@ -568,7 +593,8 @@ gst_decklink_mode_get_template_caps (gboolean input)
   for (i = 1; i < (int) G_N_ELEMENTS (modes); i++)
     caps =
         gst_caps_merge (caps,
-        gst_decklink_mode_get_caps_all_formats ((GstDecklinkModeEnum) i, input));
+        gst_decklink_mode_get_caps_all_formats ((GstDecklinkModeEnum) i,
+            input));
 
   return caps;
 }
@@ -585,7 +611,8 @@ gst_decklink_find_mode_and_format_for_caps (GstCaps * caps,
     return NULL;
 
   for (i = 1; i < (int) G_N_ELEMENTS (modes); i++) {
-    mode_caps = gst_decklink_mode_get_caps ((GstDecklinkModeEnum) i, *format, FALSE);
+    mode_caps =
+        gst_decklink_mode_get_caps ((GstDecklinkModeEnum) i, *format, FALSE);
     if (gst_caps_can_intersect (caps, mode_caps)) {
       gst_caps_unref (mode_caps);
       return gst_decklink_get_mode ((GstDecklinkModeEnum) i);
@@ -624,7 +651,6 @@ struct _GstDecklinkClock
 {
   GstSystemClock clock;
 
-  GstDecklinkInput *input;
   GstDecklinkOutput *output;
 };
 
@@ -729,99 +755,99 @@ public:
     GstElement *videosrc = NULL, *audiosrc = NULL;
     void (*got_video_frame) (GstElement * videosrc,
         IDeckLinkVideoInputFrame * frame, GstDecklinkModeEnum mode,
-        GstClockTime capture_time, GstClockTime capture_duration, guint hours,
-        guint minutes, guint seconds, guint frames, BMDTimecodeFlags bflags) =
-        NULL;
+        GstClockTime capture_time, GstClockTime stream_time,
+        GstClockTime stream_duration, IDeckLinkTimecode *dtc, gboolean
+        no_signal) = NULL;
     void (*got_audio_packet) (GstElement * videosrc,
         IDeckLinkAudioInputPacket * packet, GstClockTime capture_time,
-        gboolean discont) = NULL;
+        GstClockTime packet_time, gboolean no_signal) = NULL;
     GstDecklinkModeEnum mode;
-    BMDTimeValue capture_time = GST_CLOCK_TIME_NONE, capture_duration =
-        GST_CLOCK_TIME_NONE;
+    GstClockTime capture_time = GST_CLOCK_TIME_NONE;
+    GstClockTime base_time = 0;
+    gboolean no_signal = FALSE;
+    GstClock *clock = NULL;
     HRESULT res;
-    IDeckLinkTimecode *dtc;
-    uint8_t hours, minutes, seconds, frames;
-    BMDTimecodeFlags bflags;
-
-    hours = minutes = seconds = frames = bflags = 0;
-    if (video_frame == NULL)
-      goto no_video_frame;
-
-    res =
-        video_frame->GetHardwareReferenceTimestamp (GST_SECOND, &capture_time,
-        &capture_duration);
-    if (res != S_OK) {
-      GST_ERROR ("Failed to get capture time: 0x%08x", res);
-      capture_time = GST_CLOCK_TIME_NONE;
-      capture_duration = GST_CLOCK_TIME_NONE;
-    }
-
-    if (m_input->videosrc) {
-      /* FIXME: Avoid circularity between gstdecklink.cpp and
-       * gstdecklinkvideosrc.cpp */
-      videosrc = GST_ELEMENT_CAST (gst_object_ref (m_input->videosrc));
-      res =
-          video_frame->
-          GetTimecode (GST_DECKLINK_VIDEO_SRC (videosrc)->timecode_format,
-          &dtc);
-
-      if (res != S_OK) {
-        GST_DEBUG_OBJECT (videosrc, "Failed to get timecode: 0x%08x", res);
-        dtc = NULL;
-      } else {
-        res = dtc->GetComponents (&hours, &minutes, &seconds, &frames);
-        if (res != S_OK) {
-          GST_ERROR ("Could not get components for timecode %p: 0x%08x", dtc,
-              res);
-          hours = 0;
-          minutes = 0;
-          seconds = 0;
-          frames = 0;
-          bflags = 0;
-        } else {
-          GST_DEBUG_OBJECT (videosrc, "Got timecode %02d:%02d:%02d:%02d", hours,
-              minutes, seconds, frames);
-          bflags = dtc->GetFlags ();
-        }
-      }
-    }
 
     g_mutex_lock (&m_input->lock);
-
-    if (capture_time > (BMDTimeValue) m_input->clock_start_time)
-      capture_time -= m_input->clock_start_time;
-    else
-      capture_time = 0;
-
-    if (capture_time > (BMDTimeValue) m_input->clock_offset)
-      capture_time -= m_input->clock_offset;
-    else
-      capture_time = 0;
-
     if (m_input->videosrc) {
+      videosrc = GST_ELEMENT_CAST (gst_object_ref (m_input->videosrc));
+      clock = gst_element_get_clock (videosrc);
+      base_time = gst_element_get_base_time (videosrc);
       got_video_frame = m_input->got_video_frame;
     }
     mode = gst_decklink_get_mode_enum_from_bmd (m_input->mode->mode);
 
     if (m_input->audiosrc) {
       audiosrc = GST_ELEMENT_CAST (gst_object_ref (m_input->audiosrc));
+      if (!clock) {
+        clock = gst_element_get_clock (GST_ELEMENT_CAST (audiosrc));
+        base_time = gst_element_get_base_time (audiosrc);
+      }
       got_audio_packet = m_input->got_audio_packet;
     }
     g_mutex_unlock (&m_input->lock);
 
-    if (got_video_frame && videosrc) {
-      got_video_frame (videosrc, video_frame, mode, capture_time,
-          capture_duration, (guint8) hours, (guint8) minutes, (guint8) seconds,
-          (guint8) frames, bflags);
+    if (clock) {
+      capture_time = gst_clock_get_time (clock);
+      if (capture_time > base_time)
+        capture_time -= base_time;
+      else
+        capture_time = 0;
     }
 
-  no_video_frame:
+    if (video_frame) {
+      BMDFrameFlags flags;
+
+      flags = video_frame->GetFlags ();
+      if (flags & bmdFrameHasNoInputSource) {
+        no_signal = TRUE;
+      }
+    }
+
+    if (got_video_frame && videosrc && video_frame) {
+      BMDTimeValue stream_time = GST_CLOCK_TIME_NONE;
+      BMDTimeValue stream_duration = GST_CLOCK_TIME_NONE;
+      IDeckLinkTimecode *dtc;
+
+      res =
+          video_frame->GetStreamTime (&stream_time, &stream_duration,
+          GST_SECOND);
+      if (res != S_OK) {
+        GST_ERROR ("Failed to get stream time: 0x%08x", res);
+        stream_time = GST_CLOCK_TIME_NONE;
+        stream_duration = GST_CLOCK_TIME_NONE;
+      }
+
+      if (m_input->videosrc) {
+        /* FIXME: Avoid circularity between gstdecklink.cpp and
+         * gstdecklinkvideosrc.cpp */
+        res =
+            video_frame->
+            GetTimecode (GST_DECKLINK_VIDEO_SRC (videosrc)->timecode_format,
+            &dtc);
+
+        if (res != S_OK) {
+          GST_DEBUG_OBJECT (videosrc, "Failed to get timecode: 0x%08x", res);
+          dtc = NULL;
+        }
+      }
+
+      /* passing dtc reference */
+      got_video_frame (videosrc, video_frame, mode, capture_time,
+          stream_time, stream_duration, dtc, no_signal);
+    }
+
     if (got_audio_packet && audiosrc && audio_packet) {
+      BMDTimeValue packet_time = GST_CLOCK_TIME_NONE;
+
+      res = audio_packet->GetPacketTime (&packet_time, GST_SECOND);
+      if (res != S_OK) {
+        GST_ERROR ("Failed to get stream time: 0x%08x", res);
+        packet_time = GST_CLOCK_TIME_NONE;
+      }
       m_input->got_audio_packet (audiosrc, audio_packet, capture_time,
-          m_input->audio_discont);
-      m_input->audio_discont = FALSE;
+          packet_time, no_signal);
     } else {
-      m_input->audio_discont = TRUE;
       if (!audio_packet)
         GST_DEBUG ("Received no audio packet at %" GST_TIME_FORMAT,
             GST_TIME_ARGS (capture_time));
@@ -829,6 +855,7 @@ public:
 
     gst_object_replace ((GstObject **) & videosrc, NULL);
     gst_object_replace ((GstObject **) & audiosrc, NULL);
+    gst_object_replace ((GstObject **) & clock, NULL);
 
     return S_OK;
   }
@@ -928,9 +955,6 @@ init_devices (gpointer data)
       IDeckLinkDisplayModeIterator *mode_iter;
 
       devices[i].input.device = decklink;
-      devices[i].input.clock = gst_decklink_clock_new ("GstDecklinkInputClock");
-      GST_DECKLINK_CLOCK_CAST (devices[i].input.clock)->input =
-          &devices[i].input;
       devices[i].input.
           input->SetCallback (new GStreamerDecklinkInputCallback (&devices[i].
               input));
@@ -1126,7 +1150,6 @@ gst_decklink_acquire_nth_input (gint n, GstElement * src, gboolean is_audio)
   g_mutex_lock (&input->lock);
   if (is_audio && !input->audiosrc) {
     input->audiosrc = GST_ELEMENT_CAST (gst_object_ref (src));
-    input->audio_discont = TRUE;
     g_mutex_unlock (&input->lock);
     return input;
   } else if (!input->videosrc) {
@@ -1201,88 +1224,46 @@ gst_decklink_clock_get_internal_time (GstClock * clock)
   BMDTimeValue time;
   HRESULT ret;
 
-  if (self->input != NULL) {
-    g_mutex_lock (&self->input->lock);
-    start_time = self->input->clock_start_time;
-    offset = self->input->clock_offset;
-    last_time = self->input->clock_last_time;
-    time = -1;
-    if (!self->input->started) {
-      result = last_time;
-      ret = -1;
-    } else {
-      ret =
-          self->input->input->GetHardwareReferenceClock (GST_SECOND, &time,
-          NULL, NULL);
-      if (ret == S_OK && time >= 0) {
-        result = time;
-        if (start_time == GST_CLOCK_TIME_NONE)
-          start_time = self->input->clock_start_time = result;
-
-        if (result > start_time)
-          result -= start_time;
-        else
-          result = 0;
-
-        if (self->input->clock_restart) {
-          self->input->clock_offset = result - last_time;
-          offset = self->input->clock_offset;
-          self->input->clock_restart = FALSE;
-        }
-        result = MAX (last_time, result);
-        result -= offset;
-        result = MAX (last_time, result);
-      } else {
-        result = last_time;
-      }
-
-      self->input->clock_last_time = result;
-    }
-    result += self->input->clock_epoch;
-    g_mutex_unlock (&self->input->lock);
-  } else if (self->output != NULL) {
-    g_mutex_lock (&self->output->lock);
-    start_time = self->output->clock_start_time;
-    offset = self->output->clock_offset;
-    last_time = self->output->clock_last_time;
-    time = -1;
-    if (!self->output->started) {
-      result = last_time;
-      ret = -1;
-    } else {
-      ret =
-          self->output->output->GetHardwareReferenceClock (GST_SECOND, &time,
-          NULL, NULL);
-      if (ret == S_OK && time >= 0) {
-        result = time;
-
-        if (start_time == GST_CLOCK_TIME_NONE)
-          start_time = self->output->clock_start_time = result;
-
-        if (result > start_time)
-          result -= start_time;
-        else
-          result = 0;
-
-        if (self->output->clock_restart) {
-          self->output->clock_offset = result - last_time;
-          offset = self->output->clock_offset;
-          self->output->clock_restart = FALSE;
-        }
-        result = MAX (last_time, result);
-        result -= offset;
-        result = MAX (last_time, result);
-      } else {
-        result = last_time;
-      }
-
-      self->output->clock_last_time = result;
-    }
-    result += self->output->clock_epoch;
-    g_mutex_unlock (&self->output->lock);
+  g_mutex_lock (&self->output->lock);
+  start_time = self->output->clock_start_time;
+  offset = self->output->clock_offset;
+  last_time = self->output->clock_last_time;
+  time = -1;
+  if (!self->output->started) {
+    result = last_time;
+    ret = -1;
   } else {
-    g_assert_not_reached ();
+    ret =
+        self->output->output->GetHardwareReferenceClock (GST_SECOND, &time,
+        NULL, NULL);
+    if (ret == S_OK && time >= 0) {
+      result = time;
+
+      if (start_time == GST_CLOCK_TIME_NONE)
+        start_time = self->output->clock_start_time = result;
+
+      if (result > start_time)
+        result -= start_time;
+      else
+        result = 0;
+
+      if (self->output->clock_restart) {
+        self->output->clock_offset = result - last_time;
+        offset = self->output->clock_offset;
+        self->output->clock_restart = FALSE;
+      }
+      result = MAX (last_time, result);
+      result -= offset;
+      result = MAX (last_time, result);
+    } else {
+      result = last_time;
+    }
+
+    self->output->clock_last_time = result;
   }
+  result += self->output->clock_epoch;
+  g_mutex_unlock (&self->output->lock);
+
   GST_LOG_OBJECT (clock,
       "result %" GST_TIME_FORMAT " time %" GST_TIME_FORMAT " last time %"
       GST_TIME_FORMAT " offset %" GST_TIME_FORMAT " start time %"

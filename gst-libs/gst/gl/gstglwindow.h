@@ -30,17 +30,25 @@
 
 G_BEGIN_DECLS
 
-#define GST_GL_TYPE_WINDOW         (gst_gl_window_get_type())
-#define GST_GL_WINDOW(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), GST_GL_TYPE_WINDOW, GstGLWindow))
-#define GST_GL_WINDOW_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), GST_GL_TYPE_WINDOW, GstGLWindowClass))
-#define GST_IS_GL_WINDOW(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), GST_GL_TYPE_WINDOW))
-#define GST_IS_GL_WINDOW_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_GL_TYPE_WINDOW))
-#define GST_GL_WINDOW_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), GST_GL_TYPE_WINDOW, GstGLWindowClass))
+GST_EXPORT
+GType gst_gl_window_get_type       (void);
+#define GST_TYPE_GL_WINDOW         (gst_gl_window_get_type())
+
+/* FIXME: remove this when moving to -base */
+G_DEPRECATED_FOR(GST_TYPE_GL_WINDOW) \
+static inline GType GST_GL_TYPE_WINDOW (void) { return GST_TYPE_GL_WINDOW; }
+#define GST_GL_WINDOW(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), GST_TYPE_GL_WINDOW, GstGLWindow))
+#define GST_GL_WINDOW_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), GST_TYPE_GL_WINDOW, GstGLWindowClass))
+#define GST_IS_GL_WINDOW(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), GST_TYPE_GL_WINDOW))
+#define GST_IS_GL_WINDOW_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_TYPE_GL_WINDOW))
+#define GST_GL_WINDOW_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), GST_TYPE_GL_WINDOW, GstGLWindowClass))
 
 #define GST_GL_WINDOW_LOCK(w) g_mutex_lock(&GST_GL_WINDOW(w)->lock)
 #define GST_GL_WINDOW_UNLOCK(w) g_mutex_unlock(&GST_GL_WINDOW(w)->lock)
 #define GST_GL_WINDOW_GET_LOCK(w) (&GST_GL_WINDOW(w)->lock)
 
+GST_EXPORT
+GQuark gst_gl_window_error_quark (void);
 #define GST_GL_WINDOW_ERROR (gst_gl_window_error_quark ())
 
 /**
@@ -77,8 +85,7 @@ struct _GstGLWindow {
   GstGLDisplay *display;
   GWeakRef      context_ref;
 
-  guintptr      external_gl_context;
-
+  /*< protected >*/
   gboolean      is_drawing;
 
   GstGLWindowCB         draw;
@@ -93,6 +100,8 @@ struct _GstGLWindow {
 
   gboolean              queue_resize;
 
+  GMainContext         *main_context; /* default main_context */
+
   /*< private >*/
   GstGLWindowPrivate *priv;
 
@@ -103,9 +112,10 @@ struct _GstGLWindow {
  * GstGLWindowClass:
  * @parent_class: Parent class
  * @get_display: Gets the current windowing system display connection
- * @set_window_handle: Set a window to render into
- * @get_window_handle: Gets the current window that this #GstGLWindow is
- *                     rendering into
+ * @set_window_handle: Set a window handle to render into
+ * @get_window_handle: Gets the current window handle that this #GstGLWindow is
+ *                     rendering into.  This may return a different value to
+ *                     what is passed into @set_window_handle
  * @draw: redraw the window with the specified dimensions
  * @run: run the mainloop
  * @quit: send a quit to the mainloop
@@ -127,7 +137,7 @@ struct _GstGLWindowClass {
   GstObjectClass parent_class;
 
   guintptr (*get_display)        (GstGLWindow *window);
-  void     (*set_window_handle)  (GstGLWindow *window, guintptr id);
+  void     (*set_window_handle)  (GstGLWindow *window, guintptr handle);
   guintptr (*get_window_handle)  (GstGLWindow *window);
   void     (*draw)               (GstGLWindow *window);
   void     (*run)                (GstGLWindow *window);
@@ -146,11 +156,6 @@ struct _GstGLWindowClass {
   /*< private >*/
   gpointer _reserved[GST_PADDING];
 };
-
-GST_EXPORT
-GQuark gst_gl_window_error_quark (void);
-GST_EXPORT
-GType gst_gl_window_get_type     (void);
 
 GST_EXPORT
 GstGLWindow * gst_gl_window_new  (GstGLDisplay *display);
@@ -183,8 +188,6 @@ void     gst_gl_window_run                  (GstGLWindow *window);
 GST_EXPORT
 void     gst_gl_window_quit                 (GstGLWindow *window);
 GST_EXPORT
-gboolean gst_gl_window_is_running           (GstGLWindow *window);
-GST_EXPORT
 void     gst_gl_window_send_message         (GstGLWindow *window,
                                              GstGLWindowCB callback,
                                              gpointer data);
@@ -204,17 +207,7 @@ void     gst_gl_window_send_key_event       (GstGLWindow * window,
                                              const char * event_type,
                                              const char * key_str);
 GST_EXPORT
-void     gst_gl_window_send_key_event_async (GstGLWindow * window,
-                                             const char * event_type,
-                                             const char * key_str);
-GST_EXPORT
 void     gst_gl_window_send_mouse_event     (GstGLWindow * window,
-                                             const char * event_type,
-                                             int button,
-                                             double posx,
-                                             double posy);
-GST_EXPORT
-void     gst_gl_window_send_mouse_event_async (GstGLWindow * window,
                                              const char * event_type,
                                              int button,
                                              double posx,

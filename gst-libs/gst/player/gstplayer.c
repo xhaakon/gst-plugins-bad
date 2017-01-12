@@ -70,12 +70,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_player_debug);
 GQuark
 gst_player_error_quark (void)
 {
-  static GQuark quark;
-
-  if (!quark)
-    quark = g_quark_from_static_string ("gst-player-error-quark");
-
-  return quark;
+  return g_quark_from_static_string ("gst-player-error-quark");
 }
 
 static GQuark QUARK_CONFIG;
@@ -85,6 +80,7 @@ typedef enum
 {
   CONFIG_QUARK_USER_AGENT = 0,
   CONFIG_QUARK_POSITION_INTERVAL_UPDATE,
+  CONFIG_QUARK_ACCURATE_SEEK,
 
   CONFIG_QUARK_MAX
 } ConfigQuarkId;
@@ -92,6 +88,7 @@ typedef enum
 static const gchar *_config_quark_strings[] = {
   "user-agent",
   "position-interval-update",
+  "accurate-seek",
 };
 
 GQuark _config_quark_table[CONFIG_QUARK_MAX];
@@ -169,6 +166,7 @@ struct _GstPlayer
   GstState target_state, current_state;
   gboolean is_live, is_eos;
   GSource *tick_source, *ready_timeout_source;
+  GstClockTime cached_duration;
 
   gdouble rate;
 
@@ -266,6 +264,7 @@ gst_player_init (GstPlayer * self)
   /* *INDENT-OFF* */
   self->config = gst_structure_new_id (QUARK_CONFIG,
       CONFIG_QUARK (POSITION_INTERVAL_UPDATE), G_TYPE_UINT, DEFAULT_POSITION_UPDATE_INTERVAL_MS,
+      CONFIG_QUARK (ACCURATE_SEEK), G_TYPE_BOOLEAN, FALSE,
       NULL);
   /* *INDENT-ON* */
 
@@ -741,10 +740,7 @@ gst_player_get_property (GObject * object, guint prop_id,
       break;
     }
     case PROP_DURATION:{
-      gint64 duration = 0;
-
-      gst_element_query_duration (self->playbin, GST_FORMAT_TIME, &duration);
-      g_value_set_uint64 (value, duration);
+      g_value_set_uint64 (value, self->cached_duration);
       GST_TRACE_OBJECT (self, "Returning duration=%" GST_TIME_FORMAT,
           GST_TIME_ARGS (g_value_get_uint64 (value)));
       break;
@@ -1486,6 +1482,8 @@ emit_duration_changed (GstPlayer * self, GstClockTime duration)
   GST_DEBUG_OBJECT (self, "Duration changed %" GST_TIME_FORMAT,
       GST_TIME_ARGS (duration));
 
+  self->cached_duration = duration;
+
   if (g_signal_handler_find (self, G_SIGNAL_MATCH_ID,
           signals[SIGNAL_DURATION_CHANGED], 0, NULL, NULL, NULL) != 0) {
     DurationChangedSignalData *data = g_new (DurationChangedSignalData, 1);
@@ -1593,6 +1591,8 @@ state_changed_cb (G_GNUC_UNUSED GstBus * bus, GstMessage * msg,
       if (gst_element_query_duration (self->playbin, GST_FORMAT_TIME,
               &duration)) {
         emit_duration_changed (self, duration);
+      } else {
+        self->cached_duration = GST_CLOCK_TIME_NONE;
       }
     }
 
@@ -2366,7 +2366,8 @@ get_from_tags (GstPlayer * self, GstPlayerMediaInfo * media_info,
 
   /* if global tag does not exit then try video and audio streams */
   GST_DEBUG_OBJECT (self, "trying video tags");
-  for (l = gst_player_get_video_streams (media_info); l != NULL; l = l->next) {
+  for (l = gst_player_media_info_get_video_streams (media_info); l != NULL;
+      l = l->next) {
     GstTagList *tags;
 
     tags = gst_player_stream_info_get_tags ((GstPlayerStreamInfo *) l->data);
@@ -2378,7 +2379,8 @@ get_from_tags (GstPlayer * self, GstPlayerMediaInfo * media_info,
   }
 
   GST_DEBUG_OBJECT (self, "trying audio tags");
-  for (l = gst_player_get_audio_streams (media_info); l != NULL; l = l->next) {
+  for (l = gst_player_media_info_get_audio_streams (media_info); l != NULL;
+      l = l->next) {
     GstTagList *tags;
 
     tags = gst_player_stream_info_get_tags ((GstPlayerStreamInfo *) l->data);
@@ -2905,6 +2907,7 @@ gst_player_stop_internal (GstPlayer * self, gboolean transient)
       GST_PLAYER_STATE_STOPPED ? GST_PLAYER_STATE_BUFFERING :
       GST_PLAYER_STATE_STOPPED);
   self->buffering = 100;
+  self->cached_duration = GST_CLOCK_TIME_NONE;
   g_mutex_lock (&self->lock);
   if (self->media_info) {
     g_object_unref (self->media_info);
@@ -2967,6 +2970,7 @@ gst_player_seek_internal_locked (GstPlayer * self)
   GstStateChangeReturn state_ret;
   GstEvent *s_event;
   GstSeekFlags flags = 0;
+  gboolean accurate = FALSE;
 
   if (self->seek_source) {
     g_source_destroy (self->seek_source);
@@ -3001,6 +3005,14 @@ gst_player_seek_internal_locked (GstPlayer * self)
   self->is_eos = FALSE;
 
   flags |= GST_SEEK_FLAG_FLUSH;
+
+  accurate = gst_player_config_get_seek_accurate (self->config);
+
+  if (accurate) {
+    flags |= GST_SEEK_FLAG_ACCURATE;
+  } else {
+    flags &= ~GST_SEEK_FLAG_ACCURATE;
+  }
 
   if (rate != 1.0) {
     flags |= GST_SEEK_FLAG_TRICKMODE;
@@ -4198,4 +4210,52 @@ gst_player_config_get_position_update_interval (const GstStructure * config)
       CONFIG_QUARK (POSITION_INTERVAL_UPDATE), G_TYPE_UINT, &interval, NULL);
 
   return interval;
+}
+
+/**
+ * gst_player_config_set_seek_accurate:
+ * @player: #GstPlayer instance
+ * @accurate: accurate seek or not
+ *
+ * Enable or disable accurate seeking. When enabled, elements will try harder
+ * to seek as accurately as possible to the requested seek position. Generally
+ * it will be slower especially for formats that don't have any indexes or
+ * timestamp markers in the stream.
+ *
+ * If accurate seeking is disabled, elements will seek as close as the request
+ * position without slowing down seeking too much.
+ *
+ * Accurate seeking is disabled by default.
+ *
+ * Since: 1.12
+ */
+void
+gst_player_config_set_seek_accurate (GstPlayer * self, gboolean accurate)
+{
+  GstStructure *config = self->config;
+  g_return_if_fail (config != NULL);
+
+  gst_structure_id_set (config,
+      CONFIG_QUARK (ACCURATE_SEEK), G_TYPE_BOOLEAN, accurate, NULL);
+}
+
+/**
+ * gst_player_config_get_seek_accurate:
+ * @config: a #GstPlayer configuration
+ *
+ * Returns: %TRUE if accurate seeking is enabled
+ *
+ * Since 1.12
+ */
+gboolean
+gst_player_config_get_seek_accurate (const GstStructure * config)
+{
+  gboolean accurate = FALSE;
+
+  g_return_val_if_fail (config != NULL, FALSE);
+
+  gst_structure_id_get (config,
+      CONFIG_QUARK (ACCURATE_SEEK), G_TYPE_BOOLEAN, &accurate, NULL);
+
+  return accurate;
 }

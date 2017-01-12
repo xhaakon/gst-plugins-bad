@@ -1301,6 +1301,7 @@ GST_START_TEST (dash_mpdparser_contentProtection_no_value)
   const gchar *xml =
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
       "<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\""
+      "     xmlns:mspr=\"urn:microsoft:playready\""
       "     profiles=\"urn:mpeg:dash:profile:isoff-main:2011\">"
       "  <Period>"
       "    <AdaptationSet>"
@@ -1309,6 +1310,9 @@ GST_START_TEST (dash_mpdparser_contentProtection_no_value)
       "	      <mas:MarlinContentIds>"
       "	        <mas:MarlinContentId>urn:marlin:kid:02020202020202020202020202020202</mas:MarlinContentId>"
       "       </mas:MarlinContentIds>"
+      "      </ContentProtection>"
+      "      <ContentProtection schemeIdUri=\"urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95\" value=\"MSPR 2.0\">"
+      "        <mspr:pro>dGVzdA==</mspr:pro>"
       "     </ContentProtection>" "</AdaptationSet></Period></MPD>";
 
   gboolean ret;
@@ -1321,7 +1325,7 @@ GST_START_TEST (dash_mpdparser_contentProtection_no_value)
   periodNode = (GstPeriodNode *) mpdclient->mpd_node->Periods->data;
   adaptationSet = (GstAdaptationSetNode *) periodNode->AdaptationSets->data;
   representationBase = adaptationSet->RepresentationBase;
-  assert_equals_int (g_list_length (representationBase->ContentProtection), 2);
+  assert_equals_int (g_list_length (representationBase->ContentProtection), 3);
   contentProtection =
       (GstDescriptorType *) g_list_nth (representationBase->ContentProtection,
       1)->data;
@@ -2568,7 +2572,9 @@ GST_START_TEST (dash_mpdparser_template_parsing)
   };
 
   guint count = sizeof (testUrl) / sizeof (testUrl[0]);
-  for (int i = 0; i < count; i++) {
+  gint i;
+
+  for (i = 0; i < count; i++) {
     result =
         gst_mpdparser_build_URL_from_template (testUrl[i].urlTemplate, id,
         number, bandwidth, time);
@@ -3408,6 +3414,7 @@ GST_START_TEST (dash_mpdparser_get_audio_languages)
 
   gboolean ret;
   GstMpdClient *mpdclient = gst_mpd_client_new ();
+  gint i;
 
   ret = gst_mpd_parse (mpdclient, xml, (gint) strlen (xml));
   assert_equals_int (ret, TRUE);
@@ -3424,7 +3431,7 @@ GST_START_TEST (dash_mpdparser_get_audio_languages)
 
   /* setup streaming from all adaptation sets */
   adaptationSetsCount = gst_mpdparser_get_nb_adaptationSet (mpdclient);
-  for (int i = 0; i < adaptationSetsCount; i++) {
+  for (i = 0; i < adaptationSetsCount; i++) {
     adapt_set = (GstAdaptationSetNode *) g_list_nth_data (adaptationSets, i);
     fail_if (adapt_set == NULL);
     ret = gst_mpd_client_setup_streaming (mpdclient, adapt_set);
@@ -3459,6 +3466,7 @@ setup_mpd_client (const gchar * xml)
   guint adaptationSetsCount;
   gboolean ret;
   GstMpdClient *mpdclient = gst_mpd_client_new ();
+  gint i;
 
   ret = gst_mpd_parse (mpdclient, xml, (gint) strlen (xml));
   assert_equals_int (ret, TRUE);
@@ -3475,7 +3483,7 @@ setup_mpd_client (const gchar * xml)
 
   /* setup streaming from all adaptation sets */
   adaptationSetsCount = gst_mpdparser_get_nb_adaptationSet (mpdclient);
-  for (int i = 0; i < adaptationSetsCount; i++) {
+  for (i = 0; i < adaptationSetsCount; i++) {
     adapt_set = (GstAdaptationSetNode *) g_list_nth_data (adaptationSets, i);
     fail_if (adapt_set == NULL);
     ret = gst_mpd_client_setup_streaming (mpdclient, adapt_set);
@@ -5525,6 +5533,109 @@ GST_START_TEST (dash_mpdparser_maximum_segment_duration)
 GST_END_TEST;
 
 /*
+ * Test parsing of Perioud using @xlink:href attribute
+ */
+
+#define STRINGIFY_(x) #x
+#define STRINGIFY(x) STRINGIFY_ (x)
+#define REMOTEDIR STRINGIFY (DASH_MPD_DATADIR)
+#define XLINK_SINGLE_PERIOD_FILENAME REMOTEDIR "/xlink_single_period.period"
+#define XLINK_DOUBLE_PERIOD_FILENAME REMOTEDIR "/xlink_double_period.period"
+
+GST_START_TEST (dash_mpdparser_xlink_period)
+{
+  GstPeriodNode *periodNode;
+  GstUriDownloader *downloader;
+  GstMpdClient *mpdclient;
+  GList *period_list, *iter;
+  gboolean ret;
+  gchar *xml_joined, *file_uri_single_period, *file_uri_double_period;
+  const gchar *xml_frag_start =
+      "<?xml version=\"1.0\"?>"
+      "<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\""
+      "     profiles=\"urn:mpeg:dash:profile:isoff-main:2011\">"
+      "  <Period id=\"Period0\" duration=\"PT5S\"></Period>";
+
+  const gchar *xml_uri_front = "  <Period xlink:href=\"";
+
+  const gchar *xml_uri_rear =
+      "\""
+      "          xlink:actuate=\"onRequest\""
+      "          xmlns:xlink=\"http://www.w3.org/1999/xlink\"></Period>";
+
+  const gchar *xml_frag_end = "</MPD>";
+
+  /* XLINK_ONE_PERIOD_FILENAME
+   *
+   * <Period id="xlink-single-period-Period1" duration="PT10S" xmlns="urn:mpeg:dash:schema:mpd:2011"></Period>
+   */
+
+  /* XLINK_TWO_PERIODS_FILENAME
+   *
+   * <Period id="xlink-double-period-Period1" duration="PT10S" xmlns="urn:mpeg:dash:schema:mpd:2011"></Period>
+   * <Period id="xlink-double-period-Period2" duration="PT20S" xmlns="urn:mpeg:dash:schema:mpd:2011"></Period>
+   */
+
+
+  mpdclient = gst_mpd_client_new ();
+  downloader = gst_uri_downloader_new ();
+
+  gst_mpd_client_set_uri_downloader (mpdclient, downloader);
+
+  file_uri_single_period =
+      gst_filename_to_uri (XLINK_SINGLE_PERIOD_FILENAME, NULL);
+  file_uri_double_period =
+      gst_filename_to_uri (XLINK_DOUBLE_PERIOD_FILENAME, NULL);
+
+  /* constructs inital mpd using external xml uri */
+  /* For invalid URI, mpdparser should be ignore it */
+  xml_joined = g_strjoin ("", xml_frag_start,
+      xml_uri_front, "http://404/ERROR/XML.period", xml_uri_rear,
+      xml_uri_front, (const char *) file_uri_single_period, xml_uri_rear,
+      xml_uri_front, (const char *) file_uri_double_period, xml_uri_rear,
+      xml_frag_end, NULL);
+
+  ret = gst_mpd_parse (mpdclient, xml_joined, (gint) strlen (xml_joined));
+  assert_equals_int (ret, TRUE);
+
+  period_list = mpdclient->mpd_node->Periods;
+  /* only count periods on initial mpd (external xml does not parsed yet) */
+  assert_equals_int (g_list_length (period_list), 4);
+
+  /* process the xml data */
+  ret = gst_mpd_client_setup_media_presentation (mpdclient, GST_CLOCK_TIME_NONE,
+      -1, NULL);
+  assert_equals_int (ret, TRUE);
+
+  period_list = mpdclient->mpd_node->Periods;
+  assert_equals_int (g_list_length (period_list), 4);
+
+  iter = period_list;
+  periodNode = (GstPeriodNode *) iter->data;
+  assert_equals_string (periodNode->id, "Period0");
+
+  iter = iter->next;
+  periodNode = (GstPeriodNode *) iter->data;
+  assert_equals_string (periodNode->id, "xlink-single-period-Period1");
+
+  iter = iter->next;
+  periodNode = (GstPeriodNode *) iter->data;
+  assert_equals_string (periodNode->id, "xlink-double-period-Period1");
+
+  iter = iter->next;
+  periodNode = (GstPeriodNode *) iter->data;
+  assert_equals_string (periodNode->id, "xlink-double-period-Period2");
+
+  gst_mpd_client_free (mpdclient);
+  g_object_unref (downloader);
+  g_free (file_uri_single_period);
+  g_free (file_uri_double_period);
+  g_free (xml_joined);
+}
+
+GST_END_TEST;
+
+/*
  * create a test suite containing all dash testcases
  */
 static Suite *
@@ -5649,6 +5760,9 @@ dash_suite (void)
   tcase_add_test (tc_simpleMPD, dash_mpdparser_bitstreamSwitching_inheritance);
   tcase_add_test (tc_simpleMPD, dash_mpdparser_various_duration_formats);
   tcase_add_test (tc_simpleMPD, dash_mpdparser_default_presentation_delay);
+
+  /* tests checking xlink attributes */
+  tcase_add_test (tc_simpleMPD, dash_mpdparser_xlink_period);
 
   /* tests checking the MPD management
    * (eg. setting active streams, obtaining attributes values)

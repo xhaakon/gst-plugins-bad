@@ -822,22 +822,6 @@ gst_dash_demux_get_type
 </SECTION>
 
 <SECTION>
-<FILE>element-dataurisrc</FILE>
-<TITLE>dataurisrc</TITLE>
-GstDataURISrc
-<SUBSECTION Standard>
-GstDataURISrcClass
-GST_DATA_URI_SRC
-GST_DATA_URI_SRC_CAST
-GST_IS_DATA_URI_SRC
-GST_DATA_URI_SRC_CLASS
-GST_IS_DATA_URI_SRC_CLASS
-GST_TYPE_DATA_URI_SRC
-<SUBSECTION Private>
-gst_data_uri_src_get_type
-</SECTION>
-
-<SECTION>
 <FILE>element-dc1394</FILE>
 <TITLE>dc1394</TITLE>
 GstDc1394
@@ -849,62 +833,6 @@ GST_IS_DC1394
 GST_IS_DC1394_CLASS
 GST_TYPE_DC1394
 gst_dc1394_get_type
-</SECTION>
-
-<SECTION>
-<FILE>element-dccpclientsink</FILE>
-<TITLE>dccpclientsink</TITLE>
-GstDCCPClientSink
-<SUBSECTION Standard>
-GstDCCPClientSinkClass
-GST_DCCP_CLIENT_SINK
-GST_DCCP_CLIENT_SINK_CLASS
-GST_IS_DCCP_CLIENT_SINK
-GST_IS_DCCP_CLIENT_SINK_CLASS
-GST_TYPE_DCCP_CLIENT_SINK
-gst_dccp_client_sink_get_type
-</SECTION>
-
-<SECTION>
-<FILE>element-dccpclientsrc</FILE>
-<TITLE>dccpclientsrc</TITLE>
-GstDCCPClientSrc
-<SUBSECTION Standard>
-GstDCCPClientSrcClass
-GST_DCCP_CLIENT_SRC
-GST_DCCP_CLIENT_SRC_CLASS
-GST_IS_DCCP_CLIENT_SRC
-GST_IS_DCCP_CLIENT_SRC_CLASS
-GST_TYPE_DCCP_CLIENT_SRC
-gst_dccp_client_src_get_type
-</SECTION>
-
-<SECTION>
-<FILE>element-dccpserversink</FILE>
-<TITLE>dccpserversink</TITLE>
-GstDCCPServerSink
-<SUBSECTION Standard>
-GstDCCPServerSinkClass
-GST_DCCP_SERVER_SINK
-GST_DCCP_SERVER_SINK_CLASS
-GST_IS_DCCP_SERVER_SINK
-GST_IS_DCCP_SERVER_SINK_CLASS
-GST_TYPE_DCCP_SERVER_SINK
-gst_dccp_server_sink_get_type
-</SECTION>
-
-<SECTION>
-<FILE>element-dccpserversrc</FILE>
-<TITLE>dccpserversrc</TITLE>
-GstDCCPServerSrc
-<SUBSECTION Standard>
-GstDCCPServerSrcClass
-GST_DCCP_SERVER_SRC
-GST_DCCP_SERVER_SRC_CLASS
-GST_IS_DCCP_SERVER_SRC
-GST_IS_DCCP_SERVER_SRC_CLASS
-GST_TYPE_DCCP_SERVER_SRC
-gst_dccp_server_src_get_type
 </SECTION>
 
 <SECTION>
@@ -2282,6 +2210,18 @@ gst_interlace_get_type
 </SECTION>
 
 <SECTION>
+<FILE>element-iqa</FILE>
+<TITLE>IQA</TITLE>
+Iqa
+<SUBSECTION Standard>
+IqaClass
+IQA
+GST_TYPE_IQA
+iqa_get_type
+gst_iqa_plugin_init
+</SECTION>
+
+<SECTION>
 <FILE>element-ivfparse</FILE>
 <TITLE>ivfparse</TITLE>
 GstIvfParse
@@ -2822,21 +2762,6 @@ gst_net_sim_get_type
 </SECTION>
 
 <SECTION>
-<FILE>element-nuvdemux</FILE>
-<TITLE>nuvdemux</TITLE>
-GstNuvDemux
-<SUBSECTION Standard>
-GstNuvDemuxClass
-GstNuvDemuxState
-GST_NUV_DEMUX
-GST_NUV_DEMUX_CLASS
-GST_IS_NUV_DEMUX
-GST_IS_NUV_DEMUX_CLASS
-GST_TYPE_NUV_DEMUX
-gst_nuv_demux_get_type
-</SECTION>
-
-<SECTION>
 <FILE>element-neonhttpsrc</FILE>
 <TITLE>neonhttpsrc</TITLE>
 GstNeonhttpSrc
@@ -3298,37 +3223,6 @@ GST_IS_RTP_ONVIF_TIMESTAMP_CLASS
 GST_TYPE_RTP_ONVIF_TIMESTAMP
 <SUBSECTION Private>
 gst_rtp_onvif_timestamp_get_type
-</SECTION>
-
-<SECTION>
-<FILE>element-sdlaudiosink</FILE>
-<TITLE>sdlaudiosink</TITLE>
-GstSDLAudioSink
-<SUBSECTION Standard>
-GstSDLAudioSinkClass
-GST_SDLAUDIOSINK
-GST_SDLAUDIOSINK_CLASS
-GST_IS_SDLAUDIOSINK
-GST_IS_SDLAUDIOSINK_CLASS
-GST_TYPE_SDLAUDIOSINK
-gst_sdlaudio_sink_get_type
-<SUBSECTION Private>
-gstsdl_semaphore
-</SECTION>
-
-<SECTION>
-<FILE>element-sdlvideosink</FILE>
-<TITLE>sdlvideosink</TITLE>
-GstSDLVideoSink
-<SUBSECTION Standard>
-GstSDLVideoSinkFlags
-GstSDLVideoSinkClass
-GST_SDLVIDEOSINK
-GST_SDLVIDEOSINK_CLASS
-GST_IS_SDLVIDEOSINK
-GST_IS_SDLVIDEOSINK_CLASS
-GST_TYPE_SDLVIDEOSINK
-gst_sdlvideosink_get_type
 </SECTION>
 
 <SECTION>
@@ -3843,20 +3737,6 @@ GST_IS_TONE_GENERATE_SRC_CLASS
 GST_TYPE_TONE_GENERATE_SRC
 <SUBSECTION Private>
 gst_tone_generate_src_get_type
-</SECTION>
-
-<SECTION>
-<FILE>element-timidity</FILE>
-<TITLE>timidity</TITLE>
-GstTimidity
-<SUBSECTION Standard>
-GstTimidityClass
-GST_TIMIDITY
-GST_TIMIDITY_CLASS
-GST_IS_TIMIDITY
-GST_IS_TIMIDITY_CLASS
-GST_TYPE_TIMIDITY
-gst_timidity_get_type
 </SECTION>
 
 <SECTION>
@@ -4805,3 +4685,22 @@ GST_TYPE_FFECTS_XRAY
 gst_ffects_xray_get_type
 </SECTION>
 
+<SECTION>
+<FILE>element-ttmlparse</FILE>
+<TITLE>ttmlparse</TITLE>
+GstTtmlParse
+<SUBSECTION Standard>
+GstTtmlParseClass
+GST_TYPE_TTML_PARSE
+gst_ttml_parse_get_type
+</SECTION>
+
+<SECTION>
+<FILE>element-ttmlrender</FILE>
+<TITLE>ttmlrender</TITLE>
+GstTtmlRender
+<SUBSECTION Standard>
+GstTtmlRenderClass
+GST_TYPE_TTML_RENDER
+gst_ttml_render_get_type
+</SECTION>

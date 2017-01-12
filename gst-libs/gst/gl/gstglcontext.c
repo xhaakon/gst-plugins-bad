@@ -46,6 +46,7 @@
 
 #include "gl.h"
 #include "gstglcontext.h"
+#include "gstglfeature_private.h"
 
 #ifndef GL_NUM_EXTENSIONS
 #define GL_NUM_EXTENSIONS 0x0000821d
@@ -186,12 +187,14 @@ GST_DEBUG_CATEGORY_STATIC (gst_gl_debug);
 G_DEFINE_ABSTRACT_TYPE (GstGLContext, gst_gl_context, GST_TYPE_OBJECT);
 
 #define GST_GL_CONTEXT_GET_PRIVATE(o) \
-  (G_TYPE_INSTANCE_GET_PRIVATE((o), GST_GL_TYPE_CONTEXT, GstGLContextPrivate))
+  (G_TYPE_INSTANCE_GET_PRIVATE((o), GST_TYPE_GL_CONTEXT, GstGLContextPrivate))
 
 static void _init_debug (void);
 
 static gpointer gst_gl_context_create_thread (GstGLContext * context);
 static void gst_gl_context_finalize (GObject * object);
+static void gst_gl_context_default_get_gl_platform_version (GstGLContext *
+    context, gint * major, gint * minor);
 
 struct _GstGLContextPrivate
 {
@@ -230,16 +233,16 @@ typedef struct
   GstGLContextClass parent;
 } GstGLWrappedContextClass;
 
-#define GST_GL_TYPE_WRAPPED_CONTEXT (gst_gl_wrapped_context_get_type())
+#define GST_TYPE_GL_WRAPPED_CONTEXT (gst_gl_wrapped_context_get_type())
 GType gst_gl_wrapped_context_get_type (void);
 G_DEFINE_TYPE (GstGLWrappedContext, gst_gl_wrapped_context,
-    GST_GL_TYPE_CONTEXT);
+    GST_TYPE_GL_CONTEXT);
 
-#define GST_GL_WRAPPED_CONTEXT(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), GST_GL_TYPE_WRAPPED_CONTEXT, GstGLWrappedContext))
-#define GST_GL_WRAPPED_CONTEXT_CLASS(k)     (G_TYPE_CHECK_CLASS((k), GST_GL_TYPE_CONTEXT, GstGLContextClass))
-#define GST_IS_GL_WRAPPED_CONTEXT(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), GST_GL_TYPE_WRAPPED_CONTEXT))
-#define GST_IS_GL_WRAPPED_CONTEXT_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_GL_TYPE_WRAPPED_CONTEXT))
-#define GST_GL_WRAPPED_CONTEXT_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), GST_GL_TYPE_WRAPPED_CONTEXT, GstGLWrappedContextClass))
+#define GST_GL_WRAPPED_CONTEXT(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), GST_TYPE_GL_WRAPPED_CONTEXT, GstGLWrappedContext))
+#define GST_GL_WRAPPED_CONTEXT_CLASS(k)     (G_TYPE_CHECK_CLASS((k), GST_TYPE_GL_CONTEXT, GstGLContextClass))
+#define GST_IS_GL_WRAPPED_CONTEXT(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), GST_TYPE_GL_WRAPPED_CONTEXT))
+#define GST_IS_GL_WRAPPED_CONTEXT_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), GST_TYPE_GL_WRAPPED_CONTEXT))
+#define GST_GL_WRAPPED_CONTEXT_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), GST_TYPE_GL_WRAPPED_CONTEXT, GstGLWrappedContextClass))
 
 GQuark
 gst_gl_context_error_quark (void)
@@ -255,7 +258,7 @@ _ensure_window (GstGLContext * context)
   if (context->window)
     return;
 
-  window = gst_gl_window_new (context->display);
+  window = gst_gl_display_create_window (context->display);
 
   gst_gl_context_set_window (context, window);
 
@@ -286,6 +289,8 @@ gst_gl_context_class_init (GstGLContextClass * klass)
 
   klass->get_proc_address =
       GST_DEBUG_FUNCPTR (gst_gl_context_default_get_proc_address);
+  klass->get_gl_platform_version =
+      GST_DEBUG_FUNCPTR (gst_gl_context_default_get_gl_platform_version);
 
   G_OBJECT_CLASS (klass)->finalize = gst_gl_context_finalize;
 
@@ -396,7 +401,7 @@ gst_gl_context_new_wrapped (GstGLDisplay * display, guintptr handle,
   g_return_val_if_fail ((display_api & available_apis) != GST_GL_API_NONE,
       NULL);
 
-  context_wrap = g_object_new (GST_GL_TYPE_WRAPPED_CONTEXT, NULL);
+  context_wrap = g_object_new (GST_TYPE_GL_WRAPPED_CONTEXT, NULL);
 
   if (!context_wrap) {
     /* subclass returned a NULL context */
@@ -897,12 +902,8 @@ gst_gl_context_set_window (GstGLContext * context, GstGLWindow * window)
   if (context->priv->alive)
     return FALSE;
 
-  if (window) {
-    if (gst_gl_window_is_running (window))
-      return FALSE;
-
+  if (window)
     g_weak_ref_set (&window->context_ref, context);
-  }
 
   if (context->window)
     gst_object_unref (context->window);
@@ -1669,6 +1670,10 @@ gboolean
 gst_gl_context_is_shared (GstGLContext * context)
 {
   g_return_val_if_fail (GST_IS_GL_CONTEXT (context), FALSE);
+
+  if (!context->priv->sharegroup)
+    return FALSE;
+
   if (GST_IS_GL_WRAPPED_CONTEXT (context))
     g_return_val_if_fail (context->priv->active_thread, FALSE);
   else
@@ -1699,6 +1704,40 @@ gst_gl_context_set_shared_with (GstGLContext * context, GstGLContext * share)
     _context_share_group_unref (context->priv->sharegroup);
   context->priv->sharegroup =
       _context_share_group_ref (share->priv->sharegroup);
+}
+
+static void
+gst_gl_context_default_get_gl_platform_version (GstGLContext * context,
+    gint * major, gint * minor)
+{
+  if (major)
+    *major = 0;
+  if (minor)
+    *minor = 0;
+}
+
+/**
+ * gst_gl_context_get_gl_platform_version:
+ * @context: a #GstGLContext
+ * @major: (out): return for the major version
+ * @minor: (out): return for the minor version
+ *
+ * Get the version of the OpenGL platform (GLX, EGL, etc) used.  Only valid
+ * after a call to gst_gl_context_create_context().
+ */
+void
+gst_gl_context_get_gl_platform_version (GstGLContext * context, gint * major,
+    gint * minor)
+{
+  GstGLContextClass *context_class;
+
+  g_return_if_fail (GST_IS_GL_CONTEXT (context));
+  g_return_if_fail (major != NULL);
+  g_return_if_fail (minor != NULL);
+  context_class = GST_GL_CONTEXT_GET_CLASS (context);
+  g_return_if_fail (context_class->get_gl_platform_version != NULL);
+
+  context_class->get_gl_platform_version (context, major, minor);
 }
 
 static GstGLAPI

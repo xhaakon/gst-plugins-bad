@@ -26,13 +26,16 @@
 
 #include <wayland-client-protocol.h>
 #include <gst/video/video.h>
+#include <drm_fourcc.h>
 
 G_BEGIN_DECLS
 
 enum wl_shm_format gst_video_format_to_wl_shm_format (GstVideoFormat format);
+gint gst_video_format_to_wl_dmabuf_format (GstVideoFormat format);
 GstVideoFormat gst_wl_shm_format_to_video_format (enum wl_shm_format wl_format);
-
+GstVideoFormat gst_wl_dmabuf_format_to_video_format (guint wl_format);
 const gchar *gst_wl_shm_format_to_string (enum wl_shm_format wl_format);
+const gchar *gst_wl_dmabuf_format_to_string (guint wl_format);
 
 G_END_DECLS
 

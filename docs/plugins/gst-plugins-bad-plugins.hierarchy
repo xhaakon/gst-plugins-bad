@@ -32,6 +32,7 @@ GObject
         GstAiffParse
         GstAsfMux
         GstAssRender
+        GstAudioBufferSplit
         GstAudioDecoder
           ADPCMDec
           GstDtsDec
@@ -98,11 +99,11 @@ GObject
               GstGtkGLSink
               GstGtkSink
             GstInterVideoSink
+            GstKMSSink
             GstQtSink
             GstWaylandSink
         GstBaseSrc
           GstAvdtpSrc
-          GstDataURISrc
           GstFliteTestSrc
           GstInterAudioSrc
           GstInterSubSrc
@@ -218,27 +219,8 @@ GObject
               GstPerspective
               GstRotate
               GstSquare
-            GstGrabcut
-            GstOpencvVideoFilter
-              GstCvDilateErode
-                GstCvDilate
-                GstCvErode
-              GstCvEqualizeHist
-              GstCvLaplace
-              GstCvSmooth
-              GstCvSobel
-              GstEdgeDetect
-              GstFaceBlur
-              GstFaceDetect
-              GstHanddetect
-              GstMotioncells
-              GstOpencvTextOverlay
-              GstSkinDetect
-              GstTemplateMatch
-            GstRetinex
             GstRsvgOverlay
             GstSceneChange
-            GstSegmentation
             GstSimpleVideoMark
             GstSimpleVideoMarkDetect
             GstSmooth
@@ -288,7 +270,6 @@ GObject
         GstCompare
         GstDVBSubOverlay
         GstDVDSpu
-        GstDisparity
         GstDtlsDec
         GstDtlsEnc
         GstDtlsSrtpDemux
@@ -309,8 +290,6 @@ GObject
           GstKateTag
         GstMXFDemux
         GstMidiParse
-        GstMimDec
-        GstMimEnc
         GstModPlug
         GstMpeg2enc
         GstMpegPSDemux
@@ -381,6 +360,7 @@ GObject
       GstPlugin
       GstPluginFeature
         GstDeviceProviderFactory
+        GstDynamicTypeFactory
         GstElementFactory
         GstTracerFactory
         GstTypeFindFactory

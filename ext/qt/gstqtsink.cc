@@ -105,12 +105,12 @@ gst_qt_sink_class_init (GstQtSinkClass * klass)
   gobject_class->get_property = gst_qt_sink_get_property;
 
   gst_element_class_set_metadata (gstelement_class, "Qt Video Sink",
-      "Sink/Video", "A video sink the renders to a QQuickItem",
+      "Sink/Video", "A video sink that renders to a QQuickItem",
       "Matthew Waters <matthew@centricular.com>");
 
   g_object_class_install_property (gobject_class, PROP_WIDGET,
       g_param_spec_pointer ("widget", "QQuickItem",
-          "The QQuickItem to place in the object heirachy",
+          "The QQuickItem to place in the object hierarchy",
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 
   g_object_class_install_property (gobject_class, PROP_FORCE_ASPECT_RATIO,
@@ -262,7 +262,7 @@ gst_qt_sink_query (GstBaseSink * bsink, GstQuery * query)
           context = gst_context_new ("gst.gl.local_context", FALSE);
 
         s = gst_context_writable_structure (context);
-        gst_structure_set (s, "context", GST_GL_TYPE_CONTEXT, qt_sink->context,
+        gst_structure_set (s, "context", GST_TYPE_GL_CONTEXT, qt_sink->context,
             NULL);
         gst_query_set_context (query, context);
         gst_context_unref (context);
