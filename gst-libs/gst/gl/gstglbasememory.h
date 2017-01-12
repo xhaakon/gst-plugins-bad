@@ -29,6 +29,10 @@
 
 G_BEGIN_DECLS
 
+#define GST_TYPE_GL_BASE_MEMORY (gst_gl_base_memory_get_type())
+GST_EXPORT
+GType gst_gl_base_memory_get_type(void);
+
 #define GST_TYPE_GL_BASE_MEMORY_ALLOCATOR (gst_gl_base_memory_allocator_get_type())
 GST_EXPORT
 GType gst_gl_base_memory_allocator_get_type(void);
@@ -312,7 +316,7 @@ struct _GstGLBaseMemoryAllocator
 /**
  * GstGLBaseMemoryAllocatorClass:
  * @parent_class: the parent class
- * @alloc: a #GstGLBaseMemoryAllocatorAllocFunctions
+ * @alloc: a #GstGLBaseMemoryAllocatorAllocFunction
  * @create: a #GstGLBaseMemoryAllocatorCreateFunction
  * @map: a #GstGLBaseMemoryAllocatorMapFunction
  * @unmap: a #GstGLBaseMemoryAllocatorUnmapFunction
@@ -333,10 +337,6 @@ struct _GstGLBaseMemoryAllocatorClass
   GstGLBaseMemoryAllocatorCopyFunction          copy;
   GstGLBaseMemoryAllocatorDestroyFunction       destroy;
   /* <private> */
-#if 0
-  GstGLBaseMemoryAllocatorFlushFunction         flush;        /* make CPU writes visible to the GPU */
-  GstGLBaseMemoryAllocatorInvalidateFunction    invalidate;   /* make GPU writes visible to the CPU */
-#endif
 
   gpointer                                      _padding[GST_PADDING];
 };

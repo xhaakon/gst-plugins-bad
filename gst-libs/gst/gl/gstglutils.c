@@ -49,93 +49,6 @@
 #define USING_GLES2(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES2, 2, 0))
 #define USING_GLES3(context) (gst_gl_context_check_gl_version (context, GST_GL_API_GLES2, 3, 0))
 
-struct _compile_shader
-{
-  GstGLShader **shader;
-  const gchar *vertex_src;
-  const gchar *fragment_src;
-};
-
-static void
-_compile_shader (GstGLContext * context, struct _compile_shader *data)
-{
-  GstGLShader *shader;
-  GstGLSLStage *vert, *frag;
-  GError *error = NULL;
-
-  shader = gst_gl_shader_new (context);
-
-  if (data->vertex_src) {
-    vert = gst_glsl_stage_new_with_string (context, GL_VERTEX_SHADER,
-        GST_GLSL_VERSION_NONE,
-        GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY, data->vertex_src);
-    if (!gst_glsl_stage_compile (vert, &error)) {
-      GST_ERROR_OBJECT (vert, "%s", error->message);
-      gst_object_unref (vert);
-      gst_object_unref (shader);
-      return;
-    }
-    if (!gst_gl_shader_attach (shader, vert)) {
-      gst_object_unref (shader);
-      return;
-    }
-  }
-
-  if (data->fragment_src) {
-    frag = gst_glsl_stage_new_with_string (context, GL_FRAGMENT_SHADER,
-        GST_GLSL_VERSION_NONE,
-        GST_GLSL_PROFILE_ES | GST_GLSL_PROFILE_COMPATIBILITY,
-        data->fragment_src);
-    if (!gst_glsl_stage_compile (frag, &error)) {
-      GST_ERROR_OBJECT (frag, "%s", error->message);
-      gst_object_unref (frag);
-      gst_object_unref (shader);
-      return;
-    }
-    if (!gst_gl_shader_attach (shader, frag)) {
-      gst_object_unref (shader);
-      return;
-    }
-  }
-
-  if (!gst_gl_shader_link (shader, &error)) {
-    GST_ERROR_OBJECT (shader, "%s", error->message);
-    g_error_free (error);
-    error = NULL;
-    gst_gl_context_clear_shader (context);
-    gst_object_unref (shader);
-    return;
-  }
-
-  *data->shader = shader;
-}
-
-/* Called by glfilter */
-gboolean
-gst_gl_context_gen_shader (GstGLContext * context, const gchar * vert_src,
-    const gchar * frag_src, GstGLShader ** shader)
-{
-  struct _compile_shader data;
-
-  g_return_val_if_fail (frag_src != NULL || vert_src != NULL, FALSE);
-  g_return_val_if_fail (shader != NULL, FALSE);
-
-  data.shader = shader;
-  data.vertex_src = vert_src;
-  data.fragment_src = frag_src;
-
-  gst_gl_context_thread_add (context, (GstGLContextThreadFunc) _compile_shader,
-      &data);
-
-  return *shader != NULL;
-}
-
-/* Called by glfilter */
-void
-gst_gl_context_del_shader (GstGLContext * context, GstGLShader * shader)
-{
-  gst_object_unref (shader);
-}
 
 static gboolean
 gst_gl_display_found (GstElement * element, GstGLDisplay * display)
@@ -398,7 +311,7 @@ gst_gl_handle_set_context (GstElement * element, GstContext * context,
     GstGLDisplay *context_display;
     GstGLDisplay *element_display;
 
-    if (gst_structure_get (s, "context", GST_GL_TYPE_CONTEXT,
+    if (gst_structure_get (s, "context", GST_TYPE_GL_CONTEXT,
             &context_replacement, NULL)) {
       context_display = gst_gl_context_get_display (context_replacement);
       element_display = display_replacement ? display_replacement : *display;
@@ -528,7 +441,7 @@ gst_gl_handle_context_query (GstElement * element, GstQuery * query,
       context = gst_context_new ("gst.gl.app_context", TRUE);
 
     s = gst_context_writable_structure (context);
-    gst_structure_set (s, "context", GST_GL_TYPE_CONTEXT, *other_context, NULL);
+    gst_structure_set (s, "context", GST_TYPE_GL_CONTEXT, *other_context, NULL);
     gst_query_set_context (query, context);
     gst_context_unref (context);
 

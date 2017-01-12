@@ -50,8 +50,10 @@
 #  include <config.h>
 #endif
 
-#include "gstopencvutils.h"
+#include "gst/opencv/gstopencvutils.h"
 #include "gstcvdilateerode.h"
+
+#include <opencv2/core/core_c.h>
 
 /*
 GST_DEBUG_CATEGORY_STATIC (gst_cv_dilate_erode_debug);
@@ -142,6 +144,7 @@ gst_cv_dilate_erode_class_init (GstCvDilateErodeClass * klass)
   gst_element_class_add_pad_template (element_class, templ);
   templ = gst_pad_template_new ("src", GST_PAD_SRC, GST_PAD_ALWAYS, caps);
   gst_element_class_add_pad_template (element_class, templ);
+  gst_caps_unref (caps);
 }
 
 /* initialize the new element

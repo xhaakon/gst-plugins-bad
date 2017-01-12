@@ -328,6 +328,8 @@ caps_to_mime (GstCaps * caps)
     return "video/hevc";
   } else if (strcmp (name, "video/x-vp8") == 0) {
     return "video/x-vnd.on2.vp8";
+  } else if (strcmp (name, "video/x-vp9") == 0) {
+    return "video/x-vnd.on2.vp9";
   } else if (strcmp (name, "video/x-divx") == 0) {
     return "video/mp4v-es";
   }
@@ -2428,7 +2430,7 @@ gst_amc_video_dec_src_query (GstVideoDecoder * bdec, GstQuery * query)
           context = gst_context_new ("gst.gl.local_context", FALSE);
 
         s = gst_context_writable_structure (context);
-        gst_structure_set (s, "context", GST_GL_TYPE_CONTEXT, self->gl_context,
+        gst_structure_set (s, "context", GST_TYPE_GL_CONTEXT, self->gl_context,
             NULL);
         gst_query_set_context (query, context);
         gst_context_unref (context);
@@ -2487,7 +2489,7 @@ _find_local_gl_context (GstAmcVideoDec * self)
     gst_query_parse_context (query, &context);
     if (context) {
       s = gst_context_get_structure (context);
-      gst_structure_get (s, "context", GST_GL_TYPE_CONTEXT, &self->gl_context,
+      gst_structure_get (s, "context", GST_TYPE_GL_CONTEXT, &self->gl_context,
           NULL);
     }
   }

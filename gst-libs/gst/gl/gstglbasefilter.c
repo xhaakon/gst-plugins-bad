@@ -89,6 +89,9 @@ static gboolean gst_gl_base_filter_decide_allocation (GstBaseTransform * trans,
 static void gst_gl_base_filter_gl_start (GstGLContext * context, gpointer data);
 static void gst_gl_base_filter_gl_stop (GstGLContext * context, gpointer data);
 
+static gboolean gst_gl_base_filter_default_gl_start (GstGLBaseFilter * filter);
+static void gst_gl_base_filter_default_gl_stop (GstGLBaseFilter * filter);
+
 static void
 gst_gl_base_filter_class_init (GstGLBaseFilterClass * klass)
 {
@@ -118,9 +121,11 @@ gst_gl_base_filter_class_init (GstGLBaseFilterClass * klass)
       g_param_spec_object ("context",
           "OpenGL context",
           "Get OpenGL context",
-          GST_GL_TYPE_CONTEXT, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+          GST_TYPE_GL_CONTEXT, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   klass->supported_gl_api = GST_GL_API_ANY;
+  klass->gl_start = gst_gl_base_filter_default_gl_start;
+  klass->gl_stop = gst_gl_base_filter_default_gl_stop;
 }
 
 static void
@@ -200,7 +205,7 @@ _find_local_gl_context (GstGLBaseFilter * filter)
     gst_query_parse_context (query, &context);
     if (context) {
       s = gst_context_get_structure (context);
-      gst_structure_get (s, "context", GST_GL_TYPE_CONTEXT, &filter->context,
+      gst_structure_get (s, "context", GST_TYPE_GL_CONTEXT, &filter->context,
           NULL);
     }
   }
@@ -209,7 +214,7 @@ _find_local_gl_context (GstGLBaseFilter * filter)
     gst_query_parse_context (query, &context);
     if (context) {
       s = gst_context_get_structure (context);
-      gst_structure_get (s, "context", GST_GL_TYPE_CONTEXT, &filter->context,
+      gst_structure_get (s, "context", GST_TYPE_GL_CONTEXT, &filter->context,
           NULL);
     }
   }
@@ -267,7 +272,7 @@ gst_gl_base_filter_query (GstBaseTransform * trans, GstPadDirection direction,
           context = gst_context_new ("gst.gl.local_context", FALSE);
 
         s = gst_context_writable_structure (context);
-        gst_structure_set (s, "context", GST_GL_TYPE_CONTEXT, filter->context,
+        gst_structure_set (s, "context", GST_TYPE_GL_CONTEXT, filter->context,
             NULL);
         gst_query_set_context (query, context);
         gst_context_unref (context);
@@ -320,6 +325,12 @@ gst_gl_base_filter_stop (GstBaseTransform * bt)
   return TRUE;
 }
 
+static gboolean
+gst_gl_base_filter_default_gl_start (GstGLBaseFilter * filter)
+{
+  return TRUE;
+}
+
 static void
 gst_gl_base_filter_gl_start (GstGLContext * context, gpointer data)
 {
@@ -329,13 +340,12 @@ gst_gl_base_filter_gl_start (GstGLContext * context, gpointer data)
   gst_gl_insert_debug_marker (filter->context,
       "starting element %s", GST_OBJECT_NAME (filter));
 
-  if (filter_class->gl_start) {
-    filter->priv->gl_result = filter_class->gl_start (filter);
-  } else {
-    filter->priv->gl_result = TRUE;
-  }
+  filter->priv->gl_result = filter_class->gl_start (filter);
+}
 
-  filter->priv->gl_started |= filter->priv->gl_result;
+static void
+gst_gl_base_filter_default_gl_stop (GstGLBaseFilter * filter)
+{
 }
 
 static void
@@ -347,10 +357,8 @@ gst_gl_base_filter_gl_stop (GstGLContext * context, gpointer data)
   gst_gl_insert_debug_marker (filter->context,
       "stopping element %s", GST_OBJECT_NAME (filter));
 
-  if (filter->priv->gl_started) {
-    if (filter_class->gl_stop)
-      filter_class->gl_stop (filter);
-  }
+  if (filter->priv->gl_started)
+    filter_class->gl_stop (filter);
 
   filter->priv->gl_started = FALSE;
 }

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad-1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-11-29 15:49+0200\n"
+"POT-Creation-Date: 2017-01-12 14:40+0200\n"
 "PO-Revision-Date: 2016-11-19 10:21-0800\n"
 "Last-Translator: Božidar Putanec <bozidarp@yahoo.com>\n"
 "Language-Team: Croatian <lokalizacija@linux.hr>\n"
@@ -60,18 +60,6 @@ msgstr ""
 msgid "Could not open sndfile stream for reading."
 msgstr "‘sndfile’ stream (tok podataka) nije moguće otvoriti za čitanje."
 
-msgid "Could not establish connection to sndio"
-msgstr "Spajanje na ‘sndio’ nije moguće uspostaviti"
-
-msgid "Failed to query sndio capabilities"
-msgstr "Nije uspjelo ispitati ‘sndio’ mogućnosti"
-
-msgid "Could not configure sndio"
-msgstr "‘sndio’ nije moguće konfigurirati"
-
-msgid "Could not start sndio"
-msgstr "‘sndio’ nije moguće pokrenuti"
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 "U generiranoj datoteci priprema (preroll vrijeme) je duža od ukupnog "
@@ -99,18 +87,6 @@ msgstr "Nije moguće preuzeti fragmente"
 
 msgid "Internal data stream error."
 msgstr "Interna greška toka (stream) podataka."
-
-msgid "No file name specified for writing."
-msgstr "Nedostaje naziv (nema ga) datoteke za pisanje."
-
-#, c-format
-msgid "Given file name \"%s\" can't be converted to local file name encoding."
-msgstr ""
-"Naziv datoteke „%s“ ne može se pretvoriti u lokalno kodirane naziva datoteka."
-
-#, c-format
-msgid "Could not open file \"%s\" for writing."
-msgstr "Datoteku „%s“ nije moguće otvoriti za pisanje."
 
 #, c-format
 msgid "Device \"%s\" does not exist."
@@ -159,6 +135,30 @@ msgstr "Nije nađena konfiguracijska datoteka kanala: ‘%s’"
 
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "Konfiguracijska datoteka za kanala ne sadrži niti jedan kanal"
+
+#~ msgid "Could not establish connection to sndio"
+#~ msgstr "Spajanje na ‘sndio’ nije moguće uspostaviti"
+
+#~ msgid "Failed to query sndio capabilities"
+#~ msgstr "Nije uspjelo ispitati ‘sndio’ mogućnosti"
+
+#~ msgid "Could not configure sndio"
+#~ msgstr "‘sndio’ nije moguće konfigurirati"
+
+#~ msgid "Could not start sndio"
+#~ msgstr "‘sndio’ nije moguće pokrenuti"
+
+#~ msgid "No file name specified for writing."
+#~ msgstr "Nedostaje naziv (nema ga) datoteke za pisanje."
+
+#~ msgid ""
+#~ "Given file name \"%s\" can't be converted to local file name encoding."
+#~ msgstr ""
+#~ "Naziv datoteke „%s“ ne može se pretvoriti u lokalno kodirane naziva "
+#~ "datoteka."
+
+#~ msgid "Could not open file \"%s\" for writing."
+#~ msgstr "Datoteku „%s“ nije moguće otvoriti za pisanje."
 
 #~ msgid "Internal data flow error."
 #~ msgstr "Interna greška u protoku podataka."

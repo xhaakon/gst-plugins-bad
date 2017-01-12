@@ -103,8 +103,6 @@ static void gst_cv_sobel_set_property (GObject * object, guint prop_id,
 static void gst_cv_sobel_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 
-static gboolean gst_cv_sobel_handle_sink_event (GstPad * pad,
-    GstObject * parent, GstEvent * event);
 static GstFlowReturn gst_cv_sobel_transform (GstOpencvVideoFilter * filter,
     GstBuffer * buf, IplImage * img, GstBuffer * outbuf, IplImage * outimg);
 static gboolean gst_cv_sobel_set_caps (GstOpencvVideoFilter * transform,
@@ -118,7 +116,6 @@ gst_cv_sobel_finalize (GObject * obj)
   GstCvSobel *filter = GST_CV_SOBEL (obj);
 
   if (filter->cvSobel != NULL) {
-    cvReleaseImage (&filter->cvCSobel);
     cvReleaseImage (&filter->cvGray);
     cvReleaseImage (&filter->cvSobel);
   }
@@ -176,9 +173,6 @@ gst_cv_sobel_class_init (GstCvSobelClass * klass)
 static void
 gst_cv_sobel_init (GstCvSobel * filter)
 {
-  gst_pad_set_event_function (GST_BASE_TRANSFORM_SINK_PAD (filter),
-      GST_DEBUG_FUNCPTR (gst_cv_sobel_handle_sink_event));
-
   filter->x_order = DEFAULT_X_ORDER;
   filter->y_order = DEFAULT_Y_ORDER;
   filter->aperture_size = DEFAULT_APERTURE_SIZE;
@@ -196,54 +190,15 @@ gst_cv_sobel_set_caps (GstOpencvVideoFilter * transform,
 {
   GstCvSobel *filter = GST_CV_SOBEL (transform);
 
-  if (filter->cvGray)
-    cvReleaseImage (&filter->cvGray);
-
-  filter->cvGray =
-      cvCreateImage (cvSize (in_width, in_height), IPL_DEPTH_8U, 1);
-
-  return TRUE;
-}
-
-static gboolean
-gst_cv_sobel_handle_sink_event (GstPad * pad, GstObject * parent,
-    GstEvent * event)
-{
-  GstCvSobel *filter;
-  gint width, height;
-  GstStructure *structure;
-  gboolean res = TRUE;
-
-  filter = GST_CV_SOBEL (parent);
-
-  switch (GST_EVENT_TYPE (event)) {
-    case GST_EVENT_CAPS:
-    {
-      GstCaps *caps;
-      gst_event_parse_caps (event, &caps);
-
-      structure = gst_caps_get_structure (caps, 0);
-      gst_structure_get_int (structure, "width", &width);
-      gst_structure_get_int (structure, "height", &height);
-
-      if (filter->cvSobel != NULL) {
-        cvReleaseImage (&filter->cvCSobel);
-        cvReleaseImage (&filter->cvGray);
-        cvReleaseImage (&filter->cvSobel);
-      }
-
-      filter->cvCSobel = cvCreateImage (cvSize (width, height), IPL_DEPTH_8U, 3);
-      filter->cvGray = cvCreateImage (cvSize (width, height), IPL_DEPTH_8U, 1);
-      filter->cvSobel = cvCreateImage (cvSize (width, height), IPL_DEPTH_8U, 1);
-      break;
-    }
-    default:
-      break;
+  if (filter->cvSobel != NULL) {
+      cvReleaseImage (&filter->cvGray);
+      cvReleaseImage (&filter->cvSobel);
   }
 
-  res = gst_pad_event_default (pad, parent, event);
+  filter->cvGray = cvCreateImage (cvSize (in_width, in_height), IPL_DEPTH_8U, 1);
+  filter->cvSobel = cvCreateImage (cvSize (out_width, out_height), IPL_DEPTH_8U, 1);
 
-  return res;
+  return TRUE;
 }
 
 static void
@@ -307,22 +262,17 @@ gst_cv_sobel_transform (GstOpencvVideoFilter * base, GstBuffer * buf,
     IplImage * img, GstBuffer * outbuf, IplImage * outimg)
 {
   GstCvSobel *filter = GST_CV_SOBEL (base);
-  GstMapInfo out_info;
 
   cvCvtColor (img, filter->cvGray, CV_RGB2GRAY);
   cvSobel (filter->cvGray, filter->cvSobel, filter->x_order, filter->y_order,
       filter->aperture_size);
 
-  cvZero (filter->cvCSobel);
+  cvZero (outimg);
   if (filter->mask) {
-    cvCopy (img, filter->cvCSobel, filter->cvSobel);
+    cvCopy (img, outimg, filter->cvSobel);
   } else {
-    cvCvtColor (filter->cvSobel, filter->cvCSobel, CV_GRAY2RGB);
+    cvCvtColor (filter->cvSobel, outimg, CV_GRAY2RGB);
   }
-
-  gst_buffer_map (outbuf, &out_info, GST_MAP_WRITE);
-  memcpy (out_info.data, filter->cvCSobel->imageData,
-      gst_buffer_get_size (outbuf));
 
   return GST_FLOW_OK;
 }

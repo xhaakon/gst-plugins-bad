@@ -29,6 +29,7 @@
 
 #if GST_GL_HAVE_PLATFORM_EGL
 #include "egl/gstglmemoryegl.h"
+#include "egl/gstglcontext_egl.h"
 #endif
 
 #if GST_GL_HAVE_DMABUF
@@ -578,7 +579,8 @@ _dma_buf_upload_accept (gpointer impl, GstBuffer * buffer, GstCaps * in_caps,
   meta = gst_buffer_get_video_meta (buffer);
 
   /* dmabuf upload is only supported with EGL contexts. */
-  if (!GST_IS_GL_CONTEXT_EGL (dmabuf->upload->context))
+  if (gst_gl_context_get_gl_platform (dmabuf->upload->context) !=
+      GST_GL_PLATFORM_EGL)
     return FALSE;
 
   if (!gst_gl_context_check_feature (dmabuf->upload->context,
@@ -862,7 +864,7 @@ _upload_meta_upload_propose_allocation (gpointer impl, GstQuery * decide_query,
 
   gl_context =
       gst_structure_new ("GstVideoGLTextureUploadMeta", "gst.gl.GstGLContext",
-      GST_GL_TYPE_CONTEXT, upload->upload->context, "gst.gl.context.handle",
+      GST_TYPE_GL_CONTEXT, upload->upload->context, "gst.gl.context.handle",
       G_TYPE_POINTER, handle, "gst.gl.context.type", G_TYPE_STRING, platform,
       "gst.gl.context.apis", G_TYPE_STRING, gl_apis, NULL);
   gst_query_add_allocation_meta (query,
@@ -1485,7 +1487,9 @@ restart:
       upload->priv->method->perform (upload->priv->method_impl, buffer,
       &outbuf);
   if (ret == GST_GL_UPLOAD_UNSHARED_GL_CONTEXT) {
-    for (int i = 0; i < G_N_ELEMENTS (upload_methods); i++) {
+    gint i;
+
+    for (i = 0; i < G_N_ELEMENTS (upload_methods); i++) {
       if (upload_methods[i] == &_raw_data_upload) {
         upload->priv->method = &_raw_data_upload;
         upload->priv->method_impl = upload->priv->upload_impl[i];

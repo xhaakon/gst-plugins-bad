@@ -319,10 +319,6 @@ any shaders, viewport state, etc must be setup by the caller.</p>
 
   GstCaps *(*transform_internal_caps) (GstGLFilter *filter,
     GstPadDirection direction, GstCaps * caps, GstCaps * filter_caps);
-
-  /* useful to init and cleanup custom gl resources */
-  void (*display_init_cb)       (GstGLFilter *filter);
-  void (*display_reset_cb)      (GstGLFilter *filter);
 } GstGLFilterClass;
 </pre>
 <div class="refsect3">
@@ -367,16 +363,6 @@ exists</p></td>
 <td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.transform-internal-caps"></a>transform_internal_caps</code></em> ()</p></td>
 <td class="struct_member_description"><p>Perform sub-class specific modifications of the
 caps to be processed between upload on input and before download for output.</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.display-init-cb"></a>display_init_cb</code></em> ()</p></td>
-<td class="struct_member_description"><p>execute arbitrary gl code on start</p></td>
-<td class="struct_member_annotations"> </td>
-</tr>
-<tr>
-<td class="struct_member_name"><p><em class="structfield"><code><a name="GstGLFilterClass.display-reset-cb"></a>display_reset_cb</code></em> ()</p></td>
-<td class="struct_member_description"><p>execute arbitrary gl code at stop</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 </tbody>

@@ -148,15 +148,7 @@
 <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-context-gen-shader" title="gst_gl_context_gen_shader ()">gst_gl_context_gen_shader</a> <span class="c_punctuation">()</span>
-</td>
-</tr>
-<tr>
-<td class="function_type">
-<span class="returnvalue">void</span>
-</td>
-<td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-context-del-shader" title="gst_gl_context_del_shader ()">gst_gl_context_del_shader</a> <span class="c_punctuation">()</span>
+<a class="link" href="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-check-extension" title="gst_gl_check_extension ()">gst_gl_check_extension</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 </tbody>
@@ -368,19 +360,10 @@ gst_gl_multiply_matrix4 (<em class="parameter"><code>const <a href="/usr/share/g
 </div>
 <hr>
 <div class="refsect2">
-<a name="gst-gl-context-gen-shader"></a><h3>gst_gl_context_gen_shader ()</h3>
+<a name="gst-gl-check-extension"></a><h3>gst_gl_check_extension ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-gst_gl_context_gen_shader (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>,
-                           <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *shader_vertex_source</code></em>,
-                           <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *shader_fragment_source</code></em>,
-                           <em class="parameter"><code><a class="link" href="GstGLShader.html" title="GstGLShader"><span class="type">GstGLShader</span></a> **shader</code></em>);</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="gst-gl-context-del-shader"></a><h3>gst_gl_context_del_shader ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>
-gst_gl_context_del_shader (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>,
-                           <em class="parameter"><code><a class="link" href="GstGLShader.html" title="GstGLShader"><span class="type">GstGLShader</span></a> *shader</code></em>);</pre>
+gst_gl_check_extension (<em class="parameter"><code>const <span class="type">char</span> *name</code></em>,
+                        <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *ext</code></em>);</pre>
 </div>
 </div>
 <div class="refsect1">

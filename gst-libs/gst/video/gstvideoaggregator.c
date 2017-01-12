@@ -796,8 +796,6 @@ gst_video_aggregator_update_src_caps (GstVideoAggregator * vagg)
         GstVideoAggregatorPad *pad = GST_VIDEO_AGGREGATOR_PAD (l->data);
 
         if (!vaggpad_klass->set_info (pad, vagg, &pad->info, &vagg->info)) {
-          GST_OBJECT_UNLOCK (vagg);
-
           return FALSE;
         }
       }
@@ -1452,7 +1450,8 @@ gst_video_aggregator_check_reconfigure (GstVideoAggregator * vagg,
 
     ret = gst_video_aggregator_update_src_caps (vagg);
     if (!ret) {
-      if (timeout && gst_pad_needs_reconfigure (GST_AGGREGATOR_SRC_PAD (vagg))) {
+      gst_pad_mark_reconfigure (GST_AGGREGATOR_SRC_PAD (vagg));
+      if (timeout) {
         guint64 frame_duration;
         gint fps_d, fps_n;
 
@@ -1482,7 +1481,10 @@ gst_video_aggregator_check_reconfigure (GstVideoAggregator * vagg,
         vagg->priv->nframes++;
         return GST_FLOW_NEEDS_DATA;
       } else {
-        return GST_FLOW_NOT_NEGOTIATED;
+        if (GST_PAD_IS_FLUSHING (GST_AGGREGATOR_SRC_PAD (vagg)))
+          return GST_FLOW_FLUSHING;
+        else
+          return GST_FLOW_NOT_NEGOTIATED;
       }
     }
   }

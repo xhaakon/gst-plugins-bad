@@ -29,6 +29,7 @@
 #include "gstqsgtexture.h"
 #include "gstqtglutility.h"
 
+#include <QtCore/QDateTime>
 #include <QtCore/QRunnable>
 #include <QtGui/QGuiApplication>
 #include <QtQuick/QQuickWindow>
@@ -66,8 +67,12 @@ struct _QtGLWindowPrivate
   GstGLDisplay *display;
   GstGLContext *other_context;
 
+  GLuint fbo;
+
   /* frames that qmlview rendered in its gl thread */
-  guint64 frames_rendered;
+  quint64 frames_rendered;
+  quint64 start;
+  quint64 stop;
 };
 
 class InitQtGLContext : public QRunnable
@@ -118,6 +123,8 @@ QtGLWindow::QtGLWindow ( QWindow * parent, QQuickWindow *src ) :
   else
     connect (source, SIGNAL(sceneGraphInitialized()), this, SLOT(onSceneGraphInitialized()), Qt::DirectConnection);
 
+  connect (source, SIGNAL(sceneGraphInvalidated()), this, SLOT(onSceneGraphInvalidated()), Qt::DirectConnection);
+
   GST_DEBUG ("%p init Qt Window", this->priv->display);
 }
 
@@ -141,6 +148,12 @@ QtGLWindow::beforeRendering()
 
   g_mutex_lock (&this->priv->lock);
 
+  static volatile gsize once = 0;
+  if (g_once_init_enter(&once)) {
+    this->priv->start = QDateTime::currentDateTime().toMSecsSinceEpoch();
+    g_once_init_leave(&once,1);
+  }
+
   if (!fbo && !this->priv->useDefaultFbo) {
 
     width = source->width();
@@ -152,6 +165,10 @@ QtGLWindow::beforeRendering()
           QOpenGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RGBA));
 
     source->setRenderTarget(fbo.data());
+  } else if (this->priv->useDefaultFbo) {
+    GST_DEBUG ("use default fbo for render target");
+    fbo.reset(NULL);
+    source->setRenderTarget(NULL);
   }
 
   g_mutex_unlock (&this->priv->lock);
@@ -211,7 +228,23 @@ QtGLWindow::afterRendering()
       this->source->renderTargetId(), dst_tex, width,height);
 
   gl->BindTexture (GL_TEXTURE_2D, dst_tex);
-  gl->CopyTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, width, height, 0);
+  if (gl->BlitFramebuffer) {
+    gl->BindFramebuffer (GL_DRAW_FRAMEBUFFER, this->priv->fbo);
+    gl->FramebufferTexture2D (GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+              GL_TEXTURE_2D, dst_tex, 0);
+
+    ret = gst_gl_context_check_framebuffer_status (context);
+    if (!ret) {
+      GST_ERROR ("FBO errors");
+      goto errors;
+    }
+    gl->ReadBuffer (GL_COLOR_ATTACHMENT0);
+    gl->BlitFramebuffer (0, 0, width, height,
+        0, 0, width, height,
+        GL_COLOR_BUFFER_BIT, GL_LINEAR);
+  } else {
+    gl->CopyTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, width, height, 0);
+  }
   
   GST_DEBUG ("rendering finished");
 
@@ -236,9 +269,14 @@ QtGLWindow::aboutToQuit()
   this->priv->quit = TRUE;
   g_cond_signal (&this->priv->update_cond);
 
-  g_mutex_unlock (&this->priv->lock);
+  this->priv->stop = QDateTime::currentDateTime().toMSecsSinceEpoch();
+  qint64 duration = this->priv->stop - this->priv->start;
+  float fps = ((float)this->priv->frames_rendered / duration * 1000);
 
-  GST_DEBUG("about to quit");
+  GST_DEBUG("about to quit, total refresh frames (%lld) in (%0.3f) seconds, fps: %0.3f",
+      this->priv->frames_rendered, (float)duration / 1000, fps);
+
+  g_mutex_unlock (&this->priv->lock);
 }
 
 void
@@ -250,8 +288,36 @@ QtGLWindow::onSceneGraphInitialized()
   this->priv->initted = gst_qt_get_gl_wrapcontext (this->priv->display,
       &this->priv->other_context, NULL);
 
+  if (this->priv->initted && this->priv->other_context) {
+    const GstGLFuncs *gl;
+
+    gst_gl_context_activate (this->priv->other_context, TRUE);
+    gl = this->priv->other_context->gl_vtable;
+
+    gl->GenFramebuffers (1, &this->priv->fbo);
+
+    gst_gl_context_activate (this->priv->other_context, FALSE);
+  }
+
   GST_DEBUG ("%p created wrapped GL context %" GST_PTR_FORMAT, this,
       this->priv->other_context);
+}
+
+void
+QtGLWindow::onSceneGraphInvalidated()
+{
+  GST_DEBUG ("scene graph invalidated");
+
+  if (this->priv->fbo && this->priv->other_context) {
+    const GstGLFuncs *gl;
+
+    gst_gl_context_activate (this->priv->other_context, TRUE);
+    gl = this->priv->other_context->gl_vtable;
+
+    gl->DeleteFramebuffers (1, &this->priv->fbo);
+
+    gst_gl_context_activate (this->priv->other_context, FALSE);
+  }
 }
 
 bool
@@ -359,18 +425,6 @@ qt_window_use_default_fbo (QtGLWindow * qt_window, gboolean useDefaultFbo)
 
   GST_DEBUG ("set to use default fbo %d", useDefaultFbo);
   qt_window->priv->useDefaultFbo = useDefaultFbo;
-
-  g_mutex_unlock (&qt_window->priv->lock);
-}
-
-void
-qt_window_get_total_frames (QtGLWindow * qt_window, guint64 *frames)
-{
-  g_return_if_fail (qt_window != NULL);
-
-  g_mutex_lock (&qt_window->priv->lock);
-
-  *frames = qt_window->priv->frames_rendered;
 
   g_mutex_unlock (&qt_window->priv->lock);
 }

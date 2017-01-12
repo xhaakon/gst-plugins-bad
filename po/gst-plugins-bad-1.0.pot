@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.10.2\n"
+"Project-Id-Version: gst-plugins-bad 1.11.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-11-29 15:49+0200\n"
+"POT-Creation-Date: 2017-01-12 14:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,29 +55,13 @@ msgstr ""
 msgid "Could not read DVD."
 msgstr ""
 
-#: ext/smoothstreaming/gstmssdemux.c:405
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:695
+#: ext/smoothstreaming/gstmssdemux.c:421
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:703
 msgid "This file contains no playable streams."
 msgstr ""
 
 #: ext/sndfile/gstsfdec.c:769
 msgid "Could not open sndfile stream for reading."
-msgstr ""
-
-#: ext/sndio/sndiosink.c:324 ext/sndio/sndiosrc.c:320
-msgid "Could not establish connection to sndio"
-msgstr ""
-
-#: ext/sndio/sndiosink.c:331 ext/sndio/sndiosrc.c:327
-msgid "Failed to query sndio capabilities"
-msgstr ""
-
-#: ext/sndio/sndiosink.c:424 ext/sndio/sndiosrc.c:421
-msgid "Could not configure sndio"
-msgstr ""
-
-#: ext/sndio/sndiosink.c:430 ext/sndio/sndiosrc.c:427
-msgid "Could not start sndio"
 msgstr ""
 
 #: gst/asfmux/gstasfmux.c:1831
@@ -102,54 +86,40 @@ msgstr ""
 msgid "Subpicture format was not configured before data flow"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3111
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3131
 msgid "Failed to get fragment URL."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3462
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3490
 msgid "Couldn't download fragments"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3551
-#: gst/mpegtsdemux/mpegtsbase.c:1608
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3579
+#: gst/mpegtsdemux/mpegtsbase.c:1610
 msgid "Internal data stream error."
 msgstr ""
 
-#: gst/videomeasure/gstvideomeasure_collector.c:294
-msgid "No file name specified for writing."
-msgstr ""
-
-#: gst/videomeasure/gstvideomeasure_collector.c:300
-#, c-format
-msgid "Given file name \"%s\" can't be converted to local file name encoding."
-msgstr ""
-
-#: gst/videomeasure/gstvideomeasure_collector.c:307
-#, c-format
-msgid "Could not open file \"%s\" for writing."
-msgstr ""
-
-#: sys/dvb/gstdvbsrc.c:1571 sys/dvb/gstdvbsrc.c:1784
+#: sys/dvb/gstdvbsrc.c:1579 sys/dvb/gstdvbsrc.c:1793
 #, c-format
 msgid "Device \"%s\" does not exist."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1575
+#: sys/dvb/gstdvbsrc.c:1583
 #, c-format
 msgid "Could not open frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1594
+#: sys/dvb/gstdvbsrc.c:1602
 #, c-format
 msgid "Could not get settings from frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1611
+#: sys/dvb/gstdvbsrc.c:1619
 #, c-format
 msgid "Cannot enumerate delivery systems from frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1788
+#: sys/dvb/gstdvbsrc.c:1797
 #, c-format
 msgid "Could not open file \"%s\" for reading."
 msgstr ""

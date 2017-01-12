@@ -75,14 +75,13 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/dts/gstdtsdec.h \
 	$(top_srcdir)/ext/faac/gstfaac.h \
 	$(top_srcdir)/ext/faad/gstfaad.h \
+	$(top_srcdir)/ext/iqa/iqa.h \
 	$(top_srcdir)/ext/kate/gstkateenc.h \
 	$(top_srcdir)/ext/kate/gstkatedec.h \
 	$(top_srcdir)/ext/kate/gstkateparse.h \
 	$(top_srcdir)/ext/kate/gstkatetag.h \
 	$(top_srcdir)/ext/kate/gstkatetiger.h \
 	$(top_srcdir)/ext/ladspa/gstladspa.h \
-	$(top_srcdir)/ext/mimic/gstmimenc.h \
-	$(top_srcdir)/ext/mimic/gstmimdec.h \
 	$(top_srcdir)/ext/modplug/gstmodplug.h \
 	$(top_srcdir)/ext/mpeg2enc/gstmpeg2enc.hh \
 	$(top_srcdir)/ext/mplex/gstmplex.hh \
@@ -104,10 +103,7 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/rtmp/gstrtmpsink.h \
 	$(top_srcdir)/ext/spandsp/gstspanplc.h \
 	$(top_srcdir)/ext/spandsp/gstdtmfdetect.h \
-	$(top_srcdir)/ext/sdl/sdlaudiosink.h \
-	$(top_srcdir)/ext/sdl/sdlvideosink.h \
-	$(top_srcdir)/ext/timidity/gsttimidity.h \
-	$(top_srcdir)/ext/timidity/gstwildmidi.h \
+	$(top_srcdir)/ext/wildmidi/gstwildmidi.h \
 	$(top_srcdir)/ext/voaacenc/gstvoaacenc.h \
 	$(top_srcdir)/ext/voamrwbenc/gstvoamrwbenc.h \
 	$(top_srcdir)/ext/webrtcdsp/gstwebrtcdsp.h \
@@ -122,11 +118,6 @@ EXTRA_HFILES = \
 	$(top_srcdir)/gst/audiovisualizers/gstwavescope.h \
 	$(top_srcdir)/gst/camerabin2/gstcamerabin2.h \
 	$(top_srcdir)/gst/coloreffects/gstcoloreffects.h \
-	$(top_srcdir)/gst/dataurisrc/gstdataurisrc.h \
-	$(top_srcdir)/gst/dccp/gstdccpclientsink.h \
-	$(top_srcdir)/gst/dccp/gstdccpclientsrc.h \
-	$(top_srcdir)/gst/dccp/gstdccpserversink.h \
-	$(top_srcdir)/gst/dccp/gstdccpserversrc.h \
 	$(top_srcdir)/gst/debugutils/fpsdisplaysink.h \
 	$(top_srcdir)/gst/dvdspu/gstdvdspu.h \
 	$(top_srcdir)/gst/festival/gstfestival.h \
@@ -158,7 +149,6 @@ EXTRA_HFILES = \
 	$(top_srcdir)/gst/mpegtsmux/mpegtsmux.h \
 	$(top_srcdir)/gst/mxf/mxfdemux.h \
 	$(top_srcdir)/gst/mxf/mxfmux.h \
-	$(top_srcdir)/gst/nuvdemux/gstnuvdemux.h \
 	$(top_srcdir)/gst/pcapparse/gstpcapparse.h \
 	$(top_srcdir)/gst/rawparse/gstaudioparse.h \
 	$(top_srcdir)/gst/rawparse/gstvideoparse.h \

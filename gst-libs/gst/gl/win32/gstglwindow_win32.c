@@ -32,7 +32,7 @@ LRESULT FAR PASCAL sub_class_proc (HWND hWnd, UINT uMsg, WPARAM wParam,
     LPARAM lParam);
 
 #define GST_GL_WINDOW_WIN32_GET_PRIVATE(o)  \
-  (G_TYPE_INSTANCE_GET_PRIVATE((o), GST_GL_TYPE_WINDOW_WIN32, GstGLWindowWin32Private))
+  (G_TYPE_INSTANCE_GET_PRIVATE((o), GST_TYPE_GL_WINDOW_WIN32, GstGLWindowWin32Private))
 
 enum
 {
@@ -52,7 +52,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
   GST_DEBUG_CATEGORY_GET (GST_CAT_DEFAULT, "glwindow");
 #define gst_gl_window_win32_parent_class parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGLWindowWin32, gst_gl_window_win32,
-    GST_GL_TYPE_WINDOW, DEBUG_INIT);
+    GST_TYPE_GL_WINDOW, DEBUG_INIT);
 
 static void gst_gl_window_win32_set_window_handle (GstGLWindow * window,
     guintptr handle);
@@ -98,7 +98,7 @@ gst_gl_window_win32_new (GstGLDisplay * display)
     /* we require an win32 display to create win32 windows */
     return NULL;
 
-  return g_object_new (GST_GL_TYPE_WINDOW_WIN32, NULL);
+  return g_object_new (GST_TYPE_GL_WINDOW_WIN32, NULL);
 }
 
 static void
@@ -120,8 +120,7 @@ gst_gl_window_win32_open (GstGLWindow * window, GError ** error)
   window_win32->msg_source = win32_message_source_new (window_win32);
   g_source_set_callback (window_win32->msg_source, (GSourceFunc) msg_cb,
       NULL, NULL);
-  g_source_attach (window_win32->msg_source,
-      g_main_context_get_thread_default ());
+  g_source_attach (window_win32->msg_source, window->main_context);
 
   return TRUE;
 }

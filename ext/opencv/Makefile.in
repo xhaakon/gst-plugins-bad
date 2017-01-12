@@ -117,8 +117,7 @@ am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/gtk-doc.m4 \
 	$(top_srcdir)/common/m4/introspection.m4 \
 	$(top_srcdir)/common/m4/orc.m4 $(top_srcdir)/common/m4/pkg.m4 \
-	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/gst-fionread.m4 \
-	$(top_srcdir)/m4/gst-sdl.m4 $(top_srcdir)/m4/iconv.m4 \
+	$(top_srcdir)/m4/gettext.m4 $(top_srcdir)/m4/iconv.m4 \
 	$(top_srcdir)/m4/intlmacosx.m4 $(top_srcdir)/m4/lib-ld.m4 \
 	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
 	$(top_srcdir)/m4/libgcrypt.m4 $(top_srcdir)/m4/libtool.m4 \
@@ -165,11 +164,10 @@ am__installdirs = "$(DESTDIR)$(plugindir)" \
 	"$(DESTDIR)$(opencv_haarcascadesdir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstopencv_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+libgstopencv_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/opencv/libgstopencv-$(GST_API_VERSION).la \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am_libgstopencv_la_OBJECTS = libgstopencv_la-gstopencv.lo \
-	libgstopencv_la-gstopencvvideofilter.lo \
-	libgstopencv_la-gstopencvutils.lo \
 	libgstopencv_la-gstcvdilate.lo \
 	libgstopencv_la-gstcvdilateerode.lo \
 	libgstopencv_la-gstcvequalizehist.lo \
@@ -186,7 +184,7 @@ am_libgstopencv_la_OBJECTS = libgstopencv_la-gstopencv.lo \
 	libgstopencv_la-gstsegmentation.lo \
 	libgstopencv_la-gstgrabcut.lo libgstopencv_la-gstdisparity.lo \
 	libgstopencv_la-motioncells_wrapper.lo \
-	libgstopencv_la-MotionCells.lo
+	libgstopencv_la-MotionCells.lo libgstopencv_la-gstdewarp.lo
 libgstopencv_la_OBJECTS = $(am_libgstopencv_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -266,8 +264,6 @@ ACMENC_CFLAGS = @ACMENC_CFLAGS@
 ACMMP3DEC_CFLAGS = @ACMMP3DEC_CFLAGS@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
-APEXSINK_CFLAGS = @APEXSINK_CFLAGS@
-APEXSINK_LIBS = @APEXSINK_LIBS@
 AR = @AR@
 AS = @AS@
 ASSRENDER_CFLAGS = @ASSRENDER_CFLAGS@
@@ -306,7 +302,6 @@ CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DAALA_CFLAGS = @DAALA_CFLAGS@
 DAALA_LIBS = @DAALA_LIBS@
-DCCP_LIBS = @DCCP_LIBS@
 DECKLINK_CXXFLAGS = @DECKLINK_CXXFLAGS@
 DECKLINK_LIBS = @DECKLINK_LIBS@
 DEFAULT_AUDIOSINK = @DEFAULT_AUDIOSINK@
@@ -324,8 +319,8 @@ DIRECTSOUND_LIBS = @DIRECTSOUND_LIBS@
 DIRECTX_CFLAGS = @DIRECTX_CFLAGS@
 DIRECTX_LDFLAGS = @DIRECTX_LDFLAGS@
 DLLTOOL = @DLLTOOL@
-DRM_CFLAGS = @DRM_CFLAGS@
-DRM_LIBS = @DRM_LIBS@
+DSSIM_CFLAGS = @DSSIM_CFLAGS@
+DSSIM_LIBS = @DSSIM_LIBS@
 DSYMUTIL = @DSYMUTIL@
 DTLS_CFLAGS = @DTLS_CFLAGS@
 DTLS_LIBS = @DTLS_LIBS@
@@ -375,9 +370,12 @@ GLIB_LIBS = @GLIB_LIBS@
 GLIB_MKENUMS = @GLIB_MKENUMS@
 GLIB_PREFIX = @GLIB_PREFIX@
 GLIB_REQ = @GLIB_REQ@
+GL_APIS = @GL_APIS@
 GL_CFLAGS = @GL_CFLAGS@
 GL_LIBS = @GL_LIBS@
 GL_OBJCFLAGS = @GL_OBJCFLAGS@
+GL_PLATFORMS = @GL_PLATFORMS@
+GL_WINDOWS = @GL_WINDOWS@
 GME_LIBS = @GME_LIBS@
 GMODULE_EXPORT_CFLAGS = @GMODULE_EXPORT_CFLAGS@
 GMODULE_EXPORT_LIBS = @GMODULE_EXPORT_LIBS@
@@ -488,7 +486,6 @@ HAVE_GRAPHENE = @HAVE_GRAPHENE@
 HAVE_GSM = @HAVE_GSM@
 HAVE_GTK3 = @HAVE_GTK3@
 HAVE_JPEG = @HAVE_JPEG@
-HAVE_NAS = @HAVE_NAS@
 HAVE_OPENJPEG = @HAVE_OPENJPEG@
 HAVE_PNG = @HAVE_PNG@
 HAVE_SRTP = @HAVE_SRTP@
@@ -517,6 +514,8 @@ INTROSPECTION_TYPELIBDIR = @INTROSPECTION_TYPELIBDIR@
 JPEG_LIBS = @JPEG_LIBS@
 KATE_CFLAGS = @KATE_CFLAGS@
 KATE_LIBS = @KATE_LIBS@
+KMS_DRM_CFLAGS = @KMS_DRM_CFLAGS@
+KMS_DRM_LIBS = @KMS_DRM_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBDC1394_CFLAGS = @LIBDC1394_CFLAGS@
@@ -541,8 +540,8 @@ LIBUDEV_CFLAGS = @LIBUDEV_CFLAGS@
 LIBUDEV_LIBS = @LIBUDEV_LIBS@
 LIBUSB_CFLAGS = @LIBUSB_CFLAGS@
 LIBUSB_LIBS = @LIBUSB_LIBS@
-LIBVISUAL_CFLAGS = @LIBVISUAL_CFLAGS@
-LIBVISUAL_LIBS = @LIBVISUAL_LIBS@
+LIBVA_DRM_CFLAGS = @LIBVA_DRM_CFLAGS@
+LIBVA_DRM_LIBS = @LIBVA_DRM_LIBS@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
 LILV_CFLAGS = @LILV_CFLAGS@
@@ -559,8 +558,6 @@ LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
-MIMIC_CFLAGS = @MIMIC_CFLAGS@
-MIMIC_LIBS = @MIMIC_LIBS@
 MJPEG_CFLAGS = @MJPEG_CFLAGS@
 MJPEG_LIBS = @MJPEG_LIBS@
 MKDIR_P = @MKDIR_P@
@@ -572,12 +569,12 @@ MPEG2ENC_LIBS = @MPEG2ENC_LIBS@
 MPLEX_CFLAGS = @MPLEX_CFLAGS@
 MPLEX_LDFLAGS = @MPLEX_LDFLAGS@
 MPLEX_LIBS = @MPLEX_LIBS@
+MSDK_CFLAGS = @MSDK_CFLAGS@
+MSDK_LIBS = @MSDK_LIBS@
 MSGFMT = @MSGFMT@
 MSGFMT_015 = @MSGFMT_015@
 MSGMERGE = @MSGMERGE@
 MUSEPACK_LIBS = @MUSEPACK_LIBS@
-NAS_CFLAGS = @NAS_CFLAGS@
-NAS_LIBS = @NAS_LIBS@
 NEON_CFLAGS = @NEON_CFLAGS@
 NEON_LIBS = @NEON_LIBS@
 NETTLE_CFLAGS = @NETTLE_CFLAGS@
@@ -638,8 +635,6 @@ PROFILE_CFLAGS = @PROFILE_CFLAGS@
 PTHREAD_CC = @PTHREAD_CC@
 PTHREAD_CFLAGS = @PTHREAD_CFLAGS@
 PTHREAD_LIBS = @PTHREAD_LIBS@
-PVR_CFLAGS = @PVR_CFLAGS@
-PVR_LIBS = @PVR_LIBS@
 PYTHON = @PYTHON@
 PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
@@ -667,7 +662,6 @@ SCHRO_CFLAGS = @SCHRO_CFLAGS@
 SCHRO_LIBS = @SCHRO_LIBS@
 SDL_CFLAGS = @SDL_CFLAGS@
 SDL_CLUTTER = @SDL_CLUTTER@
-SDL_CONFIG = @SDL_CONFIG@
 SDL_LIBS = @SDL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
@@ -675,7 +669,6 @@ SHELL = @SHELL@
 SHM_LIBS = @SHM_LIBS@
 SNDFILE_CFLAGS = @SNDFILE_CFLAGS@
 SNDFILE_LIBS = @SNDFILE_LIBS@
-SNDIO_LIBS = @SNDIO_LIBS@
 SOUNDTOUCH_CFLAGS = @SOUNDTOUCH_CFLAGS@
 SOUNDTOUCH_LIBS = @SOUNDTOUCH_LIBS@
 SPANDSP_CFLAGS = @SPANDSP_CFLAGS@
@@ -690,8 +683,8 @@ TELETEXTDEC_CFLAGS = @TELETEXTDEC_CFLAGS@
 TELETEXTDEC_LIBS = @TELETEXTDEC_LIBS@
 TIGER_CFLAGS = @TIGER_CFLAGS@
 TIGER_LIBS = @TIGER_LIBS@
-TIMIDITY_CFLAGS = @TIMIDITY_CFLAGS@
-TIMIDITY_LIBS = @TIMIDITY_LIBS@
+TTML_CFLAGS = @TTML_CFLAGS@
+TTML_LIBS = @TTML_LIBS@
 UIC = @UIC@
 USE_GLES2 = @USE_GLES2@
 USE_NLS = @USE_NLS@
@@ -707,6 +700,8 @@ VOAACENC_LIBS = @VOAACENC_LIBS@
 VOAMRWBENC_CFLAGS = @VOAMRWBENC_CFLAGS@
 VOAMRWBENC_LIBS = @VOAMRWBENC_LIBS@
 VULKAN_LIBS = @VULKAN_LIBS@
+VULKAN_WAYLAND_CFLAGS = @VULKAN_WAYLAND_CFLAGS@
+VULKAN_WAYLAND_LIBS = @VULKAN_WAYLAND_LIBS@
 WARNING_CFLAGS = @WARNING_CFLAGS@
 WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
 WARNING_OBJCFLAGS = @WARNING_OBJCFLAGS@
@@ -715,9 +710,7 @@ WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
 WAYLAND_EGL_CFLAGS = @WAYLAND_EGL_CFLAGS@
 WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
-WAYLAND_PROTOCOLS_CFLAGS = @WAYLAND_PROTOCOLS_CFLAGS@
 WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
-WAYLAND_PROTOCOLS_LIBS = @WAYLAND_PROTOCOLS_LIBS@
 WEBP_CFLAGS = @WEBP_CFLAGS@
 WEBP_LIBS = @WEBP_LIBS@
 WEBRTCDSP_CFLAGS = @WEBRTCDSP_CFLAGS@
@@ -730,6 +723,8 @@ WINSCREENCAP_LIBS = @WINSCREENCAP_LIBS@
 WINSOCK2_LIBS = @WINSOCK2_LIBS@
 X11_CFLAGS = @X11_CFLAGS@
 X11_LIBS = @X11_LIBS@
+X11_XCB_CFLAGS = @X11_XCB_CFLAGS@
+X11_XCB_LIBS = @X11_XCB_LIBS@
 X265_CFLAGS = @X265_CFLAGS@
 X265_LIBS = @X265_LIBS@
 XCB_CFLAGS = @XCB_CFLAGS@
@@ -739,9 +734,6 @@ XCOMPOSITE_LIBS = @XCOMPOSITE_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
 XGETTEXT_EXTRA_OPTIONS = @XGETTEXT_EXTRA_OPTIONS@
-XVID_LIBS = @XVID_LIBS@
-X_CFLAGS = @X_CFLAGS@
-X_LIBS = @X_LIBS@
 ZBAR_CFLAGS = @ZBAR_CFLAGS@
 ZBAR_LIBS = @ZBAR_LIBS@
 abs_builddir = @abs_builddir@
@@ -814,8 +806,6 @@ plugin_LTLIBRARIES = libgstopencv.la
 
 # sources used to compile this plug-in
 libgstopencv_la_SOURCES = gstopencv.cpp \
-			gstopencvvideofilter.cpp \
-			gstopencvutils.cpp \
 			gstcvdilate.cpp \
 			gstcvdilateerode.cpp \
 			gstcvequalizehist.cpp \
@@ -836,9 +826,13 @@ libgstopencv_la_SOURCES = gstopencv.cpp \
 			gstgrabcut.cpp \
 			gstdisparity.cpp \
 			motioncells_wrapper.cpp \
-			MotionCells.cpp
+			MotionCells.cpp \
+			gstdewarp.cpp
 
-libgstopencv_la_CXXFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CXXFLAGS) $(OPENCV_CFLAGS) \
+libgstopencv_la_CXXFLAGS = \
+	-I$(top_srcdir)/gst-libs \
+	-I$(top_builddir)/gst-libs \
+	$(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CXXFLAGS) $(OPENCV_CFLAGS) \
 	-DGST_HAAR_CASCADES_DIR=\"$(pkgdatadir)/@GST_API_VERSION@/opencv_haarcascades\"
 
 
@@ -852,14 +846,16 @@ libgstopencv_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) \
 	-DCV_INLINE="static inline" \
 	-DCV_NO_BACKWARD_COMPATIBILITY
 
-libgstopencv_la_LIBADD = $(GST_LIBS) $(GST_BASE_LIBS) $(OPENCV_LIBS) \
-			$(GSTPB_BASE_LIBS) -lgstvideo-$(GST_API_VERSION)
+libgstopencv_la_LIBADD = \
+	$(top_builddir)/gst-libs/gst/opencv/libgstopencv-$(GST_API_VERSION).la \
+	$(GST_LIBS) $(GST_BASE_LIBS) $(OPENCV_LIBS) \
+	$(GSTPB_BASE_LIBS) -lgstvideo-$(GST_API_VERSION)
 
 libgstopencv_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstopencv_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 
 # headers we need but don't want installed
-noinst_HEADERS = gstopencvvideofilter.h gstopencvutils.h \
+noinst_HEADERS = \
 		gstcvdilateerode.h \
 		gstcvdilate.h \
 		gstcvequalizehist.h \
@@ -880,7 +876,8 @@ noinst_HEADERS = gstopencvvideofilter.h gstopencvutils.h \
 		gstdisparity.h \
 		gstmotioncells.h \
 		motioncells_wrapper.h \
-		MotionCells.h
+		MotionCells.h \
+		gstdewarp.h
 
 opencv_haarcascadesdir = $(pkgdatadir)/$(GST_API_VERSION)/opencv_haarcascades
 opencv_haarcascades_DATA = fist.xml palm.xml
@@ -971,6 +968,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstcvlaplace.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstcvsmooth.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstcvsobel.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstdewarp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstdisparity.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstedgedetect.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstfaceblur.Plo@am__quote@
@@ -979,8 +977,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gsthanddetect.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstmotioncells.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstopencv.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstopencvutils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstopencvvideofilter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstretinex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstsegmentation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstopencv_la-gstskindetect.Plo@am__quote@
@@ -1018,20 +1014,6 @@ libgstopencv_la-gstopencv.lo: gstopencv.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstopencv.cpp' object='libgstopencv_la-gstopencv.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstopencv.lo `test -f 'gstopencv.cpp' || echo '$(srcdir)/'`gstopencv.cpp
-
-libgstopencv_la-gstopencvvideofilter.lo: gstopencvvideofilter.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstopencvvideofilter.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstopencvvideofilter.Tpo -c -o libgstopencv_la-gstopencvvideofilter.lo `test -f 'gstopencvvideofilter.cpp' || echo '$(srcdir)/'`gstopencvvideofilter.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstopencvvideofilter.Tpo $(DEPDIR)/libgstopencv_la-gstopencvvideofilter.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstopencvvideofilter.cpp' object='libgstopencv_la-gstopencvvideofilter.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstopencvvideofilter.lo `test -f 'gstopencvvideofilter.cpp' || echo '$(srcdir)/'`gstopencvvideofilter.cpp
-
-libgstopencv_la-gstopencvutils.lo: gstopencvutils.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstopencvutils.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstopencvutils.Tpo -c -o libgstopencv_la-gstopencvutils.lo `test -f 'gstopencvutils.cpp' || echo '$(srcdir)/'`gstopencvutils.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstopencvutils.Tpo $(DEPDIR)/libgstopencv_la-gstopencvutils.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstopencvutils.cpp' object='libgstopencv_la-gstopencvutils.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstopencvutils.lo `test -f 'gstopencvutils.cpp' || echo '$(srcdir)/'`gstopencvutils.cpp
 
 libgstopencv_la-gstcvdilate.lo: gstcvdilate.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstcvdilate.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstcvdilate.Tpo -c -o libgstopencv_la-gstcvdilate.lo `test -f 'gstcvdilate.cpp' || echo '$(srcdir)/'`gstcvdilate.cpp
@@ -1179,6 +1161,13 @@ libgstopencv_la-MotionCells.lo: MotionCells.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='MotionCells.cpp' object='libgstopencv_la-MotionCells.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-MotionCells.lo `test -f 'MotionCells.cpp' || echo '$(srcdir)/'`MotionCells.cpp
+
+libgstopencv_la-gstdewarp.lo: gstdewarp.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -MT libgstopencv_la-gstdewarp.lo -MD -MP -MF $(DEPDIR)/libgstopencv_la-gstdewarp.Tpo -c -o libgstopencv_la-gstdewarp.lo `test -f 'gstdewarp.cpp' || echo '$(srcdir)/'`gstdewarp.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstopencv_la-gstdewarp.Tpo $(DEPDIR)/libgstopencv_la-gstdewarp.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstdewarp.cpp' object='libgstopencv_la-gstdewarp.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstopencv_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstopencv_la_CXXFLAGS) $(CXXFLAGS) -c -o libgstopencv_la-gstdewarp.lo `test -f 'gstdewarp.cpp' || echo '$(srcdir)/'`gstdewarp.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

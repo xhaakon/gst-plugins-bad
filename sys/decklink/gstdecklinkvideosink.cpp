@@ -488,15 +488,9 @@ convert_to_internal_clock (GstDecklinkVideoSink * self,
       // according to our internal clock.
       //
       // For the duration we just scale
-      if (external > external_timestamp) {
-        guint64 diff = external - external_timestamp;
-        diff = gst_util_uint64_scale (diff, rate_d, rate_n);
-        *timestamp = internal - diff;
-      } else {
-        guint64 diff = external_timestamp - external;
-        diff = gst_util_uint64_scale (diff, rate_d, rate_n);
-        *timestamp = internal + diff;
-      }
+      *timestamp =
+          gst_clock_unadjust_with_calibration (NULL, external_timestamp,
+          internal, external, rate_n, rate_d);
 
       GST_LOG_OBJECT (self,
           "Converted %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT " (internal: %"
@@ -961,7 +955,8 @@ gst_decklink_video_sink_change_state (GstElement * element,
       gst_decklink_video_sink_stop (self);
       break;
     case GST_STATE_CHANGE_PLAYING_TO_PAUSED:{
-      if (gst_decklink_video_sink_stop_scheduled_playback (self) == GST_STATE_CHANGE_FAILURE)
+      if (gst_decklink_video_sink_stop_scheduled_playback (self) ==
+          GST_STATE_CHANGE_FAILURE)
         ret = GST_STATE_CHANGE_FAILURE;
       break;
     }

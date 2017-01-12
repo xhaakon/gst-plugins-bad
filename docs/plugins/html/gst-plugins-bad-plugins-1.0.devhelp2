@@ -24,7 +24,6 @@
       <sub name="cvlaplace" link="gst-plugins-bad-plugins-cvlaplace.html"/>
       <sub name="cvsmooth" link="gst-plugins-bad-plugins-cvsmooth.html"/>
       <sub name="cvsobel" link="gst-plugins-bad-plugins-cvsobel.html"/>
-      <sub name="dataurisrc" link="gst-plugins-bad-plugins-dataurisrc.html"/>
       <sub name="diffuse" link="gst-plugins-bad-plugins-diffuse.html"/>
       <sub name="dilate" link="gst-plugins-bad-plugins-dilate.html"/>
       <sub name="dodge" link="gst-plugins-bad-plugins-dodge.html"/>
@@ -88,6 +87,7 @@
       <sub name="glvideomixerelement" link="gst-plugins-bad-plugins-glvideomixerelement.html"/>
       <sub name="glvideomixer" link="gst-plugins-bad-plugins-glvideomixer.html"/>
       <sub name="glviewconvert" link="gst-plugins-bad-plugins-glviewconvert.html"/>
+      <sub name="IQA" link="gst-plugins-bad-plugins-IQA.html"/>
       <sub name="jpegparse" link="gst-plugins-bad-plugins-jpegparse.html"/>
       <sub name="kaleidoscope" link="gst-plugins-bad-plugins-kaleidoscope.html"/>
       <sub name="liveadder" link="gst-plugins-bad-plugins-liveadder.html"/>
@@ -136,6 +136,8 @@
       <sub name="wavescope" link="gst-plugins-bad-plugins-wavescope.html"/>
       <sub name="webrtcdsp" link="gst-plugins-bad-plugins-webrtcdsp.html"/>
       <sub name="webrtcechoprobe" link="gst-plugins-bad-plugins-webrtcechoprobe.html"/>
+      <sub name="ttmlparse" link="gst-plugins-bad-plugins-ttmlparse.html"/>
+      <sub name="ttmlrender" link="gst-plugins-bad-plugins-ttmlrender.html"/>
     </sub>
     <sub name="gst-plugins-bad Plugins" link="ch02.html">
       <sub name="aiff" link="gst-plugins-bad-plugins-plugin-aiff.html"/>
@@ -149,7 +151,6 @@
       <sub name="camerabin" link="gst-plugins-bad-plugins-plugin-camerabin.html"/>
       <sub name="coloreffects" link="gst-plugins-bad-plugins-plugin-coloreffects.html"/>
       <sub name="curl" link="gst-plugins-bad-plugins-plugin-curl.html"/>
-      <sub name="dataurisrc" link="gst-plugins-bad-plugins-plugin-dataurisrc.html"/>
       <sub name="debugutilsbad" link="gst-plugins-bad-plugins-plugin-debugutilsbad.html"/>
       <sub name="dtsdec" link="gst-plugins-bad-plugins-plugin-dtsdec.html"/>
       <sub name="dvb" link="gst-plugins-bad-plugins-plugin-dvb.html"/>
@@ -161,7 +162,6 @@
       <sub name="geometrictransform" link="gst-plugins-bad-plugins-plugin-geometrictransform.html"/>
       <sub name="gsm" link="gst-plugins-bad-plugins-plugin-gsm.html"/>
       <sub name="jpegformat" link="gst-plugins-bad-plugins-plugin-jpegformat.html"/>
-      <sub name="mimic" link="gst-plugins-bad-plugins-plugin-mimic.html"/>
       <sub name="mms" link="gst-plugins-bad-plugins-plugin-mms.html"/>
       <sub name="modplug" link="gst-plugins-bad-plugins-plugin-modplug.html"/>
       <sub name="mpeg2enc" link="gst-plugins-bad-plugins-plugin-mpeg2enc.html"/>
@@ -185,6 +185,7 @@
       <sub name="voamrwbenc" link="gst-plugins-bad-plugins-plugin-voamrwbenc.html"/>
       <sub name="webrtcdsp" link="gst-plugins-bad-plugins-plugin-webrtcdsp.html"/>
       <sub name="zbar" link="gst-plugins-bad-plugins-plugin-zbar.html"/>
+      <sub name="ttmlsubs" link="gst-plugins-bad-plugins-plugin-ttmlsubs.html"/>
     </sub>
   </chapters>
   <functions>
@@ -243,15 +244,15 @@
     <keyword type="struct" name="struct GstCompositor" link="gst-plugins-bad-plugins-compositor.html#GstCompositor-struct"/>
     <keyword type="enum" name="enum GstCompositorBackground" link="gst-plugins-bad-plugins-compositor.html#GstCompositorBackground"/>
     <keyword type="property" name="The “background” property" link="gst-plugins-bad-plugins-compositor.html#GstCompositor--background"/>
-    <keyword type="struct" name="struct GstCvDilate" link="gst-plugins-bad-plugins-cvdilate.html#GstCvDilate-struct"/>
-    <keyword type="struct" name="struct GstCvErode" link="gst-plugins-bad-plugins-cverode.html#GstCvErode-struct"/>
-    <keyword type="struct" name="struct GstCvEqualizeHist" link="gst-plugins-bad-plugins-cvequalizehist.html#GstCvEqualizeHist-struct"/>
-    <keyword type="struct" name="struct GstCvLaplace" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace-struct"/>
+    <keyword type="struct" name="struct GstCvDilate" link="gst-plugins-bad-plugins-cvdilate.html#GstCvDilate"/>
+    <keyword type="struct" name="struct GstCvErode" link="gst-plugins-bad-plugins-cverode.html#GstCvErode"/>
+    <keyword type="struct" name="struct GstCvEqualizeHist" link="gst-plugins-bad-plugins-cvequalizehist.html#GstCvEqualizeHist"/>
+    <keyword type="struct" name="struct GstCvLaplace" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace"/>
     <keyword type="property" name="The “aperture-size” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--aperture-size"/>
     <keyword type="property" name="The “scale” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--scale"/>
     <keyword type="property" name="The “shift” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--shift"/>
     <keyword type="property" name="The “mask” property" link="gst-plugins-bad-plugins-cvlaplace.html#GstCvLaplace--mask"/>
-    <keyword type="struct" name="struct GstCvSmooth" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth-struct"/>
+    <keyword type="struct" name="struct GstCvSmooth" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth"/>
     <keyword type="property" name="The “param1” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--param1"/>
     <keyword type="property" name="The “param2” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--param2"/>
     <keyword type="property" name="The “param3” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--param3"/>
@@ -261,13 +262,11 @@
     <keyword type="property" name="The “height” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--height"/>
     <keyword type="property" name="The “spatial” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--spatial"/>
     <keyword type="property" name="The “width” property" link="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--width"/>
-    <keyword type="struct" name="struct GstCvSobel" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel-struct"/>
+    <keyword type="struct" name="struct GstCvSobel" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel"/>
     <keyword type="property" name="The “aperture-size” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--aperture-size"/>
     <keyword type="property" name="The “x-order” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--x-order"/>
     <keyword type="property" name="The “y-order” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--y-order"/>
     <keyword type="property" name="The “mask” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--mask"/>
-    <keyword type="struct" name="struct GstDataURISrc" link="gst-plugins-bad-plugins-dataurisrc.html#GstDataURISrc-struct"/>
-    <keyword type="property" name="The “uri” property" link="gst-plugins-bad-plugins-dataurisrc.html#GstDataURISrc--uri"/>
     <keyword type="struct" name="struct GstDiffuse" link="gst-plugins-bad-plugins-diffuse.html#GstDiffuse-struct"/>
     <keyword type="property" name="The “scale” property" link="gst-plugins-bad-plugins-diffuse.html#GstDiffuse--scale"/>
     <keyword type="struct" name="struct GstDilate" link="gst-plugins-bad-plugins-dilate.html#GstDilate-struct"/>
@@ -339,7 +338,7 @@
     <keyword type="struct" name="struct GstExclusion" link="gst-plugins-bad-plugins-exclusion.html#GstExclusion-struct"/>
     <keyword type="property" name="The “silent” property" link="gst-plugins-bad-plugins-exclusion.html#GstExclusion--silent"/>
     <keyword type="property" name="The “factor” property" link="gst-plugins-bad-plugins-exclusion.html#GstExclusion--factor"/>
-    <keyword type="struct" name="struct GstEdgeDetect" link="gst-plugins-bad-plugins-edgedetect.html#GstEdgeDetect-struct"/>
+    <keyword type="struct" name="struct GstEdgeDetect" link="gst-plugins-bad-plugins-edgedetect.html#GstEdgeDetect"/>
     <keyword type="property" name="The “aperture” property" link="gst-plugins-bad-plugins-edgedetect.html#GstEdgeDetect--aperture"/>
     <keyword type="property" name="The “mask” property" link="gst-plugins-bad-plugins-edgedetect.html#GstEdgeDetect--mask"/>
     <keyword type="property" name="The “threshold1” property" link="gst-plugins-bad-plugins-edgedetect.html#GstEdgeDetect--threshold1"/>
@@ -354,14 +353,14 @@
     <keyword type="property" name="The “quality” property" link="gst-plugins-bad-plugins-faac.html#GstFaac--quality"/>
     <keyword type="property" name="The “rate-control” property" link="gst-plugins-bad-plugins-faac.html#GstFaac--rate-control"/>
     <keyword type="struct" name="GstFaad" link="gst-plugins-bad-plugins-faad.html#GstFaad-struct"/>
-    <keyword type="struct" name="struct GstFaceBlur" link="gst-plugins-bad-plugins-faceblur.html#GstFaceBlur-struct"/>
+    <keyword type="struct" name="struct GstFaceBlur" link="gst-plugins-bad-plugins-faceblur.html#GstFaceBlur"/>
     <keyword type="property" name="The “profile” property" link="gst-plugins-bad-plugins-faceblur.html#GstFaceBlur--profile"/>
     <keyword type="property" name="The “flags” property" link="gst-plugins-bad-plugins-faceblur.html#GstFaceBlur--flags"/>
     <keyword type="property" name="The “min-neighbors” property" link="gst-plugins-bad-plugins-faceblur.html#GstFaceBlur--min-neighbors"/>
     <keyword type="property" name="The “min-size-height” property" link="gst-plugins-bad-plugins-faceblur.html#GstFaceBlur--min-size-height"/>
     <keyword type="property" name="The “min-size-width” property" link="gst-plugins-bad-plugins-faceblur.html#GstFaceBlur--min-size-width"/>
     <keyword type="property" name="The “scale-factor” property" link="gst-plugins-bad-plugins-faceblur.html#GstFaceBlur--scale-factor"/>
-    <keyword type="struct" name="struct GstFaceDetect" link="gst-plugins-bad-plugins-facedetect.html#GstFaceDetect-struct"/>
+    <keyword type="struct" name="struct GstFaceDetect" link="gst-plugins-bad-plugins-facedetect.html#GstFaceDetect"/>
     <keyword type="enum" name="enum GstFaceDetectUpdates" link="gst-plugins-bad-plugins-facedetect.html#GstFaceDetectUpdates"/>
     <keyword type="property" name="The “display” property" link="gst-plugins-bad-plugins-facedetect.html#GstFaceDetect--display"/>
     <keyword type="property" name="The “eyes-profile” property" link="gst-plugins-bad-plugins-facedetect.html#GstFaceDetect--eyes-profile"/>
@@ -527,9 +526,6 @@
     <keyword type="property" name="The “turbulence” property" link="gst-plugins-bad-plugins-marble.html#GstMarble--turbulence"/>
     <keyword type="property" name="The “x-scale” property" link="gst-plugins-bad-plugins-marble.html#GstMarble--x-scale"/>
     <keyword type="property" name="The “y-scale” property" link="gst-plugins-bad-plugins-marble.html#GstMarble--y-scale"/>
-    <keyword type="struct" name="struct GstMimEnc" link="gst-plugins-bad-plugins-mimenc.html#GstMimEnc-struct"/>
-    <keyword type="property" name="The “paused-mode” property" link="gst-plugins-bad-plugins-mimenc.html#GstMimEnc--paused-mode"/>
-    <keyword type="struct" name="struct GstMimDec" link="gst-plugins-bad-plugins-mimdec.html#GstMimDec-struct"/>
     <keyword type="struct" name="struct GstMirror" link="gst-plugins-bad-plugins-mirror.html#GstMirror-struct"/>
     <keyword type="enum" name="enum GstMirrorMode" link="gst-plugins-bad-plugins-mirror.html#GstMirrorMode"/>
     <keyword type="property" name="The “mode” property" link="gst-plugins-bad-plugins-mirror.html#GstMirror--mode"/>
@@ -699,11 +695,11 @@
     <keyword type="property" name="The “zoom” property" link="gst-plugins-bad-plugins-square.html#GstSquare--zoom"/>
     <keyword type="struct" name="struct GstStretch" link="gst-plugins-bad-plugins-stretch.html#GstStretch-struct"/>
     <keyword type="property" name="The “intensity” property" link="gst-plugins-bad-plugins-stretch.html#GstStretch--intensity"/>
-    <keyword type="struct" name="struct GstTemplateMatch" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch-struct"/>
+    <keyword type="struct" name="struct GstTemplateMatch" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch"/>
     <keyword type="property" name="The “display” property" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch--display"/>
     <keyword type="property" name="The “method” property" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch--method"/>
     <keyword type="property" name="The “template” property" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch--template"/>
-    <keyword type="struct" name="struct GstOpencvTextOverlay" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay-struct"/>
+    <keyword type="struct" name="struct GstOpencvTextOverlay" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay"/>
     <keyword type="property" name="The “colorB” property" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay--colorB"/>
     <keyword type="property" name="The “colorG” property" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay--colorG"/>
     <keyword type="property" name="The “colorR” property" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay--colorR"/>
@@ -762,6 +758,8 @@
     <keyword type="property" name="The “noise-suppression-level” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--noise-suppression-level"/>
     <keyword type="property" name="The “delay-agnostic” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--delay-agnostic"/>
     <keyword type="struct" name="struct GstWebrtcEchoProbe" link="gst-plugins-bad-plugins-webrtcechoprobe.html#GstWebrtcEchoProbe-struct"/>
+    <keyword type="struct" name="struct GstTtmlParse" link="gst-plugins-bad-plugins-ttmlparse.html#GstTtmlParse"/>
+    <keyword type="struct" name="struct GstTtmlRender" link="gst-plugins-bad-plugins-ttmlrender.html#GstTtmlRender"/>
     <keyword type="constant" name="GST_COLOR_EFFECTS_PRESET_NONE" link="gst-plugins-bad-plugins-coloreffects.html#GST-COLOR-EFFECTS-PRESET-NONE:CAPS"/>
     <keyword type="constant" name="GST_COLOR_EFFECTS_PRESET_HEAT" link="gst-plugins-bad-plugins-coloreffects.html#GST-COLOR-EFFECTS-PRESET-HEAT:CAPS"/>
     <keyword type="constant" name="GST_COLOR_EFFECTS_PRESET_SEPIA" link="gst-plugins-bad-plugins-coloreffects.html#GST-COLOR-EFFECTS-PRESET-SEPIA:CAPS"/>
