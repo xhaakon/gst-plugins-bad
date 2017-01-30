@@ -274,7 +274,9 @@ gst_dvbsrc_code_rate_get_type (void)
     {FEC_AUTO, "AUTO", "auto"},
     {FEC_3_5, "3/5", "3/5"},
     {FEC_9_10, "9/10", "9/10"},
+#if HAVE_V5_MINOR(7)
     {FEC_2_5, "2/5", "2/5"},
+#endif
     {0, NULL, NULL},
   };
 
@@ -1643,7 +1645,7 @@ gst_dvbsrc_open_frontend (GstDvbSrc * object, gboolean writable)
     object->supported_delsys = g_list_append (object->supported_delsys,
         GINT_TO_POINTER (SYS_DVBC_ANNEX_B));
     gst_structure_set (adapter_structure, "dvb-c-b", G_TYPE_STRING,
-        "DVB-C ANNEX C", NULL);
+        "DVB-C ANNEX B", NULL);
   }
 
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBT)) {
@@ -1746,13 +1748,14 @@ gst_dvbsrc_open_frontend (GstDvbSrc * object, gboolean writable)
     gst_structure_set (adapter_structure, "turbo", G_TYPE_STRING, "TURBO",
         NULL);
   }
-
+#if HAVE_V5_MINOR(6)
   if (gst_dvbsrc_check_delsys (&dvb_prop[0], SYS_DVBC_ANNEX_C)) {
     object->supported_delsys = g_list_append (object->supported_delsys,
         GINT_TO_POINTER (SYS_DVBC_ANNEX_C));
     gst_structure_set (adapter_structure, "dvb-c-c", G_TYPE_STRING,
         "DVB-C ANNEX C", NULL);
   }
+#endif
 
   GST_TRACE_OBJECT (object, "%s description: %" GST_PTR_FORMAT, adapter_name,
       adapter_structure);
@@ -2112,8 +2115,8 @@ gst_dvbsrc_is_valid_modulation (guint delsys, guint mod)
         return TRUE;
       break;
     default:
-      GST_FIXME ("No modulation sanity checks implemented for this delivery "
-          "system");
+      GST_FIXME ("No modulation sanity-checks implemented for delivery "
+          "system: '%d'", delsys);
       return TRUE;
   }
   return FALSE;
