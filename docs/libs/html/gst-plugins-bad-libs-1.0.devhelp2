@@ -484,7 +484,6 @@
     <keyword type="struct" name="GstGLBaseMemory" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemory"/>
     <keyword type="function" name="gst_gl_buffer_init_once ()" link="gst-plugins-bad-libs-GstGLBuffer.html#gst-gl-buffer-init-once" since="1.8"/>
     <keyword type="function" name="gst_is_gl_buffer ()" link="gst-plugins-bad-libs-GstGLBuffer.html#gst-is-gl-buffer" since="1.8"/>
-    <keyword type="function" name="gst_gl_buffer_alloc ()" link="gst-plugins-bad-libs-GstGLBuffer.html#gst-gl-buffer-alloc"/>
     <keyword type="function" name="gst_gl_buffer_allocation_params_new ()" link="gst-plugins-bad-libs-GstGLBuffer.html#gst-gl-buffer-allocation-params-new" since="1.8"/>
     <keyword type="struct" name="GstGLBuffer" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBuffer"/>
     <keyword type="struct" name="struct GstGLBufferAllocationParams" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams"/>

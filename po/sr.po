@@ -2,13 +2,13 @@
 # Copyright (C) 2014 Free Software Foundation, Inc.
 # This file is distributed under the same license as the gst-plugins-bad package.
 # Danilo Segan <dsegan@gmx.net>, 2004.
-# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2011—2015.
+# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2011—2015, 2016.
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad-1.6.0\n"
+"Project-Id-Version: gst-plugins-bad-1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2016-11-29 15:49+0200\n"
-"PO-Revision-Date: 2015-12-24 11:34+0200\n"
+"POT-Creation-Date: 2017-01-30 15:47+0200\n"
+"PO-Revision-Date: 2016-12-04 14:22+0200\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
 "Language: sr\n"
@@ -17,12 +17,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
+"X-Project-Style: gnome\n"
 
 msgid "failed to draw pattern"
-msgstr ""
+msgstr "нисам успео да исцртам образац"
 
 msgid "A GL error occured"
-msgstr ""
+msgstr "Дошло је до ГЛ грешке"
 
 msgid "format wasn't negotiated before get function"
 msgstr "запис није договорен пре функције добављања (get)"
@@ -127,36 +129,31 @@ msgstr "Не могу да нумеришем системе доставе са
 msgid "Could not open file \"%s\" for reading."
 msgstr "Не могу да отворим датотеку „%s“ за читање."
 
-#, fuzzy
 msgid "Couldn't find channel configuration file"
-msgstr "Не могу да пронађем датотеку подешавања ДВБ канала"
+msgstr "Не могу да нађем датотеку подешавања канала"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't load channel configuration file: '%s'"
-msgstr "Не могу да учитам датотеку подешавања ДВБ канала: %s"
+msgstr "Не могу да учитам датотеку подешавања канала: %s"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't find details for channel '%s'"
-msgstr "Не могу да пронађем податке за ДВБ канал „%s“"
+msgstr "Не могу да пронађем податке за канал „%s“"
 
-#, fuzzy, c-format
+#, c-format
 msgid "No properties for channel '%s'"
-msgstr "Не могу да пронађем податке за ДВБ канал „%s“"
+msgstr "Нема својстава за канал „%s“"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to set properties for channel '%s'"
-msgstr "Не могу да пронађем податке за ДВБ канал „%s“"
+msgstr "Нисам успео да подесим својства за канал „%s“"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't find channel configuration file: '%s'"
-msgstr "Не могу да пронађем датотеку подешавања ДВБ канала"
+msgstr "Не могу да нађем датотеку подешавања канала: %s"
 
-#, fuzzy
 msgid "Channel configuration file doesn't contain any channels"
-msgstr "Датотека подешавања ДВБ канала не садржи ниједан канал"
-
-#~ msgid "Internal data flow error."
-#~ msgstr "Унутрашња грешка протока података."
+msgstr "Датотека подешавања канала не садржи ниједан канал"
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "основни аудио усклађивач звучних догађаја Гстримера"
@@ -263,6 +260,9 @@ msgstr "Датотека подешавања ДВБ канала не садр�
 
 #~ msgid "Describes the selected visualization element."
 #~ msgstr "Описује изабрани елемент приказивања."
+
+#~ msgid "Internal data flow error."
+#~ msgstr "Унутрашња грешка протока података."
 
 #~ msgid "Couldn't get the Manifest's URI"
 #~ msgstr "Не могу да добавим путању Манифеста"
