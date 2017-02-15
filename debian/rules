@@ -80,8 +80,8 @@ VERSIONIZE= \
 #debug package
 DEB_DH_STRIP_ARGS := --dbg-package=$(gst_pkgname)-plugins-bad-dbg
 
-# miralloc is just enabled for i386 and armhf (need android for the other archs)
-android_hybris_archs := i386 armhf
+# miralloc is just enabled for some archs (need android for the other archs)
+android_hybris_archs := i386 armhf arm64
 ifeq ($(DEB_HOST_ARCH_CPU), $(findstring $(DEB_HOST_ARCH_CPU), $(android_hybris_archs)))
 miralloc = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libgstmiralloc-$(gst_abi).so.*
 mirallocdev = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libgstmiralloc-$(gst_abi).so
@@ -219,8 +219,14 @@ ifeq (,$(findstring $(DEB_HOST_ARCH),m68k arm))
 DEB_CONFIGURE_EXTRA_FLAGS += --enable-gtk-doc
 endif
 
-ifneq (,$(findstring $(DEB_HOST_ARCH),armhf))
+ifneq (,$(findstring $(DEB_HOST_ARCH),armhf arm64))
 DEB_CONFIGURE_EXTRA_FLAGS += --disable-opengl --disable-glx
+endif
+
+# for arm64 we need to use hybris android sdk version 23 as there is no
+# jb linker for it
+ifneq (,$(findstring $(DEB_HOST_ARCH),arm64))
+export HYBRIS_ANDROID_SDK_VERSION=23
 endif
 
 common-binary-fixup-arch::

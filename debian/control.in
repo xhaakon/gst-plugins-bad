@@ -36,7 +36,7 @@ Description: GStreamer documentation for plugins from the "bad" set
  This package contains the documentation for plugins from the "bad" set.
 
 Package: @GST_PKGNAME@-hybris
-Architecture: i386 armhf
+Architecture: i386 armhf arm64
 Multi-Arch: same
 Depends: ${misc:Depends},
          ${shlibs:Depends}
@@ -161,7 +161,7 @@ Architecture: any
 Multi-Arch: same
 Section: debug
 Priority: extra
-Depends: @GST_PKGNAME@-hybris (= ${binary:Version}) [i386 armhf],
+Depends: @GST_PKGNAME@-hybris (= ${binary:Version}) [i386 armhf arm64],
          @GST_PKGNAME@-plugins-bad (= ${binary:Version}),
          ${misc:Depends}
 Replaces: gstreamer1.0-plugins-base-dbg (<< 0.11.94), gstreamer1.0-plugins-good (<< 1.1.2)

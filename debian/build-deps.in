@@ -38,9 +38,9 @@ libx11-dev
 libass-dev (>= 0.10.4)
 libmodplug-dev
 libkate-dev (>= 0.1.7)
-libmedia-dev (>= 0.1.0+git20131207+e452e83-0ubuntu3) [i386 armhf]
-libplatform-api1-dev [i386 armhf]
-libmirclient-dev [i386 armhf]
+libmedia-dev (>= 0.1.0+git20131207+e452e83-0ubuntu3) [i386 armhf arm64]
+libplatform-api1-dev [i386 armhf arm64]
+libmirclient-dev [i386 amd64 armhf arm64]
 libgme-dev
 librsvg2-dev (>= 2.36.2)
 libcairo2-dev
@@ -59,10 +59,10 @@ libopenal-dev (>= 1:1.14)
 libzvbi-dev
 libspandsp-dev
 libopus-dev (>= 0.9.4)
-libgl1-mesa-dev [!armhf]
+libgl1-mesa-dev [!armhf !arm64]
 libegl1-mesa-dev
 libgles2-mesa-dev
-libglu1-mesa-dev [!armhf]
+libglu1-mesa-dev [!armhf !arm64]
 libxml2-dev (>= 2.8)
 libfluidsynth-dev (>= 1.0)
 libsrtp0-dev

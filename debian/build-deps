@@ -36,10 +36,10 @@ libexif-dev (>= 0.6.16)
 libfaad-dev (>= 2.7)
 libfluidsynth-dev (>= 1.0)
 libgirepository1.0-dev (>= 0.9.12-4~)
-libgl1-mesa-dev [!armhf]
+libgl1-mesa-dev [!armhf !arm64]
 libgles2-mesa-dev
 libglib2.0-dev (>= 2.40)
-libglu1-mesa-dev [!armhf]
+libglu1-mesa-dev [!armhf !arm64]
 libgme-dev
 libgnutls28-dev (>= 2.11.3)
 libgsm1-dev
@@ -49,8 +49,8 @@ libgtk-3-dev (>= 3.15.0)
 libiptcdata0-dev (>= 1.0.2)
 libkate-dev (>= 0.1.7)
 liblilv-dev (>= 0.16)
-libmedia-dev (>= 0.1.0+git20131207+e452e83-0ubuntu3) [i386 armhf]
-libmirclient-dev [i386 armhf]
+libmedia-dev (>= 0.1.0+git20151016+6d424c9-0ubuntu23) [i386 armhf arm64]
+libmirclient-dev [i386 amd64 armhf arm64]
 libmjpegtools-dev
 libmms-dev (>= 0.4)
 libmodplug-dev
@@ -62,7 +62,7 @@ libopenexr-dev
 libopenjp2-7-dev
 libopus-dev (>= 0.9.4)
 liborc-0.4-dev (>= 1:0.4.17)
-libplatform-api1-dev [i386 armhf]
+libplatform-api1-dev [i386 armhf arm64]
 libpng-dev
 librsvg2-dev (>= 2.36.2)
 librtmp-dev

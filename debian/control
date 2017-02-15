@@ -51,10 +51,10 @@ Build-Depends: autoconf (>= 2.69),
                libfaad-dev (>= 2.7),
                libfluidsynth-dev (>= 1.0),
                libgirepository1.0-dev (>= 0.9.12-4~),
-               libgl1-mesa-dev [!armhf],
+               libgl1-mesa-dev [!armhf !arm64],
                libgles2-mesa-dev,
                libglib2.0-dev (>= 2.40),
-               libglu1-mesa-dev [!armhf],
+               libglu1-mesa-dev [!armhf !arm64],
                libgme-dev,
                libgnutls28-dev (>= 2.11.3),
                libgsm1-dev,
@@ -64,8 +64,8 @@ Build-Depends: autoconf (>= 2.69),
                libiptcdata0-dev (>= 1.0.2),
                libkate-dev (>= 0.1.7),
                liblilv-dev (>= 0.16),
-               libmedia-dev (>= 0.1.0+git20131207+e452e83-0ubuntu3) [i386 armhf],
-               libmirclient-dev [i386 armhf],
+               libmedia-dev (>= 0.1.0+git20151016+6d424c9-0ubuntu23) [i386 armhf arm64],
+               libmirclient-dev [i386 amd64 armhf arm64],
                libmjpegtools-dev,
                libmms-dev (>= 0.4),
                libmodplug-dev,
@@ -77,7 +77,7 @@ Build-Depends: autoconf (>= 2.69),
                libopenjp2-7-dev,
                libopus-dev (>= 0.9.4),
                liborc-0.4-dev (>= 1:0.4.17),
-               libplatform-api1-dev [i386 armhf],
+               libplatform-api1-dev [i386 armhf arm64],
                libpng-dev,
                librsvg2-dev (>= 2.36.2),
                librtmp-dev,
@@ -130,7 +130,7 @@ Description: GStreamer documentation for plugins from the "bad" set
  This package contains the documentation for plugins from the "bad" set.
 
 Package: gstreamer1.0-hybris
-Architecture: i386 armhf
+Architecture: i386 armhf arm64
 Multi-Arch: same
 Depends: ${misc:Depends},
          ${shlibs:Depends}
@@ -255,7 +255,7 @@ Architecture: any
 Multi-Arch: same
 Section: debug
 Priority: extra
-Depends: gstreamer1.0-hybris (= ${binary:Version}) [i386 armhf],
+Depends: gstreamer1.0-hybris (= ${binary:Version}) [i386 armhf arm64],
          gstreamer1.0-plugins-bad (= ${binary:Version}),
          ${misc:Depends}
 Replaces: gstreamer1.0-plugins-base-dbg (<< 0.11.94), gstreamer1.0-plugins-good (<< 1.1.2)
