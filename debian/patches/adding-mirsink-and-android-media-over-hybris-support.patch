@@ -1,10 +1,11 @@
-From: Jim Hodapp <jim.hodapp@canonical.com>
+From: Alfonso Sanchez-Beato <alfonso.sanchez-beato@canonical.com>
 Date: Tue, 14 Jul 2015 10:41:17 +0000
 Subject: Add mirsink and androidmedia-hybris support
 
 Add mirsink and androidmedia over hybris for hardware accelerated
 decoding using libstagefright and the hybris compat layer.
 
+From: Jim Hodapp <jim.hodapp@canonical.com>
 From: Alfonso Sanchez-Beato <alfonso.sanchez-beato@canonical.com>
 From: Ratchanan Srirattanamet <ratchananster@gmail.com> (LP: #1452386, LP: #1653373)
 Origin: vendor
@@ -12,11 +13,11 @@ Forwarded: no
 ---
  configure.ac                               |   15 +
  ext/Makefile.am                            |    8 +
- ext/mir/Makefile.am                        |   17 +
- ext/mir/gstmirsink.c                       |  854 ++++++++++
- ext/mir/gstmirsink.h                       |  134 ++
- ext/mir/mirpool.c                          |  434 +++++
- ext/mir/mirpool.h                          |   91 ++
+ ext/hybris/Makefile.am                     |   17 +
+ ext/hybris/gsthybrissink.c                 |  854 ++++++++++
+ ext/hybris/gsthybrissink.h                 |  134 ++
+ ext/hybris/mirpool.c                       |  434 +++++
+ ext/hybris/mirpool.h                       |   91 ++
  gst-libs/gst/Makefile.am                   |    8 +-
  gst-libs/gst/mir/Makefile.am               |   26 +
  gst-libs/gst/mir/gstmircontext.c           |  155 ++
@@ -36,11 +37,11 @@ Forwarded: no
  tests/check/pipelines/gstamcvideodec.c     |  538 +++++++
  tests/check/pipelines/gstamcvideodec_egl.c |   56 +
  25 files changed, 8791 insertions(+), 7 deletions(-)
- create mode 100644 ext/mir/Makefile.am
- create mode 100644 ext/mir/gstmirsink.c
- create mode 100644 ext/mir/gstmirsink.h
- create mode 100644 ext/mir/mirpool.c
- create mode 100644 ext/mir/mirpool.h
+ create mode 100644 ext/hybris/Makefile.am
+ create mode 100644 ext/hybris/gsthybrissink.c
+ create mode 100644 ext/hybris/gsthybrissink.h
+ create mode 100644 ext/hybris/mirpool.c
+ create mode 100644 ext/hybris/mirpool.h
  create mode 100644 gst-libs/gst/mir/Makefile.am
  create mode 100644 gst-libs/gst/mir/gstmircontext.c
  create mode 100644 gst-libs/gst/mir/gstmircontext.h
@@ -52,11 +53,11 @@ Forwarded: no
  create mode 100644 tests/check/pipelines/gstamcvideodec.c
  create mode 100644 tests/check/pipelines/gstamcvideodec_egl.c
 
-Index: b/configure.ac
-===================================================================
+diff --git a/configure.ac b/configure.ac
+index f2c63a1..7444429 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1784,6 +1784,18 @@
+@@ -1784,6 +1784,18 @@ AG_GST_CHECK_FEATURE(ANDROID_MEDIA, [Android Media], androidmedia, [
    esac
  ])
  
@@ -75,7 +76,7 @@ Index: b/configure.ac
  dnl *** AppleMedia (OS X and iOS) ***
  translit(dnm, m, l) AM_CONDITIONAL(USE_APPLE_MEDIA, true)
  HAVE_APPLE_MEDIA="no"
-@@ -3464,6 +3476,7 @@
+@@ -3464,6 +3476,7 @@ AM_CONDITIONAL(DECKLINK_OSX, false)
  AM_CONDITIONAL(USE_DIRECTFB, false)
  AM_CONDITIONAL(USE_WAYLAND, false)
  AM_CONDITIONAL(USE_DAALA, false)
@@ -83,7 +84,7 @@ Index: b/configure.ac
  AM_CONDITIONAL(USE_DTS, false)
  AM_CONDITIONAL(USE_EXIF, false)
  AM_CONDITIONAL(USE_RESINDVD, false)
-@@ -3703,6 +3716,7 @@
+@@ -3703,6 +3716,7 @@ gst-libs/gst/gl/egl/Makefile
  gst-libs/gst/gl/wayland/Makefile
  gst-libs/gst/gl/win32/Makefile
  gst-libs/gst/gl/x11/Makefile
@@ -91,76 +92,78 @@ Index: b/configure.ac
  gst-libs/gst/insertbin/Makefile
  gst-libs/gst/interfaces/Makefile
  gst-libs/gst/codecparsers/Makefile
-@@ -3786,6 +3800,7 @@
+@@ -3786,6 +3800,7 @@ ext/dc1394/Makefile
  ext/directfb/Makefile
  ext/wayland/Makefile
  ext/daala/Makefile
-+ext/mir/Makefile
++ext/hybris/Makefile
  ext/dts/Makefile
  ext/gl/Makefile
  ext/gtk/Makefile
-Index: b/ext/Makefile.am
-===================================================================
+diff --git a/ext/Makefile.am b/ext/Makefile.am
+index bae25c2..709bdb2 100644
 --- a/ext/Makefile.am
 +++ b/ext/Makefile.am
-@@ -70,6 +70,12 @@
+@@ -70,6 +70,12 @@ else
  DAALA_DIR=
  endif
  
 +if USE_ANDROID_MEDIA_HYBRIS
-+MIR_DIR=mir
++HYBRIS_DIR=hybris
 +else
-+MIR_DIR=
++HYBRIS_DIR=
 +endif
 +
  if USE_DTS
  DTS_DIR=dts
  else
-@@ -457,6 +463,7 @@
+@@ -457,6 +463,7 @@ SUBDIRS=\
  	$(LIBDE265_DIR) \
  	$(LIBMMS_DIR) \
  	$(LIBVISUAL_DIR) \
-+	$(MIR_DIR) \
++	$(HYBRIS_DIR) \
  	$(MODPLUG_DIR) \
  	$(MPEG2ENC_DIR) \
  	$(MIMIC_DIR) \
-@@ -508,6 +515,7 @@
+@@ -508,6 +515,7 @@ DIST_SUBDIRS = \
  	dc1394 \
  	directfb \
  	wayland \
-+	mir \
++	hybris \
  	faac \
  	faad \
  	fdkaac \
-Index: b/ext/mir/Makefile.am
-===================================================================
+diff --git a/ext/hybris/Makefile.am b/ext/hybris/Makefile.am
+new file mode 100644
+index 0000000..31c2576
 --- /dev/null
-+++ b/ext/mir/Makefile.am
++++ b/ext/hybris/Makefile.am
 @@ -0,0 +1,17 @@
-+plugin_LTLIBRARIES = libgstmirsink.la
++plugin_LTLIBRARIES = libgsthybrissink.la
 +
-+libgstmirsink_la_SOURCES = gstmirsink.c mirpool.c
-+libgstmirsink_la_CFLAGS = $(GST_CFLAGS) $(GST_BASE_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
++libgsthybrissink_la_SOURCES = gsthybrissink.c mirpool.c
++libgsthybrissink_la_CFLAGS = $(GST_CFLAGS) $(GST_BASE_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
 +                               $(UBUNTU_PLATFORM_CFLAGS) \
 +                               $(MIR_CFLAGS) \
 +                               -I../../gst-libs/
-+libgstmirsink_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) \
++libgsthybrissink_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) \
 +                               -lgstvideo-$(GST_API_VERSION) \
 +                               $(top_builddir)/gst-libs/gst/mir/libgstmiralloc-$(GST_API_VERSION).la \
 +                               -lmedia \
 +                               $(EGL_LIBS) $(EGLGLES_LIBS) \
 +                               $(MIR_LIBS)
-+libgstmirsink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-+libgstmirsink_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
-+include_HEADERS = mirpool.h gstmirsink.h
++libgsthybrissink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
++libgsthybrissink_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
++include_HEADERS = mirpool.h gsthybrissink.h
 +noinst_HEADERS =
-Index: b/ext/mir/gstmirsink.c
-===================================================================
+diff --git a/ext/hybris/gsthybrissink.c b/ext/hybris/gsthybrissink.c
+new file mode 100644
+index 0000000..d64eee0
 --- /dev/null
-+++ b/ext/mir/gstmirsink.c
++++ b/ext/hybris/gsthybrissink.c
 @@ -0,0 +1,854 @@
 +/*
-+ * GStreamer Mir video sink
++ * GStreamer Hybris/Mir video sink
 + * Copyright (C) 2013 Canonical Ltd
 + *
 + * This library is free software; you can redistribute it and/or
@@ -180,17 +183,17 @@ Index: b/ext/mir/gstmirsink.c
 + */
 +
 +/**
-+ * SECTION:element-mirsink
++ * SECTION:element-hybrissink
 + *
-+ *  The mirsink creates its own window and renders the decoded video frames there.
++ *  The hybrissink creates its own window and renders the decoded video frames there.
 + *  Setup the Mir environment as described in
 + *  <ulink url="http://mir.freedesktop.org/building.html">Mir</ulink> home page.
 + *
 + * <refsect2>
 + * <title>Example pipeline</title>
 + * |[
-+ * gst-launch -v filesrc ! qtdemux ! h264parse ! queue ! amcviddec-omxtiducati1videodecoder ! mirsink
-+ * ]| test the video rendering with mirsink
++ * gst-launch -v filesrc ! qtdemux ! h264parse ! queue ! amcviddec-omxtiducati1videodecoder ! hybrissink
++ * ]| test the video rendering with hybrissink
 + * </refsect2>
 + */
 +
@@ -198,7 +201,7 @@ Index: b/ext/mir/gstmirsink.c
 +#include <config.h>
 +#endif
 +
-+#include "gstmirsink.h"
++#include "gsthybrissink.h"
 +#include "mirpool.h"
 +
 +#include <gst/mir/mirallocator.h>
@@ -227,24 +230,24 @@ Index: b/ext/mir/gstmirsink.c
 +  PROP_MIR_VIDEO_WIDTH
 +};
 +
-+GST_DEBUG_CATEGORY (gstmir_debug);
-+#define GST_CAT_DEFAULT gstmir_debug
++GST_DEBUG_CATEGORY (gsthybris_debug);
++#define GST_CAT_DEFAULT gsthybris_debug
 +
 +#if 0
-+static const char gst_mirsink_sink_caps_str[] =
++static const char gst_hybrissink_sink_caps_str[] =
 +GST_VIDEO_CAPS_MAKE_WITH_FEATURES (GST_CAPS_FEATURE_MEMORY_MIR_IMAGE,
 +    GST_VIDEO_FORMATS_ALL) ";"
 +    GST_VIDEO_CAPS_MAKE_WITH_FEATURES
 +    (GST_CAPS_FEATURE_META_GST_VIDEO_GL_TEXTURE_UPLOAD_META,
 +    GST_VIDEO_FORMATS_ALL);
 +
-+     static GstStaticPadTemplate gst_mirsink_sink_caps_template =
++     static GstStaticPadTemplate gst_hybrissink_sink_caps_template =
 +         GST_STATIC_PAD_TEMPLATE ("sink",
 +    GST_PAD_SINK,
 +    GST_PAD_ALWAYS,
-+    GST_STATIC_CAPS (gst_mirsink_sink_caps_str));
++    GST_STATIC_CAPS (gst_hybrissink_sink_caps_str));
 +#else
-+static GstStaticPadTemplate gst_mirsink_sink_caps_template =
++static GstStaticPadTemplate gst_hybrissink_sink_caps_template =
 +GST_STATIC_PAD_TEMPLATE ("sink",
 +    GST_PAD_SINK,
 +    GST_PAD_ALWAYS,
@@ -260,28 +263,28 @@ Index: b/ext/mir/gstmirsink.c
 +static guint surface_texture_client_set_signal = 0;
 +
 +/* Fixme: Add more interfaces */
-+#define gst_mir_sink_parent_class parent_class
-+G_DEFINE_TYPE (GstMirSink, gst_mir_sink, GST_TYPE_VIDEO_SINK);
++#define gst_hybris_sink_parent_class parent_class
++G_DEFINE_TYPE (GstHybrisSink, gst_hybris_sink, GST_TYPE_VIDEO_SINK);
 +
-+static void gst_mir_sink_get_property (GObject * object,
++static void gst_hybris_sink_get_property (GObject * object,
 +    guint prop_id, GValue * value, GParamSpec * pspec);
-+static void gst_mir_sink_set_property (GObject * object,
++static void gst_hybris_sink_set_property (GObject * object,
 +    guint prop_id, const GValue * value, GParamSpec * pspec);
-+static void gst_mir_sink_finalize (GObject * object);
-+static void gst_mir_sink_set_context (GstElement * element,
++static void gst_hybris_sink_finalize (GObject * object);
++static void gst_hybris_sink_set_context (GstElement * element,
 +    GstContext * context);
-+static GstCaps *gst_mir_sink_get_caps (GstBaseSink * bsink, GstCaps * filter);
-+static gboolean gst_mir_sink_set_caps (GstBaseSink * bsink, GstCaps * caps);
-+static gboolean gst_mir_sink_start (GstBaseSink * bsink);
-+static gboolean gst_mir_sink_stop (GstBaseSink * bsink);
-+static gboolean gst_mir_sink_preroll (GstBaseSink * bsink, GstBuffer * buffer);
++static GstCaps *gst_hybris_sink_get_caps (GstBaseSink * bsink, GstCaps * filter);
++static gboolean gst_hybris_sink_set_caps (GstBaseSink * bsink, GstCaps * caps);
++static gboolean gst_hybris_sink_start (GstBaseSink * bsink);
++static gboolean gst_hybris_sink_stop (GstBaseSink * bsink);
++static gboolean gst_hybris_sink_preroll (GstBaseSink * bsink, GstBuffer * buffer);
 +static gboolean
-+gst_mir_sink_propose_allocation (GstBaseSink * bsink, GstQuery * query);
-+static gboolean gst_mir_sink_render (GstBaseSink * bsink, GstBuffer * buffer);
-+static gboolean gst_mir_sink_query (GstBaseSink * bsink, GstQuery * query);
++gst_hybris_sink_propose_allocation (GstBaseSink * bsink, GstQuery * query);
++static gboolean gst_hybris_sink_render (GstBaseSink * bsink, GstBuffer * buffer);
++static gboolean gst_hybris_sink_query (GstBaseSink * bsink, GstQuery * query);
 +
 +static void
-+gst_mir_sink_class_init (GstMirSinkClass * klass)
++gst_hybris_sink_class_init (GstHybrisSinkClass * klass)
 +{
 +  GObjectClass *gobject_class;
 +  GstElementClass *gstelement_class;
@@ -291,27 +294,27 @@ Index: b/ext/mir/gstmirsink.c
 +  gstelement_class = (GstElementClass *) klass;
 +  gstbasesink_class = (GstBaseSinkClass *) klass;
 +
-+  gobject_class->set_property = gst_mir_sink_set_property;
-+  gobject_class->get_property = gst_mir_sink_get_property;
-+  gobject_class->finalize = GST_DEBUG_FUNCPTR (gst_mir_sink_finalize);
-+  gstelement_class->set_context = gst_mir_sink_set_context;
++  gobject_class->set_property = gst_hybris_sink_set_property;
++  gobject_class->get_property = gst_hybris_sink_get_property;
++  gobject_class->finalize = GST_DEBUG_FUNCPTR (gst_hybris_sink_finalize);
++  gstelement_class->set_context = gst_hybris_sink_set_context;
 +
 +  gst_element_class_add_pad_template (gstelement_class,
-+      gst_static_pad_template_get (&gst_mirsink_sink_caps_template));
++      gst_static_pad_template_get (&gst_hybrissink_sink_caps_template));
 +
 +  gst_element_class_set_static_metadata (gstelement_class,
-+      "Mir video sink", "Sink/Video",
-+      "Output to Mir surface", "Jim Hodapp <jim.hodapp@canonical.com>");
++      "Hybris/Mir video sink", "Sink/Video",
++      "Output to hybris/Mir surface", "Jim Hodapp <jim.hodapp@canonical.com>");
 +
-+  gstbasesink_class->get_caps = GST_DEBUG_FUNCPTR (gst_mir_sink_get_caps);
-+  gstbasesink_class->set_caps = GST_DEBUG_FUNCPTR (gst_mir_sink_set_caps);
-+  gstbasesink_class->start = GST_DEBUG_FUNCPTR (gst_mir_sink_start);
-+  gstbasesink_class->stop = GST_DEBUG_FUNCPTR (gst_mir_sink_stop);
-+  gstbasesink_class->preroll = GST_DEBUG_FUNCPTR (gst_mir_sink_preroll);
++  gstbasesink_class->get_caps = GST_DEBUG_FUNCPTR (gst_hybris_sink_get_caps);
++  gstbasesink_class->set_caps = GST_DEBUG_FUNCPTR (gst_hybris_sink_set_caps);
++  gstbasesink_class->start = GST_DEBUG_FUNCPTR (gst_hybris_sink_start);
++  gstbasesink_class->stop = GST_DEBUG_FUNCPTR (gst_hybris_sink_stop);
++  gstbasesink_class->preroll = GST_DEBUG_FUNCPTR (gst_hybris_sink_preroll);
 +  gstbasesink_class->propose_allocation =
-+      GST_DEBUG_FUNCPTR (gst_mir_sink_propose_allocation);
-+  gstbasesink_class->render = GST_DEBUG_FUNCPTR (gst_mir_sink_render);
-+  gstbasesink_class->query = GST_DEBUG_FUNCPTR (gst_mir_sink_query);
++      GST_DEBUG_FUNCPTR (gst_hybris_sink_propose_allocation);
++  gstbasesink_class->render = GST_DEBUG_FUNCPTR (gst_hybris_sink_render);
++  gstbasesink_class->query = GST_DEBUG_FUNCPTR (gst_hybris_sink_query);
 +
 +  /* This signal is for being notified when a frame is ready to be rendered. This
 +   * is useful for anything outside of the sink that needs to know when each frame
@@ -319,13 +322,13 @@ Index: b/ext/mir/gstmirsink.c
 +  frame_ready_signal =
 +      g_signal_new ("frame-ready", G_TYPE_FROM_CLASS (klass),
 +      G_SIGNAL_RUN_LAST,
-+      G_STRUCT_OFFSET (GstMirSinkClass, frame_ready_changed), NULL, NULL,
++      G_STRUCT_OFFSET (GstHybrisSinkClass, frame_ready_changed), NULL, NULL,
 +      g_cclosure_marshal_VOID__POINTER, G_TYPE_NONE, 0);
 +
 +  surface_texture_client_set_signal =
 +      g_signal_new ("surface-texture-client", G_TYPE_FROM_CLASS (klass),
 +      G_SIGNAL_RUN_LAST,
-+      G_STRUCT_OFFSET (GstMirSinkClass, surface_texture_client_changed), NULL,
++      G_STRUCT_OFFSET (GstHybrisSinkClass, surface_texture_client_changed), NULL,
 +      NULL, g_cclosure_marshal_VOID__POINTER, G_TYPE_NONE, 1, G_TYPE_POINTER);
 +
 +  g_object_class_install_property (gobject_class, PROP_MIR_TEXTURE_ID,
@@ -345,19 +348,19 @@ Index: b/ext/mir/gstmirsink.c
 +}
 +
 +static void
-+gst_mir_sink_init (GstMirSink * sink)
++gst_hybris_sink_init (GstHybrisSink * sink)
 +{
-+  GST_DEBUG_OBJECT (sink, "Initializing mirsink");
++  GST_DEBUG_OBJECT (sink, "Initializing hybrissink");
 +  sink->pool = NULL;
 +
 +  g_mutex_init (&sink->mir_lock);
 +}
 +
 +static void
-+gst_mir_sink_get_property (GObject * object,
++gst_hybris_sink_get_property (GObject * object,
 +    guint prop_id, GValue * value, GParamSpec * pspec)
 +{
-+  GstMirSink *sink = GST_MIR_SINK (object);
++  GstHybrisSink *sink = GST_HYBRIS_SINK (object);
 +
 +  switch (prop_id) {
 +    case PROP_MIR_TEXTURE_ID:
@@ -376,16 +379,16 @@ Index: b/ext/mir/gstmirsink.c
 +}
 +
 +static void
-+gst_mir_sink_create_surface_texture (GObject * object)
++gst_hybris_sink_create_surface_texture (GObject * object)
 +{
-+  GstMirSink *sink = GST_MIR_SINK (object);
++  GstHybrisSink *sink = GST_HYBRIS_SINK (object);
 +
 +  /* Create a new SurfaceTextureClientHybris instance from a texture ID */
 +  sink->surface_texture_client =
 +      surface_texture_client_create_by_id (sink->texture_id);
 +  GST_DEBUG_OBJECT (sink, "Created new SurfaceTextureClientHybris instance: %p",
 +      sink->surface_texture_client);
-+  /* Because mirsink is being loaded, we are definitely doing
++  /* Because hybrissink is being loaded, we are definitely doing
 +   * hardware rendering.
 +   */
 +  surface_texture_client_set_hardware_rendering (sink->surface_texture_client,
@@ -397,16 +400,16 @@ Index: b/ext/mir/gstmirsink.c
 +}
 +
 +static void
-+gst_mir_sink_set_property (GObject * object,
++gst_hybris_sink_set_property (GObject * object,
 +    guint prop_id, const GValue * value, GParamSpec * pspec)
 +{
-+  GstMirSink *sink = GST_MIR_SINK (object);
++  GstHybrisSink *sink = GST_HYBRIS_SINK (object);
 +
 +  switch (prop_id) {
 +    case PROP_MIR_TEXTURE_ID:
 +      sink->texture_id = g_value_get_uint (value);
 +      GST_WARNING_OBJECT (object, "texture_id: %d", sink->texture_id);
-+      gst_mir_sink_create_surface_texture (object);
++      gst_hybris_sink_create_surface_texture (object);
 +      break;
 +    default:
 +      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -447,9 +450,9 @@ Index: b/ext/mir/gstmirsink.c
 +#endif
 +
 +static void
-+gst_mir_sink_finalize (GObject * object)
++gst_hybris_sink_finalize (GObject * object)
 +{
-+  GstMirSink *sink = GST_MIR_SINK (object);
++  GstHybrisSink *sink = GST_HYBRIS_SINK (object);
 +
 +  GST_DEBUG_OBJECT (sink, "Finalizing the sink..");
 +
@@ -474,9 +477,9 @@ Index: b/ext/mir/gstmirsink.c
 +}
 +
 +static void
-+gst_mir_sink_set_context (GstElement * element, GstContext * context)
++gst_hybris_sink_set_context (GstElement * element, GstContext * context)
 +{
-+  GstMirSink *sink = GST_MIR_SINK (element);
++  GstHybrisSink *sink = GST_HYBRIS_SINK (element);
 +  SurfaceTextureClientHybris stc;
 +
 +  GST_DEBUG_OBJECT (element, "%s", __PRETTY_FUNCTION__);
@@ -490,9 +493,9 @@ Index: b/ext/mir/gstmirsink.c
 +}
 +
 +static gboolean
-+gst_mir_sink_query (GstBaseSink * bsink, GstQuery * query)
++gst_hybris_sink_query (GstBaseSink * bsink, GstQuery * query)
 +{
-+  GstMirSink *sink = GST_MIR_SINK (bsink);
++  GstHybrisSink *sink = GST_HYBRIS_SINK (bsink);
 +
 +  GST_INFO_OBJECT (sink, "query type %s", GST_QUERY_TYPE_NAME (query));
 +
@@ -581,7 +584,7 @@ Index: b/ext/mir/gstmirsink.c
 +}
 +
 +static void
-+create_window (GstMirSink * sink, struct display *display, int width,
++create_window (GstHybrisSink * sink, struct display *display, int width,
 +    int height)
 +{
 +  struct window *window;
@@ -598,7 +601,7 @@ Index: b/ext/mir/gstmirsink.c
 +  window->height = height;
 +
 +  window->properties = ua_ui_window_properties_new_for_normal_window ();
-+  ua_ui_window_properties_set_titlen (window->properties, "MirSinkWindow", 13);
++  ua_ui_window_properties_set_titlen (window->properties, "HybrisSinkWindow", 13);
 +
 +  ua_ui_window_properties_set_role (window->properties, 1);
 +  ua_ui_window_properties_set_input_cb_and_ctx (window->properties, NULL, NULL);
@@ -624,12 +627,12 @@ Index: b/ext/mir/gstmirsink.c
 +#endif
 +
 +static GstCaps *
-+gst_mir_sink_get_caps (GstBaseSink * bsink, GstCaps * filter)
++gst_hybris_sink_get_caps (GstBaseSink * bsink, GstCaps * filter)
 +{
-+  GstMirSink *sink;
++  GstHybrisSink *sink;
 +  GstCaps *caps;
 +
-+  sink = GST_MIR_SINK (bsink);
++  sink = GST_HYBRIS_SINK (bsink);
 +
 +  GST_DEBUG_OBJECT (sink, "%s", __PRETTY_FUNCTION__);
 +
@@ -646,9 +649,9 @@ Index: b/ext/mir/gstmirsink.c
 +}
 +
 +static gboolean
-+gst_mir_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
++gst_hybris_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
 +{
-+  GstMirSink *sink = GST_MIR_SINK (bsink);
++  GstHybrisSink *sink = GST_HYBRIS_SINK (bsink);
 +  GstBufferPool *newpool, *oldpool;
 +  GstMirBufferPool *m_pool;
 +  GstVideoInfo info;
@@ -658,7 +661,7 @@ Index: b/ext/mir/gstmirsink.c
 +  };
 +  guint size;
 +
-+  sink = GST_MIR_SINK (bsink);
++  sink = GST_HYBRIS_SINK (bsink);
 +
 +  GST_DEBUG_OBJECT (sink, "set caps %" GST_PTR_FORMAT, caps);
 +
@@ -727,9 +730,9 @@ Index: b/ext/mir/gstmirsink.c
 +}
 +
 +static gboolean
-+gst_mir_sink_start (GstBaseSink * bsink)
++gst_hybris_sink_start (GstBaseSink * bsink)
 +{
-+  GstMirSink *sink = (GstMirSink *) bsink;
++  GstHybrisSink *sink = (GstHybrisSink *) bsink;
 +
 +  GST_DEBUG_OBJECT (sink, "start");
 +
@@ -738,7 +741,7 @@ Index: b/ext/mir/gstmirsink.c
 +   */
 +  if (!sink->surface_texture_client && sink->texture_id > 0) {
 +    GST_DEBUG_OBJECT (sink, "Creating new SurfaceTextureClientHybris instance");
-+    gst_mir_sink_create_surface_texture (G_OBJECT (bsink));
++    gst_hybris_sink_create_surface_texture (G_OBJECT (bsink));
 +  }
 +#if 0
 +  /* If we are using a texture_id, there's no need to use the Ubuntu
@@ -784,9 +787,9 @@ Index: b/ext/mir/gstmirsink.c
 +}
 +
 +static gboolean
-+gst_mir_sink_stop (GstBaseSink * bsink)
++gst_hybris_sink_stop (GstBaseSink * bsink)
 +{
-+  GstMirSink *sink = (GstMirSink *) bsink;
++  GstHybrisSink *sink = (GstHybrisSink *) bsink;
 +
 +  GST_DEBUG_OBJECT (sink, "stop");
 +
@@ -806,9 +809,9 @@ Index: b/ext/mir/gstmirsink.c
 +}
 +
 +static gboolean
-+gst_mir_sink_propose_allocation (GstBaseSink * bsink, GstQuery * query)
++gst_hybris_sink_propose_allocation (GstBaseSink * bsink, GstQuery * query)
 +{
-+  GstMirSink *sink = GST_MIR_SINK (bsink);
++  GstHybrisSink *sink = GST_HYBRIS_SINK (bsink);
 +  GstBufferPool *pool;
 +  GstStructure *config;
 +  GstCaps *caps;
@@ -916,16 +919,16 @@ Index: b/ext/mir/gstmirsink.c
 +}
 +
 +static GstFlowReturn
-+gst_mir_sink_preroll (GstBaseSink * bsink, GstBuffer * buffer)
++gst_hybris_sink_preroll (GstBaseSink * bsink, GstBuffer * buffer)
 +{
 +  GST_DEBUG_OBJECT (bsink, "preroll buffer %p", buffer);
-+  return gst_mir_sink_render (bsink, buffer);
++  return gst_hybris_sink_render (bsink, buffer);
 +}
 +
 +static GstFlowReturn
-+gst_mir_sink_render (GstBaseSink * bsink, GstBuffer * buffer)
++gst_hybris_sink_render (GstBaseSink * bsink, GstBuffer * buffer)
 +{
-+  GstMirSink *sink = GST_MIR_SINK (bsink);
++  GstHybrisSink *sink = GST_HYBRIS_SINK (bsink);
 +  //GstVideoRectangle src, dst, res;
 +  GstBuffer *to_render;
 +  GstMirMeta *meta;
@@ -1002,21 +1005,22 @@ Index: b/ext/mir/gstmirsink.c
 +static gboolean
 +plugin_init (GstPlugin * plugin)
 +{
-+  GST_DEBUG_CATEGORY_INIT (gstmir_debug, "mirsink", 0, " mir video sink");
++  GST_DEBUG_CATEGORY_INIT (gsthybris_debug, "hybrissink", 0, " hybris video sink");
 +
-+  return gst_element_register (plugin, "mirsink", GST_RANK_MARGINAL,
-+      GST_TYPE_MIR_SINK);
++  return gst_element_register (plugin, "hybrissink", GST_RANK_MARGINAL,
++      GST_TYPE_HYBRIS_SINK);
 +}
 +
 +GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
 +    GST_VERSION_MINOR,
-+    mirsink,
-+    "Mir Video Sink", plugin_init, VERSION, "LGPL", GST_PACKAGE_NAME,
++    hybrissink,
++    "Hybris Video Sink", plugin_init, VERSION, "LGPL", GST_PACKAGE_NAME,
 +    GST_PACKAGE_ORIGIN)
-Index: b/ext/mir/gstmirsink.h
-===================================================================
+diff --git a/ext/hybris/gsthybrissink.h b/ext/hybris/gsthybrissink.h
+new file mode 100644
+index 0000000..c5e5353
 --- /dev/null
-+++ b/ext/mir/gstmirsink.h
++++ b/ext/hybris/gsthybrissink.h
 @@ -0,0 +1,134 @@
 +/*
 + * GStreamer Mir video sink
@@ -1038,8 +1042,8 @@ Index: b/ext/mir/gstmirsink.h
 + * Boston, MA 02110-1301 USA.
 + */
 +
-+#ifndef __GST_MIR_VIDEO_SINK_H__
-+#define __GST_MIR_VIDEO_SINK_H__
++#ifndef __GST_HYBRIS_VIDEO_SINK_H__
++#define __GST_HYBRIS_VIDEO_SINK_H__
 +
 +#include <stdio.h>
 +#include <stdlib.h>
@@ -1067,21 +1071,21 @@ Index: b/ext/mir/gstmirsink.h
 +#include <hybris/media/surface_texture_client_hybris.h>
 +//#include <gst/mir/gstmircontext.h>
 +
-+#define GST_TYPE_MIR_SINK \
-+        (gst_mir_sink_get_type())
-+#define GST_MIR_SINK(obj) \
-+        (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_MIR_SINK,GstMirSink))
-+#define GST_MIR_SINK_CLASS(klass) \
-+        (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_MIR_SINK,GstMirSinkClass))
-+#define GST_IS_MIR_SINK(obj) \
-+        (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_MIR_SINK))
-+#define GST_IS_MIR_SINK_CLASS(klass) \
-+        (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_MIR_SINK))
-+#define GST_MIR_SINK_GET_CLASS(inst) \
-+        (G_TYPE_INSTANCE_GET_CLASS ((inst), GST_TYPE_MIR_SINK, GstMirSinkClass))
++#define GST_TYPE_HYBRIS_SINK \
++        (gst_hybris_sink_get_type())
++#define GST_HYBRIS_SINK(obj) \
++        (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_HYBRIS_SINK,GstHybrisSink))
++#define GST_HYBRIS_SINK_CLASS(klass) \
++        (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_HYBRIS_SINK,GstHybrisSinkClass))
++#define GST_IS_HYBRIS_SINK(obj) \
++        (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_HYBRIS_SINK))
++#define GST_IS_HYBRIS_SINK_CLASS(klass) \
++        (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_HYBRIS_SINK))
++#define GST_HYBRIS_SINK_GET_CLASS(inst) \
++        (G_TYPE_INSTANCE_GET_CLASS ((inst), GST_TYPE_HYBRIS_SINK, GstHybrisSinkClass))
 +
-+typedef struct _GstMirSink GstMirSink;
-+typedef struct _GstMirSinkClass GstMirSinkClass;
++typedef struct _GstHybrisSink GstHybrisSink;
++typedef struct _GstHybrisSinkClass GstHybrisSinkClass;
 +
 +#include "mirpool.h"
 +
@@ -1119,7 +1123,7 @@ Index: b/ext/mir/gstmirsink.h
 +  EGLNativeWindowType egl_native_window;
 +};
 +
-+struct _GstMirSink
++struct _GstHybrisSink
 +{
 +  GstVideoSink parent;
 +
@@ -1139,23 +1143,24 @@ Index: b/ext/mir/gstmirsink.h
 +  gint video_height;
 +};
 +
-+struct _GstMirSinkClass
++struct _GstHybrisSinkClass
 +{
 +  GstVideoSinkClass parent;
 +
-+  void (*frame_ready_changed) (GstMirSink *sink, gpointer renderer);
-+  void (*surface_texture_client_changed) (GstMirSink *sink, gpointer surface_texture_client, gpointer renderer);
++  void (*frame_ready_changed) (GstHybrisSink *sink, gpointer renderer);
++  void (*surface_texture_client_changed) (GstHybrisSink *sink, gpointer surface_texture_client, gpointer renderer);
 +};
 +
-+GType gst_mir_sink_get_type (void) G_GNUC_CONST;
++GType gst_hybris_sink_get_type (void) G_GNUC_CONST;
 +
 +G_END_DECLS
 +
-+#endif /* __GST_MIR_VIDEO_SINK_H__ */
-Index: b/ext/mir/mirpool.c
-===================================================================
++#endif /* __GST_HYBRIS_VIDEO_SINK_H__ */
+diff --git a/ext/hybris/mirpool.c b/ext/hybris/mirpool.c
+new file mode 100644
+index 0000000..77c5368
 --- /dev/null
-+++ b/ext/mir/mirpool.c
++++ b/ext/hybris/mirpool.c
 @@ -0,0 +1,434 @@
 +/*
 + * GStreamer Mir buffer pool
@@ -1182,7 +1187,7 @@ Index: b/ext/mir/mirpool.c
 +#endif
 +
 +/* Object header */
-+#include "gstmirsink.h"
++#include "gsthybrissink.h"
 +#include "mirpool.h"
 +
 +#include <gst/mir/mirallocator.h>
@@ -1305,7 +1310,7 @@ Index: b/ext/mir/mirpool.c
 +gst_buffer_add_mir_meta (GstBuffer * buffer, GstMirBufferPool * mpool)
 +{
 +  GstMirMeta *mmeta;
-+  GstMirSink *sink;
++  GstHybrisSink *sink;
 +  guint stride = 0;
 +  guint size = 0;
 +
@@ -1501,15 +1506,15 @@ Index: b/ext/mir/mirpool.c
 +}
 +
 +GstBufferPool *
-+gst_mir_buffer_pool_new (GstMirSink * mirsink)
++gst_mir_buffer_pool_new (GstHybrisSink * hybrissink)
 +{
 +  GstMirBufferPool *m_pool;
 +
 +  GST_WARNING ("%s", __PRETTY_FUNCTION__);
 +
-+  g_return_val_if_fail (GST_IS_MIR_SINK (mirsink), NULL);
++  g_return_val_if_fail (GST_IS_HYBRIS_SINK (hybrissink), NULL);
 +  m_pool = g_object_new (GST_TYPE_MIR_BUFFER_POOL, NULL);
-+  m_pool->sink = gst_object_ref (mirsink);
++  m_pool->sink = gst_object_ref (hybrissink);
 +
 +  return GST_BUFFER_POOL_CAST (m_pool);
 +}
@@ -1591,10 +1596,11 @@ Index: b/ext/mir/mirpool.c
 +
 +  G_OBJECT_CLASS (gst_mir_buffer_pool_parent_class)->finalize (object);
 +}
-Index: b/ext/mir/mirpool.h
-===================================================================
+diff --git a/ext/hybris/mirpool.h b/ext/hybris/mirpool.h
+new file mode 100644
+index 0000000..d18844e
 --- /dev/null
-+++ b/ext/mir/mirpool.h
++++ b/ext/hybris/mirpool.h
 @@ -0,0 +1,91 @@
 +/*
 + * GStreamer Mir buffer pool
@@ -1621,7 +1627,7 @@ Index: b/ext/mir/mirpool.h
 +
 +G_BEGIN_DECLS
 +
-+#include "gstmirsink.h"
++#include "gsthybrissink.h"
 +#include <hybris/media/media_codec_layer.h>
 +#include <hybris/media/surface_texture_client_hybris.h>
 +typedef struct _GstMirMeta GstMirMeta;
@@ -1639,7 +1645,7 @@ Index: b/ext/mir/mirpool.h
 +struct _GstMirMeta {
 +  GstMeta meta;
 +
-+  GstMirSink *sink;
++  GstHybrisSink *sink;
 +
 +  size_t size;
 +  /* Are we doing hardware rendering? */
@@ -1656,7 +1662,7 @@ Index: b/ext/mir/mirpool.h
 +{
 +  GstBufferPool bufferpool;
 +
-+  GstMirSink *sink;
++  GstHybrisSink *sink;
 +
 +  /*Fixme: keep all these in GstMirBufferPoolPrivate*/
 +  GstCaps *caps;
@@ -1678,7 +1684,7 @@ Index: b/ext/mir/mirpool.h
 +
 +GType gst_mir_buffer_pool_get_type (void);
 +
-+GstBufferPool *gst_mir_buffer_pool_new (GstMirSink * mirsink);
++GstBufferPool *gst_mir_buffer_pool_new (GstHybrisSink * hybrissink);
 +void gst_mir_buffer_pool_set_surface_texture_client (GstBufferPool * pool, SurfaceTextureClientHybris sfc);
 +void gst_mir_buffer_pool_set_hardware_rendering (GstBufferPool * pool, gboolean do_hardware_rendering);
 +gboolean gst_mir_buffer_pool_get_hardware_rendering (GstMirBufferPool * mpool);
@@ -1687,11 +1693,11 @@ Index: b/ext/mir/mirpool.h
 +G_END_DECLS
 +
 +#endif /*__GST_MIR_BUFFER_POOL_H__*/
-Index: b/gst-libs/gst/Makefile.am
-===================================================================
+diff --git a/gst-libs/gst/Makefile.am b/gst-libs/gst/Makefile.am
+index 7d0b309..81bfeb3 100644
 --- a/gst-libs/gst/Makefile.am
 +++ b/gst-libs/gst/Makefile.am
-@@ -6,12 +6,16 @@
+@@ -6,12 +6,16 @@ if USE_GLES2
  GL_DIR = gl
  endif
  
@@ -1709,7 +1715,7 @@ Index: b/gst-libs/gst/Makefile.am
  
  noinst_HEADERS = gst-i18n-plugin.h gettext.h glib-compat-private.h
  DIST_SUBDIRS = uridownloader adaptivedemux interfaces gl basecamerabinsrc \
-@@ -24,7 +28,7 @@
+@@ -24,7 +28,7 @@ adaptivedemux: uridownloader
  
  INDEPENDENT_SUBDIRS = \
  	interfaces basecamerabinsrc codecparsers insertbin uridownloader \
@@ -1718,8 +1724,9 @@ Index: b/gst-libs/gst/Makefile.am
  
  .PHONY: independent-subdirs $(INDEPENDENT_SUBDIRS)
  
-Index: b/gst-libs/gst/mir/Makefile.am
-===================================================================
+diff --git a/gst-libs/gst/mir/Makefile.am b/gst-libs/gst/mir/Makefile.am
+new file mode 100644
+index 0000000..a2bfe9b
 --- /dev/null
 +++ b/gst-libs/gst/mir/Makefile.am
 @@ -0,0 +1,26 @@
@@ -1749,8 +1756,9 @@ Index: b/gst-libs/gst/mir/Makefile.am
 +	$(GST_LIB_LDFLAGS) \
 +	$(GST_ALL_LDFLAGS) \
 +	$(GST_LT_LDFLAGS)
-Index: b/gst-libs/gst/mir/gstmircontext.c
-===================================================================
+diff --git a/gst-libs/gst/mir/gstmircontext.c b/gst-libs/gst/mir/gstmircontext.c
+new file mode 100644
+index 0000000..c4ba833
 --- /dev/null
 +++ b/gst-libs/gst/mir/gstmircontext.c
 @@ -0,0 +1,155 @@
@@ -1909,8 +1917,9 @@ Index: b/gst-libs/gst/mir/gstmircontext.c
 +
 +  return NULL;
 +}
-Index: b/gst-libs/gst/mir/gstmircontext.h
-===================================================================
+diff --git a/gst-libs/gst/mir/gstmircontext.h b/gst-libs/gst/mir/gstmircontext.h
+new file mode 100644
+index 0000000..2226684
 --- /dev/null
 +++ b/gst-libs/gst/mir/gstmircontext.h
 @@ -0,0 +1,43 @@
@@ -1957,8 +1966,9 @@ Index: b/gst-libs/gst/mir/gstmircontext.h
 +G_END_DECLS
 +
 +#endif /* __GST_MIR_COMMON_H__ */
-Index: b/gst-libs/gst/mir/mirallocator.c
-===================================================================
+diff --git a/gst-libs/gst/mir/mirallocator.c b/gst-libs/gst/mir/mirallocator.c
+new file mode 100644
+index 0000000..ac6e766
 --- /dev/null
 +++ b/gst-libs/gst/mir/mirallocator.c
 @@ -0,0 +1,272 @@
@@ -2234,8 +2244,9 @@ Index: b/gst-libs/gst/mir/mirallocator.c
 +
 +  return GST_MEMORY_CAST (mem);
 +}
-Index: b/gst-libs/gst/mir/mirallocator.h
-===================================================================
+diff --git a/gst-libs/gst/mir/mirallocator.h b/gst-libs/gst/mir/mirallocator.h
+new file mode 100644
+index 0000000..efe3fe0
 --- /dev/null
 +++ b/gst-libs/gst/mir/mirallocator.h
 @@ -0,0 +1,69 @@
@@ -2308,11 +2319,11 @@ Index: b/gst-libs/gst/mir/mirallocator.h
 +    gpointer user_data, GDestroyNotify user_data_destroy);
 +
 +#endif /* __GST_MIR_ALLOCATOR_H__ */
-Index: b/sys/Makefile.am
-===================================================================
+diff --git a/sys/Makefile.am b/sys/Makefile.am
+index 5365316..23215eb 100644
 --- a/sys/Makefile.am
 +++ b/sys/Makefile.am
-@@ -10,6 +10,12 @@
+@@ -10,6 +10,12 @@ else
  ANDROID_MEDIA_DIR=
  endif
  
@@ -2325,8 +2336,8 @@ Index: b/sys/Makefile.am
  if USE_APPLE_MEDIA
  APPLE_MEDIA_DIR=applemedia
  else
-Index: b/sys/androidmedia/Makefile.am
-===================================================================
+diff --git a/sys/androidmedia/Makefile.am b/sys/androidmedia/Makefile.am
+index cb194f1..6507e85 100644
 --- a/sys/androidmedia/Makefile.am
 +++ b/sys/androidmedia/Makefile.am
 @@ -1,6 +1,12 @@
@@ -2343,7 +2354,7 @@ Index: b/sys/androidmedia/Makefile.am
  	gstahcsrc.c \
  	gstahssrc.c \
  	gstamcaudiodec.c \
-@@ -13,6 +19,7 @@
+@@ -13,6 +19,7 @@ libgstandroidmedia_la_SOURCES = \
  	gst-android-hardware-camera.c \
  	gst-android-hardware-sensor.c \
  	gstjniutils.c
@@ -2351,7 +2362,7 @@ Index: b/sys/androidmedia/Makefile.am
  
  noinst_HEADERS = \
  	gstahcsrc.h \
-@@ -33,9 +40,11 @@
+@@ -33,9 +40,11 @@ noinst_HEADERS = \
  libgstandroidmedia_la_CFLAGS = \
  	-I$(top_srcdir)/gst-libs \
  	-I$(top_builddir)/gst-libs \
@@ -2363,7 +2374,7 @@ Index: b/sys/androidmedia/Makefile.am
  	$(ORC_CFLAGS) \
  	-DGST_USE_UNSTABLE_API
  
-@@ -43,20 +52,24 @@
+@@ -43,15 +52,19 @@ libgstandroidmedia_la_LIBADD = \
  	$(top_builddir)/gst-libs/gst/interfaces/libgstphotography-$(GST_API_VERSION).la \
  	$(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la \
  	$(GST_PLUGINS_BASE_LIBS) \
@@ -2373,7 +2384,7 @@ Index: b/sys/androidmedia/Makefile.am
  	-lgstvideo-@GST_API_VERSION@ \
 +	-lmedia \
  	$(GST_BASE_LIBS) \
--	$(GST_LIBS) \
+ 	$(GST_LIBS) \
 -	$(ORC_LIBS)
 +	$(ORC_LIBS) \
 +	$(top_builddir)/gst-libs/gst/mir/libgstmiralloc-@GST_API_VERSION@.la
@@ -2384,17 +2395,16 @@ Index: b/sys/androidmedia/Makefile.am
  androidmedia_java_classesdir = $(datadir)/gst-android/ndk-build/androidmedia/
  androidmedia_java_classes_DATA = \
  	org/freedesktop/gstreamer/androidmedia/GstAhcCallback.java \
- 	org/freedesktop/gstreamer/androidmedia/GstAhsCallback.java \
- 	org/freedesktop/gstreamer/androidmedia/GstAmcOnFrameAvailableListener.java
-+endif
+@@ -60,3 +73,4 @@ androidmedia_java_classes_DATA = \
  
  # Make sure the .java files end up in the tarball
  EXTRA_DIST = $(androidmedia_java_classes_DATA)
-Index: b/sys/androidmedia/gstamc-constants.h
-===================================================================
++endif
+diff --git a/sys/androidmedia/gstamc-constants.h b/sys/androidmedia/gstamc-constants.h
+index cc43f61..8ef701f 100644
 --- a/sys/androidmedia/gstamc-constants.h
 +++ b/sys/androidmedia/gstamc-constants.h
-@@ -92,7 +92,10 @@
+@@ -92,7 +92,10 @@ enum
    COLOR_Format18BitBGR666 = 41,
    COLOR_Format24BitARGB6666 = 42,
    COLOR_Format24BitABGR6666 = 43,
@@ -2405,7 +2415,7 @@ Index: b/sys/androidmedia/gstamc-constants.h
    COLOR_TI_FormatYUV420PackedSemiPlanar = 0x7f000100,
    COLOR_INTEL_FormatYUV420PackedSemiPlanar = 0x7fa00e00,
    COLOR_INTEL_FormatYUV420PackedSemiPlanar_Tiled = 0x7fa00f00,
-@@ -112,8 +115,15 @@
+@@ -112,8 +115,15 @@ enum
     * FIXME: Not actually implemented in the video decoder, it will just error out
     * The format seems to be equiv to V4L2_PIX_FMT_NV12MT_16X16 */
    COLOR_OMX_SEC_FormatNV12Tiled = 0x7fc00002,
@@ -2421,8 +2431,8 @@ Index: b/sys/androidmedia/gstamc-constants.h
  };
  
  enum
-Index: b/sys/androidmedia/gstamc.h
-===================================================================
+diff --git a/sys/androidmedia/gstamc.h b/sys/androidmedia/gstamc.h
+index 383eb42..dc5f459 100644
 --- a/sys/androidmedia/gstamc.h
 +++ b/sys/androidmedia/gstamc.h
 @@ -24,12 +24,67 @@
@@ -2494,7 +2504,7 @@ Index: b/sys/androidmedia/gstamc.h
  typedef struct _GstAmcCodecInfo GstAmcCodecInfo;
  typedef struct _GstAmcCodecType GstAmcCodecType;
  typedef struct _GstAmcCodec GstAmcCodec;
-@@ -59,16 +114,29 @@
+@@ -59,16 +114,29 @@ struct _GstAmcCodecInfo {
  };
  
  struct _GstAmcFormat {
@@ -2524,7 +2534,7 @@ Index: b/sys/androidmedia/gstamc.h
  };
  
  struct _GstAmcBufferInfo {
-@@ -83,7 +151,15 @@
+@@ -83,7 +151,15 @@ extern GQuark gst_amc_codec_info_quark;
  GstAmcCodec * gst_amc_codec_new (const gchar *name, GError **err);
  void gst_amc_codec_free (GstAmcCodec * codec);
  
@@ -2540,7 +2550,7 @@ Index: b/sys/androidmedia/gstamc.h
  GstAmcFormat * gst_amc_codec_get_output_format (GstAmcCodec * codec, GError **err);
  
  gboolean gst_amc_codec_start (GstAmcCodec * codec, GError **err);
-@@ -91,18 +167,33 @@
+@@ -91,18 +167,33 @@ gboolean gst_amc_codec_stop (GstAmcCodec * codec, GError **err);
  gboolean gst_amc_codec_flush (GstAmcCodec * codec, GError **err);
  gboolean gst_amc_codec_release (GstAmcCodec * codec, GError **err);
  
@@ -2559,9 +2569,9 @@ Index: b/sys/androidmedia/gstamc.h
  
  gboolean gst_amc_codec_queue_input_buffer (GstAmcCodec * codec, gint index, const GstAmcBufferInfo *info, GError **err);
 +#ifdef HAVE_ANDROID_MEDIA_HYBRIS
-+gboolean gst_amc_codec_release_output_buffer (GstAmcCodec * codec, gint index, gboolean render, GError **err);
-+#else
  gboolean gst_amc_codec_release_output_buffer (GstAmcCodec * codec, gint index, gboolean render, GError **err);
++#else
++gboolean gst_amc_codec_release_output_buffer (GstAmcCodec * codec, gint index, gboolean render, GError **err);
 +#endif
  
  
@@ -2574,7 +2584,7 @@ Index: b/sys/androidmedia/gstamc.h
  void gst_amc_format_free (GstAmcFormat * format);
  
  gchar * gst_amc_format_to_string (GstAmcFormat * format, GError **err);
-@@ -118,6 +209,10 @@
+@@ -118,6 +209,10 @@ gboolean gst_amc_format_set_string (GstAmcFormat *format, const gchar *key, cons
  gboolean gst_amc_format_get_buffer (GstAmcFormat *format, const gchar *key, guint8 **data, gsize *size, GError **err);
  gboolean gst_amc_format_set_buffer (GstAmcFormat *format, const gchar *key, guint8 *data, gsize size, GError **err);
  
@@ -2585,11 +2595,11 @@ Index: b/sys/androidmedia/gstamc.h
  GstVideoFormat gst_amc_color_format_to_video_format (const GstAmcCodecInfo * codec_info, const gchar * mime, gint color_format);
  gint gst_amc_video_format_to_color_format (const GstAmcCodecInfo * codec_info, const gchar * mime, GstVideoFormat video_format);
  
-Index: b/sys/androidmedia/gstamcaudiodec.h
-===================================================================
+diff --git a/sys/androidmedia/gstamcaudiodec.h b/sys/androidmedia/gstamcaudiodec.h
+index 04e9734..72d68fc 100644
 --- a/sys/androidmedia/gstamcaudiodec.h
 +++ b/sys/androidmedia/gstamcaudiodec.h
-@@ -51,6 +51,10 @@
+@@ -51,6 +51,10 @@ struct _GstAmcAudioDec
  
    /* < private > */
    GstAmcCodec *codec;
@@ -2600,7 +2610,7 @@ Index: b/sys/androidmedia/gstamcaudiodec.h
  
    GstCaps *input_caps;
    GList *codec_datas;
-@@ -81,6 +85,10 @@
+@@ -81,6 +85,10 @@ struct _GstAmcAudioDec
    gboolean draining;
    /* TRUE if the component is drained currently */
    gboolean drained;
@@ -2611,8 +2621,9 @@ Index: b/sys/androidmedia/gstamcaudiodec.h
  
    GstFlowReturn downstream_flow_ret;
  };
-Index: b/sys/androidmedia/gstamcaudiodechybris.c
-===================================================================
+diff --git a/sys/androidmedia/gstamcaudiodechybris.c b/sys/androidmedia/gstamcaudiodechybris.c
+new file mode 100644
+index 0000000..f361418
 --- /dev/null
 +++ b/sys/androidmedia/gstamcaudiodechybris.c
 @@ -0,0 +1,1291 @@
@@ -3907,8 +3918,9 @@ Index: b/sys/androidmedia/gstamcaudiodechybris.c
 +
 +  return ret;
 +}
-Index: b/sys/androidmedia/gstamchybris.c
-===================================================================
+diff --git a/sys/androidmedia/gstamchybris.c b/sys/androidmedia/gstamchybris.c
+new file mode 100644
+index 0000000..f01a873
 --- /dev/null
 +++ b/sys/androidmedia/gstamchybris.c
 @@ -0,0 +1,2189 @@
@@ -6101,8 +6113,8 @@ Index: b/sys/androidmedia/gstamchybris.c
 +    "Android Media Hybris plugin",
 +    plugin_init,
 +    PACKAGE_VERSION, GST_LICENSE, GST_PACKAGE_NAME, GST_PACKAGE_ORIGIN)
-Index: b/sys/androidmedia/gstamcvideodec.h
-===================================================================
+diff --git a/sys/androidmedia/gstamcvideodec.h b/sys/androidmedia/gstamcvideodec.h
+index 039a785..9dd60f5 100644
 --- a/sys/androidmedia/gstamcvideodec.h
 +++ b/sys/androidmedia/gstamcvideodec.h
 @@ -22,12 +22,20 @@
@@ -6128,7 +6140,7 @@ Index: b/sys/androidmedia/gstamcvideodec.h
  
  G_BEGIN_DECLS
  
-@@ -62,10 +70,19 @@
+@@ -62,10 +70,19 @@ struct _GstAmcVideoDec
    /* < private > */
    GstAmcCodec *codec;
    GstAmcCodecConfig codec_config;
@@ -6148,7 +6160,7 @@ Index: b/sys/androidmedia/gstamcvideodec.h
    /* Output format of the codec */
    GstVideoFormat format;
    GstAmcColorFormatInfo color_format_info;
-@@ -81,6 +98,10 @@
+@@ -81,6 +98,10 @@ struct _GstAmcVideoDec
    gboolean started;
    gboolean flushing;
  
@@ -6159,7 +6171,7 @@ Index: b/sys/androidmedia/gstamcvideodec.h
    GstClockTime last_upstream_ts;
  
    /* Draining state */
-@@ -90,21 +111,30 @@
+@@ -90,21 +111,30 @@ struct _GstAmcVideoDec
    gboolean draining;
    /* TRUE if the component is drained currently */
    gboolean drained;
@@ -6190,7 +6202,7 @@ Index: b/sys/androidmedia/gstamcvideodec.h
    GError *gl_error;
    GMutex gl_lock;
    GCond gl_cond;
-@@ -113,6 +143,16 @@
+@@ -113,6 +143,16 @@ struct _GstAmcVideoDec
    guint gl_ready_frame_count;  /* n buffers ready for GL access */
    guint gl_released_frame_count;  /* n buffers released */
    GQueue *gl_queue;
@@ -6207,8 +6219,9 @@ Index: b/sys/androidmedia/gstamcvideodec.h
  };
  
  struct _GstAmcVideoDecClass
-Index: b/sys/androidmedia/gstamcvideodechybris.c
-===================================================================
+diff --git a/sys/androidmedia/gstamcvideodechybris.c b/sys/androidmedia/gstamcvideodechybris.c
+new file mode 100644
+index 0000000..5a97e88
 --- /dev/null
 +++ b/sys/androidmedia/gstamcvideodechybris.c
 @@ -0,0 +1,2408 @@
@@ -6252,7 +6265,7 @@ Index: b/sys/androidmedia/gstamcvideodechybris.c
 +#include <string.h>
 +
 +#include <gst/mir/mirallocator.h>
-+#include <ext/mir/mirpool.h>
++#include <ext/hybris/mirpool.h>
 +
 +#ifdef HAVE_ORC
 +#include <orc/orc.h>
@@ -8620,11 +8633,11 @@ Index: b/sys/androidmedia/gstamcvideodechybris.c
 +
 +  return TRUE;
 +}
-Index: b/tests/check/Makefile.am
-===================================================================
+diff --git a/tests/check/Makefile.am b/tests/check/Makefile.am
+index 39f5aba..24051d8 100644
 --- a/tests/check/Makefile.am
 +++ b/tests/check/Makefile.am
-@@ -217,6 +217,12 @@
+@@ -217,6 +217,12 @@ else
  check_gl=
  endif
  
@@ -8637,7 +8650,7 @@ Index: b/tests/check/Makefile.am
  VALGRIND_TO_FIX = \
  	elements/mpeg2enc \
  	elements/mplex    \
-@@ -282,6 +288,7 @@
+@@ -282,6 +288,7 @@ check_PROGRAMS = \
  	elements/rtponviftimestamp \
  	elements/id3mux \
  	pipelines/mxf \
@@ -8645,8 +8658,9 @@ Index: b/tests/check/Makefile.am
  	$(check_mimic) \
  	libs/mpegvideoparser \
  	libs/mpegts \
-Index: b/tests/check/pipelines/gstamcvideodec.c
-===================================================================
+diff --git a/tests/check/pipelines/gstamcvideodec.c b/tests/check/pipelines/gstamcvideodec.c
+new file mode 100644
+index 0000000..eb6d9e9
 --- /dev/null
 +++ b/tests/check/pipelines/gstamcvideodec.c
 @@ -0,0 +1,538 @@
@@ -9188,8 +9202,9 @@ Index: b/tests/check/pipelines/gstamcvideodec.c
 +}
 +
 +GST_CHECK_MAIN (gstamcvideodec);
-Index: b/tests/check/pipelines/gstamcvideodec_egl.c
-===================================================================
+diff --git a/tests/check/pipelines/gstamcvideodec_egl.c b/tests/check/pipelines/gstamcvideodec_egl.c
+new file mode 100644
+index 0000000..56b70ed
 --- /dev/null
 +++ b/tests/check/pipelines/gstamcvideodec_egl.c
 @@ -0,0 +1,56 @@
