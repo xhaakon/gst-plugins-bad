@@ -1,3 +1,19 @@
+gst-plugins-bad1.0 (1.10.3-1ubuntu4) zesty; urgency=medium
+
+  * [ Łukasz 'sil2100' Zemczak <lukasz.zemczak@ubuntu.com> ]
+  * debian/control*, debian/rules, debian/build-deps*:
+    - Build gstreamer1.0-hybris for arm64, bump the required version of
+      libmedia-dev to a one that has a working arm64 linker in hybris.
+  * debian/rules:
+    - For arm64 force using HYBRIS_ANDROID_SDK_VERSION=23 as there is no jb
+      linker built in hybris for this architecture.
+
+  [ Alfonso Sanchez-Beato (email Canonical) ]
+  * Rename old mirsink to hybrissink to better reflect its nature
+  * Create new mirsink for desktop
+
+ -- Alfonso Sanchez-Beato (email Canonical) <alfonso.sanchez-beato@canonical.com>  Wed, 22 Feb 2017 17:02:05 +0100
+
 gst-plugins-bad1.0 (1.10.3-1ubuntu3) zesty; urgency=medium
 
   * No-change rebuild against libx265-110.
