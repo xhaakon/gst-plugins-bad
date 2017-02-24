@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.11.1\n"
+"Project-Id-Version: gst-plugins-bad 1.11.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-01-12 14:40+0200\n"
+"POT-Creation-Date: 2017-02-24 12:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,15 +16,15 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ext/gl/gstgltestsrc.c:521
+#: ext/gl/gstgltestsrc.c:491
 msgid "failed to draw pattern"
 msgstr ""
 
-#: ext/gl/gstgltestsrc.c:522
+#: ext/gl/gstgltestsrc.c:492
 msgid "A GL error occured"
 msgstr ""
 
-#: ext/gl/gstgltestsrc.c:528
+#: ext/gl/gstgltestsrc.c:498
 msgid "format wasn't negotiated before get function"
 msgstr ""
 
@@ -56,7 +56,7 @@ msgid "Could not read DVD."
 msgstr ""
 
 #: ext/smoothstreaming/gstmssdemux.c:421
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:703
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:716
 msgid "This file contains no playable streams."
 msgstr ""
 
@@ -86,15 +86,15 @@ msgstr ""
 msgid "Subpicture format was not configured before data flow"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3131
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3300
 msgid "Failed to get fragment URL."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3490
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3665
 msgid "Couldn't download fragments"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3579
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3754
 #: gst/mpegtsdemux/mpegtsbase.c:1610
 msgid "Internal data stream error."
 msgstr ""

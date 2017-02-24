@@ -15,7 +15,8 @@
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-libs-GstGLRenderbuffer.description" class="shortcut">Description</a></span>
+                  <a href="#gst-plugins-bad-libs-GstGLRenderbuffer.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-libs-GstGLRenderbuffer.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="gl.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
@@ -95,21 +96,49 @@
 <a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-init-once" title="gst_gl_renderbuffer_init_once ()">gst_gl_renderbuffer_init_once</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-is-gl-renderbuffer" title="gst_is_gl_renderbuffer ()">gst_is_gl_renderbuffer</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
 </tbody>
 </table></div>
 </div>
-<div class="refsect1">
+<a name="GstGLRenderbufferAllocator"></a><div class="refsect1">
 <a name="gst-plugins-bad-libs-GstGLRenderbuffer.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="name">
 <col class="description">
 </colgroup>
-<tbody><tr>
+<tbody>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#GstGLRenderbufferAllocator-struct" title="GstGLRenderbufferAllocator">GstGLRenderbufferAllocator</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#GstGLRenderbufferAllocatorClass" title="GstGLRenderbufferAllocatorClass">GstGLRenderbufferAllocatorClass</a></td>
+</tr>
+<tr>
 <td class="define_keyword">#define</td>
 <td class="function_name"><a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#GST-GL-RENDERBUFFER-ALLOCATOR-NAME:CAPS" title="GST_GL_RENDERBUFFER_ALLOCATOR_NAME">GST_GL_RENDERBUFFER_ALLOCATOR_NAME</a></td>
-</tr></tbody>
+</tr>
+</tbody>
 </table></div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-libs-GstGLRenderbuffer.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
+    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
+            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocator-struct">GstAllocator</a>
+                <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocator">GstGLBaseMemoryAllocator</a>
+                    <span class="lineart">╰──</span> GstGLRenderbufferAllocator
+</pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-GstGLRenderbuffer.description"></a><h2>Description</h2>
@@ -365,9 +394,51 @@ gst_gl_renderbuffer_init_once (<em class="parameter"><code><span class="type">vo
 multiple times.  This must be called before any other GstGLRenderbuffer operation.</p>
 <p class="since">Since: 1.10</p>
 </div>
+<hr>
+<div class="refsect2">
+<a name="gst-is-gl-renderbuffer"></a><h3>gst_is_gl_renderbuffer ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+gst_is_gl_renderbuffer (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstMemory.html#GstMemory-struct"><span class="type">GstMemory</span></a> *mem</code></em>);</pre>
+<div class="refsect3">
+<a name="gst-is-gl-renderbuffer.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>mem</p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstMemory.html#GstMemory-struct"><span class="type">GstMemory</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-is-gl-renderbuffer.returns"></a><h4>Returns</h4>
+<p> whether the memory at <em class="parameter"><code>mem</code></em>
+is a <span class="type">GstGLRenderbuffer</span></p>
+</div>
+<p class="since">Since: 1.10</p>
+</div>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-GstGLRenderbuffer.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="GstGLRenderbufferAllocator-struct"></a><h3>GstGLRenderbufferAllocator</h3>
+<pre class="programlisting">typedef struct _GstGLRenderbufferAllocator GstGLRenderbufferAllocator;</pre>
+<p>Opaque <a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#GstGLRenderbufferAllocator"><span class="type">GstGLRenderbufferAllocator</span></a> struct</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstGLRenderbufferAllocatorClass"></a><h3>GstGLRenderbufferAllocatorClass</h3>
+<pre class="programlisting">typedef struct {
+  GstGLBaseMemoryAllocatorClass             parent_class;
+} GstGLRenderbufferAllocatorClass;
+</pre>
+<p>The <a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#GstGLRenderbufferAllocatorClass" title="GstGLRenderbufferAllocatorClass"><span class="type">GstGLRenderbufferAllocatorClass</span></a> only contains private data</p>
+</div>
+<hr>
 <div class="refsect2">
 <a name="GST-GL-RENDERBUFFER-ALLOCATOR-NAME:CAPS"></a><h3>GST_GL_RENDERBUFFER_ALLOCATOR_NAME</h3>
 <pre class="programlisting">#define GST_GL_RENDERBUFFER_ALLOCATOR_NAME   "GLRenderbuffer"

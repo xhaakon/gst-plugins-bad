@@ -36,20 +36,17 @@ gboolean gst_gl_handle_set_context (GstElement * element, GstContext * context,
     GstGLDisplay ** display, GstGLContext ** other_context);
 GST_EXPORT
 gboolean gst_gl_handle_context_query (GstElement * element, GstQuery * query, 
-    GstGLDisplay ** display, GstGLContext ** other_context);
-
+    GstGLDisplay * display, GstGLContext * context, GstGLContext * other_context);
 GST_EXPORT
-gboolean gst_gl_run_query (GstElement * element,
-    GstQuery * query, GstPadDirection direction);
+gboolean gst_gl_query_local_gl_context (GstElement * element, GstPadDirection direction,
+    GstGLContext ** context_ptr);
+
 GST_EXPORT
 gsize gst_gl_get_plane_data_size (GstVideoInfo * info, GstVideoAlignment * align,
     guint plane);
 GST_EXPORT
 gsize gst_gl_get_plane_start (GstVideoInfo * info, GstVideoAlignment * valign,
     guint plane);
-GST_EXPORT
-GstCaps * gst_gl_caps_replace_all_caps_features (const GstCaps * caps,
-    const gchar * feature_name);
 
 GST_EXPORT
 gboolean gst_gl_value_set_texture_target_from_mask (GValue * value,
@@ -58,12 +55,6 @@ GST_EXPORT
 gboolean gst_gl_value_set_texture_target (GValue * value, GstGLTextureTarget target);
 GST_EXPORT
 GstGLTextureTarget gst_gl_value_get_texture_target_mask (const GValue * value);
-
-GST_EXPORT
-void gst_gl_multiply_matrix4 (const gfloat * a, const gfloat * b, gfloat * result);
-GST_EXPORT
-void gst_gl_get_affine_transformation_meta_as_ndc (GstVideoAffineTransformationMeta *
-    meta, gfloat * matrix);
 
 G_END_DECLS
 

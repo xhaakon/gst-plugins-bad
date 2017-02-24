@@ -582,6 +582,8 @@ OFA_CFLAGS = @OFA_CFLAGS@
 OFA_LIBS = @OFA_LIBS@
 OPENAL_CFLAGS = @OPENAL_CFLAGS@
 OPENAL_LIBS = @OPENAL_LIBS@
+OPENCV_3_CFLAGS = @OPENCV_3_CFLAGS@
+OPENCV_3_LIBS = @OPENCV_3_LIBS@
 OPENCV_CFLAGS = @OPENCV_CFLAGS@
 OPENCV_LIBS = @OPENCV_LIBS@
 OPENCV_PREFIX = @OPENCV_PREFIX@
@@ -817,8 +819,13 @@ win32crlf = $(shell find $(top_srcdir)/win32 -name '*.dsw' -o -name '*.dsp')
 EXTRA_DIST = \
 	depcomp \
 	AUTHORS COPYING NEWS README RELEASE REQUIREMENTS \
-	ChangeLog gst-plugins-bad.doap autogen.sh \
-	$(win32)
+	ChangeLog gst-plugins-bad.doap autogen.sh $(win32) \
+	$(shell find "$(top_srcdir)" -type f -name meson.build ! -path "$(top_srcdir)/$(PACKAGE_TARNAME)-*" ) \
+	meson_options.txt config.h.meson \
+	gst-libs/gst/interfaces/build_mkenum.py \
+	gst-libs/gst/mpegts/mpegts_enum.py \
+	ext/srtp/srtp_mkenum.py \
+	ext/vulkan/vkconfig.h.meson gst-libs/gst/gl/gstglconfig.h.meson
 
 DISTCLEANFILES = _stdint.h
 

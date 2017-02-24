@@ -24,6 +24,9 @@
 
 #include <gst/gst.h>
 #include <gst/video/video.h>
+
+#include <stdint.h>
+
 #ifdef G_OS_UNIX
 #include "linux/DeckLinkAPI.h"
 #endif
@@ -39,8 +42,8 @@
 #define FREE_COM_STRING(s) delete[] s;
 #define CONVERT_COM_STRING(s) BSTR _s = (BSTR)s; s = _com_util::ConvertBSTRToString(_s); ::SysFreeString(_s);
 #else
-#define COMSTR_T char*
-#define FREE_COM_STRING(s) free ((void *) s)
+#define COMSTR_T const char*
+#define FREE_COM_STRING(s)
 #define CONVERT_COM_STRING(s)
 #endif /* _MSC_VER */
 
@@ -111,6 +114,7 @@ typedef enum {
 GType gst_decklink_audio_connection_get_type (void);
 
 typedef enum {
+  GST_DECKLINK_AUDIO_CHANNELS_MAX = 0,
   GST_DECKLINK_AUDIO_CHANNELS_2 = 2,
   GST_DECKLINK_AUDIO_CHANNELS_8 = 8,
   GST_DECKLINK_AUDIO_CHANNELS_16 = 16

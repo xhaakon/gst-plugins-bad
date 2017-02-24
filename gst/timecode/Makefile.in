@@ -167,7 +167,7 @@ libgsttimecode_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 am_libgsttimecode_la_OBJECTS = libgsttimecode_la-plugin.lo \
 	libgsttimecode_la-gsttimecodestamper.lo \
-	libgsttimecode_la-gsttimecodewait.lo
+	libgsttimecode_la-gstavwait.lo
 libgsttimecode_la_OBJECTS = $(am_libgsttimecode_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -574,6 +574,8 @@ OFA_CFLAGS = @OFA_CFLAGS@
 OFA_LIBS = @OFA_LIBS@
 OPENAL_CFLAGS = @OPENAL_CFLAGS@
 OPENAL_LIBS = @OPENAL_LIBS@
+OPENCV_3_CFLAGS = @OPENCV_3_CFLAGS@
+OPENCV_3_LIBS = @OPENCV_3_LIBS@
 OPENCV_CFLAGS = @OPENCV_CFLAGS@
 OPENCV_LIBS = @OPENCV_LIBS@
 OPENCV_PREFIX = @OPENCV_PREFIX@
@@ -785,12 +787,12 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgsttimecode.la
-libgsttimecode_la_SOURCES = plugin.c gsttimecodestamper.c gsttimecodewait.c
+libgsttimecode_la_SOURCES = plugin.c gsttimecodestamper.c gstavwait.c
 libgsttimecode_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS)
 libgsttimecode_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) -lgstaudio-$(GST_API_VERSION) $(GST_BASE_LIBS) $(GST_LIBS) $(LIBM)
 libgsttimecode_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgsttimecode_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
-noinst_HEADERS = gsttimecodestamper.h gsttimecodewait.h
+noinst_HEADERS = gsttimecodestamper.h gstavwait.h
 all: all-am
 
 .SUFFIXES:
@@ -869,8 +871,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgsttimecode_la-gstavwait.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgsttimecode_la-gsttimecodestamper.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgsttimecode_la-gsttimecodewait.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgsttimecode_la-plugin.Plo@am__quote@
 
 .c.o:
@@ -911,12 +913,12 @@ libgsttimecode_la-gsttimecodestamper.lo: gsttimecodestamper.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsttimecode_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsttimecode_la_CFLAGS) $(CFLAGS) -c -o libgsttimecode_la-gsttimecodestamper.lo `test -f 'gsttimecodestamper.c' || echo '$(srcdir)/'`gsttimecodestamper.c
 
-libgsttimecode_la-gsttimecodewait.lo: gsttimecodewait.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsttimecode_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsttimecode_la_CFLAGS) $(CFLAGS) -MT libgsttimecode_la-gsttimecodewait.lo -MD -MP -MF $(DEPDIR)/libgsttimecode_la-gsttimecodewait.Tpo -c -o libgsttimecode_la-gsttimecodewait.lo `test -f 'gsttimecodewait.c' || echo '$(srcdir)/'`gsttimecodewait.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgsttimecode_la-gsttimecodewait.Tpo $(DEPDIR)/libgsttimecode_la-gsttimecodewait.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gsttimecodewait.c' object='libgsttimecode_la-gsttimecodewait.lo' libtool=yes @AMDEPBACKSLASH@
+libgsttimecode_la-gstavwait.lo: gstavwait.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsttimecode_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsttimecode_la_CFLAGS) $(CFLAGS) -MT libgsttimecode_la-gstavwait.lo -MD -MP -MF $(DEPDIR)/libgsttimecode_la-gstavwait.Tpo -c -o libgsttimecode_la-gstavwait.lo `test -f 'gstavwait.c' || echo '$(srcdir)/'`gstavwait.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgsttimecode_la-gstavwait.Tpo $(DEPDIR)/libgsttimecode_la-gstavwait.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstavwait.c' object='libgsttimecode_la-gstavwait.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsttimecode_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsttimecode_la_CFLAGS) $(CFLAGS) -c -o libgsttimecode_la-gsttimecodewait.lo `test -f 'gsttimecodewait.c' || echo '$(srcdir)/'`gsttimecodewait.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgsttimecode_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgsttimecode_la_CFLAGS) $(CFLAGS) -c -o libgsttimecode_la-gstavwait.lo `test -f 'gstavwait.c' || echo '$(srcdir)/'`gstavwait.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

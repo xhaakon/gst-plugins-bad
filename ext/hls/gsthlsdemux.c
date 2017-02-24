@@ -123,6 +123,10 @@ gst_hls_demux_finalize (GObject * obj)
 
   gst_hls_demux_reset (GST_ADAPTIVE_DEMUX_CAST (demux));
   g_mutex_clear (&demux->keys_lock);
+  if (demux->keys) {
+    g_hash_table_unref (demux->keys);
+    demux->keys = NULL;
+  }
 
   G_OBJECT_CLASS (parent_class)->finalize (obj);
 }
@@ -356,7 +360,8 @@ gst_hls_demux_seek (GstAdaptiveDemux * demux, GstEvent * seek)
     GstM3U8MediaFile *file = NULL;
 
     current_sequence = 0;
-    current_pos = 0;
+    current_pos = gst_m3u8_is_live (hls_stream->playlist) ?
+        hls_stream->playlist->first_file_start : 0;
     reverse = rate < 0;
     target_pos = reverse ? stop : start;
     target_type = reverse ? stop_type : start_type;
@@ -843,6 +848,9 @@ gst_hls_demux_handle_buffer (GstAdaptiveDemux * demux,
 
   if (tags) {
     gst_adaptive_demux_stream_set_tags (stream, tags);
+    /* run typefind again on the trimmed buffer */
+    hls_stream->do_typefind = TRUE;
+    return gst_hls_demux_handle_buffer (demux, stream, buffer, at_eos);
   }
 
   if (buffer) {
@@ -1453,7 +1461,7 @@ retry:
         "sequence:%" G_GINT64_FORMAT " , first_sequence:%" G_GINT64_FORMAT
         " , last_sequence:%" G_GINT64_FORMAT, m3u8->sequence,
         first_sequence, last_sequence);
-    if (m3u8->sequence >= last_sequence - 3) {
+    if (m3u8->sequence > last_sequence - 3) {
       //demux->need_segment = TRUE;
       /* Make sure we never go below the minimum sequence number */
       m3u8->sequence = MAX (first_sequence, last_sequence - 3);

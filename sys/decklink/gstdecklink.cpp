@@ -200,6 +200,7 @@ gst_decklink_audio_channels_get_type (void)
     {GST_DECKLINK_AUDIO_CHANNELS_2, "2 Channels", "2"},
     {GST_DECKLINK_AUDIO_CHANNELS_8, "8 Channels", "8"},
     {GST_DECKLINK_AUDIO_CHANNELS_16, "16 Channels", "16"},
+    {GST_DECKLINK_AUDIO_CHANNELS_MAX, "Maximum channels supported", "max"},
     {0, NULL, NULL}
   };
 
@@ -450,7 +451,7 @@ gst_decklink_timecode_format_to_enum (BMDTimecodeFormat f)
 }
 
 static const BMDVideoConnection connections[] = {
-  0,                            /* auto */
+  (BMDVideoConnection) 0,       /* auto */
   bmdVideoConnectionSDI,
   bmdVideoConnectionHDMI,
   bmdVideoConnectionOpticalSDI,
@@ -756,7 +757,7 @@ public:
     void (*got_video_frame) (GstElement * videosrc,
         IDeckLinkVideoInputFrame * frame, GstDecklinkModeEnum mode,
         GstClockTime capture_time, GstClockTime stream_time,
-        GstClockTime stream_duration, IDeckLinkTimecode *dtc, gboolean
+        GstClockTime stream_duration, IDeckLinkTimecode * dtc, gboolean
         no_signal) = NULL;
     void (*got_audio_packet) (GstElement * videosrc,
         IDeckLinkAudioInputPacket * packet, GstClockTime capture_time,
@@ -807,7 +808,7 @@ public:
     if (got_video_frame && videosrc && video_frame) {
       BMDTimeValue stream_time = GST_CLOCK_TIME_NONE;
       BMDTimeValue stream_duration = GST_CLOCK_TIME_NONE;
-      IDeckLinkTimecode *dtc;
+      IDeckLinkTimecode *dtc = 0;
 
       res =
           video_frame->GetStreamTime (&stream_time, &stream_duration,
@@ -968,12 +969,14 @@ init_devices (gpointer data)
         while ((ret = mode_iter->Next (&mode)) == S_OK) {
           const char *name;
 
-          mode->GetName (&name);
+          mode->GetName ((COMSTR_T *) & name);
+          CONVERT_COM_STRING (name);
           GST_DEBUG ("    %s mode: 0x%08x width: %ld height: %ld"
               " fields: 0x%08x flags: 0x%08x", name,
               (int) mode->GetDisplayMode (), mode->GetWidth (),
               mode->GetHeight (), (int) mode->GetFieldDominance (),
               (int) mode->GetFlags ());
+          FREE_COM_STRING (name);
           mode->Release ();
         }
         mode_iter->Release ();
@@ -1004,12 +1007,14 @@ init_devices (gpointer data)
         while ((ret = mode_iter->Next (&mode)) == S_OK) {
           const char *name;
 
-          mode->GetName (&name);
+          mode->GetName ((COMSTR_T *) & name);
+          CONVERT_COM_STRING (name);
           GST_DEBUG ("    %s mode: 0x%08x width: %ld height: %ld"
               " fields: 0x%08x flags: 0x%08x", name,
               (int) mode->GetDisplayMode (), mode->GetWidth (),
               mode->GetHeight (), (int) mode->GetFieldDominance (),
               (int) mode->GetFlags ());
+          FREE_COM_STRING (name);
           mode->Release ();
         }
         mode_iter->Release ();
