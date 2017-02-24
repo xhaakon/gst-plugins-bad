@@ -7,6 +7,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaudiomixer.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstasfmux.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstassrender.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaudiobuffersplit.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaudiomixmatrix.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaudiovisualizers.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstautoconvert.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstbayer.so
