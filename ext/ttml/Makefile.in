@@ -163,7 +163,8 @@ am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstttmlsubs_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am_libgstttmlsubs_la_OBJECTS = libgstttmlsubs_la-subtitle.lo \
 	libgstttmlsubs_la-subtitlemeta.lo \
 	libgstttmlsubs_la-gstttmlparse.lo \
@@ -576,6 +577,8 @@ OFA_CFLAGS = @OFA_CFLAGS@
 OFA_LIBS = @OFA_LIBS@
 OPENAL_CFLAGS = @OPENAL_CFLAGS@
 OPENAL_LIBS = @OPENAL_LIBS@
+OPENCV_3_CFLAGS = @OPENCV_3_CFLAGS@
+OPENCV_3_LIBS = @OPENCV_3_LIBS@
 OPENCV_CFLAGS = @OPENCV_CFLAGS@
 OPENCV_LIBS = @OPENCV_LIBS@
 OPENCV_PREFIX = @OPENCV_PREFIX@
@@ -811,7 +814,8 @@ libgstttmlsubs_la_LIBADD = \
 	$(GST_BASE_LIBS) \
 	$(GST_LIBS) \
 	-lgstvideo-$(GST_API_VERSION) \
-	$(TTML_LIBS)
+	$(TTML_LIBS) \
+	$(LIBM)
 
 libgstttmlsubs_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstttmlsubs_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)

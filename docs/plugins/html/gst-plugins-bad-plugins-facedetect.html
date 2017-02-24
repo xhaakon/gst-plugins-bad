@@ -15,7 +15,8 @@
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-facedetect.description" class="shortcut">Description</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-facedetect.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-facedetect.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-facedetect.properties" class="shortcut">Properties</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
@@ -108,7 +109,7 @@
 </tbody>
 </table></div>
 </div>
-<div class="refsect1">
+<a name="GstFaceDetect"></a><div class="refsect1">
 <a name="gst-plugins-bad-plugins-facedetect.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
@@ -118,7 +119,7 @@
 <tbody>
 <tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-facedetect.html#GstFaceDetect" title="struct GstFaceDetect">GstFaceDetect</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-facedetect.html#GstFaceDetect-struct" title="struct GstFaceDetect">GstFaceDetect</a></td>
 </tr>
 <tr>
 <td class="datatype_keyword">enum</td>
@@ -128,6 +129,18 @@
 </table></div>
 </div>
 <div class="refsect1">
+<a name="gst-plugins-bad-plugins-facedetect.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
+    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
+            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstElement.html#GstElement-struct">GstElement</a>
+                <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-libs-1.0GstBaseTransform.html#GstBaseTransform-struct">GstBaseTransform</a>
+                    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideofilter.html#GstVideoFilter-struct">GstVideoFilter</a>
+                        <span class="lineart">╰──</span> GstOpencvVideoFilter
+                            <span class="lineart">╰──</span> GstFaceDetect
+</pre>
+</div>
+<div class="refsect1">
 <a name="gst-plugins-bad-plugins-facedetect.description"></a><h2>Description</h2>
 <p>Performs face detection on videos and images.
 If you have high cpu load you need to use videoscale with capsfilter and reduce the video resolution.</p>
@@ -135,7 +148,7 @@ If you have high cpu load you need to use videoscale with capsfilter and reduce 
 until the size is &lt;= GstFaceDetect::min-size-width or
 GstFaceDetect::min-size-height.</p>
 <div class="refsect2">
-<a name="id-1.2.36.5.4"></a><h3>Example launch line</h3>
+<a name="id-1.2.36.7.4"></a><h3>Example launch line</h3>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -163,7 +176,7 @@ GstFaceDetect::min-size-height.</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.36.5.5.1"></a><h3>Element Information</h3>
+<a name="id-1.2.36.7.5.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -189,7 +202,7 @@ GstFaceDetect::min-size-height.</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.36.5.5.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.36.7.5.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -248,32 +261,8 @@ GstFaceDetect::min-size-height.</p>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-facedetect.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstFaceDetect"></a><h3>struct GstFaceDetect</h3>
-<pre class="programlisting">struct GstFaceDetect {
-  GstOpencvVideoFilter element;
-
-  gboolean display;
-  gboolean face_detected;
-
-  gchar *face_profile;
-  gchar *nose_profile;
-  gchar *mouth_profile;
-  gchar *eyes_profile;
-  gdouble scale_factor;
-  gint min_neighbors;
-  gint flags;
-  gint min_size_width;
-  gint min_size_height;
-  gint min_stddev;
-  gint updates;
-
-  IplImage *cvGray;
-  cv::CascadeClassifier *cvFaceDetect;
-  cv::CascadeClassifier *cvNoseDetect;
-  cv::CascadeClassifier *cvMouthDetect;
-  cv::CascadeClassifier *cvEyesDetect;
-};
-</pre>
+<a name="GstFaceDetect-struct"></a><h3>struct GstFaceDetect</h3>
+<pre class="programlisting">struct GstFaceDetect;</pre>
 </div>
 <hr>
 <div class="refsect2">

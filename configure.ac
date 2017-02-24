@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.11.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.11.2],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 1101, 0, 1101)
+AS_LIBTOOL(GST, 1102, 0, 1102)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.11.1
-GSTPB_REQ=1.11.1
+GST_REQ=1.11.2
+GSTPB_REQ=1.11.2
 
 dnl *** autotools stuff ****
 
@@ -359,13 +359,13 @@ AG_GST_CHECK_FEATURE(IQA, [iqa], iqa , [
     HAVE_IQA="no"
   ])
 
-  AM_CONDITIONAL(HAVE_DSSIM, test "x$HAVE_DSSIM" = "xyes")
   if test "x$HAVE_DSSIM" = "xyes"; then
     AC_DEFINE(HAVE_DSSIM, 1, [Define if you have dssim library])
   fi
   AC_SUBST(DSSIM_LIBS)
   AC_SUBST(DSSIM_CFLAGS)
 ])
+AM_CONDITIONAL(HAVE_DSSIM, test "x$HAVE_DSSIM" = "xyes")
 
 dnl Orc
 ORC_CHECK([0.4.17])
@@ -470,6 +470,7 @@ AG_GST_CHECK_PLUGIN(asfmux)
 AG_GST_CHECK_PLUGIN(audiobuffersplit)
 AG_GST_CHECK_PLUGIN(audiofxbad)
 AG_GST_CHECK_PLUGIN(audiomixer)
+AG_GST_CHECK_PLUGIN(audiomixmatrix)
 AG_GST_CHECK_PLUGIN(compositor)
 AG_GST_CHECK_PLUGIN(audiovisualizers)
 AG_GST_CHECK_PLUGIN(autoconvert)
@@ -712,33 +713,6 @@ case $host in
 
     old_LIBS=$LIBS
     old_CFLAGS=$CFLAGS
-
-    dnl FIXME: Mali EGL depends on GLESv1 or GLESv2
-    AC_CHECK_HEADER([EGL/fbdev_window.h],
-      [
-        LIBS="$LIBS -lUMP"
-        AC_CHECK_LIB([Mali], [mali_image_create],
-          [
-            LIBS="$LIBS -lMali"
-            AC_CHECK_LIB([GLESv2], [glEnable],
-              [
-                AC_CHECK_HEADER([GLES2/gl2.h],
-                  [
-                    AC_CHECK_LIB([EGL], [eglGetProcAddress],
-                      [
-                        AC_CHECK_HEADER([EGL/egl.h],
-                          [
-                            HAVE_EGL=yes
-                            HAVE_GLES2=yes
-                            EGL_LIBS="-lMali -lUMP"
-                            EGL_CFLAGS=""
-                            AC_DEFINE(USE_EGL_MALI_FB, [1], [Use Mali FB EGL platform])
-                          ])
-                      ])
-                  ])
-              ])
-          ])
-      ])
 
     dnl FIXME: EGL of RPi depends on GLESv1 or GLESv2
     dnl FIXME: GLESv2 of RPi depends on EGL... WTF!
@@ -2322,10 +2296,10 @@ AG_GST_CHECK_FEATURE(FBDEV, [linux framebuffer], fbdevsink, [
 dnl *** fdkaac ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_FDK_AAC, true)
 AG_GST_CHECK_FEATURE(FDK_AAC, [fdkaac plugin], fdkaac, [
-  PKG_CHECK_MODULES(FDK_AAC, fdk-aac >= 0.1.14, [
+  PKG_CHECK_MODULES(FDK_AAC, fdk-aac >= 0.1.4, [
     HAVE_FDK_AAC="yes",
-    HAVE_FDK_AAC_0_1_14="yes"
-    AC_DEFINE(HAVE_FDK_AAC_0_1_14 1, [Define if we have fdk-aac >= 0.1.14])
+    HAVE_FDK_AAC_0_1_4="yes"
+    AC_DEFINE(HAVE_FDK_AAC_0_1_4 1, [Define if we have fdk-aac >= 0.1.4])
   ],[
     PKG_CHECK_MODULES(FDK_AAC, fdk-aac, HAVE_FDK_AAC="yes", HAVE_FDK_AAC="no")
   ])
@@ -2717,7 +2691,7 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
   dnl a new version and the no-backward-compatibility define. (There doesn't
   dnl seem to be a switch to suppress the warnings the cvcompat.h header
   dnl causes.)
-  PKG_CHECK_MODULES(OPENCV, opencv >= 2.3.0 opencv <= 3.1.0 , [
+  PKG_CHECK_MODULES(OPENCV, opencv >= 2.3.0 opencv <= 3.2.0 , [
     AC_PROG_CXX
     AC_LANG([C++])
     OLD_CPPFLAGS=$CPPFLAGS
@@ -2730,8 +2704,13 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
                       opencv2/imgproc/imgproc_c.h \
                       opencv2/objdetect/objdetect.hpp \
                       opencv2/video/background_segm.hpp], [], [something_not_found=yes])
-    dnl check opencv_contrib headers (not always present in opencv distributions)
-    AC_CHECK_HEADERS([opencv2/bgsegm.hpp], [], [something_not_found=yes])
+
+    dnl Only required for OpenCV >= 3, we have compat code for older versions
+    PKG_CHECK_MODULES(OPENCV_3, opencv >= 3, [
+      dnl check opencv_contrib headers (not always present in opencv distributions)
+      AC_CHECK_HEADERS([opencv2/bgsegm.hpp], [], [something_not_found=yes])],
+      [NOT_A_PROBLEM=yes])
+
     CPPFLAGS=$OLD_CPPFLAGS
     AC_LANG([C])
 
@@ -3477,6 +3456,7 @@ gst/asfmux/Makefile
 gst/audiobuffersplit/Makefile
 gst/audiofxbad/Makefile
 gst/audiomixer/Makefile
+gst/audiomixmatrix/Makefile
 gst/audiovisualizers/Makefile
 gst/autoconvert/Makefile
 gst/bayer/Makefile
@@ -3587,6 +3567,7 @@ tests/examples/avsamplesink/Makefile
 tests/examples/camerabin2/Makefile
 tests/examples/codecparsers/Makefile
 tests/examples/directfb/Makefile
+tests/examples/audiomixmatrix/Makefile
 tests/examples/gl/Makefile
 tests/examples/gl/cocoa/Makefile
 tests/examples/gl/clutter/Makefile

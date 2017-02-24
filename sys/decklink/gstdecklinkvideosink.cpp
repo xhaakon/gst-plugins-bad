@@ -336,11 +336,31 @@ gst_decklink_video_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
   const GstDecklinkMode *mode;
   HRESULT ret;
   BMDVideoOutputFlags flags;
+  GstVideoInfo info;
 
   GST_DEBUG_OBJECT (self, "Setting caps %" GST_PTR_FORMAT, caps);
 
-  if (!gst_video_info_from_caps (&self->info, caps))
+  if (!gst_video_info_from_caps (&info, caps))
     return FALSE;
+
+
+  g_mutex_lock (&self->output->lock);
+  if (self->output->video_enabled) {
+    if (self->info.finfo->format == info.finfo->format &&
+        self->info.width == info.width && self->info.height == info.height) {
+      // FIXME: We should also consider the framerate as it is used
+      // for mode selection below in auto mode
+      GST_DEBUG_OBJECT (self, "Nothing relevant has changed");
+      self->info = info;
+      g_mutex_unlock (&self->output->lock);
+      return TRUE;
+    } else {
+      GST_DEBUG_OBJECT (self, "Reconfiguration not supported at this point");
+      g_mutex_unlock (&self->output->lock);
+      return FALSE;
+    }
+  }
+  g_mutex_unlock (&self->output->lock);
 
   self->output->output->SetScheduledFrameCompletionCallback (new
       GStreamerVideoOutputCallback (self));
@@ -387,6 +407,7 @@ gst_decklink_video_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
     return FALSE;
   }
 
+  self->info = info;
   g_mutex_lock (&self->output->lock);
   self->output->mode = mode;
   self->output->video_enabled = TRUE;
@@ -639,6 +660,17 @@ gst_decklink_video_sink_prepare (GstBaseSink * bsink, GstBuffer * buffer)
   }
 
   convert_to_internal_clock (self, &running_time, &running_time_duration);
+
+  if (!self->output->started) {
+    GST_LOG_OBJECT (self, "Showing video frame synchronously because PAUSED");
+    ret = self->output->output->DisplayVideoFrameSync (frame);
+    if (ret != S_OK) {
+    GST_ELEMENT_ERROR (self, STREAM, FAILED,
+        (NULL), ("Failed to show video frame synchronously: 0x%08x", ret));
+    flow_ret = GST_FLOW_ERROR;
+    goto out;
+    }
+  }
 
   GST_LOG_OBJECT (self, "Scheduling video frame %p at %" GST_TIME_FORMAT
       " with duration %" GST_TIME_FORMAT, frame, GST_TIME_ARGS (running_time),
