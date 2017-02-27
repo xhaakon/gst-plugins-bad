@@ -8,7 +8,7 @@ If not, it creates its own rendering Mir window.
 
 From: Alfonso Sanchez-Beato <alfonso.sanchez-beato@canonical.com>
 Origin: vendor
-Forwarded: no
+Forwarded: https://bugzilla.gnome.org/show_bug.cgi?id=779142
 ---
  configure.ac         |   13 +
  ext/Makefile.am      |    8 +

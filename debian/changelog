@@ -1,6 +1,6 @@
 gst-plugins-bad1.0 (1.10.3-1ubuntu4) zesty; urgency=medium
 
-  * [ Łukasz 'sil2100' Zemczak <lukasz.zemczak@ubuntu.com> ]
+  [ Łukasz 'sil2100' Zemczak <lukasz.zemczak@ubuntu.com> ]
   * debian/control*, debian/rules, debian/build-deps*:
     - Build gstreamer1.0-hybris for arm64, bump the required version of
       libmedia-dev to a one that has a working arm64 linker in hybris.
