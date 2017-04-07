@@ -14,7 +14,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstbayer.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstbs2b.so
 @bluez@
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstbz2.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcamerabin2.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcamerabin.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstchromaprint.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcoloreffects.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcompositor.so
@@ -38,7 +38,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgdp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgeometrictransform.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgme.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgsm.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgtksink.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgtk.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgsthls.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstid3tag.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstinter.so
@@ -72,7 +72,6 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenjpeg.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopusparse.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstpcapparse.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstpnm.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrawparse.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstremovesilence.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrfbsrc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrsvg.so
@@ -92,6 +91,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstspeed.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsrtp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgststereo.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsubenc.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstteletext.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgsttimecode.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideofiltersbad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideoframe_audiolevel.so
@@ -115,6 +115,6 @@ debian/tmp/usr/share/gstreamer-@GST_ABI@/presets/
 @fbdev@
 @uvch264@
 @waylandsink@
-@kmssink@
+@kms@
 @vcd@
 @vulkan@
