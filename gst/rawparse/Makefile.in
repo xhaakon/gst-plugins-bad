@@ -162,26 +162,22 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstrawparse_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+libgstlegacyrawparse_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
-am_libgstrawparse_la_OBJECTS =  \
-	libgstrawparse_la-gstunalignedaudioparse.lo \
-	libgstrawparse_la-gstunalignedvideoparse.lo \
-	libgstrawparse_la-gstaudioparse.lo \
-	libgstrawparse_la-gstvideoparse.lo \
-	libgstrawparse_la-gstrawbaseparse.lo \
-	libgstrawparse_la-gstrawaudioparse.lo \
-	libgstrawparse_la-gstrawvideoparse.lo \
-	libgstrawparse_la-plugin.lo
-libgstrawparse_la_OBJECTS = $(am_libgstrawparse_la_OBJECTS)
+am_libgstlegacyrawparse_la_OBJECTS =  \
+	libgstlegacyrawparse_la-gstaudioparse.lo \
+	libgstlegacyrawparse_la-gstvideoparse.lo \
+	libgstlegacyrawparse_la-plugin.lo
+libgstlegacyrawparse_la_OBJECTS =  \
+	$(am_libgstlegacyrawparse_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-libgstrawparse_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
-	$(CCLD) $(libgstrawparse_la_CFLAGS) $(CFLAGS) \
-	$(libgstrawparse_la_LDFLAGS) $(LDFLAGS) -o $@
+libgstlegacyrawparse_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(libgstlegacyrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CCLD) $(libgstlegacyrawparse_la_CFLAGS) \
+	$(CFLAGS) $(libgstlegacyrawparse_la_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -216,8 +212,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libgstrawparse_la_SOURCES)
-DIST_SOURCES = $(libgstrawparse_la_SOURCES)
+SOURCES = $(libgstlegacyrawparse_la_SOURCES)
+DIST_SOURCES = $(libgstlegacyrawparse_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -791,40 +787,28 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
-plugin_LTLIBRARIES = libgstrawparse.la
-libgstrawparse_la_SOURCES = \
-	gstunalignedaudioparse.c \
-	gstunalignedvideoparse.c \
+plugin_LTLIBRARIES = libgstlegacyrawparse.la
+libgstlegacyrawparse_la_SOURCES = \
 	gstaudioparse.c \
 	gstvideoparse.c \
-	gstrawbaseparse.c \
-	gstrawaudioparse.c \
-	gstrawvideoparse.c \
 	plugin.c
 
-libgstrawparse_la_CFLAGS = \
+libgstlegacyrawparse_la_CFLAGS = \
 		$(GST_PLUGINS_BASE_CFLAGS) \
 		$(GST_BASE_CFLAGS) \
 		$(GST_CFLAGS)
 
-libgstrawparse_la_LIBADD = \
+libgstlegacyrawparse_la_LIBADD = \
 	$(GST_PLUGINS_BASE_LIBS) \
 	-lgstvideo-@GST_API_VERSION@ -lgstaudio-@GST_API_VERSION@ \
 	$(GST_BASE_LIBS) \
 	$(GST_LIBS)
 
-libgstrawparse_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstrawparse_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
+libgstlegacyrawparse_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstlegacyrawparse_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 noinst_HEADERS = \
-	unalignedaudio.h \
-	unalignedvideo.h \
-	gstunalignedaudioparse.h \
-	gstunalignedvideoparse.h \
 	gstaudioparse.h \
-	gstvideoparse.h \
-	gstrawbaseparse.h \
-	gstrawaudioparse.h \
-	gstrawvideoparse.h
+	gstvideoparse.h
 
 all: all-am
 
@@ -895,8 +879,8 @@ clean-pluginLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libgstrawparse.la: $(libgstrawparse_la_OBJECTS) $(libgstrawparse_la_DEPENDENCIES) $(EXTRA_libgstrawparse_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libgstrawparse_la_LINK) -rpath $(plugindir) $(libgstrawparse_la_OBJECTS) $(libgstrawparse_la_LIBADD) $(LIBS)
+libgstlegacyrawparse.la: $(libgstlegacyrawparse_la_OBJECTS) $(libgstlegacyrawparse_la_DEPENDENCIES) $(EXTRA_libgstlegacyrawparse_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libgstlegacyrawparse_la_LINK) -rpath $(plugindir) $(libgstlegacyrawparse_la_OBJECTS) $(libgstlegacyrawparse_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -904,14 +888,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrawparse_la-gstaudioparse.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrawparse_la-gstrawaudioparse.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrawparse_la-gstrawbaseparse.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrawparse_la-gstrawvideoparse.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrawparse_la-gstunalignedaudioparse.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrawparse_la-gstunalignedvideoparse.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrawparse_la-gstvideoparse.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrawparse_la-plugin.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstlegacyrawparse_la-gstaudioparse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstlegacyrawparse_la-gstvideoparse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstlegacyrawparse_la-plugin.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -937,61 +916,26 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-libgstrawparse_la-gstunalignedaudioparse.lo: gstunalignedaudioparse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -MT libgstrawparse_la-gstunalignedaudioparse.lo -MD -MP -MF $(DEPDIR)/libgstrawparse_la-gstunalignedaudioparse.Tpo -c -o libgstrawparse_la-gstunalignedaudioparse.lo `test -f 'gstunalignedaudioparse.c' || echo '$(srcdir)/'`gstunalignedaudioparse.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrawparse_la-gstunalignedaudioparse.Tpo $(DEPDIR)/libgstrawparse_la-gstunalignedaudioparse.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstunalignedaudioparse.c' object='libgstrawparse_la-gstunalignedaudioparse.lo' libtool=yes @AMDEPBACKSLASH@
+libgstlegacyrawparse_la-gstaudioparse.lo: gstaudioparse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstlegacyrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstlegacyrawparse_la_CFLAGS) $(CFLAGS) -MT libgstlegacyrawparse_la-gstaudioparse.lo -MD -MP -MF $(DEPDIR)/libgstlegacyrawparse_la-gstaudioparse.Tpo -c -o libgstlegacyrawparse_la-gstaudioparse.lo `test -f 'gstaudioparse.c' || echo '$(srcdir)/'`gstaudioparse.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstlegacyrawparse_la-gstaudioparse.Tpo $(DEPDIR)/libgstlegacyrawparse_la-gstaudioparse.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstaudioparse.c' object='libgstlegacyrawparse_la-gstaudioparse.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -c -o libgstrawparse_la-gstunalignedaudioparse.lo `test -f 'gstunalignedaudioparse.c' || echo '$(srcdir)/'`gstunalignedaudioparse.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstlegacyrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstlegacyrawparse_la_CFLAGS) $(CFLAGS) -c -o libgstlegacyrawparse_la-gstaudioparse.lo `test -f 'gstaudioparse.c' || echo '$(srcdir)/'`gstaudioparse.c
 
-libgstrawparse_la-gstunalignedvideoparse.lo: gstunalignedvideoparse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -MT libgstrawparse_la-gstunalignedvideoparse.lo -MD -MP -MF $(DEPDIR)/libgstrawparse_la-gstunalignedvideoparse.Tpo -c -o libgstrawparse_la-gstunalignedvideoparse.lo `test -f 'gstunalignedvideoparse.c' || echo '$(srcdir)/'`gstunalignedvideoparse.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrawparse_la-gstunalignedvideoparse.Tpo $(DEPDIR)/libgstrawparse_la-gstunalignedvideoparse.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstunalignedvideoparse.c' object='libgstrawparse_la-gstunalignedvideoparse.lo' libtool=yes @AMDEPBACKSLASH@
+libgstlegacyrawparse_la-gstvideoparse.lo: gstvideoparse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstlegacyrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstlegacyrawparse_la_CFLAGS) $(CFLAGS) -MT libgstlegacyrawparse_la-gstvideoparse.lo -MD -MP -MF $(DEPDIR)/libgstlegacyrawparse_la-gstvideoparse.Tpo -c -o libgstlegacyrawparse_la-gstvideoparse.lo `test -f 'gstvideoparse.c' || echo '$(srcdir)/'`gstvideoparse.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstlegacyrawparse_la-gstvideoparse.Tpo $(DEPDIR)/libgstlegacyrawparse_la-gstvideoparse.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstvideoparse.c' object='libgstlegacyrawparse_la-gstvideoparse.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -c -o libgstrawparse_la-gstunalignedvideoparse.lo `test -f 'gstunalignedvideoparse.c' || echo '$(srcdir)/'`gstunalignedvideoparse.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstlegacyrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstlegacyrawparse_la_CFLAGS) $(CFLAGS) -c -o libgstlegacyrawparse_la-gstvideoparse.lo `test -f 'gstvideoparse.c' || echo '$(srcdir)/'`gstvideoparse.c
 
-libgstrawparse_la-gstaudioparse.lo: gstaudioparse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -MT libgstrawparse_la-gstaudioparse.lo -MD -MP -MF $(DEPDIR)/libgstrawparse_la-gstaudioparse.Tpo -c -o libgstrawparse_la-gstaudioparse.lo `test -f 'gstaudioparse.c' || echo '$(srcdir)/'`gstaudioparse.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrawparse_la-gstaudioparse.Tpo $(DEPDIR)/libgstrawparse_la-gstaudioparse.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstaudioparse.c' object='libgstrawparse_la-gstaudioparse.lo' libtool=yes @AMDEPBACKSLASH@
+libgstlegacyrawparse_la-plugin.lo: plugin.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstlegacyrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstlegacyrawparse_la_CFLAGS) $(CFLAGS) -MT libgstlegacyrawparse_la-plugin.lo -MD -MP -MF $(DEPDIR)/libgstlegacyrawparse_la-plugin.Tpo -c -o libgstlegacyrawparse_la-plugin.lo `test -f 'plugin.c' || echo '$(srcdir)/'`plugin.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstlegacyrawparse_la-plugin.Tpo $(DEPDIR)/libgstlegacyrawparse_la-plugin.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='plugin.c' object='libgstlegacyrawparse_la-plugin.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -c -o libgstrawparse_la-gstaudioparse.lo `test -f 'gstaudioparse.c' || echo '$(srcdir)/'`gstaudioparse.c
-
-libgstrawparse_la-gstvideoparse.lo: gstvideoparse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -MT libgstrawparse_la-gstvideoparse.lo -MD -MP -MF $(DEPDIR)/libgstrawparse_la-gstvideoparse.Tpo -c -o libgstrawparse_la-gstvideoparse.lo `test -f 'gstvideoparse.c' || echo '$(srcdir)/'`gstvideoparse.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrawparse_la-gstvideoparse.Tpo $(DEPDIR)/libgstrawparse_la-gstvideoparse.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstvideoparse.c' object='libgstrawparse_la-gstvideoparse.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -c -o libgstrawparse_la-gstvideoparse.lo `test -f 'gstvideoparse.c' || echo '$(srcdir)/'`gstvideoparse.c
-
-libgstrawparse_la-gstrawbaseparse.lo: gstrawbaseparse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -MT libgstrawparse_la-gstrawbaseparse.lo -MD -MP -MF $(DEPDIR)/libgstrawparse_la-gstrawbaseparse.Tpo -c -o libgstrawparse_la-gstrawbaseparse.lo `test -f 'gstrawbaseparse.c' || echo '$(srcdir)/'`gstrawbaseparse.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrawparse_la-gstrawbaseparse.Tpo $(DEPDIR)/libgstrawparse_la-gstrawbaseparse.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstrawbaseparse.c' object='libgstrawparse_la-gstrawbaseparse.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -c -o libgstrawparse_la-gstrawbaseparse.lo `test -f 'gstrawbaseparse.c' || echo '$(srcdir)/'`gstrawbaseparse.c
-
-libgstrawparse_la-gstrawaudioparse.lo: gstrawaudioparse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -MT libgstrawparse_la-gstrawaudioparse.lo -MD -MP -MF $(DEPDIR)/libgstrawparse_la-gstrawaudioparse.Tpo -c -o libgstrawparse_la-gstrawaudioparse.lo `test -f 'gstrawaudioparse.c' || echo '$(srcdir)/'`gstrawaudioparse.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrawparse_la-gstrawaudioparse.Tpo $(DEPDIR)/libgstrawparse_la-gstrawaudioparse.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstrawaudioparse.c' object='libgstrawparse_la-gstrawaudioparse.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -c -o libgstrawparse_la-gstrawaudioparse.lo `test -f 'gstrawaudioparse.c' || echo '$(srcdir)/'`gstrawaudioparse.c
-
-libgstrawparse_la-gstrawvideoparse.lo: gstrawvideoparse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -MT libgstrawparse_la-gstrawvideoparse.lo -MD -MP -MF $(DEPDIR)/libgstrawparse_la-gstrawvideoparse.Tpo -c -o libgstrawparse_la-gstrawvideoparse.lo `test -f 'gstrawvideoparse.c' || echo '$(srcdir)/'`gstrawvideoparse.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrawparse_la-gstrawvideoparse.Tpo $(DEPDIR)/libgstrawparse_la-gstrawvideoparse.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstrawvideoparse.c' object='libgstrawparse_la-gstrawvideoparse.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -c -o libgstrawparse_la-gstrawvideoparse.lo `test -f 'gstrawvideoparse.c' || echo '$(srcdir)/'`gstrawvideoparse.c
-
-libgstrawparse_la-plugin.lo: plugin.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -MT libgstrawparse_la-plugin.lo -MD -MP -MF $(DEPDIR)/libgstrawparse_la-plugin.Tpo -c -o libgstrawparse_la-plugin.lo `test -f 'plugin.c' || echo '$(srcdir)/'`plugin.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrawparse_la-plugin.Tpo $(DEPDIR)/libgstrawparse_la-plugin.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='plugin.c' object='libgstrawparse_la-plugin.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrawparse_la_CFLAGS) $(CFLAGS) -c -o libgstrawparse_la-plugin.lo `test -f 'plugin.c' || echo '$(srcdir)/'`plugin.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstlegacyrawparse_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstlegacyrawparse_la_CFLAGS) $(CFLAGS) -c -o libgstlegacyrawparse_la-plugin.lo `test -f 'plugin.c' || echo '$(srcdir)/'`plugin.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

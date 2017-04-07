@@ -608,7 +608,7 @@
     <keyword type="function" name="gst_gl_memory_get_texture_height ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-height" since="1.8"/>
     <keyword type="function" name="gst_gl_memory_get_texture_id ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-id" since="1.8"/>
     <keyword type="function" name="gst_gl_memory_get_texture_target ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-target" since="1.8"/>
-    <keyword type="function" name="gst_gl_memory_get_texture_type ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-type" since="1.8"/>
+    <keyword type="function" name="gst_gl_memory_get_texture_format ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-format" since="1.12"/>
     <keyword type="function" name="gst_gl_memory_get_texture_width ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-width" since="1.8"/>
     <keyword type="function" name="gst_gl_memory_setup_buffer ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-setup-buffer" since="1.8"/>
     <keyword type="macro" name="GST_GL_MEMORY_VIDEO_FORMATS_STR" link="gst-plugins-bad-libs-GstGLMemory.html#GST-GL-MEMORY-VIDEO-FORMATS-STR:CAPS"/>
@@ -658,7 +658,7 @@
     <keyword type="function" name="gst_gl_renderbuffer_allocation_params_new_wrapped ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-allocation-params-new-wrapped" since="1.10"/>
     <keyword type="function" name="gst_gl_renderbuffer_get_height ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-get-height" since="1.10"/>
     <keyword type="function" name="gst_gl_renderbuffer_get_id ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-get-id" since="1.10"/>
-    <keyword type="function" name="gst_gl_renderbuffer_get_type ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-get-type" since="1.10"/>
+    <keyword type="function" name="gst_gl_renderbuffer_get_format ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-get-format" since="1.12"/>
     <keyword type="function" name="gst_gl_renderbuffer_get_width ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-get-width" since="1.10"/>
     <keyword type="function" name="gst_gl_renderbuffer_init_once ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-init-once" since="1.10"/>
     <keyword type="function" name="gst_is_gl_renderbuffer ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-is-gl-renderbuffer" since="1.10"/>
@@ -820,9 +820,7 @@
     <keyword type="function" name="gst_gl_insert_debug_marker ()" link="gst-plugins-bad-libs-OpenGL-debugging.html#gst-gl-insert-debug-marker" since="1.8"/>
     <keyword type="struct" name="struct GstGLAsyncDebug" link="gst-plugins-bad-libs-OpenGL-debugging.html#GstGLAsyncDebug"/>
     <keyword type="function" name="gst_gl_format_type_n_bytes ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-format-type-n-bytes"/>
-    <keyword type="function" name="gst_gl_texture_type_n_bytes ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-texture-type-n-bytes"/>
-    <keyword type="function" name="gst_gl_format_from_gl_texture_type ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-format-from-gl-texture-type"/>
-    <keyword type="function" name="gst_gl_texture_type_from_format ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-texture-type-from-format"/>
+    <keyword type="function" name="gst_gl_format_from_video_info ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-format-from-video-info"/>
     <keyword type="function" name="gst_gl_sized_gl_format_from_gl_format_type ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-sized-gl-format-from-gl-format-type"/>
     <keyword type="function" name="gst_gl_texture_target_from_string ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-texture-target-from-string"/>
     <keyword type="function" name="gst_gl_texture_target_to_string ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-texture-target-to-string"/>
@@ -1754,6 +1752,7 @@
     <keyword type="constant" name="GST_GL_DISPLAY_TYPE_WIN32" link="GstGLDisplay.html#GST-GL-DISPLAY-TYPE-WIN32:CAPS"/>
     <keyword type="constant" name="GST_GL_DISPLAY_TYPE_DISPMANX" link="GstGLDisplay.html#GST-GL-DISPLAY-TYPE-DISPMANX:CAPS"/>
     <keyword type="constant" name="GST_GL_DISPLAY_TYPE_EGL" link="GstGLDisplay.html#GST-GL-DISPLAY-TYPE-EGL:CAPS"/>
+    <keyword type="constant" name="GST_GL_DISPLAY_TYPE_VIV_FB" link="GstGLDisplay.html#GST-GL-DISPLAY-TYPE-VIV-FB:CAPS"/>
     <keyword type="constant" name="GST_GL_DISPLAY_TYPE_ANY" link="GstGLDisplay.html#GST-GL-DISPLAY-TYPE-ANY:CAPS"/>
     <keyword type="constant" name="GST_GL_QUERY_NONE" link="gst-plugins-bad-libs-GstGLQuery.html#GST-GL-QUERY-NONE:CAPS"/>
     <keyword type="constant" name="GST_GL_QUERY_TIME_ELAPSED" link="gst-plugins-bad-libs-GstGLQuery.html#GST-GL-QUERY-TIME-ELAPSED:CAPS"/>
@@ -2429,14 +2428,14 @@
     <keyword type="member" name="GstGLVideoAllocationParams-struct.plane" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams-struct.plane"/>
     <keyword type="member" name="GstGLVideoAllocationParams-struct.valign" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams-struct.valign"/>
     <keyword type="member" name="GstGLVideoAllocationParams-struct.target" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams-struct.target"/>
-    <keyword type="member" name="GstGLVideoAllocationParams-struct.tex-type" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams-struct.tex-type"/>
+    <keyword type="member" name="GstGLVideoAllocationParams-struct.tex-format" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams-struct.tex-format"/>
     <keyword type="member" name="GstGLMemoryAllocatorClass.map" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemoryAllocatorClass.map"/>
     <keyword type="member" name="GstGLMemoryAllocatorClass.copy" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemoryAllocatorClass.copy"/>
     <keyword type="member" name="GstGLMemoryAllocatorClass.unmap" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemoryAllocatorClass.unmap"/>
     <keyword type="member" name="GstGLMemory.mem" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.mem"/>
     <keyword type="member" name="GstGLMemory.tex-id" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.tex-id"/>
     <keyword type="member" name="GstGLMemory.tex-target" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.tex-target"/>
-    <keyword type="member" name="GstGLMemory.tex-type" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.tex-type"/>
+    <keyword type="member" name="GstGLMemory.tex-format" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.tex-format"/>
     <keyword type="member" name="GstGLMemory.info" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.info"/>
     <keyword type="member" name="GstGLMemory.valign" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.valign"/>
     <keyword type="member" name="GstGLMemory.plane" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.plane"/>

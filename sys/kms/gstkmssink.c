@@ -1067,6 +1067,7 @@ gst_kms_sink_import_dmabuf (GstKMSSink * self, GstBuffer * inbuf,
   /* We cannot have multiple dmabuf per plane */
   if (n_mem > n_planes)
     return FALSE;
+  g_assert (n_planes != 0);
 
   /* Update video info based on video meta */
   if (meta) {
@@ -1089,6 +1090,10 @@ gst_kms_sink_import_dmabuf (GstKMSSink * self, GstBuffer * inbuf,
       return FALSE;
 
     mems[i] = gst_buffer_peek_memory (inbuf, mems_idx[i]);
+
+    /* adjust for memory offset, in case data does not
+     * start from byte 0 in the dmabuf fd */
+    mems_skip[i] += mems[i]->offset;
 
     /* And all memory found must be dmabuf */
     if (!gst_is_dmabuf_memory (mems[i]))

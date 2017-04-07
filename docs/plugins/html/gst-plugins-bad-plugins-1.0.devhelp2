@@ -177,7 +177,7 @@
       <sub name="rawparse" link="gst-plugins-bad-plugins-plugin-rawparse.html"/>
       <sub name="rfbsrc" link="gst-plugins-bad-plugins-plugin-rfbsrc.html"/>
       <sub name="rtmp" link="gst-plugins-bad-plugins-plugin-rtmp.html"/>
-      <sub name="sdp" link="gst-plugins-bad-plugins-plugin-sdp.html"/>
+      <sub name="sdpelem" link="gst-plugins-bad-plugins-plugin-sdpelem.html"/>
       <sub name="shm" link="gst-plugins-bad-plugins-plugin-shm.html"/>
       <sub name="soundtouch" link="gst-plugins-bad-plugins-plugin-soundtouch.html"/>
       <sub name="speed" link="gst-plugins-bad-plugins-plugin-speed.html"/>
@@ -623,24 +623,6 @@
     <keyword type="property" name="The “ts-offset” property" link="gst-plugins-bad-plugins-pcapparse.html#GstPcapParse--ts-offset"/>
     <keyword type="struct" name="struct GstPinch" link="gst-plugins-bad-plugins-pinch.html#GstPinch-struct"/>
     <keyword type="property" name="The “intensity” property" link="gst-plugins-bad-plugins-pinch.html#GstPinch--intensity"/>
-    <keyword type="struct" name="struct GstRawAudioParse" link="gst-plugins-bad-plugins-rawaudioparse.html#GstRawAudioParse-struct"/>
-    <keyword type="property" name="The “channel-positions” property" link="gst-plugins-bad-plugins-rawaudioparse.html#GstRawAudioParse--channel-positions"/>
-    <keyword type="property" name="The “format” property" link="gst-plugins-bad-plugins-rawaudioparse.html#GstRawAudioParse--format"/>
-    <keyword type="property" name="The “interleaved” property" link="gst-plugins-bad-plugins-rawaudioparse.html#GstRawAudioParse--interleaved"/>
-    <keyword type="property" name="The “num-channels” property" link="gst-plugins-bad-plugins-rawaudioparse.html#GstRawAudioParse--num-channels"/>
-    <keyword type="property" name="The “pcm-format” property" link="gst-plugins-bad-plugins-rawaudioparse.html#GstRawAudioParse--pcm-format"/>
-    <keyword type="property" name="The “sample-rate” property" link="gst-plugins-bad-plugins-rawaudioparse.html#GstRawAudioParse--sample-rate"/>
-    <keyword type="struct" name="struct GstRawVideoParse" link="gst-plugins-bad-plugins-rawvideoparse.html#GstRawVideoParse-struct"/>
-    <keyword type="property" name="The “format” property" link="gst-plugins-bad-plugins-rawvideoparse.html#GstRawVideoParse--format"/>
-    <keyword type="property" name="The “frame-stride” property" link="gst-plugins-bad-plugins-rawvideoparse.html#GstRawVideoParse--frame-stride"/>
-    <keyword type="property" name="The “framerate” property" link="gst-plugins-bad-plugins-rawvideoparse.html#GstRawVideoParse--framerate"/>
-    <keyword type="property" name="The “height” property" link="gst-plugins-bad-plugins-rawvideoparse.html#GstRawVideoParse--height"/>
-    <keyword type="property" name="The “interlaced” property" link="gst-plugins-bad-plugins-rawvideoparse.html#GstRawVideoParse--interlaced"/>
-    <keyword type="property" name="The “pixel-aspect-ratio” property" link="gst-plugins-bad-plugins-rawvideoparse.html#GstRawVideoParse--pixel-aspect-ratio"/>
-    <keyword type="property" name="The “plane-offsets” property" link="gst-plugins-bad-plugins-rawvideoparse.html#GstRawVideoParse--plane-offsets"/>
-    <keyword type="property" name="The “plane-strides” property" link="gst-plugins-bad-plugins-rawvideoparse.html#GstRawVideoParse--plane-strides"/>
-    <keyword type="property" name="The “top-field-first” property" link="gst-plugins-bad-plugins-rawvideoparse.html#GstRawVideoParse--top-field-first"/>
-    <keyword type="property" name="The “width” property" link="gst-plugins-bad-plugins-rawvideoparse.html#GstRawVideoParse--width"/>
     <keyword type="struct" name="struct GstRfbSrc" link="gst-plugins-bad-plugins-rfbsrc.html#GstRfbSrc-struct"/>
     <keyword type="property" name="The “host” property" link="gst-plugins-bad-plugins-rfbsrc.html#GstRfbSrc--host"/>
     <keyword type="property" name="The “port” property" link="gst-plugins-bad-plugins-rfbsrc.html#GstRfbSrc--port"/>
@@ -712,8 +694,6 @@
     <keyword type="struct" name="struct GstTunnel" link="gst-plugins-bad-plugins-tunnel.html#GstTunnel-struct"/>
     <keyword type="struct" name="struct GstTwirl" link="gst-plugins-bad-plugins-twirl.html#GstTwirl-struct"/>
     <keyword type="property" name="The “angle” property" link="gst-plugins-bad-plugins-twirl.html#GstTwirl--angle"/>
-    <keyword type="struct" name="GstUnalignedAudioParse" link="gst-plugins-bad-plugins-unalignedaudioparse.html#GstUnalignedAudioParse-struct"/>
-    <keyword type="struct" name="GstUnalignedVideoParse" link="gst-plugins-bad-plugins-unalignedvideoparse.html#GstUnalignedVideoParse-struct"/>
     <keyword type="struct" name="struct GstVideoParse" link="gst-plugins-bad-plugins-videoparse.html#GstVideoParse-struct"/>
     <keyword type="property" name="The “alpha-mask” property" link="gst-plugins-bad-plugins-videoparse.html#GstVideoParse--alpha-mask"/>
     <keyword type="property" name="The “blue-mask” property" link="gst-plugins-bad-plugins-videoparse.html#GstVideoParse--blue-mask"/>
@@ -762,6 +742,9 @@
     <keyword type="property" name="The “limiter” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--limiter"/>
     <keyword type="property" name="The “startup-min-volume” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--startup-min-volume"/>
     <keyword type="property" name="The “target-level-dbfs” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--target-level-dbfs"/>
+    <keyword type="property" name="The “voice-detection” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--voice-detection"/>
+    <keyword type="property" name="The “voice-detection-frame-size-ms” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--voice-detection-frame-size-ms"/>
+    <keyword type="property" name="The “voice-detection-likelihood” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--voice-detection-likelihood"/>
     <keyword type="struct" name="struct GstWebrtcEchoProbe" link="gst-plugins-bad-plugins-webrtcechoprobe.html#GstWebrtcEchoProbe-struct"/>
     <keyword type="struct" name="struct GstTtmlParse" link="gst-plugins-bad-plugins-ttmlparse.html#GstTtmlParse"/>
     <keyword type="struct" name="struct GstTtmlRender" link="gst-plugins-bad-plugins-ttmlrender.html#GstTtmlRender"/>

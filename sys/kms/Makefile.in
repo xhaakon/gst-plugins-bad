@@ -162,23 +162,22 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstkmssink_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+libgstkms_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am_libgstkmssink_la_OBJECTS = libgstkmssink_la-gstkmssink.lo \
-	libgstkmssink_la-gstkmsutils.lo \
-	libgstkmssink_la-gstkmsallocator.lo \
-	libgstkmssink_la-gstkmsbufferpool.lo
-libgstkmssink_la_OBJECTS = $(am_libgstkmssink_la_OBJECTS)
+am_libgstkms_la_OBJECTS = libgstkms_la-gstkmssink.lo \
+	libgstkms_la-gstkmsutils.lo libgstkms_la-gstkmsallocator.lo \
+	libgstkms_la-gstkmsbufferpool.lo
+libgstkms_la_OBJECTS = $(am_libgstkms_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-libgstkmssink_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(libgstkmssink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
-	$(CCLD) $(libgstkmssink_la_CFLAGS) $(CFLAGS) \
-	$(libgstkmssink_la_LDFLAGS) $(LDFLAGS) -o $@
+libgstkms_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(libgstkms_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
+	$(CCLD) $(libgstkms_la_CFLAGS) $(CFLAGS) \
+	$(libgstkms_la_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -213,8 +212,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libgstkmssink_la_SOURCES)
-DIST_SOURCES = $(libgstkmssink_la_SOURCES)
+SOURCES = $(libgstkms_la_SOURCES)
+DIST_SOURCES = $(libgstkms_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -788,15 +787,15 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
-plugin_LTLIBRARIES = libgstkmssink.la
-libgstkmssink_la_SOURCES = \
+plugin_LTLIBRARIES = libgstkms.la
+libgstkms_la_SOURCES = \
 	gstkmssink.c				\
 	gstkmsutils.c				\
 	gstkmsallocator.c			\
 	gstkmsbufferpool.c			\
 	$(NUL)
 
-libgstkmssink_la_CFLAGS = \
+libgstkms_la_CFLAGS = \
 	$(GST_PLUGINS_BASE_CFLAGS) 		\
 	$(GST_BASE_CFLAGS) 			\
 	$(GST_VIDEO_CFLAGS)			\
@@ -805,7 +804,7 @@ libgstkmssink_la_CFLAGS = \
 	$(KMS_DRM_CFLAGS) 			\
 	$(NULL)
 
-libgstkmssink_la_LIBADD = \
+libgstkms_la_LIBADD = \
 	$(GST_PLUGINS_BASE_LIBS) 		\
 	$(GST_BASE_LIBS) 			\
 	$(GST_VIDEO_LIBS)			\
@@ -814,11 +813,11 @@ libgstkmssink_la_LIBADD = \
 	$(KMS_DRM_LIBS) 			\
 	$(NULL)
 
-libgstkmssink_la_LDFLAGS = \
+libgstkms_la_LDFLAGS = \
 	$(GST_PLUGIN_LDFLAGS)			\
 	$(NULL)
 
-libgstkmssink_la_LIBTOOLFLAGS = \
+libgstkms_la_LIBTOOLFLAGS = \
 	$(GST_PLUGIN_LIBTOOLFLAGS) 		\
 	$(NULL)
 
@@ -898,8 +897,8 @@ clean-pluginLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libgstkmssink.la: $(libgstkmssink_la_OBJECTS) $(libgstkmssink_la_DEPENDENCIES) $(EXTRA_libgstkmssink_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libgstkmssink_la_LINK) -rpath $(plugindir) $(libgstkmssink_la_OBJECTS) $(libgstkmssink_la_LIBADD) $(LIBS)
+libgstkms.la: $(libgstkms_la_OBJECTS) $(libgstkms_la_DEPENDENCIES) $(EXTRA_libgstkms_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libgstkms_la_LINK) -rpath $(plugindir) $(libgstkms_la_OBJECTS) $(libgstkms_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -907,10 +906,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstkmssink_la-gstkmsallocator.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstkmssink_la-gstkmsbufferpool.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstkmssink_la-gstkmssink.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstkmssink_la-gstkmsutils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstkms_la-gstkmsallocator.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstkms_la-gstkmsbufferpool.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstkms_la-gstkmssink.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstkms_la-gstkmsutils.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -936,33 +935,33 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-libgstkmssink_la-gstkmssink.lo: gstkmssink.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkmssink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkmssink_la_CFLAGS) $(CFLAGS) -MT libgstkmssink_la-gstkmssink.lo -MD -MP -MF $(DEPDIR)/libgstkmssink_la-gstkmssink.Tpo -c -o libgstkmssink_la-gstkmssink.lo `test -f 'gstkmssink.c' || echo '$(srcdir)/'`gstkmssink.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstkmssink_la-gstkmssink.Tpo $(DEPDIR)/libgstkmssink_la-gstkmssink.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstkmssink.c' object='libgstkmssink_la-gstkmssink.lo' libtool=yes @AMDEPBACKSLASH@
+libgstkms_la-gstkmssink.lo: gstkmssink.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkms_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkms_la_CFLAGS) $(CFLAGS) -MT libgstkms_la-gstkmssink.lo -MD -MP -MF $(DEPDIR)/libgstkms_la-gstkmssink.Tpo -c -o libgstkms_la-gstkmssink.lo `test -f 'gstkmssink.c' || echo '$(srcdir)/'`gstkmssink.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstkms_la-gstkmssink.Tpo $(DEPDIR)/libgstkms_la-gstkmssink.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstkmssink.c' object='libgstkms_la-gstkmssink.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkmssink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkmssink_la_CFLAGS) $(CFLAGS) -c -o libgstkmssink_la-gstkmssink.lo `test -f 'gstkmssink.c' || echo '$(srcdir)/'`gstkmssink.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkms_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkms_la_CFLAGS) $(CFLAGS) -c -o libgstkms_la-gstkmssink.lo `test -f 'gstkmssink.c' || echo '$(srcdir)/'`gstkmssink.c
 
-libgstkmssink_la-gstkmsutils.lo: gstkmsutils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkmssink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkmssink_la_CFLAGS) $(CFLAGS) -MT libgstkmssink_la-gstkmsutils.lo -MD -MP -MF $(DEPDIR)/libgstkmssink_la-gstkmsutils.Tpo -c -o libgstkmssink_la-gstkmsutils.lo `test -f 'gstkmsutils.c' || echo '$(srcdir)/'`gstkmsutils.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstkmssink_la-gstkmsutils.Tpo $(DEPDIR)/libgstkmssink_la-gstkmsutils.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstkmsutils.c' object='libgstkmssink_la-gstkmsutils.lo' libtool=yes @AMDEPBACKSLASH@
+libgstkms_la-gstkmsutils.lo: gstkmsutils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkms_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkms_la_CFLAGS) $(CFLAGS) -MT libgstkms_la-gstkmsutils.lo -MD -MP -MF $(DEPDIR)/libgstkms_la-gstkmsutils.Tpo -c -o libgstkms_la-gstkmsutils.lo `test -f 'gstkmsutils.c' || echo '$(srcdir)/'`gstkmsutils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstkms_la-gstkmsutils.Tpo $(DEPDIR)/libgstkms_la-gstkmsutils.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstkmsutils.c' object='libgstkms_la-gstkmsutils.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkmssink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkmssink_la_CFLAGS) $(CFLAGS) -c -o libgstkmssink_la-gstkmsutils.lo `test -f 'gstkmsutils.c' || echo '$(srcdir)/'`gstkmsutils.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkms_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkms_la_CFLAGS) $(CFLAGS) -c -o libgstkms_la-gstkmsutils.lo `test -f 'gstkmsutils.c' || echo '$(srcdir)/'`gstkmsutils.c
 
-libgstkmssink_la-gstkmsallocator.lo: gstkmsallocator.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkmssink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkmssink_la_CFLAGS) $(CFLAGS) -MT libgstkmssink_la-gstkmsallocator.lo -MD -MP -MF $(DEPDIR)/libgstkmssink_la-gstkmsallocator.Tpo -c -o libgstkmssink_la-gstkmsallocator.lo `test -f 'gstkmsallocator.c' || echo '$(srcdir)/'`gstkmsallocator.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstkmssink_la-gstkmsallocator.Tpo $(DEPDIR)/libgstkmssink_la-gstkmsallocator.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstkmsallocator.c' object='libgstkmssink_la-gstkmsallocator.lo' libtool=yes @AMDEPBACKSLASH@
+libgstkms_la-gstkmsallocator.lo: gstkmsallocator.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkms_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkms_la_CFLAGS) $(CFLAGS) -MT libgstkms_la-gstkmsallocator.lo -MD -MP -MF $(DEPDIR)/libgstkms_la-gstkmsallocator.Tpo -c -o libgstkms_la-gstkmsallocator.lo `test -f 'gstkmsallocator.c' || echo '$(srcdir)/'`gstkmsallocator.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstkms_la-gstkmsallocator.Tpo $(DEPDIR)/libgstkms_la-gstkmsallocator.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstkmsallocator.c' object='libgstkms_la-gstkmsallocator.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkmssink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkmssink_la_CFLAGS) $(CFLAGS) -c -o libgstkmssink_la-gstkmsallocator.lo `test -f 'gstkmsallocator.c' || echo '$(srcdir)/'`gstkmsallocator.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkms_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkms_la_CFLAGS) $(CFLAGS) -c -o libgstkms_la-gstkmsallocator.lo `test -f 'gstkmsallocator.c' || echo '$(srcdir)/'`gstkmsallocator.c
 
-libgstkmssink_la-gstkmsbufferpool.lo: gstkmsbufferpool.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkmssink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkmssink_la_CFLAGS) $(CFLAGS) -MT libgstkmssink_la-gstkmsbufferpool.lo -MD -MP -MF $(DEPDIR)/libgstkmssink_la-gstkmsbufferpool.Tpo -c -o libgstkmssink_la-gstkmsbufferpool.lo `test -f 'gstkmsbufferpool.c' || echo '$(srcdir)/'`gstkmsbufferpool.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstkmssink_la-gstkmsbufferpool.Tpo $(DEPDIR)/libgstkmssink_la-gstkmsbufferpool.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstkmsbufferpool.c' object='libgstkmssink_la-gstkmsbufferpool.lo' libtool=yes @AMDEPBACKSLASH@
+libgstkms_la-gstkmsbufferpool.lo: gstkmsbufferpool.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkms_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkms_la_CFLAGS) $(CFLAGS) -MT libgstkms_la-gstkmsbufferpool.lo -MD -MP -MF $(DEPDIR)/libgstkms_la-gstkmsbufferpool.Tpo -c -o libgstkms_la-gstkmsbufferpool.lo `test -f 'gstkmsbufferpool.c' || echo '$(srcdir)/'`gstkmsbufferpool.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstkms_la-gstkmsbufferpool.Tpo $(DEPDIR)/libgstkms_la-gstkmsbufferpool.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstkmsbufferpool.c' object='libgstkms_la-gstkmsbufferpool.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkmssink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkmssink_la_CFLAGS) $(CFLAGS) -c -o libgstkmssink_la-gstkmsbufferpool.lo `test -f 'gstkmsbufferpool.c' || echo '$(srcdir)/'`gstkmsbufferpool.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstkms_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstkms_la_CFLAGS) $(CFLAGS) -c -o libgstkms_la-gstkmsbufferpool.lo `test -f 'gstkmsbufferpool.c' || echo '$(srcdir)/'`gstkmsbufferpool.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

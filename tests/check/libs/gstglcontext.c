@@ -72,7 +72,7 @@ init (gpointer data)
   allocator = gst_gl_memory_allocator_get_default (context);
   params =
       gst_gl_video_allocation_params_new (context, NULL, &v_info, 0, NULL,
-      GST_GL_TEXTURE_TARGET_2D, GST_VIDEO_GL_TEXTURE_TYPE_RGBA);
+      GST_GL_TEXTURE_TARGET_2D, GST_GL_RGBA);
 
   /* has to be called in the thread that is going to use the framebuffer */
   fbo = gst_gl_framebuffer_new_with_default_depth (context, 320, 240);
@@ -239,15 +239,13 @@ blit_tex (gpointer data)
 
   if (gl->GenVertexArrays)
     gl->BindVertexArray (vao);
-  else
-    _bind_buffer (context);
+  _bind_buffer (context);
 
   gl->DrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
   if (gl->GenVertexArrays)
     gl->BindVertexArray (0);
-  else
-    _unbind_buffer (context);
+  _unbind_buffer (context);
 
   return TRUE;
 }

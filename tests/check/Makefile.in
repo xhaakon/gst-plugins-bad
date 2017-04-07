@@ -112,8 +112,6 @@ check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	elements/mpeg4videoparse$(EXEEXT) elements/mxfdemux$(EXEEXT) \
 	elements/mxfmux$(EXEEXT) elements/netsim$(EXEEXT) \
 	elements/pcapparse$(EXEEXT) elements/pnm$(EXEEXT) \
-	elements/rawaudioparse$(EXEEXT) \
-	elements/rawvideoparse$(EXEEXT) \
 	elements/rtponvifparse$(EXEEXT) \
 	elements/rtponviftimestamp$(EXEEXT) elements/id3mux$(EXEEXT) \
 	pipelines/mxf$(EXEEXT) libs/mpegvideoparser$(EXEEXT) \
@@ -511,24 +509,6 @@ elements_pnm_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 elements_pnm_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(elements_pnm_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-elements_rawaudioparse_SOURCES = elements/rawaudioparse.c
-elements_rawaudioparse_OBJECTS =  \
-	elements/elements_rawaudioparse-rawaudioparse.$(OBJEXT)
-elements_rawaudioparse_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
-elements_rawaudioparse_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(elements_rawaudioparse_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
-elements_rawvideoparse_SOURCES = elements/rawvideoparse.c
-elements_rawvideoparse_OBJECTS =  \
-	elements/elements_rawvideoparse-rawvideoparse.$(OBJEXT)
-elements_rawvideoparse_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
-elements_rawvideoparse_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(elements_rawvideoparse_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
 elements_rtponvifparse_SOURCES = elements/rtponvifparse.c
 elements_rtponvifparse_OBJECTS =  \
 	elements/elements_rtponvifparse-rtponvifparse.$(OBJEXT)
@@ -855,8 +835,7 @@ SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/mplex.c $(elements_mssdemux_SOURCES) \
 	elements/mxfdemux.c elements/mxfmux.c elements/neonhttpsrc.c \
 	elements/netsim.c elements/ofa.c elements/pcapparse.c \
-	elements/pnm.c elements/rawaudioparse.c \
-	elements/rawvideoparse.c elements/rtponvifparse.c \
+	elements/pnm.c elements/rtponvifparse.c \
 	elements/rtponviftimestamp.c elements/schroenc.c \
 	elements/shm.c elements/srtp.c elements/templatematch.c \
 	elements/uvch264demux.c elements/videoframe-audiolevel.c \
@@ -890,8 +869,7 @@ DIST_SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/mplex.c $(elements_mssdemux_SOURCES) \
 	elements/mxfdemux.c elements/mxfmux.c elements/neonhttpsrc.c \
 	elements/netsim.c elements/ofa.c elements/pcapparse.c \
-	elements/pnm.c elements/rawaudioparse.c \
-	elements/rawvideoparse.c elements/rtponvifparse.c \
+	elements/pnm.c elements/rtponvifparse.c \
 	elements/rtponviftimestamp.c elements/schroenc.c \
 	elements/shm.c elements/srtp.c elements/templatematch.c \
 	elements/uvch264demux.c elements/videoframe-audiolevel.c \
@@ -1826,10 +1804,6 @@ elements_mpeg4videoparse_LDADD = libparser.la $(LDADD)
 elements_h263parse_LDADD = libparser.la $(LDADD)
 elements_h264parse_LDADD = libparser.la $(LDADD)
 elements_pcapparse_LDADD = libparser.la $(LDADD)
-elements_rawaudioparse_LDADD = $(GST_BASE_LIBS) -lgstbase-@GST_API_VERSION@ $(GST_AUDIO_LIBS) $(LDADD)
-elements_rawaudioparse_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
-elements_rawvideoparse_LDADD = $(GST_BASE_LIBS) -lgstbase-@GST_API_VERSION@ $(GST_VIDEO_LIBS) $(LDADD)
-elements_rawvideoparse_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 libs_mpegvideoparser_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
 	-DGST_USE_UNSTABLE_API \
@@ -2461,18 +2435,6 @@ elements/elements_pnm-pnm.$(OBJEXT): elements/$(am__dirstamp) \
 elements/pnm$(EXEEXT): $(elements_pnm_OBJECTS) $(elements_pnm_DEPENDENCIES) $(EXTRA_elements_pnm_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/pnm$(EXEEXT)
 	$(AM_V_CCLD)$(elements_pnm_LINK) $(elements_pnm_OBJECTS) $(elements_pnm_LDADD) $(LIBS)
-elements/elements_rawaudioparse-rawaudioparse.$(OBJEXT):  \
-	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
-
-elements/rawaudioparse$(EXEEXT): $(elements_rawaudioparse_OBJECTS) $(elements_rawaudioparse_DEPENDENCIES) $(EXTRA_elements_rawaudioparse_DEPENDENCIES) elements/$(am__dirstamp)
-	@rm -f elements/rawaudioparse$(EXEEXT)
-	$(AM_V_CCLD)$(elements_rawaudioparse_LINK) $(elements_rawaudioparse_OBJECTS) $(elements_rawaudioparse_LDADD) $(LIBS)
-elements/elements_rawvideoparse-rawvideoparse.$(OBJEXT):  \
-	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
-
-elements/rawvideoparse$(EXEEXT): $(elements_rawvideoparse_OBJECTS) $(elements_rawvideoparse_DEPENDENCIES) $(EXTRA_elements_rawvideoparse_DEPENDENCIES) elements/$(am__dirstamp)
-	@rm -f elements/rawvideoparse$(EXEEXT)
-	$(AM_V_CCLD)$(elements_rawvideoparse_LINK) $(elements_rawvideoparse_OBJECTS) $(elements_rawvideoparse_LDADD) $(LIBS)
 elements/elements_rtponvifparse-rtponvifparse.$(OBJEXT):  \
 	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
 
@@ -2755,8 +2717,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_mssdemux-test_http_src.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_neonhttpsrc-neonhttpsrc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_pnm-pnm.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_rtponvifparse-rtponvifparse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_rtponviftimestamp-rtponviftimestamp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_uvch264demux-uvch264demux.Po@am__quote@
@@ -3257,34 +3217,6 @@ elements/elements_pnm-pnm.obj: elements/pnm.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/pnm.c' object='elements/elements_pnm-pnm.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_pnm_CFLAGS) $(CFLAGS) -c -o elements/elements_pnm-pnm.obj `if test -f 'elements/pnm.c'; then $(CYGPATH_W) 'elements/pnm.c'; else $(CYGPATH_W) '$(srcdir)/elements/pnm.c'; fi`
-
-elements/elements_rawaudioparse-rawaudioparse.o: elements/rawaudioparse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawaudioparse_CFLAGS) $(CFLAGS) -MT elements/elements_rawaudioparse-rawaudioparse.o -MD -MP -MF elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Tpo -c -o elements/elements_rawaudioparse-rawaudioparse.o `test -f 'elements/rawaudioparse.c' || echo '$(srcdir)/'`elements/rawaudioparse.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Tpo elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/rawaudioparse.c' object='elements/elements_rawaudioparse-rawaudioparse.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawaudioparse_CFLAGS) $(CFLAGS) -c -o elements/elements_rawaudioparse-rawaudioparse.o `test -f 'elements/rawaudioparse.c' || echo '$(srcdir)/'`elements/rawaudioparse.c
-
-elements/elements_rawaudioparse-rawaudioparse.obj: elements/rawaudioparse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawaudioparse_CFLAGS) $(CFLAGS) -MT elements/elements_rawaudioparse-rawaudioparse.obj -MD -MP -MF elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Tpo -c -o elements/elements_rawaudioparse-rawaudioparse.obj `if test -f 'elements/rawaudioparse.c'; then $(CYGPATH_W) 'elements/rawaudioparse.c'; else $(CYGPATH_W) '$(srcdir)/elements/rawaudioparse.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Tpo elements/$(DEPDIR)/elements_rawaudioparse-rawaudioparse.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/rawaudioparse.c' object='elements/elements_rawaudioparse-rawaudioparse.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawaudioparse_CFLAGS) $(CFLAGS) -c -o elements/elements_rawaudioparse-rawaudioparse.obj `if test -f 'elements/rawaudioparse.c'; then $(CYGPATH_W) 'elements/rawaudioparse.c'; else $(CYGPATH_W) '$(srcdir)/elements/rawaudioparse.c'; fi`
-
-elements/elements_rawvideoparse-rawvideoparse.o: elements/rawvideoparse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawvideoparse_CFLAGS) $(CFLAGS) -MT elements/elements_rawvideoparse-rawvideoparse.o -MD -MP -MF elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Tpo -c -o elements/elements_rawvideoparse-rawvideoparse.o `test -f 'elements/rawvideoparse.c' || echo '$(srcdir)/'`elements/rawvideoparse.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Tpo elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/rawvideoparse.c' object='elements/elements_rawvideoparse-rawvideoparse.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawvideoparse_CFLAGS) $(CFLAGS) -c -o elements/elements_rawvideoparse-rawvideoparse.o `test -f 'elements/rawvideoparse.c' || echo '$(srcdir)/'`elements/rawvideoparse.c
-
-elements/elements_rawvideoparse-rawvideoparse.obj: elements/rawvideoparse.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawvideoparse_CFLAGS) $(CFLAGS) -MT elements/elements_rawvideoparse-rawvideoparse.obj -MD -MP -MF elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Tpo -c -o elements/elements_rawvideoparse-rawvideoparse.obj `if test -f 'elements/rawvideoparse.c'; then $(CYGPATH_W) 'elements/rawvideoparse.c'; else $(CYGPATH_W) '$(srcdir)/elements/rawvideoparse.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Tpo elements/$(DEPDIR)/elements_rawvideoparse-rawvideoparse.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/rawvideoparse.c' object='elements/elements_rawvideoparse-rawvideoparse.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rawvideoparse_CFLAGS) $(CFLAGS) -c -o elements/elements_rawvideoparse-rawvideoparse.obj `if test -f 'elements/rawvideoparse.c'; then $(CYGPATH_W) 'elements/rawvideoparse.c'; else $(CYGPATH_W) '$(srcdir)/elements/rawvideoparse.c'; fi`
 
 elements/elements_rtponvifparse-rtponvifparse.o: elements/rtponvifparse.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_rtponvifparse_CFLAGS) $(CFLAGS) -MT elements/elements_rtponvifparse-rtponvifparse.o -MD -MP -MF elements/$(DEPDIR)/elements_rtponvifparse-rtponvifparse.Tpo -c -o elements/elements_rtponvifparse-rtponvifparse.o `test -f 'elements/rtponvifparse.c' || echo '$(srcdir)/'`elements/rtponvifparse.c
@@ -4151,20 +4083,6 @@ elements/pcapparse.log: elements/pcapparse$(EXEEXT)
 elements/pnm.log: elements/pnm$(EXEEXT)
 	@p='elements/pnm$(EXEEXT)'; \
 	b='elements/pnm'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-elements/rawaudioparse.log: elements/rawaudioparse$(EXEEXT)
-	@p='elements/rawaudioparse$(EXEEXT)'; \
-	b='elements/rawaudioparse'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-elements/rawvideoparse.log: elements/rawvideoparse$(EXEEXT)
-	@p='elements/rawvideoparse$(EXEEXT)'; \
-	b='elements/rawvideoparse'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

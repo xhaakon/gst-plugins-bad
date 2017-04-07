@@ -758,6 +758,7 @@ top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 @HAVE_WINDOW_COCOA_TRUE@cocoa_videooverlay_SOURCES = cocoa-videooverlay.m
 @HAVE_WINDOW_COCOA_TRUE@cocoa_videooverlay_OBJCFLAGS = -Wno-error=unused-command-line-argument \
+@HAVE_WINDOW_COCOA_TRUE@    -fobjc-arc \
 @HAVE_WINDOW_COCOA_TRUE@    -I$(top_srcdir)/gst-libs -I$(top_builddir)/gst-libs \
 @HAVE_WINDOW_COCOA_TRUE@    $(GST_PLUGINS_BASE_CFLAGS) $(GST_CFLAGS) \
 @HAVE_WINDOW_COCOA_TRUE@    $(GL_CFLAGS) $(GL_OBJCFLAGS)

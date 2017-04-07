@@ -105,8 +105,10 @@ target_triplet = @target@
 @HAVE_WINDOW_ANDROID_TRUE@am__append_12 = android/libgstgl-android.la
 @HAVE_WINDOW_EAGL_TRUE@am__append_13 = eagl
 @HAVE_WINDOW_EAGL_TRUE@am__append_14 = eagl/libgstgl-eagl.la
-@USE_EGL_TRUE@am__append_15 = egl
-@USE_EGL_TRUE@am__append_16 = egl/libgstgl-egl.la \
+@HAVE_WINDOW_VIV_FB_TRUE@am__append_15 = viv-fb
+@HAVE_WINDOW_VIV_FB_TRUE@am__append_16 = viv-fb/libgstgl-viv-fb.la
+@USE_EGL_TRUE@am__append_17 = egl
+@USE_EGL_TRUE@am__append_18 = egl/libgstgl-egl.la \
 @USE_EGL_TRUE@	-lgstallocators-$(GST_API_VERSION)
 subdir = gst-libs/gst/gl
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -187,10 +189,11 @@ am__DEPENDENCIES_1 =
 @USE_EGL_TRUE@am__DEPENDENCIES_2 = egl/libgstgl-egl.la
 libgstgl_@GST_API_VERSION@_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) $(am__append_2) \
-	$(am__append_4) $(am__append_6) $(am__append_8) \
-	$(am__append_10) $(am__append_12) $(am__append_14) \
-	$(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(top_builddir)/gst-libs/gst/allocators/libgstbadallocators-@GST_API_VERSION@.la \
+	$(am__append_2) $(am__append_4) $(am__append_6) \
+	$(am__append_8) $(am__append_10) $(am__append_12) \
+	$(am__append_14) $(am__append_16) $(am__DEPENDENCIES_2)
 am_libgstgl_@GST_API_VERSION@_la_OBJECTS =  \
 	libgstgl_@GST_API_VERSION@_la-gstgldisplay.lo \
 	libgstgl_@GST_API_VERSION@_la-gstglcontext.lo \
@@ -884,8 +887,8 @@ wayland_scanner = @wayland_scanner@
 lib_LTLIBRARIES = libgstgl-@GST_API_VERSION@.la
 SUBDIRS = glprototypes $(am__append_1) $(am__append_3) $(am__append_5) \
 	$(am__append_7) $(am__append_9) $(am__append_11) \
-	$(am__append_13) $(am__append_15)
-DIST_SUBDIRS = glprototypes android x11 win32 cocoa wayland dispmanx egl eagl
+	$(am__append_13) $(am__append_15) $(am__append_17)
+DIST_SUBDIRS = glprototypes android x11 win32 cocoa wayland dispmanx egl eagl viv-fb
 built_sys_header_configure = gstglconfig.h
 libgstgl_@GST_API_VERSION@_la_SOURCES = \
 	gstgldisplay.c \
@@ -958,10 +961,11 @@ noinst_HEADERS = \
 
 libgstgl_@GST_API_VERSION@_la_LIBADD = $(GMODULE_NO_EXPORT_LIBS) \
 	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
-	$(GST_BASE_LIBS) $(GST_LIBS) $(GL_LIBS) $(am__append_2) \
-	$(am__append_4) $(am__append_6) $(am__append_8) \
-	$(am__append_10) $(am__append_12) $(am__append_14) \
-	$(am__append_16)
+	$(GST_BASE_LIBS) $(GST_LIBS) $(GL_LIBS) \
+	$(top_builddir)/gst-libs/gst/allocators/libgstbadallocators-@GST_API_VERSION@.la \
+	$(am__append_2) $(am__append_4) $(am__append_6) \
+	$(am__append_8) $(am__append_10) $(am__append_12) \
+	$(am__append_14) $(am__append_16) $(am__append_18)
 configexecincludedir = $(libdir)/gstreamer-@GST_API_VERSION@/include/gst/gl
 nodist_configexecinclude_HEADERS = $(built_sys_header_configure)
 libgstgl_@GST_API_VERSION@_la_CFLAGS = \

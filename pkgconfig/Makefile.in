@@ -140,7 +140,8 @@ CONFIG_CLEAN_FILES = gstreamer-plugins-bad.pc \
 	gstreamer-wayland-uninstalled.pc gstreamer-bad-base.pc \
 	gstreamer-bad-base-uninstalled.pc gstreamer-bad-video.pc \
 	gstreamer-bad-video-uninstalled.pc gstreamer-bad-audio.pc \
-	gstreamer-bad-audio-uninstalled.pc
+	gstreamer-bad-audio-uninstalled.pc gstreamer-bad-allocators.pc \
+	gstreamer-bad-allocators-uninstalled.pc
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -192,6 +193,8 @@ am__installdirs = "$(DESTDIR)$(pkgconfigdir)"
 DATA = $(pkgconfig_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 am__DIST_COMMON = $(srcdir)/Makefile.in \
+	$(srcdir)/gstreamer-bad-allocators-uninstalled.pc.in \
+	$(srcdir)/gstreamer-bad-allocators.pc.in \
 	$(srcdir)/gstreamer-bad-audio-uninstalled.pc.in \
 	$(srcdir)/gstreamer-bad-audio.pc.in \
 	$(srcdir)/gstreamer-bad-base-uninstalled.pc.in \
@@ -768,7 +771,8 @@ pcverfiles = gstreamer-plugins-bad-@GST_API_VERSION@.pc \
 	gstreamer-player-@GST_API_VERSION@.pc \
 	gstreamer-bad-base-@GST_API_VERSION@.pc \
 	gstreamer-bad-audio-@GST_API_VERSION@.pc \
-	gstreamer-bad-video-@GST_API_VERSION@.pc $(am__append_1)
+	gstreamer-bad-video-@GST_API_VERSION@.pc \
+	gstreamer-bad-allocators-@GST_API_VERSION@.pc $(am__append_1)
 pcverfiles_uninstalled =  \
 	gstreamer-plugins-bad-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-codecparsers-@GST_API_VERSION@-uninstalled.pc \
@@ -778,6 +782,7 @@ pcverfiles_uninstalled =  \
 	gstreamer-bad-base-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-bad-audio-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-bad-video-@GST_API_VERSION@-uninstalled.pc \
+	gstreamer-bad-allocators-@GST_API_VERSION@-uninstalled.pc \
 	$(am__append_2)
 cp_verbose = $(cp_verbose_$(V))
 cp_verbose_ = $(cp_verbose_$(AM_DEFAULT_VERBOSITY))
@@ -794,7 +799,8 @@ pcinfiles = \
            gstreamer-player.pc.in gstreamer-player-uninstalled.pc.in \
            gstreamer-bad-audio.pc.in gstreamer-bad-audio-uninstalled.pc.in \
            gstreamer-bad-video.pc.in gstreamer-bad-video-uninstalled.pc.in \
-           gstreamer-bad-base.pc.in gstreamer-bad-base-uninstalled.pc.in
+           gstreamer-bad-base.pc.in gstreamer-bad-base-uninstalled.pc.in \
+           gstreamer-bad-allocators.pc.in gstreamer-bad-allocators-uninstalled.pc.in
 
 DISTCLEANFILES = $(pcinfiles:.in=)
 EXTRA_DIST = $(pcinfiles)
@@ -869,6 +875,10 @@ gstreamer-bad-video-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstr
 gstreamer-bad-audio.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-audio.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-bad-audio-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-audio-uninstalled.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+gstreamer-bad-allocators.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-allocators.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+gstreamer-bad-allocators-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-allocators-uninstalled.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:

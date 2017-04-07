@@ -164,31 +164,31 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(lib_LTLIBRARIES) $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstgtksink_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+libgstgtk_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) $(am__append_2)
-am__libgstgtksink_la_SOURCES_DIST = gtkgstbasewidget.c \
-	gtkgstbasewidget.h gtkgstwidget.c gtkgstwidget.h \
-	gstgtkbasesink.c gstgtkbasesink.h gstgtksink.c gstgtksink.h \
-	gstgtkutils.c gstgtkutils.h gstplugin.c gstgtkglsink.c \
-	gstgtkglsink.h gtkgstglwidget.c gtkgstglwidget.h
+am__libgstgtk_la_SOURCES_DIST = gtkgstbasewidget.c gtkgstbasewidget.h \
+	gtkgstwidget.c gtkgstwidget.h gstgtkbasesink.c \
+	gstgtkbasesink.h gstgtksink.c gstgtksink.h gstgtkutils.c \
+	gstgtkutils.h gstplugin.c gstgtkglsink.c gstgtkglsink.h \
+	gtkgstglwidget.c gtkgstglwidget.h
 am__objects_1 =
-am__objects_2 = libgstgtksink_la-gtkgstbasewidget.lo \
-	libgstgtksink_la-gtkgstwidget.lo \
-	libgstgtksink_la-gstgtkbasesink.lo \
-	libgstgtksink_la-gstgtksink.lo libgstgtksink_la-gstgtkutils.lo \
-	libgstgtksink_la-gstplugin.lo $(am__objects_1)
-@USE_GL_TRUE@@USE_GTK3_GL_TRUE@am__objects_3 = libgstgtksink_la-gstgtkglsink.lo \
-@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	libgstgtksink_la-gtkgstglwidget.lo
-am_libgstgtksink_la_OBJECTS = $(am__objects_2) $(am__objects_3)
-libgstgtksink_la_OBJECTS = $(am_libgstgtksink_la_OBJECTS)
+am__objects_2 = libgstgtk_la-gtkgstbasewidget.lo \
+	libgstgtk_la-gtkgstwidget.lo libgstgtk_la-gstgtkbasesink.lo \
+	libgstgtk_la-gstgtksink.lo libgstgtk_la-gstgtkutils.lo \
+	libgstgtk_la-gstplugin.lo $(am__objects_1)
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@am__objects_3 =  \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	libgstgtk_la-gstgtkglsink.lo \
+@USE_GL_TRUE@@USE_GTK3_GL_TRUE@	libgstgtk_la-gtkgstglwidget.lo
+am_libgstgtk_la_OBJECTS = $(am__objects_2) $(am__objects_3)
+libgstgtk_la_OBJECTS = $(am_libgstgtk_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-libgstgtksink_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
-	$(CCLD) $(libgstgtksink_la_CFLAGS) $(CFLAGS) \
-	$(libgstgtksink_la_LDFLAGS) $(LDFLAGS) -o $@
+libgstgtk_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
+	$(CCLD) $(libgstgtk_la_CFLAGS) $(CFLAGS) \
+	$(libgstgtk_la_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -223,8 +223,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libgstgtksink_la_SOURCES)
-DIST_SOURCES = $(am__libgstgtksink_la_SOURCES_DIST)
+SOURCES = $(libgstgtk_la_SOURCES)
+DIST_SOURCES = $(am__libgstgtk_la_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -821,7 +821,7 @@ sources = \
 	gstplugin.c \
 	$(NULL)
 
-libgstgtksink_la_CFLAGS = \
+libgstgtk_la_CFLAGS = \
 	-I$(top_srcdir)/gst-libs \
 	-I$(top_builddir)/gst-libs \
 	$(GTK3_CFLAGS) \
@@ -829,13 +829,13 @@ libgstgtksink_la_CFLAGS = \
 	$(GST_BASE_CFLAGS) \
 	$(GST_PLUGINS_BASE_CFLAGS)
 
-libgstgtksink_la_LIBADD = $(GTK3_LIBS) $(GST_BASE_LIBS) \
+libgstgtk_la_LIBADD = $(GTK3_LIBS) $(GST_BASE_LIBS) \
 	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
 	$(am__append_2)
-libgstgtksink_la_SOURCES = $(sources) $(am__append_1)
-libgstgtksink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstgtksink_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
-plugin_LTLIBRARIES = libgstgtksink.la
+libgstgtk_la_SOURCES = $(sources) $(am__append_1)
+libgstgtk_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstgtk_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
+plugin_LTLIBRARIES = libgstgtk.la
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -941,8 +941,8 @@ clean-pluginLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libgstgtksink.la: $(libgstgtksink_la_OBJECTS) $(libgstgtksink_la_DEPENDENCIES) $(EXTRA_libgstgtksink_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libgstgtksink_la_LINK) -rpath $(plugindir) $(libgstgtksink_la_OBJECTS) $(libgstgtksink_la_LIBADD) $(LIBS)
+libgstgtk.la: $(libgstgtk_la_OBJECTS) $(libgstgtk_la_DEPENDENCIES) $(EXTRA_libgstgtk_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libgstgtk_la_LINK) -rpath $(plugindir) $(libgstgtk_la_OBJECTS) $(libgstgtk_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -950,14 +950,14 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gstgtkbasesink.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gstgtkglsink.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gstgtksink.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gstgtkutils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gstplugin.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gtkgstbasewidget.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gtkgstglwidget.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtksink_la-gtkgstwidget.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtk_la-gstgtkbasesink.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtk_la-gstgtkglsink.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtk_la-gstgtksink.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtk_la-gstgtkutils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtk_la-gstplugin.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtk_la-gtkgstbasewidget.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtk_la-gtkgstglwidget.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstgtk_la-gtkgstwidget.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -983,61 +983,61 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-libgstgtksink_la-gtkgstbasewidget.lo: gtkgstbasewidget.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -MT libgstgtksink_la-gtkgstbasewidget.lo -MD -MP -MF $(DEPDIR)/libgstgtksink_la-gtkgstbasewidget.Tpo -c -o libgstgtksink_la-gtkgstbasewidget.lo `test -f 'gtkgstbasewidget.c' || echo '$(srcdir)/'`gtkgstbasewidget.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtksink_la-gtkgstbasewidget.Tpo $(DEPDIR)/libgstgtksink_la-gtkgstbasewidget.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkgstbasewidget.c' object='libgstgtksink_la-gtkgstbasewidget.lo' libtool=yes @AMDEPBACKSLASH@
+libgstgtk_la-gtkgstbasewidget.lo: gtkgstbasewidget.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -MT libgstgtk_la-gtkgstbasewidget.lo -MD -MP -MF $(DEPDIR)/libgstgtk_la-gtkgstbasewidget.Tpo -c -o libgstgtk_la-gtkgstbasewidget.lo `test -f 'gtkgstbasewidget.c' || echo '$(srcdir)/'`gtkgstbasewidget.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtk_la-gtkgstbasewidget.Tpo $(DEPDIR)/libgstgtk_la-gtkgstbasewidget.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkgstbasewidget.c' object='libgstgtk_la-gtkgstbasewidget.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -c -o libgstgtksink_la-gtkgstbasewidget.lo `test -f 'gtkgstbasewidget.c' || echo '$(srcdir)/'`gtkgstbasewidget.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -c -o libgstgtk_la-gtkgstbasewidget.lo `test -f 'gtkgstbasewidget.c' || echo '$(srcdir)/'`gtkgstbasewidget.c
 
-libgstgtksink_la-gtkgstwidget.lo: gtkgstwidget.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -MT libgstgtksink_la-gtkgstwidget.lo -MD -MP -MF $(DEPDIR)/libgstgtksink_la-gtkgstwidget.Tpo -c -o libgstgtksink_la-gtkgstwidget.lo `test -f 'gtkgstwidget.c' || echo '$(srcdir)/'`gtkgstwidget.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtksink_la-gtkgstwidget.Tpo $(DEPDIR)/libgstgtksink_la-gtkgstwidget.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkgstwidget.c' object='libgstgtksink_la-gtkgstwidget.lo' libtool=yes @AMDEPBACKSLASH@
+libgstgtk_la-gtkgstwidget.lo: gtkgstwidget.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -MT libgstgtk_la-gtkgstwidget.lo -MD -MP -MF $(DEPDIR)/libgstgtk_la-gtkgstwidget.Tpo -c -o libgstgtk_la-gtkgstwidget.lo `test -f 'gtkgstwidget.c' || echo '$(srcdir)/'`gtkgstwidget.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtk_la-gtkgstwidget.Tpo $(DEPDIR)/libgstgtk_la-gtkgstwidget.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkgstwidget.c' object='libgstgtk_la-gtkgstwidget.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -c -o libgstgtksink_la-gtkgstwidget.lo `test -f 'gtkgstwidget.c' || echo '$(srcdir)/'`gtkgstwidget.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -c -o libgstgtk_la-gtkgstwidget.lo `test -f 'gtkgstwidget.c' || echo '$(srcdir)/'`gtkgstwidget.c
 
-libgstgtksink_la-gstgtkbasesink.lo: gstgtkbasesink.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -MT libgstgtksink_la-gstgtkbasesink.lo -MD -MP -MF $(DEPDIR)/libgstgtksink_la-gstgtkbasesink.Tpo -c -o libgstgtksink_la-gstgtkbasesink.lo `test -f 'gstgtkbasesink.c' || echo '$(srcdir)/'`gstgtkbasesink.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtksink_la-gstgtkbasesink.Tpo $(DEPDIR)/libgstgtksink_la-gstgtkbasesink.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgtkbasesink.c' object='libgstgtksink_la-gstgtkbasesink.lo' libtool=yes @AMDEPBACKSLASH@
+libgstgtk_la-gstgtkbasesink.lo: gstgtkbasesink.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -MT libgstgtk_la-gstgtkbasesink.lo -MD -MP -MF $(DEPDIR)/libgstgtk_la-gstgtkbasesink.Tpo -c -o libgstgtk_la-gstgtkbasesink.lo `test -f 'gstgtkbasesink.c' || echo '$(srcdir)/'`gstgtkbasesink.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtk_la-gstgtkbasesink.Tpo $(DEPDIR)/libgstgtk_la-gstgtkbasesink.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgtkbasesink.c' object='libgstgtk_la-gstgtkbasesink.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -c -o libgstgtksink_la-gstgtkbasesink.lo `test -f 'gstgtkbasesink.c' || echo '$(srcdir)/'`gstgtkbasesink.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -c -o libgstgtk_la-gstgtkbasesink.lo `test -f 'gstgtkbasesink.c' || echo '$(srcdir)/'`gstgtkbasesink.c
 
-libgstgtksink_la-gstgtksink.lo: gstgtksink.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -MT libgstgtksink_la-gstgtksink.lo -MD -MP -MF $(DEPDIR)/libgstgtksink_la-gstgtksink.Tpo -c -o libgstgtksink_la-gstgtksink.lo `test -f 'gstgtksink.c' || echo '$(srcdir)/'`gstgtksink.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtksink_la-gstgtksink.Tpo $(DEPDIR)/libgstgtksink_la-gstgtksink.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgtksink.c' object='libgstgtksink_la-gstgtksink.lo' libtool=yes @AMDEPBACKSLASH@
+libgstgtk_la-gstgtksink.lo: gstgtksink.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -MT libgstgtk_la-gstgtksink.lo -MD -MP -MF $(DEPDIR)/libgstgtk_la-gstgtksink.Tpo -c -o libgstgtk_la-gstgtksink.lo `test -f 'gstgtksink.c' || echo '$(srcdir)/'`gstgtksink.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtk_la-gstgtksink.Tpo $(DEPDIR)/libgstgtk_la-gstgtksink.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgtksink.c' object='libgstgtk_la-gstgtksink.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -c -o libgstgtksink_la-gstgtksink.lo `test -f 'gstgtksink.c' || echo '$(srcdir)/'`gstgtksink.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -c -o libgstgtk_la-gstgtksink.lo `test -f 'gstgtksink.c' || echo '$(srcdir)/'`gstgtksink.c
 
-libgstgtksink_la-gstgtkutils.lo: gstgtkutils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -MT libgstgtksink_la-gstgtkutils.lo -MD -MP -MF $(DEPDIR)/libgstgtksink_la-gstgtkutils.Tpo -c -o libgstgtksink_la-gstgtkutils.lo `test -f 'gstgtkutils.c' || echo '$(srcdir)/'`gstgtkutils.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtksink_la-gstgtkutils.Tpo $(DEPDIR)/libgstgtksink_la-gstgtkutils.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgtkutils.c' object='libgstgtksink_la-gstgtkutils.lo' libtool=yes @AMDEPBACKSLASH@
+libgstgtk_la-gstgtkutils.lo: gstgtkutils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -MT libgstgtk_la-gstgtkutils.lo -MD -MP -MF $(DEPDIR)/libgstgtk_la-gstgtkutils.Tpo -c -o libgstgtk_la-gstgtkutils.lo `test -f 'gstgtkutils.c' || echo '$(srcdir)/'`gstgtkutils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtk_la-gstgtkutils.Tpo $(DEPDIR)/libgstgtk_la-gstgtkutils.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgtkutils.c' object='libgstgtk_la-gstgtkutils.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -c -o libgstgtksink_la-gstgtkutils.lo `test -f 'gstgtkutils.c' || echo '$(srcdir)/'`gstgtkutils.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -c -o libgstgtk_la-gstgtkutils.lo `test -f 'gstgtkutils.c' || echo '$(srcdir)/'`gstgtkutils.c
 
-libgstgtksink_la-gstplugin.lo: gstplugin.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -MT libgstgtksink_la-gstplugin.lo -MD -MP -MF $(DEPDIR)/libgstgtksink_la-gstplugin.Tpo -c -o libgstgtksink_la-gstplugin.lo `test -f 'gstplugin.c' || echo '$(srcdir)/'`gstplugin.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtksink_la-gstplugin.Tpo $(DEPDIR)/libgstgtksink_la-gstplugin.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstplugin.c' object='libgstgtksink_la-gstplugin.lo' libtool=yes @AMDEPBACKSLASH@
+libgstgtk_la-gstplugin.lo: gstplugin.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -MT libgstgtk_la-gstplugin.lo -MD -MP -MF $(DEPDIR)/libgstgtk_la-gstplugin.Tpo -c -o libgstgtk_la-gstplugin.lo `test -f 'gstplugin.c' || echo '$(srcdir)/'`gstplugin.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtk_la-gstplugin.Tpo $(DEPDIR)/libgstgtk_la-gstplugin.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstplugin.c' object='libgstgtk_la-gstplugin.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -c -o libgstgtksink_la-gstplugin.lo `test -f 'gstplugin.c' || echo '$(srcdir)/'`gstplugin.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -c -o libgstgtk_la-gstplugin.lo `test -f 'gstplugin.c' || echo '$(srcdir)/'`gstplugin.c
 
-libgstgtksink_la-gstgtkglsink.lo: gstgtkglsink.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -MT libgstgtksink_la-gstgtkglsink.lo -MD -MP -MF $(DEPDIR)/libgstgtksink_la-gstgtkglsink.Tpo -c -o libgstgtksink_la-gstgtkglsink.lo `test -f 'gstgtkglsink.c' || echo '$(srcdir)/'`gstgtkglsink.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtksink_la-gstgtkglsink.Tpo $(DEPDIR)/libgstgtksink_la-gstgtkglsink.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgtkglsink.c' object='libgstgtksink_la-gstgtkglsink.lo' libtool=yes @AMDEPBACKSLASH@
+libgstgtk_la-gstgtkglsink.lo: gstgtkglsink.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -MT libgstgtk_la-gstgtkglsink.lo -MD -MP -MF $(DEPDIR)/libgstgtk_la-gstgtkglsink.Tpo -c -o libgstgtk_la-gstgtkglsink.lo `test -f 'gstgtkglsink.c' || echo '$(srcdir)/'`gstgtkglsink.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtk_la-gstgtkglsink.Tpo $(DEPDIR)/libgstgtk_la-gstgtkglsink.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstgtkglsink.c' object='libgstgtk_la-gstgtkglsink.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -c -o libgstgtksink_la-gstgtkglsink.lo `test -f 'gstgtkglsink.c' || echo '$(srcdir)/'`gstgtkglsink.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -c -o libgstgtk_la-gstgtkglsink.lo `test -f 'gstgtkglsink.c' || echo '$(srcdir)/'`gstgtkglsink.c
 
-libgstgtksink_la-gtkgstglwidget.lo: gtkgstglwidget.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -MT libgstgtksink_la-gtkgstglwidget.lo -MD -MP -MF $(DEPDIR)/libgstgtksink_la-gtkgstglwidget.Tpo -c -o libgstgtksink_la-gtkgstglwidget.lo `test -f 'gtkgstglwidget.c' || echo '$(srcdir)/'`gtkgstglwidget.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtksink_la-gtkgstglwidget.Tpo $(DEPDIR)/libgstgtksink_la-gtkgstglwidget.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkgstglwidget.c' object='libgstgtksink_la-gtkgstglwidget.lo' libtool=yes @AMDEPBACKSLASH@
+libgstgtk_la-gtkgstglwidget.lo: gtkgstglwidget.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -MT libgstgtk_la-gtkgstglwidget.lo -MD -MP -MF $(DEPDIR)/libgstgtk_la-gtkgstglwidget.Tpo -c -o libgstgtk_la-gtkgstglwidget.lo `test -f 'gtkgstglwidget.c' || echo '$(srcdir)/'`gtkgstglwidget.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstgtk_la-gtkgstglwidget.Tpo $(DEPDIR)/libgstgtk_la-gtkgstglwidget.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gtkgstglwidget.c' object='libgstgtk_la-gtkgstglwidget.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtksink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtksink_la_CFLAGS) $(CFLAGS) -c -o libgstgtksink_la-gtkgstglwidget.lo `test -f 'gtkgstglwidget.c' || echo '$(srcdir)/'`gtkgstglwidget.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstgtk_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstgtk_la_CFLAGS) $(CFLAGS) -c -o libgstgtk_la-gtkgstglwidget.lo `test -f 'gtkgstglwidget.c' || echo '$(srcdir)/'`gtkgstglwidget.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

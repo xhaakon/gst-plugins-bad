@@ -118,6 +118,21 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--target-level-dbfs" title="The “target-level-dbfs” property">target-level-dbfs</a></td>
 <td class="property_flags">Read / Write / Construct</td>
 </tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--voice-detection" title="The “voice-detection” property">voice-detection</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--voice-detection-frame-size-ms" title="The “voice-detection-frame-size-ms” property">voice-detection-frame-size-ms</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type"><span class="type">GstWebrtcVoiceDetectionLikelihood</span></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--voice-detection-likelihood" title="The “voice-detection-likelihood” property">voice-detection-likelihood</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -414,6 +429,31 @@ represent a real pipeline.</p>
 <p>Flags: Read / Write / Construct</p>
 <p>Allowed values: [0,31]</p>
 <p>Default value: 3</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebrtcDsp--voice-detection"></a><h3>The <code class="literal">“voice-detection”</code> property</h3>
+<pre class="programlisting">  “voice-detection”          <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Enable or disable the voice activity detector.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebrtcDsp--voice-detection-frame-size-ms"></a><h3>The <code class="literal">“voice-detection-frame-size-ms”</code> property</h3>
+<pre class="programlisting">  “voice-detection-frame-size-ms” <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>Sets the |size| of the frames in ms on which the VAD will operate. Larger frames will improve detection accuracy, but reduce the frequency of updates.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Allowed values: [10,30]</p>
+<p>Default value: 10</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebrtcDsp--voice-detection-likelihood"></a><h3>The <code class="literal">“voice-detection-likelihood”</code> property</h3>
+<pre class="programlisting">  “voice-detection-likelihood” <span class="type">GstWebrtcVoiceDetectionLikelihood</span></pre>
+<p>Specifies the likelihood that a frame will be declared to contain voice.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Default value: Low Likelihood</p>
 </div>
 </div>
 </div>
