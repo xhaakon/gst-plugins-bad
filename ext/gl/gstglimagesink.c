@@ -2228,8 +2228,7 @@ gst_glimage_sink_on_draw (GstGLImageSink * gl_sink)
 
     if (gl->GenVertexArrays)
       gl->BindVertexArray (gl_sink->vao);
-    else
-      _bind_buffer (gl_sink);
+    _bind_buffer (gl_sink);
 
     gl->ActiveTexture (GL_TEXTURE0);
     gl->BindTexture (gl_target, gl_sink->redisplay_texture);
@@ -2242,7 +2241,7 @@ gst_glimage_sink_on_draw (GstGLImageSink * gl_sink)
           gst_buffer_get_video_affine_transformation_meta
           (gl_sink->stored_buffer[0]);
 
-      gst_gl_get_affine_transformation_meta_as_ndc (af_meta, matrix);
+      gst_gl_get_affine_transformation_meta_as_ndc_ext (af_meta, matrix);
 
       if (gl_sink->transform_matrix)
         gst_gl_multiply_matrix4 (gl_sink->transform_matrix, matrix, matrix);
@@ -2258,8 +2257,7 @@ gst_glimage_sink_on_draw (GstGLImageSink * gl_sink)
 
     if (gl->GenVertexArrays)
       gl->BindVertexArray (0);
-    else
-      _unbind_buffer (gl_sink);
+    _unbind_buffer (gl_sink);
 
     if (gl_sink->ignore_alpha)
       gl->Disable (GL_BLEND);

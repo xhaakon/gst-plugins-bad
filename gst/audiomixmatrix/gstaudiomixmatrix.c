@@ -68,10 +68,6 @@
 #include "config.h"
 #endif
 
-/* FIXME 2.0: suppress warnings for deprecated API such as GValueArray
- * with newer GLib versions (>= 2.31.0) */
-#define GLIB_DISABLE_DEPRECATION_WARNINGS
-
 #include "gstaudiomixmatrix.h"
 
 #include <gst/gst.h>
@@ -89,7 +85,6 @@ enum
   PROP_IN_CHANNELS,
   PROP_OUT_CHANNELS,
   PROP_MATRIX,
-  PROP_MATRIX_VALUE_ARRAY,
   PROP_CHANNEL_MASK,
   PROP_MODE
 };
@@ -190,16 +185,6 @@ gst_audio_mix_matrix_class_init (GstAudioMixMatrixClass * klass)
           "Transformation matrix for input/output channels",
           gst_param_spec_array ("matrix-in1", "rows", "rows",
               g_param_spec_double ("matrix-in2", "cols", "cols",
-                  -1, 1, 0,
-                  G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS),
-              G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS),
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-  g_object_class_install_property (gobject_class, PROP_MATRIX_VALUE_ARRAY,
-      g_param_spec_value_array ("matrix-value-array",
-          "Input/output channel matrix (GValueArray)",
-          "Transformation matrix (GValueArray) for input/output channels",
-          g_param_spec_value_array ("matrix-va-in1", "rows", "rows",
-              g_param_spec_double ("matrix-va-in2", "cols", "cols",
                   -1, 1, 0,
                   G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS),
               G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS),
@@ -343,35 +328,6 @@ gst_audio_mix_matrix_set_property (GObject * object, guint prop_id,
       gst_audio_mix_matrix_convert_s32_matrix (self);
       break;
     }
-    case PROP_MATRIX_VALUE_ARRAY:{
-      gint in, out;
-      GValueArray *a;
-
-      if (self->matrix)
-        g_free (self->matrix);
-      self->matrix = g_new (gdouble, self->in_channels * self->out_channels);
-
-      a = g_value_get_boxed (value);
-      g_return_if_fail (a->n_values == self->out_channels);
-      for (out = 0; out < self->out_channels; out++) {
-        const GValue *row = g_value_array_get_nth (a, out);
-        GValueArray *ra = g_value_get_boxed (row);
-
-        g_return_if_fail (ra->n_values == self->in_channels);
-        for (in = 0; in < self->in_channels; in++) {
-          const GValue *itm;
-          gdouble coefficient;
-
-          itm = g_value_array_get_nth (ra, in);
-          g_return_if_fail (G_VALUE_HOLDS_DOUBLE (itm));
-          coefficient = g_value_get_double (itm);
-          self->matrix[out * self->in_channels + in] = coefficient;
-        }
-      }
-      gst_audio_mix_matrix_convert_s16_matrix (self);
-      gst_audio_mix_matrix_convert_s32_matrix (self);
-      break;
-    }
     case PROP_CHANNEL_MASK:
       self->channel_mask = g_value_get_uint64 (value);
       break;
@@ -400,6 +356,9 @@ gst_audio_mix_matrix_get_property (GObject * object, guint prop_id,
     case PROP_MATRIX:{
       gint in, out;
 
+      if (self->matrix == NULL)
+        break;
+
       for (out = 0; out < self->out_channels; out++) {
         GValue row = G_VALUE_INIT;
         g_value_init (&row, GST_TYPE_ARRAY);
@@ -413,29 +372,6 @@ gst_audio_mix_matrix_get_property (GObject * object, guint prop_id,
         gst_value_array_append_value (value, &row);
         g_value_unset (&row);
       }
-      break;
-    }
-    case PROP_MATRIX_VALUE_ARRAY:{
-      gint in, out;
-      GValueArray *a = g_value_array_new (self->out_channels);
-
-      for (out = 0; out < self->out_channels; out++) {
-        GValue row = G_VALUE_INIT;
-        GValueArray *ra = g_value_array_new (self->in_channels);
-
-        g_value_init (&row, G_TYPE_VALUE_ARRAY);
-        for (in = 0; in < self->in_channels; in++) {
-          GValue itm = G_VALUE_INIT;
-          g_value_init (&itm, G_TYPE_DOUBLE);
-          g_value_set_double (&itm, self->matrix[out * self->in_channels + in]);
-          g_value_array_append (ra, &itm);
-          g_value_unset (&itm);
-        }
-        g_value_take_boxed (&row, ra);
-        g_value_array_append (a, &row);
-        g_value_unset (&row);
-      }
-      g_value_take_boxed (value, a);
       break;
     }
     case PROP_CHANNEL_MASK:
@@ -680,7 +616,7 @@ gst_audio_mix_matrix_fixate_caps (GstBaseTransform * trans,
 
     /* Try to keep channel configuration as much as possible */
     if (gst_structure_get_int (s2, "channels", &channels)) {
-      gint mindiff = channels;
+      gint mindiff = -1;
       othercaps = gst_caps_make_writable (othercaps);
       for (i = 0; i < capssize; i++) {
         s = gst_caps_get_structure (othercaps, i);
@@ -694,25 +630,30 @@ gst_audio_mix_matrix_fixate_caps (GstBaseTransform * trans,
           gst_structure_fixate_field_nearest_int (s, "channels", channels);
           if (gst_structure_get_int (s, "channels", &outchannels)) {
             diff = ABS (channels - outchannels);
-            if (diff < mindiff)
+            if (mindiff < 0 || diff < mindiff)
               mindiff = diff;
           }
         }
       }
 
-      for (i = 0; i < capssize; i++) {
-        gint outchannels, diff;
-        s = gst_caps_get_structure (othercaps, i);
-        if (gst_structure_get_int (s, "channels", &outchannels)) {
-          diff = ABS (channels - outchannels);
-          if (diff > mindiff) {
-            gst_caps_remove_structure (othercaps, i--);
-            capssize--;
+      if (mindiff >= 0) {
+        for (i = 0; i < capssize; i++) {
+          gint outchannels, diff;
+          s = gst_caps_get_structure (othercaps, i);
+          if (gst_structure_get_int (s, "channels", &outchannels)) {
+            diff = ABS (channels - outchannels);
+            if (diff > mindiff) {
+              gst_caps_remove_structure (othercaps, i--);
+              capssize--;
+            }
           }
         }
       }
     }
   }
+
+  if (gst_caps_is_empty (othercaps))
+    return othercaps;
 
   othercaps =
       GST_BASE_TRANSFORM_CLASS (gst_audio_mix_matrix_parent_class)->fixate_caps

@@ -186,10 +186,10 @@
 </tr>
 <tr>
 <td class="function_type">
-<span class="returnvalue">GstVideoGLTextureType</span>
+<a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="returnvalue">GstGLFormat</span></a>
 </td>
 <td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-type" title="gst_gl_memory_get_texture_type ()">gst_gl_memory_get_texture_type</a> <span class="c_punctuation">()</span>
+<a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-format" title="gst_gl_memory_get_texture_format ()">gst_gl_memory_get_texture_format</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
@@ -351,7 +351,7 @@ gst_gl_video_allocation_params_init_full
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> plane</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideo.html#GstVideoAlignment"><span class="type">GstVideoAlignment</span></a> *valign</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLTextureTarget" title="enum GstGLTextureTarget"><span class="type">GstGLTextureTarget</span></a> target</code></em>,
-                                <em class="parameter"><code><span class="type">GstVideoGLTextureType</span> tex_type</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> tex_format</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> wrapped_data</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> gl_handle</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>,
@@ -427,8 +427,8 @@ represents</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>tex_type</p></td>
-<td class="parameter_description"><p>the <span class="type">GstVideoGLTextureType</span></p></td>
+<td class="parameter_name"><p>tex_format</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -472,7 +472,7 @@ gst_gl_video_allocation_params_new (<em class="parameter"><code><a class="link" 
                                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> plane</code></em>,
                                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideo.html#GstVideoAlignment"><span class="type">GstVideoAlignment</span></a> *valign</code></em>,
                                     <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLTextureTarget" title="enum GstGLTextureTarget"><span class="type">GstGLTextureTarget</span></a> target</code></em>,
-                                    <em class="parameter"><code><span class="type">GstVideoGLTextureType</span> tex_type</code></em>);</pre>
+                                    <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> tex_format</code></em>);</pre>
 <div class="refsect3">
 <a name="gst-gl-video-allocation-params-new.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -514,8 +514,8 @@ to allocate</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>tex_type</p></td>
-<td class="parameter_description"><p>the <span class="type">GstVideoGLTextureType</span> for the created textures</p></td>
+<td class="parameter_name"><p>tex_format</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> for the created textures</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 </tbody>
@@ -538,7 +538,7 @@ gst_gl_video_allocation_params_new_wrapped_data
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> plane</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideo.html#GstVideoAlignment"><span class="type">GstVideoAlignment</span></a> *valign</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLTextureTarget" title="enum GstGLTextureTarget"><span class="type">GstGLTextureTarget</span></a> target</code></em>,
-                                <em class="parameter"><code><span class="type">GstVideoGLTextureType</span> tex_type</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> tex_format</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> wrapped_data</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> notify</code></em>);</pre>
@@ -587,8 +587,8 @@ represents</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>tex_type</p></td>
-<td class="parameter_description"><p>the <span class="type">GstVideoGLTextureType</span> for <em class="parameter"><code>wrapped_data</code></em>
+<td class="parameter_name"><p>tex_format</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> for <em class="parameter"><code>wrapped_data</code></em>
 </p></td>
 <td class="parameter_annotations"> </td>
 </tr>
@@ -629,7 +629,7 @@ gst_gl_video_allocation_params_new_wrapped_gl_handle
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> plane</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideo.html#GstVideoAlignment"><span class="type">GstVideoAlignment</span></a> *valign</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLTextureTarget" title="enum GstGLTextureTarget"><span class="type">GstGLTextureTarget</span></a> target</code></em>,
-                                <em class="parameter"><code><span class="type">GstVideoGLTextureType</span> tex_type</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> tex_format</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> gl_handle</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> notify</code></em>);</pre>
@@ -682,8 +682,8 @@ represents</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>tex_type</p></td>
-<td class="parameter_description"><p>the <span class="type">GstVideoGLTextureType</span> for <em class="parameter"><code>tex_id</code></em>
+<td class="parameter_name"><p>tex_format</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> for <em class="parameter"><code>tex_id</code></em>
 </p></td>
 <td class="parameter_annotations"> </td>
 </tr>
@@ -724,7 +724,7 @@ gst_gl_video_allocation_params_new_wrapped_texture
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> plane</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideo.html#GstVideoAlignment"><span class="type">GstVideoAlignment</span></a> *valign</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLTextureTarget" title="enum GstGLTextureTarget"><span class="type">GstGLTextureTarget</span></a> target</code></em>,
-                                <em class="parameter"><code><span class="type">GstVideoGLTextureType</span> tex_type</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> tex_format</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> tex_id</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> notify</code></em>);</pre>
@@ -773,8 +773,8 @@ represents</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>tex_type</p></td>
-<td class="parameter_description"><p>the <span class="type">GstVideoGLTextureType</span> for <em class="parameter"><code>tex_id</code></em>
+<td class="parameter_name"><p>tex_format</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> for <em class="parameter"><code>tex_id</code></em>
 </p></td>
 <td class="parameter_annotations"> </td>
 </tr>
@@ -851,7 +851,7 @@ gst_gl_memory_init (<em class="parameter"><code><a class="link" href="gst-plugin
                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstMemory.html#GstMemory-struct"><span class="type">GstMemory</span></a> *parent</code></em>,
                     <em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>,
                     <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLTextureTarget" title="enum GstGLTextureTarget"><span class="type">GstGLTextureTarget</span></a> target</code></em>,
-                    <em class="parameter"><code><span class="type">GstVideoGLTextureType</span> tex_type</code></em>,
+                    <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> tex_format</code></em>,
                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocationParams-struct"><span class="type">GstAllocationParams</span></a> *params</code></em>,
                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideo.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a> *info</code></em>,
                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> plane</code></em>,
@@ -897,8 +897,8 @@ already have been modified with <a href="/usr/share/gtk-doc/html/gst-plugins-bas
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>tex_type</p></td>
-<td class="parameter_description"><p>the <span class="type">GstVideoGLTextureType</span> for this <a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p></td>
+<td class="parameter_name"><p>tex_format</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> for this <a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -972,14 +972,14 @@ is a <a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" ti
 gst_gl_memory_copy_into (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> *gl_mem</code></em>,
                          <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> tex_id</code></em>,
                          <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLTextureTarget" title="enum GstGLTextureTarget"><span class="type">GstGLTextureTarget</span></a> target</code></em>,
-                         <em class="parameter"><code><span class="type">GstVideoGLTextureType</span> tex_type</code></em>,
+                         <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> tex_format</code></em>,
                          <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> width</code></em>,
                          <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> height</code></em>);</pre>
 <p>Copies <em class="parameter"><code>gl_mem</code></em>
  into the texture specfified by <em class="parameter"><code>tex_id</code></em>
 .  The format of <em class="parameter"><code>tex_id</code></em>
 
-is specified by <em class="parameter"><code>tex_type</code></em>
+is specified by <em class="parameter"><code>tex_format</code></em>
 , <em class="parameter"><code>width</code></em>
  and <em class="parameter"><code>height</code></em>
 .</p>
@@ -1008,8 +1008,8 @@ is specified by <em class="parameter"><code>tex_type</code></em>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>tex_type</p></td>
-<td class="parameter_description"><p>the <span class="type">GstVideoGLTextureType</span></p></td>
+<td class="parameter_name"><p>tex_format</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -1040,7 +1040,7 @@ is specified by <em class="parameter"><code>tex_type</code></em>
 gst_gl_memory_copy_teximage (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> *src</code></em>,
                              <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> tex_id</code></em>,
                              <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLTextureTarget" title="enum GstGLTextureTarget"><span class="type">GstGLTextureTarget</span></a> out_target</code></em>,
-                             <em class="parameter"><code><span class="type">GstVideoGLTextureType</span> out_tex_type</code></em>,
+                             <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> out_tex_format</code></em>,
                              <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> width</code></em>,
                              <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> height</code></em>);</pre>
 </div>
@@ -1200,11 +1200,11 @@ gst_gl_memory_get_texture_target (<em class="parameter"><code><a class="link" hr
 </div>
 <hr>
 <div class="refsect2">
-<a name="gst-gl-memory-get-texture-type"></a><h3>gst_gl_memory_get_texture_type ()</h3>
-<pre class="programlisting"><span class="returnvalue">GstVideoGLTextureType</span>
-gst_gl_memory_get_texture_type (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> *gl_mem</code></em>);</pre>
+<a name="gst-gl-memory-get-texture-format"></a><h3>gst_gl_memory_get_texture_format ()</h3>
+<pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="returnvalue">GstGLFormat</span></a>
+gst_gl_memory_get_texture_format (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> *gl_mem</code></em>);</pre>
 <div class="refsect3">
-<a name="gst-gl-memory-get-texture-type.parameters"></a><h4>Parameters</h4>
+<a name="gst-gl-memory-get-texture-format.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -1219,11 +1219,11 @@ gst_gl_memory_get_texture_type (<em class="parameter"><code><a class="link" href
 </table></div>
 </div>
 <div class="refsect3">
-<a name="gst-gl-memory-get-texture-type.returns"></a><h4>Returns</h4>
-<p> the <span class="type">GstVideoGLTextureType</span> of <em class="parameter"><code>gl_mem</code></em>
+<a name="gst-gl-memory-get-texture-format.returns"></a><h4>Returns</h4>
+<p> the <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> of <em class="parameter"><code>gl_mem</code></em>
 </p>
 </div>
-<p class="since">Since: 1.8</p>
+<p class="since">Since: 1.12</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1259,7 +1259,7 @@ gst_gl_memory_get_texture_width (<em class="parameter"><code><a class="link" hre
 gst_gl_memory_setup_buffer (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemoryAllocator"><span class="type">GstGLMemoryAllocator</span></a> *allocator</code></em>,
                             <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="type">GstBuffer</span></a> *buffer</code></em>,
                             <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams"><span class="type">GstGLVideoAllocationParams</span></a> *params</code></em>,
-                            <em class="parameter"><code><span class="type">GstVideoGLTextureType</span> *tex_types</code></em>,
+                            <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> *tex_formats</code></em>,
                             <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> *wrapped_data</code></em>,
                             <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> n_wrapped_pointers</code></em>);</pre>
 <div class="refsect3">
@@ -1288,8 +1288,8 @@ to allocate from</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>tex_types</p></td>
-<td class="parameter_description"><p> a list of <span class="type">GstVideoGLTextureType</span>'s to allocate with. </p></td>
+<td class="parameter_name"><p>tex_formats</p></td>
+<td class="parameter_description"><p> a list of <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a>'s to allocate with. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
 </tr>
 <tr>
@@ -1299,7 +1299,7 @@ to allocate from</p></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>n_wrapped_pointers</p></td>
-<td class="parameter_description"><p>the number of elements in <em class="parameter"><code>tex_types</code></em>
+<td class="parameter_description"><p>the number of elements in <em class="parameter"><code>tex_formats</code></em>
 and <em class="parameter"><code>wrapped_data</code></em>
 </p></td>
 <td class="parameter_annotations"> </td>
@@ -1336,7 +1336,7 @@ and <em class="parameter"><code>wrapped_data</code></em>
   guint                  plane;
   GstVideoAlignment     *valign;
   GstGLTextureTarget     target;
-  GstVideoGLTextureType  tex_type;
+  GstGLFormat            tex_format;
 };
 </pre>
 <div class="refsect3">
@@ -1374,9 +1374,9 @@ and <em class="parameter"><code>wrapped_data</code></em>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">GstVideoGLTextureType</span> <em class="structfield"><code><a name="GstGLVideoAllocationParams-struct.tex-type"></a>tex_type</code></em>;</p></td>
-<td class="struct_member_description"><p>the <span class="type">GstVideoGLTextureType</span> to allocate</p></td>
-<td class="struct_member_annotations"> </td>
+<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> <em class="structfield"><code><a name="GstGLVideoAllocationParams-struct.tex-format"></a>tex_format</code></em>;</p></td>
+<td> </td>
+<td> </td>
 </tr>
 </tbody>
 </table></div>
@@ -1439,7 +1439,7 @@ and <em class="parameter"><code>wrapped_data</code></em>
 
   guint                     tex_id;
   GstGLTextureTarget        tex_target;
-  GstVideoGLTextureType     tex_type;
+  GstGLFormat               tex_format;
   GstVideoInfo              info;
   GstVideoAlignment         valign;
   guint                     plane;
@@ -1472,9 +1472,9 @@ and <em class="parameter"><code>wrapped_data</code></em>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><span class="type">GstVideoGLTextureType</span> <em class="structfield"><code><a name="GstGLMemory.tex-type"></a>tex_type</code></em>;</p></td>
-<td class="struct_member_description"><p>the texture type</p></td>
-<td class="struct_member_annotations"> </td>
+<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> <em class="structfield"><code><a name="GstGLMemory.tex-format"></a>tex_format</code></em>;</p></td>
+<td> </td>
+<td> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstvideo.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a> <em class="structfield"><code><a name="GstGLMemory.info"></a>info</code></em>;</p></td>

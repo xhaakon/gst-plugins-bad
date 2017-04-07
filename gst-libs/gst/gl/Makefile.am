@@ -2,7 +2,7 @@
 lib_LTLIBRARIES = libgstgl-@GST_API_VERSION@.la
 
 SUBDIRS = glprototypes
-DIST_SUBDIRS = glprototypes android x11 win32 cocoa wayland dispmanx egl eagl
+DIST_SUBDIRS = glprototypes android x11 win32 cocoa wayland dispmanx egl eagl viv-fb
 
 built_sys_header_configure = gstglconfig.h
 
@@ -82,7 +82,8 @@ libgstgl_@GST_API_VERSION@_la_LIBADD = \
 	-lgstvideo-$(GST_API_VERSION) \
 	$(GST_BASE_LIBS) \
 	$(GST_LIBS) \
-	$(GL_LIBS)
+	$(GL_LIBS) \
+	$(top_builddir)/gst-libs/gst/allocators/libgstbadallocators-@GST_API_VERSION@.la
 
 if HAVE_WINDOW_WIN32
 SUBDIRS += win32
@@ -117,6 +118,11 @@ endif
 if HAVE_WINDOW_EAGL
 SUBDIRS += eagl
 libgstgl_@GST_API_VERSION@_la_LIBADD += eagl/libgstgl-eagl.la
+endif
+
+if HAVE_WINDOW_VIV_FB
+SUBDIRS += viv-fb
+libgstgl_@GST_API_VERSION@_la_LIBADD += viv-fb/libgstgl-viv-fb.la
 endif
 
 if USE_EGL

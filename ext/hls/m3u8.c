@@ -599,7 +599,14 @@ gst_m3u8_update (GstM3U8 * self, gchar * data)
           mediasequence = val;
           have_mediasequence = TRUE;
         }
+      } else if (g_str_has_prefix (data_ext_x, "DISCONTINUITY-SEQUENCE:")) {
+        if (int_from_string (data + 30, &data, &val)
+            && val != self->discont_sequence) {
+          self->discont_sequence = val;
+          discontinuity = TRUE;
+        }
       } else if (g_str_has_prefix (data_ext_x, "DISCONTINUITY")) {
+        self->discont_sequence++;
         discontinuity = TRUE;
       } else if (g_str_has_prefix (data_ext_x, "PROGRAM-DATE-TIME:")) {
         /* <YYYY-MM-DDThh:mm:ssZ> */
@@ -692,8 +699,10 @@ gst_m3u8_update (GstM3U8 * self, gchar * data)
     previous_files = NULL;
 
     /* error was reported above already */
-    if (!consistent)
+    if (!consistent) {
+      GST_M3U8_UNLOCK (self);
       return FALSE;
+    }
   }
 
   if (self->files == NULL) {
@@ -1179,9 +1188,12 @@ gst_hls_media_unref (GstHLSMedia * media)
 {
   g_assert (media != NULL && media->ref_count > 0);
   if (g_atomic_int_dec_and_test (&media->ref_count)) {
+    if (media->playlist)
+      gst_m3u8_unref (media->playlist);
     g_free (media->group_id);
     g_free (media->name);
     g_free (media->uri);
+    g_free (media->lang);
     g_free (media);
   }
 }
@@ -1235,13 +1247,13 @@ gst_m3u8_unquote (const gchar * str)
 static GstHLSMedia *
 gst_m3u8_parse_media (gchar * desc, const gchar * base_uri)
 {
-  GstHLSMediaType mtype = GST_HLS_MEDIA_TYPE_INVALID;
   GstHLSMedia *media;
   gchar *a, *v;
 
   media = g_new0 (GstHLSMedia, 1);
   media->ref_count = 1;
   media->playlist = gst_m3u8_new ();
+  media->mtype = GST_HLS_MEDIA_TYPE_INVALID;
 
   GST_LOG ("parsing %s", desc);
   while (desc != NULL && parse_attributes (&desc, &a, &v)) {
@@ -1284,7 +1296,7 @@ gst_m3u8_parse_media (gchar * desc, const gchar * base_uri)
   if (media->group_id == NULL || media->name == NULL)
     goto required_attributes_missing;
 
-  if (mtype == GST_HLS_MEDIA_TYPE_CLOSED_CAPTIONS)
+  if (media->mtype == GST_HLS_MEDIA_TYPE_CLOSED_CAPTIONS)
     goto uri_with_cc;
 
   GST_DEBUG ("media: %s, group '%s', name '%s', uri '%s', %s %s %s, lang=%s",
@@ -1399,6 +1411,8 @@ gst_hls_master_playlist_unref (GstHLSMasterPlaylist * playlist)
         (GDestroyNotify) gst_hls_variant_stream_unref);
     g_list_free_full (playlist->iframe_variants,
         (GDestroyNotify) gst_hls_variant_stream_unref);
+    if (playlist->default_variant)
+      gst_hls_variant_stream_unref (playlist->default_variant);
     g_free (playlist->last_data);
     g_free (playlist);
   }

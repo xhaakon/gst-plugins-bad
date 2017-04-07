@@ -440,6 +440,7 @@ gst_adaptive_demux_init (GstAdaptiveDemux * demux,
   demux->priv = GST_ADAPTIVE_DEMUX_GET_PRIVATE (demux);
   demux->priv->input_adapter = gst_adapter_new ();
   demux->downloader = gst_uri_downloader_new ();
+  gst_uri_downloader_set_parent (demux->downloader, GST_ELEMENT_CAST (demux));
   demux->stream_struct_size = sizeof (GstAdaptiveDemuxStream);
   demux->priv->segment_seqnum = gst_util_seqnum_next ();
   demux->have_group_id = FALSE;
@@ -1196,14 +1197,19 @@ gst_adaptive_demux_expose_streams (GstAdaptiveDemux * demux)
      */
     for (iter = old_streams; iter; iter = g_list_next (iter)) {
       GstAdaptiveDemuxStream *stream = iter->data;
+      GstPad *pad = gst_object_ref (GST_PAD (stream->pad));
 
-      GST_LOG_OBJECT (stream->pad, "Removing stream");
       GST_MANIFEST_UNLOCK (demux);
 
-      gst_pad_push_event (stream->pad, gst_event_ref (eos));
-      gst_pad_set_active (stream->pad, FALSE);
-      gst_element_remove_pad (GST_ELEMENT (demux), stream->pad);
+      GST_DEBUG_OBJECT (pad, "Pushing EOS");
+      gst_pad_push_event (pad, gst_event_ref (eos));
+      gst_pad_set_active (pad, FALSE);
+
+      GST_LOG_OBJECT (pad, "Removing stream");
+      gst_element_remove_pad (GST_ELEMENT (demux), pad);
       GST_MANIFEST_LOCK (demux);
+
+      gst_object_unref (GST_OBJECT (pad));
 
       /* ask the download task to stop.
        * We will not join it now, because our thread can be one of these tasks.
@@ -2402,7 +2408,7 @@ _src_chain (GstPad * pad, GstObject * parent, GstBuffer * buffer)
 
   stream->download_total_bytes += gst_buffer_get_size (buffer);
 
-  GST_DEBUG_OBJECT (stream->pad, "Received buffer of size %" G_GSIZE_FORMAT,
+  GST_TRACE_OBJECT (stream->pad, "Received buffer of size %" G_GSIZE_FORMAT,
       gst_buffer_get_size (buffer));
 
   ret = klass->data_received (demux, stream, buffer);
@@ -2505,6 +2511,7 @@ _src_event (GstPad * pad, GstObject * parent, GstEvent * event)
 
   switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_EOS:{
+      GST_DEBUG_OBJECT (pad, "Saw EOS on src pad");
       GST_MANIFEST_LOCK (demux);
 
       gst_adaptive_demux_eos_handling (stream);
@@ -2983,17 +2990,17 @@ gst_adaptive_demux_stream_download_uri (GstAdaptiveDemux * demux,
         *http_status = stream->last_status_code;
       }
     }
+
+    /* changing src element state might try to join the streaming thread, so
+     * we must not hold the manifest lock.
+     */
+    GST_MANIFEST_UNLOCK (demux);
   } else {
     GST_MANIFEST_UNLOCK (demux);
     if (stream->last_ret == GST_FLOW_OK)
       stream->last_ret = GST_FLOW_CUSTOM_ERROR;
     ret = GST_FLOW_CUSTOM_ERROR;
   }
-
-  /* changing src element state might try to join the streaming thread, so
-   * we must not hold the manifest lock.
-   */
-  GST_MANIFEST_UNLOCK (demux);
 
   stream->src_at_ready = FALSE;
 
@@ -3531,6 +3538,8 @@ gst_adaptive_demux_stream_download_loop (GstAdaptiveDemuxStream * stream)
         gst_task_stop (stream->download_task);
         if (gst_adaptive_demux_combine_flows (demux) == GST_FLOW_EOS) {
           if (gst_adaptive_demux_has_next_period (demux)) {
+            GST_DEBUG_OBJECT (stream->pad,
+                "Next period available, not sending EOS");
             gst_adaptive_demux_advance_period (demux);
             ret = GST_FLOW_OK;
           }
@@ -3628,8 +3637,13 @@ gst_adaptive_demux_stream_download_loop (GstAdaptiveDemuxStream * stream)
 end_of_manifest:
   if (G_UNLIKELY (ret == GST_FLOW_EOS)) {
     if (GST_OBJECT_PARENT (stream->pad) != NULL) {
-      GST_DEBUG_OBJECT (stream->src, "Pushing EOS on pad");
-      gst_adaptive_demux_stream_push_event (stream, gst_event_new_eos ());
+      if (demux->next_streams == NULL && demux->prepared_streams == NULL) {
+        GST_DEBUG_OBJECT (stream->src, "Pushing EOS on pad");
+        gst_adaptive_demux_stream_push_event (stream, gst_event_new_eos ());
+      } else {
+        GST_DEBUG_OBJECT (stream->src,
+            "Stream is EOS, but we're switching fragments. Not sending.");
+      }
     } else {
       GST_ERROR_OBJECT (demux, "Can't push EOS on non-exposed pad");
       goto download_error;
@@ -3746,7 +3760,8 @@ gst_adaptive_demux_updates_loop (GstAdaptiveDemux * demux)
       /* update_failed_count is used only here, no need to protect it */
       demux->priv->update_failed_count++;
       if (demux->priv->update_failed_count <= DEFAULT_FAILED_COUNT) {
-        GST_WARNING_OBJECT (demux, "Could not update the playlist");
+        GST_WARNING_OBJECT (demux, "Could not update the playlist, flow: %s",
+            gst_flow_get_name (ret));
         next_update = gst_adaptive_demux_get_monotonic_time (demux)
             + klass->get_manifest_update_interval (demux) * GST_USECOND;
       } else {
@@ -4015,9 +4030,10 @@ gst_adaptive_demux_update_manifest_default (GstAdaptiveDemux * demux)
   GstFragment *download;
   GstBuffer *buffer;
   GstFlowReturn ret;
+  GError *error = NULL;
 
   download = gst_uri_downloader_fetch_uri (demux->downloader,
-      demux->manifest_uri, NULL, TRUE, TRUE, TRUE, NULL);
+      demux->manifest_uri, NULL, TRUE, TRUE, TRUE, &error);
   if (download) {
     g_free (demux->manifest_uri);
     g_free (demux->manifest_base_uri);
@@ -4036,8 +4052,11 @@ gst_adaptive_demux_update_manifest_default (GstAdaptiveDemux * demux)
     /* FIXME: Should the manifest uri vars be reverted to original
      * values if updating fails? */
   } else {
+    GST_WARNING_OBJECT (demux, "Failed to download manifest: %s",
+        error->message);
     ret = GST_FLOW_NOT_LINKED;
   }
+  g_clear_error (&error);
 
   return ret;
 }

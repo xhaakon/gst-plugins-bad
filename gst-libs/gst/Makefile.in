@@ -764,16 +764,16 @@ wayland_scanner = @wayland_scanner@
 @USE_WAYLAND_TRUE@WAYLAND_DIR = wayland
 @USE_OPENCV_TRUE@OPENCV_DIR = opencv
 SUBDIRS = uridownloader adaptivedemux interfaces basecamerabinsrc codecparsers \
-	 insertbin mpegts base video audio player $(GL_DIR) $(WAYLAND_DIR) \
+	 insertbin mpegts base video audio player allocators $(GL_DIR) $(WAYLAND_DIR) \
 	 $(OPENCV_DIR)
 
 noinst_HEADERS = gst-i18n-plugin.h gettext.h glib-compat-private.h
 DIST_SUBDIRS = uridownloader adaptivedemux interfaces gl basecamerabinsrc \
-	codecparsers insertbin mpegts wayland opencv base video audio player
+	codecparsers insertbin mpegts wayland opencv base video audio player allocators
 
 INDEPENDENT_SUBDIRS = \
 	interfaces basecamerabinsrc codecparsers insertbin uridownloader \
-	mpegts base player $(GL_DIR) $(WAYLAND_DIR) $(OPENCV_DIR)
+	mpegts base player allocators $(GL_DIR) $(WAYLAND_DIR) $(OPENCV_DIR)
 
 all: all-recursive
 
@@ -1089,6 +1089,7 @@ uninstall-am:
 
 #dependencies
 video, audio: base
+gl: allocators
 
 adaptivedemux: uridownloader
 

@@ -739,6 +739,9 @@
 /* the target CPU */
 #undef TARGET_CPU
 
+/* Use Mali FB EGL platform */
+#undef USE_EGL_MALI_FB
+
 /* Use RPi platform */
 #undef USE_EGL_RPI
 

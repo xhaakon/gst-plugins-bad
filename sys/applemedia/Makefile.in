@@ -887,8 +887,9 @@ libgstapplemedia_la_CFLAGS = \
 @HAVE_IOS_FALSE@GST_OBJCFLAGS_WITH_VERSION = -mmacosx-version-min=10.8 $(GST_OBJCFLAGS)
 @HAVE_IOS_TRUE@GST_OBJCFLAGS_WITH_VERSION = $(GST_OBJCFLAGS)
 libgstapplemedia_la_OBJCFLAGS = -I$(top_srcdir)/gst-libs \
-	-I$(top_builddir)/gst-libs $(GST_OBJCFLAGS_WITH_VERSION) \
-	$(GST_BASE_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) $(am__append_1)
+	-I$(top_builddir)/gst-libs -fobjc-arc \
+	$(GST_OBJCFLAGS_WITH_VERSION) $(GST_BASE_CFLAGS) \
+	$(GST_PLUGINS_BASE_CFLAGS) $(am__append_1)
 libgstapplemedia_la_LIBADD = \
 	$(top_builddir)/gst-libs/gst/gl/libgstgl-$(GST_API_VERSION).la 	\
 	$(GST_BASE_LIBS)						\

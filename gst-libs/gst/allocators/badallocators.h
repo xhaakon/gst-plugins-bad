@@ -1,7 +1,7 @@
 /* GStreamer
- * Copyright (C) 2016 Carlos Rafael Giani <dv@pseudoterminal.org>
+ * Copyright (C) 2017 GStreamer developers
  *
- * unalignedaudio.h:
+ * allocatorsbad.h: single include header for gst-allocators-bad library
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,17 +19,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GST_UNALIGNED_AUDIO_H__
-#define __GST_UNALIGNED_AUDIO_H__
+#ifndef __GST_ALLOCATORS_BAD_H__
+#define __GST_ALLOCATORS_BAD_H__
 
-#include <gst/gst.h>
-#include <gst/audio/audio.h>
+#include <gst/allocators/gstphysmemory.h>
 
-#define GST_UNALIGNED_RAW_AUDIO_CAPS \
-  "audio/x-unaligned-raw" \
-  ", format = (string) " GST_AUDIO_FORMATS_ALL \
-  ", rate = (int) [ 1, MAX ]" \
-  ", channels = (int) [ 1, MAX ]" \
-  ", layout = (string) { interleaved, non-interleaved }"
+#endif /* __GST_ALLOCATORS_BAD_H__ */
 
-#endif /* __GST_UNALIGNED_AUDIO_H__ */

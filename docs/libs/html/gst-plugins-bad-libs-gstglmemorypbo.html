@@ -162,7 +162,7 @@ is a <a class="link" href="gst-plugins-bad-libs-gstglmemorypbo.html#GstGLMemoryP
 gst_gl_memory_pbo_copy_into_texture (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-gstglmemorypbo.html#GstGLMemoryPBO" title="GstGLMemoryPBO"><span class="type">GstGLMemoryPBO</span></a> *gl_mem</code></em>,
                                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> tex_id</code></em>,
                                      <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLTextureTarget" title="enum GstGLTextureTarget"><span class="type">GstGLTextureTarget</span></a> target</code></em>,
-                                     <em class="parameter"><code><span class="type">GstVideoGLTextureType</span> tex_type</code></em>,
+                                     <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> tex_format</code></em>,
                                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> width</code></em>,
                                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> height</code></em>,
                                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> stride</code></em>,
@@ -171,7 +171,7 @@ gst_gl_memory_pbo_copy_into_texture (<em class="parameter"><code><a class="link"
  into the texture specfified by <em class="parameter"><code>tex_id</code></em>
 .  The format of <em class="parameter"><code>tex_id</code></em>
 
-is specified by <em class="parameter"><code>tex_type</code></em>
+is specified by <em class="parameter"><code>tex_format</code></em>
 , <em class="parameter"><code>width</code></em>
  and <em class="parameter"><code>height</code></em>
 .</p>
@@ -211,8 +211,8 @@ mappings between texture formats.</p>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>tex_type</p></td>
-<td class="parameter_description"><p>the destination <span class="type">GstVideoGLTextureType</span></p></td>
+<td class="parameter_name"><p>tex_format</p></td>
+<td class="parameter_description"><p>the destination <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>

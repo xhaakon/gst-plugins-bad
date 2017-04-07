@@ -162,19 +162,18 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstteletextdec_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+libgstteletext_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
-am_libgstteletextdec_la_OBJECTS =  \
-	libgstteletextdec_la-gstteletextdec.lo
-libgstteletextdec_la_OBJECTS = $(am_libgstteletextdec_la_OBJECTS)
+am_libgstteletext_la_OBJECTS = libgstteletext_la-gstteletextdec.lo
+libgstteletext_la_OBJECTS = $(am_libgstteletext_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-libgstteletextdec_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(libgstteletextdec_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(libgstteletextdec_la_CFLAGS) $(CFLAGS) \
-	$(libgstteletextdec_la_LDFLAGS) $(LDFLAGS) -o $@
+libgstteletext_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(libgstteletext_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
+	$(CCLD) $(libgstteletext_la_CFLAGS) $(CFLAGS) \
+	$(libgstteletext_la_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -209,8 +208,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libgstteletextdec_la_SOURCES)
-DIST_SOURCES = $(libgstteletextdec_la_SOURCES)
+SOURCES = $(libgstteletext_la_SOURCES)
+DIST_SOURCES = $(libgstteletext_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -784,12 +783,12 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
-plugin_LTLIBRARIES = libgstteletextdec.la
-libgstteletextdec_la_SOURCES = gstteletextdec.c
-libgstteletextdec_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_CFLAGS) $(TELETEXTDEC_CFLAGS)
-libgstteletextdec_la_LIBADD = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_LIBS) $(TELETEXTDEC_LIBS)
-libgstteletextdec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstteletextdec_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
+plugin_LTLIBRARIES = libgstteletext.la
+libgstteletext_la_SOURCES = gstteletextdec.c
+libgstteletext_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_CFLAGS) $(TELETEXTDEC_CFLAGS)
+libgstteletext_la_LIBADD = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_LIBS) $(TELETEXTDEC_LIBS)
+libgstteletext_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstteletext_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 noinst_HEADERS = gstteletextdec.h
 all: all-am
 
@@ -860,8 +859,8 @@ clean-pluginLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libgstteletextdec.la: $(libgstteletextdec_la_OBJECTS) $(libgstteletextdec_la_DEPENDENCIES) $(EXTRA_libgstteletextdec_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libgstteletextdec_la_LINK) -rpath $(plugindir) $(libgstteletextdec_la_OBJECTS) $(libgstteletextdec_la_LIBADD) $(LIBS)
+libgstteletext.la: $(libgstteletext_la_OBJECTS) $(libgstteletext_la_DEPENDENCIES) $(EXTRA_libgstteletext_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libgstteletext_la_LINK) -rpath $(plugindir) $(libgstteletext_la_OBJECTS) $(libgstteletext_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -869,7 +868,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstteletextdec_la-gstteletextdec.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstteletext_la-gstteletextdec.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -895,12 +894,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-libgstteletextdec_la-gstteletextdec.lo: gstteletextdec.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstteletextdec_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstteletextdec_la_CFLAGS) $(CFLAGS) -MT libgstteletextdec_la-gstteletextdec.lo -MD -MP -MF $(DEPDIR)/libgstteletextdec_la-gstteletextdec.Tpo -c -o libgstteletextdec_la-gstteletextdec.lo `test -f 'gstteletextdec.c' || echo '$(srcdir)/'`gstteletextdec.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstteletextdec_la-gstteletextdec.Tpo $(DEPDIR)/libgstteletextdec_la-gstteletextdec.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstteletextdec.c' object='libgstteletextdec_la-gstteletextdec.lo' libtool=yes @AMDEPBACKSLASH@
+libgstteletext_la-gstteletextdec.lo: gstteletextdec.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstteletext_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstteletext_la_CFLAGS) $(CFLAGS) -MT libgstteletext_la-gstteletextdec.lo -MD -MP -MF $(DEPDIR)/libgstteletext_la-gstteletextdec.Tpo -c -o libgstteletext_la-gstteletextdec.lo `test -f 'gstteletextdec.c' || echo '$(srcdir)/'`gstteletextdec.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstteletext_la-gstteletextdec.Tpo $(DEPDIR)/libgstteletext_la-gstteletextdec.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstteletextdec.c' object='libgstteletext_la-gstteletextdec.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstteletextdec_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstteletextdec_la_CFLAGS) $(CFLAGS) -c -o libgstteletextdec_la-gstteletextdec.lo `test -f 'gstteletextdec.c' || echo '$(srcdir)/'`gstteletextdec.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstteletext_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstteletext_la_CFLAGS) $(CFLAGS) -c -o libgstteletext_la-gstteletextdec.lo `test -f 'gstteletextdec.c' || echo '$(srcdir)/'`gstteletextdec.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

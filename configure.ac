@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.11.2],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.11.90],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 1102, 0, 1102)
+AS_LIBTOOL(GST, 1190, 0, 1190)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.11.2
-GSTPB_REQ=1.11.2
+GST_REQ=1.11.90
+GSTPB_REQ=1.11.90
 
 dnl *** autotools stuff ****
 
@@ -677,7 +677,7 @@ HAVE_GL=no
 HAVE_GLES2=no
 HAVE_GLES3_H=no
 HAVE_WAYLAND_EGL=no
-
+HAVE_VIV_FB_EGL=no
 HAVE_EGL_RPI=no
 
 case $host in
@@ -713,6 +713,38 @@ case $host in
 
     old_LIBS=$LIBS
     old_CFLAGS=$CFLAGS
+
+    dnl imx6 / Vivante specifics
+    if test "x$HAVE_EGL" = "xyes"; then
+        AC_CHECK_LIB([EGL], [fbGetDisplay], [HAVE_VIV_FB_EGL=yes])
+    fi
+
+    dnl FIXME: Mali EGL depends on GLESv1 or GLESv2
+    AC_CHECK_HEADER([EGL/fbdev_window.h],
+      [
+        LIBS="$LIBS -lUMP"
+        AC_CHECK_LIB([Mali], [mali_image_create],
+          [
+            LIBS="$LIBS -lMali"
+            AC_CHECK_LIB([GLESv2], [glEnable],
+              [
+                AC_CHECK_HEADER([GLES2/gl2.h],
+                  [
+                    AC_CHECK_LIB([EGL], [eglGetProcAddress],
+                      [
+                        AC_CHECK_HEADER([EGL/egl.h],
+                          [
+                            HAVE_EGL=yes
+                            HAVE_GLES2=yes
+                            EGL_LIBS="-lMali -lUMP"
+                            EGL_CFLAGS=""
+                            AC_DEFINE(USE_EGL_MALI_FB, [1], [Use Mali FB EGL platform])
+                          ])
+                      ])
+                  ])
+              ])
+          ])
+      ])
 
     dnl FIXME: EGL of RPi depends on GLESv1 or GLESv2
     dnl FIXME: GLESv2 of RPi depends on EGL... WTF!
@@ -833,6 +865,14 @@ if test "x$HAVE_DRM_FOURCC_HEADER" = "xyes" -a \
         "x$HAVE_GST_ALLOCATORS" = "xyes" -a \
         "x$HAVE_EGL" = "xyes"; then
           GST_GL_HAVE_DMABUF=1
+fi
+
+dnl check for Vivante DirectVIV support
+AC_CHECK_LIB(GLESv2, glTexDirectVIV, [HAVE_VIV_DIRECTVIV=yes], [HAVE_VIV_DIRECTVIV=no])
+
+GST_GL_HAVE_VIV_DIRECTVIV=0
+if test "x$HAVE_VIV_DIRECTVIV" = "xyes"; then
+          GST_GL_HAVE_VIV_DIRECTVIV=1
 fi
 
 dnl check if we can include both GL and GLES2 at the same time
@@ -993,6 +1033,16 @@ case $host in
       fi
     fi
 
+    if test "x$HAVE_VIV_FB_EGL" = "xyes"; then
+      if test "x$NEED_EGL" = "xno" -o "x$HAVE_EGL" = "xno"; then
+        AC_MSG_WARN([EGL is required by the Vivante EGL FB backend])
+      else
+        HAVE_WINDOW_VIV_FB=yes
+        GL_LIBS="$GL_LIBS"
+        GL_CFLAGS="$GL_CFLAGS"
+      fi
+    fi
+
     if test "x$HAVE_EGL_RPI" = "xyes"; then
       if test "x$NEED_DISPMANX" != "xno"; then
         HAVE_WINDOW_DISPMANX=yes
@@ -1007,7 +1057,7 @@ case $host in
       fi
     else
       if test "x$NEED_EGL" != "xno"; then
-        if test "x$HAVE_WINDOW_WAYLAND" = "xyes" -o "x$HAVE_WINDOW_X11" = "xyes" -o "x$HAVE_WINDOW_DISPMANX" = "xyes"; then
+        if test "x$HAVE_WINDOW_WAYLAND" = "xyes" -o "x$HAVE_WINDOW_X11" = "xyes" -o "x$HAVE_WINDOW_DISPMANX" = "xyes" -o "x$HAVE_WINDOW_VIV_FB" = "xyes"; then
           GL_LIBS="$GL_LIBS -lEGL $EGL_LIBS"
           GL_CFLAGS="$GL_CFLAGS $EGL_CFLAGS"
           USE_EGL=yes
@@ -1159,6 +1209,7 @@ GST_GL_HAVE_WINDOW_WAYLAND=0
 GST_GL_HAVE_WINDOW_ANDROID=0
 GST_GL_HAVE_WINDOW_DISPMANX=0
 GST_GL_HAVE_WINDOW_EAGL=0
+GST_GL_HAVE_WINDOW_VIV_FB=0
 
 if test "x$HAVE_WINDOW_X11" = "xyes"; then
   GL_WINDOWS="x11 $GL_WINDOWS"
@@ -1188,6 +1239,10 @@ if test "x$HAVE_WINDOW_EAGL" = "xyes"; then
   GL_WINDOWS="eagl $GL_WINDOWS"
   GST_GL_HAVE_WINDOW_EAGL=1
 fi
+if test "x$HAVE_WINDOW_VIV_FB" = "xyes"; then
+  GL_WINDOWS="viv-fb $GL_WINDOWS"
+  GST_GL_HAVE_WINDOW_VIV_FB=1
+fi
 
 GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
 #define GST_GL_HAVE_WINDOW_X11 $GST_GL_HAVE_WINDOW_X11
@@ -1197,6 +1252,7 @@ GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
 #define GST_GL_HAVE_WINDOW_ANDROID $GST_GL_HAVE_WINDOW_ANDROID
 #define GST_GL_HAVE_WINDOW_DISPMANX $GST_GL_HAVE_WINDOW_DISPMANX
 #define GST_GL_HAVE_WINDOW_EAGL $GST_GL_HAVE_WINDOW_EAGL
+#define GST_GL_HAVE_WINDOW_VIV_FB $GST_GL_HAVE_WINDOW_VIV_FB
 "
 
 dnl PLATFORM's
@@ -1238,6 +1294,7 @@ GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
 
 GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
 #define GST_GL_HAVE_DMABUF $GST_GL_HAVE_DMABUF
+#define GST_GL_HAVE_VIV_DIRECTVIV $GST_GL_HAVE_VIV_DIRECTVIV
 "
 
 dnl Check for no platforms/window systems
@@ -1272,6 +1329,7 @@ if test "x$GL_APIS" = "x" -o "x$GL_PLATFORMS" = "x" -o "x$GL_WINDOWS" = "x"; the
   HAVE_WINDOW_ANDROID=no
   HAVE_WINDOW_COCOA=no
   HAVE_WINDOW_EAGL=no
+  HAVE_WINDOW_VIV_FB=no
 fi
 
 AC_SUBST(GL_APIS)
@@ -1290,6 +1348,7 @@ AM_CONDITIONAL(HAVE_WINDOW_DISPMANX, test "x$HAVE_WINDOW_DISPMANX" = "xyes")
 AM_CONDITIONAL(HAVE_WINDOW_WAYLAND, test "x$HAVE_WINDOW_WAYLAND" = "xyes")
 AM_CONDITIONAL(HAVE_WINDOW_ANDROID, test "x$HAVE_WINDOW_ANDROID" = "xyes")
 AM_CONDITIONAL(HAVE_WINDOW_EAGL, test "x$HAVE_WINDOW_EAGL" = "xyes")
+AM_CONDITIONAL(HAVE_WINDOW_VIV_FB, test "x$HAVE_WINDOW_VIV_FB" = "xyes")
 
 AM_CONDITIONAL(USE_OPENGL, test "x$USE_OPENGL" = "xyes")
 AM_CONDITIONAL(USE_GLES2, test "x$USE_GLES2" = "xyes")
@@ -2865,10 +2924,10 @@ AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
       else
         HAVE_QT="yes"
         HAVE_QT_WINDOWING="no"
-        QT_VERSION="`$PKG_CONFIG --modversion Qt5Core`"
+        QT_VERSION="`$PKG_CONFIG --define-prefix --modversion Qt5Core`"
         QPA_INCLUDE_PATH=`$PKG_CONFIG --variable=includedir Qt5Core`/QtGui/${QT_VERSION}/QtGui
         AS_IF([test -f "$PKG_CONFIG_SYSROOT_DIR/$QPA_INCLUDE_PATH/qpa/qplatformnativeinterface.h"], [
-          QT_CFLAGS="$QT_CFLAGS -I$QPA_INCLUDE_PATH"
+          QT_CFLAGS="$QT_CFLAGS -I$PKG_CONFIG_SYSROOT_DIR/$QPA_INCLUDE_PATH"
           HAVE_QT_QPA_HEADER="yes"
         ], [AC_MSG_NOTICE([Cannot find QPA])])
         if test "x$GST_GL_HAVE_WINDOW_X11" = "x1" -a "x$GST_GL_HAVE_PLATFORM_GLX" = "x1"; then
@@ -3522,6 +3581,7 @@ gst-libs/gst/gl/egl/Makefile
 gst-libs/gst/gl/wayland/Makefile
 gst-libs/gst/gl/win32/Makefile
 gst-libs/gst/gl/x11/Makefile
+gst-libs/gst/gl/viv-fb/Makefile
 gst-libs/gst/insertbin/Makefile
 gst-libs/gst/interfaces/Makefile
 gst-libs/gst/codecparsers/Makefile
@@ -3533,6 +3593,7 @@ gst-libs/gst/player/Makefile
 gst-libs/gst/video/Makefile
 gst-libs/gst/audio/Makefile
 gst-libs/gst/opencv/Makefile
+gst-libs/gst/allocators/Makefile
 sys/Makefile
 sys/dshowdecwrapper/Makefile
 sys/acmenc/Makefile
@@ -3683,6 +3744,8 @@ pkgconfig/gstreamer-bad-video.pc
 pkgconfig/gstreamer-bad-video-uninstalled.pc
 pkgconfig/gstreamer-bad-audio.pc
 pkgconfig/gstreamer-bad-audio-uninstalled.pc
+pkgconfig/gstreamer-bad-allocators.pc
+pkgconfig/gstreamer-bad-allocators-uninstalled.pc
 tools/Makefile
 m4/Makefile
 )

@@ -162,26 +162,26 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstcamerabin2_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/interfaces/libgstphotography-$(GST_API_VERSION).la \
+libgstcamerabin_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/interfaces/libgstphotography-$(GST_API_VERSION).la \
 	$(top_builddir)/gst-libs/gst/basecamerabinsrc/libgstbasecamerabinsrc-$(GST_API_VERSION).la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am_libgstcamerabin2_la_OBJECTS =  \
-	libgstcamerabin2_la-gstviewfinderbin.lo \
-	libgstcamerabin2_la-gstdigitalzoom.lo \
-	libgstcamerabin2_la-camerabingeneral.lo \
-	libgstcamerabin2_la-gstwrappercamerabinsrc.lo \
-	libgstcamerabin2_la-gstcamerabin2.lo \
-	libgstcamerabin2_la-gstplugin.lo
-libgstcamerabin2_la_OBJECTS = $(am_libgstcamerabin2_la_OBJECTS)
+am_libgstcamerabin_la_OBJECTS =  \
+	libgstcamerabin_la-gstviewfinderbin.lo \
+	libgstcamerabin_la-gstdigitalzoom.lo \
+	libgstcamerabin_la-camerabingeneral.lo \
+	libgstcamerabin_la-gstwrappercamerabinsrc.lo \
+	libgstcamerabin_la-gstcamerabin2.lo \
+	libgstcamerabin_la-gstplugin.lo
+libgstcamerabin_la_OBJECTS = $(am_libgstcamerabin_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-libgstcamerabin2_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) \
-	$(libgstcamerabin2_la_LDFLAGS) $(LDFLAGS) -o $@
+libgstcamerabin_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(libgstcamerabin_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
+	$(CCLD) $(libgstcamerabin_la_CFLAGS) $(CFLAGS) \
+	$(libgstcamerabin_la_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -216,8 +216,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libgstcamerabin2_la_SOURCES)
-DIST_SOURCES = $(libgstcamerabin2_la_SOURCES)
+SOURCES = $(libgstcamerabin_la_SOURCES)
+DIST_SOURCES = $(libgstcamerabin_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -791,28 +791,28 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
-plugin_LTLIBRARIES = libgstcamerabin2.la
-libgstcamerabin2_la_SOURCES = gstviewfinderbin.c \
+plugin_LTLIBRARIES = libgstcamerabin.la
+libgstcamerabin_la_SOURCES = gstviewfinderbin.c \
 				gstdigitalzoom.c \
 				camerabingeneral.c \
 				gstwrappercamerabinsrc.c \
 				gstcamerabin2.c \
 				gstplugin.c
 
-libgstcamerabin2_la_CFLAGS = \
+libgstcamerabin_la_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) \
 	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_BASE_CFLAGS) $(GST_CFLAGS) \
 	-DGST_USE_UNSTABLE_API
 
-libgstcamerabin2_la_LIBADD = \
+libgstcamerabin_la_LIBADD = \
 	$(top_builddir)/gst-libs/gst/interfaces/libgstphotography-$(GST_API_VERSION).la \
 	$(top_builddir)/gst-libs/gst/basecamerabinsrc/libgstbasecamerabinsrc-$(GST_API_VERSION).la \
 	$(GST_PLUGINS_BASE_LIBS) -lgsttag-$(GST_API_VERSION) -lgstapp-$(GST_API_VERSION) -lgstpbutils-$(GST_API_VERSION) \
 	$(GST_BASE_LIBS) $(GST_LIBS)
 
-libgstcamerabin2_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstcamerabin2_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
+libgstcamerabin_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstcamerabin_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 noinst_HEADERS = gstviewfinderbin.h \
 		camerabingeneral.h \
 		gstdigitalzoom.h \
@@ -888,8 +888,8 @@ clean-pluginLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libgstcamerabin2.la: $(libgstcamerabin2_la_OBJECTS) $(libgstcamerabin2_la_DEPENDENCIES) $(EXTRA_libgstcamerabin2_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libgstcamerabin2_la_LINK) -rpath $(plugindir) $(libgstcamerabin2_la_OBJECTS) $(libgstcamerabin2_la_LIBADD) $(LIBS)
+libgstcamerabin.la: $(libgstcamerabin_la_OBJECTS) $(libgstcamerabin_la_DEPENDENCIES) $(EXTRA_libgstcamerabin_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libgstcamerabin_la_LINK) -rpath $(plugindir) $(libgstcamerabin_la_OBJECTS) $(libgstcamerabin_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -897,12 +897,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin2_la-camerabingeneral.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin2_la-gstcamerabin2.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin2_la-gstdigitalzoom.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin2_la-gstplugin.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin2_la-gstviewfinderbin.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin2_la-gstwrappercamerabinsrc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin_la-camerabingeneral.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin_la-gstcamerabin2.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin_la-gstdigitalzoom.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin_la-gstplugin.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin_la-gstviewfinderbin.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstcamerabin_la-gstwrappercamerabinsrc.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -928,47 +928,47 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-libgstcamerabin2_la-gstviewfinderbin.lo: gstviewfinderbin.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin2_la-gstviewfinderbin.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin2_la-gstviewfinderbin.Tpo -c -o libgstcamerabin2_la-gstviewfinderbin.lo `test -f 'gstviewfinderbin.c' || echo '$(srcdir)/'`gstviewfinderbin.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcamerabin2_la-gstviewfinderbin.Tpo $(DEPDIR)/libgstcamerabin2_la-gstviewfinderbin.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstviewfinderbin.c' object='libgstcamerabin2_la-gstviewfinderbin.lo' libtool=yes @AMDEPBACKSLASH@
+libgstcamerabin_la-gstviewfinderbin.lo: gstviewfinderbin.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin_la-gstviewfinderbin.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin_la-gstviewfinderbin.Tpo -c -o libgstcamerabin_la-gstviewfinderbin.lo `test -f 'gstviewfinderbin.c' || echo '$(srcdir)/'`gstviewfinderbin.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcamerabin_la-gstviewfinderbin.Tpo $(DEPDIR)/libgstcamerabin_la-gstviewfinderbin.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstviewfinderbin.c' object='libgstcamerabin_la-gstviewfinderbin.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin2_la-gstviewfinderbin.lo `test -f 'gstviewfinderbin.c' || echo '$(srcdir)/'`gstviewfinderbin.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin_la-gstviewfinderbin.lo `test -f 'gstviewfinderbin.c' || echo '$(srcdir)/'`gstviewfinderbin.c
 
-libgstcamerabin2_la-gstdigitalzoom.lo: gstdigitalzoom.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin2_la-gstdigitalzoom.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin2_la-gstdigitalzoom.Tpo -c -o libgstcamerabin2_la-gstdigitalzoom.lo `test -f 'gstdigitalzoom.c' || echo '$(srcdir)/'`gstdigitalzoom.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcamerabin2_la-gstdigitalzoom.Tpo $(DEPDIR)/libgstcamerabin2_la-gstdigitalzoom.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstdigitalzoom.c' object='libgstcamerabin2_la-gstdigitalzoom.lo' libtool=yes @AMDEPBACKSLASH@
+libgstcamerabin_la-gstdigitalzoom.lo: gstdigitalzoom.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin_la-gstdigitalzoom.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin_la-gstdigitalzoom.Tpo -c -o libgstcamerabin_la-gstdigitalzoom.lo `test -f 'gstdigitalzoom.c' || echo '$(srcdir)/'`gstdigitalzoom.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcamerabin_la-gstdigitalzoom.Tpo $(DEPDIR)/libgstcamerabin_la-gstdigitalzoom.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstdigitalzoom.c' object='libgstcamerabin_la-gstdigitalzoom.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin2_la-gstdigitalzoom.lo `test -f 'gstdigitalzoom.c' || echo '$(srcdir)/'`gstdigitalzoom.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin_la-gstdigitalzoom.lo `test -f 'gstdigitalzoom.c' || echo '$(srcdir)/'`gstdigitalzoom.c
 
-libgstcamerabin2_la-camerabingeneral.lo: camerabingeneral.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin2_la-camerabingeneral.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin2_la-camerabingeneral.Tpo -c -o libgstcamerabin2_la-camerabingeneral.lo `test -f 'camerabingeneral.c' || echo '$(srcdir)/'`camerabingeneral.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcamerabin2_la-camerabingeneral.Tpo $(DEPDIR)/libgstcamerabin2_la-camerabingeneral.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='camerabingeneral.c' object='libgstcamerabin2_la-camerabingeneral.lo' libtool=yes @AMDEPBACKSLASH@
+libgstcamerabin_la-camerabingeneral.lo: camerabingeneral.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin_la-camerabingeneral.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin_la-camerabingeneral.Tpo -c -o libgstcamerabin_la-camerabingeneral.lo `test -f 'camerabingeneral.c' || echo '$(srcdir)/'`camerabingeneral.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcamerabin_la-camerabingeneral.Tpo $(DEPDIR)/libgstcamerabin_la-camerabingeneral.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='camerabingeneral.c' object='libgstcamerabin_la-camerabingeneral.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin2_la-camerabingeneral.lo `test -f 'camerabingeneral.c' || echo '$(srcdir)/'`camerabingeneral.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin_la-camerabingeneral.lo `test -f 'camerabingeneral.c' || echo '$(srcdir)/'`camerabingeneral.c
 
-libgstcamerabin2_la-gstwrappercamerabinsrc.lo: gstwrappercamerabinsrc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin2_la-gstwrappercamerabinsrc.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin2_la-gstwrappercamerabinsrc.Tpo -c -o libgstcamerabin2_la-gstwrappercamerabinsrc.lo `test -f 'gstwrappercamerabinsrc.c' || echo '$(srcdir)/'`gstwrappercamerabinsrc.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcamerabin2_la-gstwrappercamerabinsrc.Tpo $(DEPDIR)/libgstcamerabin2_la-gstwrappercamerabinsrc.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstwrappercamerabinsrc.c' object='libgstcamerabin2_la-gstwrappercamerabinsrc.lo' libtool=yes @AMDEPBACKSLASH@
+libgstcamerabin_la-gstwrappercamerabinsrc.lo: gstwrappercamerabinsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin_la-gstwrappercamerabinsrc.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin_la-gstwrappercamerabinsrc.Tpo -c -o libgstcamerabin_la-gstwrappercamerabinsrc.lo `test -f 'gstwrappercamerabinsrc.c' || echo '$(srcdir)/'`gstwrappercamerabinsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcamerabin_la-gstwrappercamerabinsrc.Tpo $(DEPDIR)/libgstcamerabin_la-gstwrappercamerabinsrc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstwrappercamerabinsrc.c' object='libgstcamerabin_la-gstwrappercamerabinsrc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin2_la-gstwrappercamerabinsrc.lo `test -f 'gstwrappercamerabinsrc.c' || echo '$(srcdir)/'`gstwrappercamerabinsrc.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin_la-gstwrappercamerabinsrc.lo `test -f 'gstwrappercamerabinsrc.c' || echo '$(srcdir)/'`gstwrappercamerabinsrc.c
 
-libgstcamerabin2_la-gstcamerabin2.lo: gstcamerabin2.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin2_la-gstcamerabin2.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin2_la-gstcamerabin2.Tpo -c -o libgstcamerabin2_la-gstcamerabin2.lo `test -f 'gstcamerabin2.c' || echo '$(srcdir)/'`gstcamerabin2.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcamerabin2_la-gstcamerabin2.Tpo $(DEPDIR)/libgstcamerabin2_la-gstcamerabin2.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstcamerabin2.c' object='libgstcamerabin2_la-gstcamerabin2.lo' libtool=yes @AMDEPBACKSLASH@
+libgstcamerabin_la-gstcamerabin2.lo: gstcamerabin2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin_la-gstcamerabin2.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin_la-gstcamerabin2.Tpo -c -o libgstcamerabin_la-gstcamerabin2.lo `test -f 'gstcamerabin2.c' || echo '$(srcdir)/'`gstcamerabin2.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcamerabin_la-gstcamerabin2.Tpo $(DEPDIR)/libgstcamerabin_la-gstcamerabin2.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstcamerabin2.c' object='libgstcamerabin_la-gstcamerabin2.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin2_la-gstcamerabin2.lo `test -f 'gstcamerabin2.c' || echo '$(srcdir)/'`gstcamerabin2.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin_la-gstcamerabin2.lo `test -f 'gstcamerabin2.c' || echo '$(srcdir)/'`gstcamerabin2.c
 
-libgstcamerabin2_la-gstplugin.lo: gstplugin.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin2_la-gstplugin.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin2_la-gstplugin.Tpo -c -o libgstcamerabin2_la-gstplugin.lo `test -f 'gstplugin.c' || echo '$(srcdir)/'`gstplugin.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcamerabin2_la-gstplugin.Tpo $(DEPDIR)/libgstcamerabin2_la-gstplugin.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstplugin.c' object='libgstcamerabin2_la-gstplugin.lo' libtool=yes @AMDEPBACKSLASH@
+libgstcamerabin_la-gstplugin.lo: gstplugin.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin_la_CFLAGS) $(CFLAGS) -MT libgstcamerabin_la-gstplugin.lo -MD -MP -MF $(DEPDIR)/libgstcamerabin_la-gstplugin.Tpo -c -o libgstcamerabin_la-gstplugin.lo `test -f 'gstplugin.c' || echo '$(srcdir)/'`gstplugin.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstcamerabin_la-gstplugin.Tpo $(DEPDIR)/libgstcamerabin_la-gstplugin.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstplugin.c' object='libgstcamerabin_la-gstplugin.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin2_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin2_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin2_la-gstplugin.lo `test -f 'gstplugin.c' || echo '$(srcdir)/'`gstplugin.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstcamerabin_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstcamerabin_la_CFLAGS) $(CFLAGS) -c -o libgstcamerabin_la-gstplugin.lo `test -f 'gstplugin.c' || echo '$(srcdir)/'`gstplugin.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
