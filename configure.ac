@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.11.90],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.11.91],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 1190, 0, 1190)
+AS_LIBTOOL(GST, 1191, 0, 1191)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.11.90
-GSTPB_REQ=1.11.90
+GST_REQ=1.11.91
+GSTPB_REQ=1.11.91
 
 dnl *** autotools stuff ****
 
@@ -480,6 +480,7 @@ AG_GST_CHECK_PLUGIN(coloreffects)
 AG_GST_CHECK_PLUGIN(debugutils)
 AG_GST_CHECK_PLUGIN(dvbsuboverlay)
 AG_GST_CHECK_PLUGIN(dvdspu)
+AG_GST_CHECK_PLUGIN(faceoverlay)
 AG_GST_CHECK_PLUGIN(festival)
 AG_GST_CHECK_PLUGIN(fieldanalysis)
 AG_GST_CHECK_PLUGIN(freeverb)
@@ -1938,10 +1939,11 @@ AG_GST_CHECK_FEATURE(NVENC, [NVIDIA Encode API], nvenc, [
       CUDA_LIBS="-L$CUDA_PREFIX/lib -L$CUDA_PREFIX/lib64 -L$CUDA_PREFIX/lib/stubs -L$CUDA_PREFIX/lib64/stubs -lcuda -lcudart"
     fi
   else
-    PKG_CHECK_MODULES([CUDA], [cuda-7.5 cudart-7.5],, [
-      PKG_CHECK_MODULES([CUDA], [cuda-7.0 cudart-7.0],, [
-        PKG_CHECK_MODULES([CUDA], [cuda-6.5 cudart-6.5],, [
-          AC_MSG_WARN([Could not find cuda headers/libraries])])])])
+    PKG_CHECK_MODULES([CUDA], [cuda-8.0 cudart-8.0],, [
+      PKG_CHECK_MODULES([CUDA], [cuda-7.5 cudart-7.5],, [
+        PKG_CHECK_MODULES([CUDA], [cuda-7.0 cudart-7.0],, [
+          PKG_CHECK_MODULES([CUDA], [cuda-6.5 cudart-6.5],, [
+            AC_MSG_WARN([Could not find cuda headers/libraries])])])])])
   fi
 
   HAVE_CUDA_H=no
@@ -2495,13 +2497,11 @@ AG_GST_CHECK_FEATURE(DTLS, [DTLS plugin], dtls, [
 dnl *** ttml ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_TTML, true)
 AG_GST_CHECK_FEATURE(TTML, [TTML plugin], ttml, [
-  if test "x$BUILD_EXPERIMENTAL" = "xyes"; then
-    PKG_CHECK_MODULES(TTML, [ libxml-2.0 >= 2.9.2 pango cairo pangocairo ], [
-      HAVE_TTML="yes"
-    ], [
-      HAVE_TTML="no"
-    ])
-  fi
+  PKG_CHECK_MODULES(TTML, [ libxml-2.0 >= 2.9.2 pango cairo pangocairo ], [
+    HAVE_TTML="yes"
+  ], [
+    HAVE_TTML="no"
+  ])
 ])
 
 dnl *** modplug ***
@@ -3524,6 +3524,7 @@ gst/coloreffects/Makefile
 gst/debugutils/Makefile
 gst/dvbsuboverlay/Makefile
 gst/dvdspu/Makefile
+gst/faceoverlay/Makefile
 gst/festival/Makefile
 gst/fieldanalysis/Makefile
 gst/freeverb/Makefile

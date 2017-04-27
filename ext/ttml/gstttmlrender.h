@@ -49,7 +49,6 @@ G_BEGIN_DECLS
 typedef struct _GstTtmlRender GstTtmlRender;
 typedef struct _GstTtmlRenderClass GstTtmlRenderClass;
 typedef struct _GstTtmlRenderRenderedImage GstTtmlRenderRenderedImage;
-typedef struct _GstTtmlRenderRenderedText GstTtmlRenderRenderedText;
 
 struct _GstTtmlRenderRenderedImage {
   GstBuffer *image;
@@ -57,21 +56,6 @@ struct _GstTtmlRenderRenderedImage {
   gint y;
   guint width;
   guint height;
-};
-
-struct _GstTtmlRenderRenderedText {
-  GstTtmlRenderRenderedImage *text_image;
-
-  /* In order to get the positions of characters within a paragraph rendered by
-   * pango we need to retain a reference to the PangoLayout object that was
-   * used to render that paragraph. */
-  PangoLayout *layout;
-
-  /* The coordinates in @layout will be offset horizontally with respect to the
-   * position of those characters in @text_image. Store that offset here so
-   * that the information in @layout can be used to locate the position and
-   * extent of text areas in @text_image. */
-  guint horiz_offset;
 };
 
 
@@ -107,6 +91,7 @@ struct _GstTtmlRender {
 
     gboolean                 need_render;
 
+    PangoLayout             *layout;
     GList * compositions;
 };
 

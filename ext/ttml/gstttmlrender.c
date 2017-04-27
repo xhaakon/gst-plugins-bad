@@ -25,19 +25,19 @@
 
 /**
  * SECTION:element-ttmlrender
+ * @title: ttmlrender
  *
  * Renders timed text on top of a video stream. It receives text in buffers
  * from a ttmlparse element; each text string is in its own #GstMemory within
  * the GstBuffer, and the styling and layout associated with each text string
  * is in metadata attached to the #GstBuffer.
  *
- * <refsect2>
- * <title>Example launch lines</title>
+ * ## Example launch lines
  * |[
  * gst-launch-1.0 filesrc location=<media file location> ! video/quicktime ! qtdemux name=q ttmlrender name=r q. ! queue ! h264parse ! avdec_h264 ! autovideoconvert ! r.video_sink filesrc location=<subtitle file location> blocksize=16777216 ! queue ! ttmlparse ! r.text_sink r. ! ximagesink q. ! queue ! aacparse ! avdec_aac ! audioconvert ! alsasink
  * ]| Parse and render TTML subtitles contained in a single XML file over an
  * MP4 stream containing H.264 video and AAC audio:
- * </refsect2>
+ *
  */
 
 #include <gst/video/video.h>
@@ -93,6 +93,55 @@ GST_STATIC_PAD_TEMPLATE ("text_sink",
 #define GST_TTML_RENDER_SIGNAL(ov)   (g_cond_signal (GST_TTML_RENDER_GET_COND (ov)))
 #define GST_TTML_RENDER_BROADCAST(ov)(g_cond_broadcast (GST_TTML_RENDER_GET_COND (ov)))
 
+
+typedef enum
+{
+  GST_TTML_DIRECTION_INLINE,
+  GST_TTML_DIRECTION_BLOCK
+} GstTtmlDirection;
+
+
+typedef struct
+{
+  guint line_height;
+  guint baseline_offset;
+} BlockMetrics;
+
+
+typedef struct
+{
+  guint height;
+  guint baseline;
+} FontMetrics;
+
+
+typedef struct
+{
+  guint first_index;
+  guint last_index;
+} CharRange;
+
+
+/* @pango_font_size is the font size you would need to tell pango in order that
+ * the actual rendered height of @text matches the text height in @element's
+ * style set. */
+typedef struct
+{
+  GstSubtitleElement *element;
+  guint pango_font_size;
+  FontMetrics pango_font_metrics;
+  gchar *text;
+} UnifiedElement;
+
+
+typedef struct
+{
+  GPtrArray *unified_elements;
+  GstSubtitleStyleSet *style_set;
+  gchar *joined_text;
+} UnifiedBlock;
+
+
 static GstElementClass *parent_class = NULL;
 static void gst_ttml_render_base_init (gpointer g_class);
 static void gst_ttml_render_class_init (GstTtmlRenderClass * klass);
@@ -141,6 +190,12 @@ static GstTtmlRenderRenderedImage *gst_ttml_render_rendered_image_copy
     (GstTtmlRenderRenderedImage * image);
 static void gst_ttml_render_rendered_image_free
     (GstTtmlRenderRenderedImage * image);
+static GstTtmlRenderRenderedImage *gst_ttml_render_rendered_image_combine
+    (GstTtmlRenderRenderedImage * image1, GstTtmlRenderRenderedImage * image2);
+static GstTtmlRenderRenderedImage *gst_ttml_render_stitch_images (GPtrArray *
+    images, GstTtmlDirection direction);
+
+static gboolean gst_ttml_render_color_is_transparent (GstSubtitleColor * color);
 
 GType
 gst_ttml_render_get_type (void)
@@ -234,6 +289,11 @@ gst_ttml_render_finalize (GObject * object)
     render->text_buffer = NULL;
   }
 
+  if (render->layout) {
+    g_object_unref (render->layout);
+    render->layout = NULL;
+  }
+
   g_mutex_clear (&render->lock);
   g_cond_clear (&render->cond);
 
@@ -294,6 +354,8 @@ gst_ttml_render_init (GstTtmlRender * render, GstTtmlRenderClass * klass)
   render->text_linked = FALSE;
 
   render->compositions = NULL;
+  render->layout =
+      pango_layout_new (GST_TTML_RENDER_GET_CLASS (render)->pango_context);
 
   g_mutex_init (&render->lock);
   g_cond_init (&render->cond);
@@ -1114,7 +1176,7 @@ beach:
 }
 
 
-/* Free returned string after use. */
+/* Caller needs to free returned string after use. */
 static gchar *
 gst_ttml_render_color_to_string (GstSubtitleColor color)
 {
@@ -1159,16 +1221,10 @@ gst_ttml_render_draw_rectangle (guint width, guint height,
 }
 
 
-typedef struct
-{
-  guint first_char;
-  guint last_char;
-} TextRange;
-
 static void
-_text_range_free (TextRange * range)
+gst_ttml_render_char_range_free (CharRange * range)
 {
-  g_slice_free (TextRange, range);
+  g_slice_free (CharRange, range);
 }
 
 
@@ -1233,37 +1289,54 @@ map_fail:
 }
 
 
-typedef struct
-{
-  const GstSubtitleElement *element;
-  gchar *text;
-} UnifiedElement;
-
-
 static void
-_unified_element_free (UnifiedElement * unified_element)
+gst_ttml_render_unified_element_free (UnifiedElement * unified_element)
 {
+  if (!unified_element)
+    return;
+
+  gst_subtitle_element_unref (unified_element->element);
   g_free (unified_element->text);
   g_slice_free (UnifiedElement, unified_element);
 }
 
 
-typedef struct
+static UnifiedElement *
+gst_ttml_render_unified_element_copy (const UnifiedElement * unified_element)
 {
-  GPtrArray *unified_elements;
-} UnifiedBlock;
+  UnifiedElement *ret;
+
+  if (!unified_element)
+    return NULL;
+
+  ret = g_slice_new0 (UnifiedElement);
+  ret->element = gst_subtitle_element_ref (unified_element->element);
+  ret->pango_font_size = unified_element->pango_font_size;
+  ret->pango_font_metrics.height = unified_element->pango_font_metrics.height;
+  ret->pango_font_metrics.baseline =
+      unified_element->pango_font_metrics.baseline;
+  ret->text = g_strdup (unified_element->text);
+
+  return ret;
+}
 
 
 static void
-_unified_block_free (UnifiedBlock * unified_block)
+gst_ttml_render_unified_block_free (UnifiedBlock * unified_block)
 {
+  if (!unified_block)
+    return;
+
+  gst_subtitle_style_set_unref (unified_block->style_set);
   g_ptr_array_unref (unified_block->unified_elements);
+  g_free (unified_block->joined_text);
   g_slice_free (UnifiedBlock, unified_block);
 }
 
 
 static UnifiedElement *
-_unified_block_get_element (UnifiedBlock * block, guint index)
+gst_ttml_render_unified_block_get_element (const UnifiedBlock * block,
+    guint index)
 {
   if (index >= block->unified_elements->len)
     return NULL;
@@ -1272,191 +1345,616 @@ _unified_block_get_element (UnifiedBlock * block, guint index)
 }
 
 
-static void
-gst_ttml_render_handle_whitespace (UnifiedBlock * block)
+static UnifiedBlock *
+gst_ttml_render_unified_block_copy (const UnifiedBlock * block)
 {
-  UnifiedElement *last = NULL;
-  UnifiedElement *cur = _unified_block_get_element (block, 0);
-  UnifiedElement *next = _unified_block_get_element (block, 1);
-  guint i;
+  UnifiedBlock *ret;
+  gint i;
 
-  for (i = 2; cur; ++i) {
-    if (cur->element->suppress_whitespace) {
-      if (!last || (g_strcmp0 (last->text, "\n") == 0)) {
-        /* Strip leading whitespace. */
-        if (cur->text[0] == 0x20) {
-          gchar *tmp = cur->text;
-          GST_CAT_LOG (ttmlrender_debug, "Stripping leading whitespace.");
-          cur->text = g_strdup (cur->text + 1);
-          g_free (tmp);
-        }
-      }
-      if (!next || (g_strcmp0 (next->text, "\n") == 0)) {
-        /* Strip trailing whitespace. */
-        if (cur->text[strlen (cur->text) - 1] == 0x20) {
-          gchar *tmp = cur->text;
-          GST_CAT_LOG (ttmlrender_debug, "Stripping trailing whitespace.");
-          cur->text = g_strndup (cur->text, strlen (cur->text) - 1);
-          g_free (tmp);
-        }
-      }
-    }
-    last = cur;
-    cur = next;
-    next = _unified_block_get_element (block, i);
+  if (!block)
+    return NULL;
+
+  ret = g_slice_new0 (UnifiedBlock);
+  ret->joined_text = g_strdup (block->joined_text);
+  ret->style_set = gst_subtitle_style_set_ref (block->style_set);
+  ret->unified_elements = g_ptr_array_new_with_free_func ((GDestroyNotify)
+      gst_ttml_render_unified_element_free);
+
+  for (i = 0; i < block->unified_elements->len; ++i) {
+    UnifiedElement *ue = gst_ttml_render_unified_block_get_element (block, i);
+    UnifiedElement *ue_copy = gst_ttml_render_unified_element_copy (ue);
+    g_ptr_array_add (ret->unified_elements, ue_copy);
   }
+
+  return ret;
 }
 
 
-static UnifiedBlock *
-gst_ttml_render_unify_block (const GstSubtitleBlock * block, GstBuffer * buf)
+static guint
+gst_ttml_render_unified_block_element_count (const UnifiedBlock * block)
 {
-  guint i;
+  return block->unified_elements->len;
+}
+
+
+/*
+ * Generates pango-markup'd version of @text that would make pango render it
+ * with the styling specified by @style_set.
+ */
+static gchar *
+gst_ttml_render_generate_pango_markup (GstSubtitleStyleSet * style_set,
+    guint font_height, const gchar * text)
+{
+  gchar *ret, *font_family, *font_size, *fgcolor;
+  const gchar *font_style, *font_weight, *underline;
+  gchar *escaped_text = g_markup_escape_text (text, -1);
+
+  fgcolor = gst_ttml_render_color_to_string (style_set->color);
+  font_size = g_strdup_printf ("%u", font_height);
+  font_family =
+      gst_ttml_render_resolve_generic_fontname (style_set->font_family);
+  if (!font_family)
+    font_family = g_strdup (style_set->font_family);
+  font_style = (style_set->font_style ==
+      GST_SUBTITLE_FONT_STYLE_NORMAL) ? "normal" : "italic";
+  font_weight = (style_set->font_weight ==
+      GST_SUBTITLE_FONT_WEIGHT_NORMAL) ? "normal" : "bold";
+  underline = (style_set->text_decoration ==
+      GST_SUBTITLE_TEXT_DECORATION_UNDERLINE) ? "single" : "none";
+
+  ret = g_strconcat ("<span "
+      "fgcolor=\"", fgcolor, "\" ",
+      "font=\"", font_size, "px\" ",
+      "font_family=\"", font_family, "\" ",
+      "font_style=\"", font_style, "\" ",
+      "font_weight=\"", font_weight, "\" ",
+      "underline=\"", underline, "\" ", ">", escaped_text, "</span>", NULL);
+
+  g_free (fgcolor);
+  g_free (font_family);
+  g_free (font_size);
+  g_free (escaped_text);
+  return ret;
+}
+
+
+/*
+ * Unfortunately, pango does not expose accurate metrics about fonts (their
+ * maximum height and baseline position), so we need to calculate this
+ * information ourselves by examining the ink rectangle of a string containing
+ * characters that extend to the maximum height/depth of the font.
+ */
+static FontMetrics
+gst_ttml_render_get_pango_font_metrics (GstTtmlRender * render,
+    GstSubtitleStyleSet * style_set, guint font_size)
+{
+  PangoRectangle ink_rect;
+  gchar *string;
+  FontMetrics ret;
+
+  string = gst_ttml_render_generate_pango_markup (style_set, font_size,
+      "Áĺľď¿gqy");
+  pango_layout_set_markup (render->layout, string, strlen (string));
+  pango_layout_get_pixel_extents (render->layout, &ink_rect, NULL);
+  g_free (string);
+
+  ret.height = ink_rect.height;
+  ret.baseline = PANGO_PIXELS (pango_layout_get_baseline (render->layout))
+      - ink_rect.y;
+  return ret;
+}
+
+
+/*
+ * Return the font size that you would need to pass to pango in order that the
+ * font applied to @element would be rendered at the text height applied to
+ * @element.
+ */
+static guint
+gst_ttml_render_get_pango_font_size (GstTtmlRender * render,
+    const GstSubtitleElement * element)
+{
+  guint desired_font_size =
+      (guint) ceil (element->style_set->font_size * render->height);
+  guint font_size = desired_font_size;
+  guint rendered_height = G_MAXUINT;
+  FontMetrics metrics;
+
+  while (rendered_height > desired_font_size) {
+    metrics =
+        gst_ttml_render_get_pango_font_metrics (render, element->style_set,
+        font_size);
+    rendered_height = metrics.height;
+    --font_size;
+  }
+
+  return font_size + 1;
+}
+
+
+/*
+ * Reunites each element in @block with its text, as extracted from @buf. Also
+ * stores the concatenated text from all contained elements to facilitate
+ * future processing.
+ */
+static UnifiedBlock *
+gst_ttml_render_unify_block (GstTtmlRender * render,
+    const GstSubtitleBlock * block, GstBuffer * buf)
+{
   UnifiedBlock *ret = g_slice_new0 (UnifiedBlock);
-  ret->unified_elements =
-      g_ptr_array_new_with_free_func ((GDestroyNotify) _unified_element_free);
+  guint i;
+
+  ret->unified_elements = g_ptr_array_new_with_free_func ((GDestroyNotify)
+      gst_ttml_render_unified_element_free);
+  ret->style_set = gst_subtitle_style_set_ref (block->style_set);
+  ret->joined_text = g_strdup ("");
 
   for (i = 0; i < gst_subtitle_block_get_element_count (block); ++i) {
+    gchar *text;
     UnifiedElement *ue = g_slice_new0 (UnifiedElement);
-    ue->element = gst_subtitle_block_get_element (block, i);
+    ue->element =
+        gst_subtitle_element_ref (gst_subtitle_block_get_element (block, i));
+    ue->pango_font_size =
+        gst_ttml_render_get_pango_font_size (render, ue->element);
+    ue->pango_font_metrics =
+        gst_ttml_render_get_pango_font_metrics (render, ue->element->style_set,
+        ue->pango_font_size);
     ue->text =
         gst_ttml_render_get_text_from_buffer (buf, ue->element->text_index);
     g_ptr_array_add (ret->unified_elements, ue);
+
+    text = g_strjoin (NULL, ret->joined_text, ue->text, NULL);
+    g_free (ret->joined_text);
+    ret->joined_text = text;
+  }
+
+  return ret;
+}
+
+
+/*
+ * Returns index of nearest breakpoint before @index in @block's text. If no
+ * breakpoints are found, returns -1.
+ */
+static gint
+gst_ttml_render_get_nearest_breakpoint (const UnifiedBlock * block, guint index)
+{
+  const gchar *end = block->joined_text + index - 1;
+
+  while ((end = g_utf8_find_prev_char (block->joined_text, end))) {
+    gchar buf[6] = { 0 };
+    gunichar u = g_utf8_get_char (end);
+    gint nbytes = g_unichar_to_utf8 (u, buf);
+
+    if (nbytes == 1 && (buf[0] == 0x20 || buf[0] == 0x9 || buf[0] == 0xD))
+      return end - block->joined_text;
+  }
+
+  return -1;
+}
+
+
+/* Return the pango markup representation of all the elements in @block. */
+static gchar *
+gst_ttml_render_generate_block_markup (const UnifiedBlock * block)
+{
+  gchar *joined_text, *old_text;
+  guint element_count = gst_ttml_render_unified_block_element_count (block);
+  guint i;
+
+  joined_text = g_strdup ("");
+
+  for (i = 0; i < element_count; ++i) {
+    UnifiedElement *ue = gst_ttml_render_unified_block_get_element (block, i);
+    gchar *element_markup =
+        gst_ttml_render_generate_pango_markup (ue->element->style_set,
+        ue->pango_font_size, ue->text);
+
+    old_text = joined_text;
+    joined_text = g_strconcat (joined_text, element_markup, NULL);
+    GST_CAT_DEBUG (ttmlrender_debug, "Joined text is now: %s", joined_text);
+
+    g_free (element_markup);
+    g_free (old_text);
+  }
+
+  return joined_text;
+}
+
+
+/*
+ * Returns a set of character ranges, which correspond to the ranges of
+ * characters from @block that should be rendered on each generated line area.
+ * Essentially, this function determines line breaking and wrapping.
+ */
+static GPtrArray *
+gst_ttml_render_get_line_char_ranges (GstTtmlRender * render,
+    const UnifiedBlock * block, guint width, gboolean wrap)
+{
+  gint start_index = 0;
+  GPtrArray *line_ranges = g_ptr_array_new_with_free_func ((GDestroyNotify)
+      gst_ttml_render_char_range_free);
+  PangoRectangle ink_rect;
+  gchar *markup;
+  gint i;
+
+  /* Handle hard breaks in block text. */
+  while (start_index < strlen (block->joined_text)) {
+    CharRange *range = g_slice_new0 (CharRange);
+    gchar *c = block->joined_text + start_index;
+    while (*c != '\0' && *c != '\n')
+      ++c;
+    range->first_index = start_index;
+    range->last_index = (c - block->joined_text) - 1;
+    g_ptr_array_add (line_ranges, range);
+    start_index = range->last_index + 2;
+  }
+
+  if (!wrap)
+    return line_ranges;
+
+  GST_CAT_LOG (ttmlrender_debug,
+      "After handling breaks, we have the following ranges:");
+  for (i = 0; i < line_ranges->len; ++i) {
+    CharRange *range = g_ptr_array_index (line_ranges, i);
+    GST_CAT_LOG (ttmlrender_debug, "ranges[%d] first:%u  last:%u", i,
+        range->first_index, range->last_index);
+  }
+
+  markup = gst_ttml_render_generate_block_markup (block);
+  pango_layout_set_markup (render->layout, markup, strlen (markup));
+  pango_layout_set_width (render->layout, -1);
+
+  pango_layout_get_pixel_extents (render->layout, &ink_rect, NULL);
+  GST_CAT_LOG (ttmlrender_debug, "Layout extents - x:%d  y:%d  w:%d  h:%d",
+      ink_rect.x, ink_rect.y, ink_rect.width, ink_rect.height);
+
+  /* For each range, wrap if it extends beyond allowed width. */
+  for (i = 0; i < line_ranges->len; ++i) {
+    CharRange *range, *new_range;
+    gint max_line_extent;
+    gint end_index = 0;
+    gint trailing;
+    PangoRectangle rect;
+    gboolean within_line;
+
+    do {
+      range = g_ptr_array_index (line_ranges, i);
+      GST_CAT_LOG (ttmlrender_debug,
+          "Seeing if we need to wrap range[%d] - start:%u  end:%u", i,
+          range->first_index, range->last_index);
+
+      pango_layout_index_to_pos (render->layout, range->first_index, &rect);
+      GST_CAT_LOG (ttmlrender_debug, "First char at x:%d  y:%d", rect.x,
+          rect.y);
+
+      max_line_extent = rect.x + (PANGO_SCALE * width);
+      GST_CAT_LOG (ttmlrender_debug, "max_line_extent: %d",
+          PANGO_PIXELS (max_line_extent));
+
+      within_line =
+          pango_layout_xy_to_index (render->layout, max_line_extent, rect.y,
+          &end_index, &trailing);
+
+      GST_CAT_LOG (ttmlrender_debug, "Index nearest to breakpoint: %d",
+          end_index);
+
+      if (within_line) {
+        end_index = gst_ttml_render_get_nearest_breakpoint (block, end_index);
+
+        if (end_index > range->first_index) {
+          new_range = g_slice_new0 (CharRange);
+          new_range->first_index = end_index + 1;
+          new_range->last_index = range->last_index;
+          GST_CAT_LOG (ttmlrender_debug,
+              "Wrapping line %d; added new range - start:%u  end:%u", i,
+              new_range->first_index, new_range->last_index);
+
+          range->last_index = end_index;
+          GST_CAT_LOG (ttmlrender_debug,
+              "Modified last_index of existing range; range is now start:%u  "
+              "end:%u", range->first_index, range->last_index);
+
+          g_ptr_array_insert (line_ranges, ++i, new_range);
+        } else {
+          GST_CAT_DEBUG (ttmlrender_debug,
+              "Couldn't find a suitable breakpoint");
+          within_line = FALSE;
+        }
+      }
+    } while (within_line);
+  }
+
+  g_free (markup);
+  return line_ranges;
+}
+
+
+/*
+ * Returns the index of the element in @block containing the character at index
+ * @char_index in @block's text. If @offset is not NULL, sets it to the
+ * character offset of @char_index within the element where it is found.
+ */
+static gint
+gst_ttml_render_get_element_index (const UnifiedBlock * block,
+    const gint char_index, gint * offset)
+{
+  gint count = 0;
+  gint i;
+
+  if ((char_index < 0) || (char_index >= strlen (block->joined_text)))
+    return -1;
+
+  for (i = 0; i < gst_ttml_render_unified_block_element_count (block); ++i) {
+    UnifiedElement *ue = gst_ttml_render_unified_block_get_element (block, i);
+    if ((char_index >= count) && (char_index < (count + strlen (ue->text)))) {
+      if (offset)
+        *offset = char_index - count;
+      break;
+    }
+    count += strlen (ue->text);
+  }
+
+  return i;
+}
+
+
+static guint
+gst_ttml_render_strip_leading_spaces (gchar ** string)
+{
+  gchar *c = *string;
+
+  while (c) {
+    gchar buf[6] = { 0 };
+    gunichar u = g_utf8_get_char (c);
+    gint nbytes = g_unichar_to_utf8 (u, buf);
+
+    if ((nbytes == 1) && (buf[0] == 0x20))
+      c = g_utf8_find_next_char (c, c + strlen (*string));
+    else
+      break;
+  }
+
+  if (!c) {
+    GST_CAT_DEBUG (ttmlrender_debug,
+        "All characters would be removed from string.");
+    return 0;
+  } else if (c > *string) {
+    gchar *tmp = *string;
+    *string = g_strdup (c);
+    GST_CAT_DEBUG (ttmlrender_debug, "Replacing text \"%s\" with \"%s\"", tmp,
+        *string);
+    g_free (tmp);
+  }
+
+  return strlen (*string);
+}
+
+
+static guint
+gst_ttml_render_strip_trailing_spaces (gchar ** string)
+{
+  gchar *c = *string + strlen (*string) - 1;
+  gint nbytes;
+
+  while (c) {
+    gchar buf[6] = { 0 };
+    gunichar u = g_utf8_get_char (c);
+    nbytes = g_unichar_to_utf8 (u, buf);
+
+    if ((nbytes == 1) && (buf[0] == 0x20))
+      c = g_utf8_find_prev_char (*string, c);
+    else
+      break;
+  }
+
+  if (!c) {
+    GST_CAT_DEBUG (ttmlrender_debug,
+        "All characters would be removed from string.");
+    return 0;
+  } else {
+    gchar *tmp = *string;
+    *string = g_strndup (*string, (c - *string) + nbytes);
+    GST_CAT_DEBUG (ttmlrender_debug, "Replacing text \"%s\" with \"%s\"", tmp,
+        *string);
+    g_free (tmp);
+  }
+
+  return strlen (*string);
+}
+
+
+/*
+ * Treating each block in @blocks as a separate line area, conditionally strips
+ * space characters from the beginning and end of each line. This function
+ * implements the suppress-at-line-break="auto" and
+ * white-space-treatment="ignore-if-surrounding-linefeed" behaviours (specified
+ * by TTML section 7.2.3) for elements at the start and end of lines that have
+ * xml:space="default" applied to them. If stripping whitespace from a block
+ * removes all elements of that block, the block will be removed from @blocks.
+ * Returns the number of remaining blocks.
+ */
+static guint
+gst_ttml_render_handle_whitespace (GPtrArray * blocks)
+{
+  gint i;
+
+  for (i = 0; i < blocks->len; ++i) {
+    UnifiedBlock *ub = g_ptr_array_index (blocks, i);
+    UnifiedElement *ue;
+    guint remaining_chars = 0;
+
+    /* Remove leading spaces from line area. */
+    while ((gst_ttml_render_unified_block_element_count (ub) > 0)
+        && (remaining_chars == 0)) {
+      ue = gst_ttml_render_unified_block_get_element (ub, 0);
+      if (!ue->element->suppress_whitespace)
+        break;
+      remaining_chars = gst_ttml_render_strip_leading_spaces (&ue->text);
+
+      if (remaining_chars == 0) {
+        g_ptr_array_remove_index (ub->unified_elements, 0);
+        GST_CAT_DEBUG (ttmlrender_debug, "Removed first element from block");
+      }
+    }
+
+    remaining_chars = 0;
+
+    /* Remove trailing spaces from line area. */
+    while ((gst_ttml_render_unified_block_element_count (ub) > 0)
+        && (remaining_chars == 0)) {
+      ue = gst_ttml_render_unified_block_get_element (ub,
+          gst_ttml_render_unified_block_element_count (ub) - 1);
+      if (!ue->element->suppress_whitespace)
+        break;
+      remaining_chars = gst_ttml_render_strip_trailing_spaces (&ue->text);
+
+      if (remaining_chars == 0) {
+        g_ptr_array_remove_index (ub->unified_elements,
+            gst_ttml_render_unified_block_element_count (ub) - 1);
+        GST_CAT_DEBUG (ttmlrender_debug, "Removed last element from block");
+      }
+    }
+
+    if (gst_ttml_render_unified_block_element_count (ub) == 0)
+      g_ptr_array_remove_index (blocks, i--);
+  }
+
+  return blocks->len;
+}
+
+
+/*
+ * Splits a single UnifiedBlock, @block, into an array of separate
+ * UnifiedBlocks, according to the character ranges given in @char_ranges.
+ * Each resulting UnifiedBlock will contain only the elements to which belong
+ * the characters in its corresponding character range; the text of the first
+ * and last element in the block will be clipped of any characters before and
+ * after, respectively, the first and last characters in the corresponding
+ * range.
+ */
+static GPtrArray *
+gst_ttml_render_split_block (UnifiedBlock * block, GPtrArray * char_ranges)
+{
+  GPtrArray *ret = g_ptr_array_new_with_free_func ((GDestroyNotify)
+      gst_ttml_render_unified_block_free);
+  gint i;
+
+  for (i = 0; i < char_ranges->len; ++i) {
+    gint index;
+    gint first_offset = 0;
+    gint last_offset = 0;
+    CharRange *range = g_ptr_array_index (char_ranges, i);
+    UnifiedBlock *clone = gst_ttml_render_unified_block_copy (block);
+    UnifiedElement *ue;
+    gchar *tmp;
+
+    GST_CAT_LOG (ttmlrender_debug, "range start:%u  end:%u", range->first_index,
+        range->last_index);
+    index =
+        gst_ttml_render_get_element_index (clone, range->last_index,
+        &last_offset);
+    GST_CAT_LOG (ttmlrender_debug, "Last char in range is in element %d",
+        index);
+
+    if (index < 0) {
+      GST_CAT_WARNING (ttmlrender_debug, "Range end not found in block text.");
+      gst_ttml_render_unified_block_free (clone);
+      continue;
+    }
+
+    /* Remove elements that are after the one that contains the range end. */
+    GST_CAT_LOG (ttmlrender_debug, "There are %d elements in cloned block.",
+        gst_ttml_render_unified_block_element_count (clone));
+    while (gst_ttml_render_unified_block_element_count (clone) > (index + 1)) {
+      GST_CAT_LOG (ttmlrender_debug, "Removing last element in cloned block.");
+      g_ptr_array_remove_index (clone->unified_elements, index + 1);
+    }
+
+    index =
+        gst_ttml_render_get_element_index (clone, range->first_index,
+        &first_offset);
+    GST_CAT_LOG (ttmlrender_debug, "First char in range is in element %d",
+        index);
+
+    if (index < 0) {
+      GST_CAT_WARNING (ttmlrender_debug,
+          "Range start not found in block text.");
+      gst_ttml_render_unified_block_free (clone);
+      continue;
+    }
+
+    /* Remove elements that are before the one that contains the range start. */
+    while (index > 0) {
+      GST_CAT_LOG (ttmlrender_debug, "Removing first element in cloned block");
+      g_ptr_array_remove_index (clone->unified_elements, 0);
+      --index;
+    }
+
+    /* Remove characters from first element that are before the range start. */
+    ue = gst_ttml_render_unified_block_get_element (clone, 0);
+    if (first_offset > 0) {
+      tmp = ue->text;
+      ue->text = g_strdup (ue->text + first_offset);
+      GST_CAT_DEBUG (ttmlrender_debug,
+          "First element text has been clipped to \"%s\"", ue->text);
+      g_free (tmp);
+
+      if (gst_ttml_render_unified_block_element_count (clone) == 1)
+        last_offset -= first_offset;
+    }
+
+    /* Remove characters from last element that are after the range end. */
+    ue = gst_ttml_render_unified_block_get_element (clone,
+        gst_ttml_render_unified_block_element_count (clone) - 1);
+    if (last_offset < (strlen (ue->text) - 1)) {
+      tmp = ue->text;
+      ue->text = g_strndup (ue->text, last_offset + 1);
+      GST_CAT_DEBUG (ttmlrender_debug,
+          "Last element text has been clipped to \"%s\"", ue->text);
+      g_free (tmp);
+    }
+
+    if (gst_ttml_render_unified_block_element_count (clone) > 0)
+      g_ptr_array_add (ret, clone);
+    else
+      gst_ttml_render_unified_block_free (clone);
+  }
+
+  if (ret->len == 0) {
+    GST_CAT_DEBUG (ttmlrender_debug, "No elements remain in clone.");
+    g_ptr_array_unref (ret);
+    ret = NULL;
   }
   return ret;
 }
 
 
-/* From the elements within @block, generate a string of the subtitle text
- * marked-up using pango-markup. Also, store the ranges of characters belonging
- * to the text of each element in @text_ranges. */
-static gchar *
-gst_ttml_render_generate_marked_up_string (GstTtmlRender * render,
-    const GstSubtitleBlock * block, GstBuffer * text_buf,
-    GPtrArray * text_ranges)
-{
-  gchar *escaped_text, *joined_text, *old_text, *font_family, *font_size,
-      *fgcolor;
-  const gchar *font_style, *font_weight, *underline;
-  guint total_text_length = 0U;
-  guint element_count = gst_subtitle_block_get_element_count (block);
-  UnifiedBlock *unified_block;
-  guint i;
-
-  joined_text = g_strdup ("");
-  unified_block = gst_ttml_render_unify_block (block, text_buf);
-  gst_ttml_render_handle_whitespace (unified_block);
-
-  for (i = 0; i < element_count; ++i) {
-    TextRange *range = g_slice_new0 (TextRange);
-    UnifiedElement *unified_element =
-        _unified_block_get_element (unified_block, i);
-
-    escaped_text = g_markup_escape_text (unified_element->text, -1);
-    GST_CAT_DEBUG (ttmlrender_debug, "Escaped text is: \"%s\"", escaped_text);
-    range->first_char = total_text_length;
-
-    fgcolor =
-        gst_ttml_render_color_to_string (unified_element->element->
-        style_set->color);
-    font_size =
-        g_strdup_printf ("%u",
-        (guint) (round (unified_element->element->style_set->font_size *
-                render->height)));
-    font_family =
-        gst_ttml_render_resolve_generic_fontname (unified_element->
-        element->style_set->font_family);
-    if (!font_family)
-      font_family = g_strdup (unified_element->element->style_set->font_family);
-    font_style =
-        (unified_element->element->style_set->font_style ==
-        GST_SUBTITLE_FONT_STYLE_NORMAL) ? "normal" : "italic";
-    font_weight =
-        (unified_element->element->style_set->font_weight ==
-        GST_SUBTITLE_FONT_WEIGHT_NORMAL) ? "normal" : "bold";
-    underline =
-        (unified_element->element->style_set->text_decoration ==
-        GST_SUBTITLE_TEXT_DECORATION_UNDERLINE) ? "single" : "none";
-
-    old_text = joined_text;
-    joined_text = g_strconcat (joined_text,
-        "<span "
-        "fgcolor=\"", fgcolor, "\" ",
-        "font=\"", font_size, "px\" ",
-        "font_family=\"", font_family, "\" ",
-        "font_style=\"", font_style, "\" ",
-        "font_weight=\"", font_weight, "\" ",
-        "underline=\"", underline, "\" ", ">", escaped_text, "</span>", NULL);
-    GST_CAT_DEBUG (ttmlrender_debug, "Joined text is now: %s", joined_text);
-
-    total_text_length += strlen (unified_element->text);
-    range->last_char = total_text_length - 1;
-    GST_CAT_DEBUG (ttmlrender_debug,
-        "First character index: %u; last character  " "index: %u",
-        range->first_char, range->last_char);
-    g_ptr_array_insert (text_ranges, i, range);
-
-    g_free (old_text);
-    g_free (escaped_text);
-    g_free (fgcolor);
-    g_free (font_family);
-    g_free (font_size);
-  }
-
-  _unified_block_free (unified_block);
-  return joined_text;
-}
-
-
 /* Render the text in a pango-markup string. */
-static GstTtmlRenderRenderedText *
+static GstTtmlRenderRenderedImage *
 gst_ttml_render_draw_text (GstTtmlRender * render, const gchar * text,
-    guint max_width, PangoAlignment alignment, guint line_height,
-    guint max_font_size, gboolean wrap)
+    guint line_height, guint baseline_offset)
 {
-  GstTtmlRenderClass *class;
-  GstTtmlRenderRenderedText *ret;
+  GstTtmlRenderRenderedImage *ret;
   cairo_surface_t *surface, *cropped_surface;
   cairo_t *cairo_state, *cropped_state;
   GstMapInfo map;
   PangoRectangle logical_rect, ink_rect;
-  gint spacing = 0;
   guint buf_width, buf_height;
   gint stride;
-  PangoLayoutLine *line;
-  PangoRectangle line_extents;
   gint bounding_box_x1, bounding_box_x2, bounding_box_y1, bounding_box_y2;
+  gint baseline;
 
-  ret = g_slice_new0 (GstTtmlRenderRenderedText);
-  ret->text_image = gst_ttml_render_rendered_image_new_empty ();
+  ret = gst_ttml_render_rendered_image_new_empty ();
 
-  class = GST_TTML_RENDER_GET_CLASS (render);
-  ret->layout = pango_layout_new (class->pango_context);
+  pango_layout_set_markup (render->layout, text, strlen (text));
+  GST_CAT_DEBUG (ttmlrender_debug, "Layout text: \"%s\"",
+      pango_layout_get_text (render->layout));
+  pango_layout_set_width (render->layout, -1);
 
-  pango_layout_set_markup (ret->layout, text, strlen (text));
-  GST_CAT_DEBUG (ttmlrender_debug, "Layout text: %s",
-      pango_layout_get_text (ret->layout));
-  if (wrap) {
-    pango_layout_set_width (ret->layout, max_width * PANGO_SCALE);
-    pango_layout_set_wrap (ret->layout, PANGO_WRAP_WORD_CHAR);
-  } else {
-    pango_layout_set_width (ret->layout, -1);
-  }
+  pango_layout_get_pixel_extents (render->layout, &ink_rect, &logical_rect);
 
-  pango_layout_set_alignment (ret->layout, alignment);
-  line = pango_layout_get_line_readonly (ret->layout, 0);
-  pango_layout_line_get_pixel_extents (line, NULL, &line_extents);
-
-  GST_CAT_LOG (ttmlrender_debug, "Requested line_height: %u", line_height);
-  spacing = line_height - line_extents.height;
-  pango_layout_set_spacing (ret->layout, PANGO_SCALE * spacing);
-  GST_CAT_LOG (ttmlrender_debug, "Line spacing set to %d",
-      pango_layout_get_spacing (ret->layout) / PANGO_SCALE);
-
-  pango_layout_get_pixel_extents (ret->layout, &ink_rect, &logical_rect);
-  GST_CAT_DEBUG (ttmlrender_debug, "logical_rect.x: %d   logical_rect.y: %d   "
-      "logical_rect.width: %d   logical_rect.height: %d", logical_rect.x,
-      logical_rect.y, logical_rect.width, logical_rect.height);
+  baseline = PANGO_PIXELS (pango_layout_get_baseline (render->layout));
 
   bounding_box_x1 = MIN (logical_rect.x, ink_rect.x);
   bounding_box_x2 = MAX (logical_rect.x + logical_rect.width,
@@ -1465,40 +1963,33 @@ gst_ttml_render_draw_text (GstTtmlRender * render, const gchar * text,
   bounding_box_y2 = MAX (logical_rect.y + logical_rect.height,
       ink_rect.y + ink_rect.height);
 
-  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, bounding_box_x2,
-      bounding_box_y2);
+  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
+      (bounding_box_x2 - bounding_box_x1), (bounding_box_y2 - bounding_box_y1));
   cairo_state = cairo_create (surface);
   cairo_set_operator (cairo_state, CAIRO_OPERATOR_CLEAR);
   cairo_paint (cairo_state);
   cairo_set_operator (cairo_state, CAIRO_OPERATOR_OVER);
 
-  /* Render layout. */
   cairo_save (cairo_state);
-  pango_cairo_show_layout (cairo_state, ret->layout);
+  pango_cairo_show_layout (cairo_state, render->layout);
   cairo_restore (cairo_state);
 
   buf_width = bounding_box_x2 - bounding_box_x1;
-  buf_height = (bounding_box_y2 - bounding_box_y1) + spacing;
+  buf_height = ink_rect.height;
   GST_CAT_DEBUG (ttmlrender_debug, "Output buffer width: %u  height: %u",
       buf_width, buf_height);
 
-  /* Depending on whether the text is wrapped and its alignment, the image
-   * created by rendering a PangoLayout will contain more than just the
-   * rendered text: it may also contain blankspace around the rendered text.
-   * The following code crops blankspace from around the rendered text,
-   * returning only the rendered text itself in a GstBuffer. */
-  ret->text_image->image =
-      gst_buffer_new_allocate (NULL, 4 * buf_width * buf_height, NULL);
-  gst_buffer_memset (ret->text_image->image, 0, 0U, 4 * buf_width * buf_height);
-  gst_buffer_map (ret->text_image->image, &map, GST_MAP_READWRITE);
+  ret->image = gst_buffer_new_allocate (NULL, 4 * buf_width * buf_height, NULL);
+  gst_buffer_memset (ret->image, 0, 0U, 4 * buf_width * buf_height);
+  gst_buffer_map (ret->image, &map, GST_MAP_READWRITE);
 
   stride = cairo_format_stride_for_width (CAIRO_FORMAT_ARGB32, buf_width);
   cropped_surface =
       cairo_image_surface_create_for_data (map.data, CAIRO_FORMAT_ARGB32,
-      buf_width, buf_height, stride);
+      (bounding_box_x2 - bounding_box_x1), ink_rect.height, stride);
   cropped_state = cairo_create (cropped_surface);
   cairo_set_source_surface (cropped_state, surface, -bounding_box_x1,
-      -(bounding_box_y1 - spacing / 2.0));
+      -ink_rect.y);
   cairo_rectangle (cropped_state, 0, 0, buf_width, buf_height);
   cairo_fill (cropped_state);
 
@@ -1506,17 +1997,150 @@ gst_ttml_render_draw_text (GstTtmlRender * render, const gchar * text,
   cairo_surface_destroy (surface);
   cairo_destroy (cropped_state);
   cairo_surface_destroy (cropped_surface);
-  gst_buffer_unmap (ret->text_image->image, &map);
+  gst_buffer_unmap (ret->image, &map);
 
-  ret->text_image->width = buf_width;
-  ret->text_image->height = buf_height;
-  ret->horiz_offset = bounding_box_x1;
-
+  ret->width = buf_width;
+  ret->height = buf_height;
+  ret->x = 0;
+  ret->y = MAX (0, (gint) baseline_offset - (baseline - ink_rect.y));
   return ret;
 }
 
 
-/* If any of an array of elements has line wrapping enabled, return TRUE. */
+static GstTtmlRenderRenderedImage *
+gst_ttml_render_render_block_elements (GstTtmlRender * render,
+    UnifiedBlock * block, BlockMetrics block_metrics)
+{
+  GPtrArray *inline_images = g_ptr_array_new_with_free_func (
+      (GDestroyNotify) gst_ttml_render_rendered_image_free);
+  GstTtmlRenderRenderedImage *ret = NULL;
+  guint line_padding =
+      (guint) ceil (block->style_set->line_padding * render->width);
+  gint i;
+
+  for (i = 0; i < gst_ttml_render_unified_block_element_count (block); ++i) {
+    UnifiedElement *ue = gst_ttml_render_unified_block_get_element (block, i);
+    gchar *markup;
+    GstTtmlRenderRenderedImage *text_image, *bg_image, *combined_image;
+    guint bg_offset, bg_width, bg_height;
+    GstBuffer *background;
+
+    markup = gst_ttml_render_generate_pango_markup (ue->element->style_set,
+        ue->pango_font_size, ue->text);
+    text_image = gst_ttml_render_draw_text (render, markup,
+        block_metrics.line_height, block_metrics.baseline_offset);
+    g_free (markup);
+
+    bg_offset = 0;
+    bg_height = block_metrics.line_height;
+    bg_width = text_image->width;
+
+    if (line_padding > 0) {
+      if (i == 0) {
+        text_image->x += line_padding;
+        bg_width += line_padding;
+      }
+      if (i == (gst_ttml_render_unified_block_element_count (block) - 1))
+        bg_width += line_padding;
+    }
+
+    background = gst_ttml_render_draw_rectangle (bg_width, bg_height,
+        ue->element->style_set->background_color);
+    bg_image = gst_ttml_render_rendered_image_new (background, 0,
+        bg_offset, bg_width, bg_height);
+    combined_image = gst_ttml_render_rendered_image_combine (bg_image,
+        text_image);
+    gst_ttml_render_rendered_image_free (bg_image);
+    gst_ttml_render_rendered_image_free (text_image);
+    g_ptr_array_add (inline_images, combined_image);
+  }
+
+  ret = gst_ttml_render_stitch_images (inline_images,
+      GST_TTML_DIRECTION_INLINE);
+  GST_CAT_DEBUG (ttmlrender_debug,
+      "Stitched line image - x:%d  y:%d  w:%u  h:%u",
+      ret->x, ret->y, ret->width, ret->height);
+  g_ptr_array_unref (inline_images);
+  return ret;
+}
+
+
+/*
+ * Align the images in @lines according to the multi_row_align and text_align
+ * settings in @style_set.
+ */
+static void
+gst_ttml_render_align_line_areas (GPtrArray * lines,
+    const GstSubtitleStyleSet * style_set)
+{
+  guint longest_line_width = 0;
+  gint i;
+
+  for (i = 0; i < lines->len; ++i) {
+    GstTtmlRenderRenderedImage *line = g_ptr_array_index (lines, i);
+    if (line->width > longest_line_width)
+      longest_line_width = line->width;
+  }
+
+  for (i = 0; i < lines->len; ++i) {
+    GstTtmlRenderRenderedImage *line = g_ptr_array_index (lines, i);
+
+    switch (style_set->multi_row_align) {
+      case GST_SUBTITLE_MULTI_ROW_ALIGN_CENTER:
+        line->x += (gint) round ((longest_line_width - line->width) / 2.0);
+        break;
+      case GST_SUBTITLE_MULTI_ROW_ALIGN_END:
+        line->x += (longest_line_width - line->width);
+        break;
+      case GST_SUBTITLE_MULTI_ROW_ALIGN_AUTO:
+        switch (style_set->text_align) {
+          case GST_SUBTITLE_TEXT_ALIGN_CENTER:
+            line->x += (gint) round ((longest_line_width - line->width) / 2.0);
+            break;
+          case GST_SUBTITLE_TEXT_ALIGN_END:
+          case GST_SUBTITLE_TEXT_ALIGN_RIGHT:
+            line->x += (longest_line_width - line->width);
+            break;
+          default:
+            break;
+        }
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+
+/*
+ * Renders each UnifiedBlock in @blocks, and sets the positions of the
+ * resulting images according to the line height in @metrics and the alignment
+ * settings in @style_set.
+ */
+static GPtrArray *
+gst_ttml_render_layout_blocks (GstTtmlRender * render, GPtrArray * blocks,
+    BlockMetrics metrics, const GstSubtitleStyleSet * style_set)
+{
+  GPtrArray *ret = g_ptr_array_new_with_free_func ((GDestroyNotify)
+      gst_ttml_render_rendered_image_free);
+  gint i;
+
+  for (i = 0; i < blocks->len; ++i) {
+    UnifiedBlock *block = g_ptr_array_index (blocks, i);
+
+    GstTtmlRenderRenderedImage *line =
+        gst_ttml_render_render_block_elements (render, block,
+        metrics);
+    line->y += (i * metrics.line_height);
+    g_ptr_array_add (ret, line);
+  }
+
+  gst_ttml_render_align_line_areas (ret, style_set);
+  return ret;
+}
+
+
+/* If any of an array of elements has line wrapping enabled, returns TRUE. */
 static gboolean
 gst_ttml_render_elements_are_wrapped (GPtrArray * elements)
 {
@@ -1533,21 +2157,109 @@ gst_ttml_render_elements_are_wrapped (GPtrArray * elements)
 }
 
 
-/* Return the maximum font size used in an array of elements. */
-static gdouble
-gst_ttml_render_get_max_font_size (GPtrArray * elements)
+/*
+ * Return the descender (in pixels) shared by the greatest number of glyphs in
+ * @block.
+ */
+static guint
+gst_ttml_render_get_most_frequent_descender (GstTtmlRender * render,
+    UnifiedBlock * block)
 {
-  GstSubtitleElement *element;
-  guint i;
-  gdouble max_size = 0.0;
+  GHashTable *count_table = g_hash_table_new (g_direct_hash, g_direct_equal);
+  GHashTableIter iter;
+  gpointer key, value;
+  guint max_count = 0;
+  guint ret = 0;
+  gint i;
 
-  for (i = 0; i < elements->len; ++i) {
-    element = g_ptr_array_index (elements, i);
-    if (element->style_set->font_size > max_size)
-      max_size = element->style_set->font_size;
+  for (i = 0; i < gst_ttml_render_unified_block_element_count (block); ++i) {
+    UnifiedElement *ue = gst_ttml_render_unified_block_get_element (block, i);
+    guint descender =
+        ue->pango_font_metrics.height - ue->pango_font_metrics.baseline;
+    guint count;
+
+    if (g_hash_table_contains (count_table, GUINT_TO_POINTER (descender))) {
+      count = GPOINTER_TO_UINT (g_hash_table_lookup (count_table,
+              GUINT_TO_POINTER (descender)));
+      GST_CAT_LOG (ttmlrender_debug,
+          "Table already contains %u glyphs with descender %u; increasing "
+          "that count to %ld", count, descender,
+          count + g_utf8_strlen (ue->text, -1));
+      count += g_utf8_strlen (ue->text, -1);
+    } else {
+      count = g_utf8_strlen (ue->text, -1);
+      GST_CAT_LOG (ttmlrender_debug,
+          "No glyphs with descender %u; adding entry to table with count of %u",
+          descender, count);
+    }
+
+    g_hash_table_insert (count_table,
+        GUINT_TO_POINTER (descender), GUINT_TO_POINTER (count));
   }
 
-  return max_size;
+  g_hash_table_iter_init (&iter, count_table);
+  while (g_hash_table_iter_next (&iter, &key, &value)) {
+    guint descender = GPOINTER_TO_UINT (key);
+    guint count = GPOINTER_TO_UINT (value);
+
+    if (count > max_count) {
+      max_count = count;
+      ret = descender;
+    }
+  }
+
+  g_hash_table_unref (count_table);
+  return ret;
+}
+
+
+static BlockMetrics
+gst_ttml_render_get_block_metrics (GstTtmlRender * render, UnifiedBlock * block)
+{
+  BlockMetrics ret;
+
+  /*
+   * The specified behaviour in TTML when lineHeight is "normal" is different
+   * from the behaviour when a percentage is given. In the former case, the
+   * line height is a percentage (the TTML spec recommends 125%) of the largest
+   * font size that is applied to the spans within the block; in the latter
+   * case, the line height is the given percentage of the font size that is
+   * applied to the block itself.
+   */
+  if (block->style_set->line_height < 0) {      /* lineHeight="normal" case */
+    guint max_text_height = 0;
+    guint descender = 0;
+    guint i;
+
+    for (i = 0; i < gst_ttml_render_unified_block_element_count (block); ++i) {
+      UnifiedElement *ue = gst_ttml_render_unified_block_get_element (block, i);
+
+      if (ue->pango_font_metrics.height > max_text_height) {
+        max_text_height = ue->pango_font_metrics.height;
+        descender =
+            ue->pango_font_metrics.height - ue->pango_font_metrics.baseline;
+      }
+    }
+
+    GST_CAT_LOG (ttmlrender_debug, "Max descender: %u   Max text height: %u",
+        descender, max_text_height);
+    ret.line_height = (guint) ceil (max_text_height * 1.25);
+    ret.baseline_offset = (guint) ((max_text_height + ret.line_height) / 2.0)
+        - descender;
+  } else {
+    guint descender;
+    guint font_size;
+
+    descender = gst_ttml_render_get_most_frequent_descender (render, block);
+    GST_CAT_LOG (ttmlrender_debug,
+        "Got most frequent descender value of %u pixels.", descender);
+    font_size = (guint) ceil (block->style_set->font_size * render->height);
+    ret.line_height = (guint) ceil (font_size * block->style_set->line_height);
+    ret.baseline_offset = (guint) ((font_size + ret.line_height) / 2.0)
+        - descender;
+  }
+
+  return ret;
 }
 
 
@@ -1601,8 +2313,10 @@ gst_ttml_render_rendered_image_free (GstTtmlRenderRenderedImage * image)
 }
 
 
-/* The order of arguments is significant: @image2 will be rendered on top of
- * @image1. */
+/*
+ * Combines two rendered image into a single image. The order of arguments is
+ * significant: @image2 will be rendered on top of @image1.
+ */
 static GstTtmlRenderRenderedImage *
 gst_ttml_render_rendered_image_combine (GstTtmlRenderRenderedImage * image1,
     GstTtmlRenderRenderedImage * image2)
@@ -1612,6 +2326,8 @@ gst_ttml_render_rendered_image_combine (GstTtmlRenderRenderedImage * image1,
   cairo_surface_t *sfc1, *sfc2, *sfc_dest;
   cairo_t *state_dest;
 
+  if (!image1 && !image2)
+    return NULL;
   if (image1 && !image2)
     return gst_ttml_render_rendered_image_copy (image1);
   if (image2 && !image1)
@@ -1755,198 +2471,64 @@ gst_ttml_render_color_is_transparent (GstSubtitleColor * color)
 }
 
 
-/* Render the background rectangles to be placed behind each element. */
+/*
+ * Overlays a set of rendered images to return a single image. Order is
+ * significant: later entries in @images are rendered on top of earlier
+ * entries.
+ */
 static GstTtmlRenderRenderedImage *
-gst_ttml_render_render_element_backgrounds (const GstSubtitleBlock * block,
-    GPtrArray * char_ranges, PangoLayout * layout, guint origin_x,
-    guint origin_y, guint line_height, guint line_padding, guint horiz_offset)
+gst_ttml_render_overlay_images (GPtrArray * images)
 {
-  gint first_line, last_line, cur_line;
-  guint padding;
-  PangoLayoutLine *line;
-  PangoRectangle first_char_pos, last_char_pos, line_extents;
-  TextRange *range;
-  const GstSubtitleElement *element;
-  guint rect_width;
-  GstBuffer *rectangle;
-  guint first_char_start, last_char_end;
-  guint i;
   GstTtmlRenderRenderedImage *ret = NULL;
+  gint i;
 
-  for (i = 0; i < char_ranges->len; ++i) {
-    range = g_ptr_array_index (char_ranges, i);
-    element = gst_subtitle_block_get_element (block, i);
+  for (i = 0; i < images->len; ++i) {
+    GstTtmlRenderRenderedImage *tmp = ret;
+    ret = gst_ttml_render_rendered_image_combine (ret,
+        g_ptr_array_index (images, i));
+    gst_ttml_render_rendered_image_free (tmp);
+  }
 
-    GST_CAT_LOG (ttmlrender_debug, "First char index: %u   Last char index: %u",
-        range->first_char, range->last_char);
-    pango_layout_index_to_pos (layout, range->first_char, &first_char_pos);
-    pango_layout_index_to_pos (layout, range->last_char, &last_char_pos);
-    pango_layout_index_to_line_x (layout, range->first_char, 1,
-        &first_line, NULL);
-    pango_layout_index_to_line_x (layout, range->last_char, 0,
-        &last_line, NULL);
+  return ret;
+}
 
-    first_char_start = PANGO_PIXELS (first_char_pos.x) - horiz_offset;
-    last_char_end = PANGO_PIXELS (last_char_pos.x + last_char_pos.width)
-        - horiz_offset;
 
-    GST_CAT_LOG (ttmlrender_debug, "First char start: %u  Last char end: %u",
-        first_char_start, last_char_end);
-    GST_CAT_LOG (ttmlrender_debug, "First line: %u  Last line: %u", first_line,
-        last_line);
+/*
+ * Takes a set of images and renders them as a single image, where all the
+ * images are arranged contiguously in the direction given by @direction. Note
+ * that the positions of the images in @images will be altered.
+ */
+static GstTtmlRenderRenderedImage *
+gst_ttml_render_stitch_images (GPtrArray * images, GstTtmlDirection direction)
+{
+  guint cur_offset = 0;
+  GstTtmlRenderRenderedImage *ret = NULL;
+  gint i;
 
-    for (cur_line = first_line; cur_line <= last_line; ++cur_line) {
-      guint line_start, line_end;
-      guint area_start, area_end;
-      gint first_char_index;
-      PangoRectangle line_pos;
-      padding = 0;
+  for (i = 0; i < images->len; ++i) {
+    GstTtmlRenderRenderedImage *block;
+    block = g_ptr_array_index (images, i);
 
-      line = pango_layout_get_line (layout, cur_line);
-      pango_layout_line_get_pixel_extents (line, NULL, &line_extents);
-
-      pango_layout_line_x_to_index (line, 0, &first_char_index, NULL);
-      pango_layout_index_to_pos (layout, first_char_index, &line_pos);
-      GST_CAT_LOG (ttmlrender_debug, "First char index:%d  position_X:%d  "
-          "position_Y:%d", first_char_index, PANGO_PIXELS (line_pos.x),
-          PANGO_PIXELS (line_pos.y));
-
-      line_start = PANGO_PIXELS (line_pos.x) - horiz_offset;
-      line_end = (PANGO_PIXELS (line_pos.x) + line_extents.width)
-          - horiz_offset;
-
-      GST_CAT_LOG (ttmlrender_debug, "line_extents.x:%d  line_extents.y:%d  "
-          "line_extents.width:%d  line_extents.height:%d", line_extents.x,
-          line_extents.y, line_extents.width, line_extents.height);
-      GST_CAT_LOG (ttmlrender_debug, "cur_line:%u  line start:%u  line end:%u "
-          "first_char_start: %u  last_char_end: %u", cur_line, line_start,
-          line_end, first_char_start, last_char_end);
-
-      if ((cur_line == first_line) && (first_char_start != line_start)) {
-        area_start = first_char_start + line_padding;
-        GST_CAT_LOG (ttmlrender_debug,
-            "First line, but there is preceding text in line.");
-      } else {
-        GST_CAT_LOG (ttmlrender_debug,
-            "Area contains first text on the line; adding padding...");
-        ++padding;
-        area_start = line_start;
-      }
-
-      if ((cur_line == last_line) && (last_char_end != line_end)) {
-        GST_CAT_LOG (ttmlrender_debug,
-            "Last line, but there is following text in line.");
-        area_end = last_char_end + line_padding;
-      } else {
-        GST_CAT_LOG (ttmlrender_debug,
-            "Area contains last text on the line; adding padding...");
-        ++padding;
-        area_end = line_end + (2 * line_padding);
-      }
-
-      rect_width = (area_end - area_start);
-
-      if (rect_width > 0) {     /* <br>s will result in zero-width rectangle */
-        GstTtmlRenderRenderedImage *image, *tmp;
-        rectangle = gst_ttml_render_draw_rectangle (rect_width, line_height,
-            element->style_set->background_color);
-        image = gst_ttml_render_rendered_image_new (rectangle,
-            origin_x + area_start,
-            origin_y + (cur_line * line_height), rect_width, line_height);
-        tmp = ret;
-        ret = gst_ttml_render_rendered_image_combine (ret, image);
-        if (tmp)
-          gst_ttml_render_rendered_image_free (tmp);
-        gst_ttml_render_rendered_image_free (image);
-      }
+    if (direction == GST_TTML_DIRECTION_BLOCK) {
+      block->y += cur_offset;
+      cur_offset = block->y + block->height;
+    } else {
+      block->x += cur_offset;
+      cur_offset = block->x + block->width;
     }
   }
 
-  return ret;
-}
-
-
-static PangoAlignment
-gst_ttml_render_get_alignment (GstSubtitleStyleSet * style_set)
-{
-  PangoAlignment align = PANGO_ALIGN_LEFT;
-
-  switch (style_set->multi_row_align) {
-    case GST_SUBTITLE_MULTI_ROW_ALIGN_START:
-      align = PANGO_ALIGN_LEFT;
-      break;
-    case GST_SUBTITLE_MULTI_ROW_ALIGN_CENTER:
-      align = PANGO_ALIGN_CENTER;
-      break;
-    case GST_SUBTITLE_MULTI_ROW_ALIGN_END:
-      align = PANGO_ALIGN_RIGHT;
-      break;
-    case GST_SUBTITLE_MULTI_ROW_ALIGN_AUTO:
-      switch (style_set->text_align) {
-        case GST_SUBTITLE_TEXT_ALIGN_START:
-        case GST_SUBTITLE_TEXT_ALIGN_LEFT:
-          align = PANGO_ALIGN_LEFT;
-          break;
-        case GST_SUBTITLE_TEXT_ALIGN_CENTER:
-          align = PANGO_ALIGN_CENTER;
-          break;
-        case GST_SUBTITLE_TEXT_ALIGN_END:
-        case GST_SUBTITLE_TEXT_ALIGN_RIGHT:
-          align = PANGO_ALIGN_RIGHT;
-          break;
-        default:
-          GST_CAT_ERROR (ttmlrender_debug, "Illegal textAlign value (%d)",
-              style_set->text_align);
-          break;
-      }
-      break;
-    default:
-      GST_CAT_ERROR (ttmlrender_debug, "Illegal multiRowAlign value (%d)",
-          style_set->multi_row_align);
-      break;
-  }
-  return align;
-}
-
-
-static GstTtmlRenderRenderedImage *
-gst_ttml_render_stitch_blocks (GList * blocks)
-{
-  guint vert_offset = 0;
-  GList *block_entry;
-  GstTtmlRenderRenderedImage *ret = NULL;
-
-  for (block_entry = g_list_first (blocks); block_entry;
-      block_entry = block_entry->next) {
-    GstTtmlRenderRenderedImage *block, *tmp;
-    block = (GstTtmlRenderRenderedImage *) block_entry->data;
-    tmp = ret;
-
-    block->y += vert_offset;
-    GST_CAT_LOG (ttmlrender_debug, "Rendering block at vertical offset %u",
-        vert_offset);
-    vert_offset = block->y + block->height;
-    ret = gst_ttml_render_rendered_image_combine (ret, block);
-    if (tmp)
-      gst_ttml_render_rendered_image_free (tmp);
-  }
+  ret = gst_ttml_render_overlay_images (images);
 
   if (ret) {
-    GST_CAT_LOG (ttmlrender_debug, "Height of stitched image: %u", ret->height);
+    if (direction == GST_TTML_DIRECTION_BLOCK)
+      GST_CAT_LOG (ttmlrender_debug, "Height of stitched image: %u",
+          ret->height);
+    else
+      GST_CAT_LOG (ttmlrender_debug, "Width of stitched image: %u", ret->width);
     ret->image = gst_buffer_make_writable (ret->image);
   }
   return ret;
-}
-
-
-static void
-gst_ttml_render_rendered_text_free (GstTtmlRenderRenderedText * text)
-{
-  if (text->text_image)
-    gst_ttml_render_rendered_image_free (text->text_image);
-  if (text->layout)
-    g_object_unref (text->layout);
-  g_slice_free (GstTtmlRenderRenderedText, text);
 }
 
 
@@ -1955,86 +2537,49 @@ gst_ttml_render_render_text_block (GstTtmlRender * render,
     const GstSubtitleBlock * block, GstBuffer * text_buf, guint width,
     gboolean overflow)
 {
-  GPtrArray *char_ranges =
-      g_ptr_array_new_with_free_func ((GDestroyNotify) _text_range_free);
-  gchar *marked_up_string;
-  PangoAlignment alignment;
-  guint max_font_size;
-  guint line_height;
+  UnifiedBlock *unified_block;
+  BlockMetrics metrics;
+  gboolean wrap;
   guint line_padding;
-  gint text_offset = 0;
-  GstTtmlRenderRenderedText *rendered_text;
-  GstTtmlRenderRenderedImage *backgrounds = NULL;
-  GstTtmlRenderRenderedImage *ret;
+  GPtrArray *ranges;
+  GPtrArray *split_blocks;
+  GPtrArray *images;
+  GstTtmlRenderRenderedImage *rendered_block = NULL;
+  gint i;
 
-  /* Join text from elements to form a single marked-up string. */
-  marked_up_string = gst_ttml_render_generate_marked_up_string (render, block,
-      text_buf, char_ranges);
+  unified_block = gst_ttml_render_unify_block (render, block, text_buf);
+  metrics = gst_ttml_render_get_block_metrics (render, unified_block);
+  wrap = gst_ttml_render_elements_are_wrapped (block->elements);
 
-  max_font_size = (guint) (gst_ttml_render_get_max_font_size (block->elements)
-      * render->height);
-  GST_CAT_DEBUG (ttmlrender_debug, "Max font size: %u", max_font_size);
-  line_height = (guint) round (block->style_set->line_height * max_font_size);
+  line_padding = (guint) ceil (block->style_set->line_padding * render->width);
+  ranges = gst_ttml_render_get_line_char_ranges (render, unified_block, width -
+      (2 * line_padding), wrap);
 
-  line_padding = (guint) (block->style_set->line_padding * render->width);
-  alignment = gst_ttml_render_get_alignment (block->style_set);
-
-  /* Render text to buffer. */
-  rendered_text = gst_ttml_render_draw_text (render, marked_up_string,
-      (width - (2 * line_padding)), alignment, line_height, max_font_size,
-      gst_ttml_render_elements_are_wrapped (block->elements));
-
-  switch (block->style_set->text_align) {
-    case GST_SUBTITLE_TEXT_ALIGN_START:
-    case GST_SUBTITLE_TEXT_ALIGN_LEFT:
-      text_offset = line_padding;
-      break;
-    case GST_SUBTITLE_TEXT_ALIGN_CENTER:
-      text_offset = ((gint) width - rendered_text->text_image->width);
-      text_offset /= 2;
-      break;
-    case GST_SUBTITLE_TEXT_ALIGN_END:
-    case GST_SUBTITLE_TEXT_ALIGN_RIGHT:
-      text_offset = (gint) width
-          - (rendered_text->text_image->width + line_padding);
-      break;
+  for (i = 0; i < ranges->len; ++i) {
+    CharRange *range = g_ptr_array_index (ranges, i);
+    GST_CAT_LOG (ttmlrender_debug, "ranges[%d] first:%u  last:%u", i,
+        range->first_index, range->last_index);
   }
 
-  rendered_text->text_image->x = text_offset;
+  split_blocks = gst_ttml_render_split_block (unified_block, ranges);
+  if (split_blocks) {
+    guint blocks_remining = gst_ttml_render_handle_whitespace (split_blocks);
+    GST_CAT_DEBUG (ttmlrender_debug,
+        "There are %u blocks remaining after whitespace handling.",
+        blocks_remining);
 
-  /* Render background rectangles, if any. */
-  backgrounds = gst_ttml_render_render_element_backgrounds (block, char_ranges,
-      rendered_text->layout, text_offset - line_padding, 0,
-      (guint) round (block->style_set->line_height * max_font_size),
-      line_padding, rendered_text->horiz_offset);
-
-  /* Render block background, if non-transparent. */
-  if (!gst_ttml_render_color_is_transparent (&block->style_set->
-          background_color)) {
-    GstTtmlRenderRenderedImage *block_background;
-    GstTtmlRenderRenderedImage *tmp = backgrounds;
-
-    GstBuffer *block_bg_image = gst_ttml_render_draw_rectangle (width,
-        backgrounds->height, block->style_set->background_color);
-    block_background = gst_ttml_render_rendered_image_new (block_bg_image, 0,
-        0, width, backgrounds->height);
-    backgrounds = gst_ttml_render_rendered_image_combine (block_background,
-        backgrounds);
-    gst_ttml_render_rendered_image_free (tmp);
-    gst_ttml_render_rendered_image_free (block_background);
+    if (blocks_remining > 0) {
+      images = gst_ttml_render_layout_blocks (render, split_blocks, metrics,
+          unified_block->style_set);
+      rendered_block = gst_ttml_render_overlay_images (images);
+      g_ptr_array_unref (images);
+    }
+    g_ptr_array_unref (split_blocks);
   }
 
-  /* Combine text and background images. */
-  ret = gst_ttml_render_rendered_image_combine (backgrounds,
-      rendered_text->text_image);
-  gst_ttml_render_rendered_image_free (backgrounds);
-  gst_ttml_render_rendered_text_free (rendered_text);
-
-  g_free (marked_up_string);
-  g_ptr_array_unref (char_ranges);
-  GST_CAT_DEBUG (ttmlrender_debug, "block width: %u   block height: %u",
-      ret->width, ret->height);
-  return ret;
+  g_ptr_array_unref (ranges);
+  gst_ttml_render_unified_block_free (unified_block);
+  return rendered_block;
 }
 
 
@@ -2061,12 +2606,13 @@ static GstVideoOverlayComposition *
 gst_ttml_render_render_text_region (GstTtmlRender * render,
     GstSubtitleRegion * region, GstBuffer * text_buf)
 {
-  GList *blocks = NULL;
   guint region_x, region_y, region_width, region_height;
   guint window_x, window_y, window_width, window_height;
   guint padding_start, padding_end, padding_before, padding_after;
+  GPtrArray *rendered_blocks =
+      g_ptr_array_new_with_free_func (
+      (GDestroyNotify) gst_ttml_render_rendered_image_free);
   GstTtmlRenderRenderedImage *region_image = NULL;
-  GstTtmlRenderRenderedImage *blocks_image;
   GstVideoOverlayComposition *ret = NULL;
   guint i;
 
@@ -2116,15 +2662,54 @@ gst_ttml_render_render_text_region (GstTtmlRender * render,
     rendered_block = gst_ttml_render_render_text_block (render, block, text_buf,
         window_width, TRUE);
 
-    blocks = g_list_append (blocks, rendered_block);
+    if (!rendered_block)
+      continue;
+
+    GST_CAT_LOG (ttmlrender_debug, "rendered_block - x:%d  y:%d  w:%u  h:%u",
+        rendered_block->x, rendered_block->y, rendered_block->width,
+        rendered_block->height);
+
+    switch (block->style_set->text_align) {
+      case GST_SUBTITLE_TEXT_ALIGN_CENTER:
+        rendered_block->x
+            += (gint) round ((window_width - rendered_block->width) / 2.0);
+        break;
+
+      case GST_SUBTITLE_TEXT_ALIGN_RIGHT:
+      case GST_SUBTITLE_TEXT_ALIGN_END:
+        rendered_block->x += (window_width - rendered_block->width);
+        break;
+
+      default:
+        break;
+    }
+
+    if (!gst_ttml_render_color_is_transparent (&block->style_set->
+            background_color)) {
+      /* Draw block background rectangle and render block image over it */
+      GstTtmlRenderRenderedImage *tmp = rendered_block;
+      GstBuffer *block_bg_buf;
+      GstTtmlRenderRenderedImage *block_bg_image;
+
+      block_bg_buf = gst_ttml_render_draw_rectangle (window_width,
+          rendered_block->height, block->style_set->background_color);
+      block_bg_image = gst_ttml_render_rendered_image_new (block_bg_buf, 0,
+          rendered_block->y, window_width, rendered_block->height);
+      rendered_block = gst_ttml_render_rendered_image_combine (block_bg_image,
+          rendered_block);
+      gst_ttml_render_rendered_image_free (tmp);
+      gst_ttml_render_rendered_image_free (block_bg_image);
+    }
+
+    rendered_block->y = 0;
+    g_ptr_array_add (rendered_blocks, rendered_block);
   }
 
-  if (blocks) {
-    GstTtmlRenderRenderedImage *tmp;
+  if (rendered_blocks->len > 0) {
+    GstTtmlRenderRenderedImage *blocks_image, *tmp;
 
-    blocks_image = gst_ttml_render_stitch_blocks (blocks);
-    g_list_free_full (blocks,
-        (GDestroyNotify) gst_ttml_render_rendered_image_free);
+    blocks_image = gst_ttml_render_stitch_images (rendered_blocks,
+        GST_TTML_DIRECTION_BLOCK);
     blocks_image->x += window_x;
 
     switch (region->style_set->display_align) {
@@ -2151,25 +2736,18 @@ gst_ttml_render_render_text_region (GstTtmlRender * render,
     }
 
     tmp = region_image;
-    if (region_image || blocks_image) {
-      region_image =
-          gst_ttml_render_rendered_image_combine (region_image, blocks_image);
-    } else {
-      GST_CAT_DEBUG (ttmlrender_debug, "Nothing to render");
-      return NULL;
-    }
-
-    if (tmp)
-      gst_ttml_render_rendered_image_free (tmp);
+    region_image =
+        gst_ttml_render_rendered_image_combine (region_image, blocks_image);
+    gst_ttml_render_rendered_image_free (tmp);
     gst_ttml_render_rendered_image_free (blocks_image);
   }
 
   if (region_image) {
-    GST_CAT_DEBUG (ttmlrender_debug, "Height of rendered region: %u",
-        region_image->height);
     ret = gst_ttml_render_compose_overlay (region_image);
     gst_ttml_render_rendered_image_free (region_image);
   }
+
+  g_ptr_array_unref (rendered_blocks);
   return ret;
 }
 

@@ -22,6 +22,7 @@
 
 /**
  * SECTION:element-ttmlparse
+ * @title: ttmlparse
  *
  * Parses timed text subtitle files described using Timed Text Markup Language
  * (TTML). Currently, only the EBU-TT-D profile of TTML, designed for
@@ -35,13 +36,12 @@
  * elements. A downstream renderer element uses this information to correctly
  * render the text on top of video frames.
  *
- * <refsect2>
- * <title>Example launch lines</title>
+ * ## Example launch lines
  * |[
  * gst-launch-1.0 filesrc location=<media file location> ! video/quicktime ! qtdemux name=q ttmlrender name=r q. ! queue ! h264parse ! avdec_h264 ! autovideoconvert ! r.video_sink filesrc location=<subtitle file location> blocksize=16777216 ! queue ! ttmlparse ! r.text_sink r. ! ximagesink q. ! queue ! aacparse ! avdec_aac ! audioconvert ! alsasink
  * ]| Parse and render TTML subtitles contained in a single XML file over an
  * MP4 stream containing H.264 video and AAC audio.
- * </refsect2>
+ *
  */
 
 #include <stdio.h>
@@ -463,6 +463,7 @@ handle_buffer (GstTtmlParse * self, GstBuffer * buf)
 
   if (!(caps = gst_ttml_parse_get_src_caps (self)))
     return GST_FLOW_EOS;
+  gst_caps_unref (caps);
 
   /* Push newsegment if needed */
   if (self->need_segment) {
@@ -523,6 +524,7 @@ gst_ttml_parse_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
        * seek request and instead send us a newsegment from the seek request
        * it received via its video pads instead, so all is fine then too) */
       ret = TRUE;
+      self->need_segment = TRUE;
       gst_event_unref (event);
       break;
     }

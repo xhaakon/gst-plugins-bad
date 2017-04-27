@@ -276,6 +276,11 @@ static GstFlowReturn
 gst_adaptive_demux_stream_push_event (GstAdaptiveDemuxStream * stream,
     GstEvent * event);
 
+static void gst_adaptive_demux_stop_manifest_update_task (GstAdaptiveDemux *
+    demux);
+static void gst_adaptive_demux_start_manifest_update_task (GstAdaptiveDemux *
+    demux);
+
 static void gst_adaptive_demux_start_tasks (GstAdaptiveDemux * demux,
     gboolean start_preroll_streams);
 static void gst_adaptive_demux_stop_tasks (GstAdaptiveDemux * demux);
@@ -556,11 +561,19 @@ gst_adaptive_demux_change_state (GstElement * element,
       GST_MANIFEST_LOCK (demux);
       demux->running = FALSE;
       gst_adaptive_demux_reset (demux);
+      gst_adaptive_demux_stop_manifest_update_task (demux);
       GST_MANIFEST_UNLOCK (demux);
+
+      /* demux->priv->updates_task value never changes, so it is safe to read it
+       * outside critical section
+       */
+      gst_task_join (demux->priv->updates_task);
       break;
     case GST_STATE_CHANGE_READY_TO_PAUSED:
       GST_MANIFEST_LOCK (demux);
       gst_adaptive_demux_reset (demux);
+      if (demux->priv->have_manifest)
+        gst_adaptive_demux_start_manifest_update_task (demux);
       demux->running = TRUE;
       GST_MANIFEST_UNLOCK (demux);
       break;
@@ -701,15 +714,7 @@ gst_adaptive_demux_sink_event (GstPad * pad, GstObject * parent,
           gst_adaptive_demux_prepare_streams (demux,
               gst_adaptive_demux_is_live (demux));
           gst_adaptive_demux_start_tasks (demux, TRUE);
-          if (gst_adaptive_demux_is_live (demux)) {
-            g_mutex_lock (&demux->priv->updates_timed_lock);
-            demux->priv->stop_updates_task = FALSE;
-            g_mutex_unlock (&demux->priv->updates_timed_lock);
-            /* Task to periodically update the manifest */
-            if (demux_class->requires_periodical_playlist_update (demux)) {
-              gst_task_start (demux->priv->updates_task);
-            }
-          }
+          gst_adaptive_demux_start_manifest_update_task (demux);
         } else {
           /* no streams */
           GST_WARNING_OBJECT (demux, "No streams created from manifest");
@@ -770,7 +775,6 @@ gst_adaptive_demux_reset (GstAdaptiveDemux * demux)
   demux->priv->old_streams = NULL;
 
   gst_adaptive_demux_stop_tasks (demux);
-  gst_uri_downloader_reset (demux->downloader);
 
   if (klass->reset)
     klass->reset (demux);
@@ -1108,9 +1112,13 @@ gst_adaptive_demux_prepare_streams (GstAdaptiveDemux * demux,
      * presentation time offset, we will also have to move the segment start
      * by that offset.
      *
-     * Now the running time and stream time at the stream's segment start has to
-     * be the one that is stored inside the demuxer's segment, which means
-     * that segment.base and segment.time have to be copied over.
+     * Likewise, the demuxer segment stop value is adjusted in the same
+     * fashion.
+     *
+     * Now the running time and stream time at the stream's segment start has
+     * to be the one that is stored inside the demuxer's segment, which means
+     * that segment.base and segment.time have to be copied over (done just
+     * above)
      *
      *
      * If the demuxer segment start is smaller than the period start time,
@@ -1124,26 +1132,46 @@ gst_adaptive_demux_prepare_streams (GstAdaptiveDemux * demux,
      * segment's base, which is supposed to be the running time of the period
      * start according to the demuxer's segment.
      *
+     * The same logic applies for negative rates with the segment stop and
+     * the period stop time (which gets clamped).
+     *
      *
      * For the first case where not the complete period is inside the segment,
      * the segment time and base as calculated by the second case would be
      * equivalent.
      */
-
-    /* If first and live, demuxer did seek to the current position already */
+    GST_DEBUG_OBJECT (demux, "Using demux segment %" GST_SEGMENT_FORMAT,
+        &demux->segment);
+    GST_DEBUG_OBJECT (demux,
+        "period_start: %" GST_TIME_FORMAT " offset: %" GST_TIME_FORMAT,
+        GST_TIME_ARGS (period_start), GST_TIME_ARGS (offset));
+    /* note for readers:
+     * Since stream->segment is initially a copy of demux->segment,
+     * only the values that need updating are modified below. */
     if (first_and_live) {
+      /* If first and live, demuxer did seek to the current position already */
       stream->segment.start = demux->segment.start - period_start + offset;
+      if (GST_CLOCK_TIME_IS_VALID (demux->segment.stop))
+        stream->segment.stop = demux->segment.stop - period_start + offset;
+      /* FIXME : Do we need to handle negative rates for this ? */
       stream->segment.position = stream->segment.start;
-      stream->segment.time = demux->segment.time;
-      stream->segment.base = demux->segment.base;
     } else if (demux->segment.start > period_start) {
+      /* seek within a period */
       stream->segment.start = demux->segment.start - period_start + offset;
-      stream->segment.position = offset;
-      stream->segment.time = demux->segment.time;
-      stream->segment.base = demux->segment.base;
+      if (GST_CLOCK_TIME_IS_VALID (demux->segment.stop))
+        stream->segment.stop = demux->segment.stop - period_start + offset;
+      if (stream->segment.rate >= 0)
+        stream->segment.position = offset;
+      else
+        stream->segment.position = stream->segment.stop;
     } else {
       stream->segment.start = offset;
-      stream->segment.position = offset;
+      if (GST_CLOCK_TIME_IS_VALID (demux->segment.stop))
+        stream->segment.stop = demux->segment.stop - period_start + offset;
+      if (stream->segment.rate >= 0)
+        stream->segment.position = offset;
+      else
+        stream->segment.position = stream->segment.stop;
       stream->segment.time =
           gst_segment_to_stream_time (&demux->segment, GST_FORMAT_TIME,
           period_start);
@@ -1155,7 +1183,8 @@ gst_adaptive_demux_prepare_streams (GstAdaptiveDemux * demux,
     stream->pending_segment = gst_event_new_segment (&stream->segment);
     gst_event_set_seqnum (stream->pending_segment, demux->priv->segment_seqnum);
 
-    GST_DEBUG ("Prepared segment %" GST_SEGMENT_FORMAT " for stream %p",
+    GST_DEBUG_OBJECT (demux,
+        "Prepared segment %" GST_SEGMENT_FORMAT " for stream %p",
         &stream->segment, stream);
   }
 
@@ -1519,7 +1548,9 @@ gst_adaptive_demux_handle_seek_event (GstAdaptiveDemux * demux, GstPad * pad,
     GST_DEBUG_OBJECT (demux, "sending flush start");
     fevent = gst_event_new_flush_start ();
     gst_event_set_seqnum (fevent, seqnum);
+    GST_MANIFEST_UNLOCK (demux);
     gst_adaptive_demux_push_src_event (demux, fevent);
+    GST_MANIFEST_LOCK (demux);
 
     gst_adaptive_demux_stop_tasks (demux);
   } else if ((rate > 0 && start_type != GST_SEEK_TYPE_NONE) ||
@@ -1639,6 +1670,8 @@ gst_adaptive_demux_handle_seek_event (GstAdaptiveDemux * demux, GstPad * pad,
       offset =
           gst_adaptive_demux_stream_get_presentation_offset (demux, stream);
       stream->segment.start += offset - period_start;
+      if (GST_CLOCK_TIME_IS_VALID (demux->segment.stop))
+        stream->segment.stop += offset - period_start;
       if (demux->segment.rate > 0 && start_type != GST_SEEK_TYPE_NONE)
         stream->segment.position = stream->segment.start;
       else if (demux->segment.rate < 0 && stop_type != GST_SEEK_TYPE_NONE)
@@ -1657,13 +1690,6 @@ gst_adaptive_demux_handle_seek_event (GstAdaptiveDemux * demux, GstPad * pad,
     gst_adaptive_demux_start_tasks (demux, FALSE);
   }
 
-  if (gst_adaptive_demux_is_live (demux)) {
-    g_mutex_lock (&demux->priv->updates_timed_lock);
-    demux->priv->stop_updates_task = FALSE;
-    g_mutex_unlock (&demux->priv->updates_timed_lock);
-    /* Task to periodically update the manifest */
-    gst_task_start (demux->priv->updates_task);
-  }
   GST_MANIFEST_UNLOCK (demux);
   GST_API_UNLOCK (demux);
   gst_event_unref (event);
@@ -1871,6 +1897,38 @@ gst_adaptive_demux_start_tasks (GstAdaptiveDemux * demux,
   }
 }
 
+/* must be called with manifest_lock taken */
+static void
+gst_adaptive_demux_stop_manifest_update_task (GstAdaptiveDemux * demux)
+{
+  gst_uri_downloader_cancel (demux->downloader);
+
+  gst_task_stop (demux->priv->updates_task);
+
+  g_mutex_lock (&demux->priv->updates_timed_lock);
+  demux->priv->stop_updates_task = TRUE;
+  g_cond_signal (&demux->priv->updates_timed_cond);
+  g_mutex_unlock (&demux->priv->updates_timed_lock);
+}
+
+/* must be called with manifest_lock taken */
+static void
+gst_adaptive_demux_start_manifest_update_task (GstAdaptiveDemux * demux)
+{
+  GstAdaptiveDemuxClass *demux_class = GST_ADAPTIVE_DEMUX_GET_CLASS (demux);
+
+  if (gst_adaptive_demux_is_live (demux)) {
+    gst_uri_downloader_reset (demux->downloader);
+    g_mutex_lock (&demux->priv->updates_timed_lock);
+    demux->priv->stop_updates_task = FALSE;
+    g_mutex_unlock (&demux->priv->updates_timed_lock);
+    /* Task to periodically update the manifest */
+    if (demux_class->requires_periodical_playlist_update (demux)) {
+      gst_task_start (demux->priv->updates_task);
+    }
+  }
+}
+
 /* must be called with manifest_lock taken
  * This function will temporarily release manifest_lock in order to join the
  * download threads.
@@ -1881,13 +1939,6 @@ static void
 gst_adaptive_demux_stop_tasks (GstAdaptiveDemux * demux)
 {
   GList *iter;
-
-  gst_task_stop (demux->priv->updates_task);
-
-  g_mutex_lock (&demux->priv->updates_timed_lock);
-  demux->priv->stop_updates_task = TRUE;
-  g_cond_signal (&demux->priv->updates_timed_cond);
-  g_mutex_unlock (&demux->priv->updates_timed_lock);
 
   GST_LOG_OBJECT (demux, "Stopping tasks");
 
@@ -1904,8 +1955,6 @@ gst_adaptive_demux_stop_tasks (GstAdaptiveDemux * demux)
   g_mutex_lock (&demux->priv->preroll_lock);
   g_cond_broadcast (&demux->priv->preroll_cond);
   g_mutex_unlock (&demux->priv->preroll_lock);
-
-  gst_uri_downloader_cancel (demux->downloader);
 
   g_mutex_lock (&demux->priv->manifest_update_lock);
   g_cond_broadcast (&demux->priv->manifest_cond);
@@ -1936,11 +1985,6 @@ gst_adaptive_demux_stop_tasks (GstAdaptiveDemux * demux)
   }
 
   GST_MANIFEST_UNLOCK (demux);
-
-  /* demux->priv->updates_task value never changes, so it is safe to read it
-   * outside critical section
-   */
-  gst_task_join (demux->priv->updates_task);
 
   GST_MANIFEST_LOCK (demux);
 
@@ -2643,7 +2687,8 @@ gst_adaptive_demux_stream_wait_manifest_update (GstAdaptiveDemux * demux,
     g_mutex_unlock (&stream->fragment_download_lock);
 
     /* Got a new fragment or not live anymore? */
-    if (gst_adaptive_demux_stream_has_next_fragment (demux, stream)) {
+    if (gst_adaptive_demux_stream_update_fragment_info (demux, stream) ==
+        GST_FLOW_OK) {
       GST_DEBUG_OBJECT (demux, "new fragment available, "
           "not waiting for manifest update");
       ret = TRUE;
@@ -3741,15 +3786,14 @@ gst_adaptive_demux_updates_loop (GstAdaptiveDemux * demux)
         &demux->priv->updates_timed_lock, next_update);
     g_mutex_unlock (&demux->priv->updates_timed_lock);
 
-    GST_MANIFEST_LOCK (demux);
-
     g_mutex_lock (&demux->priv->updates_timed_lock);
     if (demux->priv->stop_updates_task) {
       g_mutex_unlock (&demux->priv->updates_timed_lock);
-      GST_MANIFEST_UNLOCK (demux);
       goto quit;
     }
     g_mutex_unlock (&demux->priv->updates_timed_lock);
+
+    GST_MANIFEST_LOCK (demux);
 
     GST_DEBUG_OBJECT (demux, "Updating playlist");
 

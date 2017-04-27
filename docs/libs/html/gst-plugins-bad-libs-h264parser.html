@@ -2,12 +2,12 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>h264parser: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
+<title>GstH264Parser: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="codecparsers.html" title="Bitstream parsing Library">
 <link rel="prev" href="codecparsers.html" title="Bitstream parsing Library">
-<link rel="next" href="gst-plugins-bad-libs-jpegparser.html" title="jpegparser">
+<link rel="next" href="gst-plugins-bad-libs-jpegparser.html" title="GstJpegParser">
 <meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -26,8 +26,8 @@
 <a name="gst-plugins-bad-libs-h264parser"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
-<h2><span class="refentrytitle"><a name="gst-plugins-bad-libs-h264parser.top_of_page"></a>h264parser</span></h2>
-<p>h264parser — Convenience library for h264 video
+<h2><span class="refentrytitle"><a name="gst-plugins-bad-libs-h264parser.top_of_page"></a>GstH264Parser</span></h2>
+<p>GstH264Parser — Convenience library for h264 video
 bitstream parsing.</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
@@ -315,46 +315,28 @@ bitstream parsing.</p>
 (0x000001 start code prefix) format. To identify a NAL unit in a bitstream
 and parse its headers, first call:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-<a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-identify-nalu" title="gst_h264_parser_identify_nalu ()"><span class="type">gst_h264_parser_identify_nalu</span></a> to identify a NAL unit in an Annex B type bitstream
-  </li>
-<li class="listitem">
-<a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-identify-nalu-avc" title="gst_h264_parser_identify_nalu_avc ()"><span class="type">gst_h264_parser_identify_nalu_avc</span></a> to identify a NAL unit in an AVC type bitstream
-  </li>
+<li class="listitem"><p><a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-identify-nalu" title="gst_h264_parser_identify_nalu ()"><span class="type">gst_h264_parser_identify_nalu</span></a> to identify a NAL unit in an Annex B type bitstream</p></li>
+<li class="listitem"><p><a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-identify-nalu-avc" title="gst_h264_parser_identify_nalu_avc ()"><span class="type">gst_h264_parser_identify_nalu_avc</span></a> to identify a NAL unit in an AVC type bitstream</p></li>
 </ul></div>
 <p>The following functions are then available for parsing the structure of the
 <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a>, depending on the <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnitType" title="enum GstH264NalUnitType"><span class="type">GstH264NalUnitType</span></a>:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-     From <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE:CAPS"><span class="type">GST_H264_NAL_SLICE</span></a> to <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE-IDR:CAPS"><span class="type">GST_H264_NAL_SLICE_IDR</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-slice-hdr" title="gst_h264_parser_parse_slice_hdr ()"><span class="type">gst_h264_parser_parse_slice_hdr</span></a>
-</li>
-<li class="listitem">
-<a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SEI:CAPS"><span class="type">GST_H264_NAL_SEI</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-sei" title="gst_h264_parser_parse_sei ()"><span class="type">gst_h264_parser_parse_sei</span></a>
-</li>
-<li class="listitem">
-<a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SPS:CAPS"><span class="type">GST_H264_NAL_SPS</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-sps" title="gst_h264_parser_parse_sps ()"><span class="type">gst_h264_parser_parse_sps</span></a>
-</li>
-<li class="listitem">
-<a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-PPS:CAPS"><span class="type">GST_H264_NAL_PPS</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-pps" title="gst_h264_parser_parse_pps ()"><span class="type">gst_h264_parser_parse_pps</span></a>
-</li>
-<li class="listitem">
-     Any other: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-nal" title="gst_h264_parser_parse_nal ()"><span class="type">gst_h264_parser_parse_nal</span></a>
-</li>
+<li class="listitem"><p>From <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE:CAPS"><span class="type">GST_H264_NAL_SLICE</span></a> to <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE-IDR:CAPS"><span class="type">GST_H264_NAL_SLICE_IDR</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-slice-hdr" title="gst_h264_parser_parse_slice_hdr ()"><span class="type">gst_h264_parser_parse_slice_hdr</span></a></p></li>
+<li class="listitem"><p><a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SEI:CAPS"><span class="type">GST_H264_NAL_SEI</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-sei" title="gst_h264_parser_parse_sei ()"><span class="type">gst_h264_parser_parse_sei</span></a></p></li>
+<li class="listitem"><p><a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SPS:CAPS"><span class="type">GST_H264_NAL_SPS</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-sps" title="gst_h264_parser_parse_sps ()"><span class="type">gst_h264_parser_parse_sps</span></a></p></li>
+<li class="listitem"><p><a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-PPS:CAPS"><span class="type">GST_H264_NAL_PPS</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-pps" title="gst_h264_parser_parse_pps ()"><span class="type">gst_h264_parser_parse_pps</span></a></p></li>
+<li class="listitem"><p>Any other: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-nal" title="gst_h264_parser_parse_nal ()"><span class="type">gst_h264_parser_parse_nal</span></a></p></li>
 </ul></div>
 <p>One of these functions *must* be called on every NAL unit in the bitstream,
 in order to keep the internal structures of the <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a> up to
 date. It is legal to call <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-nal" title="gst_h264_parser_parse_nal ()"><span class="type">gst_h264_parser_parse_nal</span></a> on NAL units of any
 type, if no special parsing of the current NAL unit is required by the
 application.</p>
-<p>For more details about the structures, look at the ITU-T H.264 and ISO/IEC 14496-10 – MPEG-4
+<p>For more details about the structures, look at the ITU-T H.264 and ISO/IEC 14496-10 â€“ MPEG-4
 Part 10 specifications, available at:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-    ITU-T H.264: http://www.itu.int/rec/T-REC-H.264
-  </li>
-<li class="listitem">
-    ISO/IEC 14496-10: http://www.iso.org/iso/iso_catalogue/catalogue_tc/catalogue_detail.htm?csnumber=56538
-  </li>
+<li class="listitem"><p>ITU-T H.264: http://www.itu.int/rec/T-REC-H.264</p></li>
+<li class="listitem"><p>ISO/IEC 14496-10: http://www.iso.org/iso/iso_catalogue/catalogue_tc/catalogue_detail.htm?csnumber=56538</p></li>
 </ul></div>
 </div>
 <div class="refsect1">

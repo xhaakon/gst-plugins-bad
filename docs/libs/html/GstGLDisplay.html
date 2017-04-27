@@ -197,7 +197,7 @@
 </div>
 <div class="refsect1">
 <a name="GstGLDisplay.description"></a><h2>Description</h2>
-<p><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> represents a connection to the underlying windowing system. 
+<p><a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a> represents a connection to the underlying windowing system.
 Elements are required to make use of <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstContext.html#GstContext-struct"><span class="type">GstContext</span></a> to share and propogate
 a <a class="link" href="GstGLDisplay.html" title="GstGLDisplay"><span class="type">GstGLDisplay</span></a>.</p>
 <p>There are a number of environment variables that influence the choice of
@@ -210,13 +210,13 @@ platform and window system specific functionality.</p>
 <li class="listitem"><p>GST_GL_API influences the OpenGL API requested by the OpenGL platform.
 Common values are 'opengl' and 'gles2'.</p></li>
 </ul></div>
-<div class="note">Certain window systems require a special function to be called to
+<div class="blockquote"><blockquote class="blockquote"><p>Certain window systems require a special function to be called to
 initialize threading support.  As this GStreamer GL library does not preclude
 concurrent access to the windowing system, it is strongly advised that
 applications ensure that threading support has been initialized before any
 other toolkit/library functionality is accessed.  Failure to do so could
 result in sudden application abortion during execution.  The most notably
-example of such a function is X11's <code class="function">XInitThreads()</code>.</div>
+example of such a function is X11's <code class="function">XInitThreads()</code>.</p></blockquote></div>
 </div>
 <div class="refsect1">
 <a name="GstGLDisplay.functions_details"></a><h2>Functions</h2>

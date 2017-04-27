@@ -87,7 +87,7 @@
       <sub name="glvideomixerelement" link="gst-plugins-bad-plugins-glvideomixerelement.html"/>
       <sub name="glvideomixer" link="gst-plugins-bad-plugins-glvideomixer.html"/>
       <sub name="glviewconvert" link="gst-plugins-bad-plugins-glviewconvert.html"/>
-      <sub name="IQA" link="gst-plugins-bad-plugins-IQA.html"/>
+      <sub name="iqa" link="gst-plugins-bad-plugins-IQA.html"/>
       <sub name="jpegparse" link="gst-plugins-bad-plugins-jpegparse.html"/>
       <sub name="kaleidoscope" link="gst-plugins-bad-plugins-kaleidoscope.html"/>
       <sub name="liveadder" link="gst-plugins-bad-plugins-liveadder.html"/>
@@ -746,8 +746,8 @@
     <keyword type="property" name="The “voice-detection-frame-size-ms” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--voice-detection-frame-size-ms"/>
     <keyword type="property" name="The “voice-detection-likelihood” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--voice-detection-likelihood"/>
     <keyword type="struct" name="struct GstWebrtcEchoProbe" link="gst-plugins-bad-plugins-webrtcechoprobe.html#GstWebrtcEchoProbe-struct"/>
-    <keyword type="struct" name="struct GstTtmlParse" link="gst-plugins-bad-plugins-ttmlparse.html#GstTtmlParse"/>
-    <keyword type="struct" name="struct GstTtmlRender" link="gst-plugins-bad-plugins-ttmlrender.html#GstTtmlRender"/>
+    <keyword type="struct" name="struct GstTtmlParse" link="gst-plugins-bad-plugins-ttmlparse.html#GstTtmlParse-struct"/>
+    <keyword type="struct" name="struct GstTtmlRender" link="gst-plugins-bad-plugins-ttmlrender.html#GstTtmlRender-struct"/>
     <keyword type="constant" name="GST_COLOR_EFFECTS_PRESET_NONE" link="gst-plugins-bad-plugins-coloreffects.html#GST-COLOR-EFFECTS-PRESET-NONE:CAPS"/>
     <keyword type="constant" name="GST_COLOR_EFFECTS_PRESET_HEAT" link="gst-plugins-bad-plugins-coloreffects.html#GST-COLOR-EFFECTS-PRESET-HEAT:CAPS"/>
     <keyword type="constant" name="GST_COLOR_EFFECTS_PRESET_SEPIA" link="gst-plugins-bad-plugins-coloreffects.html#GST-COLOR-EFFECTS-PRESET-SEPIA:CAPS"/>

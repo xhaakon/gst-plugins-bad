@@ -25,17 +25,17 @@
 
 /**
  * SECTION:element-kmssink
+ * @title: kmssink
  * @short_description: A KMS/DRM based video sink
  *
  * kmssink is a simple video sink that renders video frames directly
  * in a plane of a DRM device.
  *
- * <refsect2>
- * <title>Example launch line</title>
+ * ## Example launch line
  * |[
  * gst-launch-1.0 videotestsrc ! kmssink
  * ]|
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -85,7 +85,7 @@ static int
 kms_open (gchar ** driver)
 {
   static const char *drivers[] = { "i915", "radeon", "nouveau", "vmwgfx",
-    "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc"
+    "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm"
   };
   int i, fd = -1;
 
@@ -516,6 +516,8 @@ gst_kms_sink_start (GstBaseSink * bsink)
   log_drm_version (self);
   if (!get_drm_caps (self))
     goto bail;
+
+  self->can_scale = TRUE;
 
   res = drmModeGetResources (self->fd);
   if (!res)
@@ -1261,7 +1263,8 @@ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
   dst.w = self->hdisplay;
   dst.h = self->vdisplay;
 
-  gst_video_sink_center_rect (src, dst, &result, TRUE);
+retry_set_plane:
+  gst_video_sink_center_rect (src, dst, &result, self->can_scale);
 
   if (crop) {
     src.w = crop->width;
@@ -1279,8 +1282,13 @@ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
       result.x, result.y, result.w, result.h,
       /* source/cropping coordinates are given in Q16 */
       src.x << 16, src.y << 16, src.w << 16, src.h << 16);
-  if (ret)
+  if (ret) {
+    if (self->can_scale) {
+      self->can_scale = FALSE;
+      goto retry_set_plane;
+    }
     goto set_plane_failed;
+  }
 
 sync_frame:
   /* Wait for the previous frame to complete redraw */

@@ -1611,8 +1611,11 @@ gst_mpdparser_parse_mult_seg_base_type_ext (GstMultSegmentBaseType ** pointer,
   if (gst_mpdparser_get_xml_prop_unsigned_integer (a_node, "duration", 0,
           &intval)) {
     mult_seg_base_type->duration = intval;
-    has_duration = TRUE;
   }
+
+  /* duration might be specified from parent */
+  if (mult_seg_base_type->duration)
+    has_duration = TRUE;
 
   if (gst_mpdparser_get_xml_prop_unsigned_integer (a_node, "startNumber", 1,
           &intval)) {
@@ -1641,7 +1644,9 @@ gst_mpdparser_parse_mult_seg_base_type_ext (GstMultSegmentBaseType ** pointer,
 
   has_timeline = mult_seg_base_type->SegmentTimeline != NULL;
 
-  if (!has_duration && !has_timeline) {
+  /* Checking duration and timeline only at Representation's child level */
+  if (xmlStrcmp (a_node->parent->name, (xmlChar *) "Representation") == 0
+      && !has_duration && !has_timeline) {
     GST_ERROR ("segment has neither duration nor timeline");
     goto error;
   }
@@ -1837,10 +1842,16 @@ gst_mpdparser_parse_representation_node (GList ** list, xmlNode * a_node,
   new_representation = g_slice_new0 (GstRepresentationNode);
 
   GST_LOG ("attributes of Representation node:");
-  gst_mpdparser_get_xml_prop_string_no_whitespace (a_node, "id",
-      &new_representation->id);
-  gst_mpdparser_get_xml_prop_unsigned_integer (a_node, "bandwidth", 0,
-      &new_representation->bandwidth);
+  if (!gst_mpdparser_get_xml_prop_string_no_whitespace (a_node, "id",
+          &new_representation->id)) {
+    GST_ERROR ("Cannot parse Representation id, invalid manifest");
+    goto error;
+  }
+  if (!gst_mpdparser_get_xml_prop_unsigned_integer (a_node, "bandwidth", 0,
+          &new_representation->bandwidth)) {
+    GST_ERROR ("Cannot parse Representation bandwidth, invalid manifest");
+    goto error;
+  }
   gst_mpdparser_get_xml_prop_unsigned_integer (a_node, "qualityRanking", 0,
       &new_representation->qualityRanking);
   gst_mpdparser_get_xml_prop_string_vector_type (a_node, "dependencyId",
@@ -1857,11 +1868,13 @@ gst_mpdparser_parse_representation_node (GList ** list, xmlNode * a_node,
     if (cur_node->type == XML_ELEMENT_NODE) {
       if (xmlStrcmp (cur_node->name, (xmlChar *) "SegmentBase") == 0) {
         gst_mpdparser_parse_seg_base_type_ext (&new_representation->SegmentBase,
-            cur_node, parent->SegmentBase);
+            cur_node, parent->SegmentBase ?
+            parent->SegmentBase : period_node->SegmentBase);
       } else if (xmlStrcmp (cur_node->name, (xmlChar *) "SegmentTemplate") == 0) {
         if (!gst_mpdparser_parse_segment_template_node
             (&new_representation->SegmentTemplate, cur_node,
-                parent->SegmentTemplate))
+                parent->SegmentTemplate ?
+                parent->SegmentTemplate : period_node->SegmentTemplate))
           goto error;
       } else if (xmlStrcmp (cur_node->name, (xmlChar *) "SegmentList") == 0) {
         if (!gst_mpdparser_parse_segment_list_node
@@ -4776,9 +4789,6 @@ gst_mpd_client_stream_seek (GstMpdClient * client, GstActiveStream * stream,
 
       GST_DEBUG ("Looking at fragment sequence chunk %d / %d", index,
           stream->segments->len);
-
-      if (segment->start > ts)
-        break;
 
       end_time =
           gst_mpdparser_get_segment_end_time (client, stream->segments,
