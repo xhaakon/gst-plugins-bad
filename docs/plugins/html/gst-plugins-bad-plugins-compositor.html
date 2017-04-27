@@ -95,34 +95,16 @@ biggest incoming video stream and the framerate of the fastest incoming one.</p>
 <p>Individual parameters for each input stream can be configured on the
 <span class="type">GstCompositorPad</span>:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-"xpos": The x-coordinate position of the top-left corner of the picture
-(<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)
-</li>
-<li class="listitem">
-"ypos": The y-coordinate position of the top-left corner of the picture
-(<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)
-</li>
-<li class="listitem">
-"width": The width of the picture; the input will be scaled if necessary
-(<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)
-</li>
-<li class="listitem">
-"height": The height of the picture; the input will be scaled if necessary
-(<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)
-</li>
-<li class="listitem">
-"alpha": The transparency of the picture; between 0.0 and 1.0. The blending
-is a simple copy when fully-transparent (0.0) and fully-opaque (1.0).
-(<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a>)
-</li>
-<li class="listitem">
-"zorder": The z-order position of the picture in the composition
-(<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a>)
-</li>
+<li class="listitem"><p>"xpos": The x-coordinate position of the top-left corner of the picture (<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)</p></li>
+<li class="listitem"><p>"ypos": The y-coordinate position of the top-left corner of the picture (<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)</p></li>
+<li class="listitem"><p>"width": The width of the picture; the input will be scaled if necessary (<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)</p></li>
+<li class="listitem"><p>"height": The height of the picture; the input will be scaled if necessary (<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)</p></li>
+<li class="listitem"><p>"alpha": The transparency of the picture; between 0.0 and 1.0. The blending
+is a simple copy when fully-transparent (0.0) and fully-opaque (1.0). (<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a>)</p></li>
+<li class="listitem"><p>"zorder": The z-order position of the picture in the composition (<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a>)</p></li>
 </ul></div>
-<div class="refsect2">
-<a name="id-1.2.17.8.6"></a><h3>Sample pipelines</h3>
+<div class="refsect3">
+<a name="id-1.2.17.8.6"></a><h4>Sample pipelines</h4>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -147,13 +129,14 @@ is a simple copy when fully-transparent (0.0) and fully-opaque (1.0).
     </tbody>
   </table>
 </div>
- A pipeline to demonstrate compositor used together with videobox.
+
+<p> A pipeline to demonstrate compositor used together with videobox.
 This should show a 320x240 pixels video test source with some transparency
 showing the background checker pattern. Another video test source with just
 the snow pattern of 100x100 pixels is overlaid on top of the first one on
 the left vertically centered with a small transparency showing the first
 video test source behind and the checker pattern under it. Note that the
-framerate of the output video is 10 frames per second.
+framerate of the output video is 10 frames per second.</p>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -172,7 +155,8 @@ framerate of the output video is 10 frames per second.
     </tbody>
   </table>
 </div>
- A pipeline to demostrate bgra comping. (This does not demonstrate alpha blending). 
+
+<p> A pipeline to demostrate bgra comping. (This does not demonstrate alpha blending).</p>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -191,7 +175,8 @@ framerate of the output video is 10 frames per second.
     </tbody>
   </table>
 </div>
- A pipeline to test I420
+
+<p> A pipeline to test I420</p>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -216,7 +201,8 @@ framerate of the output video is 10 frames per second.
     </tbody>
   </table>
 </div>
- A pipeline to demonstrate synchronized compositing (the second stream starts after 3 seconds)
+
+<p> A pipeline to demonstrate synchronized compositing (the second stream starts after 3 seconds)</p>
 </div>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>

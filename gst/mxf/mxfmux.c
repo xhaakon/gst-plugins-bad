@@ -19,15 +19,15 @@
 
 /**
  * SECTION:element-mxfmux
+ * @title: mxfmux
  *
  * mxfmux muxes different streams into an MXF file.
  *
- * <refsect2>
- * <title>Example launch line</title>
+ * ## Example launch line
  * |[
  * gst-launch-1.0 -v filesrc location=/path/to/audio ! decodebin ! queue ! mxfmux name=m ! filesink location=file.mxf   filesrc location=/path/to/video ! decodebin ! queue ! m.
  * ]| This pipeline muxes an audio and video file into a single MXF file.
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -208,6 +208,10 @@ gst_mxf_mux_finalize (GObject * object)
   }
 
   if (mux->index_table) {
+    gsize n;
+    for (n = 0; n < mux->index_table->len; ++n)
+      g_free (g_array_index (mux->index_table, MXFIndexTableSegment,
+              n).index_entries);
     g_array_free (mux->index_table, TRUE);
     mux->index_table = NULL;
   }
@@ -219,6 +223,7 @@ static void
 gst_mxf_mux_reset (GstMXFMux * mux)
 {
   GList *l;
+  gsize n;
 
   GST_OBJECT_LOCK (mux);
   for (l = GST_ELEMENT_CAST (mux)->sinkpads; l; l = l->next) {
@@ -255,6 +260,10 @@ gst_mxf_mux_reset (GstMXFMux * mux)
   mux->last_gc_position = 0;
   mux->offset = 0;
 
+  if (mux->index_table)
+    for (n = 0; n < mux->index_table->len; ++n)
+      g_free (g_array_index (mux->index_table, MXFIndexTableSegment,
+              n).index_entries);
   g_array_set_size (mux->index_table, 0);
 }
 

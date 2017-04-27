@@ -15,7 +15,8 @@
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-ttmlrender.description" class="shortcut">Description</a></span>
+                  <a href="#gst-plugins-bad-plugins-ttmlrender.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-ttmlrender.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
@@ -31,7 +32,7 @@
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
-<div class="refsect1">
+<a name="GstTtmlRender"></a><div class="refsect1">
 <a name="gst-plugins-bad-plugins-ttmlrender.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
@@ -40,9 +41,18 @@
 </colgroup>
 <tbody><tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-ttmlrender.html#GstTtmlRender" title="struct GstTtmlRender">GstTtmlRender</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-ttmlrender.html#GstTtmlRender-struct" title="struct GstTtmlRender">GstTtmlRender</a></td>
 </tr></tbody>
 </table></div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-ttmlrender.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
+    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
+            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstElement.html#GstElement-struct">GstElement</a>
+                <span class="lineart">╰──</span> GstTtmlRender
+</pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-ttmlrender.description"></a><h2>Description</h2>
@@ -50,8 +60,8 @@
 from a ttmlparse element; each text string is in its own <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstMemory.html#GstMemory-struct"><span class="type">GstMemory</span></a> within
 the GstBuffer, and the styling and layout associated with each text string
 is in metadata attached to the <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="type">GstBuffer</span></a>.</p>
-<div class="refsect2">
-<a name="id-1.2.137.4.3"></a><h3>Example launch lines</h3>
+<div class="refsect3">
+<a name="id-1.2.137.6.3"></a><h4>Example launch lines</h4>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -62,13 +72,14 @@ is in metadata attached to the <a href="/usr/share/gtk-doc/html/gstreamer-1.0Gst
     </tbody>
   </table>
 </div>
- Parse and render TTML subtitles contained in a single XML file over an
-MP4 stream containing H.264 video and AAC audio:
+
+<p> Parse and render TTML subtitles contained in a single XML file over an
+MP4 stream containing H.264 video and AAC audio:</p>
 </div>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.137.4.4.1"></a><h3>Element Information</h3>
+<a name="id-1.2.137.6.4.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -94,7 +105,7 @@ MP4 stream containing H.264 video and AAC audio:
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.137.4.4.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.137.6.4.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -143,7 +154,7 @@ MP4 stream containing H.264 video and AAC audio:
 </tr>
 <tr>
 <td><p><span class="term"></span></p></td>
-<td> video/x-raw(ANY), format=(string){ I420, YV12, YUY2, UYVY, AYUV, RGBx, BGRx, xRGB, xBGR, RGBA, BGRA, ARGB, ABGR, RGB, BGR, Y41B, Y42B, YVYU, Y444, v210, v216, NV12, NV21, NV16, NV61, NV24, GRAY8, GRAY16_BE, GRAY16_LE, v308, IYU2, RGB16, BGR16, RGB15, BGR15, UYVP, A420, RGB8P, YUV9, YVU9, IYU1, ARGB64, AYUV64, r210, I420_10LE, I420_10BE, I422_10LE, I422_10BE, Y444_10LE, Y444_10BE, GBR, GBR_10LE, GBR_10BE, NV12_64Z32, A420_10LE, A420_10BE, A422_10LE, A422_10BE, A444_10LE, A444_10BE, P010_10LE, P010_10BE }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
+<td> video/x-raw(ANY), format=(string){ I420, YV12, YUY2, UYVY, AYUV, RGBx, BGRx, xRGB, xBGR, RGBA, BGRA, ARGB, ABGR, RGB, BGR, Y41B, Y42B, YVYU, Y444, v210, v216, NV12, NV21, GRAY8, GRAY16_BE, GRAY16_LE, v308, RGB16, BGR16, RGB15, BGR15, UYVP, A420, RGB8P, YUV9, YVU9, IYU1, ARGB64, AYUV64, r210, I420_10BE, I420_10LE, I422_10BE, I422_10LE, Y444_10BE, Y444_10LE, GBR, GBR_10BE, GBR_10LE, NV16, NV24, NV12_64Z32, A420_10BE, A420_10LE, A422_10BE, A422_10LE, A444_10BE, A444_10LE, NV61, P010_10BE, P010_10LE, IYU2, VYUY, GBRA, GBRA_10BE, GBRA_10LE, GBR_12BE, GBR_12LE, GBRA_12BE, GBRA_12LE, I420_12BE, I420_12LE, I422_12BE, I422_12LE, Y444_12BE, Y444_12LE }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
 </tr>
 </tbody>
 </table></div>
@@ -171,7 +182,7 @@ MP4 stream containing H.264 video and AAC audio:
 </tr>
 <tr>
 <td><p><span class="term"></span></p></td>
-<td> video/x-raw(ANY), format=(string){ I420, YV12, YUY2, UYVY, AYUV, RGBx, BGRx, xRGB, xBGR, RGBA, BGRA, ARGB, ABGR, RGB, BGR, Y41B, Y42B, YVYU, Y444, v210, v216, NV12, NV21, NV16, NV61, NV24, GRAY8, GRAY16_BE, GRAY16_LE, v308, IYU2, RGB16, BGR16, RGB15, BGR15, UYVP, A420, RGB8P, YUV9, YVU9, IYU1, ARGB64, AYUV64, r210, I420_10LE, I420_10BE, I422_10LE, I422_10BE, Y444_10LE, Y444_10BE, GBR, GBR_10LE, GBR_10BE, NV12_64Z32, A420_10LE, A420_10BE, A422_10LE, A422_10BE, A444_10LE, A444_10BE, P010_10LE, P010_10BE }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
+<td> video/x-raw(ANY), format=(string){ I420, YV12, YUY2, UYVY, AYUV, RGBx, BGRx, xRGB, xBGR, RGBA, BGRA, ARGB, ABGR, RGB, BGR, Y41B, Y42B, YVYU, Y444, v210, v216, NV12, NV21, GRAY8, GRAY16_BE, GRAY16_LE, v308, RGB16, BGR16, RGB15, BGR15, UYVP, A420, RGB8P, YUV9, YVU9, IYU1, ARGB64, AYUV64, r210, I420_10BE, I420_10LE, I422_10BE, I422_10LE, Y444_10BE, Y444_10LE, GBR, GBR_10BE, GBR_10LE, NV16, NV24, NV12_64Z32, A420_10BE, A420_10LE, A422_10BE, A422_10LE, A444_10BE, A444_10LE, NV61, P010_10BE, P010_10LE, IYU2, VYUY, GBRA, GBRA_10BE, GBRA_10LE, GBR_12BE, GBR_12LE, GBRA_12BE, GBRA_12LE, I420_12BE, I420_12LE, I422_12BE, I422_12LE, Y444_12BE, Y444_12LE }, width=(int)[ 1, 2147483647 ], height=(int)[ 1, 2147483647 ], framerate=(fraction)[ 0/1, 2147483647/1 ]</td>
 </tr>
 </tbody>
 </table></div>
@@ -185,42 +196,8 @@ MP4 stream containing H.264 video and AAC audio:
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-ttmlrender.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstTtmlRender"></a><h3>struct GstTtmlRender</h3>
-<pre class="programlisting">struct GstTtmlRender {
-    GstElement               element;
-
-    GstPad                  *video_sinkpad;
-    GstPad                  *text_sinkpad;
-    GstPad                  *srcpad;
-
-    GstSegment               segment;
-    GstSegment               text_segment;
-    GstBuffer               *text_buffer;
-    gboolean                text_linked;
-    gboolean                video_flushing;
-    gboolean                video_eos;
-    gboolean                text_flushing;
-    gboolean                text_eos;
-
-    GMutex                   lock;
-    GCond                    cond;  /* to signal removal of a queued text
-                                     * buffer, arrival of a text buffer,
-                                     * a text segment update, or a change
-                                     * in status (e.g. shutdown, flushing) */
-
-    GstVideoInfo             info;
-    GstVideoFormat           format;
-    gint                     width;
-    gint                     height;
-
-    gboolean                 want_background;
-    gboolean                 wait_text;
-
-    gboolean                 need_render;
-
-    GList * compositions;
-};
-</pre>
+<a name="GstTtmlRender-struct"></a><h3>struct GstTtmlRender</h3>
+<pre class="programlisting">struct GstTtmlRender;</pre>
 </div>
 </div>
 </div>

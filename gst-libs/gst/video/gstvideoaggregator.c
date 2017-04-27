@@ -20,6 +20,7 @@
 
 /**
  * SECTION:gstvideoaggregator
+ * @title: GstVideoAggregator
  * @short_description: Base class for video aggregators
  *
  * VideoAggregator can accept AYUV, ARGB and BGRA video streams. For each of the requested
@@ -1268,7 +1269,9 @@ gst_video_aggregator_fill_queues (GstVideoAggregator * vagg,
         } else if (is_eos) {
           eos = FALSE;
         }
-      } else if (is_eos) {
+      }
+
+      if (is_eos) {
         gst_buffer_replace (&pad->buffer, NULL);
       }
     }

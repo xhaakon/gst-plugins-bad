@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>GstGLFilter: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
+<title>GstGlFilter: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
@@ -27,8 +27,8 @@
 <a name="GstGLFilter"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
-<h2><span class="refentrytitle"><a name="GstGLFilter.top_of_page"></a>GstGLFilter</span></h2>
-<p>GstGLFilter — GstBaseTransform subclass for dealing with RGBA textures</p>
+<h2><span class="refentrytitle"><a name="GstGLFilter.top_of_page"></a>GstGlFilter</span></h2>
+<p>GstGlFilter — GstBaseTransform subclass for dealing with RGBA textures</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -115,7 +115,7 @@
 </div>
 <div class="refsect1">
 <a name="GstGLFilter.description"></a><h2>Description</h2>
-<p><a class="link" href="GstGLFilter.html" title="GstGLFilter"><span class="type">GstGLFilter</span></a> helps to implement simple OpenGL filter elements taking a
+<p><a class="link" href="GstGLFilter.html" title="GstGlFilter"><span class="type">GstGLFilter</span></a> helps to implement simple OpenGL filter elements taking a
 single input and producing a single output with a <a class="link" href="GstGLFramebuffer.html" title="GstGLFramebuffer"><span class="type">GstGLFramebuffer</span></a></p>
 </div>
 <div class="refsect1">
@@ -123,7 +123,7 @@ single input and producing a single output with a <a class="link" href="GstGLFra
 <div class="refsect2">
 <a name="GstGLFilterRenderFunc"></a><h3>GstGLFilterRenderFunc ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-<span class="c_punctuation">(</span>*GstGLFilterRenderFunc<span class="c_punctuation">)</span> (<em class="parameter"><code><a class="link" href="GstGLFilter.html" title="GstGLFilter"><span class="type">GstGLFilter</span></a> *filter</code></em>,
+<span class="c_punctuation">(</span>*GstGLFilterRenderFunc<span class="c_punctuation">)</span> (<em class="parameter"><code><a class="link" href="GstGLFilter.html" title="GstGlFilter"><span class="type">GstGLFilter</span></a> *filter</code></em>,
                           <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> *in_tex</code></em>,
                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
 <div class="refsect3">
@@ -163,7 +163,7 @@ single input and producing a single output with a <a class="link" href="GstGLFra
 <div class="refsect2">
 <a name="gst-gl-filter-render-to-target"></a><h3>gst_gl_filter_render_to_target ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-gst_gl_filter_render_to_target (<em class="parameter"><code><a class="link" href="GstGLFilter.html" title="GstGLFilter"><span class="type">GstGLFilter</span></a> *filter</code></em>,
+gst_gl_filter_render_to_target (<em class="parameter"><code><a class="link" href="GstGLFilter.html" title="GstGlFilter"><span class="type">GstGLFilter</span></a> *filter</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> *input</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> *output</code></em>,
                                 <em class="parameter"><code><a class="link" href="GstGLFilter.html#GstGLFilterRenderFunc" title="GstGLFilterRenderFunc ()"><span class="type">GstGLFilterRenderFunc</span></a> func</code></em>,
@@ -183,7 +183,7 @@ gst_gl_filter_render_to_target (<em class="parameter"><code><a class="link" href
 <tbody>
 <tr>
 <td class="parameter_name"><p>filter</p></td>
-<td class="parameter_description"><p>a <a class="link" href="GstGLFilter.html" title="GstGLFilter"><span class="type">GstGLFilter</span></a></p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstGLFilter.html" title="GstGlFilter"><span class="type">GstGLFilter</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -225,7 +225,7 @@ into <em class="parameter"><code>output</code></em>
 <a name="gst-gl-filter-render-to-target-with-shader"></a><h3>gst_gl_filter_render_to_target_with_shader ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_gl_filter_render_to_target_with_shader
-                               (<em class="parameter"><code><a class="link" href="GstGLFilter.html" title="GstGLFilter"><span class="type">GstGLFilter</span></a> *filter</code></em>,
+                               (<em class="parameter"><code><a class="link" href="GstGLFilter.html" title="GstGlFilter"><span class="type">GstGLFilter</span></a> *filter</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> *input</code></em>,
                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> *output</code></em>,
                                 <em class="parameter"><code><a class="link" href="GstGLShader.html" title="GstGLShader"><span class="type">GstGLShader</span></a> *shader</code></em>);</pre>
@@ -245,7 +245,7 @@ gst_gl_filter_render_to_target_with_shader
 <tbody>
 <tr>
 <td class="parameter_name"><p>filter</p></td>
-<td class="parameter_description"><p>a <a class="link" href="GstGLFilter.html" title="GstGLFilter"><span class="type">GstGLFilter</span></a></p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstGLFilter.html" title="GstGlFilter"><span class="type">GstGLFilter</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -272,7 +272,7 @@ gst_gl_filter_render_to_target_with_shader
 <div class="refsect2">
 <a name="gst-gl-filter-filter-texture"></a><h3>gst_gl_filter_filter_texture ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-gst_gl_filter_filter_texture (<em class="parameter"><code><a class="link" href="GstGLFilter.html" title="GstGLFilter"><span class="type">GstGLFilter</span></a> *filter</code></em>,
+gst_gl_filter_filter_texture (<em class="parameter"><code><a class="link" href="GstGLFilter.html" title="GstGlFilter"><span class="type">GstGLFilter</span></a> *filter</code></em>,
                               <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="type">GstBuffer</span></a> *inbuf</code></em>,
                               <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="type">GstBuffer</span></a> *outbuf</code></em>);</pre>
 <p>Perform automatic upload if needed, call filter_texture vfunc and then an
@@ -288,7 +288,7 @@ automatic download if needed.</p>
 <tbody>
 <tr>
 <td class="parameter_name"><p>filter</p></td>
-<td class="parameter_description"><p>a <a class="link" href="GstGLFilter.html" title="GstGLFilter"><span class="type">GstGLFilter</span></a></p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstGLFilter.html" title="GstGlFilter"><span class="type">GstGLFilter</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -314,8 +314,8 @@ automatic download if needed.</p>
 <div class="refsect2">
 <a name="gst-gl-filter-draw-fullscreen-quad"></a><h3>gst_gl_filter_draw_fullscreen_quad ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
-gst_gl_filter_draw_fullscreen_quad (<em class="parameter"><code><a class="link" href="GstGLFilter.html" title="GstGLFilter"><span class="type">GstGLFilter</span></a> *filter</code></em>);</pre>
-<p>Render a fullscreen quad using the current GL state.  The only GL state this 
+gst_gl_filter_draw_fullscreen_quad (<em class="parameter"><code><a class="link" href="GstGLFilter.html" title="GstGlFilter"><span class="type">GstGLFilter</span></a> *filter</code></em>);</pre>
+<p>Render a fullscreen quad using the current GL state.  The only GL state this
 modifies is the necessary vertex/index buffers and, if necessary, a
 Vertex Array Object for drawing a fullscreen quad.  Framebuffer state,
 any shaders, viewport state, etc must be setup by the caller.</p>
@@ -329,7 +329,7 @@ any shaders, viewport state, etc must be setup by the caller.</p>
 </colgroup>
 <tbody><tr>
 <td class="parameter_name"><p>filter</p></td>
-<td class="parameter_description"><p>a <a class="link" href="GstGLFilter.html" title="GstGLFilter"><span class="type">GstGLFilter</span></a></p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstGLFilter.html" title="GstGlFilter"><span class="type">GstGLFilter</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr></tbody>
 </table></div>
