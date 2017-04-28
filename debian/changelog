@@ -1741,7 +1741,7 @@ gst-plugins-bad1.0 (1.0.7-1ubuntu1) saucy; urgency=low
 
   * Merge from Debian unstable.  Remaining changes:
     + Stop installing gstreamer-plugins-bad-1.0.pc — the referenced library is
-      in gst-plugins-good1.0 now. 
+      in gst-plugins-good1.0 now.
     + Stop installing scapetempo rtpmux rtpvp8 camerabin2 basecamerabin
       jpegformat - plugins which have moved to -good.
 
@@ -1757,7 +1757,7 @@ gst-plugins-bad1.0 (1.0.6-1ubuntu1) raring; urgency=low
 
   * Merge with Debian unstable.  Remaining changes:
     + Stop installing gstreamer-plugins-bad-1.0.pc — the referenced library is
-      in gst-plugins-good1.0 now. 
+      in gst-plugins-good1.0 now.
     + Stop installing scapetempo rtpmux rtpvp8 camerabin2 basecamerabin
       jpegformat - plugins which have moved to -good.
 
@@ -1776,7 +1776,7 @@ gst-plugins-bad1.0 (1.0.5-1ubuntu1) raring; urgency=low
 
   * Merge from Debian unstable.  Remaining changes:
     + Stop installing gstreamer-plugins-bad-1.0.pc — the referenced library is
-      in gst-plugins-good1.0 now. 
+      in gst-plugins-good1.0 now.
     + Stop installing scapetempo rtpmux rtpvp8 camerabin2 basecamerabin
       jpegformat - plugins which have moved to -good.
 
@@ -1799,7 +1799,7 @@ gst-plugins-bad1.0 (1.0.4-1) unstable; urgency=low
 gst-plugins-bad1.0 (1.0.3-1ubuntu2) raring; urgency=low
 
   * Stop installing gstreamer-plugins-bad-1.0.pc — the referenced library is
-    in gst-plugins-good1.0 now. 
+    in gst-plugins-good1.0 now.
 
  -- Iain Lane <iain.lane@canonical.com>  Fri, 04 Jan 2013 16:20:30 +0000
 

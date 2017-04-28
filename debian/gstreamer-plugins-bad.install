@@ -49,7 +49,6 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstladspa.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstlibde265.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstlv2.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmidi.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmirsink.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmms.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmodplug.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmpeg2enc.so

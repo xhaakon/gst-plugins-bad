@@ -11,4 +11,3 @@ debian/tmp/usr/lib/*/libgstopencv-@GST_ABI@.so.*
 debian/tmp/usr/lib/*/libgstplayer-@GST_ABI@.so.*
 debian/tmp/usr/lib/*/libgsturidownloader-@GST_ABI@.so.*
 @wayland@
-@miralloc@

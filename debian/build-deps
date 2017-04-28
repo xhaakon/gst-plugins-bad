@@ -47,8 +47,6 @@ libgtk-3-dev (>= 3.15.0)
 libiptcdata0-dev (>= 1.0.2)
 libkate-dev (>= 0.1.7)
 liblilv-dev (>= 0.16)
-libmedia-dev (>= 0.1.0+git20151016+6d424c9-0ubuntu23) [i386 armhf arm64]
-libmirclient-dev [i386 amd64 armhf arm64]
 libmjpegtools-dev
 libmms-dev (>= 0.4)
 libmodplug-dev
@@ -60,7 +58,6 @@ libopenexr-dev
 libopenjp2-7-dev
 libopus-dev (>= 0.9.4)
 liborc-0.4-dev (>= 1:0.4.17)
-libplatform-api1-dev [i386 armhf arm64]
 libpng-dev
 librsvg2-dev (>= 2.36.2)
 librtmp-dev

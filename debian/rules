@@ -72,7 +72,7 @@ EXTRA_PLUGINS +=
 
 PLUGINS += plugins-bad $(EXTRA_PLUGINS)
 ifeq ($(DEB_HOST_ARCH_OS),linux)
-PLUGINS += hybris
+PLUGINS +=
 endif
 VERSIONIZE= \
 	plugins-bad-doc.install \
@@ -81,13 +81,6 @@ VERSIONIZE= \
 
 #debug package
 DEB_DH_STRIP_ARGS := --dbg-package=$(gst_pkgname)-plugins-bad-dbg
-
-# miralloc is just enabled for some archs (need android for the other archs)
-android_hybris_archs := i386 armhf arm64
-ifeq ($(DEB_HOST_ARCH_CPU), $(findstring $(DEB_HOST_ARCH_CPU), $(android_hybris_archs)))
-miralloc = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libgstmiralloc-$(gst_abi).so.*
-mirallocdev = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libgstmiralloc-$(gst_abi).so
-endif
 
 ifeq ($(DEB_HOST_ARCH_OS),linux)
 dvb = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstdvb.so
@@ -161,12 +154,9 @@ pre-build::
 	done
 
 	sed -e 's/@GST_ABI@/$(gst_abi)/g' -e 's,@wayland@,$(wayland),g' \
-			-e 's,@miralloc@,$(miralloc),g' \
 			debian/libgstreamer-plugins-bad.install \
 			> debian/libgstreamer-plugins-bad$(gst_deb_abi).install
-	sed -e 's/@GST_ABI@/$(gst_abi)/g' \
-			-e 's,@mirallocdev@,$(mirallocdev),g' \
-			debian/libgstreamer-plugins-bad-dev.install \
+	sed 's/@GST_ABI@/$(gst_abi)/g' debian/libgstreamer-plugins-bad-dev.install \
 			> debian/libgstreamer-plugins-bad$(gst_abi)-dev.install
 	cp debian/gir1.2-gst-plugins-bad.install \
 			debian/gir1.2-gst-plugins-bad-$(gst_abi).install
@@ -226,12 +216,6 @@ endif
 
 ifneq (,$(findstring $(DEB_HOST_ARCH),armhf arm64))
 DEB_CONFIGURE_EXTRA_FLAGS += --disable-opengl --disable-glx
-endif
-
-# for arm64 we need to use hybris android sdk version 23 as there is no
-# jb linker for it
-ifneq (,$(findstring $(DEB_HOST_ARCH),arm64))
-export HYBRIS_ANDROID_SDK_VERSION=23
 endif
 
 common-binary-fixup-arch::
