@@ -22,6 +22,7 @@
 
 /**
  * SECTION:gstglfilter
+ * @title: GstGlFilter
  * @short_description: GstBaseTransform subclass for dealing with RGBA textures
  * @see_also: #GstBaseTransform, #GstGLContext, #GstGLFramebuffer
  *
@@ -113,7 +114,6 @@ static gboolean gst_gl_filter_decide_allocation (GstBaseTransform * trans,
     GstQuery * query);
 static gboolean gst_gl_filter_set_caps (GstBaseTransform * bt, GstCaps * incaps,
     GstCaps * outcaps);
-static gboolean gst_gl_filter_gl_start (GstGLBaseFilter * filter);
 static void gst_gl_filter_gl_stop (GstGLBaseFilter * filter);
 static gboolean gst_gl_filter_gl_set_caps (GstGLBaseFilter * bt,
     GstCaps * incaps, GstCaps * outcaps);
@@ -142,7 +142,6 @@ gst_gl_filter_class_init (GstGLFilterClass * klass)
       gst_gl_filter_decide_allocation;
   GST_BASE_TRANSFORM_CLASS (klass)->get_unit_size = gst_gl_filter_get_unit_size;
 
-  GST_GL_BASE_FILTER_CLASS (klass)->gl_start = gst_gl_filter_gl_start;
   GST_GL_BASE_FILTER_CLASS (klass)->gl_stop = gst_gl_filter_gl_stop;
   GST_GL_BASE_FILTER_CLASS (klass)->gl_set_caps = gst_gl_filter_gl_set_caps;
 
@@ -199,28 +198,12 @@ gst_gl_filter_stop (GstBaseTransform * bt)
   return GST_BASE_TRANSFORM_CLASS (parent_class)->stop (bt);
 }
 
-static gboolean
-gst_gl_filter_gl_start (GstGLBaseFilter * base_filter)
-{
-  GstGLFilter *filter = GST_GL_FILTER (base_filter);
-  GstGLFilterClass *filter_class = GST_GL_FILTER_GET_CLASS (filter);
-
-  if (filter_class->display_init_cb)
-    filter_class->display_init_cb (filter);
-
-  return TRUE;
-}
-
 static void
 gst_gl_filter_gl_stop (GstGLBaseFilter * base_filter)
 {
   GstGLFilter *filter = GST_GL_FILTER (base_filter);
-  GstGLFilterClass *filter_class = GST_GL_FILTER_GET_CLASS (filter);
-  GstGLContext *context = GST_GL_BASE_FILTER (filter)->context;
+  GstGLContext *context = base_filter->context;
   const GstGLFuncs *gl = context->gl_vtable;
-
-  if (filter_class->display_reset_cb)
-    filter_class->display_reset_cb (filter);
 
   if (filter->vao) {
     gl->DeleteVertexArrays (1, &filter->vao);
@@ -245,6 +228,8 @@ gst_gl_filter_gl_stop (GstGLBaseFilter * base_filter)
   filter->default_shader = NULL;
   filter->draw_attr_position_loc = -1;
   filter->draw_attr_texture_loc = -1;
+
+  GST_GL_BASE_FILTER_CLASS (parent_class)->gl_stop (base_filter);
 }
 
 static GstCaps *
@@ -624,7 +609,15 @@ static GstCaps *
 gst_gl_filter_set_caps_features (const GstCaps * caps,
     const gchar * feature_name)
 {
-  GstCaps *ret = gst_gl_caps_replace_all_caps_features (caps, feature_name);
+  GstCaps *ret = gst_caps_copy (caps);
+  guint n = gst_caps_get_size (ret);
+  guint i = 0;
+
+  for (i = 0; i < n; i++) {
+    gst_caps_set_features (ret, i,
+        gst_caps_features_from_string (GST_CAPS_FEATURE_MEMORY_GL_MEMORY));
+  }
+
   gst_caps_set_simple (ret, "format", G_TYPE_STRING, "RGBA", NULL);
   return ret;
 }
@@ -1182,7 +1175,7 @@ _unbind_buffer (GstGLFilter * filter)
  * gst_gl_filter_draw_fullscreen_quad:
  * @filter: a #GstGLFilter
  *
- * Render a fullscreen quad using the current GL state.  The only GL state this 
+ * Render a fullscreen quad using the current GL state.  The only GL state this
  * modifies is the necessary vertex/index buffers and, if necessary, a
  * Vertex Array Object for drawing a fullscreen quad.  Framebuffer state,
  * any shaders, viewport state, etc must be setup by the caller.
@@ -1211,26 +1204,16 @@ gst_gl_filter_draw_fullscreen_quad (GstGLFilter * filter)
       gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, filter->vbo_indices);
       gl->BufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof (indices), indices,
           GL_STATIC_DRAW);
-
-      if (gl->GenVertexArrays) {
-        _bind_buffer (filter);
-        gl->BindVertexArray (0);
-      }
-
-      gl->BindBuffer (GL_ARRAY_BUFFER, 0);
-      gl->BindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     if (gl->GenVertexArrays)
       gl->BindVertexArray (filter->vao);
-    else
-      _bind_buffer (filter);
+    _bind_buffer (filter);
 
     gl->DrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
     if (gl->GenVertexArrays)
       gl->BindVertexArray (0);
-    else
-      _unbind_buffer (filter);
+    _unbind_buffer (filter);
   }
 }

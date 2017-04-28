@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.10.4\n"
+"Project-Id-Version: gst-plugins-bad 1.11.91\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-02-23 15:17+0200\n"
+"POT-Creation-Date: 2017-04-27 16:01+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,15 +16,15 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ext/gl/gstgltestsrc.c:521
+#: ext/gl/gstgltestsrc.c:489
 msgid "failed to draw pattern"
 msgstr ""
 
-#: ext/gl/gstgltestsrc.c:522
+#: ext/gl/gstgltestsrc.c:490
 msgid "A GL error occured"
 msgstr ""
 
-#: ext/gl/gstgltestsrc.c:528
+#: ext/gl/gstgltestsrc.c:496
 msgid "format wasn't negotiated before get function"
 msgstr ""
 
@@ -55,8 +55,8 @@ msgstr ""
 msgid "Could not read DVD."
 msgstr ""
 
-#: ext/smoothstreaming/gstmssdemux.c:405
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:695
+#: ext/smoothstreaming/gstmssdemux.c:421
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:722
 msgid "This file contains no playable streams."
 msgstr ""
 
@@ -64,37 +64,21 @@ msgstr ""
 msgid "Could not open sndfile stream for reading."
 msgstr ""
 
-#: ext/sndio/sndiosink.c:324 ext/sndio/sndiosrc.c:320
-msgid "Could not establish connection to sndio"
-msgstr ""
-
-#: ext/sndio/sndiosink.c:331 ext/sndio/sndiosrc.c:327
-msgid "Failed to query sndio capabilities"
-msgstr ""
-
-#: ext/sndio/sndiosink.c:424 ext/sndio/sndiosrc.c:421
-msgid "Could not configure sndio"
-msgstr ""
-
-#: ext/sndio/sndiosink.c:430 ext/sndio/sndiosrc.c:427
-msgid "Could not start sndio"
-msgstr ""
-
-#: gst/asfmux/gstasfmux.c:1831
+#: gst/asfmux/gstasfmux.c:1832
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 
-#: gst/camerabin2/camerabingeneral.c:166 gst/camerabin2/gstcamerabin2.c:1875
-#: gst/camerabin2/gstdigitalzoom.c:282 gst/camerabin2/gstviewfinderbin.c:270
+#: gst/camerabin2/camerabingeneral.c:167 gst/camerabin2/gstcamerabin2.c:1859
+#: gst/camerabin2/gstdigitalzoom.c:283 gst/camerabin2/gstviewfinderbin.c:270
 #, c-format
 msgid "Missing element '%s' - check your GStreamer installation."
 msgstr ""
 
-#: gst/camerabin2/gstcamerabin2.c:363
+#: gst/camerabin2/gstcamerabin2.c:347
 msgid "File location is set to NULL, please set it to a valid filename"
 msgstr ""
 
-#: gst/camerabin2/gstwrappercamerabinsrc.c:584
+#: gst/camerabin2/gstwrappercamerabinsrc.c:585
 msgid "Digitalzoom element couldn't be created"
 msgstr ""
 
@@ -102,54 +86,40 @@ msgstr ""
 msgid "Subpicture format was not configured before data flow"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3118
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3352
 msgid "Failed to get fragment URL."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3469
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3724
 msgid "Couldn't download fragments"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3558
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3813
 #: gst/mpegtsdemux/mpegtsbase.c:1610
 msgid "Internal data stream error."
 msgstr ""
 
-#: gst/videomeasure/gstvideomeasure_collector.c:294
-msgid "No file name specified for writing."
-msgstr ""
-
-#: gst/videomeasure/gstvideomeasure_collector.c:300
-#, c-format
-msgid "Given file name \"%s\" can't be converted to local file name encoding."
-msgstr ""
-
-#: gst/videomeasure/gstvideomeasure_collector.c:307
-#, c-format
-msgid "Could not open file \"%s\" for writing."
-msgstr ""
-
-#: sys/dvb/gstdvbsrc.c:1573 sys/dvb/gstdvbsrc.c:1787
+#: sys/dvb/gstdvbsrc.c:1579 sys/dvb/gstdvbsrc.c:1793
 #, c-format
 msgid "Device \"%s\" does not exist."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1577
+#: sys/dvb/gstdvbsrc.c:1583
 #, c-format
 msgid "Could not open frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1596
+#: sys/dvb/gstdvbsrc.c:1602
 #, c-format
 msgid "Could not get settings from frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1613
+#: sys/dvb/gstdvbsrc.c:1619
 #, c-format
 msgid "Cannot enumerate delivery systems from frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1791
+#: sys/dvb/gstdvbsrc.c:1797
 #, c-format
 msgid "Could not open file \"%s\" for reading."
 msgstr ""

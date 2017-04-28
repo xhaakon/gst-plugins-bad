@@ -1,5 +1,5 @@
 /* GStreamer Adaptive Multi-Rate Wide-Band (AMR-WB) plugin
- * Copyright (C) 2006 Edgard Lima <edgard.lima@indt.org.br>
+ * Copyright (C) 2006 Edgard Lima <edgard.lima@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,19 +19,19 @@
 
 /**
  * SECTION:element-voamrwbenc
+ * @title: voamrwbenc
  * @see_also: #GstAmrWbDec, #GstAmrWbParse
  *
- * AMR wideband encoder based on the 
+ * AMR wideband encoder based on the
  * <ulink url="http://www.penguin.cz/~utx/amr">reference codec implementation</ulink>.
- * 
- * <refsect2>
- * <title>Example launch line</title>
+ *
+ * ## Example launch line
  * |[
  * gst-launch filesrc location=abc.wav ! wavparse ! audioresample ! audioconvert ! voamrwbenc ! filesink location=abc.amr
  * ]|
  * Please note that the above stream misses the header, that is needed to play
  * the stream.
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H

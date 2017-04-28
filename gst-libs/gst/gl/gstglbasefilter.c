@@ -25,6 +25,7 @@
 #include <gst/video/gstvideometa.h>
 
 #include <gst/gl/gl.h>
+#include <gst/gl/gstglutils_private.h>
 
 /**
  * SECTION:gstglbasefilter
@@ -62,8 +63,7 @@ enum
 #define gst_gl_base_filter_parent_class parent_class
 G_DEFINE_TYPE_WITH_CODE (GstGLBaseFilter, gst_gl_base_filter,
     GST_TYPE_BASE_TRANSFORM, GST_DEBUG_CATEGORY_INIT (gst_gl_base_filter_debug,
-        "glbasefilter", 0, "glbasefilter element");
-    );
+        "glbasefilter", 0, "glbasefilter element"););
 
 static void gst_gl_base_filter_finalize (GObject * object);
 static void gst_gl_base_filter_set_property (GObject * object, guint prop_id,
@@ -88,6 +88,9 @@ static gboolean gst_gl_base_filter_decide_allocation (GstBaseTransform * trans,
 /* GstGLContextThreadFunc */
 static void gst_gl_base_filter_gl_start (GstGLContext * context, gpointer data);
 static void gst_gl_base_filter_gl_stop (GstGLContext * context, gpointer data);
+
+static gboolean gst_gl_base_filter_default_gl_start (GstGLBaseFilter * filter);
+static void gst_gl_base_filter_default_gl_stop (GstGLBaseFilter * filter);
 
 static void
 gst_gl_base_filter_class_init (GstGLBaseFilterClass * klass)
@@ -118,9 +121,11 @@ gst_gl_base_filter_class_init (GstGLBaseFilterClass * klass)
       g_param_spec_object ("context",
           "OpenGL context",
           "Get OpenGL context",
-          GST_GL_TYPE_CONTEXT, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+          GST_TYPE_GL_CONTEXT, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   klass->supported_gl_api = GST_GL_API_ANY;
+  klass->gl_start = gst_gl_base_filter_default_gl_start;
+  klass->gl_stop = gst_gl_base_filter_default_gl_stop;
 }
 
 static void
@@ -187,40 +192,12 @@ gst_gl_base_filter_set_context (GstElement * element, GstContext * context)
 static gboolean
 _find_local_gl_context (GstGLBaseFilter * filter)
 {
-  GstQuery *query;
-  GstContext *context;
-  const GstStructure *s;
-
-  if (filter->context)
+  if (gst_gl_query_local_gl_context (GST_ELEMENT (filter), GST_PAD_SRC,
+          &filter->context))
     return TRUE;
-
-  query = gst_query_new_context ("gst.gl.local_context");
-  if (!filter->context
-      && gst_gl_run_query (GST_ELEMENT (filter), query, GST_PAD_SRC)) {
-    gst_query_parse_context (query, &context);
-    if (context) {
-      s = gst_context_get_structure (context);
-      gst_structure_get (s, "context", GST_GL_TYPE_CONTEXT, &filter->context,
-          NULL);
-    }
-  }
-  if (!filter->context
-      && gst_gl_run_query (GST_ELEMENT (filter), query, GST_PAD_SINK)) {
-    gst_query_parse_context (query, &context);
-    if (context) {
-      s = gst_context_get_structure (context);
-      gst_structure_get (s, "context", GST_GL_TYPE_CONTEXT, &filter->context,
-          NULL);
-    }
-  }
-
-  GST_DEBUG_OBJECT (filter, "found local context %p", filter->context);
-
-  gst_query_unref (query);
-
-  if (filter->context)
+  if (gst_gl_query_local_gl_context (GST_ELEMENT (filter), GST_PAD_SINK,
+          &filter->context))
     return TRUE;
-
   return FALSE;
 }
 
@@ -229,7 +206,6 @@ gst_gl_base_filter_query (GstBaseTransform * trans, GstPadDirection direction,
     GstQuery * query)
 {
   GstGLBaseFilter *filter = GST_GL_BASE_FILTER (trans);
-  GstGLBaseFilterClass *filter_class = GST_GL_BASE_FILTER_GET_CLASS (filter);
 
   switch (GST_QUERY_TYPE (query)) {
     case GST_QUERY_ALLOCATION:
@@ -244,40 +220,9 @@ gst_gl_base_filter_query (GstBaseTransform * trans, GstPadDirection direction,
     }
     case GST_QUERY_CONTEXT:
     {
-      const gchar *context_type;
-      GstContext *context, *old_context;
-      gboolean ret;
-
-      ret = gst_gl_handle_context_query ((GstElement *) filter, query,
-          &filter->display, &filter->priv->other_context);
-      if (filter->display)
-        gst_gl_display_filter_gl_api (filter->display,
-            filter_class->supported_gl_api);
-
-      gst_query_parse_context_type (query, &context_type);
-
-      if (g_strcmp0 (context_type, "gst.gl.local_context") == 0) {
-        GstStructure *s;
-
-        gst_query_parse_context (query, &old_context);
-
-        if (old_context)
-          context = gst_context_copy (old_context);
-        else
-          context = gst_context_new ("gst.gl.local_context", FALSE);
-
-        s = gst_context_writable_structure (context);
-        gst_structure_set (s, "context", GST_GL_TYPE_CONTEXT, filter->context,
-            NULL);
-        gst_query_set_context (query, context);
-        gst_context_unref (context);
-
-        ret = filter->context != NULL;
-      }
-      GST_LOG_OBJECT (filter, "context query of type %s %i", context_type, ret);
-
-      if (ret)
-        return ret;
+      if (gst_gl_handle_context_query ((GstElement *) filter, query,
+              filter->display, filter->context, filter->priv->other_context))
+        return TRUE;
       break;
     }
     default:
@@ -320,6 +265,12 @@ gst_gl_base_filter_stop (GstBaseTransform * bt)
   return TRUE;
 }
 
+static gboolean
+gst_gl_base_filter_default_gl_start (GstGLBaseFilter * filter)
+{
+  return TRUE;
+}
+
 static void
 gst_gl_base_filter_gl_start (GstGLContext * context, gpointer data)
 {
@@ -329,13 +280,12 @@ gst_gl_base_filter_gl_start (GstGLContext * context, gpointer data)
   gst_gl_insert_debug_marker (filter->context,
       "starting element %s", GST_OBJECT_NAME (filter));
 
-  if (filter_class->gl_start) {
-    filter->priv->gl_result = filter_class->gl_start (filter);
-  } else {
-    filter->priv->gl_result = TRUE;
-  }
+  filter->priv->gl_result = filter_class->gl_start (filter);
+}
 
-  filter->priv->gl_started |= filter->priv->gl_result;
+static void
+gst_gl_base_filter_default_gl_stop (GstGLBaseFilter * filter)
+{
 }
 
 static void
@@ -347,10 +297,8 @@ gst_gl_base_filter_gl_stop (GstGLContext * context, gpointer data)
   gst_gl_insert_debug_marker (filter->context,
       "stopping element %s", GST_OBJECT_NAME (filter));
 
-  if (filter->priv->gl_started) {
-    if (filter_class->gl_stop)
-      filter_class->gl_stop (filter);
-  }
+  if (filter->priv->gl_started)
+    filter_class->gl_stop (filter);
 
   filter->priv->gl_started = FALSE;
 }

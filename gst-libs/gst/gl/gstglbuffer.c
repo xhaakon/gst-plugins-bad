@@ -29,11 +29,12 @@
 
 /**
  * SECTION:gstglbuffer
+ * @title: GstGlBuffer
  * @short_description: memory subclass for GL buffers
  * @see_also: #GstMemory, #GstAllocator
  *
  * GstGLBuffer is a #GstMemory subclass providing support for the mapping of
- * GL buffers.  
+ * GL buffers.
  *
  * Data is uploaded or downloaded from the GPU as is necessary.
  */
@@ -345,6 +346,11 @@ _gst_gl_buffer_allocation_params_free_data (GstGLBufferAllocationParams *
   gst_gl_allocation_params_free_data (&params->parent);
 }
 
+G_DEFINE_BOXED_TYPE (GstGLBufferAllocationParams,
+    gst_gl_buffer_allocation_params,
+    (GBoxedCopyFunc) gst_gl_allocation_params_copy,
+    (GBoxedFreeFunc) gst_gl_allocation_params_free);
+
 /**
  * gst_gl_buffer_allocation_params_new:
  * @context: a #GstGLContext
@@ -468,7 +474,7 @@ gst_gl_buffer_init_once (void)
 /**
  * gst_is_gl_buffer:
  * @mem:a #GstMemory
- * 
+ *
  * Returns: whether the memory at @mem is a #GstGLBuffer
  *
  * Since: 1.8

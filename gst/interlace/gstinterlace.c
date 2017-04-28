@@ -19,14 +19,14 @@
  */
 /**
  * SECTION:element-interlace
+ * @title: interlace
  *
  * The interlace element takes a non-interlaced raw video stream as input,
  * creates fields out of each frame, then combines fields into interlaced
  * frames to output as an interlaced video stream. It can also produce
  * telecined streams from progressive input.
  *
- * <refsect2>
- * <title>Example launch line</title>
+ * ## Example launch line
  * |[
  * gst-launch-1.0 -v videotestsrc pattern=ball ! interlace ! xvimagesink
  * ]|
@@ -35,7 +35,7 @@
  * |[
  * gst-launch-1.0 -v filesrc location=/path/to/file ! decodebin ! videorate !
  *   videoscale ! video/x-raw,format=\(string\)I420,width=720,height=480,
- *   framerate=60000/1001,pixel-aspect-ratio=11/10 ! 
+ *   framerate=60000/1001,pixel-aspect-ratio=11/10 !
  *   interlace top-field-first=false ! autovideosink
  * ]|
  * This pipeline converts a progressive video stream into an interlaced
@@ -49,7 +49,7 @@
  * This pipeline converts a 24 frames per second progressive film stream into a
  * 30000/1001 2:3:2:3... pattern telecined stream suitable for displaying film
  * content on NTSC.
- * </refsect2>
+ *
  */
 
 
@@ -408,6 +408,11 @@ gst_interlace_setcaps (GstInterlace * interlace, GstCaps * caps)
     interlace->passthrough = FALSE;
     gst_caps_set_simple (othercaps, "framerate", GST_TYPE_FRACTION,
         interlace->src_fps_n, interlace->src_fps_d, NULL);
+    if (interlace->pattern <= GST_INTERLACE_PATTERN_2_2) {
+      gst_caps_set_simple (othercaps, "field-order", G_TYPE_STRING,
+          interlace->top_field_first ? "top-field-first" : "bottom-field-first",
+          NULL);
+    }
   }
 
   ret = gst_pad_set_caps (interlace->srcpad, othercaps);

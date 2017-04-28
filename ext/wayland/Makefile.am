@@ -1,6 +1,10 @@
 plugin_LTLIBRARIES = libgstwaylandsink.la
 
-BUILT_SOURCES = viewporter-protocol.c viewporter-client-protocol.h
+BUILT_SOURCES = \
+	viewporter-protocol.c \
+	viewporter-client-protocol.h \
+	linux-dmabuf-unstable-v1-protocol.c \
+	linux-dmabuf-unstable-v1-client-protocol.h
 
 libgstwaylandsink_la_SOURCES =  \
 	gstwaylandsink.c \
@@ -8,18 +12,24 @@ libgstwaylandsink_la_SOURCES =  \
 	wlbuffer.c \
 	wldisplay.c \
 	wlwindow.c \
-	wlvideoformat.c
+	wlvideoformat.c \
+	wllinuxdmabuf.c
 
-nodist_libgstwaylandsink_la_SOURCES = viewporter-protocol.c
+nodist_libgstwaylandsink_la_SOURCES = \
+	viewporter-protocol.c \
+	linux-dmabuf-unstable-v1-protocol.c
 
-libgstwaylandsink_la_CFLAGS = $(GST_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
-                               $(WAYLAND_CFLAGS) $(GST_PLUGINS_BAD_CFLAGS)
+libgstwaylandsink_la_CFLAGS = \
+	$(GST_PLUGINS_BAD_CFLAGS) \
+	$(GST_PLUGINS_BASE_CFLAGS) \
+	$(GST_CFLAGS) \
+	$(WAYLAND_CFLAGS)
 libgstwaylandsink_la_LIBADD = \
+	$(top_builddir)/gst-libs/gst/wayland/libgstwayland-$(GST_API_VERSION).la \
 	$(GST_PLUGINS_BASE_LIBS) \
 	-lgstvideo-$(GST_API_VERSION) \
 	-lgstallocators-$(GST_API_VERSION) \
-	$(WAYLAND_LIBS) \
-	$(top_builddir)/gst-libs/gst/wayland/libgstwayland-$(GST_API_VERSION).la
+	$(WAYLAND_LIBS)
 libgstwaylandsink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstwaylandsink_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 
@@ -29,7 +39,8 @@ noinst_HEADERS = \
 	wlbuffer.h \
 	wldisplay.h \
 	wlwindow.h \
-	wlvideoformat.h
+	wlvideoformat.h \
+	wllinuxdmabuf.h
 
 CLEANFILES = $(BUILT_SOURCES)
 

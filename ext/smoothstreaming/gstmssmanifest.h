@@ -26,6 +26,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 #include <gst/gst.h>
+#include <gst/base/gstadapter.h>
 
 G_BEGIN_DECLS
 
@@ -54,6 +55,7 @@ void gst_mss_manifest_reload_fragments (GstMssManifest * manifest, GstBuffer * d
 GstClockTime gst_mss_manifest_get_min_fragment_duration (GstMssManifest * manifest);
 const gchar * gst_mss_manifest_get_protection_system_id (GstMssManifest * manifest);
 const gchar * gst_mss_manifest_get_protection_data (GstMssManifest * manifest);
+gboolean gst_mss_manifest_get_live_seek_range (GstMssManifest * manifest, gint64 * start, gint64 * stop);
 
 GstMssStreamType gst_mss_stream_get_type (GstMssStream *stream);
 GstCaps * gst_mss_stream_get_caps (GstMssStream * stream);
@@ -71,6 +73,12 @@ void gst_mss_stream_seek (GstMssStream * stream, gboolean forward, GstSeekFlags 
 const gchar * gst_mss_stream_get_lang (GstMssStream * stream);
 
 const gchar * gst_mss_stream_type_name (GstMssStreamType streamtype);
+
+void gst_mss_manifest_live_adapter_push(GstMssStream * stream, GstBuffer * buffer);
+gsize gst_mss_manifest_live_adapter_available(GstMssStream * stream);
+GstBuffer * gst_mss_manifest_live_adapter_take_buffer(GstMssStream * stream, gsize nbytes);
+gboolean gst_mss_stream_fragment_parsing_needed(GstMssStream * stream);
+void gst_mss_stream_parse_fragment(GstMssStream * stream, GstBuffer * buffer);
 
 G_END_DECLS
 #endif /* __GST_MSS_MANIFEST_H__ */

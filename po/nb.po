@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-02-23 15:17+0200\n"
+"POT-Creation-Date: 2017-04-27 16:01+0300\n"
 "PO-Revision-Date: 2017-01-05 01:34+0100\n"
 "Last-Translator: Johnny A. Solbu <johnny@solbu.net>\n"
 "Language-Team: Norwegian Bokmaal <i18n-nb@lister.ping.uio.no>\n"
@@ -57,18 +57,6 @@ msgstr "Denne filen inneholder ingen spillbare strømmer."
 msgid "Could not open sndfile stream for reading."
 msgstr "Kunne ikke åpne sndfile for lesing."
 
-msgid "Could not establish connection to sndio"
-msgstr "Kunne ikke opprette forbindelse til sndio"
-
-msgid "Failed to query sndio capabilities"
-msgstr "Spørring etter tilgjengelige egenskaper i sndio feilet"
-
-msgid "Could not configure sndio"
-msgstr "Kunne ikke konfigurere sndio"
-
-msgid "Could not start sndio"
-msgstr "Kunne ikke starte sndio"
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr "Genererte filen har en større preroll tid enn strømmens varighet"
 
@@ -94,17 +82,6 @@ msgstr "Kunne ikke laste ned fragmenter"
 
 msgid "Internal data stream error."
 msgstr "Intern feil i datastrøm."
-
-msgid "No file name specified for writing."
-msgstr "Ingen filnavn oppgitt for skriving."
-
-#, c-format
-msgid "Given file name \"%s\" can't be converted to local file name encoding."
-msgstr "Oppgitt filnavn «%s» kan ikke konverteres til lokal filnavnkoding."
-
-#, c-format
-msgid "Could not open file \"%s\" for writing."
-msgstr "Kunne ikke åpne filen «%s» for skriving."
 
 #, c-format
 msgid "Device \"%s\" does not exist."
@@ -151,6 +128,28 @@ msgstr "Kunne ikke finne kanal-konfigurasjonsfil: «%s»"
 
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "Kanalkonfigurasjonsfilen inneholder ingen kanaler"
+
+#~ msgid "Could not establish connection to sndio"
+#~ msgstr "Kunne ikke opprette forbindelse til sndio"
+
+#~ msgid "Failed to query sndio capabilities"
+#~ msgstr "Spørring etter tilgjengelige egenskaper i sndio feilet"
+
+#~ msgid "Could not configure sndio"
+#~ msgstr "Kunne ikke konfigurere sndio"
+
+#~ msgid "Could not start sndio"
+#~ msgstr "Kunne ikke starte sndio"
+
+#~ msgid "No file name specified for writing."
+#~ msgstr "Ingen filnavn oppgitt for skriving."
+
+#~ msgid ""
+#~ "Given file name \"%s\" can't be converted to local file name encoding."
+#~ msgstr "Oppgitt filnavn «%s» kan ikke konverteres til lokal filnavnkoding."
+
+#~ msgid "Could not open file \"%s\" for writing."
+#~ msgstr "Kunne ikke åpne filen «%s» for skriving."
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "standard GStreamer lydhendelser-audiosink"

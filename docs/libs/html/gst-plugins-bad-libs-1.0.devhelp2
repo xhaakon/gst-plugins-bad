@@ -4,11 +4,11 @@
     <sub name="GStreamer Bad Plugins Libraries" link="gstreamer-plugins-bad.html">
       <sub name="Compiling" link="compiling.html"/>
       <sub name="Bitstream parsing Library" link="codecparsers.html">
-        <sub name="h264parser" link="gst-plugins-bad-libs-h264parser.html"/>
-        <sub name="jpegparser" link="gst-plugins-bad-libs-jpegparser.html"/>
-        <sub name="mpegvideoparser" link="gst-plugins-bad-libs-mpegvideoparser.html"/>
-        <sub name="mpeg4parser" link="gst-plugins-bad-libs-mpeg4parser.html"/>
-        <sub name="vc1parser" link="gst-plugins-bad-libs-vc1parser.html"/>
+        <sub name="GstH264Parser" link="gst-plugins-bad-libs-h264parser.html"/>
+        <sub name="GstJpegParser" link="gst-plugins-bad-libs-jpegparser.html"/>
+        <sub name="GstMpegvideoParser" link="gst-plugins-bad-libs-mpegvideoparser.html"/>
+        <sub name="GstMpeg4Parser" link="gst-plugins-bad-libs-mpeg4parser.html"/>
+        <sub name="GstVc1Parser" link="gst-plugins-bad-libs-vc1parser.html"/>
         <sub name="gstmpegvideometa" link="gst-plugins-bad-libs-gstmpegvideometa.html"/>
       </sub>
       <sub name="Mpeg TS helper library" link="mpegts.html">
@@ -25,33 +25,33 @@
         <sub name="GstInsertbin" link="gst-plugins-bad-libs-GstInsertbin.html"/>
       </sub>
       <sub name="GStreamer Base classes from gst-plugins-bad" link="base.html">
-        <sub name="GstAggregator" link="gst-plugins-bad-libs-GstAggregator.html"/>
-        <sub name="GstAggregatorPad" link="gst-plugins-bad-libs-GstAggregatorPad.html"/>
+        <sub name="GstAggregator" link="GstAggregator.html"/>
+        <sub name="GstAggregatorPad" link="GstAggregatorPad.html"/>
       </sub>
       <sub name="Video helpers and baseclasses" link="video.html">
-        <sub name="GstVideoAggregator" link="gst-plugins-bad-libs-GstVideoAggregator.html"/>
-        <sub name="GstVideoAggregatorPad" link="gst-plugins-bad-libs-GstVideoAggregatorPad.html"/>
+        <sub name="GstVideoAggregator" link="GstVideoAggregator.html"/>
+        <sub name="GstVideoAggregatorPad" link="GstVideoAggregatorPad.html"/>
       </sub>
       <sub name="OpenGL Helper Library" link="gl.html">
-        <sub name="GstGLAPI" link="gst-plugins-bad-libs-GstGLAPI.html"/>
+        <sub name="GstGlApi" link="gst-plugins-bad-libs-GstGLAPI.html"/>
         <sub name="GstGLBaseFilter" link="GstGLBaseFilter.html"/>
-        <sub name="GstGLBaseMemory" link="gst-plugins-bad-libs-gstglbasememory.html"/>
-        <sub name="GstGLBuffer" link="gst-plugins-bad-libs-GstGLBuffer.html"/>
-        <sub name="GstGLBufferPool" link="GstGLBufferPool.html"/>
-        <sub name="GstGLColorConvert" link="GstGLColorConvert.html"/>
+        <sub name="GstGlBaseMemory" link="gst-plugins-bad-libs-GstGlBaseMemory.html"/>
+        <sub name="GstGlBuffer" link="gst-plugins-bad-libs-GstGLBuffer.html"/>
+        <sub name="GstGlBufferPool" link="GstGLBufferPool.html"/>
+        <sub name="GstGlColorConvert" link="GstGLColorConvert.html"/>
         <sub name="GstGLContext" link="GstGLContext.html"/>
         <sub name="GstGLDisplay" link="GstGLDisplay.html"/>
         <sub name="GstGLDisplayWayland" link="gst-plugins-bad-libs-GstGLDisplayWayland.html"/>
         <sub name="GstGLDisplayX11" link="gst-plugins-bad-libs-GstGLDisplayX11.html"/>
         <sub name="GstEGLImage" link="gst-plugins-bad-libs-GstEGLImage.html"/>
-        <sub name="GstGLFilter" link="GstGLFilter.html"/>
+        <sub name="GstGlFilter" link="GstGLFilter.html"/>
         <sub name="GstGLFramebuffer" link="GstGLFramebuffer.html"/>
-        <sub name="GstGLMemory" link="gst-plugins-bad-libs-GstGLMemory.html"/>
+        <sub name="GstGlMemory" link="gst-plugins-bad-libs-GstGLMemory.html"/>
         <sub name="GstGLMemoryEGL" link="gst-plugins-bad-libs-gstglmemoryegl.html"/>
-        <sub name="GstGLMemoryPBO" link="gst-plugins-bad-libs-gstglmemorypbo.html"/>
+        <sub name="GstGLMemoryPBO" link="gst-plugins-bad-libs-GstGLMemoryPBO.html"/>
         <sub name="GstGLOverlayCompositor" link="gst-plugins-bad-libs-GstGLOverlayCompositor.html"/>
         <sub name="GstGLQuery" link="gst-plugins-bad-libs-GstGLQuery.html"/>
-        <sub name="GstGLRenderbuffer" link="gst-plugins-bad-libs-GstGLRenderbuffer.html"/>
+        <sub name="GstGLRenderBuffer" link="gst-plugins-bad-libs-GstGLRenderbuffer.html"/>
         <sub name="GstGLShader" link="GstGLShader.html"/>
         <sub name="GstGLSL" link="gst-plugins-bad-libs-GstGLSL.html"/>
         <sub name="GstGLSLStage" link="GstGLSLStage.html"/>
@@ -60,15 +60,15 @@
         <sub name="GstGLViewConvert" link="GstGLViewConvert.html"/>
         <sub name="GstGLWindow" link="GstGLWindow.html"/>
         <sub name="OpenGL debugging" link="gst-plugins-bad-libs-OpenGL-debugging.html"/>
-        <sub name="OpenGL Formats" link="gst-plugins-bad-libs-OpenGL-Formats.html"/>
-        <sub name="OpenGL Miscellaneous Utilities" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html"/>
+        <sub name="GstGlFormat" link="gst-plugins-bad-libs-OpenGL-Formats.html"/>
+        <sub name="GstGLUtils" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html"/>
       </sub>
       <sub name="Player Library" link="player.html">
-        <sub name="gstplayer" link="gst-plugins-bad-libs-gstplayer.html"/>
-        <sub name="gstplayer-mediainfo" link="gst-plugins-bad-libs-gstplayer-mediainfo.html"/>
-        <sub name="gstplayer-gmaincontextsignaldispatcher" link="gst-plugins-bad-libs-gstplayer-gmaincontextsignaldispatcher.html"/>
-        <sub name="gstplayer-videooverlayvideorenderer" link="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html"/>
-        <sub name="gstplayer-visualization" link="gst-plugins-bad-libs-gstplayer-visualization.html"/>
+        <sub name="GstPlayer" link="GstPlayer.html"/>
+        <sub name="GstPlayerMediaInfo" link="GstPlayerMediaInfo.html"/>
+        <sub name="GstPlayerGMainContextSignalDispatcher" link="gst-plugins-bad-libs-GstPlayerGMainContextSignalDispatcher.html"/>
+        <sub name="GstPlayerVideoOverlayVideoRenderer" link="GstPlayerVideoOverlayVideoRenderer.html"/>
+        <sub name="GstPlayerVisualization" link="GstPlayerVisualization.html"/>
       </sub>
       <sub name="Interfaces" link="ch08.html">
         <sub name="GstPhotography" link="gst-plugins-bad-libs-GstPhotography.html"/>
@@ -421,22 +421,27 @@
     <keyword type="signal" name="The “insert-before” signal" link="gst-plugins-bad-libs-GstInsertbin.html#GstInsertBin-insert-before"/>
     <keyword type="signal" name="The “prepend” signal" link="gst-plugins-bad-libs-GstInsertbin.html#GstInsertBin-prepend"/>
     <keyword type="signal" name="The “remove” signal" link="gst-plugins-bad-libs-GstInsertbin.html#GstInsertBin-remove"/>
-    <keyword type="function" name="gst_aggregator_finish_buffer ()" link="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-finish-buffer"/>
-    <keyword type="function" name="gst_aggregator_set_src_caps ()" link="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-set-src-caps"/>
-    <keyword type="function" name="gst_aggregator_iterate_sinkpads ()" link="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-iterate-sinkpads"/>
-    <keyword type="function" name="gst_aggregator_get_latency ()" link="gst-plugins-bad-libs-GstAggregator.html#gst-aggregator-get-latency"/>
-    <keyword type="struct" name="struct GstAggregator" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregator"/>
-    <keyword type="struct" name="struct GstAggregatorClass" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass"/>
-    <keyword type="function" name="gst_aggregator_pad_steal_buffer ()" link="gst-plugins-bad-libs-GstAggregatorPad.html#gst-aggregator-pad-steal-buffer"/>
-    <keyword type="function" name="gst_aggregator_pad_get_buffer ()" link="gst-plugins-bad-libs-GstAggregatorPad.html#gst-aggregator-pad-get-buffer"/>
-    <keyword type="function" name="gst_aggregator_pad_drop_buffer ()" link="gst-plugins-bad-libs-GstAggregatorPad.html#gst-aggregator-pad-drop-buffer"/>
-    <keyword type="function" name="gst_aggregator_pad_is_eos ()" link="gst-plugins-bad-libs-GstAggregatorPad.html#gst-aggregator-pad-is-eos"/>
-    <keyword type="struct" name="struct GstAggregatorPad" link="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad"/>
-    <keyword type="struct" name="struct GstAggregatorPadClass" link="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPadClass"/>
-    <keyword type="struct" name="struct GstVideoAggregator" link="gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregator"/>
-    <keyword type="struct" name="struct GstVideoAggregatorClass" link="gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregatorClass"/>
-    <keyword type="struct" name="struct GstVideoAggregatorPad" link="gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPad"/>
-    <keyword type="struct" name="struct GstVideoAggregatorPadClass" link="gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPadClass"/>
+    <keyword type="function" name="gst_aggregator_finish_buffer ()" link="GstAggregator.html#gst-aggregator-finish-buffer"/>
+    <keyword type="function" name="gst_aggregator_set_src_caps ()" link="GstAggregator.html#gst-aggregator-set-src-caps"/>
+    <keyword type="function" name="gst_aggregator_iterate_sinkpads ()" link="GstAggregator.html#gst-aggregator-iterate-sinkpads"/>
+    <keyword type="function" name="gst_aggregator_get_latency ()" link="GstAggregator.html#gst-aggregator-get-latency"/>
+    <keyword type="struct" name="struct GstAggregator" link="GstAggregator.html#GstAggregator-struct"/>
+    <keyword type="struct" name="struct GstAggregatorClass" link="GstAggregator.html#GstAggregatorClass"/>
+    <keyword type="property" name="The “latency” property" link="GstAggregator.html#GstAggregator--latency"/>
+    <keyword type="property" name="The “start-time” property" link="GstAggregator.html#GstAggregator--start-time"/>
+    <keyword type="property" name="The “start-time-selection” property" link="GstAggregator.html#GstAggregator--start-time-selection"/>
+    <keyword type="function" name="gst_aggregator_pad_steal_buffer ()" link="GstAggregatorPad.html#gst-aggregator-pad-steal-buffer"/>
+    <keyword type="function" name="gst_aggregator_pad_get_buffer ()" link="GstAggregatorPad.html#gst-aggregator-pad-get-buffer"/>
+    <keyword type="function" name="gst_aggregator_pad_drop_buffer ()" link="GstAggregatorPad.html#gst-aggregator-pad-drop-buffer"/>
+    <keyword type="function" name="gst_aggregator_pad_is_eos ()" link="GstAggregatorPad.html#gst-aggregator-pad-is-eos"/>
+    <keyword type="struct" name="struct GstAggregatorPad" link="GstAggregatorPad.html#GstAggregatorPad-struct"/>
+    <keyword type="struct" name="struct GstAggregatorPadClass" link="GstAggregatorPad.html#GstAggregatorPadClass"/>
+    <keyword type="struct" name="struct GstVideoAggregator" link="GstVideoAggregator.html#GstVideoAggregator-struct"/>
+    <keyword type="struct" name="struct GstVideoAggregatorClass" link="GstVideoAggregator.html#GstVideoAggregatorClass"/>
+    <keyword type="struct" name="struct GstVideoAggregatorPad" link="GstVideoAggregatorPad.html#GstVideoAggregatorPad-struct"/>
+    <keyword type="struct" name="struct GstVideoAggregatorPadClass" link="GstVideoAggregatorPad.html#GstVideoAggregatorPadClass"/>
+    <keyword type="property" name="The “ignore-eos” property" link="GstVideoAggregatorPad.html#GstVideoAggregatorPad--ignore-eos"/>
+    <keyword type="property" name="The “zorder” property" link="GstVideoAggregatorPad.html#GstVideoAggregatorPad--zorder"/>
     <keyword type="function" name="gst_gl_api_to_string ()" link="gst-plugins-bad-libs-GstGLAPI.html#gst-gl-api-to-string"/>
     <keyword type="function" name="gst_gl_api_from_string ()" link="gst-plugins-bad-libs-GstGLAPI.html#gst-gl-api-from-string"/>
     <keyword type="function" name="gst_gl_platform_to_string ()" link="gst-plugins-bad-libs-GstGLAPI.html#gst-gl-platform-to-string"/>
@@ -450,43 +455,43 @@
     <keyword type="struct" name="GstGLBaseFilter" link="GstGLBaseFilter.html#GstGLBaseFilter-struct"/>
     <keyword type="struct" name="GstGLBaseFilterClass" link="GstGLBaseFilter.html#GstGLBaseFilterClass"/>
     <keyword type="property" name="The “context” property" link="GstGLBaseFilter.html#GstGLBaseFilter--context"/>
-    <keyword type="function" name="GstGLAllocationParamsCopyFunc ()" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParamsCopyFunc"/>
-    <keyword type="function" name="GstGLAllocationParamsFreeFunc ()" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParamsFreeFunc"/>
-    <keyword type="function" name="gst_gl_allocation_params_init ()" link="gst-plugins-bad-libs-gstglbasememory.html#gst-gl-allocation-params-init" since="1.8"/>
-    <keyword type="function" name="gst_gl_allocation_params_copy ()" link="gst-plugins-bad-libs-gstglbasememory.html#gst-gl-allocation-params-copy" since="1.8"/>
-    <keyword type="function" name="gst_gl_allocation_params_free ()" link="gst-plugins-bad-libs-gstglbasememory.html#gst-gl-allocation-params-free" since="1.8"/>
-    <keyword type="function" name="gst_gl_allocation_params_free_data ()" link="gst-plugins-bad-libs-gstglbasememory.html#gst-gl-allocation-params-free-data" since="1.8"/>
-    <keyword type="function" name="gst_gl_allocation_params_copy_data ()" link="gst-plugins-bad-libs-gstglbasememory.html#gst-gl-allocation-params-copy-data" since="1.8"/>
-    <keyword type="function" name="gst_gl_base_memory_init_once ()" link="gst-plugins-bad-libs-gstglbasememory.html#gst-gl-base-memory-init-once" since="1.8"/>
-    <keyword type="function" name="gst_gl_base_memory_init ()" link="gst-plugins-bad-libs-gstglbasememory.html#gst-gl-base-memory-init" since="1.8"/>
-    <keyword type="function" name="gst_is_gl_base_memory ()" link="gst-plugins-bad-libs-gstglbasememory.html#gst-is-gl-base-memory" since="1.8"/>
-    <keyword type="function" name="GstGLBaseMemoryAllocatorAllocFunction ()" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorAllocFunction" since="1.8"/>
-    <keyword type="function" name="GstGLBaseMemoryAllocatorCreateFunction ()" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorCreateFunction" since="1.8"/>
-    <keyword type="function" name="GstGLBaseMemoryAllocatorMapFunction ()" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorMapFunction" since="1.8"/>
-    <keyword type="function" name="GstGLBaseMemoryAllocatorUnmapFunction ()" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorUnmapFunction" since="1.8"/>
-    <keyword type="function" name="GstGLBaseMemoryAllocatorCopyFunction ()" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorCopyFunction" since="1.8"/>
-    <keyword type="function" name="GstGLBaseMemoryAllocatorDestroyFunction ()" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorDestroyFunction" since="1.8"/>
-    <keyword type="function" name="gst_gl_base_memory_alloc ()" link="gst-plugins-bad-libs-gstglbasememory.html#gst-gl-base-memory-alloc" since="1.8"/>
-    <keyword type="function" name="gst_gl_base_memory_alloc_data ()" link="gst-plugins-bad-libs-gstglbasememory.html#gst-gl-base-memory-alloc-data"/>
-    <keyword type="function" name="gst_gl_base_memory_memcpy ()" link="gst-plugins-bad-libs-gstglbasememory.html#gst-gl-base-memory-memcpy" since="1.8"/>
-    <keyword type="struct" name="GstGLBaseMemoryAllocator" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocator-struct"/>
-    <keyword type="struct" name="GstGLBaseMemoryAllocatorClass" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass" since="1.8"/>
-    <keyword type="macro" name="GST_GL_BASE_MEMORY_ALLOCATOR_NAME" link="gst-plugins-bad-libs-gstglbasememory.html#GST-GL-BASE-MEMORY-ALLOCATOR-NAME:CAPS" since="1.8"/>
-    <keyword type="macro" name="GST_MAP_GL" link="gst-plugins-bad-libs-gstglbasememory.html#GST-MAP-GL:CAPS"/>
-    <keyword type="enum" name="enum GstGLBaseMemoryError" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryError"/>
-    <keyword type="macro" name="GST_GL_BASE_MEMORY_ERROR" link="gst-plugins-bad-libs-gstglbasememory.html#GST-GL-BASE-MEMORY-ERROR:CAPS"/>
-    <keyword type="enum" name="enum GstGLBaseMemoryTransfer" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryTransfer"/>
-    <keyword type="struct" name="struct GstGLAllocationParams" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams-struct"/>
-    <keyword type="macro" name="GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_ALLOC" link="gst-plugins-bad-libs-gstglbasememory.html#GST-GL-ALLOCATION-PARAMS-ALLOC-FLAG-ALLOC:CAPS"/>
-    <keyword type="macro" name="GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_SYSMEM" link="gst-plugins-bad-libs-gstglbasememory.html#GST-GL-ALLOCATION-PARAMS-ALLOC-FLAG-WRAP-SYSMEM:CAPS"/>
-    <keyword type="macro" name="GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_GPU_HANDLE" link="gst-plugins-bad-libs-gstglbasememory.html#GST-GL-ALLOCATION-PARAMS-ALLOC-FLAG-WRAP-GPU-HANDLE:CAPS"/>
-    <keyword type="macro" name="GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_USER" link="gst-plugins-bad-libs-gstglbasememory.html#GST-GL-ALLOCATION-PARAMS-ALLOC-FLAG-USER:CAPS"/>
-    <keyword type="struct" name="GstGLBaseMemory" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemory"/>
+    <keyword type="function" name="GstGLAllocationParamsCopyFunc ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParamsCopyFunc"/>
+    <keyword type="function" name="GstGLAllocationParamsFreeFunc ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParamsFreeFunc"/>
+    <keyword type="function" name="gst_gl_allocation_params_init ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#gst-gl-allocation-params-init" since="1.8"/>
+    <keyword type="function" name="gst_gl_allocation_params_copy ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#gst-gl-allocation-params-copy" since="1.8"/>
+    <keyword type="function" name="gst_gl_allocation_params_free ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#gst-gl-allocation-params-free" since="1.8"/>
+    <keyword type="function" name="gst_gl_allocation_params_free_data ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#gst-gl-allocation-params-free-data" since="1.8"/>
+    <keyword type="function" name="gst_gl_allocation_params_copy_data ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#gst-gl-allocation-params-copy-data" since="1.8"/>
+    <keyword type="function" name="gst_gl_base_memory_init_once ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#gst-gl-base-memory-init-once" since="1.8"/>
+    <keyword type="function" name="gst_gl_base_memory_init ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#gst-gl-base-memory-init" since="1.8"/>
+    <keyword type="function" name="gst_is_gl_base_memory ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#gst-is-gl-base-memory" since="1.8"/>
+    <keyword type="function" name="GstGLBaseMemoryAllocatorAllocFunction ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocatorAllocFunction" since="1.8"/>
+    <keyword type="function" name="GstGLBaseMemoryAllocatorCreateFunction ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocatorCreateFunction" since="1.8"/>
+    <keyword type="function" name="GstGLBaseMemoryAllocatorMapFunction ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocatorMapFunction" since="1.8"/>
+    <keyword type="function" name="GstGLBaseMemoryAllocatorUnmapFunction ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocatorUnmapFunction" since="1.8"/>
+    <keyword type="function" name="GstGLBaseMemoryAllocatorCopyFunction ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocatorCopyFunction" since="1.8"/>
+    <keyword type="function" name="GstGLBaseMemoryAllocatorDestroyFunction ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocatorDestroyFunction" since="1.8"/>
+    <keyword type="function" name="gst_gl_base_memory_alloc ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#gst-gl-base-memory-alloc" since="1.8"/>
+    <keyword type="function" name="gst_gl_base_memory_alloc_data ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#gst-gl-base-memory-alloc-data"/>
+    <keyword type="function" name="gst_gl_base_memory_memcpy ()" link="gst-plugins-bad-libs-GstGlBaseMemory.html#gst-gl-base-memory-memcpy" since="1.8"/>
+    <keyword type="struct" name="GstGLBaseMemoryAllocator" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocator-struct"/>
+    <keyword type="struct" name="GstGLBaseMemoryAllocatorClass" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocatorClass" since="1.8"/>
+    <keyword type="macro" name="GST_GL_BASE_MEMORY_ALLOCATOR_NAME" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GST-GL-BASE-MEMORY-ALLOCATOR-NAME:CAPS" since="1.8"/>
+    <keyword type="macro" name="GST_MAP_GL" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GST-MAP-GL:CAPS"/>
+    <keyword type="enum" name="enum GstGLBaseMemoryError" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryError"/>
+    <keyword type="macro" name="GST_GL_BASE_MEMORY_ERROR" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GST-GL-BASE-MEMORY-ERROR:CAPS"/>
+    <keyword type="enum" name="enum GstGLBaseMemoryTransfer" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryTransfer"/>
+    <keyword type="struct" name="struct GstGLAllocationParams" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParams-struct"/>
+    <keyword type="macro" name="GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_ALLOC" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GST-GL-ALLOCATION-PARAMS-ALLOC-FLAG-ALLOC:CAPS"/>
+    <keyword type="macro" name="GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_SYSMEM" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GST-GL-ALLOCATION-PARAMS-ALLOC-FLAG-WRAP-SYSMEM:CAPS"/>
+    <keyword type="macro" name="GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_WRAP_GPU_HANDLE" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GST-GL-ALLOCATION-PARAMS-ALLOC-FLAG-WRAP-GPU-HANDLE:CAPS"/>
+    <keyword type="macro" name="GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_USER" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GST-GL-ALLOCATION-PARAMS-ALLOC-FLAG-USER:CAPS"/>
+    <keyword type="struct" name="GstGLBaseMemory" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemory"/>
     <keyword type="function" name="gst_gl_buffer_init_once ()" link="gst-plugins-bad-libs-GstGLBuffer.html#gst-gl-buffer-init-once" since="1.8"/>
     <keyword type="function" name="gst_is_gl_buffer ()" link="gst-plugins-bad-libs-GstGLBuffer.html#gst-is-gl-buffer" since="1.8"/>
     <keyword type="function" name="gst_gl_buffer_allocation_params_new ()" link="gst-plugins-bad-libs-GstGLBuffer.html#gst-gl-buffer-allocation-params-new" since="1.8"/>
     <keyword type="struct" name="GstGLBuffer" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBuffer"/>
-    <keyword type="struct" name="struct GstGLBufferAllocationParams" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams"/>
+    <keyword type="struct" name="struct GstGLBufferAllocationParams" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams-struct"/>
     <keyword type="macro" name="GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_BUFFER" link="gst-plugins-bad-libs-GstGLBuffer.html#GST-GL-ALLOCATION-PARAMS-ALLOC-FLAG-BUFFER:CAPS"/>
     <keyword type="struct" name="GstGLBufferAllocator" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocator-struct"/>
     <keyword type="struct" name="GstGLBufferAllocatorClass" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocatorClass"/>
@@ -524,6 +529,7 @@
     <keyword type="function" name="gst_gl_context_get_gl_api ()" link="GstGLContext.html#gst-gl-context-get-gl-api" since="1.4"/>
     <keyword type="function" name="gst_gl_context_get_gl_context ()" link="GstGLContext.html#gst-gl-context-get-gl-context" since="1.4"/>
     <keyword type="function" name="gst_gl_context_get_gl_platform ()" link="GstGLContext.html#gst-gl-context-get-gl-platform" since="1.4"/>
+    <keyword type="function" name="gst_gl_context_get_gl_platform_version ()" link="GstGLContext.html#gst-gl-context-get-gl-platform-version"/>
     <keyword type="function" name="gst_gl_context_get_current_gl_context ()" link="GstGLContext.html#gst-gl-context-get-current-gl-context" since="1.6"/>
     <keyword type="function" name="gst_gl_context_get_current_gl_api ()" link="GstGLContext.html#gst-gl-context-get-current-gl-api" since="1.6"/>
     <keyword type="function" name="gst_gl_context_get_thread ()" link="GstGLContext.html#gst-gl-context-get-thread" since="1.6"/>
@@ -546,6 +552,9 @@
     <keyword type="function" name="gst_gl_display_get_gl_context_for_thread ()" link="GstGLDisplay.html#gst-gl-display-get-gl-context-for-thread" since="1.6"/>
     <keyword type="function" name="gst_gl_display_get_handle ()" link="GstGLDisplay.html#gst-gl-display-get-handle" since="1.4"/>
     <keyword type="function" name="gst_gl_display_create_context ()" link="GstGLDisplay.html#gst-gl-display-create-context" since="1.6"/>
+    <keyword type="function" name="gst_gl_display_create_window ()" link="GstGLDisplay.html#gst-gl-display-create-window"/>
+    <keyword type="function" name="gst_gl_display_find_window ()" link="GstGLDisplay.html#gst-gl-display-find-window" since="1.12"/>
+    <keyword type="function" name="gst_gl_display_remove_window ()" link="GstGLDisplay.html#gst-gl-display-remove-window" since="1.12"/>
     <keyword type="function" name="gst_context_get_gl_display ()" link="GstGLDisplay.html#gst-context-get-gl-display" since="1.4"/>
     <keyword type="function" name="gst_context_set_gl_display ()" link="GstGLDisplay.html#gst-context-set-gl-display" since="1.4"/>
     <keyword type="macro" name="GST_GL_DISPLAY_CONTEXT_TYPE" link="GstGLDisplay.html#GST-GL-DISPLAY-CONTEXT-TYPE:CAPS"/>
@@ -557,11 +566,13 @@
     <keyword type="function" name="gst_gl_display_x11_new ()" link="gst-plugins-bad-libs-GstGLDisplayX11.html#gst-gl-display-x11-new"/>
     <keyword type="function" name="gst_gl_display_x11_new_with_display ()" link="gst-plugins-bad-libs-GstGLDisplayX11.html#gst-gl-display-x11-new-with-display"/>
     <keyword type="function" name="gst_egl_image_from_dmabuf ()" link="gst-plugins-bad-libs-GstEGLImage.html#gst-egl-image-from-dmabuf"/>
+    <keyword type="function" name="gst_egl_image_from_texture ()" link="gst-plugins-bad-libs-GstEGLImage.html#gst-egl-image-from-texture"/>
     <keyword type="function" name="gst_egl_image_get_image ()" link="gst-plugins-bad-libs-GstEGLImage.html#gst-egl-image-get-image"/>
-    <keyword type="function" name="gst_egl_image_get_orientation ()" link="gst-plugins-bad-libs-GstEGLImage.html#gst-egl-image-get-orientation"/>
     <keyword type="function" name="gst_egl_image_new_wrapped ()" link="gst-plugins-bad-libs-GstEGLImage.html#gst-egl-image-new-wrapped"/>
     <keyword type="function" name="gst_egl_image_ref ()" link="gst-plugins-bad-libs-GstEGLImage.html#gst-egl-image-ref"/>
     <keyword type="function" name="gst_egl_image_unref ()" link="gst-plugins-bad-libs-GstEGLImage.html#gst-egl-image-unref"/>
+    <keyword type="function" name="GstEGLImageDestroyNotify ()" link="gst-plugins-bad-libs-GstEGLImage.html#GstEGLImageDestroyNotify"/>
+    <keyword type="function" name="GstGLFilterRenderFunc ()" link="GstGLFilter.html#GstGLFilterRenderFunc" since="1.10"/>
     <keyword type="function" name="gst_gl_filter_render_to_target ()" link="GstGLFilter.html#gst-gl-filter-render-to-target" since="1.10"/>
     <keyword type="function" name="gst_gl_filter_render_to_target_with_shader ()" link="GstGLFilter.html#gst-gl-filter-render-to-target-with-shader" since="1.4"/>
     <keyword type="function" name="gst_gl_filter_filter_texture ()" link="GstGLFilter.html#gst-gl-filter-filter-texture" since="1.4"/>
@@ -573,11 +584,12 @@
     <keyword type="function" name="gst_gl_framebuffer_attach ()" link="GstGLFramebuffer.html#gst-gl-framebuffer-attach" since="1.10"/>
     <keyword type="function" name="gst_gl_framebuffer_bind ()" link="GstGLFramebuffer.html#gst-gl-framebuffer-bind" since="1.10"/>
     <keyword type="function" name="gst_gl_context_clear_framebuffer ()" link="GstGLFramebuffer.html#gst-gl-context-clear-framebuffer" since="1.10"/>
+    <keyword type="function" name="GstGLFramebufferFunc ()" link="GstGLFramebuffer.html#GstGLFramebufferFunc"/>
     <keyword type="function" name="gst_gl_framebuffer_draw_to_texture ()" link="GstGLFramebuffer.html#gst-gl-framebuffer-draw-to-texture" since="1.10"/>
     <keyword type="function" name="gst_gl_framebuffer_get_effective_dimensions ()" link="GstGLFramebuffer.html#gst-gl-framebuffer-get-effective-dimensions" since="1.10"/>
     <keyword type="function" name="gst_gl_framebuffer_get_id ()" link="GstGLFramebuffer.html#gst-gl-framebuffer-get-id" since="1.10"/>
     <keyword type="struct" name="GstGLFramebuffer" link="GstGLFramebuffer.html#GstGLFramebuffer-struct"/>
-    <keyword type="struct" name="struct GstGLFramebufferClass" link="GstGLFramebuffer.html#GstGLFramebufferClass"/>
+    <keyword type="struct" name="GstGLFramebufferClass" link="GstGLFramebuffer.html#GstGLFramebufferClass"/>
     <keyword type="function" name="gst_gl_video_allocation_params_copy_data ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-video-allocation-params-copy-data" since="1.8"/>
     <keyword type="function" name="gst_gl_video_allocation_params_free_data ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-video-allocation-params-free-data" since="1.8"/>
     <keyword type="function" name="gst_gl_video_allocation_params_init_full ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-video-allocation-params-init-full" since="1.8"/>
@@ -596,11 +608,12 @@
     <keyword type="function" name="gst_gl_memory_get_texture_height ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-height" since="1.8"/>
     <keyword type="function" name="gst_gl_memory_get_texture_id ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-id" since="1.8"/>
     <keyword type="function" name="gst_gl_memory_get_texture_target ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-target" since="1.8"/>
-    <keyword type="function" name="gst_gl_memory_get_texture_type ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-type" since="1.8"/>
+    <keyword type="function" name="gst_gl_memory_get_texture_format ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-format" since="1.12"/>
     <keyword type="function" name="gst_gl_memory_get_texture_width ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-get-texture-width" since="1.8"/>
     <keyword type="function" name="gst_gl_memory_setup_buffer ()" link="gst-plugins-bad-libs-GstGLMemory.html#gst-gl-memory-setup-buffer" since="1.8"/>
     <keyword type="macro" name="GST_GL_MEMORY_VIDEO_FORMATS_STR" link="gst-plugins-bad-libs-GstGLMemory.html#GST-GL-MEMORY-VIDEO-FORMATS-STR:CAPS"/>
-    <keyword type="struct" name="struct GstGLVideoAllocationParams" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams"/>
+    <keyword type="macro" name="GST_CAPS_FEATURE_MEMORY_GL_MEMORY" link="gst-plugins-bad-libs-GstGLMemory.html#GST-CAPS-FEATURE-MEMORY-GL-MEMORY:CAPS"/>
+    <keyword type="struct" name="struct GstGLVideoAllocationParams" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams-struct"/>
     <keyword type="macro" name="GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_VIDEO" link="gst-plugins-bad-libs-GstGLMemory.html#GST-GL-ALLOCATION-PARAMS-ALLOC-FLAG-VIDEO:CAPS"/>
     <keyword type="struct" name="GstGLMemoryAllocator" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemoryAllocator-struct"/>
     <keyword type="struct" name="GstGLMemoryAllocatorClass" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemoryAllocatorClass"/>
@@ -609,21 +622,20 @@
     <keyword type="function" name="gst_gl_memory_egl_init_once ()" link="gst-plugins-bad-libs-gstglmemoryegl.html#gst-gl-memory-egl-init-once" since="1.10"/>
     <keyword type="function" name="gst_gl_memory_egl_get_display ()" link="gst-plugins-bad-libs-gstglmemoryegl.html#gst-gl-memory-egl-get-display" since="1.10"/>
     <keyword type="function" name="gst_gl_memory_egl_get_image ()" link="gst-plugins-bad-libs-gstglmemoryegl.html#gst-gl-memory-egl-get-image" since="1.10"/>
-    <keyword type="function" name="gst_gl_memory_egl_get_orientation ()" link="gst-plugins-bad-libs-gstglmemoryegl.html#gst-gl-memory-egl-get-orientation" since="1.10"/>
     <keyword type="function" name="gst_is_gl_memory_egl ()" link="gst-plugins-bad-libs-gstglmemoryegl.html#gst-is-gl-memory-egl" since="1.10"/>
     <keyword type="struct" name="GstGLMemoryEGLAllocator" link="gst-plugins-bad-libs-gstglmemoryegl.html#GstGLMemoryEGLAllocator"/>
     <keyword type="struct" name="GstGLMemoryEGLAllocatorClass" link="gst-plugins-bad-libs-gstglmemoryegl.html#GstGLMemoryEGLAllocatorClass"/>
     <keyword type="macro" name="GST_GL_MEMORY_EGL_ALLOCATOR_NAME" link="gst-plugins-bad-libs-gstglmemoryegl.html#GST-GL-MEMORY-EGL-ALLOCATOR-NAME:CAPS"/>
     <keyword type="struct" name="GstGLMemoryEGL" link="gst-plugins-bad-libs-gstglmemoryegl.html#GstGLMemoryEGL"/>
-    <keyword type="function" name="gst_is_gl_memory_pbo ()" link="gst-plugins-bad-libs-gstglmemorypbo.html#gst-is-gl-memory-pbo" since="1.8"/>
-    <keyword type="function" name="gst_gl_memory_pbo_copy_into_texture ()" link="gst-plugins-bad-libs-gstglmemorypbo.html#gst-gl-memory-pbo-copy-into-texture" since="1.8"/>
-    <keyword type="function" name="gst_gl_memory_pbo_download_transfer ()" link="gst-plugins-bad-libs-gstglmemorypbo.html#gst-gl-memory-pbo-download-transfer" since="1.8"/>
-    <keyword type="function" name="gst_gl_memory_pbo_init_once ()" link="gst-plugins-bad-libs-gstglmemorypbo.html#gst-gl-memory-pbo-init-once"/>
-    <keyword type="function" name="gst_gl_memory_pbo_upload_transfer ()" link="gst-plugins-bad-libs-gstglmemorypbo.html#gst-gl-memory-pbo-upload-transfer" since="1.8"/>
-    <keyword type="struct" name="GstGLMemoryPBOAllocator" link="gst-plugins-bad-libs-gstglmemorypbo.html#GstGLMemoryPBOAllocator-struct"/>
-    <keyword type="struct" name="GstGLMemoryPBOAllocatorClass" link="gst-plugins-bad-libs-gstglmemorypbo.html#GstGLMemoryPBOAllocatorClass"/>
-    <keyword type="macro" name="GST_GL_MEMORY_PBO_ALLOCATOR_NAME" link="gst-plugins-bad-libs-gstglmemorypbo.html#GST-GL-MEMORY-PBO-ALLOCATOR-NAME:CAPS"/>
-    <keyword type="struct" name="GstGLMemoryPBO" link="gst-plugins-bad-libs-gstglmemorypbo.html#GstGLMemoryPBO"/>
+    <keyword type="function" name="gst_is_gl_memory_pbo ()" link="gst-plugins-bad-libs-GstGLMemoryPBO.html#gst-is-gl-memory-pbo" since="1.8"/>
+    <keyword type="function" name="gst_gl_memory_pbo_copy_into_texture ()" link="gst-plugins-bad-libs-GstGLMemoryPBO.html#gst-gl-memory-pbo-copy-into-texture" since="1.8"/>
+    <keyword type="function" name="gst_gl_memory_pbo_download_transfer ()" link="gst-plugins-bad-libs-GstGLMemoryPBO.html#gst-gl-memory-pbo-download-transfer" since="1.8"/>
+    <keyword type="function" name="gst_gl_memory_pbo_init_once ()" link="gst-plugins-bad-libs-GstGLMemoryPBO.html#gst-gl-memory-pbo-init-once"/>
+    <keyword type="function" name="gst_gl_memory_pbo_upload_transfer ()" link="gst-plugins-bad-libs-GstGLMemoryPBO.html#gst-gl-memory-pbo-upload-transfer" since="1.8"/>
+    <keyword type="struct" name="GstGLMemoryPBOAllocator" link="gst-plugins-bad-libs-GstGLMemoryPBO.html#GstGLMemoryPBOAllocator-struct"/>
+    <keyword type="struct" name="GstGLMemoryPBOAllocatorClass" link="gst-plugins-bad-libs-GstGLMemoryPBO.html#GstGLMemoryPBOAllocatorClass"/>
+    <keyword type="macro" name="GST_GL_MEMORY_PBO_ALLOCATOR_NAME" link="gst-plugins-bad-libs-GstGLMemoryPBO.html#GST-GL-MEMORY-PBO-ALLOCATOR-NAME:CAPS"/>
+    <keyword type="struct" name="GstGLMemoryPBO" link="gst-plugins-bad-libs-GstGLMemoryPBO.html#GstGLMemoryPBO"/>
     <keyword type="function" name="gst_gl_overlay_compositor_new ()" link="gst-plugins-bad-libs-GstGLOverlayCompositor.html#gst-gl-overlay-compositor-new"/>
     <keyword type="function" name="gst_gl_overlay_compositor_add_caps ()" link="gst-plugins-bad-libs-GstGLOverlayCompositor.html#gst-gl-overlay-compositor-add-caps"/>
     <keyword type="function" name="gst_gl_overlay_compositor_draw_overlays ()" link="gst-plugins-bad-libs-GstGLOverlayCompositor.html#gst-gl-overlay-compositor-draw-overlays"/>
@@ -641,13 +653,17 @@
     <keyword type="macro" name="gst_gl_query_start_log()" link="gst-plugins-bad-libs-GstGLQuery.html#gst-gl-query-start-log"/>
     <keyword type="macro" name="gst_gl_query_start_log_valist()" link="gst-plugins-bad-libs-GstGLQuery.html#gst-gl-query-start-log-valist"/>
     <keyword type="function" name="gst_gl_query_unset ()" link="gst-plugins-bad-libs-GstGLQuery.html#gst-gl-query-unset" since="1.10"/>
+    <keyword type="enum" name="enum GstGLQueryType" link="gst-plugins-bad-libs-GstGLQuery.html#GstGLQueryType"/>
     <keyword type="function" name="gst_gl_renderbuffer_allocation_params_new ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-allocation-params-new" since="1.10"/>
     <keyword type="function" name="gst_gl_renderbuffer_allocation_params_new_wrapped ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-allocation-params-new-wrapped" since="1.10"/>
     <keyword type="function" name="gst_gl_renderbuffer_get_height ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-get-height" since="1.10"/>
     <keyword type="function" name="gst_gl_renderbuffer_get_id ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-get-id" since="1.10"/>
-    <keyword type="function" name="gst_gl_renderbuffer_get_type ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-get-type" since="1.10"/>
+    <keyword type="function" name="gst_gl_renderbuffer_get_format ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-get-format" since="1.12"/>
     <keyword type="function" name="gst_gl_renderbuffer_get_width ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-get-width" since="1.10"/>
     <keyword type="function" name="gst_gl_renderbuffer_init_once ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-init-once" since="1.10"/>
+    <keyword type="function" name="gst_is_gl_renderbuffer ()" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-is-gl-renderbuffer" since="1.10"/>
+    <keyword type="struct" name="GstGLRenderbufferAllocator" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#GstGLRenderbufferAllocator-struct"/>
+    <keyword type="struct" name="GstGLRenderbufferAllocatorClass" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#GstGLRenderbufferAllocatorClass"/>
     <keyword type="macro" name="GST_GL_RENDERBUFFER_ALLOCATOR_NAME" link="gst-plugins-bad-libs-GstGLRenderbuffer.html#GST-GL-RENDERBUFFER-ALLOCATOR-NAME:CAPS"/>
     <keyword type="function" name="gst_gl_shader_new ()" link="GstGLShader.html#gst-gl-shader-new"/>
     <keyword type="function" name="gst_gl_shader_new_default ()" link="GstGLShader.html#gst-gl-shader-new-default" since="1.8"/>
@@ -740,6 +756,7 @@
     <keyword type="function" name="gst_gl_upload_perform_with_buffer ()" link="GstGLUpload.html#gst-gl-upload-perform-with-buffer"/>
     <keyword type="function" name="gst_gl_upload_get_input_template_caps ()" link="GstGLUpload.html#gst-gl-upload-get-input-template-caps"/>
     <keyword type="struct" name="GstGLUpload" link="GstGLUpload.html#GstGLUpload-struct"/>
+    <keyword type="enum" name="enum GstGLUploadReturn" link="GstGLUpload.html#GstGLUploadReturn"/>
     <keyword type="function" name="gst_gl_view_convert_new ()" link="GstGLViewConvert.html#gst-gl-view-convert-new" since="1.6"/>
     <keyword type="function" name="gst_gl_view_convert_set_caps ()" link="GstGLViewConvert.html#gst-gl-view-convert-set-caps" since="1.6"/>
     <keyword type="function" name="gst_gl_view_convert_transform_caps ()" link="GstGLViewConvert.html#gst-gl-view-convert-transform-caps" since="1.6"/>
@@ -764,7 +781,6 @@
     <keyword type="macro" name="GST_GL_WINDOW_CB()" link="GstGLWindow.html#GST-GL-WINDOW-CB:CAPS"/>
     <keyword type="function" name="gst_gl_window_new ()" link="GstGLWindow.html#gst-gl-window-new" since="1.4"/>
     <keyword type="function" name="gst_gl_window_draw ()" link="GstGLWindow.html#gst-gl-window-draw" since="1.4"/>
-    <keyword type="function" name="gst_gl_window_is_running ()" link="GstGLWindow.html#gst-gl-window-is-running" since="1.4"/>
     <keyword type="function" name="gst_gl_window_quit ()" link="GstGLWindow.html#gst-gl-window-quit" since="1.4"/>
     <keyword type="function" name="gst_gl_window_run ()" link="GstGLWindow.html#gst-gl-window-run" since="1.4"/>
     <keyword type="function" name="gst_gl_window_get_context ()" link="GstGLWindow.html#gst-gl-window-get-context" since="1.4"/>
@@ -804,9 +820,7 @@
     <keyword type="function" name="gst_gl_insert_debug_marker ()" link="gst-plugins-bad-libs-OpenGL-debugging.html#gst-gl-insert-debug-marker" since="1.8"/>
     <keyword type="struct" name="struct GstGLAsyncDebug" link="gst-plugins-bad-libs-OpenGL-debugging.html#GstGLAsyncDebug"/>
     <keyword type="function" name="gst_gl_format_type_n_bytes ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-format-type-n-bytes"/>
-    <keyword type="function" name="gst_gl_texture_type_n_bytes ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-texture-type-n-bytes"/>
-    <keyword type="function" name="gst_gl_format_from_gl_texture_type ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-format-from-gl-texture-type"/>
-    <keyword type="function" name="gst_gl_texture_type_from_format ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-texture-type-from-format"/>
+    <keyword type="function" name="gst_gl_format_from_video_info ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-format-from-video-info"/>
     <keyword type="function" name="gst_gl_sized_gl_format_from_gl_format_type ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-sized-gl-format-from-gl-format-type"/>
     <keyword type="function" name="gst_gl_texture_target_from_string ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-texture-target-from-string"/>
     <keyword type="function" name="gst_gl_texture_target_to_string ()" link="gst-plugins-bad-libs-OpenGL-Formats.html#gst-gl-texture-target-to-string"/>
@@ -820,155 +834,160 @@
     <keyword type="macro" name="GST_BUFFER_POOL_OPTION_GL_TEXTURE_TARGET_2D" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-BUFFER-POOL-OPTION-GL-TEXTURE-TARGET-2D:CAPS"/>
     <keyword type="macro" name="GST_BUFFER_POOL_OPTION_GL_TEXTURE_TARGET_RECTANGLE" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-BUFFER-POOL-OPTION-GL-TEXTURE-TARGET-RECTANGLE:CAPS"/>
     <keyword type="macro" name="GST_BUFFER_POOL_OPTION_GL_TEXTURE_TARGET_EXTERNAL_OES" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-BUFFER-POOL-OPTION-GL-TEXTURE-TARGET-EXTERNAL-OES:CAPS"/>
+    <keyword type="enum" name="enum GstGLFormat" link="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat"/>
     <keyword type="function" name="gst_gl_handle_set_context ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-handle-set-context"/>
     <keyword type="function" name="gst_gl_handle_context_query ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-handle-context-query"/>
-    <keyword type="function" name="gst_gl_context_check_framebuffer_status ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-context-check-framebuffer-status" since="1.10"/>
-    <keyword type="function" name="gst_gl_caps_replace_all_caps_features ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-caps-replace-all-caps-features"/>
     <keyword type="function" name="gst_gl_ensure_element_data ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-ensure-element-data"/>
+    <keyword type="function" name="gst_gl_query_local_gl_context ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-query-local-gl-context"/>
     <keyword type="function" name="gst_gl_get_plane_data_size ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-get-plane-data-size"/>
     <keyword type="function" name="gst_gl_get_plane_start ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-get-plane-start"/>
-    <keyword type="function" name="gst_gl_run_query ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-run-query"/>
     <keyword type="function" name="gst_gl_value_get_texture_target_mask ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-value-get-texture-target-mask"/>
     <keyword type="function" name="gst_gl_value_set_texture_target ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-value-set-texture-target"/>
     <keyword type="function" name="gst_gl_value_set_texture_target_from_mask ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-value-set-texture-target-from-mask"/>
-    <keyword type="function" name="gst_gl_get_affine_transformation_meta_as_ndc ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-get-affine-transformation-meta-as-ndc"/>
-    <keyword type="function" name="gst_gl_multiply_matrix4 ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-multiply-matrix4"/>
-    <keyword type="function" name="gst_gl_context_gen_shader ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-context-gen-shader"/>
-    <keyword type="function" name="gst_gl_context_del_shader ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-context-del-shader"/>
-    <keyword type="function" name="gst_player_new ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-new"/>
-    <keyword type="function" name="gst_player_play ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-play"/>
-    <keyword type="function" name="gst_player_pause ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-pause"/>
-    <keyword type="function" name="gst_player_stop ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-stop"/>
-    <keyword type="function" name="gst_player_seek ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-seek"/>
-    <keyword type="function" name="gst_player_set_uri ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-uri"/>
-    <keyword type="function" name="gst_player_get_uri ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-uri"/>
-    <keyword type="function" name="gst_player_get_duration ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-duration"/>
-    <keyword type="function" name="gst_player_get_position ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-position"/>
-    <keyword type="function" name="gst_player_set_volume ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-volume"/>
-    <keyword type="function" name="gst_player_set_mute ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-mute"/>
-    <keyword type="function" name="gst_player_get_volume ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-volume"/>
-    <keyword type="function" name="gst_player_get_mute ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-mute"/>
-    <keyword type="function" name="gst_player_get_pipeline ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-pipeline"/>
-    <keyword type="function" name="gst_player_set_config ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-config"/>
-    <keyword type="function" name="gst_player_get_config ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-config"/>
-    <keyword type="function" name="gst_player_state_get_name ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-state-get-name"/>
-    <keyword type="function" name="gst_player_error_get_name ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-error-get-name"/>
-    <keyword type="function" name="gst_player_get_media_info ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-media-info"/>
-    <keyword type="function" name="gst_player_get_audio_streams ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-audio-streams"/>
-    <keyword type="function" name="gst_player_get_video_streams ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-video-streams"/>
-    <keyword type="function" name="gst_player_get_subtitle_streams ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-subtitle-streams"/>
-    <keyword type="function" name="gst_player_set_audio_track ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-audio-track"/>
-    <keyword type="function" name="gst_player_set_video_track ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-video-track"/>
-    <keyword type="function" name="gst_player_set_subtitle_track ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-subtitle-track"/>
-    <keyword type="function" name="gst_player_get_current_audio_track ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-current-audio-track"/>
-    <keyword type="function" name="gst_player_get_current_video_track ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-current-video-track"/>
-    <keyword type="function" name="gst_player_get_current_subtitle_track ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-current-subtitle-track"/>
-    <keyword type="function" name="gst_player_set_audio_track_enabled ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-audio-track-enabled"/>
-    <keyword type="function" name="gst_player_set_video_track_enabled ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-video-track-enabled"/>
-    <keyword type="function" name="gst_player_set_subtitle_track_enabled ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-subtitle-track-enabled"/>
-    <keyword type="function" name="gst_player_set_subtitle_uri ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-subtitle-uri"/>
-    <keyword type="function" name="gst_player_get_subtitle_uri ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-subtitle-uri"/>
-    <keyword type="function" name="gst_player_set_visualization ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-visualization"/>
-    <keyword type="function" name="gst_player_set_visualization_enabled ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-visualization-enabled"/>
-    <keyword type="function" name="gst_player_get_current_visualization ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-current-visualization"/>
-    <keyword type="function" name="gst_player_color_balance_type_get_name ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-color-balance-type-get-name"/>
-    <keyword type="function" name="gst_player_has_color_balance ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-has-color-balance"/>
-    <keyword type="function" name="gst_player_set_color_balance ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-color-balance"/>
-    <keyword type="function" name="gst_player_get_color_balance ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-color-balance"/>
-    <keyword type="function" name="gst_player_get_multiview_mode ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-multiview-mode" since="1.10"/>
-    <keyword type="function" name="gst_player_set_multiview_mode ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-multiview-mode" since="1.10"/>
-    <keyword type="function" name="gst_player_get_multiview_flags ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-multiview-flags" since="1.10"/>
-    <keyword type="function" name="gst_player_set_multiview_flags ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-multiview-flags" since="1.10"/>
-    <keyword type="function" name="gst_player_get_audio_video_offset ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-audio-video-offset"/>
-    <keyword type="function" name="gst_player_set_audio_video_offset ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-audio-video-offset"/>
-    <keyword type="function" name="gst_player_get_rate ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-get-rate"/>
-    <keyword type="function" name="gst_player_set_rate ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-set-rate"/>
-    <keyword type="function" name="gst_player_config_set_position_update_interval ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-config-set-position-update-interval"/>
-    <keyword type="function" name="gst_player_config_get_position_update_interval ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-config-get-position-update-interval"/>
-    <keyword type="function" name="gst_player_config_set_user_agent ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-config-set-user-agent"/>
-    <keyword type="function" name="gst_player_config_get_user_agent ()" link="gst-plugins-bad-libs-gstplayer.html#gst-player-config-get-user-agent"/>
-    <keyword type="struct" name="GstPlayer" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-struct"/>
-    <keyword type="enum" name="enum GstPlayerState" link="gst-plugins-bad-libs-gstplayer.html#GstPlayerState"/>
-    <keyword type="macro" name="GST_PLAYER_ERROR" link="gst-plugins-bad-libs-gstplayer.html#GST-PLAYER-ERROR:CAPS"/>
-    <keyword type="enum" name="enum GstPlayerError" link="gst-plugins-bad-libs-gstplayer.html#GstPlayerError"/>
-    <keyword type="enum" name="enum GstPlayerColorBalanceType" link="gst-plugins-bad-libs-gstplayer.html#GstPlayerColorBalanceType"/>
-    <keyword type="struct" name="GstPlayerSignalDispatcher" link="gst-plugins-bad-libs-gstplayer.html#GstPlayerSignalDispatcher-struct"/>
-    <keyword type="struct" name="struct GstPlayerSignalDispatcherInterface" link="gst-plugins-bad-libs-gstplayer.html#GstPlayerSignalDispatcherInterface"/>
-    <keyword type="struct" name="GstPlayerVideoRenderer" link="gst-plugins-bad-libs-gstplayer.html#GstPlayerVideoRenderer-struct"/>
-    <keyword type="struct" name="struct GstPlayerVideoRendererInterface" link="gst-plugins-bad-libs-gstplayer.html#GstPlayerVideoRendererInterface"/>
-    <keyword type="property" name="The “audio-video-offset” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--audio-video-offset"/>
-    <keyword type="property" name="The “current-audio-track” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--current-audio-track"/>
-    <keyword type="property" name="The “current-subtitle-track” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--current-subtitle-track"/>
-    <keyword type="property" name="The “current-video-track” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--current-video-track"/>
-    <keyword type="property" name="The “duration” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--duration"/>
-    <keyword type="property" name="The “media-info” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--media-info"/>
-    <keyword type="property" name="The “mute” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--mute"/>
-    <keyword type="property" name="The “pipeline” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--pipeline"/>
-    <keyword type="property" name="The “position” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--position"/>
-    <keyword type="property" name="The “rate” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--rate"/>
-    <keyword type="property" name="The “signal-dispatcher” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--signal-dispatcher"/>
-    <keyword type="property" name="The “suburi” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--suburi"/>
-    <keyword type="property" name="The “uri” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--uri"/>
-    <keyword type="property" name="The “video-multiview-flags” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--video-multiview-flags"/>
-    <keyword type="property" name="The “video-multiview-mode” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--video-multiview-mode"/>
-    <keyword type="property" name="The “video-renderer” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--video-renderer"/>
-    <keyword type="property" name="The “volume” property" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer--volume"/>
-    <keyword type="signal" name="The “buffering” signal" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-buffering"/>
-    <keyword type="signal" name="The “duration-changed” signal" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-duration-changed"/>
-    <keyword type="signal" name="The “end-of-stream” signal" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-end-of-stream"/>
-    <keyword type="signal" name="The “error” signal" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-error"/>
-    <keyword type="signal" name="The “media-info-updated” signal" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-media-info-updated"/>
-    <keyword type="signal" name="The “mute-changed” signal" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-mute-changed"/>
-    <keyword type="signal" name="The “position-updated” signal" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-position-updated"/>
-    <keyword type="signal" name="The “seek-done” signal" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-seek-done"/>
-    <keyword type="signal" name="The “state-changed” signal" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-state-changed"/>
-    <keyword type="signal" name="The “uri-loaded” signal" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-uri-loaded"/>
-    <keyword type="signal" name="The “video-dimensions-changed” signal" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-video-dimensions-changed"/>
-    <keyword type="signal" name="The “volume-changed” signal" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-volume-changed"/>
-    <keyword type="signal" name="The “warning” signal" link="gst-plugins-bad-libs-gstplayer.html#GstPlayer-warning"/>
-    <keyword type="function" name="gst_player_media_info_get_uri ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-media-info-get-uri"/>
-    <keyword type="function" name="gst_player_media_info_get_duration ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-media-info-get-duration"/>
-    <keyword type="function" name="gst_player_media_info_get_title ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-media-info-get-title"/>
-    <keyword type="function" name="gst_player_media_info_get_container_format ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-media-info-get-container-format"/>
-    <keyword type="function" name="gst_player_media_info_is_seekable ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-media-info-is-seekable"/>
-    <keyword type="function" name="gst_player_media_info_is_live ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-media-info-is-live"/>
-    <keyword type="function" name="gst_player_media_info_get_image_sample ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-media-info-get-image-sample"/>
-    <keyword type="function" name="gst_player_media_info_get_tags ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-media-info-get-tags"/>
-    <keyword type="function" name="gst_player_media_info_get_stream_list ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-media-info-get-stream-list"/>
-    <keyword type="function" name="gst_player_stream_info_get_index ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-stream-info-get-index"/>
-    <keyword type="function" name="gst_player_stream_info_get_caps ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-stream-info-get-caps"/>
-    <keyword type="function" name="gst_player_stream_info_get_tags ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-stream-info-get-tags"/>
-    <keyword type="function" name="gst_player_stream_info_get_codec ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-stream-info-get-codec"/>
-    <keyword type="function" name="gst_player_stream_info_get_stream_type ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-stream-info-get-stream-type"/>
-    <keyword type="function" name="gst_player_audio_info_get_bitrate ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-audio-info-get-bitrate"/>
-    <keyword type="function" name="gst_player_audio_info_get_channels ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-audio-info-get-channels"/>
-    <keyword type="function" name="gst_player_audio_info_get_language ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-audio-info-get-language"/>
-    <keyword type="function" name="gst_player_audio_info_get_max_bitrate ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-audio-info-get-max-bitrate"/>
-    <keyword type="function" name="gst_player_audio_info_get_sample_rate ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-audio-info-get-sample-rate"/>
-    <keyword type="function" name="gst_player_video_info_get_bitrate ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-video-info-get-bitrate"/>
-    <keyword type="function" name="gst_player_video_info_get_height ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-video-info-get-height"/>
-    <keyword type="function" name="gst_player_video_info_get_width ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-video-info-get-width"/>
-    <keyword type="function" name="gst_player_video_info_get_framerate ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-video-info-get-framerate"/>
-    <keyword type="function" name="gst_player_video_info_get_max_bitrate ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-video-info-get-max-bitrate"/>
-    <keyword type="function" name="gst_player_video_info_get_pixel_aspect_ratio ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-video-info-get-pixel-aspect-ratio"/>
-    <keyword type="function" name="gst_player_subtitle_info_get_language ()" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#gst-player-subtitle-info-get-language"/>
-    <keyword type="struct" name="GstPlayerMediaInfo" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#GstPlayerMediaInfo-struct"/>
-    <keyword type="struct" name="GstPlayerStreamInfo" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#GstPlayerStreamInfo-struct"/>
-    <keyword type="struct" name="GstPlayerAudioInfo" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#GstPlayerAudioInfo-struct"/>
-    <keyword type="struct" name="GstPlayerVideoInfo" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#GstPlayerVideoInfo-struct"/>
-    <keyword type="struct" name="GstPlayerSubtitleInfo" link="gst-plugins-bad-libs-gstplayer-mediainfo.html#GstPlayerSubtitleInfo-struct"/>
-    <keyword type="function" name="gst_player_g_main_context_signal_dispatcher_new ()" link="gst-plugins-bad-libs-gstplayer-gmaincontextsignaldispatcher.html#gst-player-g-main-context-signal-dispatcher-new"/>
-    <keyword type="function" name="gst_player_video_overlay_video_renderer_new ()" link="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-new"/>
-    <keyword type="function" name="gst_player_video_overlay_video_renderer_get_window_handle ()" link="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-get-window-handle"/>
-    <keyword type="function" name="gst_player_video_overlay_video_renderer_set_window_handle ()" link="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-set-window-handle"/>
-    <keyword type="function" name="gst_player_video_overlay_video_renderer_expose ()" link="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-expose"/>
-    <keyword type="function" name="gst_player_video_overlay_video_renderer_get_render_rectangle ()" link="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-get-render-rectangle"/>
-    <keyword type="function" name="gst_player_video_overlay_video_renderer_set_render_rectangle ()" link="gst-plugins-bad-libs-gstplayer-videooverlayvideorenderer.html#gst-player-video-overlay-video-renderer-set-render-rectangle"/>
-    <keyword type="function" name="gst_player_visualizations_get ()" link="gst-plugins-bad-libs-gstplayer-visualization.html#gst-player-visualizations-get"/>
-    <keyword type="function" name="gst_player_visualizations_free ()" link="gst-plugins-bad-libs-gstplayer-visualization.html#gst-player-visualizations-free"/>
-    <keyword type="function" name="gst_player_visualization_copy ()" link="gst-plugins-bad-libs-gstplayer-visualization.html#gst-player-visualization-copy"/>
-    <keyword type="function" name="gst_player_visualization_free ()" link="gst-plugins-bad-libs-gstplayer-visualization.html#gst-player-visualization-free"/>
-    <keyword type="struct" name="struct GstPlayerVisualization" link="gst-plugins-bad-libs-gstplayer-visualization.html#GstPlayerVisualization-struct"/>
+    <keyword type="function" name="gst_gl_check_extension ()" link="gst-plugins-bad-libs-OpenGL-Miscellaneous-Utilities.html#gst-gl-check-extension"/>
+    <keyword type="function" name="gst_player_new ()" link="GstPlayer.html#gst-player-new"/>
+    <keyword type="function" name="gst_player_play ()" link="GstPlayer.html#gst-player-play"/>
+    <keyword type="function" name="gst_player_pause ()" link="GstPlayer.html#gst-player-pause"/>
+    <keyword type="function" name="gst_player_stop ()" link="GstPlayer.html#gst-player-stop"/>
+    <keyword type="function" name="gst_player_seek ()" link="GstPlayer.html#gst-player-seek"/>
+    <keyword type="function" name="gst_player_set_uri ()" link="GstPlayer.html#gst-player-set-uri"/>
+    <keyword type="function" name="gst_player_get_uri ()" link="GstPlayer.html#gst-player-get-uri"/>
+    <keyword type="function" name="gst_player_get_duration ()" link="GstPlayer.html#gst-player-get-duration"/>
+    <keyword type="function" name="gst_player_get_position ()" link="GstPlayer.html#gst-player-get-position"/>
+    <keyword type="function" name="gst_player_set_volume ()" link="GstPlayer.html#gst-player-set-volume"/>
+    <keyword type="function" name="gst_player_set_mute ()" link="GstPlayer.html#gst-player-set-mute"/>
+    <keyword type="function" name="gst_player_get_volume ()" link="GstPlayer.html#gst-player-get-volume"/>
+    <keyword type="function" name="gst_player_get_mute ()" link="GstPlayer.html#gst-player-get-mute"/>
+    <keyword type="function" name="gst_player_get_pipeline ()" link="GstPlayer.html#gst-player-get-pipeline"/>
+    <keyword type="function" name="gst_player_set_config ()" link="GstPlayer.html#gst-player-set-config"/>
+    <keyword type="function" name="gst_player_get_config ()" link="GstPlayer.html#gst-player-get-config"/>
+    <keyword type="function" name="gst_player_state_get_name ()" link="GstPlayer.html#gst-player-state-get-name"/>
+    <keyword type="function" name="gst_player_error_get_name ()" link="GstPlayer.html#gst-player-error-get-name"/>
+    <keyword type="function" name="gst_player_get_media_info ()" link="GstPlayer.html#gst-player-get-media-info"/>
+    <keyword type="function" name="gst_player_set_audio_track ()" link="GstPlayer.html#gst-player-set-audio-track"/>
+    <keyword type="function" name="gst_player_set_video_track ()" link="GstPlayer.html#gst-player-set-video-track"/>
+    <keyword type="function" name="gst_player_set_subtitle_track ()" link="GstPlayer.html#gst-player-set-subtitle-track"/>
+    <keyword type="function" name="gst_player_get_current_audio_track ()" link="GstPlayer.html#gst-player-get-current-audio-track"/>
+    <keyword type="function" name="gst_player_get_current_video_track ()" link="GstPlayer.html#gst-player-get-current-video-track"/>
+    <keyword type="function" name="gst_player_get_current_subtitle_track ()" link="GstPlayer.html#gst-player-get-current-subtitle-track"/>
+    <keyword type="function" name="gst_player_set_audio_track_enabled ()" link="GstPlayer.html#gst-player-set-audio-track-enabled"/>
+    <keyword type="function" name="gst_player_set_video_track_enabled ()" link="GstPlayer.html#gst-player-set-video-track-enabled"/>
+    <keyword type="function" name="gst_player_set_subtitle_track_enabled ()" link="GstPlayer.html#gst-player-set-subtitle-track-enabled"/>
+    <keyword type="function" name="gst_player_set_subtitle_uri ()" link="GstPlayer.html#gst-player-set-subtitle-uri"/>
+    <keyword type="function" name="gst_player_get_subtitle_uri ()" link="GstPlayer.html#gst-player-get-subtitle-uri"/>
+    <keyword type="function" name="gst_player_set_visualization ()" link="GstPlayer.html#gst-player-set-visualization"/>
+    <keyword type="function" name="gst_player_set_visualization_enabled ()" link="GstPlayer.html#gst-player-set-visualization-enabled"/>
+    <keyword type="function" name="gst_player_get_current_visualization ()" link="GstPlayer.html#gst-player-get-current-visualization"/>
+    <keyword type="function" name="gst_player_color_balance_type_get_name ()" link="GstPlayer.html#gst-player-color-balance-type-get-name"/>
+    <keyword type="function" name="gst_player_has_color_balance ()" link="GstPlayer.html#gst-player-has-color-balance"/>
+    <keyword type="function" name="gst_player_set_color_balance ()" link="GstPlayer.html#gst-player-set-color-balance"/>
+    <keyword type="function" name="gst_player_get_color_balance ()" link="GstPlayer.html#gst-player-get-color-balance"/>
+    <keyword type="function" name="gst_player_get_multiview_mode ()" link="GstPlayer.html#gst-player-get-multiview-mode" since="1.10"/>
+    <keyword type="function" name="gst_player_set_multiview_mode ()" link="GstPlayer.html#gst-player-set-multiview-mode" since="1.10"/>
+    <keyword type="function" name="gst_player_get_multiview_flags ()" link="GstPlayer.html#gst-player-get-multiview-flags" since="1.10"/>
+    <keyword type="function" name="gst_player_set_multiview_flags ()" link="GstPlayer.html#gst-player-set-multiview-flags" since="1.10"/>
+    <keyword type="function" name="gst_player_get_audio_video_offset ()" link="GstPlayer.html#gst-player-get-audio-video-offset"/>
+    <keyword type="function" name="gst_player_set_audio_video_offset ()" link="GstPlayer.html#gst-player-set-audio-video-offset"/>
+    <keyword type="function" name="gst_player_get_rate ()" link="GstPlayer.html#gst-player-get-rate"/>
+    <keyword type="function" name="gst_player_set_rate ()" link="GstPlayer.html#gst-player-set-rate"/>
+    <keyword type="function" name="gst_player_get_video_snapshot ()" link="GstPlayer.html#gst-player-get-video-snapshot"/>
+    <keyword type="function" name="gst_player_config_set_position_update_interval ()" link="GstPlayer.html#gst-player-config-set-position-update-interval"/>
+    <keyword type="function" name="gst_player_config_get_position_update_interval ()" link="GstPlayer.html#gst-player-config-get-position-update-interval"/>
+    <keyword type="function" name="gst_player_config_set_user_agent ()" link="GstPlayer.html#gst-player-config-set-user-agent"/>
+    <keyword type="function" name="gst_player_config_get_user_agent ()" link="GstPlayer.html#gst-player-config-get-user-agent"/>
+    <keyword type="function" name="gst_player_config_set_seek_accurate ()" link="GstPlayer.html#gst-player-config-set-seek-accurate" since="1.12"/>
+    <keyword type="function" name="gst_player_config_get_seek_accurate ()" link="GstPlayer.html#gst-player-config-get-seek-accurate"/>
+    <keyword type="struct" name="GstPlayer" link="GstPlayer.html#GstPlayer-struct"/>
+    <keyword type="enum" name="enum GstPlayerState" link="GstPlayer.html#GstPlayerState"/>
+    <keyword type="macro" name="GST_PLAYER_ERROR" link="GstPlayer.html#GST-PLAYER-ERROR:CAPS"/>
+    <keyword type="enum" name="enum GstPlayerError" link="GstPlayer.html#GstPlayerError"/>
+    <keyword type="enum" name="enum GstPlayerColorBalanceType" link="GstPlayer.html#GstPlayerColorBalanceType"/>
+    <keyword type="enum" name="enum GstPlayerSnapshotFormat" link="GstPlayer.html#GstPlayerSnapshotFormat"/>
+    <keyword type="struct" name="GstPlayerSignalDispatcher" link="GstPlayer.html#GstPlayerSignalDispatcher-struct"/>
+    <keyword type="struct" name="struct GstPlayerSignalDispatcherInterface" link="GstPlayer.html#GstPlayerSignalDispatcherInterface"/>
+    <keyword type="struct" name="GstPlayerVideoRenderer" link="GstPlayer.html#GstPlayerVideoRenderer-struct"/>
+    <keyword type="struct" name="struct GstPlayerVideoRendererInterface" link="GstPlayer.html#GstPlayerVideoRendererInterface"/>
+    <keyword type="property" name="The “audio-video-offset” property" link="GstPlayer.html#GstPlayer--audio-video-offset"/>
+    <keyword type="property" name="The “current-audio-track” property" link="GstPlayer.html#GstPlayer--current-audio-track"/>
+    <keyword type="property" name="The “current-subtitle-track” property" link="GstPlayer.html#GstPlayer--current-subtitle-track"/>
+    <keyword type="property" name="The “current-video-track” property" link="GstPlayer.html#GstPlayer--current-video-track"/>
+    <keyword type="property" name="The “duration” property" link="GstPlayer.html#GstPlayer--duration"/>
+    <keyword type="property" name="The “media-info” property" link="GstPlayer.html#GstPlayer--media-info"/>
+    <keyword type="property" name="The “mute” property" link="GstPlayer.html#GstPlayer--mute"/>
+    <keyword type="property" name="The “pipeline” property" link="GstPlayer.html#GstPlayer--pipeline"/>
+    <keyword type="property" name="The “position” property" link="GstPlayer.html#GstPlayer--position"/>
+    <keyword type="property" name="The “rate” property" link="GstPlayer.html#GstPlayer--rate"/>
+    <keyword type="property" name="The “signal-dispatcher” property" link="GstPlayer.html#GstPlayer--signal-dispatcher"/>
+    <keyword type="property" name="The “suburi” property" link="GstPlayer.html#GstPlayer--suburi"/>
+    <keyword type="property" name="The “uri” property" link="GstPlayer.html#GstPlayer--uri"/>
+    <keyword type="property" name="The “video-multiview-flags” property" link="GstPlayer.html#GstPlayer--video-multiview-flags"/>
+    <keyword type="property" name="The “video-multiview-mode” property" link="GstPlayer.html#GstPlayer--video-multiview-mode"/>
+    <keyword type="property" name="The “video-renderer” property" link="GstPlayer.html#GstPlayer--video-renderer"/>
+    <keyword type="property" name="The “volume” property" link="GstPlayer.html#GstPlayer--volume"/>
+    <keyword type="signal" name="The “buffering” signal" link="GstPlayer.html#GstPlayer-buffering"/>
+    <keyword type="signal" name="The “duration-changed” signal" link="GstPlayer.html#GstPlayer-duration-changed"/>
+    <keyword type="signal" name="The “end-of-stream” signal" link="GstPlayer.html#GstPlayer-end-of-stream"/>
+    <keyword type="signal" name="The “error” signal" link="GstPlayer.html#GstPlayer-error"/>
+    <keyword type="signal" name="The “media-info-updated” signal" link="GstPlayer.html#GstPlayer-media-info-updated"/>
+    <keyword type="signal" name="The “mute-changed” signal" link="GstPlayer.html#GstPlayer-mute-changed"/>
+    <keyword type="signal" name="The “position-updated” signal" link="GstPlayer.html#GstPlayer-position-updated"/>
+    <keyword type="signal" name="The “seek-done” signal" link="GstPlayer.html#GstPlayer-seek-done"/>
+    <keyword type="signal" name="The “state-changed” signal" link="GstPlayer.html#GstPlayer-state-changed"/>
+    <keyword type="signal" name="The “uri-loaded” signal" link="GstPlayer.html#GstPlayer-uri-loaded"/>
+    <keyword type="signal" name="The “video-dimensions-changed” signal" link="GstPlayer.html#GstPlayer-video-dimensions-changed"/>
+    <keyword type="signal" name="The “volume-changed” signal" link="GstPlayer.html#GstPlayer-volume-changed"/>
+    <keyword type="signal" name="The “warning” signal" link="GstPlayer.html#GstPlayer-warning"/>
+    <keyword type="function" name="gst_player_media_info_get_uri ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-uri"/>
+    <keyword type="function" name="gst_player_media_info_get_duration ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-duration"/>
+    <keyword type="function" name="gst_player_media_info_get_title ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-title"/>
+    <keyword type="function" name="gst_player_media_info_get_container_format ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-container-format"/>
+    <keyword type="function" name="gst_player_media_info_is_seekable ()" link="GstPlayerMediaInfo.html#gst-player-media-info-is-seekable"/>
+    <keyword type="function" name="gst_player_media_info_is_live ()" link="GstPlayerMediaInfo.html#gst-player-media-info-is-live"/>
+    <keyword type="function" name="gst_player_media_info_get_image_sample ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-image-sample"/>
+    <keyword type="function" name="gst_player_media_info_get_tags ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-tags"/>
+    <keyword type="function" name="gst_player_media_info_get_stream_list ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-stream-list"/>
+    <keyword type="function" name="gst_player_media_info_get_number_of_streams ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-number-of-streams" since="1.12"/>
+    <keyword type="function" name="gst_player_media_info_get_audio_streams ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-audio-streams"/>
+    <keyword type="function" name="gst_player_media_info_get_number_of_audio_streams ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-number-of-audio-streams" since="1.12"/>
+    <keyword type="function" name="gst_player_media_info_get_video_streams ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-video-streams"/>
+    <keyword type="function" name="gst_player_media_info_get_number_of_video_streams ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-number-of-video-streams" since="1.12"/>
+    <keyword type="function" name="gst_player_media_info_get_subtitle_streams ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-subtitle-streams"/>
+    <keyword type="function" name="gst_player_media_info_get_number_of_subtitle_streams ()" link="GstPlayerMediaInfo.html#gst-player-media-info-get-number-of-subtitle-streams" since="1.12"/>
+    <keyword type="function" name="gst_player_stream_info_get_index ()" link="GstPlayerMediaInfo.html#gst-player-stream-info-get-index"/>
+    <keyword type="function" name="gst_player_stream_info_get_caps ()" link="GstPlayerMediaInfo.html#gst-player-stream-info-get-caps"/>
+    <keyword type="function" name="gst_player_stream_info_get_tags ()" link="GstPlayerMediaInfo.html#gst-player-stream-info-get-tags"/>
+    <keyword type="function" name="gst_player_stream_info_get_codec ()" link="GstPlayerMediaInfo.html#gst-player-stream-info-get-codec"/>
+    <keyword type="function" name="gst_player_stream_info_get_stream_type ()" link="GstPlayerMediaInfo.html#gst-player-stream-info-get-stream-type"/>
+    <keyword type="function" name="gst_player_audio_info_get_bitrate ()" link="GstPlayerMediaInfo.html#gst-player-audio-info-get-bitrate"/>
+    <keyword type="function" name="gst_player_audio_info_get_channels ()" link="GstPlayerMediaInfo.html#gst-player-audio-info-get-channels"/>
+    <keyword type="function" name="gst_player_audio_info_get_language ()" link="GstPlayerMediaInfo.html#gst-player-audio-info-get-language"/>
+    <keyword type="function" name="gst_player_audio_info_get_max_bitrate ()" link="GstPlayerMediaInfo.html#gst-player-audio-info-get-max-bitrate"/>
+    <keyword type="function" name="gst_player_audio_info_get_sample_rate ()" link="GstPlayerMediaInfo.html#gst-player-audio-info-get-sample-rate"/>
+    <keyword type="function" name="gst_player_video_info_get_bitrate ()" link="GstPlayerMediaInfo.html#gst-player-video-info-get-bitrate"/>
+    <keyword type="function" name="gst_player_video_info_get_height ()" link="GstPlayerMediaInfo.html#gst-player-video-info-get-height"/>
+    <keyword type="function" name="gst_player_video_info_get_width ()" link="GstPlayerMediaInfo.html#gst-player-video-info-get-width"/>
+    <keyword type="function" name="gst_player_video_info_get_framerate ()" link="GstPlayerMediaInfo.html#gst-player-video-info-get-framerate"/>
+    <keyword type="function" name="gst_player_video_info_get_max_bitrate ()" link="GstPlayerMediaInfo.html#gst-player-video-info-get-max-bitrate"/>
+    <keyword type="function" name="gst_player_video_info_get_pixel_aspect_ratio ()" link="GstPlayerMediaInfo.html#gst-player-video-info-get-pixel-aspect-ratio"/>
+    <keyword type="function" name="gst_player_subtitle_info_get_language ()" link="GstPlayerMediaInfo.html#gst-player-subtitle-info-get-language"/>
+    <keyword type="struct" name="GstPlayerMediaInfo" link="GstPlayerMediaInfo.html#GstPlayerMediaInfo-struct"/>
+    <keyword type="struct" name="GstPlayerStreamInfo" link="GstPlayerMediaInfo.html#GstPlayerStreamInfo-struct"/>
+    <keyword type="struct" name="GstPlayerAudioInfo" link="GstPlayerMediaInfo.html#GstPlayerAudioInfo-struct"/>
+    <keyword type="struct" name="GstPlayerVideoInfo" link="GstPlayerMediaInfo.html#GstPlayerVideoInfo-struct"/>
+    <keyword type="struct" name="GstPlayerSubtitleInfo" link="GstPlayerMediaInfo.html#GstPlayerSubtitleInfo-struct"/>
+    <keyword type="function" name="gst_player_g_main_context_signal_dispatcher_new ()" link="gst-plugins-bad-libs-GstPlayerGMainContextSignalDispatcher.html#gst-player-g-main-context-signal-dispatcher-new"/>
+    <keyword type="function" name="gst_player_video_overlay_video_renderer_new ()" link="GstPlayerVideoOverlayVideoRenderer.html#gst-player-video-overlay-video-renderer-new"/>
+    <keyword type="function" name="gst_player_video_overlay_video_renderer_new_with_sink ()" link="GstPlayerVideoOverlayVideoRenderer.html#gst-player-video-overlay-video-renderer-new-with-sink"/>
+    <keyword type="function" name="gst_player_video_overlay_video_renderer_get_window_handle ()" link="GstPlayerVideoOverlayVideoRenderer.html#gst-player-video-overlay-video-renderer-get-window-handle"/>
+    <keyword type="function" name="gst_player_video_overlay_video_renderer_set_window_handle ()" link="GstPlayerVideoOverlayVideoRenderer.html#gst-player-video-overlay-video-renderer-set-window-handle"/>
+    <keyword type="function" name="gst_player_video_overlay_video_renderer_expose ()" link="GstPlayerVideoOverlayVideoRenderer.html#gst-player-video-overlay-video-renderer-expose"/>
+    <keyword type="function" name="gst_player_video_overlay_video_renderer_get_render_rectangle ()" link="GstPlayerVideoOverlayVideoRenderer.html#gst-player-video-overlay-video-renderer-get-render-rectangle"/>
+    <keyword type="function" name="gst_player_video_overlay_video_renderer_set_render_rectangle ()" link="GstPlayerVideoOverlayVideoRenderer.html#gst-player-video-overlay-video-renderer-set-render-rectangle"/>
+    <keyword type="function" name="gst_player_visualizations_get ()" link="GstPlayerVisualization.html#gst-player-visualizations-get"/>
+    <keyword type="function" name="gst_player_visualizations_free ()" link="GstPlayerVisualization.html#gst-player-visualizations-free"/>
+    <keyword type="function" name="gst_player_visualization_copy ()" link="GstPlayerVisualization.html#gst-player-visualization-copy"/>
+    <keyword type="function" name="gst_player_visualization_free ()" link="GstPlayerVisualization.html#gst-player-visualization-free"/>
+    <keyword type="struct" name="struct GstPlayerVisualization" link="GstPlayerVisualization.html#GstPlayerVisualization-struct"/>
     <keyword type="function" name="GstPhotographyCapturePrepared ()" link="gst-plugins-bad-libs-GstPhotography.html#GstPhotographyCapturePrepared"/>
     <keyword type="function" name="gst_photography_get_ev_compensation ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-ev-compensation"/>
     <keyword type="function" name="gst_photography_get_iso_speed ()" link="gst-plugins-bad-libs-GstPhotography.html#gst-photography-get-iso-speed"/>
@@ -1715,11 +1734,11 @@
     <keyword type="constant" name="GST_GL_PLATFORM_CGL" link="gst-plugins-bad-libs-GstGLAPI.html#GST-GL-PLATFORM-CGL:CAPS"/>
     <keyword type="constant" name="GST_GL_PLATFORM_EAGL" link="gst-plugins-bad-libs-GstGLAPI.html#GST-GL-PLATFORM-EAGL:CAPS"/>
     <keyword type="constant" name="GST_GL_PLATFORM_ANY" link="gst-plugins-bad-libs-GstGLAPI.html#GST-GL-PLATFORM-ANY:CAPS"/>
-    <keyword type="constant" name="GST_GL_BASE_MEMORY_ERROR_FAILED" link="gst-plugins-bad-libs-gstglbasememory.html#GST-GL-BASE-MEMORY-ERROR-FAILED:CAPS"/>
-    <keyword type="constant" name="GST_GL_BASE_MEMORY_ERROR_OLD_LIBS" link="gst-plugins-bad-libs-gstglbasememory.html#GST-GL-BASE-MEMORY-ERROR-OLD-LIBS:CAPS"/>
-    <keyword type="constant" name="GST_GL_BASE_MEMORY_ERROR_RESOURCE_UNAVAILABLE" link="gst-plugins-bad-libs-gstglbasememory.html#GST-GL-BASE-MEMORY-ERROR-RESOURCE-UNAVAILABLE:CAPS"/>
-    <keyword type="constant" name="GST_GL_BASE_MEMORY_TRANSFER_NEED_DOWNLOAD" link="gst-plugins-bad-libs-gstglbasememory.html#GST-GL-BASE-MEMORY-TRANSFER-NEED-DOWNLOAD:CAPS"/>
-    <keyword type="constant" name="GST_GL_BASE_MEMORY_TRANSFER_NEED_UPLOAD" link="gst-plugins-bad-libs-gstglbasememory.html#GST-GL-BASE-MEMORY-TRANSFER-NEED-UPLOAD:CAPS"/>
+    <keyword type="constant" name="GST_GL_BASE_MEMORY_ERROR_FAILED" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GST-GL-BASE-MEMORY-ERROR-FAILED:CAPS"/>
+    <keyword type="constant" name="GST_GL_BASE_MEMORY_ERROR_OLD_LIBS" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GST-GL-BASE-MEMORY-ERROR-OLD-LIBS:CAPS"/>
+    <keyword type="constant" name="GST_GL_BASE_MEMORY_ERROR_RESOURCE_UNAVAILABLE" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GST-GL-BASE-MEMORY-ERROR-RESOURCE-UNAVAILABLE:CAPS"/>
+    <keyword type="constant" name="GST_GL_BASE_MEMORY_TRANSFER_NEED_DOWNLOAD" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GST-GL-BASE-MEMORY-TRANSFER-NEED-DOWNLOAD:CAPS"/>
+    <keyword type="constant" name="GST_GL_BASE_MEMORY_TRANSFER_NEED_UPLOAD" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GST-GL-BASE-MEMORY-TRANSFER-NEED-UPLOAD:CAPS"/>
     <keyword type="constant" name="GST_GL_CONTEXT_ERROR_FAILED" link="GstGLContext.html#GST-GL-CONTEXT-ERROR-FAILED:CAPS"/>
     <keyword type="constant" name="GST_GL_CONTEXT_ERROR_WRONG_CONFIG" link="GstGLContext.html#GST-GL-CONTEXT-ERROR-WRONG-CONFIG:CAPS"/>
     <keyword type="constant" name="GST_GL_CONTEXT_ERROR_WRONG_API" link="GstGLContext.html#GST-GL-CONTEXT-ERROR-WRONG-API:CAPS"/>
@@ -1733,7 +1752,11 @@
     <keyword type="constant" name="GST_GL_DISPLAY_TYPE_WIN32" link="GstGLDisplay.html#GST-GL-DISPLAY-TYPE-WIN32:CAPS"/>
     <keyword type="constant" name="GST_GL_DISPLAY_TYPE_DISPMANX" link="GstGLDisplay.html#GST-GL-DISPLAY-TYPE-DISPMANX:CAPS"/>
     <keyword type="constant" name="GST_GL_DISPLAY_TYPE_EGL" link="GstGLDisplay.html#GST-GL-DISPLAY-TYPE-EGL:CAPS"/>
+    <keyword type="constant" name="GST_GL_DISPLAY_TYPE_VIV_FB" link="GstGLDisplay.html#GST-GL-DISPLAY-TYPE-VIV-FB:CAPS"/>
     <keyword type="constant" name="GST_GL_DISPLAY_TYPE_ANY" link="GstGLDisplay.html#GST-GL-DISPLAY-TYPE-ANY:CAPS"/>
+    <keyword type="constant" name="GST_GL_QUERY_NONE" link="gst-plugins-bad-libs-GstGLQuery.html#GST-GL-QUERY-NONE:CAPS"/>
+    <keyword type="constant" name="GST_GL_QUERY_TIME_ELAPSED" link="gst-plugins-bad-libs-GstGLQuery.html#GST-GL-QUERY-TIME-ELAPSED:CAPS"/>
+    <keyword type="constant" name="GST_GL_QUERY_TIMESTAMP" link="gst-plugins-bad-libs-GstGLQuery.html#GST-GL-QUERY-TIMESTAMP:CAPS"/>
     <keyword type="constant" name="GST_GLSL_ERROR_COMPILE" link="gst-plugins-bad-libs-GstGLSL.html#GST-GLSL-ERROR-COMPILE:CAPS"/>
     <keyword type="constant" name="GST_GLSL_ERROR_LINK" link="gst-plugins-bad-libs-GstGLSL.html#GST-GLSL-ERROR-LINK:CAPS"/>
     <keyword type="constant" name="GST_GLSL_ERROR_PROGRAM" link="gst-plugins-bad-libs-GstGLSL.html#GST-GLSL-ERROR-PROGRAM:CAPS"/>
@@ -1759,6 +1782,10 @@
     <keyword type="constant" name="GST_GLSL_VERSION_430" link="gst-plugins-bad-libs-GstGLSL.html#GST-GLSL-VERSION-430:CAPS"/>
     <keyword type="constant" name="GST_GLSL_VERSION_440" link="gst-plugins-bad-libs-GstGLSL.html#GST-GLSL-VERSION-440:CAPS"/>
     <keyword type="constant" name="GST_GLSL_VERSION_450" link="gst-plugins-bad-libs-GstGLSL.html#GST-GLSL-VERSION-450:CAPS"/>
+    <keyword type="constant" name="GST_GL_UPLOAD_DONE" link="GstGLUpload.html#GST-GL-UPLOAD-DONE:CAPS"/>
+    <keyword type="constant" name="GST_GL_UPLOAD_ERROR" link="GstGLUpload.html#GST-GL-UPLOAD-ERROR:CAPS"/>
+    <keyword type="constant" name="GST_GL_UPLOAD_UNSUPPORTED" link="GstGLUpload.html#GST-GL-UPLOAD-UNSUPPORTED:CAPS"/>
+    <keyword type="constant" name="GST_GL_UPLOAD_RECONFIGURE" link="GstGLUpload.html#GST-GL-UPLOAD-RECONFIGURE:CAPS"/>
     <keyword type="constant" name="GST_GL_STEREO_DOWNMIX_ANAGLYPH_GREEN_MAGENTA_DUBOIS" link="GstGLViewConvert.html#GST-GL-STEREO-DOWNMIX-ANAGLYPH-GREEN-MAGENTA-DUBOIS:CAPS"/>
     <keyword type="constant" name="GST_GL_STEREO_DOWNMIX_ANAGLYPH_RED_CYAN_DUBOIS" link="GstGLViewConvert.html#GST-GL-STEREO-DOWNMIX-ANAGLYPH-RED-CYAN-DUBOIS:CAPS"/>
     <keyword type="constant" name="GST_GL_STEREO_DOWNMIX_ANAGLYPH_AMBER_BLUE_DUBOIS" link="GstGLViewConvert.html#GST-GL-STEREO-DOWNMIX-ANAGLYPH-AMBER-BLUE-DUBOIS:CAPS"/>
@@ -1769,15 +1796,34 @@
     <keyword type="constant" name="GST_GL_TEXTURE_TARGET_2D" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-TEXTURE-TARGET-2D:CAPS"/>
     <keyword type="constant" name="GST_GL_TEXTURE_TARGET_RECTANGLE" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-TEXTURE-TARGET-RECTANGLE:CAPS"/>
     <keyword type="constant" name="GST_GL_TEXTURE_TARGET_EXTERNAL_OES" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-TEXTURE-TARGET-EXTERNAL-OES:CAPS"/>
-    <keyword type="constant" name="GST_PLAYER_STATE_STOPPED" link="gst-plugins-bad-libs-gstplayer.html#GST-PLAYER-STATE-STOPPED:CAPS"/>
-    <keyword type="constant" name="GST_PLAYER_STATE_BUFFERING" link="gst-plugins-bad-libs-gstplayer.html#GST-PLAYER-STATE-BUFFERING:CAPS"/>
-    <keyword type="constant" name="GST_PLAYER_STATE_PAUSED" link="gst-plugins-bad-libs-gstplayer.html#GST-PLAYER-STATE-PAUSED:CAPS"/>
-    <keyword type="constant" name="GST_PLAYER_STATE_PLAYING" link="gst-plugins-bad-libs-gstplayer.html#GST-PLAYER-STATE-PLAYING:CAPS"/>
-    <keyword type="constant" name="GST_PLAYER_ERROR_FAILED" link="gst-plugins-bad-libs-gstplayer.html#GST-PLAYER-ERROR-FAILED:CAPS"/>
-    <keyword type="constant" name="GST_PLAYER_COLOR_BALANCE_BRIGHTNESS" link="gst-plugins-bad-libs-gstplayer.html#GST-PLAYER-COLOR-BALANCE-BRIGHTNESS:CAPS"/>
-    <keyword type="constant" name="GST_PLAYER_COLOR_BALANCE_CONTRAST" link="gst-plugins-bad-libs-gstplayer.html#GST-PLAYER-COLOR-BALANCE-CONTRAST:CAPS"/>
-    <keyword type="constant" name="GST_PLAYER_COLOR_BALANCE_SATURATION" link="gst-plugins-bad-libs-gstplayer.html#GST-PLAYER-COLOR-BALANCE-SATURATION:CAPS"/>
-    <keyword type="constant" name="GST_PLAYER_COLOR_BALANCE_HUE" link="gst-plugins-bad-libs-gstplayer.html#GST-PLAYER-COLOR-BALANCE-HUE:CAPS"/>
+    <keyword type="constant" name="GST_GL_LUMINANCE" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-LUMINANCE:CAPS"/>
+    <keyword type="constant" name="GST_GL_ALPHA" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-ALPHA:CAPS"/>
+    <keyword type="constant" name="GST_GL_LUMINANCE_ALPHA" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-LUMINANCE-ALPHA:CAPS"/>
+    <keyword type="constant" name="GST_GL_RED" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-RED:CAPS"/>
+    <keyword type="constant" name="GST_GL_R8" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-R8:CAPS"/>
+    <keyword type="constant" name="GST_GL_RG" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-RG:CAPS"/>
+    <keyword type="constant" name="GST_GL_RG8" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-RG8:CAPS"/>
+    <keyword type="constant" name="GST_GL_RGB" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-RGB:CAPS"/>
+    <keyword type="constant" name="GST_GL_RGB8" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-RGB8:CAPS"/>
+    <keyword type="constant" name="GST_GL_RGB565" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-RGB565:CAPS"/>
+    <keyword type="constant" name="GST_GL_RGBA" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-RGBA:CAPS"/>
+    <keyword type="constant" name="GST_GL_RGBA8" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-RGBA8:CAPS"/>
+    <keyword type="constant" name="GST_GL_DEPTH_COMPONENT16" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-DEPTH-COMPONENT16:CAPS"/>
+    <keyword type="constant" name="GST_GL_DEPTH24_STENCIL8" link="gst-plugins-bad-libs-OpenGL-Formats.html#GST-GL-DEPTH24-STENCIL8:CAPS"/>
+    <keyword type="constant" name="GST_PLAYER_STATE_STOPPED" link="GstPlayer.html#GST-PLAYER-STATE-STOPPED:CAPS"/>
+    <keyword type="constant" name="GST_PLAYER_STATE_BUFFERING" link="GstPlayer.html#GST-PLAYER-STATE-BUFFERING:CAPS"/>
+    <keyword type="constant" name="GST_PLAYER_STATE_PAUSED" link="GstPlayer.html#GST-PLAYER-STATE-PAUSED:CAPS"/>
+    <keyword type="constant" name="GST_PLAYER_STATE_PLAYING" link="GstPlayer.html#GST-PLAYER-STATE-PLAYING:CAPS"/>
+    <keyword type="constant" name="GST_PLAYER_ERROR_FAILED" link="GstPlayer.html#GST-PLAYER-ERROR-FAILED:CAPS"/>
+    <keyword type="constant" name="GST_PLAYER_COLOR_BALANCE_BRIGHTNESS" link="GstPlayer.html#GST-PLAYER-COLOR-BALANCE-BRIGHTNESS:CAPS"/>
+    <keyword type="constant" name="GST_PLAYER_COLOR_BALANCE_CONTRAST" link="GstPlayer.html#GST-PLAYER-COLOR-BALANCE-CONTRAST:CAPS"/>
+    <keyword type="constant" name="GST_PLAYER_COLOR_BALANCE_SATURATION" link="GstPlayer.html#GST-PLAYER-COLOR-BALANCE-SATURATION:CAPS"/>
+    <keyword type="constant" name="GST_PLAYER_COLOR_BALANCE_HUE" link="GstPlayer.html#GST-PLAYER-COLOR-BALANCE-HUE:CAPS"/>
+    <keyword type="constant" name="GST_PLAYER_THUMBNAIL_RAW_NATIVE" link="GstPlayer.html#GST-PLAYER-THUMBNAIL-RAW-NATIVE:CAPS"/>
+    <keyword type="constant" name="GST_PLAYER_THUMBNAIL_RAW_xRGB" link="GstPlayer.html#GST-PLAYER-THUMBNAIL-RAW-xRGB"/>
+    <keyword type="constant" name="GST_PLAYER_THUMBNAIL_RAW_BGRx" link="GstPlayer.html#GST-PLAYER-THUMBNAIL-RAW-BGRx"/>
+    <keyword type="constant" name="GST_PLAYER_THUMBNAIL_JPG" link="GstPlayer.html#GST-PLAYER-THUMBNAIL-JPG:CAPS"/>
+    <keyword type="constant" name="GST_PLAYER_THUMBNAIL_PNG" link="GstPlayer.html#GST-PLAYER-THUMBNAIL-PNG:CAPS"/>
     <keyword type="constant" name="GST_PHOTOGRAPHY_NOISE_REDUCTION_BAYER" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-NOISE-REDUCTION-BAYER:CAPS"/>
     <keyword type="constant" name="GST_PHOTOGRAPHY_NOISE_REDUCTION_YCC" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-NOISE-REDUCTION-YCC:CAPS"/>
     <keyword type="constant" name="GST_PHOTOGRAPHY_NOISE_REDUCTION_TEMPORAL" link="gst-plugins-bad-libs-GstPhotography.html#GST-PHOTOGRAPHY-NOISE-REDUCTION-TEMPORAL:CAPS"/>
@@ -2319,95 +2365,77 @@
     <keyword type="member" name="GstMpegtsDvbMultilingualServiceNameItem.service-name" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualServiceNameItem.service-name"/>
     <keyword type="member" name="GstMpegtsDvbMultilingualComponentItem.language-code" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualComponentItem.language-code"/>
     <keyword type="member" name="GstMpegtsDvbMultilingualComponentItem.description" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualComponentItem.description"/>
-    <keyword type="member" name="GstAggregator.parent" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregator.parent"/>
-    <keyword type="member" name="GstAggregator.srcpad" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregator.srcpad"/>
-    <keyword type="member" name="GstAggregator.segment" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregator.segment"/>
-    <keyword type="member" name="GstAggregatorClass.sinkpads-type" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass.sinkpads-type"/>
-    <keyword type="member" name="GstAggregatorClass.flush" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass.flush"/>
-    <keyword type="member" name="GstAggregatorClass.clip" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass.clip"/>
-    <keyword type="member" name="GstAggregatorClass.sink-event" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass.sink-event"/>
-    <keyword type="member" name="GstAggregatorClass.sink-query" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass.sink-query"/>
-    <keyword type="member" name="GstAggregatorClass.src-event" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass.src-event"/>
-    <keyword type="member" name="GstAggregatorClass.src-query" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass.src-query"/>
-    <keyword type="member" name="GstAggregatorClass.src-activate" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass.src-activate"/>
-    <keyword type="member" name="GstAggregatorClass.aggregate" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass.aggregate"/>
-    <keyword type="member" name="GstAggregatorClass.stop" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass.stop"/>
-    <keyword type="member" name="GstAggregatorClass.start" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass.start"/>
-    <keyword type="member" name="GstAggregatorClass.get-next-time" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass.get-next-time"/>
-    <keyword type="member" name="GstAggregatorClass.create-new-pad" link="gst-plugins-bad-libs-GstAggregator.html#GstAggregatorClass.create-new-pad"/>
-    <keyword type="member" name="GstAggregatorPad.parent" link="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad.parent"/>
-    <keyword type="member" name="GstAggregatorPad.segment" link="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad.segment"/>
-    <keyword type="member" name="GstAggregatorPad.clip-segment" link="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad.clip-segment"/>
-    <keyword type="member" name="GstAggregatorPad.priv" link="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad.priv"/>
-    <keyword type="member" name="GstAggregatorPad.-gst-reserved" link="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPad.-gst-reserved"/>
-    <keyword type="member" name="GstAggregatorPadClass.flush" link="gst-plugins-bad-libs-GstAggregatorPad.html#GstAggregatorPadClass.flush"/>
-    <keyword type="member" name="GstVideoAggregator.aggregator" link="gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregator.aggregator"/>
-    <keyword type="member" name="GstVideoAggregator.info" link="gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregator.info"/>
-    <keyword type="member" name="GstVideoAggregatorClass.update-caps" link="gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregatorClass.update-caps"/>
-    <keyword type="member" name="GstVideoAggregatorClass.fixate-caps" link="gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregatorClass.fixate-caps"/>
-    <keyword type="member" name="GstVideoAggregatorClass.aggregate-frames" link="gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregatorClass.aggregate-frames"/>
-    <keyword type="member" name="GstVideoAggregatorClass.get-output-buffer" link="gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregatorClass.get-output-buffer"/>
-    <keyword type="member" name="GstVideoAggregatorClass.negotiated-caps" link="gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregatorClass.negotiated-caps"/>
-    <keyword type="member" name="GstVideoAggregatorClass.find-best-format" link="gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregatorClass.find-best-format"/>
-    <keyword type="member" name="GstVideoAggregatorClass.sink-non-alpha-caps" link="gst-plugins-bad-libs-GstVideoAggregator.html#GstVideoAggregatorClass.sink-non-alpha-caps"/>
-    <keyword type="member" name="GstVideoAggregatorPad.parent" link="gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPad.parent"/>
-    <keyword type="member" name="GstVideoAggregatorPad.info" link="gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPad.info"/>
-    <keyword type="member" name="GstVideoAggregatorPad.buffer" link="gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPad.buffer"/>
-    <keyword type="member" name="GstVideoAggregatorPad.buffer-vinfo" link="gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPad.buffer-vinfo"/>
-    <keyword type="member" name="GstVideoAggregatorPad.aggregated-frame" link="gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPad.aggregated-frame"/>
-    <keyword type="member" name="GstVideoAggregatorPad.zorder" link="gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPad.zorder"/>
-    <keyword type="member" name="GstVideoAggregatorPad.ignore-eos" link="gst-plugins-bad-libs-GstVideoAggregatorPad.html#GstVideoAggregatorPad.ignore-eos"/>
+    <keyword type="member" name="GstAggregatorClass.sinkpads-type" link="GstAggregator.html#GstAggregatorClass.sinkpads-type"/>
+    <keyword type="member" name="GstAggregatorClass.flush" link="GstAggregator.html#GstAggregatorClass.flush"/>
+    <keyword type="member" name="GstAggregatorClass.clip" link="GstAggregator.html#GstAggregatorClass.clip"/>
+    <keyword type="member" name="GstAggregatorClass.sink-event" link="GstAggregator.html#GstAggregatorClass.sink-event"/>
+    <keyword type="member" name="GstAggregatorClass.sink-query" link="GstAggregator.html#GstAggregatorClass.sink-query"/>
+    <keyword type="member" name="GstAggregatorClass.src-event" link="GstAggregator.html#GstAggregatorClass.src-event"/>
+    <keyword type="member" name="GstAggregatorClass.src-query" link="GstAggregator.html#GstAggregatorClass.src-query"/>
+    <keyword type="member" name="GstAggregatorClass.src-activate" link="GstAggregator.html#GstAggregatorClass.src-activate"/>
+    <keyword type="member" name="GstAggregatorClass.aggregate" link="GstAggregator.html#GstAggregatorClass.aggregate"/>
+    <keyword type="member" name="GstAggregatorClass.stop" link="GstAggregator.html#GstAggregatorClass.stop"/>
+    <keyword type="member" name="GstAggregatorClass.start" link="GstAggregator.html#GstAggregatorClass.start"/>
+    <keyword type="member" name="GstAggregatorClass.get-next-time" link="GstAggregator.html#GstAggregatorClass.get-next-time"/>
+    <keyword type="member" name="GstAggregatorClass.create-new-pad" link="GstAggregator.html#GstAggregatorClass.create-new-pad"/>
+    <keyword type="member" name="GstAggregatorPadClass.flush" link="GstAggregatorPad.html#GstAggregatorPadClass.flush"/>
+    <keyword type="member" name="GstVideoAggregator-struct.info" link="GstVideoAggregator.html#GstVideoAggregator-struct.info"/>
+    <keyword type="member" name="GstVideoAggregatorClass.update-caps" link="GstVideoAggregator.html#GstVideoAggregatorClass.update-caps"/>
+    <keyword type="member" name="GstVideoAggregatorClass.fixate-caps" link="GstVideoAggregator.html#GstVideoAggregatorClass.fixate-caps"/>
+    <keyword type="member" name="GstVideoAggregatorClass.aggregate-frames" link="GstVideoAggregator.html#GstVideoAggregatorClass.aggregate-frames"/>
+    <keyword type="member" name="GstVideoAggregatorClass.get-output-buffer" link="GstVideoAggregator.html#GstVideoAggregatorClass.get-output-buffer"/>
+    <keyword type="member" name="GstVideoAggregatorClass.negotiated-caps" link="GstVideoAggregator.html#GstVideoAggregatorClass.negotiated-caps"/>
+    <keyword type="member" name="GstVideoAggregatorClass.find-best-format" link="GstVideoAggregator.html#GstVideoAggregatorClass.find-best-format"/>
+    <keyword type="member" name="GstVideoAggregatorClass.sink-non-alpha-caps" link="GstVideoAggregator.html#GstVideoAggregatorClass.sink-non-alpha-caps"/>
     <keyword type="member" name="GstGLBaseFilterClass.supported-gl-api" link="GstGLBaseFilter.html#GstGLBaseFilterClass.supported-gl-api"/>
     <keyword type="member" name="GstGLBaseFilterClass.gl-start" link="GstGLBaseFilter.html#GstGLBaseFilterClass.gl-start"/>
     <keyword type="member" name="GstGLBaseFilterClass.gl-stop" link="GstGLBaseFilter.html#GstGLBaseFilterClass.gl-stop"/>
     <keyword type="member" name="GstGLBaseFilterClass.gl-set-caps" link="GstGLBaseFilter.html#GstGLBaseFilterClass.gl-set-caps"/>
-    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.alloc" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.alloc"/>
-    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.create" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.create"/>
-    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.map" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.map"/>
-    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.unmap" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.unmap"/>
-    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.copy" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.copy"/>
-    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.destroy" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocatorClass.destroy"/>
-    <keyword type="member" name="GstGLAllocationParams-struct.struct-size" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams-struct.struct-size"/>
-    <keyword type="member" name="GstGLAllocationParams-struct.copy" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams-struct.copy"/>
-    <keyword type="member" name="GstGLAllocationParams-struct.free" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams-struct.free"/>
-    <keyword type="member" name="GstGLAllocationParams-struct.alloc-flags" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams-struct.alloc-flags"/>
-    <keyword type="member" name="GstGLAllocationParams-struct.alloc-size" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams-struct.alloc-size"/>
-    <keyword type="member" name="GstGLAllocationParams-struct.alloc-params" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams-struct.alloc-params"/>
-    <keyword type="member" name="GstGLAllocationParams-struct.context" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams-struct.context"/>
-    <keyword type="member" name="GstGLAllocationParams-struct.notify" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams-struct.notify"/>
-    <keyword type="member" name="GstGLAllocationParams-struct.user-data" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams-struct.user-data"/>
-    <keyword type="member" name="GstGLAllocationParams-struct.wrapped-data" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams-struct.wrapped-data"/>
-    <keyword type="member" name="GstGLAllocationParams-struct.gl-handle" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams-struct.gl-handle"/>
-    <keyword type="member" name="GstGLBaseMemory.mem" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemory.mem"/>
-    <keyword type="member" name="GstGLBaseMemory.context" link="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemory.context"/>
+    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.alloc" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocatorClass.alloc"/>
+    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.create" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocatorClass.create"/>
+    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.map" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocatorClass.map"/>
+    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.unmap" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocatorClass.unmap"/>
+    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.copy" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocatorClass.copy"/>
+    <keyword type="member" name="GstGLBaseMemoryAllocatorClass.destroy" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocatorClass.destroy"/>
+    <keyword type="member" name="GstGLAllocationParams-struct.struct-size" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParams-struct.struct-size"/>
+    <keyword type="member" name="GstGLAllocationParams-struct.copy" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParams-struct.copy"/>
+    <keyword type="member" name="GstGLAllocationParams-struct.free" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParams-struct.free"/>
+    <keyword type="member" name="GstGLAllocationParams-struct.alloc-flags" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParams-struct.alloc-flags"/>
+    <keyword type="member" name="GstGLAllocationParams-struct.alloc-size" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParams-struct.alloc-size"/>
+    <keyword type="member" name="GstGLAllocationParams-struct.alloc-params" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParams-struct.alloc-params"/>
+    <keyword type="member" name="GstGLAllocationParams-struct.context" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParams-struct.context"/>
+    <keyword type="member" name="GstGLAllocationParams-struct.notify" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParams-struct.notify"/>
+    <keyword type="member" name="GstGLAllocationParams-struct.user-data" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParams-struct.user-data"/>
+    <keyword type="member" name="GstGLAllocationParams-struct.wrapped-data" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParams-struct.wrapped-data"/>
+    <keyword type="member" name="GstGLAllocationParams-struct.gl-handle" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParams-struct.gl-handle"/>
+    <keyword type="member" name="GstGLBaseMemory.mem" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemory.mem"/>
+    <keyword type="member" name="GstGLBaseMemory.context" link="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemory.context"/>
     <keyword type="member" name="GstGLBuffer.mem" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBuffer.mem"/>
     <keyword type="member" name="GstGLBuffer.id" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBuffer.id"/>
     <keyword type="member" name="GstGLBuffer.target" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBuffer.target"/>
     <keyword type="member" name="GstGLBuffer.usage-hints" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBuffer.usage-hints"/>
-    <keyword type="member" name="GstGLBufferAllocationParams.parent" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams.parent"/>
-    <keyword type="member" name="GstGLBufferAllocationParams.gl-target" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams.gl-target"/>
-    <keyword type="member" name="GstGLBufferAllocationParams.gl-usage" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams.gl-usage"/>
+    <keyword type="member" name="GstGLBufferAllocationParams-struct.parent" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams-struct.parent"/>
+    <keyword type="member" name="GstGLBufferAllocationParams-struct.gl-target" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams-struct.gl-target"/>
+    <keyword type="member" name="GstGLBufferAllocationParams-struct.gl-usage" link="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams-struct.gl-usage"/>
     <keyword type="member" name="GstGLContext-struct.gl-vtable" link="GstGLContext.html#GstGLContext-struct.gl-vtable"/>
     <keyword type="member" name="GstGLFilterClass.set-caps" link="GstGLFilter.html#GstGLFilterClass.set-caps"/>
     <keyword type="member" name="GstGLFilterClass.filter" link="GstGLFilter.html#GstGLFilterClass.filter"/>
     <keyword type="member" name="GstGLFilterClass.filter-texture" link="GstGLFilter.html#GstGLFilterClass.filter-texture"/>
     <keyword type="member" name="GstGLFilterClass.init-fbo" link="GstGLFilter.html#GstGLFilterClass.init-fbo"/>
     <keyword type="member" name="GstGLFilterClass.transform-internal-caps" link="GstGLFilter.html#GstGLFilterClass.transform-internal-caps"/>
-    <keyword type="member" name="GstGLFilterClass.display-init-cb" link="GstGLFilter.html#GstGLFilterClass.display-init-cb"/>
-    <keyword type="member" name="GstGLFilterClass.display-reset-cb" link="GstGLFilter.html#GstGLFilterClass.display-reset-cb"/>
-    <keyword type="member" name="GstGLVideoAllocationParams.parent" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams.parent"/>
-    <keyword type="member" name="GstGLVideoAllocationParams.v-info" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams.v-info"/>
-    <keyword type="member" name="GstGLVideoAllocationParams.plane" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams.plane"/>
-    <keyword type="member" name="GstGLVideoAllocationParams.valign" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams.valign"/>
-    <keyword type="member" name="GstGLVideoAllocationParams.target" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams.target"/>
-    <keyword type="member" name="GstGLVideoAllocationParams.tex-type" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams.tex-type"/>
+    <keyword type="member" name="GstGLVideoAllocationParams-struct.parent" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams-struct.parent"/>
+    <keyword type="member" name="GstGLVideoAllocationParams-struct.v-info" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams-struct.v-info"/>
+    <keyword type="member" name="GstGLVideoAllocationParams-struct.plane" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams-struct.plane"/>
+    <keyword type="member" name="GstGLVideoAllocationParams-struct.valign" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams-struct.valign"/>
+    <keyword type="member" name="GstGLVideoAllocationParams-struct.target" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams-struct.target"/>
+    <keyword type="member" name="GstGLVideoAllocationParams-struct.tex-format" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLVideoAllocationParams-struct.tex-format"/>
     <keyword type="member" name="GstGLMemoryAllocatorClass.map" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemoryAllocatorClass.map"/>
     <keyword type="member" name="GstGLMemoryAllocatorClass.copy" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemoryAllocatorClass.copy"/>
     <keyword type="member" name="GstGLMemoryAllocatorClass.unmap" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemoryAllocatorClass.unmap"/>
     <keyword type="member" name="GstGLMemory.mem" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.mem"/>
     <keyword type="member" name="GstGLMemory.tex-id" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.tex-id"/>
     <keyword type="member" name="GstGLMemory.tex-target" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.tex-target"/>
-    <keyword type="member" name="GstGLMemory.tex-type" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.tex-type"/>
+    <keyword type="member" name="GstGLMemory.tex-format" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.tex-format"/>
     <keyword type="member" name="GstGLMemory.info" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.info"/>
     <keyword type="member" name="GstGLMemory.valign" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.valign"/>
     <keyword type="member" name="GstGLMemory.plane" link="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory.plane"/>
@@ -2439,7 +2467,7 @@
     <keyword type="member" name="GstGLWindowClass.show" link="GstGLWindow.html#GstGLWindowClass.show"/>
     <keyword type="member" name="GstGLWindowClass.set-render-rectangle" link="GstGLWindow.html#GstGLWindowClass.set-render-rectangle"/>
     <keyword type="member" name="GstGLWindowClass.queue-resize" link="GstGLWindow.html#GstGLWindowClass.queue-resize"/>
-    <keyword type="member" name="GstPlayerVisualization-struct.name" link="gst-plugins-bad-libs-gstplayer-visualization.html#GstPlayerVisualization-struct.name"/>
-    <keyword type="member" name="GstPlayerVisualization-struct.description" link="gst-plugins-bad-libs-gstplayer-visualization.html#GstPlayerVisualization-struct.description"/>
+    <keyword type="member" name="GstPlayerVisualization-struct.name" link="GstPlayerVisualization.html#GstPlayerVisualization-struct.name"/>
+    <keyword type="member" name="GstPlayerVisualization-struct.description" link="GstPlayerVisualization.html#GstPlayerVisualization-struct.description"/>
   </functions>
 </book>

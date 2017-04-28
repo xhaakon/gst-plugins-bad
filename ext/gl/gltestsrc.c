@@ -213,16 +213,14 @@ _src_shader_fill_bound_fbo (gpointer impl)
 
   if (gl->GenVertexArrays)
     gl->BindVertexArray (src->vao);
-  else
-    _bind_buffer (src);
+  _bind_buffer (src);
 
   gl->DrawElements (GL_TRIANGLES, src->n_indices, GL_UNSIGNED_SHORT,
       (gpointer) (gintptr) src->index_offset);
 
   if (gl->GenVertexArrays)
     gl->BindVertexArray (0);
-  else
-    _unbind_buffer (src);
+  _unbind_buffer (src);
 
   gst_gl_context_clear_shader (src->base.context);
 
@@ -334,7 +332,7 @@ _src_smpte_init (gpointer impl, GstGLContext * context, GstVideoInfo * v_info)
   plane_indices = g_new0 (gushort, N_QUADS * 6);
 
   /* top row */
-  for (int i = 0; i < 7; i++) {
+  for (i = 0; i < 7; i++) {
     coord[color_idx * 4 + 0].X = -1.0f + i * (2.0f / 7.0f);
     coord[color_idx * 4 + 0].Y = 1.0f / 3.0f;
     coord[color_idx * 4 + 1].X = -1.0f + (i + 1) * (2.0f / 7.0f);
@@ -347,7 +345,7 @@ _src_smpte_init (gpointer impl, GstGLContext * context, GstVideoInfo * v_info)
   }
 
   /* middle row */
-  for (int i = 0; i < 7; i++) {
+  for (i = 0; i < 7; i++) {
     coord[color_idx * 4 + 0].X = -1.0f + i * (2.0f / 7.0f);
     coord[color_idx * 4 + 0].Y = 0.5f;
     coord[color_idx * 4 + 1].X = -1.0f + (i + 1) * (2.0f / 7.0f);
@@ -360,7 +358,7 @@ _src_smpte_init (gpointer impl, GstGLContext * context, GstVideoInfo * v_info)
   }
 
   /* bottom row, left three */
-  for (int i = 0; i < 3; i++) {
+  for (i = 0; i < 3; i++) {
     coord[color_idx * 4 + 0].X = -1.0f + i / 3.0f;
     coord[color_idx * 4 + 0].Y = 1.0f;
     coord[color_idx * 4 + 1].X = -1.0f + (i + 1) / 3.0f;
@@ -373,7 +371,7 @@ _src_smpte_init (gpointer impl, GstGLContext * context, GstVideoInfo * v_info)
   }
 
   /* bottom row, middle three (the blacks) */
-  for (int i = 0; i < 3; i++) {
+  for (i = 0; i < 3; i++) {
     coord[color_idx * 4 + 0].X = i / 6.0f;
     coord[color_idx * 4 + 0].Y = 1.0f;
     coord[color_idx * 4 + 1].X = (i + 1) / 6.0f;

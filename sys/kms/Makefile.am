@@ -1,35 +1,35 @@
-plugin_LTLIBRARIES = libgstkmssink.la
+plugin_LTLIBRARIES = libgstkms.la
 
-libgstkmssink_la_SOURCES = 			\
+libgstkms_la_SOURCES = 			\
 	gstkmssink.c				\
 	gstkmsutils.c				\
 	gstkmsallocator.c			\
 	gstkmsbufferpool.c			\
 	$(NUL)
 
-libgstkmssink_la_CFLAGS = 			\
+libgstkms_la_CFLAGS = 			\
 	$(GST_PLUGINS_BASE_CFLAGS) 		\
 	$(GST_BASE_CFLAGS) 			\
 	$(GST_VIDEO_CFLAGS)			\
 	$(GST_ALLOCATORS_CFLAGS)		\
 	$(GST_CFLAGS) 				\
-	$(DRM_CFLAGS) 				\
+	$(KMS_DRM_CFLAGS) 			\
 	$(NULL)
 
-libgstkmssink_la_LIBADD = 			\
+libgstkms_la_LIBADD = 			\
 	$(GST_PLUGINS_BASE_LIBS) 		\
 	$(GST_BASE_LIBS) 			\
 	$(GST_VIDEO_LIBS)			\
 	$(GST_ALLOCATORS_LIBS)			\
 	$(GST_LIBS) 				\
-	$(DRM_LIBS) 				\
+	$(KMS_DRM_LIBS) 			\
 	$(NULL)
 
-libgstkmssink_la_LDFLAGS = 			\
+libgstkms_la_LDFLAGS = 			\
 	$(GST_PLUGIN_LDFLAGS)			\
 	$(NULL)
 
-libgstkmssink_la_LIBTOOLFLAGS = 		\
+libgstkms_la_LIBTOOLFLAGS = 		\
 	$(GST_PLUGIN_LIBTOOLFLAGS) 		\
 	$(NULL)
 

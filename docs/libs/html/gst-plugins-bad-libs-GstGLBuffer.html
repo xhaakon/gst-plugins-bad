@@ -2,12 +2,12 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>GstGLBuffer: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
+<title>GstGlBuffer: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
-<link rel="prev" href="gst-plugins-bad-libs-gstglbasememory.html" title="GstGLBaseMemory">
-<link rel="next" href="GstGLBufferPool.html" title="GstGLBufferPool">
+<link rel="prev" href="gst-plugins-bad-libs-GstGlBaseMemory.html" title="GstGlBaseMemory">
+<link rel="next" href="GstGLBufferPool.html" title="GstGlBufferPool">
 <meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -20,15 +20,15 @@
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="gl.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
-<td><a accesskey="p" href="gst-plugins-bad-libs-gstglbasememory.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="p" href="gst-plugins-bad-libs-GstGlBaseMemory.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
 <td><a accesskey="n" href="GstGLBufferPool.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
 <a name="gst-plugins-bad-libs-GstGLBuffer"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
-<h2><span class="refentrytitle"><a name="gst-plugins-bad-libs-GstGLBuffer.top_of_page"></a>GstGLBuffer</span></h2>
-<p>GstGLBuffer — memory subclass for GL buffers</p>
+<h2><span class="refentrytitle"><a name="gst-plugins-bad-libs-GstGLBuffer.top_of_page"></a>GstGlBuffer</span></h2>
+<p>GstGlBuffer — memory subclass for GL buffers</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -58,7 +58,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a class="link" href="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams" title="struct GstGLBufferAllocationParams"><span class="returnvalue">GstGLBufferAllocationParams</span></a> *
+<a class="link" href="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams"><span class="returnvalue">GstGLBufferAllocationParams</span></a> *
 </td>
 <td class="function_name">
 <a class="link" href="gst-plugins-bad-libs-GstGLBuffer.html#gst-gl-buffer-allocation-params-new" title="gst_gl_buffer_allocation_params_new ()">gst_gl_buffer_allocation_params_new</a> <span class="c_punctuation">()</span>
@@ -67,7 +67,7 @@
 </tbody>
 </table></div>
 </div>
-<a name="GstGLBufferAllocator"></a><div class="refsect1">
+<a name="GstGLBufferAllocationParams"></a><a name="GstGLBufferAllocator"></a><div class="refsect1">
 <a name="gst-plugins-bad-libs-GstGLBuffer.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
@@ -81,7 +81,7 @@
 </tr>
 <tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams" title="struct GstGLBufferAllocationParams">GstGLBufferAllocationParams</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams-struct" title="struct GstGLBufferAllocationParams">GstGLBufferAllocationParams</a></td>
 </tr>
 <tr>
 <td class="define_keyword">#define</td>
@@ -108,18 +108,20 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-GstGLBuffer.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
+<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-Boxed-Types.html">GBoxed</a>
+    <span class="lineart">╰──</span> GstGLBufferAllocationParams
+    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
     <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
         <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
             <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocator-struct">GstAllocator</a>
-                <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemoryAllocator">GstGLBaseMemoryAllocator</a>
+                <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocator">GstGLBaseMemoryAllocator</a>
                     <span class="lineart">╰──</span> GstGLBufferAllocator
 </pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-GstGLBuffer.description"></a><h2>Description</h2>
 <p>GstGLBuffer is a <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstMemory.html#GstMemory-struct"><span class="type">GstMemory</span></a> subclass providing support for the mapping of
-GL buffers.  </p>
+GL buffers.</p>
 <p>Data is uploaded or downloaded from the GPU as is necessary.</p>
 </div>
 <div class="refsect1">
@@ -162,7 +164,7 @@ is a <a class="link" href="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBuffer" ti
 <hr>
 <div class="refsect2">
 <a name="gst-gl-buffer-allocation-params-new"></a><h3>gst_gl_buffer_allocation_params_new ()</h3>
-<pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams" title="struct GstGLBufferAllocationParams"><span class="returnvalue">GstGLBufferAllocationParams</span></a> *
+<pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams"><span class="returnvalue">GstGLBufferAllocationParams</span></a> *
 gst_gl_buffer_allocation_params_new (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>,
                                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> alloc_size</code></em>,
                                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocationParams-struct"><span class="type">GstAllocationParams</span></a> *alloc_params</code></em>,
@@ -208,7 +210,7 @@ gst_gl_buffer_allocation_params_new (<em class="parameter"><code><a class="link"
 </div>
 <div class="refsect3">
 <a name="gst-gl-buffer-allocation-params-new.returns"></a><h4>Returns</h4>
-<p> a new <a class="link" href="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams" title="struct GstGLBufferAllocationParams"><span class="type">GstGLBufferAllocationParams</span></a> for allocating OpenGL buffer
+<p> a new <a class="link" href="gst-plugins-bad-libs-GstGLBuffer.html#GstGLBufferAllocationParams"><span class="type">GstGLBufferAllocationParams</span></a> for allocating OpenGL buffer
 objects</p>
 </div>
 <p class="since">Since: 1.8</p>
@@ -237,7 +239,7 @@ objects</p>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemory" title="GstGLBaseMemory"><span class="type">GstGLBaseMemory</span></a> <em class="structfield"><code><a name="GstGLBuffer.mem"></a>mem</code></em>;</p></td>
+<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemory" title="GstGLBaseMemory"><span class="type">GstGLBaseMemory</span></a> <em class="structfield"><code><a name="GstGLBuffer.mem"></a>mem</code></em>;</p></td>
 <td class="struct_member_description"><p>the parent object</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
@@ -262,7 +264,7 @@ objects</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="GstGLBufferAllocationParams"></a><h3>struct GstGLBufferAllocationParams</h3>
+<a name="GstGLBufferAllocationParams-struct"></a><h3>struct GstGLBufferAllocationParams</h3>
 <pre class="programlisting">struct GstGLBufferAllocationParams {
   GstGLAllocationParams     parent;
 
@@ -280,17 +282,17 @@ objects</p>
 </colgroup>
 <tbody>
 <tr>
-<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> <em class="structfield"><code><a name="GstGLBufferAllocationParams.parent"></a>parent</code></em>;</p></td>
+<td class="struct_member_name"><p><a class="link" href="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLAllocationParams"><span class="type">GstGLAllocationParams</span></a> <em class="structfield"><code><a name="GstGLBufferAllocationParams-struct.parent"></a>parent</code></em>;</p></td>
 <td class="struct_member_description"><p>parent object</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstGLBufferAllocationParams.gl-target"></a>gl_target</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstGLBufferAllocationParams-struct.gl-target"></a>gl_target</code></em>;</p></td>
 <td class="struct_member_description"><p>the OpenGL target to bind the buffer to</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
-<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstGLBufferAllocationParams.gl-usage"></a>gl_usage</code></em>;</p></td>
+<td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstGLBufferAllocationParams-struct.gl-usage"></a>gl_usage</code></em>;</p></td>
 <td class="struct_member_description"><p>the OpenGL usage hint to create the buffer with</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>

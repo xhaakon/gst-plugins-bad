@@ -19,15 +19,15 @@
 
 /**
  * SECTION:element-hlssink
+ * @title: hlssink
  *
  * HTTP Live Streaming sink/server
  *
- * <refsect2>
- * <title>Example launch line</title>
+ * ## Example launch line
  * |[
  * gst-launch-1.0 videotestsrc is-live=true ! x264enc ! mpegtsmux ! hlssink max-files=5
  * ]|
- * </refsect2>
+ *
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -199,8 +199,6 @@ static void
 gst_hls_sink_reset (GstHlsSink * sink)
 {
   sink->index = 0;
-  sink->count = 0;
-  sink->timeout_id = 0;
   sink->last_running_time = 0;
   sink->waiting_fku = FALSE;
   gst_event_replace (&sink->force_key_unit_event, NULL);

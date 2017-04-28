@@ -89,23 +89,26 @@
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-shmsrc.description"></a><h2>Description</h2>
 <p>Receive data from the shared memory sink.</p>
-<div class="refsect2">
-<a name="id-1.2.112.7.3"></a><h3>Example launch lines</h3>
+<div class="refsect3">
+<a name="id-1.2.112.7.3"></a><h4>Example launch lines</h4>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
       <tr>
         <td class="listing_lines" align="right"><pre>1
 2
-3</pre></td>
+3
+4</pre></td>
         <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> shmsrc socket<span class="gtkdoc opt">-</span>path<span class="gtkdoc opt">=/</span>tmp<span class="gtkdoc opt">/</span>blah <span class="gtkdoc opt">!</span> \
-<span class="string">&quot;video/x-yuv, format=YUY2, color-matrix=sdtv, \</span>
-<span class="string">chroma-site=mpeg2, width=(int)320, height=(int)240, framerate=(fraction)30/1&quot;</span> <span class="gtkdoc opt">!</span> autovideosink</pre></td>
+<span class="string">&quot;video/x-raw, format=YUY2, color-matrix=sdtv, \</span>
+<span class="string">chroma-site=mpeg2, width=(int)320, height=(int)240, framerate=(fraction)30/1&quot;</span> \
+<span class="gtkdoc opt">!</span> queue <span class="gtkdoc opt">!</span> videoconvert <span class="gtkdoc opt">!</span> autovideosink</pre></td>
       </tr>
     </tbody>
   </table>
 </div>
- Render video from shm buffers.
+
+<p> Render video from shm buffers.</p>
 </div>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>

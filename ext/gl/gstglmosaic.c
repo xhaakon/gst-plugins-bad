@@ -20,14 +20,14 @@
 
 /**
  * SECTION:element-glmosaic
+ * @title: glmosaic
  *
  * glmixer sub element. N gl sink pads to 1 source pad.
  * N + 1 OpenGL contexts shared together.
  * N <= 6 because the rendering is more a like a cube than a mosaic
  * Each opengl input stream is rendered on a cube face
  *
- * <refsect2>
- * <title>Examples</title>
+ * ## Examples
  * |[
  * gst-launch-1.0 videotestsrc ! video/x-raw, format=YUY2 ! queue ! glmosaic name=m ! glimagesink \
  *     videotestsrc pattern=12 ! video/x-raw, format=I420, framerate=5/1, width=100, height=200 ! queue ! m. \
@@ -37,7 +37,7 @@
  *     videotestsrc ! gleffects effect=6 ! queue ! m.
  * ]|
  * FBO (Frame Buffer Object) is required.
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -45,6 +45,7 @@
 #endif
 
 #include "gstglmosaic.h"
+#include "gstglutils.h"
 
 #define GST_CAT_DEFAULT gst_gl_mosaic_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -177,8 +178,7 @@ gst_gl_mosaic_reset (GstGLMixer * mixer)
 
   //blocking call, wait the opengl thread has destroyed the shader
   if (mosaic->shader)
-    gst_gl_context_del_shader (GST_GL_BASE_MIXER (mixer)->context,
-        mosaic->shader);
+    gst_object_unref (mosaic->shader);
   mosaic->shader = NULL;
 }
 

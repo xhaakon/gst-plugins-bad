@@ -45,7 +45,7 @@ gst_abi=$(gst_major).$(gst_minor)
 gst_lib=libgstreamer$(gst_abi)-0
 gst_lib_dev=libgstreamer$(gst_abi)-dev
 # what gstreamer version is needed
-gst_lib_dev_dep=$(gst_lib_dev) (>= 1.10.0)
+gst_lib_dev_dep=$(gst_lib_dev) (>= 1.11.91)
 
 gst_pkgname=gstreamer$(gst_abi)
 gst_deb_abi=$(gst_abi)-0
@@ -58,8 +58,10 @@ gst_extra_build_depends += , libgudev-1.0-dev (>= 143) [linux-any]
 gst_extra_build_depends += , libusb-1.0-0-dev [linux-any]
 gst_extra_build_depends += , libbluetooth-dev (>= 5) [linux-any]
 gst_extra_build_depends += , libsbc-dev (>= 1.1) [linux-any]
-gst_extra_build_depends += , libwayland-dev (>= 1.0) [linux-any]
-gst_extra_build_depends += , wayland-protocols [linux-any]
+gst_extra_build_depends += , libwayland-dev (>= 1.4.0) [linux-any]
+gst_extra_build_depends += , libdrm-dev (>= 2.4.55) [linux-any]
+gst_extra_build_depends += , wayland-protocols (>= 1.4) [linux-any]
+gst_extra_build_depends += , libvulkan-dev [linux-any]
 
 # The plugins are basically the same.
 # Link special names to a template file.
@@ -100,6 +102,8 @@ bluez = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstblue
 sbc = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstsbc.so
 waylandsink = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstwaylandsink.so
 wayland = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libgstwayland-$(gst_abi).so.*
+kms = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstkms.so
+vulkan = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstvulkan.so
 endif
 
 ifeq ($(DEB_HOST_ARCH_OS),kfreebsd)
@@ -144,6 +148,8 @@ pre-build::
 			-e 's,@bluez@,$(bluez),g' \
 			-e 's,@sbc@,$(sbc),g' \
 			-e 's,@waylandsink@,$(waylandsink),g' \
+			-e 's,@kms@,$(kms),g' \
+			-e 's,@vulkan@,$(vulkan),g' \
 			-e 's/@GST_ABI@/$(gst_abi)/g' \
 			debian/gstreamer-$$p.install \
 			> debian/$(gst_pkgname)-$$p.install; \
@@ -209,7 +215,6 @@ DEB_CONFIGURE_EXTRA_FLAGS += \
 	--disable-examples \
 	--enable-DEBUG \
 	--enable-debug \
-	--enable-experimental \
 	--with-package-name=$(GST_PACKAGE_NAME) \
 	--with-package-origin=$(GST_PACKAGE_ORIGIN) \
 	--disable-pvr

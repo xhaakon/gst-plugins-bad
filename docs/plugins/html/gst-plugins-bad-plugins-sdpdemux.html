@@ -101,14 +101,14 @@ GstSDPDemux implements
 For each stream listed in the SDP a new stream_%u pad will be created
 with caps derived from the SDP media description. This is a caps of mime type
 "application/x-rtp" that can be connected to any available RTP depayloader
-element. </p>
+element.</p>
 <p>sdpdemux will internally instantiate an RTP session manager element
 that will handle the RTCP messages to and from the server, jitter removal,
-packet reordering along with providing a clock for the pipeline. </p>
-<p>sdpdemux acts like a live element and will therefore only generate data in the 
+packet reordering along with providing a clock for the pipeline.</p>
+<p>sdpdemux acts like a live element and will therefore only generate data in the
 PLAYING state.</p>
-<div class="refsect2">
-<a name="id-1.2.113.8.5"></a><h3>Example launch line</h3>
+<div class="refsect3">
+<a name="id-1.2.113.8.5"></a><h4>Example launch line</h4>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -119,8 +119,9 @@ PLAYING state.</p>
     </tbody>
   </table>
 </div>
- Establish a connection to an HTTP server that contains an SDP session description
-that gets parsed by sdpdemux and send the raw RTP packets to a fakesink.
+
+<p> Establish a connection to an HTTP server that contains an SDP session description
+that gets parsed by sdpdemux and send the raw RTP packets to a fakesink.</p>
 </div>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
@@ -135,7 +136,7 @@ that gets parsed by sdpdemux and send the raw RTP packets to a fakesink.
 <tr>
 <td><p><span class="term">plugin</span></p></td>
 <td>
-            <a class="link" href="gst-plugins-bad-plugins-plugin-sdp.html#plugin-sdp">sdp</a>
+            <a class="link" href="gst-plugins-bad-plugins-plugin-sdpelem.html#plugin-sdpelem">sdpelem</a>
           </td>
 </tr>
 <tr>

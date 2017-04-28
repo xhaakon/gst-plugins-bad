@@ -79,7 +79,7 @@ gst_ca_opengl_layer_sink_bin_get_property (GObject * object, guint prop_id,
 static void
 gst_ca_opengl_layer_sink_bin_init (GstCAOpenGLLayerSinkBin * self)
 {
-  GstGLCAOpenGLLayer *sink = g_object_new (GST_TYPE_CA_OPENGL_LAYER_SINK, NULL);
+  gpointer *sink = g_object_new (GST_TYPE_CA_OPENGL_LAYER_SINK, NULL);
 
   g_signal_connect (sink, "notify::layer", G_CALLBACK (_on_notify_layer), self);
 
@@ -216,7 +216,7 @@ gst_ca_opengl_layer_sink_class_init (GstCAOpenGLLayerSinkClass * klass)
       g_param_spec_object ("context",
           "OpenGL context",
           "Get OpenGL context",
-          GST_GL_TYPE_CONTEXT, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+          GST_TYPE_GL_CONTEXT, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_LAYER,
       g_param_spec_pointer ("layer", "CAOpenGLLayer",
@@ -265,6 +265,11 @@ gst_ca_opengl_layer_sink_finalize (GObject * object)
   ca_sink = GST_CA_OPENGL_LAYER_SINK (object);
 
   g_mutex_clear (&ca_sink->drawing_lock);
+
+  if (ca_sink->layer) {
+    CFRelease(ca_sink->layer);
+    ca_sink->layer = NULL;
+  }
 
   GST_DEBUG ("finalized");
   G_OBJECT_CLASS (parent_class)->finalize (object);
@@ -322,13 +327,16 @@ static void
 _create_layer (gpointer data)
 {
   GstCAOpenGLLayerSink *ca_sink = data;
+  id layer;
 
   if (!ca_sink->layer) {
-    ca_sink->layer = [[NSClassFromString(@"GstGLCAOpenGLLayer") alloc]
+    layer = [[NSClassFromString(@"GstGLCAOpenGLLayer") alloc]
         initWithGstGLContext:GST_GL_CONTEXT_COCOA (ca_sink->context)];
-    [ca_sink->layer setDrawCallback:(GstGLWindowCB)gst_ca_opengl_layer_sink_on_draw
+
+    ca_sink->layer = (__bridge_retained gpointer)layer;
+    [layer setDrawCallback:(GstGLWindowCB)gst_ca_opengl_layer_sink_on_draw
         data:ca_sink notify:NULL];
-    [ca_sink->layer setResizeCallback:(GstGLWindowResizeCB)gst_ca_opengl_layer_sink_on_resize
+    [layer setResizeCallback:(GstGLWindowResizeCB)gst_ca_opengl_layer_sink_on_resize
         data:ca_sink notify:NULL];
     g_object_notify (G_OBJECT (ca_sink), "layer");
   }
@@ -387,41 +395,10 @@ gst_ca_opengl_layer_sink_query (GstBaseSink * bsink, GstQuery * query)
   switch (GST_QUERY_TYPE (query)) {
     case GST_QUERY_CONTEXT:
     {
-      const gchar *context_type;
-      GstContext *context, *old_context;
-      gboolean ret;
-
-      ret =
-          gst_gl_handle_context_query ((GstElement *) ca_sink, query,
-          &ca_sink->display, &ca_sink->other_context);
-      if (ca_sink->display)
-        gst_gl_display_filter_gl_api (ca_sink->display, SUPPORTED_GL_APIS);
-
-      gst_query_parse_context_type (query, &context_type);
-
-      if (g_strcmp0 (context_type, "gst.gl.local_context") == 0) {
-        GstStructure *s;
-
-        gst_query_parse_context (query, &old_context);
-
-        if (old_context)
-          context = gst_context_copy (old_context);
-        else
-          context = gst_context_new ("gst.gl.local_context", FALSE);
-
-        s = gst_context_writable_structure (context);
-        gst_structure_set (s, "context", GST_GL_TYPE_CONTEXT,
-            ca_sink->context, NULL);
-        gst_query_set_context (query, context);
-        gst_context_unref (context);
-
-        ret = ca_sink->context != NULL;
-      }
-      GST_DEBUG_OBJECT (ca_sink, "context query of type %s %i",
-          context_type, ret);
-
-      if (ret)
-        return ret;
+      if (gst_gl_handle_context_query ((GstElement *) ca_sink, query,
+          ca_sink->display, ca_sink->context, ca_sink->other_context))
+        return TRUE;
+      break;
     }
     case GST_QUERY_DRAIN:
     {
@@ -538,6 +515,10 @@ gst_ca_opengl_layer_sink_change_state (GstElement * element, GstStateChange tran
       break;
     }
     case GST_STATE_CHANGE_READY_TO_NULL:
+      if (ca_sink->layer) {
+        CFRelease(ca_sink->layer);
+        ca_sink->layer = NULL;
+      }
       break;
     default:
       break;
@@ -729,7 +710,7 @@ gst_ca_opengl_layer_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
   /* The layer will automatically call the draw callback to draw the new
    * content */
   [CATransaction begin];
-  [ca_sink->layer setNeedsDisplay];
+  [(__bridge GstGLCAOpenGLLayer *)(ca_sink->layer) setNeedsDisplay];
   [CATransaction commit];
 
   GST_TRACE ("post redisplay");
@@ -1014,8 +995,7 @@ gst_ca_opengl_layer_sink_on_draw (GstCAOpenGLLayerSink * ca_sink)
 
   if (gl->GenVertexArrays)
     gl->BindVertexArray (ca_sink->vao);
-  else
-    _bind_buffer (ca_sink);
+  _bind_buffer (ca_sink);
 
   gl->ActiveTexture (GL_TEXTURE0);
   gl->BindTexture (GL_TEXTURE_2D, ca_sink->redisplay_texture);
@@ -1025,8 +1005,7 @@ gst_ca_opengl_layer_sink_on_draw (GstCAOpenGLLayerSink * ca_sink)
 
   if (gl->GenVertexArrays)
     gl->BindVertexArray (0);
-  else
-    _unbind_buffer (ca_sink);
+  _unbind_buffer (ca_sink);
 
   /* end default opengl scene */
   GST_CA_OPENGL_LAYER_SINK_UNLOCK (ca_sink);

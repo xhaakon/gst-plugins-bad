@@ -93,6 +93,46 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--delay-agnostic" title="The “delay-agnostic” property">delay-agnostic</a></td>
 <td class="property_flags">Read / Write / Construct</td>
 </tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--compression-gain-db" title="The “compression-gain-db” property">compression-gain-db</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type"><span class="type">GstWebrtcGainControlMode</span></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--gain-control-mode" title="The “gain-control-mode” property">gain-control-mode</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--limiter" title="The “limiter” property">limiter</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--startup-min-volume" title="The “startup-min-volume” property">startup-min-volume</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--target-level-dbfs" title="The “target-level-dbfs” property">target-level-dbfs</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--voice-detection" title="The “voice-detection” property">voice-detection</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--voice-detection-frame-size-ms" title="The “voice-detection-frame-size-ms” property">voice-detection-frame-size-ms</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
+<tr>
+<td class="property_type"><span class="type">GstWebrtcVoiceDetectionLikelihood</span></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--voice-detection-likelihood" title="The “voice-detection-likelihood” property">voice-detection-likelihood</a></td>
+<td class="property_flags">Read / Write / Construct</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -116,7 +156,7 @@
         <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
             <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstElement.html#GstElement-struct">GstElement</a>
                 <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-libs-1.0GstBaseTransform.html#GstBaseTransform-struct">GstBaseTransform</a>
-                    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-gstaudiofilter.html#GstAudioFilter-struct">GstAudioFilter</a>
+                    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0GstAudioFilter.html#GstAudioFilter-struct">GstAudioFilter</a>
                         <span class="lineart">╰──</span> GstWebrtcDsp
 </pre>
 </div>
@@ -346,6 +386,74 @@ represent a real pipeline.</p>
 <p>Enable or disable the delay agnostic mode.</p>
 <p>Flags: Read / Write / Construct</p>
 <p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebrtcDsp--compression-gain-db"></a><h3>The <code class="literal">“compression-gain-db”</code> property</h3>
+<pre class="programlisting">  “compression-gain-db”      <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>Sets the maximum |gain| the digital compression stage may apply, in dB.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Allowed values: [0,90]</p>
+<p>Default value: 9</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebrtcDsp--gain-control-mode"></a><h3>The <code class="literal">“gain-control-mode”</code> property</h3>
+<pre class="programlisting">  “gain-control-mode”        <span class="type">GstWebrtcGainControlMode</span></pre>
+<p>Controls the mode of the compression stage.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Default value: Adaptive Digital</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebrtcDsp--limiter"></a><h3>The <code class="literal">“limiter”</code> property</h3>
+<pre class="programlisting">  “limiter”                  <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>When enabled, the compression stage will hard limit the signal to the target level. Otherwise, the signal will be compressed but not limited above the target level.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Default value: TRUE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebrtcDsp--startup-min-volume"></a><h3>The <code class="literal">“startup-min-volume”</code> property</h3>
+<pre class="programlisting">  “startup-min-volume”       <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>At startup the experimental AGC moves the microphone volume up to |startup_min_volume| if the current microphone volume is set too low. No effect if experimental-agc isn't enabled.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Allowed values: [12,255]</p>
+<p>Default value: 12</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebrtcDsp--target-level-dbfs"></a><h3>The <code class="literal">“target-level-dbfs”</code> property</h3>
+<pre class="programlisting">  “target-level-dbfs”        <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>Sets the target peak |level| (or envelope) of the gain control in dBFS (decibels from digital full-scale).</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Allowed values: [0,31]</p>
+<p>Default value: 3</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebrtcDsp--voice-detection"></a><h3>The <code class="literal">“voice-detection”</code> property</h3>
+<pre class="programlisting">  “voice-detection”          <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Enable or disable the voice activity detector.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebrtcDsp--voice-detection-frame-size-ms"></a><h3>The <code class="literal">“voice-detection-frame-size-ms”</code> property</h3>
+<pre class="programlisting">  “voice-detection-frame-size-ms” <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>Sets the |size| of the frames in ms on which the VAD will operate. Larger frames will improve detection accuracy, but reduce the frequency of updates.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Allowed values: [10,30]</p>
+<p>Default value: 10</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebrtcDsp--voice-detection-likelihood"></a><h3>The <code class="literal">“voice-detection-likelihood”</code> property</h3>
+<pre class="programlisting">  “voice-detection-likelihood” <span class="type">GstWebrtcVoiceDetectionLikelihood</span></pre>
+<p>Specifies the likelihood that a frame will be declared to contain voice.</p>
+<p>Flags: Read / Write / Construct</p>
+<p>Default value: Low Likelihood</p>
 </div>
 </div>
 </div>

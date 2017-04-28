@@ -1,6 +1,4 @@
 01_fix-modplug-linking.patch
-02_opencv-linking.patch
-0001-Make-sure-to-link-gme-plugin-with-lz.patch
 pcfile-requires-plugins-good
 adding-mirsink-and-android-media-over-hybris-support.patch
 desktop-mirsink.patch

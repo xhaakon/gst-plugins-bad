@@ -46,7 +46,7 @@
 #ifndef __GST_EDGE_DETECT_H__
 #define __GST_EDGE_DETECT_H__
 
-#include <gstopencvvideofilter.h>
+#include <gst/opencv/gstopencvvideofilter.h>
 #include <opencv2/core/core_c.h>
 
 G_BEGIN_DECLS
@@ -71,9 +71,12 @@ struct _GstEdgeDetect
 
   gboolean mask;
 
-  int threshold1, threshold2, aperture;
+  int threshold1;
+  int threshold2;
+  int aperture;
 
-  IplImage *cvEdge, *cvGray, *cvCEdge;
+  IplImage *cvEdge;
+  IplImage *cvGray;
 };
 
 struct _GstEdgeDetectClass

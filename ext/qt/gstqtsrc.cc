@@ -97,18 +97,18 @@ gst_qt_src_class_init (GstQtSrcClass * klass)
   gobject_class->finalize = gst_qt_src_finalize;
 
   gst_element_class_set_metadata (gstelement_class, "Qt Video Source",
-      "Source/Video", "A video src the grab window from a qml view",
+      "Source/Video", "A video src that captures a window from a QML view",
       "Multimedia Team <shmmmw@freescale.com>");
 
   g_object_class_install_property (gobject_class, PROP_WINDOW,
       g_param_spec_pointer ("window", "QQuickWindow",
-          "The QQuickWindow to place in the object heirachy",
+          "The QQuickWindow to place in the object hierarchy",
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 
   g_object_class_install_property (gobject_class, PROP_DEFAULT_FBO,
       g_param_spec_boolean ("use-default-fbo",
-          "If use default fbo",
-          "When set TRUE, it will not create new fbo for qml render thread",
+          "Whether to use default FBO",
+          "When set it will not create a new FBO for the QML render thread",
           FALSE, (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 
   gst_element_class_add_pad_template (gstelement_class,
@@ -145,8 +145,11 @@ gst_qt_src_set_property (GObject * object, guint prop_id,
       qt_src->qwindow =
           static_cast < QQuickWindow * >(g_value_get_pointer (value));
 
-      if (qt_src->window)
+      if (qt_src->window) {
         delete qt_src->window;
+        qt_src->window = NULL;
+      }
+
       if (qt_src->qwindow)
         qt_src->window = new QtGLWindow (NULL, qt_src->qwindow);
 
@@ -154,6 +157,8 @@ gst_qt_src_set_property (GObject * object, guint prop_id,
     }
     case PROP_DEFAULT_FBO:
       qt_src->default_fbo = g_value_get_boolean (value);
+      if (qt_src->window)
+        qt_window_use_default_fbo (qt_src->window, qt_src->default_fbo);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -278,10 +283,6 @@ gst_qt_src_query (GstBaseSrc * bsrc, GstQuery * query)
   switch (GST_QUERY_TYPE (query)) {
     case GST_QUERY_CONTEXT:
     {
-      const gchar *context_type;
-      GstContext *context, *old_context;
-      gboolean ret;
-
       if (!qt_window_is_scenegraph_initialized (qt_src->window))
         return FALSE;
 
@@ -290,37 +291,9 @@ gst_qt_src_query (GstBaseSrc * bsrc, GstQuery * query)
         qt_src->qt_context = qt_window_get_qt_context (qt_src->window);
       }
 
-      ret = gst_gl_handle_context_query ((GstElement *) qt_src, query,
-          &qt_src->display, &qt_src->qt_context);
-
-      if (qt_src->display)
-        gst_gl_display_filter_gl_api (qt_src->display,
-            gst_gl_context_get_gl_api (qt_src->qt_context));
-
-      gst_query_parse_context_type (query, &context_type);
-
-      if (g_strcmp0 (context_type, "gst.gl.app_context") == 0) {
-        GstStructure *s;
-
-        gst_query_parse_context (query, &old_context);
-
-        if (old_context)
-          context = gst_context_copy (old_context);
-        else
-          context = gst_context_new ("gst.gl.app_context", FALSE);
-
-        s = gst_context_writable_structure (context);
-        gst_structure_set (s, "context", GST_GL_TYPE_CONTEXT,
-            qt_src->qt_context, NULL);
-        gst_query_set_context (query, context);
-        gst_context_unref (context);
-
-        ret = qt_src->qt_context != NULL;
-      }
-      GST_LOG_OBJECT (qt_src, "context query of type %s %i", context_type, ret);
-
-      if (ret)
-        return ret;
+      if (gst_gl_handle_context_query ((GstElement *) qt_src, query,
+          qt_src->display, qt_src->context, qt_src->qt_context))
+        return TRUE;
 
       /* fallthrough */
     }
@@ -335,31 +308,9 @@ gst_qt_src_query (GstBaseSrc * bsrc, GstQuery * query)
 static gboolean
 _find_local_gl_context (GstQtSrc * qt_src)
 {
-  GstQuery *query;
-  GstContext *context;
-  const GstStructure *s;
-
-  if (qt_src->context)
+  if (gst_gl_query_local_gl_context (GST_ELEMENT (qt_src), GST_PAD_SRC,
+      &qt_src->context))
     return TRUE;
-
-  query = gst_query_new_context ("gst.gl.local_context");
-  if (!qt_src->context
-      && gst_gl_run_query (GST_ELEMENT (qt_src), query, GST_PAD_SRC)) {
-    gst_query_parse_context (query, &context);
-    if (context) {
-      s = gst_context_get_structure (context);
-      gst_structure_get (s, "context", GST_GL_TYPE_CONTEXT, &qt_src->context,
-          NULL);
-    }
-  }
-
-  GST_DEBUG_OBJECT (qt_src, "found local context %p", qt_src->context);
-
-  gst_query_unref (query);
-
-  if (qt_src->context)
-    return TRUE;
-
   return FALSE;
 }
 
@@ -442,7 +393,7 @@ gst_qt_src_decide_allocation (GstBaseSrc * bsrc, GstQuery * query)
 
   glparams =
       gst_gl_video_allocation_params_new (qt_src->context, &params, &vinfo, 0,
-      NULL, GST_GL_TEXTURE_TARGET_2D, GST_VIDEO_GL_TEXTURE_TYPE_RGBA);
+      NULL, GST_GL_TEXTURE_TARGET_2D, GST_GL_RGBA);
   gst_buffer_pool_config_set_gl_allocation_params (config,
       (GstGLAllocationParams *) glparams);
   gst_gl_allocation_params_free ((GstGLAllocationParams *) glparams);
@@ -508,7 +459,6 @@ gst_qt_src_change_state (GstElement * element, GstStateChange transition)
   GstQtSrc *qt_src = GST_QT_SRC (element);
   GstStateChangeReturn ret = GST_STATE_CHANGE_SUCCESS;
   QGuiApplication *app;
-  guint64 frames_rendered = 0;
 
   GST_DEBUG ("changing state: %s => %s",
       gst_element_state_get_name (GST_STATE_TRANSITION_CURRENT (transition)),
@@ -553,18 +503,10 @@ gst_qt_src_change_state (GstElement * element, GstStateChange transition)
 
   switch (transition) {
     case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
-      qt_src->run_time = gst_element_get_start_time (GST_ELEMENT (qt_src));
       break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:
       break;
     case GST_STATE_CHANGE_READY_TO_NULL:
-      qt_window_get_total_frames (qt_src->window, &frames_rendered);
-      if (qt_src->run_time > 0) {
-        GST_DEBUG ("qmlglsrc Total refresh frames (%ld), playing for (%"
-            GST_TIME_FORMAT "), fps (%.3f).\n", frames_rendered,
-            GST_TIME_ARGS (qt_src->run_time),
-            (gfloat) GST_SECOND * frames_rendered / qt_src->run_time);
-      }
       break;
     default:
       break;

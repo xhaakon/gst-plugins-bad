@@ -34,6 +34,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_decklink_audio_src_debug);
 
 #define DEFAULT_ALIGNMENT_THRESHOLD   (40 * GST_MSECOND)
 #define DEFAULT_DISCONT_WAIT          (1 * GST_SECOND)
+#define DEFAULT_CHANNELS              (GST_DECKLINK_AUDIO_CHANNELS_2)
 
 enum
 {
@@ -42,7 +43,8 @@ enum
   PROP_DEVICE_NUMBER,
   PROP_ALIGNMENT_THRESHOLD,
   PROP_DISCONT_WAIT,
-  PROP_BUFFER_SIZE
+  PROP_BUFFER_SIZE,
+  PROP_CHANNELS,
 };
 
 static GstStaticPadTemplate sink_template = GST_STATIC_PAD_TEMPLATE ("src",
@@ -50,23 +52,23 @@ static GstStaticPadTemplate sink_template = GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS
     ("audio/x-raw, format={S16LE,S32LE}, channels=2, rate=48000, "
+        "layout=interleaved;"
+        "audio/x-raw, format={S16LE,S32LE}, channels={8,16}, channel-mask=(bitmask)0, rate=48000, "
         "layout=interleaved")
     );
 
 typedef struct
 {
   IDeckLinkAudioInputPacket *packet;
-  GstClockTime capture_time;
-  gboolean discont;
+  GstClockTime timestamp;
+  gboolean no_signal;
 } CapturePacket;
 
 static void
-capture_packet_free (void *data)
+capture_packet_clear (CapturePacket * packet)
 {
-  CapturePacket *packet = (CapturePacket *) data;
-
   packet->packet->Release ();
-  g_free (packet);
+  memset (packet, 0, sizeof (*packet));
 }
 
 typedef struct
@@ -171,6 +173,13 @@ gst_decklink_audio_src_class_init (GstDecklinkAudioSrcClass * klass)
           G_MAXINT, DEFAULT_BUFFER_SIZE,
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 
+  g_object_class_install_property (gobject_class, PROP_CHANNELS,
+      g_param_spec_enum ("channels", "Channels",
+          "Audio channels",
+          GST_TYPE_DECKLINK_AUDIO_CHANNELS, DEFAULT_CHANNELS,
+          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
+              G_PARAM_CONSTRUCT)));
+
   gst_element_class_add_static_pad_template (element_class, &sink_template);
 
   gst_element_class_set_static_metadata (element_class, "Decklink Audio Source",
@@ -188,6 +197,7 @@ gst_decklink_audio_src_init (GstDecklinkAudioSrc * self)
   self->alignment_threshold = DEFAULT_ALIGNMENT_THRESHOLD;
   self->discont_wait = DEFAULT_DISCONT_WAIT;
   self->buffer_size = DEFAULT_BUFFER_SIZE;
+  self->channels = DEFAULT_CHANNELS;
 
   gst_base_src_set_live (GST_BASE_SRC (self), TRUE);
   gst_base_src_set_format (GST_BASE_SRC (self), GST_FORMAT_TIME);
@@ -195,7 +205,9 @@ gst_decklink_audio_src_init (GstDecklinkAudioSrc * self)
   g_mutex_init (&self->lock);
   g_cond_init (&self->cond);
 
-  g_queue_init (&self->current_packets);
+  self->current_packets =
+      gst_queue_array_new_for_struct (sizeof (CapturePacket),
+      DEFAULT_BUFFER_SIZE);
 }
 
 void
@@ -220,6 +232,9 @@ gst_decklink_audio_src_set_property (GObject * object, guint property_id,
       break;
     case PROP_BUFFER_SIZE:
       self->buffer_size = g_value_get_uint (value);
+      break;
+    case PROP_CHANNELS:
+      self->channels = (GstDecklinkAudioChannelsEnum) g_value_get_enum (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -249,6 +264,9 @@ gst_decklink_audio_src_get_property (GObject * object, guint property_id,
     case PROP_BUFFER_SIZE:
       g_value_set_uint (value, self->buffer_size);
       break;
+    case PROP_CHANNELS:
+      g_value_set_enum (value, self->channels);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -262,6 +280,15 @@ gst_decklink_audio_src_finalize (GObject * object)
 
   g_mutex_clear (&self->lock);
   g_cond_clear (&self->cond);
+  if (self->current_packets) {
+    while (gst_queue_array_get_length (self->current_packets) > 0) {
+      CapturePacket *tmp = (CapturePacket *)
+          gst_queue_array_pop_head_struct (self->current_packets);
+      capture_packet_clear (tmp);
+    }
+    gst_queue_array_free (self->current_packets);
+    self->current_packets = NULL;
+  }
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -383,7 +410,7 @@ gst_decklink_audio_src_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
   }
 
   ret = self->input->input->EnableAudioInput (bmdAudioSampleRate48kHz,
-      sample_depth, 2);
+      sample_depth, self->info.channels);
   if (ret != S_OK) {
     GST_WARNING_OBJECT (self, "Failed to enable audio input: 0x%08x", ret);
     return FALSE;
@@ -401,13 +428,31 @@ gst_decklink_audio_src_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
 static GstCaps *
 gst_decklink_audio_src_get_caps (GstBaseSrc * bsrc, GstCaps * filter)
 {
+  GstDecklinkAudioSrc *self = GST_DECKLINK_AUDIO_SRC_CAST (bsrc);
   GstCaps *caps;
 
   // We don't support renegotiation
   caps = gst_pad_get_current_caps (GST_BASE_SRC_PAD (bsrc));
 
-  if (!caps)
-    caps = gst_pad_get_pad_template_caps (GST_BASE_SRC_PAD (bsrc));
+  if (!caps) {
+    GstCaps *channel_filter, *templ;
+
+    templ = gst_pad_get_pad_template_caps (GST_BASE_SRC_PAD (bsrc));
+    if (self->channels_found > 0) {
+      channel_filter =
+          gst_caps_new_simple ("audio/x-raw", "channels", G_TYPE_INT,
+          self->channels_found, NULL);
+    } else if (self->channels > 0) {
+      channel_filter =
+          gst_caps_new_simple ("audio/x-raw", "channels", G_TYPE_INT,
+          self->channels, NULL);
+    } else {
+      channel_filter = gst_caps_new_empty_simple ("audio/x-raw");
+    }
+    caps = gst_caps_intersect (channel_filter, templ);
+    gst_caps_unref (channel_filter);
+    gst_caps_unref (templ);
+  }
 
   if (filter) {
     GstCaps *tmp =
@@ -422,45 +467,73 @@ gst_decklink_audio_src_get_caps (GstBaseSrc * bsrc, GstCaps * filter)
 static void
 gst_decklink_audio_src_got_packet (GstElement * element,
     IDeckLinkAudioInputPacket * packet, GstClockTime capture_time,
-    gboolean discont)
+    GstClockTime packet_time, gboolean no_signal)
 {
   GstDecklinkAudioSrc *self = GST_DECKLINK_AUDIO_SRC_CAST (element);
-  GstDecklinkVideoSrc *videosrc = NULL;
+  GstClockTime timestamp;
 
-  GST_LOG_OBJECT (self, "Got audio packet at %" GST_TIME_FORMAT,
-      GST_TIME_ARGS (capture_time));
+  GST_LOG_OBJECT (self,
+      "Got audio packet at %" GST_TIME_FORMAT " / %" GST_TIME_FORMAT
+      ", no signal %d", GST_TIME_ARGS (capture_time),
+      GST_TIME_ARGS (packet_time), no_signal);
 
   g_mutex_lock (&self->input->lock);
-  if (self->input->videosrc)
-    videosrc =
+  if (self->input->videosrc) {
+    GstDecklinkVideoSrc *videosrc =
         GST_DECKLINK_VIDEO_SRC_CAST (gst_object_ref (self->input->videosrc));
+
+    if (videosrc->drop_no_signal_frames && no_signal) {
+      g_mutex_unlock (&self->input->lock);
+      return;
+    }
+
+    if (videosrc->first_time == GST_CLOCK_TIME_NONE)
+      videosrc->first_time = packet_time;
+
+    if (videosrc->skip_first_time > 0
+        && packet_time - videosrc->first_time < videosrc->skip_first_time) {
+      GST_DEBUG_OBJECT (self,
+          "Skipping frame as requested: %" GST_TIME_FORMAT " < %"
+          GST_TIME_FORMAT, GST_TIME_ARGS (packet_time),
+          GST_TIME_ARGS (videosrc->skip_first_time + videosrc->first_time));
+      g_mutex_unlock (&self->input->lock);
+      return;
+    }
+
+    if (videosrc->output_stream_time)
+      timestamp = packet_time;
+    else
+      timestamp = gst_clock_adjust_with_calibration (NULL, packet_time,
+          videosrc->current_time_mapping.xbase,
+          videosrc->current_time_mapping.b, videosrc->current_time_mapping.num,
+          videosrc->current_time_mapping.den);
+  } else {
+    timestamp = capture_time;
+  }
   g_mutex_unlock (&self->input->lock);
 
-  if (videosrc) {
-    gst_decklink_video_src_convert_to_external_clock (videosrc, &capture_time,
-        NULL);
-    gst_object_unref (videosrc);
-    GST_LOG_OBJECT (self, "Actual timestamp %" GST_TIME_FORMAT,
-        GST_TIME_ARGS (capture_time));
-  }
+  GST_LOG_OBJECT (self, "Converted times to %" GST_TIME_FORMAT,
+      GST_TIME_ARGS (timestamp));
 
   g_mutex_lock (&self->lock);
   if (!self->flushing) {
-    CapturePacket *p;
+    CapturePacket p;
 
-    while (g_queue_get_length (&self->current_packets) >= self->buffer_size) {
-      p = (CapturePacket *) g_queue_pop_head (&self->current_packets);
+    while (gst_queue_array_get_length (self->current_packets) >=
+        self->buffer_size) {
+      CapturePacket *tmp = (CapturePacket *)
+          gst_queue_array_pop_head_struct (self->current_packets);
       GST_WARNING_OBJECT (self, "Dropping old packet at %" GST_TIME_FORMAT,
-          GST_TIME_ARGS (p->capture_time));
-      capture_packet_free (p);
+          GST_TIME_ARGS (tmp->timestamp));
+      capture_packet_clear (tmp);
     }
 
-    p = (CapturePacket *) g_malloc0 (sizeof (CapturePacket));
-    p->packet = packet;
-    p->capture_time = capture_time;
-    p->discont = discont;
+    memset (&p, 0, sizeof (p));
+    p.packet = packet;
+    p.timestamp = timestamp;
+    p.no_signal = no_signal;
     packet->AddRef ();
-    g_queue_push_tail (&self->current_packets, p);
+    gst_queue_array_push_tail_struct (self->current_packets, &p);
     g_cond_signal (&self->cond);
   }
   g_mutex_unlock (&self->lock);
@@ -474,7 +547,7 @@ gst_decklink_audio_src_create (GstPushSrc * bsrc, GstBuffer ** buffer)
   const guint8 *data;
   glong sample_count;
   gsize data_size;
-  CapturePacket *p;
+  CapturePacket p;
   AudioPacket *ap;
   GstClockTime timestamp, duration;
   GstClockTime start_time, end_time;
@@ -483,30 +556,29 @@ gst_decklink_audio_src_create (GstPushSrc * bsrc, GstBuffer ** buffer)
 
 retry:
   g_mutex_lock (&self->lock);
-  while (g_queue_is_empty (&self->current_packets) && !self->flushing) {
+  while (gst_queue_array_is_empty (self->current_packets) && !self->flushing) {
     g_cond_wait (&self->cond, &self->lock);
   }
 
-  p = (CapturePacket *) g_queue_pop_head (&self->current_packets);
-  g_mutex_unlock (&self->lock);
-
   if (self->flushing) {
-    if (p)
-      capture_packet_free (p);
     GST_DEBUG_OBJECT (self, "Flushing");
+    g_mutex_unlock (&self->lock);
     return GST_FLOW_FLUSHING;
   }
 
-  p->packet->GetBytes ((gpointer *) & data);
-  sample_count = p->packet->GetSampleFrameCount ();
+  p = *(CapturePacket *)
+      gst_queue_array_pop_head_struct (self->current_packets);
+  g_mutex_unlock (&self->lock);
+
+  p.packet->GetBytes ((gpointer *) & data);
+  sample_count = p.packet->GetSampleFrameCount ();
   data_size = self->info.bpf * sample_count;
 
-  if (p->capture_time == GST_CLOCK_TIME_NONE
-      && self->next_offset == (guint64) - 1) {
+  if (p.timestamp == GST_CLOCK_TIME_NONE && self->next_offset == (guint64) - 1) {
     GST_DEBUG_OBJECT (self,
         "Got packet without timestamp before initial "
         "timestamp after discont - dropping");
-    capture_packet_free (p);
+    capture_packet_clear (&p);
     goto retry;
   }
 
@@ -517,13 +589,12 @@ retry:
       (gpointer) data, data_size, 0, data_size, ap,
       (GDestroyNotify) audio_packet_free);
 
-  ap->packet = p->packet;
-  p->packet->AddRef ();
+  ap->packet = p.packet;
+  p.packet->AddRef ();
   ap->input = self->input->input;
   ap->input->AddRef ();
 
-  timestamp = p->capture_time;
-  discont = p->discont;
+  timestamp = p.timestamp;
 
   // Jitter and discontinuity handling, based on audiobasesrc
   start_time = timestamp;
@@ -538,7 +609,7 @@ retry:
 
   duration = end_time - start_time;
 
-  if (discont || self->next_offset == (guint64) - 1) {
+  if (self->next_offset == (guint64) - 1) {
     discont = TRUE;
   } else {
     guint64 diff, max_sample_diff;
@@ -591,6 +662,8 @@ retry:
         self->info.rate) - timestamp;
   }
 
+  if (p.no_signal)
+    GST_BUFFER_FLAG_SET (*buffer, GST_BUFFER_FLAG_GAP);
   GST_BUFFER_TIMESTAMP (*buffer) = timestamp;
   GST_BUFFER_DURATION (*buffer) = duration;
 
@@ -599,7 +672,7 @@ retry:
       GST_TIME_FORMAT, *buffer, GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (*buffer)),
       GST_TIME_ARGS (GST_BUFFER_DURATION (*buffer)));
 
-  capture_packet_free (p);
+  capture_packet_clear (&p);
 
   return flow_ret;
 }
@@ -662,8 +735,11 @@ gst_decklink_audio_src_unlock_stop (GstBaseSrc * bsrc)
 
   g_mutex_lock (&self->lock);
   self->flushing = FALSE;
-  g_queue_foreach (&self->current_packets, (GFunc) capture_packet_free, NULL);
-  g_queue_clear (&self->current_packets);
+  while (gst_queue_array_get_length (self->current_packets) > 0) {
+    CapturePacket *tmp = (CapturePacket *)
+        gst_queue_array_pop_head_struct (self->current_packets);
+    capture_packet_clear (tmp);
+  }
   g_mutex_unlock (&self->lock);
 
   return TRUE;
@@ -683,6 +759,27 @@ gst_decklink_audio_src_open (GstDecklinkAudioSrc * self)
   }
 
   g_mutex_lock (&self->input->lock);
+  if (self->channels > 0) {
+    self->channels_found = self->channels;
+  } else {
+    if (self->input->attributes) {
+      int64_t channels_found;
+
+      HRESULT ret = self->input->attributes->GetInt
+          (BMDDeckLinkMaximumAudioChannels, &channels_found);
+      self->channels_found = channels_found;
+
+      /* Sometimes the card may report an invalid number of channels. In
+       * that case, we should (empirically) use 8. */
+      if (ret != S_OK ||
+          self->channels_found == 0 || g_enum_get_value ((GEnumClass *)
+              g_type_class_peek (GST_TYPE_DECKLINK_AUDIO_CHANNELS),
+              self->channels_found)
+          == NULL) {
+        self->channels_found = GST_DECKLINK_AUDIO_CHANNELS_8;
+      }
+    }
+  }
   self->input->got_audio_packet = gst_decklink_audio_src_got_packet;
   g_mutex_unlock (&self->input->lock);
 
@@ -712,8 +809,11 @@ gst_decklink_audio_src_stop (GstDecklinkAudioSrc * self)
 {
   GST_DEBUG_OBJECT (self, "Stopping");
 
-  g_queue_foreach (&self->current_packets, (GFunc) capture_packet_free, NULL);
-  g_queue_clear (&self->current_packets);
+  while (gst_queue_array_get_length (self->current_packets) > 0) {
+    CapturePacket *tmp = (CapturePacket *)
+        gst_queue_array_pop_head_struct (self->current_packets);
+    capture_packet_clear (tmp);
+  }
 
   if (self->input && self->input->audio_enabled) {
     g_mutex_lock (&self->input->lock);

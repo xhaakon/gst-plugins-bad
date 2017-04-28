@@ -61,6 +61,7 @@ typedef enum
   GST_GL_DISPLAY_TYPE_WIN32 = (1 << 3),
   GST_GL_DISPLAY_TYPE_DISPMANX = (1 << 4),
   GST_GL_DISPLAY_TYPE_EGL = (1 << 5),
+  GST_GL_DISPLAY_TYPE_VIV_FB = (1 << 6),
 
   GST_GL_DISPLAY_TYPE_ANY = G_MAXUINT32
 } GstGLDisplayType;
@@ -78,6 +79,12 @@ struct _GstGLDisplay
 
   GstGLDisplayType      type;
 
+  /* <protected> */
+  GList                    *windows;        /* OBJECT lock */
+  GMainContext             *main_context;
+  GMainLoop                *main_loop;
+  GSource                  *event_source;
+
   GstGLDisplayPrivate  *priv;
 };
 
@@ -85,7 +92,8 @@ struct _GstGLDisplayClass
 {
   GstObjectClass object_class;
 
-  guintptr (*get_handle)      (GstGLDisplay * display);
+  guintptr          (*get_handle)      (GstGLDisplay * display);
+  GstGLWindow *     (*create_window)    (GstGLDisplay * display);
 
   /* <private> */
   gpointer _padding[GST_PADDING];
@@ -124,6 +132,10 @@ GstGLContext * gst_gl_display_get_gl_context_for_thread (GstGLDisplay * display,
 GST_EXPORT
 gboolean gst_gl_display_add_context (GstGLDisplay * display,
     GstGLContext * context);
+
+GstGLWindow *   gst_gl_display_create_window    (GstGLDisplay * display);
+gboolean        gst_gl_display_remove_window    (GstGLDisplay * display, GstGLWindow * window);
+GstGLWindow *   gst_gl_display_find_window      (GstGLDisplay * display, gpointer data, GCompareFunc compare_func);
 
 G_END_DECLS
 

@@ -21,15 +21,15 @@
 
 /**
  * SECTION:element-libde265dec
+ * @title: libde265dec
  *
  * Decodes HEVC/H.265 video.
  *
- * <refsect2>
- * <title>Example launch line</title>
+ * ## Example launch line
  * |[
  * gst-launch-1.0 filesrc location=bitstream.hevc ! 'video/x-hevc,stream-format=byte-stream,framerate=25/1' ! libde265dec ! autovideosink
  * ]| The above pipeline decodes the HEVC/H.265 bitstream and renders it to the screen.
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -682,6 +682,7 @@ _gst_libde265_return_image (GstVideoDecoder * decoder,
   GstVideoFrame outframe;
   GstVideoCodecFrame *out_frame;
   int frame_number;
+  int plane;
 
   ref = (struct GstLibde265FrameRef *) de265_get_image_plane_user_data (img, 0);
   if (ref != NULL) {
@@ -731,7 +732,7 @@ _gst_libde265_return_image (GstVideoDecoder * decoder,
     return GST_FLOW_ERROR;
   }
 
-  for (int plane = 0; plane < 3; plane++) {
+  for (plane = 0; plane < 3; plane++) {
     int width = de265_get_image_width (img, plane);
     int height = de265_get_image_height (img, plane);
     int srcstride = width;

@@ -43,7 +43,8 @@ libgstopengl_la_SOURCES = \
 	gstgldeinterlace.c \
 	gstglstereomix.c \
 	gltestsrc.c \
-	gstgltestsrc.c
+	gstgltestsrc.c \
+	gstglutils.c
 
 noinst_HEADERS = \
 	gstglbasemixer.h \
@@ -69,7 +70,8 @@ noinst_HEADERS = \
 	gstgldeinterlace.h \
 	gstglviewconvert.h \
 	gltestsrc.h \
-	gstgltestsrc.h
+	gstgltestsrc.h \
+	gstglutils.h
 
 # full opengl required
 if USE_OPENGL
@@ -123,9 +125,11 @@ endif
 libgstopengl_la_OBJCFLAGS = \
 	-I$(top_srcdir)/gst-libs \
 	-I$(top_builddir)/gst-libs \
+	-fobjc-arc \
 	$(GST_OBJCFLAGS) \
 	$(GST_BASE_CFLAGS) \
 	$(GST_PLUGINS_BASE_CFLAGS) \
+	$(GST_CONTROLLER_CFLAGS) \
 	$(GL_OBJCFLAGS)
 
 # check order of CFLAGS and LIBS, shouldn't the order be the other way around
@@ -136,6 +140,7 @@ libgstopengl_la_CFLAGS = \
 	$(GST_CFLAGS) \
 	$(GST_BASE_CFLAGS) \
 	$(GST_PLUGINS_BASE_CFLAGS) \
+	$(GST_CONTROLLER_CFLAGS) \
 	$(GL_CFLAGS) \
 	$(LIBPNG_CFLAGS) \
 	$(GRAPHENE_CFLAGS)
@@ -147,6 +152,7 @@ libgstopengl_la_LIBADD = \
 	$(GST_BASE_LIBS) \
 	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) \
 	-lgstpbutils-$(GST_API_VERSION) \
+	$(GST_CONTROLLER_LIBS) \
 	$(GL_LIBS) \
 	$(LIBPNG_LIBS) \
 	$(JPEG_LIBS) \

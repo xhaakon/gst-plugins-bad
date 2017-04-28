@@ -25,17 +25,17 @@
 
 /**
  * SECTION:element-kmssink
+ * @title: kmssink
  * @short_description: A KMS/DRM based video sink
  *
  * kmssink is a simple video sink that renders video frames directly
  * in a plane of a DRM device.
  *
- * <refsect2>
- * <title>Example launch line</title>
+ * ## Example launch line
  * |[
  * gst-launch-1.0 videotestsrc ! kmssink
  * ]|
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -75,6 +75,7 @@ enum
   PROP_DRIVER_NAME = 1,
   PROP_CONNECTOR_ID,
   PROP_PLANE_ID,
+  PROP_FORCE_MODESETTING,
   PROP_N
 };
 
@@ -84,7 +85,7 @@ static int
 kms_open (gchar ** driver)
 {
   static const char *drivers[] = { "i915", "radeon", "nouveau", "vmwgfx",
-    "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc"
+    "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm"
   };
   int i, fd = -1;
 
@@ -137,6 +138,7 @@ find_crtc_for_connector (int fd, drmModeRes * res, drmModeConnector * conn,
   int crtc_id;
   drmModeEncoder *enc;
   drmModeCrtc *crtc;
+  guint32 crtcs_for_connector = 0;
 
   crtc_id = -1;
   for (i = 0; i < res->count_encoders; i++) {
@@ -149,6 +151,18 @@ find_crtc_for_connector (int fd, drmModeRes * res, drmModeConnector * conn,
       }
       drmModeFreeEncoder (enc);
     }
+  }
+
+  /* If no active crtc was found, pick the first possible crtc */
+  if (crtc_id == -1) {
+    for (i = 0; i < conn->count_encoders; i++) {
+      enc = drmModeGetEncoder (fd, conn->encoders[i]);
+      crtcs_for_connector |= enc->possible_crtcs;
+      drmModeFreeEncoder (enc);
+    }
+
+    if (crtcs_for_connector != 0)
+      crtc_id = res->crtcs[ffs (crtcs_for_connector) - 1];
   }
 
   if (crtc_id == -1)
@@ -241,6 +255,10 @@ find_main_monitor (int fd, drmModeRes * res)
   if (!conn)
     conn = find_first_used_connector (fd, res);
 
+  /* if no connector is used, grab the first one */
+  if (!conn)
+    conn = drmModeGetConnector (fd, res->connectors[0]);
+
   return conn;
 }
 
@@ -303,12 +321,108 @@ get_drm_caps (GstKMSSink * self)
 }
 
 static gboolean
-ensure_allowed_caps (GstKMSSink * self, drmModePlane * plane, drmModeRes * res)
+configure_mode_setting (GstKMSSink * self, GstVideoInfo * vinfo)
 {
-  GstCaps *out_caps, *caps;
-  int i;
+  gboolean ret;
+  drmModeConnector *conn;
+  int err;
+  drmModeFB *fb;
+  gint i;
+  drmModeModeInfo *mode;
+  guint32 fb_id;
+  GstKMSMemory *kmsmem;
+
+  ret = FALSE;
+  conn = NULL;
+  fb = NULL;
+  mode = NULL;
+  kmsmem = NULL;
+
+  if (self->conn_id < 0)
+    goto bail;
+
+  GST_INFO_OBJECT (self, "configuring mode setting");
+
+  kmsmem = (GstKMSMemory *) gst_kms_allocator_bo_alloc (self->allocator, vinfo);
+  if (!kmsmem)
+    goto bo_failed;
+  fb_id = kmsmem->fb_id;
+
+  conn = drmModeGetConnector (self->fd, self->conn_id);
+  if (!conn)
+    goto connector_failed;
+
+  fb = drmModeGetFB (self->fd, fb_id);
+  if (!fb)
+    goto framebuffer_failed;
+
+  for (i = 0; i < conn->count_modes; i++) {
+    if (conn->modes[i].vdisplay == fb->height &&
+        conn->modes[i].hdisplay == fb->width) {
+      mode = &conn->modes[i];
+      break;
+    }
+  }
+  if (!mode)
+    goto mode_failed;
+
+  err = drmModeSetCrtc (self->fd, self->crtc_id, fb_id, 0, 0,
+      (uint32_t *) & self->conn_id, 1, mode);
+  if (err)
+    goto modesetting_failed;
+
+  self->tmp_kmsmem = (GstMemory *) kmsmem;
+
+  ret = TRUE;
+
+bail:
+  if (fb)
+    drmModeFreeFB (fb);
+  if (conn)
+    drmModeFreeConnector (conn);
+
+  return ret;
+
+  /* ERRORS */
+bo_failed:
+  {
+    GST_ERROR_OBJECT (self,
+        "failed to allocate buffer object for mode setting");
+    goto bail;
+  }
+connector_failed:
+  {
+    GST_ERROR_OBJECT (self, "Could not find a valid monitor connector");
+    goto bail;
+  }
+framebuffer_failed:
+  {
+    GST_ERROR_OBJECT (self, "drmModeGetFB failed: %s (%d)",
+        strerror (errno), errno);
+    goto bail;
+  }
+mode_failed:
+  {
+    GST_ERROR_OBJECT (self, "cannot find appropriate mode");
+    goto bail;
+  }
+modesetting_failed:
+  {
+    GST_ERROR_OBJECT (self, "Failed to set mode: %s", strerror (errno));
+    goto bail;
+  }
+}
+
+static gboolean
+ensure_allowed_caps (GstKMSSink * self, drmModeConnector * conn,
+    drmModePlane * plane, drmModeRes * res)
+{
+  GstCaps *out_caps, *tmp_caps, *caps;
+  int i, j;
   GstVideoFormat fmt;
   const gchar *format;
+  drmModeModeInfo *mode;
+  gint count_modes;
 
   if (self->allowed_caps)
     return TRUE;
@@ -317,23 +431,50 @@ ensure_allowed_caps (GstKMSSink * self, drmModePlane * plane, drmModeRes * res)
   if (!out_caps)
     return FALSE;
 
-  for (i = 0; i < plane->count_formats; i++) {
-    fmt = gst_video_format_from_drm (plane->formats[i]);
-    if (fmt == GST_VIDEO_FORMAT_UNKNOWN) {
-      GST_INFO_OBJECT (self, "ignoring format %" GST_FOURCC_FORMAT,
-          GST_FOURCC_ARGS (plane->formats[i]));
-      continue;
+  if (conn && self->modesetting_enabled)
+    count_modes = conn->count_modes;
+  else
+    count_modes = 1;
+
+  for (i = 0; i < count_modes; i++) {
+    tmp_caps = gst_caps_new_empty ();
+    if (!tmp_caps)
+      return FALSE;
+
+    mode = NULL;
+    if (conn && self->modesetting_enabled)
+      mode = &conn->modes[i];
+
+    for (j = 0; j < plane->count_formats; j++) {
+      fmt = gst_video_format_from_drm (plane->formats[j]);
+      if (fmt == GST_VIDEO_FORMAT_UNKNOWN) {
+        GST_INFO_OBJECT (self, "ignoring format %" GST_FOURCC_FORMAT,
+            GST_FOURCC_ARGS (plane->formats[j]));
+        continue;
+      }
+
+      format = gst_video_format_to_string (fmt);
+
+      if (mode) {
+        caps = gst_caps_new_simple ("video/x-raw",
+            "format", G_TYPE_STRING, format,
+            "width", G_TYPE_INT, mode->hdisplay,
+            "height", G_TYPE_INT, mode->vdisplay,
+            "framerate", GST_TYPE_FRACTION_RANGE, 0, 1, G_MAXINT, 1, NULL);
+      } else {
+        caps = gst_caps_new_simple ("video/x-raw",
+            "format", G_TYPE_STRING, format,
+            "width", GST_TYPE_INT_RANGE, res->min_width, res->max_width,
+            "height", GST_TYPE_INT_RANGE, res->min_height, res->max_height,
+            "framerate", GST_TYPE_FRACTION_RANGE, 0, 1, G_MAXINT, 1, NULL);
+      }
+      if (!caps)
+        continue;
+
+      tmp_caps = gst_caps_merge (tmp_caps, caps);
     }
 
-    format = gst_video_format_to_string (fmt);
-    caps = gst_caps_new_simple ("video/x-raw", "format", G_TYPE_STRING, format,
-        "width", GST_TYPE_INT_RANGE, res->min_width, res->max_width,
-        "height", GST_TYPE_INT_RANGE, res->min_height, res->max_height,
-        "framerate", GST_TYPE_FRACTION_RANGE, 0, 1, G_MAXINT, 1, NULL);
-    if (!caps)
-      continue;
-
-    out_caps = gst_caps_merge (out_caps, caps);
+    out_caps = gst_caps_merge (out_caps, gst_caps_simplify (tmp_caps));
   }
 
   self->allowed_caps = gst_caps_simplify (out_caps);
@@ -341,7 +482,7 @@ ensure_allowed_caps (GstKMSSink * self, drmModePlane * plane, drmModeRes * res)
   GST_DEBUG_OBJECT (self, "allowed caps = %" GST_PTR_FORMAT,
       self->allowed_caps);
 
-  return TRUE;
+  return (self->allowed_caps && !gst_caps_is_empty (self->allowed_caps));
 }
 
 static gboolean
@@ -376,6 +517,8 @@ gst_kms_sink_start (GstBaseSink * bsink)
   if (!get_drm_caps (self))
     goto bail;
 
+  self->can_scale = TRUE;
+
   res = drmModeGetResources (self->fd);
   if (!res)
     goto resources_failed;
@@ -390,6 +533,12 @@ gst_kms_sink_start (GstBaseSink * bsink)
   crtc = find_crtc_for_connector (self->fd, res, conn, &self->pipe);
   if (!crtc)
     goto crtc_failed;
+
+  if (!crtc->mode_valid || self->modesetting_enabled) {
+    GST_DEBUG_OBJECT (self, "enabling modesetting");
+    self->modesetting_enabled = TRUE;
+    universal_planes = TRUE;
+  }
 
 retry_find_plane:
   if (universal_planes &&
@@ -407,9 +556,8 @@ retry_find_plane:
   if (!plane)
     goto plane_failed;
 
-  /* let's get the available color formats in plane */
-  if (!ensure_allowed_caps (self, plane, res))
-    goto bail;
+  if (!ensure_allowed_caps (self, conn, plane, res))
+    goto allowed_caps_failed;
 
   self->conn_id = conn->connector_id;
   self->crtc_id = crtc->crtc_id;
@@ -456,52 +604,67 @@ bail:
   /* ERRORS */
 open_failed:
   {
-    GST_ERROR_OBJECT (self, "Could not open DRM module %s: %s",
-        GST_STR_NULL (self->devname), strerror (errno));
+    GST_ELEMENT_ERROR (self, RESOURCE, OPEN_READ_WRITE,
+        ("Could not open DRM module %s", GST_STR_NULL (self->devname)),
+        ("reason: %s (%d)", strerror (errno), errno));
     return FALSE;
   }
 
 resources_failed:
   {
-    GST_ERROR_OBJECT (self, "drmModeGetResources failed: %s (%d)",
-        strerror (errno), errno);
+    GST_ELEMENT_ERROR (self, RESOURCE, SETTINGS,
+        ("drmModeGetResources failed"),
+        ("reason: %s (%d)", strerror (errno), errno));
     goto bail;
   }
 
 connector_failed:
   {
-    GST_ERROR_OBJECT (self, "Could not find a valid monitor connector");
+    GST_ELEMENT_ERROR (self, RESOURCE, SETTINGS,
+        ("Could not find a valid monitor connector"), (NULL));
     goto bail;
   }
 
 crtc_failed:
   {
-    GST_ERROR_OBJECT (self, "Could not find a crtc for connector");
+    GST_ELEMENT_ERROR (self, RESOURCE, SETTINGS,
+        ("Could not find a crtc for connector"), (NULL));
     goto bail;
   }
 
 set_cap_failed:
   {
-    GST_ERROR_OBJECT (self, "Could not set universal planes capability bit");
+    GST_ELEMENT_ERROR (self, RESOURCE, SETTINGS,
+        ("Could not set universal planes capability bit"), (NULL));
     goto bail;
   }
 
 plane_resources_failed:
   {
-    GST_ERROR_OBJECT (self, "drmModeGetPlaneResources failed: %s (%d)",
-        strerror (errno), errno);
+    GST_ELEMENT_ERROR (self, RESOURCE, SETTINGS,
+        ("drmModeGetPlaneResources failed"),
+        ("reason: %s (%d)", strerror (errno), errno));
     goto bail;
   }
 
 plane_failed:
   {
     if (universal_planes) {
-      GST_ERROR_OBJECT (self, "Could not find a plane for crtc");
+      GST_ELEMENT_ERROR (self, RESOURCE, SETTINGS,
+          ("Could not find a plane for crtc"), (NULL));
       goto bail;
     } else {
       universal_planes = TRUE;
       goto retry_find_plane;
     }
+  }
+
+allowed_caps_failed:
+  {
+    GST_ELEMENT_ERROR (self, RESOURCE, SETTINGS,
+        ("Could not get allowed GstCaps of device"),
+        ("driver does not provide mode settings configuration"));
+    goto bail;
   }
 }
 
@@ -685,6 +848,9 @@ gst_kms_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
     gst_object_unref (oldpool);
   }
 
+  if (self->modesetting_enabled && !configure_mode_setting (self, &vinfo))
+    goto modesetting_failed;
+
   self->vinfo = vinfo;
 
   GST_DEBUG_OBJECT (self, "negotiated caps = %" GST_PTR_FORMAT, caps);
@@ -716,6 +882,14 @@ no_pool:
     /* Already warned in create_pool */
     return FALSE;
   }
+
+modesetting_failed:
+  {
+    GST_ELEMENT_ERROR (self, CORE, NEGOTIATION, (NULL),
+        ("failed to configure video mode"));
+    return FALSE;
+  }
+
 }
 
 static gboolean
@@ -775,29 +949,6 @@ no_pool:
 }
 
 static void
-gst_kms_sink_get_times (GstBaseSink * bsink, GstBuffer * buf,
-    GstClockTime * start, GstClockTime * end)
-{
-  GstKMSSink *self;
-
-  self = GST_KMS_SINK (bsink);
-
-  if (GST_BUFFER_TIMESTAMP_IS_VALID (buf)) {
-    *start = GST_BUFFER_TIMESTAMP (buf);
-    if (GST_BUFFER_DURATION_IS_VALID (buf))
-      *end = *start + GST_BUFFER_DURATION (buf);
-    else {
-      if (GST_VIDEO_INFO_FPS_N (&self->vinfo) > 0) {
-        *end = *start +
-            gst_util_uint64_scale_int (GST_SECOND,
-            GST_VIDEO_INFO_FPS_D (&self->vinfo),
-            GST_VIDEO_INFO_FPS_N (&self->vinfo));
-      }
-    }
-  }
-}
-
-static void
 sync_handler (gint fd, guint frame, guint sec, guint usec, gpointer data)
 {
   gboolean *waiting;
@@ -830,7 +981,7 @@ gst_kms_sink_sync (GstKMSSink * self)
     vbl.request.type |= self->pipe << DRM_VBLANK_HIGH_CRTC_SHIFT;
 
   waiting = TRUE;
-  if (!self->has_async_page_flip) {
+  if (!self->has_async_page_flip && !self->modesetting_enabled) {
     ret = drmWaitVBlank (self->fd, &vbl);
     if (ret)
       goto vblank_failed;
@@ -918,6 +1069,7 @@ gst_kms_sink_import_dmabuf (GstKMSSink * self, GstBuffer * inbuf,
   /* We cannot have multiple dmabuf per plane */
   if (n_mem > n_planes)
     return FALSE;
+  g_assert (n_planes != 0);
 
   /* Update video info based on video meta */
   if (meta) {
@@ -940,6 +1092,10 @@ gst_kms_sink_import_dmabuf (GstKMSSink * self, GstBuffer * inbuf,
       return FALSE;
 
     mems[i] = gst_buffer_peek_memory (inbuf, mems_idx[i]);
+
+    /* adjust for memory offset, in case data does not
+     * start from byte 0 in the dmabuf fd */
+    mems_skip[i] += mems[i]->offset;
 
     /* And all memory found must be dmabuf */
     if (!gst_is_dmabuf_memory (mems[i]))
@@ -1084,6 +1240,11 @@ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
 
   GST_TRACE_OBJECT (self, "displaying fb %d", fb_id);
 
+  if (self->modesetting_enabled) {
+    self->buffer_id = fb_id;
+    goto sync_frame;
+  }
+
   if ((crop = gst_buffer_get_video_crop_meta (buffer))) {
     GstVideoInfo vinfo = self->vinfo;
     vinfo.width = crop->width;
@@ -1102,7 +1263,8 @@ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
   dst.w = self->hdisplay;
   dst.h = self->vdisplay;
 
-  gst_video_sink_center_rect (src, dst, &result, TRUE);
+retry_set_plane:
+  gst_video_sink_center_rect (src, dst, &result, self->can_scale);
 
   if (crop) {
     src.w = crop->width;
@@ -1120,14 +1282,21 @@ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
       result.x, result.y, result.w, result.h,
       /* source/cropping coordinates are given in Q16 */
       src.x << 16, src.y << 16, src.w << 16, src.h << 16);
-  if (ret)
+  if (ret) {
+    if (self->can_scale) {
+      self->can_scale = FALSE;
+      goto retry_set_plane;
+    }
     goto set_plane_failed;
+  }
 
+sync_frame:
   /* Wait for the previous frame to complete redraw */
   if (!gst_kms_sink_sync (self))
     goto bail;
 
   gst_buffer_replace (&self->last_buffer, buffer);
+  g_clear_pointer (&self->tmp_kmsmem, gst_memory_unref);
 
   res = GST_FLOW_OK;
 
@@ -1177,6 +1346,9 @@ gst_kms_sink_set_property (GObject * object, guint prop_id,
     case PROP_PLANE_ID:
       sink->plane_id = g_value_get_int (value);
       break;
+    case PROP_FORCE_MODESETTING:
+      sink->modesetting_enabled = g_value_get_boolean (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -1200,6 +1372,9 @@ gst_kms_sink_get_property (GObject * object, guint prop_id,
       break;
     case PROP_PLANE_ID:
       g_value_set_int (value, sink->plane_id);
+      break;
+    case PROP_FORCE_MODESETTING:
+      g_value_set_boolean (value, sink->modesetting_enabled);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1257,7 +1432,6 @@ gst_kms_sink_class_init (GstKMSSinkClass * klass)
   basesink_class->set_caps = GST_DEBUG_FUNCPTR (gst_kms_sink_set_caps);
   basesink_class->get_caps = GST_DEBUG_FUNCPTR (gst_kms_sink_get_caps);
   basesink_class->propose_allocation = gst_kms_sink_propose_allocation;
-  basesink_class->get_times = gst_kms_sink_get_times;
 
   videosink_class->show_frame = gst_kms_sink_show_frame;
 
@@ -1296,6 +1470,18 @@ gst_kms_sink_class_init (GstKMSSinkClass * klass)
    */
   g_properties[PROP_PLANE_ID] = g_param_spec_int ("plane-id",
       "Plane ID", "DRM plane id", -1, G_MAXINT32, -1,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_CONSTRUCT);
+
+  /**
+   * kmssink:force-modesetting:
+   *
+   * If the output connector is already active, the sink automatically uses an
+   * overlay plane. Enforce mode setting in the kms sink and output to the
+   * base plane to override the automatic behavior.
+   */
+  g_properties[PROP_FORCE_MODESETTING] =
+      g_param_spec_boolean ("force-modesetting", "Force modesetting",
+      "When enabled, the sink try to configure the display mode", FALSE,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_CONSTRUCT);
 
   g_object_class_install_properties (gobject_class, PROP_N, g_properties);

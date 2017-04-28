@@ -25,6 +25,7 @@
 #include "corevideomemory.h"
 #ifdef HAVE_IOS
 #include "iosassetsrc.h"
+#include "iosglmemory.h"
 #endif
 #ifdef HAVE_QTKIT
 #include "qtkitvideosrc.h"
@@ -55,7 +56,6 @@ enable_mt_mode (void)
 {
   NSThread * th = [[NSThread alloc] init];
   [th start];
-  [th release];
   g_assert ([NSThread isMultiThreaded]);
 }
 #endif

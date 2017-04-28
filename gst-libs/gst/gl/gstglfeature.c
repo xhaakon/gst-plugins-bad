@@ -26,6 +26,7 @@
 
 #include "gl.h"
 #include "gstglfeature.h"
+#include "gstglfeature_private.h"
 
 #define GST_CAT_DEFAULT gl_feature
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -42,6 +43,13 @@ _init_debug (void)
   }
 }
 
+/**
+ * gst_gl_check_extension:
+ * @name: the extension to search for
+ * @ext: the list of possible extensions
+ *
+ * Returns: whether @name is in the space seperated list of @ext
+ */
 gboolean
 gst_gl_check_extension (const char *name, const gchar * ext)
 {

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-02-23 15:17+0200\n"
+"POT-Creation-Date: 2017-04-27 16:01+0300\n"
 "PO-Revision-Date: 2016-11-02 21:21+0300\n"
 "Last-Translator: Yuri Kozlov <yuray@komyakino.ru>\n"
 "Language-Team: Russian <gnu@d07.ru>\n"
@@ -59,18 +59,6 @@ msgstr "Файл не содержит воспроизводимых поток
 msgid "Could not open sndfile stream for reading."
 msgstr "Не удалось открыть поток sndfile для чтения."
 
-msgid "Could not establish connection to sndio"
-msgstr "Не удалось установить соединение с sndio"
-
-msgid "Failed to query sndio capabilities"
-msgstr "Ошибка при запросе возможностей sndio"
-
-msgid "Could not configure sndio"
-msgstr "Не удалось настроить sndio"
-
-msgid "Could not start sndio"
-msgstr "Не удалось запустить sndio"
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 "В сгенерированном файле время предпуска (preroll) больше чем длительность "
@@ -97,19 +85,6 @@ msgstr "Не удалось скачать фрагменты"
 
 msgid "Internal data stream error."
 msgstr "Внутренняя ошибка потока данных."
-
-msgid "No file name specified for writing."
-msgstr "Не указано имя файла для записи."
-
-#, c-format
-msgid "Given file name \"%s\" can't be converted to local file name encoding."
-msgstr ""
-"Указанное имя файла «%s» невозможно преобразовать в имя файла с локальной "
-"кодировкой."
-
-#, c-format
-msgid "Could not open file \"%s\" for writing."
-msgstr "Не удалось открыть для записи файл «%s»."
 
 #, c-format
 msgid "Device \"%s\" does not exist."
@@ -156,6 +131,30 @@ msgstr "Не удалось найти файл настройки канало�
 
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "Файл настройки каналов не содержит каналов"
+
+#~ msgid "Could not establish connection to sndio"
+#~ msgstr "Не удалось установить соединение с sndio"
+
+#~ msgid "Failed to query sndio capabilities"
+#~ msgstr "Ошибка при запросе возможностей sndio"
+
+#~ msgid "Could not configure sndio"
+#~ msgstr "Не удалось настроить sndio"
+
+#~ msgid "Could not start sndio"
+#~ msgstr "Не удалось запустить sndio"
+
+#~ msgid "No file name specified for writing."
+#~ msgstr "Не указано имя файла для записи."
+
+#~ msgid ""
+#~ "Given file name \"%s\" can't be converted to local file name encoding."
+#~ msgstr ""
+#~ "Указанное имя файла «%s» невозможно преобразовать в имя файла с локальной "
+#~ "кодировкой."
+
+#~ msgid "Could not open file \"%s\" for writing."
+#~ msgstr "Не удалось открыть для записи файл «%s»."
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "GStreamer audiosink по умолчанию для звуковых событий"

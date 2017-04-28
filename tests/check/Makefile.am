@@ -14,11 +14,11 @@ AM_TESTS_ENVIRONMENT += \
 	GST_PLUGIN_SYSTEM_PATH_1_0=				\
 	GST_PLUGIN_PATH_1_0=$(top_builddir)/gst:$(top_builddir)/sys:$(top_builddir)/ext:$(GST_PLUGINS_LIBAV_DIR):$(GST_PLUGINS_UGLY_DIR):$(GST_PLUGINS_GOOD_DIR):$(GST_PLUGINS_BASE_DIR):$(GST_PLUGINS_DIR) \
 	GST_PLUGIN_LOADING_WHITELIST="gstreamer@$(GST_PLUGINS_DIR):gst-plugins-base@$(GSTPB_PLUGINS_DIR):gst-plugins-good:gst-plugins-ugly:gst-libav:gst-plugins-bad@$(top_builddir)" \
-	GST_STATE_IGNORE_ELEMENTS="apexsink avdtpsrc camerabin dc1394src \
-	    dccpclientsrc dccpclientsink dccpserversrc dccpserversink decklinksrc \
+	GST_STATE_IGNORE_ELEMENTS="avdtpsrc camerabin dc1394src \
+	    decklinksrc \
 	    decklinksink dtlssrtpdec dtlssrtpenc dvbsrc dvbbasebin dfbvideosink festival fluidsynth \
-	    linsyssdisrc linsyssdisink nassink kmssink \
-	    rsndvdbin sdlaudiosink sdlvideosink vcdsrc rfbsrc vdpauyuvvideo vdpauvideoyuv \
+	    kmssink \
+	    rsndvdbin vcdsrc rfbsrc vdpauyuvvideo vdpauvideoyuv \
 	    vdpaumpegdec vdpaumpeg4dec vdpauh264dec vdpauvideopostprocess vdpausink neonhttpsrc"
 
 plugindir = $(libdir)/gstreamer-@GST_API_VERSION@
@@ -120,22 +120,10 @@ else
 check_x265enc=
 endif
 
-if USE_TIMIDITY
-check_timidity=elements/timidity
-else
-check_timidity=
-endif
-
 if USE_KATE
 check_kate=elements/kate
 else
 check_kate=
-endif
-
-if USE_MIMIC
-check_mimic=pipelines/mimic
-else
-check_mimic=
 endif
 
 if HAVE_ORC
@@ -168,6 +156,12 @@ check_hlsdemux = elements/hls_demux
 else
 check_hlsdemux_m3u8 =
 check_hlsdemux =
+endif
+
+if USE_SRTP
+check_srtp = elements/srtp
+else
+check_srtp =
 endif
 
 if WITH_GST_PLAYER_TESTS
@@ -247,7 +241,6 @@ check_PROGRAMS = \
 	$(check_mplex)     \
 	$(check_mssdemux) \
 	$(check_ofa)        \
-	$(check_timidity)  \
 	$(check_kate)  \
 	$(check_opencv) \
 	$(check_curl) \
@@ -260,7 +253,6 @@ check_PROGRAMS = \
 	elements/audiomixer \
 	elements/asfmux \
 	elements/camerabin \
-	elements/dataurisrc \
 	elements/gdppay \
 	elements/gdpdepay \
 	elements/compositor \
@@ -276,13 +268,10 @@ check_PROGRAMS = \
 	elements/netsim \
 	elements/pcapparse \
 	elements/pnm \
-	elements/rawaudioparse \
-	elements/rawvideoparse \
 	elements/rtponvifparse \
 	elements/rtponviftimestamp \
 	elements/id3mux \
 	pipelines/mxf \
-	$(check_mimic) \
 	libs/mpegvideoparser \
 	libs/mpegts \
 	libs/h264parser \
@@ -299,6 +288,7 @@ check_PROGRAMS = \
 	$(check_gl) \
 	$(check_hlsdemux_m3u8) \
 	$(check_hlsdemux) \
+	$(check_srtp) \
 	$(check_player) \
 	$(EXPERIMENTAL_CHECKS)
 
@@ -343,12 +333,6 @@ elements_h263parse_LDADD = libparser.la $(LDADD)
 elements_h264parse_LDADD = libparser.la $(LDADD)
 
 elements_pcapparse_LDADD = libparser.la $(LDADD)
-
-elements_rawaudioparse_LDADD = $(GST_BASE_LIBS) -lgstbase-@GST_API_VERSION@ $(GST_AUDIO_LIBS) $(LDADD)
-elements_rawaudioparse_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
-
-elements_rawvideoparse_LDADD = $(GST_BASE_LIBS) -lgstbase-@GST_API_VERSION@ $(GST_VIDEO_LIBS) $(LDADD)
-elements_rawvideoparse_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 
 libs_mpegvideoparser_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
@@ -447,9 +431,6 @@ elements_jifmux_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(EXIF_CFLAGS) $(AM_CFLAGS)
 elements_jifmux_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgsttag-$(GST_API_VERSION) $(GST_CHECK_LIBS) $(EXIF_LIBS) $(LDADD)
 elements_jifmux_SOURCES = elements/jifmux.c
 
-elements_timidity_CFLAGS = $(GST_BASE_CFLAGS) $(AM_CFLAGS)
-elements_timidity_LDADD = $(GST_BASE_LIBS) $(LDADD)
-
 elements_kate_CFLAGS = $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 elements_kate_LDADD = $(GST_BASE_LIBS) $(LDADD)
 
@@ -462,8 +443,9 @@ elements_mpegtsmux_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE
 elements_uvch264demux_CFLAGS = -DUVCH264DEMUX_DATADIR="$(srcdir)/elements/uvch264demux_data" \
 				$(AM_CFLAGS)
 
-elements_dash_mpd_CFLAGS = $(AM_CFLAGS) $(GST_PLUGINS_BAD_CFLAGS) $(LIBXML2_CFLAGS)
-elements_dash_mpd_LDADD = $(LDADD) $(LIBXML2_LIBS) \
+elements_dash_mpd_CFLAGS = $(GST_BASE_CFLAGS) $(AM_CFLAGS) $(GST_PLUGINS_BAD_CFLAGS) $(LIBXML2_CFLAGS) \
+	-DDASH_MPD_DATADIR="$(srcdir)/elements/dash_mpd_data"
+elements_dash_mpd_LDADD = $(GST_BASE_LIBS) $(LDADD) $(LIBXML2_LIBS) \
 	$(top_builddir)/gst-libs/gst/uridownloader/libgsturidownloader-@GST_API_VERSION@.la
 elements_dash_mpd_SOURCES = elements/dash_mpd.c
 
