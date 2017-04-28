@@ -1,3 +1,19 @@
+gst-plugins-bad1.0 (1.11.91-1ubuntu1) artful; urgency=medium
+
+  * Merge with Debian unstable; remaining changes:
+    + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
+    moved to -good.
+    + Provide gstreamer-plugins-bad-1.0.pc with Requires on
+      gstreamer-plugins-good-1.0 - the package we've moved the referenced
+      library to. This maintains compatibility with upstream software and
+      other distributions.
+    + Disable gl and glx on armhf as it's not useful there.
+    + debian/control{,.in}: Update Vcs-* for Ubuntu
+  * Dropped Mir and Hybris support which isn't needed any more.
+  * Dropped separate videoparsers and faad packages.
+
+ -- Iain Lane <iain.lane@canonical.com>  Fri, 28 Apr 2017 18:31:29 +0100
+
 gst-plugins-bad1.0 (1.11.91-1) experimental; urgency=medium
 
   * New upstream release canditate
