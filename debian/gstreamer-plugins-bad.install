@@ -25,6 +25,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdtls.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdtsdec.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdvbsuboverlay.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdvdspu.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfaad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfestival.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfieldanalysis.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstfreeverb.so
@@ -92,6 +93,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstteletext.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgsttimecode.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideofiltersbad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideoframe_audiolevel.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideoparsersbad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideosignal.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvmnc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvoaacenc.so

@@ -76,8 +76,6 @@ PLUGINS +=
 endif
 VERSIONIZE= \
 	plugins-bad-doc.install \
-	plugins-bad-videoparsers.install \
-	plugins-bad-faad.install
 
 #debug package
 DEB_DH_STRIP_ARGS := --dbg-package=$(gst_pkgname)-plugins-bad-dbg
