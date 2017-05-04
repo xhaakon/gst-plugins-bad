@@ -489,9 +489,6 @@
 /* Define to enable Qt elements (used by qt). */
 #undef HAVE_QT
 
-/* Define if building with QTKit */
-#undef HAVE_QTKIT
-
 /* Define if Qt eglfs integration is installed */
 #undef HAVE_QT_EGLFS
 
