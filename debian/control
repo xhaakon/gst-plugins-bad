@@ -218,6 +218,7 @@ Depends: ${misc:Depends},
          libgstreamer-plugins-bad1.0-0 (= ${binary:Version}),
          libgstreamer1.0-dev,
          libgstreamer-plugins-base1.0-dev,
+         libgstreamer-plugins-good1.0-dev,
          gir1.2-gst-plugins-bad-1.0 (= ${binary:Version}),
          libopencv-dev (>= 2.3.0)
 Description: GStreamer development files for libraries from the "bad" set

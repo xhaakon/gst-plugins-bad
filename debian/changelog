@@ -1,3 +1,11 @@
+gst-plugins-bad1.0 (1.12.0-1ubuntu2) UNRELEASED; urgency=medium
+
+  * Restore libgstreamer-plugins-bad1.0-dev Depends on
+    libgstreamer-plugins-good1.0-dev that was accidentally dropped
+    in 1.11.91 merge.
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Sat, 17 Jun 2017 19:57:43 -0400
+
 gst-plugins-bad1.0 (1.12.0-1ubuntu1) artful; urgency=medium
 
   * Merge with Debian unstable; remaining changes:
