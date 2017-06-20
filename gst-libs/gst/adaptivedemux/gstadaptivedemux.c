@@ -283,7 +283,8 @@ static void gst_adaptive_demux_start_manifest_update_task (GstAdaptiveDemux *
 
 static void gst_adaptive_demux_start_tasks (GstAdaptiveDemux * demux,
     gboolean start_preroll_streams);
-static void gst_adaptive_demux_stop_tasks (GstAdaptiveDemux * demux);
+static void gst_adaptive_demux_stop_tasks (GstAdaptiveDemux * demux,
+    gboolean stop_updates);
 static GstFlowReturn gst_adaptive_demux_combine_flows (GstAdaptiveDemux *
     demux);
 static void
@@ -561,17 +562,14 @@ gst_adaptive_demux_change_state (GstElement * element,
       GST_MANIFEST_LOCK (demux);
       demux->running = FALSE;
       gst_adaptive_demux_reset (demux);
-      gst_adaptive_demux_stop_manifest_update_task (demux);
       GST_MANIFEST_UNLOCK (demux);
-
-      /* demux->priv->updates_task value never changes, so it is safe to read it
-       * outside critical section
-       */
-      gst_task_join (demux->priv->updates_task);
       break;
     case GST_STATE_CHANGE_READY_TO_PAUSED:
       GST_MANIFEST_LOCK (demux);
       gst_adaptive_demux_reset (demux);
+      /* Clear "cancelled" flag in uridownloader since subclass might want to
+       * use uridownloader to fetch another manifest */
+      gst_uri_downloader_reset (demux->downloader);
       if (demux->priv->have_manifest)
         gst_adaptive_demux_start_manifest_update_task (demux);
       demux->running = TRUE;
@@ -774,7 +772,7 @@ gst_adaptive_demux_reset (GstAdaptiveDemux * demux)
   old_streams = demux->priv->old_streams;
   demux->priv->old_streams = NULL;
 
-  gst_adaptive_demux_stop_tasks (demux);
+  gst_adaptive_demux_stop_tasks (demux, TRUE);
 
   if (klass->reset)
     klass->reset (demux);
@@ -807,6 +805,12 @@ gst_adaptive_demux_reset (GstAdaptiveDemux * demux)
   if (old_streams) {
     g_list_free_full (old_streams,
         (GDestroyNotify) gst_adaptive_demux_stream_free);
+  }
+
+  if (demux->priv->old_streams) {
+    g_list_free_full (demux->priv->old_streams,
+        (GDestroyNotify) gst_adaptive_demux_stream_free);
+    demux->priv->old_streams = NULL;
   }
 
   g_free (demux->manifest_uri);
@@ -1441,6 +1445,25 @@ gst_adaptive_demux_get_live_seek_range (GstAdaptiveDemux * demux,
 
 /* must be called with manifest_lock taken */
 static gboolean
+gst_adaptive_demux_stream_in_live_seek_range (GstAdaptiveDemux * demux,
+    GstAdaptiveDemuxStream * stream)
+{
+  gint64 range_start, range_stop;
+  if (gst_adaptive_demux_get_live_seek_range (demux, &range_start, &range_stop)) {
+    GST_LOG_OBJECT (stream->pad,
+        "stream position %" GST_TIME_FORMAT "  live seek range %"
+        GST_STIME_FORMAT " - %" GST_STIME_FORMAT,
+        GST_TIME_ARGS (stream->segment.position), GST_STIME_ARGS (range_start),
+        GST_STIME_ARGS (range_stop));
+    return (stream->segment.position >= range_start
+        && stream->segment.position <= range_stop);
+  }
+
+  return FALSE;
+}
+
+/* must be called with manifest_lock taken */
+static gboolean
 gst_adaptive_demux_can_seek (GstAdaptiveDemux * demux)
 {
   GstAdaptiveDemuxClass *klass;
@@ -1552,11 +1575,11 @@ gst_adaptive_demux_handle_seek_event (GstAdaptiveDemux * demux, GstPad * pad,
     gst_adaptive_demux_push_src_event (demux, fevent);
     GST_MANIFEST_LOCK (demux);
 
-    gst_adaptive_demux_stop_tasks (demux);
+    gst_adaptive_demux_stop_tasks (demux, FALSE);
   } else if ((rate > 0 && start_type != GST_SEEK_TYPE_NONE) ||
       (rate < 0 && stop_type != GST_SEEK_TYPE_NONE)) {
 
-    gst_adaptive_demux_stop_tasks (demux);
+    gst_adaptive_demux_stop_tasks (demux, FALSE);
   }
 
   GST_ADAPTIVE_DEMUX_SEGMENT_LOCK (demux);
@@ -1936,12 +1959,14 @@ gst_adaptive_demux_start_manifest_update_task (GstAdaptiveDemux * demux)
  * the demux element.
  */
 static void
-gst_adaptive_demux_stop_tasks (GstAdaptiveDemux * demux)
+gst_adaptive_demux_stop_tasks (GstAdaptiveDemux * demux, gboolean stop_updates)
 {
   GList *iter;
 
   GST_LOG_OBJECT (demux, "Stopping tasks");
 
+  if (stop_updates)
+    gst_adaptive_demux_stop_manifest_update_task (demux);
   for (iter = demux->streams; iter; iter = g_list_next (iter)) {
     GstAdaptiveDemuxStream *stream = iter->data;
 
@@ -1952,9 +1977,11 @@ gst_adaptive_demux_stop_tasks (GstAdaptiveDemux * demux)
     g_mutex_unlock (&stream->fragment_download_lock);
   }
 
+  GST_MANIFEST_UNLOCK (demux);
   g_mutex_lock (&demux->priv->preroll_lock);
   g_cond_broadcast (&demux->priv->preroll_cond);
   g_mutex_unlock (&demux->priv->preroll_lock);
+  GST_MANIFEST_LOCK (demux);
 
   g_mutex_lock (&demux->priv->manifest_update_lock);
   g_cond_broadcast (&demux->priv->manifest_cond);
@@ -1985,6 +2012,8 @@ gst_adaptive_demux_stop_tasks (GstAdaptiveDemux * demux)
   }
 
   GST_MANIFEST_UNLOCK (demux);
+  if (stop_updates)
+    gst_task_join (demux->priv->updates_task);
 
   GST_MANIFEST_LOCK (demux);
 
@@ -2274,7 +2303,8 @@ gst_adaptive_demux_stream_push_buffer (GstAdaptiveDemuxStream * stream,
       gst_tag_list_add (tags, GST_TAG_MERGE_KEEP,
           GST_TAG_NOMINAL_BITRATE, stream->fragment.bitrate, NULL);
     }
-    pending_tags = gst_event_new_tag (tags);
+    if (tags)
+      pending_tags = gst_event_new_tag (tags);
   }
   if (G_UNLIKELY (stream->pending_events)) {
     pending_events = stream->pending_events;
@@ -3317,7 +3347,7 @@ again:
     }
 
   flushing:
-    if (++stream->download_error_count <= MAX_DOWNLOAD_ERROR_COUNT) {
+    if (stream->download_error_count >= MAX_DOWNLOAD_ERROR_COUNT) {
       /* looks like there is no way of knowing when a live stream has ended
        * Have to assume we are falling behind and cause a manifest reload */
       GST_DEBUG_OBJECT (stream->pad, "Converting error of live stream to EOS");
@@ -3566,7 +3596,8 @@ gst_adaptive_demux_stream_download_loop (GstAdaptiveDemuxStream * stream)
     case GST_FLOW_EOS:
       GST_DEBUG_OBJECT (stream->pad, "EOS, checking to stop download loop");
       /* we push the EOS after releasing the object lock */
-      if (gst_adaptive_demux_is_live (demux)) {
+      if (gst_adaptive_demux_is_live (demux)
+          && gst_adaptive_demux_stream_in_live_seek_range (demux, stream)) {
         GstAdaptiveDemuxClass *demux_class =
             GST_ADAPTIVE_DEMUX_GET_CLASS (demux);
 
@@ -3973,7 +4004,15 @@ gst_adaptive_demux_stream_advance_fragment_unlocked (GstAdaptiveDemux * demux,
   }
   GST_ADAPTIVE_DEMUX_SEGMENT_UNLOCK (demux);
 
-  if (gst_adaptive_demux_is_live (demux)
+  /* When advancing with a non 1.0 rate on live streams, we need to check
+   * the live seeking range again to make sure we can still advance to
+   * that position */
+  if (demux->segment.rate != 1.0 && gst_adaptive_demux_is_live (demux)) {
+    if (!gst_adaptive_demux_stream_in_live_seek_range (demux, stream))
+      ret = GST_FLOW_EOS;
+    else
+      ret = klass->stream_advance_fragment (stream);
+  } else if (gst_adaptive_demux_is_live (demux)
       || gst_adaptive_demux_stream_has_next_fragment (demux, stream)) {
     ret = klass->stream_advance_fragment (stream);
   } else {
