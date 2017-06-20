@@ -42,6 +42,8 @@ struct _GstUriDownloaderPrivate
   gboolean got_buffer;
   GMutex download_lock;         /* used to restrict to one download only */
 
+  GWeakRef parent;
+
   GError *err;
 
   GCond cond;
@@ -133,6 +135,8 @@ gst_uri_downloader_dispose (GObject * object)
     downloader->priv->download = NULL;
   }
 
+  g_weak_ref_clear (&downloader->priv->parent);
+
   G_OBJECT_CLASS (gst_uri_downloader_parent_class)->dispose (object);
 }
 
@@ -151,6 +155,22 @@ GstUriDownloader *
 gst_uri_downloader_new (void)
 {
   return g_object_new (GST_TYPE_URI_DOWNLOADER, NULL);
+}
+
+/**
+ * gst_uri_downloader_set_parent:
+ * @param downloader: the #GstUriDownloader
+ * @param parent: the parent #GstElement
+ *
+ * Sets an element as parent of this #GstUriDownloader so that context
+ * requests from the underlying source are proxied to the main pipeline
+ * and set back if a context was provided.
+ */
+void
+gst_uri_downloader_set_parent (GstUriDownloader * downloader,
+    GstElement * parent)
+{
+  g_weak_ref_set (&downloader->priv->parent, parent);
 }
 
 static gboolean
@@ -255,6 +275,35 @@ gst_uri_downloader_bus_handler (GstBus * bus,
     GST_DEBUG ("Debugging info: %s\n", (dbg_info) ? dbg_info : "none");
     g_error_free (err);
     g_free (dbg_info);
+  } else if (GST_MESSAGE_TYPE (message) == GST_MESSAGE_NEED_CONTEXT) {
+    GstElement *parent = g_weak_ref_get (&downloader->priv->parent);
+
+    /* post the same need-context as if it was from the parent and then
+     * get it to our internal element that requested it */
+    if (parent && GST_IS_ELEMENT (GST_MESSAGE_SRC (message))) {
+      const gchar *context_type;
+      GstContext *context;
+      GstElement *msg_src = GST_ELEMENT_CAST (GST_MESSAGE_SRC (message));
+
+      gst_message_parse_context_type (message, &context_type);
+      context = gst_element_get_context (parent, context_type);
+
+      /* No context, request one */
+      if (!context) {
+        GstMessage *need_context_msg =
+            gst_message_new_need_context (GST_OBJECT_CAST (parent),
+            context_type);
+        gst_element_post_message (parent, need_context_msg);
+        context = gst_element_get_context (parent, context_type);
+      }
+
+      if (context) {
+        gst_element_set_context (msg_src, context);
+        gst_context_unref (context);
+      }
+    }
+    if (parent)
+      gst_object_unref (parent);
   }
 
   gst_message_unref (message);

@@ -18,6 +18,8 @@
                      <span class="dim">|</span> 
                   <a class="shortcut" href="#glsE">E</a>
                      <span class="dim">|</span> 
+                  <a class="shortcut" href="#glsI">I</a>
+                     <span class="dim">|</span> 
                   <a class="shortcut" href="#glsN">N</a>
                      <span class="dim">|</span> 
                   <a class="shortcut" href="#glsO">O</a>
@@ -46,6 +48,9 @@
 <a name="glsE"></a><h3 class="title">E</h3>
 <dt><span class="glossterm"><a name="annotation-glossterm-element-type"></a>element-type</span></dt>
 <dd class="glossdef"><p>Generics and defining elements of containers and arrays.</p></dd>
+<a name="glsI"></a><h3 class="title">I</h3>
+<dt><span class="glossterm"><a name="annotation-glossterm-inout"></a>inout</span></dt>
+<dd class="glossdef"><p>Parameter for input and for returning results. Default is <acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>.</p></dd>
 <a name="glsN"></a><h3 class="title">N</h3>
 <dt><span class="glossterm"><a name="annotation-glossterm-nullable"></a>nullable</span></dt>
 <dd class="glossdef"><p>NULL may be passed as the value in, out, in-out; or as a return value.</p></dd>
@@ -59,9 +64,13 @@
 <dd class="glossdef"><p>The callback is valid only during the call to the method.</p></dd>
 <dt><span class="glossterm"><a name="annotation-glossterm-scope%20notified"></a>scope notified</span></dt>
 <dd class="glossdef"><p>The callback is valid until the GDestroyNotify argument is called.</p></dd>
+<dt><span class="glossterm"><a name="annotation-glossterm-skip"></a>skip</span></dt>
+<dd class="glossdef"><p>Exposed in C code, not necessarily available in other languages.</p></dd>
 <a name="glsT"></a><h3 class="title">T</h3>
 <dt><span class="glossterm"><a name="annotation-glossterm-transfer%20container"></a>transfer container</span></dt>
 <dd class="glossdef"><p>Free data container after the code is done.</p></dd>
+<dt><span class="glossterm"><a name="annotation-glossterm-transfer%20floating"></a>transfer floating</span></dt>
+<dd class="glossdef"><p>Alias for <acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>, used for objects with floating refs.</p></dd>
 <dt><span class="glossterm"><a name="annotation-glossterm-transfer%20full"></a>transfer full</span></dt>
 <dd class="glossdef"><p>Free data after the code is done.</p></dd>
 <dt><span class="glossterm"><a name="annotation-glossterm-transfer%20none"></a>transfer none</span></dt>

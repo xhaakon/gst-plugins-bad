@@ -20,6 +20,7 @@
 
 /**
  * SECTION:gstvideoaggregator
+ * @title: GstVideoAggregator
  * @short_description: Base class for video aggregators
  *
  * VideoAggregator can accept AYUV, ARGB and BGRA video streams. For each of the requested
@@ -1268,7 +1269,9 @@ gst_video_aggregator_fill_queues (GstVideoAggregator * vagg,
         } else if (is_eos) {
           eos = FALSE;
         }
-      } else if (is_eos) {
+      }
+
+      if (is_eos) {
         gst_buffer_replace (&pad->buffer, NULL);
       }
     }
@@ -1448,9 +1451,11 @@ gst_video_aggregator_check_reconfigure (GstVideoAggregator * vagg,
       || gst_pad_check_reconfigure (GST_AGGREGATOR_SRC_PAD (vagg))) {
     gboolean ret;
 
+  restart:
     ret = gst_video_aggregator_update_src_caps (vagg);
     if (!ret) {
-      if (timeout && gst_pad_needs_reconfigure (GST_AGGREGATOR_SRC_PAD (vagg))) {
+      gst_pad_mark_reconfigure (GST_AGGREGATOR_SRC_PAD (vagg));
+      if (timeout) {
         guint64 frame_duration;
         gint fps_d, fps_n;
 
@@ -1480,8 +1485,18 @@ gst_video_aggregator_check_reconfigure (GstVideoAggregator * vagg,
         vagg->priv->nframes++;
         return GST_FLOW_NEEDS_DATA;
       } else {
-        return GST_FLOW_NOT_NEGOTIATED;
+        if (GST_PAD_IS_FLUSHING (GST_AGGREGATOR_SRC_PAD (vagg)))
+          return GST_FLOW_FLUSHING;
+        else
+          return GST_FLOW_NOT_NEGOTIATED;
       }
+    } else {
+      /* It is possible that during gst_video_aggregator_update_src_caps()
+       * we got a caps change on one of the sink pads, in which case we need
+       * to redo the negotiation
+       * - https://bugzilla.gnome.org/show_bug.cgi?id=755782 */
+      if (gst_pad_check_reconfigure (GST_AGGREGATOR_SRC_PAD (vagg)))
+        goto restart;
     }
   }
 

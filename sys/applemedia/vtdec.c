@@ -18,17 +18,17 @@
  * Boston, MA 02110-1335, USA.
  */
 /**
- * SECTION:element-gstvtdec
+ * SECTION:element-vtdec
+ * @title: gstvtdec
  *
  * Apple VideoToolbox based decoder.
  *
- * <refsect2>
- * <title>Example launch line</title>
+ * ## Example launch line
  * |[
  * gst-launch-1.0 -v filesrc location=file.mov ! qtdemux ! queue ! h264parse ! vtdec ! videoconvert ! autovideosink
  * ]|
  * Decode h264 video from a mov file.
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -808,7 +808,14 @@ gst_vtdec_push_frames_if_needed (GstVtdec * vtdec, gboolean drain,
   /* negotiate now so that we know whether we need to use the GL upload meta or
    * not */
   if (gst_pad_check_reconfigure (decoder->srcpad)) {
-    gst_video_decoder_negotiate (decoder);
+    if (!gst_video_decoder_negotiate (decoder)) {
+      gst_pad_mark_reconfigure (decoder->srcpad);
+      if (GST_PAD_IS_FLUSHING (decoder->srcpad))
+        ret = GST_FLOW_FLUSHING;
+      else
+        ret = GST_FLOW_NOT_NEGOTIATED;
+      return ret;
+    }
   }
 
   if (drain)

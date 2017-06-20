@@ -55,6 +55,9 @@ struct _GstDecklinkVideoSrc
   BMDPixelFormat caps_format;
   GstDecklinkConnectionEnum connection;
   gint device_number;
+  gboolean output_stream_time;
+  GstClockTime skip_first_time;
+  gboolean drop_no_signal_frames;
 
   GstVideoInfo info;
   GstDecklinkVideoFormat video_format;
@@ -65,12 +68,28 @@ struct _GstDecklinkVideoSrc
   GCond cond;
   GMutex lock;
   gboolean flushing;
-  GQueue current_frames;
+  GstQueueArray *current_frames;
+  gboolean no_signal;
 
   guint buffer_size;
 
-  GstClockTime internal_base_time;
-  GstClockTime external_base_time;
+  /* Protected by lock */
+  GstClockTime first_time;
+
+  GstClockTime *times;
+  GstClockTime *times_temp;
+  guint window_size, window_fill;
+  gboolean window_filled;
+  guint window_skip, window_skip_count;
+  struct {
+    GstClockTime xbase, b;
+    GstClockTime num, den;
+  } current_time_mapping;
+  struct {
+    GstClockTime xbase, b;
+    GstClockTime num, den;
+  } next_time_mapping;
+  gboolean next_time_mapping_pending;
 };
 
 struct _GstDecklinkVideoSrcClass
@@ -79,8 +98,6 @@ struct _GstDecklinkVideoSrcClass
 };
 
 GType gst_decklink_video_src_get_type (void);
-void gst_decklink_video_src_convert_to_external_clock (GstDecklinkVideoSrc * self,
-    GstClockTime * timestamp, GstClockTime * duration);
 
 G_END_DECLS
 

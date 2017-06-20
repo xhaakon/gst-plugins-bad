@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-02-23 15:17+0200\n"
+"POT-Creation-Date: 2017-05-04 15:09+0300\n"
 "PO-Revision-Date: 2016-11-02 13:41+0800\n"
 "Last-Translator: Tianze Wang <zwpwjwtz@126.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -56,18 +56,6 @@ msgstr "该文件含有无法播放的流。"
 msgid "Could not open sndfile stream for reading."
 msgstr "无法打开并读取sndfile流。"
 
-msgid "Could not establish connection to sndio"
-msgstr "无法建立到snido的连接。"
-
-msgid "Failed to query sndio capabilities"
-msgstr "无法获得有关snido的信息"
-
-msgid "Could not configure sndio"
-msgstr "无法配置sndio"
-
-msgid "Could not start sndio"
-msgstr "无法启动sndio。"
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr "生成文件的预告片段超过其自身流长度。"
 
@@ -92,17 +80,6 @@ msgstr "无法下载片段。"
 
 msgid "Internal data stream error."
 msgstr "内部数据流错误。"
-
-msgid "No file name specified for writing."
-msgstr "未指定写入文件名。"
-
-#, c-format
-msgid "Given file name \"%s\" can't be converted to local file name encoding."
-msgstr "给定的文件名“%s”无法被转换为本地文件名编码。"
-
-#, c-format
-msgid "Could not open file \"%s\" for writing."
-msgstr "无法以写方式打开文件“%s”。"
 
 #, c-format
 msgid "Device \"%s\" does not exist."
@@ -149,6 +126,28 @@ msgstr "无法找到通道配置文件：“%s”"
 
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "通道配置文件中不包含任何通道"
+
+#~ msgid "Could not establish connection to sndio"
+#~ msgstr "无法建立到snido的连接。"
+
+#~ msgid "Failed to query sndio capabilities"
+#~ msgstr "无法获得有关snido的信息"
+
+#~ msgid "Could not configure sndio"
+#~ msgstr "无法配置sndio"
+
+#~ msgid "Could not start sndio"
+#~ msgstr "无法启动sndio。"
+
+#~ msgid "No file name specified for writing."
+#~ msgstr "未指定写入文件名。"
+
+#~ msgid ""
+#~ "Given file name \"%s\" can't be converted to local file name encoding."
+#~ msgstr "给定的文件名“%s”无法被转换为本地文件名编码。"
+
+#~ msgid "Could not open file \"%s\" for writing."
+#~ msgstr "无法以写方式打开文件“%s”。"
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "默认GStreamer声音事件的音频汇"

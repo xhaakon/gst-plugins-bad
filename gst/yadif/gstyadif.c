@@ -18,22 +18,22 @@
  * Boston, MA 02110-1335, USA.
  */
 /**
- * SECTION:element-gstyadif
+ * SECTION:element-yadif
+ * @title: yadif
  *
  * The yadif element deinterlaces video, using the YADIF deinterlacing
  * filter copied from Libav.  This element only handles the simple case
- * of interlaced-mode=interleaved video instead of the more complex
+ * of interlace-mode=interleaved video instead of the more complex
  * inverse telecine and deinterlace cases that are handled by the
  * deinterlace element.
  *
- * <refsect2>
- * <title>Example launch line</title>
+ * ## Example launch line
  * |[
  * gst-launch-1.0 -v videotestsrc pattern=ball ! interlace ! yadif ! xvimagesink
  * ]|
  * This pipeline creates an interlaced test pattern, and then deinterlaces
  * it using the yadif filter.
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H

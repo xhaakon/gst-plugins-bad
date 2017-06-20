@@ -34009,16 +34009,6 @@
 </ARG>
 
 <ARG>
-<NAME>GstDataURISrc::uri</NAME>
-<TYPE>gchar*</TYPE>
-<RANGE></RANGE>
-<FLAGS>rw</FLAGS>
-<NICK>URI</NICK>
-<BLURB>URI that should be used.</BLURB>
-<DEFAULT>NULL</DEFAULT>
-</ARG>
-
-<ARG>
 <NAME>frei0r-filter-primaries::factor</NAME>
 <TYPE>gdouble</TYPE>
 <RANGE>[0,1]</RANGE>
@@ -58221,10 +58211,10 @@
 <ARG>
 <NAME>GstVoAacEnc::bitrate</NAME>
 <TYPE>gint</TYPE>
-<RANGE>>= 0</RANGE>
+<RANGE>[0,320000]</RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Bitrate</NICK>
-<BLURB>Target Audio Bitrate.</BLURB>
+<BLURB>Target Audio Bitrate (bits per second).</BLURB>
 <DEFAULT>128000</DEFAULT>
 </ARG>
 
@@ -67881,6 +67871,46 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 </ARG>
 
 <ARG>
+<NAME>GstDecklinkVideoSrc::drop-no-signal-frames</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Drop No Signal Frames</NICK>
+<BLURB>Drop frames that are marked as having no input signal.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDecklinkVideoSrc::output-stream-time</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Output Stream Time</NICK>
+<BLURB>Output stream time directly instead of translating to pipeline clock.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDecklinkVideoSrc::skip-first-time</NAME>
+<TYPE>guint64</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Skip First Time</NICK>
+<BLURB>Skip that much time of initial frames after starting.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDecklinkVideoSrc::signal</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>r</FLAGS>
+<NICK>Input signal available</NICK>
+<BLURB>True if there is a valid input signal available.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
 <NAME>GstDecklinkVideoSink::device-number</NAME>
 <TYPE>gint</TYPE>
 <RANGE>>= 0</RANGE>
@@ -67968,6 +67998,16 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <NICK>Discont Wait</NICK>
 <BLURB>Window of time in nanoseconds to wait before creating a discontinuity.</BLURB>
 <DEFAULT>1000000000</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDecklinkAudioSrc::channels</NAME>
+<TYPE>GstDecklinkAudioChannels</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Channels</NICK>
+<BLURB>Audio channels.</BLURB>
+<DEFAULT>2 Channels</DEFAULT>
 </ARG>
 
 <ARG>
@@ -68137,6 +68177,26 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <FLAGS>rw</FLAGS>
 <NICK>Max Bitrate</NICK>
 <BLURB>Maximum Bitrate (in bits per second).</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstOpenh264Enc::qp-max</NAME>
+<TYPE>guint</TYPE>
+<RANGE><= 51</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Maximum Quantizer</NICK>
+<BLURB>Maximum quantizer.</BLURB>
+<DEFAULT>51</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstOpenh264Enc::qp-min</NAME>
+<TYPE>guint</TYPE>
+<RANGE><= 51</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Minimum Quantizer</NICK>
+<BLURB>Minimum quantizer.</BLURB>
 <DEFAULT>0</DEFAULT>
 </ARG>
 
@@ -69266,7 +69326,7 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>QQuickItem</NICK>
-<BLURB>The QQuickItem to place in the object heirachy.</BLURB>
+<BLURB>The QQuickItem to place in the object hierarchy.</BLURB>
 <DEFAULT></DEFAULT>
 </ARG>
 
@@ -69278,6 +69338,16 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <NICK>Replay window size</NICK>
 <BLURB>Size of the replay protection window.</BLURB>
 <DEFAULT>128</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstSrtpDec::stats</NAME>
+<TYPE>GstStructure*</TYPE>
+<RANGE></RANGE>
+<FLAGS>r</FLAGS>
+<NICK>Statistics</NICK>
+<BLURB>Various statistics.</BLURB>
+<DEFAULT></DEFAULT>
 </ARG>
 
 <ARG>
@@ -72141,6 +72211,16 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 </ARG>
 
 <ARG>
+<NAME>GstKMSSink::force-modesetting</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Force modesetting</NICK>
+<BLURB>When enabled, the sink try to configure the display mode.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
 <NAME>GstBs2b::fcut</NAME>
 <TYPE>gint</TYPE>
 <RANGE>[300,2000]</RANGE>
@@ -72166,7 +72246,7 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <RANGE></RANGE>
 <FLAGS>rwx</FLAGS>
 <NICK>Echo Cancel</NICK>
-<BLURB>Enable or disable echo canceller, note that it will be disabled if no webrtcechoprobe has been found.</BLURB>
+<BLURB>Enable or disable echo canceller.</BLURB>
 <DEFAULT>TRUE</DEFAULT>
 </ARG>
 
@@ -72258,6 +72338,86 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <NICK>Delay Agnostic</NICK>
 <BLURB>Enable or disable the delay agnostic mode.</BLURB>
 <DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebrtcDsp::compression-gain-db</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[0,90]</RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Compression Gain dB</NICK>
+<BLURB>Sets the maximum |gain| the digital compression stage may apply, in dB.</BLURB>
+<DEFAULT>9</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebrtcDsp::gain-control-mode</NAME>
+<TYPE>GstWebrtcGainControlMode</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Gain Control Mode</NICK>
+<BLURB>Controls the mode of the compression stage.</BLURB>
+<DEFAULT>Adaptive Digital</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebrtcDsp::limiter</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Limiter</NICK>
+<BLURB>When enabled, the compression stage will hard limit the signal to the target level. Otherwise, the signal will be compressed but not limited above the target level.</BLURB>
+<DEFAULT>TRUE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebrtcDsp::startup-min-volume</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[12,255]</RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Startup Minimum Volume</NICK>
+<BLURB>At startup the experimental AGC moves the microphone volume up to |startup_min_volume| if the current microphone volume is set too low. No effect if experimental-agc isn't enabled.</BLURB>
+<DEFAULT>12</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebrtcDsp::target-level-dbfs</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[0,31]</RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Target Level dBFS</NICK>
+<BLURB>Sets the target peak |level| (or envelope) of the gain control in dBFS (decibels from digital full-scale).</BLURB>
+<DEFAULT>3</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebrtcDsp::voice-detection</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Voice Detection</NICK>
+<BLURB>Enable or disable the voice activity detector.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebrtcDsp::voice-detection-frame-size-ms</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[10,30]</RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Voice Detection Frame Size Milliseconds</NICK>
+<BLURB>Sets the |size| of the frames in ms on which the VAD will operate. Larger frames will improve detection accuracy, but reduce the frequency of updates.</BLURB>
+<DEFAULT>10</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebrtcDsp::voice-detection-likelihood</NAME>
+<TYPE>GstWebrtcVoiceDetectionLikelihood</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Voice Detection Likelihood</NICK>
+<BLURB>Specifies the likelihood that a frame will be declared to contain voice.</BLURB>
+<DEFAULT>Low Likelihood</DEFAULT>
 </ARG>
 
 <ARG>
@@ -72358,6 +72518,36 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <NICK>Source clock to use for first timecode</NICK>
 <BLURB>If unset, the timecode will refer to the stream time.</BLURB>
 <DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstTimeCodeStamper::post-messages</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Post element message</NICK>
+<BLURB>Post element message containing the current timecode.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstTimeCodeStamper::first-timecode</NAME>
+<TYPE>GstVideoTimeCode*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Timecode at the first frame</NICK>
+<BLURB>If set, take this timecode for the first frame and increment from it. Only the values itself are taken, flags and frame rate are always determined by timecodestamper itself. If unset (and to-now is also not set), the timecode will start at 0.</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstTimeCodeStamper::first-timecode-to-now</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Sets first timecode to system time</NICK>
+<BLURB>If true and first-timecode is unset, set it to system time automatically when the first media segment is received.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
 </ARG>
 
 <ARG>
@@ -72525,8 +72715,8 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <TYPE>gboolean</TYPE>
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
-<NICK>If use default fbo</NICK>
-<BLURB>When set TRUE, it will not create new fbo for qml render thread.</BLURB>
+<NICK>Whether to use default FBO</NICK>
+<BLURB>When set it will not create a new FBO for the QML render thread.</BLURB>
 <DEFAULT>FALSE</DEFAULT>
 </ARG>
 
@@ -72536,7 +72726,7 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>QQuickWindow</NICK>
-<BLURB>The QQuickWindow to place in the object heirachy.</BLURB>
+<BLURB>The QQuickWindow to place in the object hierarchy.</BLURB>
 <DEFAULT></DEFAULT>
 </ARG>
 
@@ -72548,6 +72738,226 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <NICK>Bitrate</NICK>
 <BLURB>Target Audio Bitrate (0 = fixed value based on  sample rate and channel count).</BLURB>
 <DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAudioBufferSplit::alignment-threshold</NAME>
+<TYPE>guint64</TYPE>
+<RANGE><= 18446744073709551614</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Alignment Threshold</NICK>
+<BLURB>Timestamp alignment threshold in nanoseconds.</BLURB>
+<DEFAULT>40000000</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAudioBufferSplit::discont-wait</NAME>
+<TYPE>guint64</TYPE>
+<RANGE><= 18446744073709551614</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Discont Wait</NICK>
+<BLURB>Window of time in nanoseconds to wait before creating a discontinuity.</BLURB>
+<DEFAULT>1000000000</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAudioBufferSplit::output-buffer-duration</NAME>
+<TYPE>GstFraction</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Output Buffer Duration</NICK>
+<BLURB>Output block size in seconds.</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAudioBufferSplit::strict-buffer-size</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Strict buffer size</NICK>
+<BLURB>Discard the last samples at EOS or discont if they are too small to fill a buffer.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAudioMixMatrix::channel-mask</NAME>
+<TYPE>guint64</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Output channel mask</NICK>
+<BLURB>Output channel mask (-1 means "default for these channels").</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAudioMixMatrix::in-channels</NAME>
+<TYPE>guint</TYPE>
+<RANGE><= 64</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Input audio channels</NICK>
+<BLURB>How many audio channels we have on the input side.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAudioMixMatrix::matrix</NAME>
+<TYPE>GstValueArray</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Input/output channel matrix</NICK>
+<BLURB>Transformation matrix for input/output channels.</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAudioMixMatrix::matrix-value-array</NAME>
+<TYPE>GValueArray*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Input/output channel matrix (GValueArray)</NICK>
+<BLURB>Transformation matrix (GValueArray) for input/output channels.</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAudioMixMatrix::mode</NAME>
+<TYPE>GstAudioMixMatrixModeType</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Channel/matrix mode</NICK>
+<BLURB>Whether to auto-negotiate input/output channels and matrix.</BLURB>
+<DEFAULT>Manual mode: please specify input/output channels and transformation matrix</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAudioMixMatrix::out-channels</NAME>
+<TYPE>guint</TYPE>
+<RANGE><= 64</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Output audio channels</NICK>
+<BLURB>How many audio channels we have on the output side.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAvWait::mode</NAME>
+<TYPE>GstAvWaitMode</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Mode</NICK>
+<BLURB>Operation mode: What to wait for.</BLURB>
+<DEFAULT>time code (default)</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAvWait::target-running-time</NAME>
+<TYPE>guint64</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Target running time</NICK>
+<BLURB>Running time to wait for in running-time mode.</BLURB>
+<DEFAULT>18446744073709551615</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAvWait::target-timecode</NAME>
+<TYPE>GstVideoTimeCode*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Target timecode (object)</NICK>
+<BLURB>Timecode to wait for in timecode mode (object).</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstAvWait::target-timecode-string</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Target timecode (string)</NICK>
+<BLURB>Timecode to wait for in timecode mode (string). Must take the form 00:00:00:00.</BLURB>
+<DEFAULT>"00:00:00:00"</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDewarp::display-mode</NAME>
+<TYPE>GstDewarpDisplayMode</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Display mode</NICK>
+<BLURB>How to display the dewarped image.</BLURB>
+<DEFAULT>Single panorama image</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDewarp::inner-radius</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[0,1]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>inner radius</NICK>
+<BLURB>Inner radius of the fisheye image donut. If outer radius <= inner radius the element will work in passthrough mode.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDewarp::interpolation-method</NAME>
+<TYPE>GstDewarpInterpolationMode</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Interpolation method</NICK>
+<BLURB>Interpolation method to use.</BLURB>
+<DEFAULT>A bilinear interpolation</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDewarp::outer-radius</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[0,1]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>outer radius</NICK>
+<BLURB>Outer radius of the fisheye image donut. If outer radius <= inner radius the element will work in passthrough mode.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDewarp::x-center</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[0,1]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>x center</NICK>
+<BLURB>X axis center of the fisheye image.</BLURB>
+<DEFAULT>0.5</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDewarp::x-remap-correction</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[0.1,10]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>x remap correction</NICK>
+<BLURB>Correction factor for remapping on x axis. A correction is needed if the fisheye image is not inside a circle.</BLURB>
+<DEFAULT>1</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDewarp::y-center</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[0,1]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>y center</NICK>
+<BLURB>Y axis center of the fisheye image.</BLURB>
+<DEFAULT>0.5</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDewarp::y-remap-correction</NAME>
+<TYPE>gdouble</TYPE>
+<RANGE>[0.1,10]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>y remap correction</NICK>
+<BLURB>Correction factor for remapping on y axis. A correction is needed if the fisheye image is not inside a circle.</BLURB>
+<DEFAULT>1</DEFAULT>
 </ARG>
 
 <ARG>

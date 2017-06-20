@@ -21,6 +21,7 @@
 
 /**
  * SECTION:gstplayer
+ * @title: GstPlayer
  * @short_description: Player
  *
  */
@@ -70,12 +71,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_player_debug);
 GQuark
 gst_player_error_quark (void)
 {
-  static GQuark quark;
-
-  if (!quark)
-    quark = g_quark_from_static_string ("gst-player-error-quark");
-
-  return quark;
+  return g_quark_from_static_string ("gst-player-error-quark");
 }
 
 static GQuark QUARK_CONFIG;
@@ -85,6 +81,7 @@ typedef enum
 {
   CONFIG_QUARK_USER_AGENT = 0,
   CONFIG_QUARK_POSITION_INTERVAL_UPDATE,
+  CONFIG_QUARK_ACCURATE_SEEK,
 
   CONFIG_QUARK_MAX
 } ConfigQuarkId;
@@ -92,6 +89,7 @@ typedef enum
 static const gchar *_config_quark_strings[] = {
   "user-agent",
   "position-interval-update",
+  "accurate-seek",
 };
 
 GQuark _config_quark_table[CONFIG_QUARK_MAX];
@@ -169,6 +167,7 @@ struct _GstPlayer
   GstState target_state, current_state;
   gboolean is_live, is_eos;
   GSource *tick_source, *ready_timeout_source;
+  GstClockTime cached_duration;
 
   gdouble rate;
 
@@ -191,6 +190,14 @@ struct _GstPlayer
    * state-changed:GST_PLAYER_STATE_STOPPED/PAUSED. This ensures that no signal
    * is emitted after gst_player_stop/pause() has been called by the user. */
   gboolean inhibit_sigs;
+
+  /* For playbin3 */
+  gboolean use_playbin3;
+  GstStreamCollection *collection;
+  gchar *video_sid;
+  gchar *audio_sid;
+  gchar *subtitle_sid;
+  gulong stream_notify_id;
 };
 
 struct _GstPlayerClass
@@ -242,6 +249,18 @@ static void gst_player_audio_info_update (GstPlayer * self,
 static void gst_player_subtitle_info_update (GstPlayer * self,
     GstPlayerStreamInfo * stream_info);
 
+/* For playbin3 */
+static void gst_player_streams_info_create_from_collection (GstPlayer * self,
+    GstPlayerMediaInfo * media_info, GstStreamCollection * collection);
+static void gst_player_stream_info_update_from_stream (GstPlayer * self,
+    GstPlayerStreamInfo * s, GstStream * stream);
+static GstPlayerStreamInfo *gst_player_stream_info_find_from_stream_id
+    (GstPlayerMediaInfo * media_info, const gchar * stream_id);
+static GstPlayerStreamInfo *gst_player_stream_info_get_current_from_stream_id
+    (GstPlayer * self, const gchar * stream_id, GType type);
+static void stream_notify_cb (GstStreamCollection * collection,
+    GstStream * stream, GParamSpec * pspec, GstPlayer * self);
+
 static void emit_media_info_updated_signal (GstPlayer * self);
 
 static void *get_title (GstTagList * tags);
@@ -266,6 +285,7 @@ gst_player_init (GstPlayer * self)
   /* *INDENT-OFF* */
   self->config = gst_structure_new_id (QUARK_CONFIG,
       CONFIG_QUARK (POSITION_INTERVAL_UPDATE), G_TYPE_UINT, DEFAULT_POSITION_UPDATE_INTERVAL_MS,
+      CONFIG_QUARK (ACCURATE_SEEK), G_TYPE_BOOLEAN, FALSE,
       NULL);
   /* *INDENT-ON* */
 
@@ -493,6 +513,9 @@ gst_player_finalize (GObject * object)
   g_free (self->uri);
   g_free (self->redirect_uri);
   g_free (self->suburi);
+  g_free (self->video_sid);
+  g_free (self->audio_sid);
+  g_free (self->subtitle_sid);
   if (self->global_tags)
     gst_tag_list_unref (self->global_tags);
   if (self->video_renderer)
@@ -503,6 +526,8 @@ gst_player_finalize (GObject * object)
     gst_object_unref (self->current_vis_element);
   if (self->config)
     gst_structure_free (self->config);
+  if (self->collection)
+    gst_object_unref (self->collection);
   g_mutex_clear (&self->lock);
   g_cond_clear (&self->cond);
 
@@ -571,12 +596,7 @@ gst_player_set_uri_internal (gpointer user_data)
         (GDestroyNotify) uri_loaded_signal_data_free);
   }
 
-  /* if have suburi from previous playback then free it */
-  if (self->suburi) {
-    g_free (self->suburi);
-    self->suburi = NULL;
-    g_object_set (self->playbin, "suburi", NULL, NULL);
-  }
+  g_object_set (self->playbin, "suburi", NULL, NULL);
 
   g_mutex_unlock (&self->lock);
 
@@ -655,6 +675,9 @@ gst_player_set_property (GObject * object, guint prop_id,
       g_free (self->uri);
       g_free (self->redirect_uri);
       self->redirect_uri = NULL;
+
+      g_free (self->suburi);
+      self->suburi = NULL;
 
       self->uri = g_value_dup_string (value);
       GST_DEBUG_OBJECT (self, "Set uri=%s", self->uri);
@@ -741,10 +764,7 @@ gst_player_get_property (GObject * object, guint prop_id,
       break;
     }
     case PROP_DURATION:{
-      gint64 duration = 0;
-
-      gst_element_query_duration (self->playbin, GST_FORMAT_TIME, &duration);
-      g_value_set_uint64 (value, duration);
+      g_value_set_uint64 (value, self->cached_duration);
       GST_TRACE_OBJECT (self, "Returning duration=%" GST_TIME_FORMAT,
           GST_TIME_ARGS (g_value_get_uint64 (value)));
       break;
@@ -1486,6 +1506,8 @@ emit_duration_changed (GstPlayer * self, GstClockTime duration)
   GST_DEBUG_OBJECT (self, "Duration changed %" GST_TIME_FORMAT,
       GST_TIME_ARGS (duration));
 
+  self->cached_duration = duration;
+
   if (g_signal_handler_find (self, G_SIGNAL_MATCH_ID,
           signals[SIGNAL_DURATION_CHANGED], 0, NULL, NULL, NULL) != 0) {
     DurationChangedSignalData *data = g_new (DurationChangedSignalData, 1);
@@ -1593,6 +1615,8 @@ state_changed_cb (G_GNUC_UNUSED GstBus * bus, GstMessage * msg,
       if (gst_element_query_duration (self->playbin, GST_FORMAT_TIME,
               &duration)) {
         emit_duration_changed (self, duration);
+      } else {
+        self->cached_duration = GST_CLOCK_TIME_NONE;
       }
     }
 
@@ -1814,6 +1838,113 @@ element_cb (G_GNUC_UNUSED GstBus * bus, GstMessage * msg, gpointer user_data)
   }
 }
 
+/* Must be called with lock */
+static gboolean
+update_stream_collection (GstPlayer * self, GstStreamCollection * collection)
+{
+  if (self->collection && self->collection == collection)
+    return FALSE;
+
+  if (self->collection && self->stream_notify_id)
+    g_signal_handler_disconnect (self->collection, self->stream_notify_id);
+
+  gst_object_replace ((GstObject **) & self->collection,
+      (GstObject *) collection);
+  if (self->media_info) {
+    gst_object_unref (self->media_info);
+    self->media_info = gst_player_media_info_create (self);
+  }
+
+  self->stream_notify_id =
+      g_signal_connect (self->collection, "stream-notify",
+      G_CALLBACK (stream_notify_cb), self);
+
+  return TRUE;
+}
+
+static void
+stream_collection_cb (G_GNUC_UNUSED GstBus * bus, GstMessage * msg,
+    gpointer user_data)
+{
+  GstPlayer *self = GST_PLAYER (user_data);
+  GstStreamCollection *collection = NULL;
+  gboolean updated = FALSE;
+
+  gst_message_parse_stream_collection (msg, &collection);
+
+  if (!collection)
+    return;
+
+  g_mutex_lock (&self->lock);
+  updated = update_stream_collection (self, collection);
+  gst_object_unref (collection);
+  g_mutex_unlock (&self->lock);
+
+  if (self->media_info && updated)
+    emit_media_info_updated_signal (self);
+}
+
+static void
+streams_selected_cb (G_GNUC_UNUSED GstBus * bus, GstMessage * msg,
+    gpointer user_data)
+{
+  GstPlayer *self = GST_PLAYER (user_data);
+  GstStreamCollection *collection = NULL;
+  gboolean updated = FALSE;
+  guint i, len;
+
+  gst_message_parse_streams_selected (msg, &collection);
+
+  if (!collection)
+    return;
+
+  g_mutex_lock (&self->lock);
+  updated = update_stream_collection (self, collection);
+  gst_object_unref (collection);
+
+  g_free (self->video_sid);
+  g_free (self->audio_sid);
+  g_free (self->subtitle_sid);
+  self->video_sid = NULL;
+  self->audio_sid = NULL;
+  self->subtitle_sid = NULL;
+
+  len = gst_message_streams_selected_get_size (msg);
+  for (i = 0; i < len; i++) {
+    GstStream *stream;
+    GstStreamType stream_type;
+    const gchar *stream_id;
+    gchar **current_sid;
+    stream = gst_message_streams_selected_get_stream (msg, i);
+    stream_type = gst_stream_get_stream_type (stream);
+    stream_id = gst_stream_get_stream_id (stream);
+    if (stream_type & GST_STREAM_TYPE_AUDIO)
+      current_sid = &self->audio_sid;
+    else if (stream_type & GST_STREAM_TYPE_VIDEO)
+      current_sid = &self->video_sid;
+    else if (stream_type & GST_STREAM_TYPE_TEXT)
+      current_sid = &self->subtitle_sid;
+    else {
+      GST_WARNING_OBJECT (self,
+          "Unknown stream-id %s with type 0x%x", stream_id, stream_type);
+      continue;
+    }
+
+    if (G_UNLIKELY (*current_sid)) {
+      GST_FIXME_OBJECT (self,
+          "Multiple streams are selected for type %s, choose the first one",
+          gst_stream_type_get_name (stream_type));
+      continue;
+    }
+
+    *current_sid = g_strdup (stream_id);
+  }
+  g_mutex_unlock (&self->lock);
+
+  if (self->media_info && updated)
+    emit_media_info_updated_signal (self);
+}
+
 static void
 player_set_flag (GstPlayer * self, gint pos)
 {
@@ -1951,10 +2082,15 @@ gst_player_subtitle_info_update (GstPlayer * self,
 
       g_object_get (G_OBJECT (self->playbin), "current-suburi", &suburi, NULL);
       if (suburi) {
-        g_object_get (G_OBJECT (self->playbin), "current-text", &text_index,
-            NULL);
-        if (text_index == gst_player_stream_info_get_index (stream_info))
-          info->language = g_path_get_basename (suburi);
+        if (self->use_playbin3) {
+          if (g_str_equal (self->subtitle_sid, stream_info->stream_id))
+            info->language = g_path_get_basename (suburi);
+        } else {
+          g_object_get (G_OBJECT (self->playbin), "current-text", &text_index,
+              NULL);
+          if (text_index == gst_player_stream_info_get_index (stream_info))
+            info->language = g_path_get_basename (suburi);
+        }
         g_free (suburi);
       }
     }
@@ -2135,6 +2271,27 @@ gst_player_stream_info_find (GstPlayerMediaInfo * media_info,
   return NULL;
 }
 
+static GstPlayerStreamInfo *
+gst_player_stream_info_find_from_stream_id (GstPlayerMediaInfo * media_info,
+    const gchar * stream_id)
+{
+  GList *list, *l;
+  GstPlayerStreamInfo *info = NULL;
+
+  if (!media_info)
+    return NULL;
+
+  list = gst_player_media_info_get_stream_list (media_info);
+  for (l = list; l != NULL; l = l->next) {
+    info = (GstPlayerStreamInfo *) l->data;
+    if (g_str_equal (info->stream_id, stream_id)) {
+      return info;
+    }
+  }
+
+  return NULL;
+}
+
 static gboolean
 is_track_enabled (GstPlayer * self, gint pos)
 {
@@ -2166,6 +2323,56 @@ gst_player_stream_info_get_current (GstPlayer * self, const gchar * prop,
   g_mutex_unlock (&self->lock);
 
   return info;
+}
+
+static GstPlayerStreamInfo *
+gst_player_stream_info_get_current_from_stream_id (GstPlayer * self,
+    const gchar * stream_id, GType type)
+{
+  GstPlayerStreamInfo *info;
+
+  if (!self->media_info || !stream_id)
+    return NULL;
+
+  g_mutex_lock (&self->lock);
+  info =
+      gst_player_stream_info_find_from_stream_id (self->media_info, stream_id);
+  if (info && G_OBJECT_TYPE (info) == type)
+    info = gst_player_stream_info_copy (info);
+  else
+    info = NULL;
+  g_mutex_unlock (&self->lock);
+
+  return info;
+}
+
+static void
+stream_notify_cb (GstStreamCollection * collection, GstStream * stream,
+    GParamSpec * pspec, GstPlayer * self)
+{
+  GstPlayerStreamInfo *info;
+  const gchar *stream_id;
+  gboolean emit_signal = FALSE;
+
+  if (!self->media_info)
+    return;
+
+  if (G_PARAM_SPEC_VALUE_TYPE (pspec) != GST_TYPE_CAPS &&
+      G_PARAM_SPEC_VALUE_TYPE (pspec) != GST_TYPE_TAG_LIST)
+    return;
+
+  stream_id = gst_stream_get_stream_id (stream);
+  g_mutex_lock (&self->lock);
+  info =
+      gst_player_stream_info_find_from_stream_id (self->media_info, stream_id);
+  if (info) {
+    gst_player_stream_info_update_from_stream (self, info, stream);
+    emit_signal = TRUE;
+  }
+  g_mutex_unlock (&self->lock);
+
+  if (emit_signal)
+    emit_media_info_updated_signal (self);
 }
 
 static void
@@ -2293,6 +2500,86 @@ gst_player_streams_info_create (GstPlayer * self,
 }
 
 static void
+gst_player_stream_info_update_from_stream (GstPlayer * self,
+    GstPlayerStreamInfo * s, GstStream * stream)
+{
+  if (s->tags)
+    gst_tag_list_unref (s->tags);
+  s->tags = gst_stream_get_tags (stream);
+
+  if (s->caps)
+    gst_caps_unref (s->caps);
+  s->caps = gst_stream_get_caps (stream);
+
+  g_free (s->codec);
+  s->codec = stream_info_get_codec (s);
+
+  GST_DEBUG_OBJECT (self, "%s index: %d tags: %p caps: %p",
+      gst_player_stream_info_get_stream_type (s), s->stream_index,
+      s->tags, s->caps);
+
+  gst_player_stream_info_update (self, s);
+}
+
+static void
+gst_player_streams_info_create_from_collection (GstPlayer * self,
+    GstPlayerMediaInfo * media_info, GstStreamCollection * collection)
+{
+  guint i;
+  guint total;
+  GstPlayerStreamInfo *s;
+  guint n_audio = 0;
+  guint n_video = 0;
+  guint n_text = 0;
+
+  if (!media_info || !collection)
+    return;
+
+  total = gst_stream_collection_get_size (collection);
+
+  for (i = 0; i < total; i++) {
+    GstStream *stream = gst_stream_collection_get_stream (collection, i);
+    GstStreamType stream_type = gst_stream_get_stream_type (stream);
+    const gchar *stream_id = gst_stream_get_stream_id (stream);
+
+    if (stream_type & GST_STREAM_TYPE_AUDIO) {
+      s = gst_player_stream_info_new (n_audio, GST_TYPE_PLAYER_AUDIO_INFO);
+      n_audio++;
+    } else if (stream_type & GST_STREAM_TYPE_VIDEO) {
+      s = gst_player_stream_info_new (n_video, GST_TYPE_PLAYER_VIDEO_INFO);
+      n_video++;
+    } else if (stream_type & GST_STREAM_TYPE_TEXT) {
+      s = gst_player_stream_info_new (n_text, GST_TYPE_PLAYER_SUBTITLE_INFO);
+      n_text++;
+    } else {
+      GST_DEBUG_OBJECT (self, "Unknown type stream %d", i);
+      continue;
+    }
+
+    s->stream_id = g_strdup (stream_id);
+
+    /* add the object in stream list */
+    media_info->stream_list = g_list_append (media_info->stream_list, s);
+
+    /* based on type, add the object in its corresponding stream_ list */
+    if (GST_IS_PLAYER_AUDIO_INFO (s))
+      media_info->audio_stream_list = g_list_append
+          (media_info->audio_stream_list, s);
+    else if (GST_IS_PLAYER_VIDEO_INFO (s))
+      media_info->video_stream_list = g_list_append
+          (media_info->video_stream_list, s);
+    else
+      media_info->subtitle_stream_list = g_list_append
+          (media_info->subtitle_stream_list, s);
+
+    GST_DEBUG_OBJECT (self, "create %s stream stream_index: %d",
+        gst_player_stream_info_get_stream_type (s), s->stream_index);
+
+    gst_player_stream_info_update_from_stream (self, s, stream);
+  }
+}
+
+static void
 video_changed_cb (G_GNUC_UNUSED GObject * object, gpointer user_data)
 {
   GstPlayer *self = GST_PLAYER (user_data);
@@ -2366,7 +2653,8 @@ get_from_tags (GstPlayer * self, GstPlayerMediaInfo * media_info,
 
   /* if global tag does not exit then try video and audio streams */
   GST_DEBUG_OBJECT (self, "trying video tags");
-  for (l = gst_player_get_video_streams (media_info); l != NULL; l = l->next) {
+  for (l = gst_player_media_info_get_video_streams (media_info); l != NULL;
+      l = l->next) {
     GstTagList *tags;
 
     tags = gst_player_stream_info_get_tags ((GstPlayerStreamInfo *) l->data);
@@ -2378,7 +2666,8 @@ get_from_tags (GstPlayer * self, GstPlayerMediaInfo * media_info,
   }
 
   GST_DEBUG_OBJECT (self, "trying audio tags");
-  for (l = gst_player_get_audio_streams (media_info); l != NULL; l = l->next) {
+  for (l = gst_player_media_info_get_audio_streams (media_info); l != NULL;
+      l = l->next) {
     GstTagList *tags;
 
     tags = gst_player_stream_info_get_tags ((GstPlayerStreamInfo *) l->data);
@@ -2423,13 +2712,18 @@ gst_player_media_info_create (GstPlayer * self)
     gst_query_parse_seeking (query, NULL, &media_info->seekable, NULL, NULL);
   gst_query_unref (query);
 
-  /* create audio/video/sub streams */
-  gst_player_streams_info_create (self, media_info, "n-video",
-      GST_TYPE_PLAYER_VIDEO_INFO);
-  gst_player_streams_info_create (self, media_info, "n-audio",
-      GST_TYPE_PLAYER_AUDIO_INFO);
-  gst_player_streams_info_create (self, media_info, "n-text",
-      GST_TYPE_PLAYER_SUBTITLE_INFO);
+  if (self->use_playbin3 && self->collection) {
+    gst_player_streams_info_create_from_collection (self, media_info,
+        self->collection);
+  } else {
+    /* create audio/video/sub streams */
+    gst_player_streams_info_create (self, media_info, "n-video",
+        GST_TYPE_PLAYER_VIDEO_INFO);
+    gst_player_streams_info_create (self, media_info, "n-audio",
+        GST_TYPE_PLAYER_AUDIO_INFO);
+    gst_player_streams_info_create (self, media_info, "n-text",
+        GST_TYPE_PLAYER_SUBTITLE_INFO);
+  }
 
   media_info->title = get_from_tags (self, media_info, get_title);
   media_info->container =
@@ -2563,6 +2857,7 @@ gst_player_main (gpointer data)
   GSource *source;
   GSource *bus_source;
   GstElement *scaletempo;
+  const gchar *env;
 
   GST_TRACE_OBJECT (self, "Starting main thread");
 
@@ -2574,7 +2869,15 @@ gst_player_main (gpointer data)
   g_source_attach (source, self->context);
   g_source_unref (source);
 
-  self->playbin = gst_element_factory_make ("playbin", "playbin");
+  env = g_getenv ("GST_PLAYER_USE_PLAYBIN3");
+  if (env && g_str_has_prefix (env, "1"))
+    self->use_playbin3 = TRUE;
+
+  if (self->use_playbin3) {
+    GST_DEBUG_OBJECT (self, "playbin3 enabled");
+    self->playbin = gst_element_factory_make ("playbin3", "playbin3");
+  } else
+    self->playbin = gst_element_factory_make ("playbin", "playbin");
 
   if (self->video_renderer) {
     GstElement *video_sink =
@@ -2620,19 +2923,27 @@ gst_player_main (gpointer data)
       G_CALLBACK (element_cb), self);
   g_signal_connect (G_OBJECT (bus), "message::tag", G_CALLBACK (tags_cb), self);
 
-  g_signal_connect (self->playbin, "video-changed",
-      G_CALLBACK (video_changed_cb), self);
-  g_signal_connect (self->playbin, "audio-changed",
-      G_CALLBACK (audio_changed_cb), self);
-  g_signal_connect (self->playbin, "text-changed",
-      G_CALLBACK (subtitle_changed_cb), self);
+  if (self->use_playbin3) {
+    g_signal_connect (G_OBJECT (bus), "message::stream-collection",
+        G_CALLBACK (stream_collection_cb), self);
+    g_signal_connect (G_OBJECT (bus), "message::streams-selected",
+        G_CALLBACK (streams_selected_cb), self);
+  } else {
+    g_signal_connect (self->playbin, "video-changed",
+        G_CALLBACK (video_changed_cb), self);
+    g_signal_connect (self->playbin, "audio-changed",
+        G_CALLBACK (audio_changed_cb), self);
+    g_signal_connect (self->playbin, "text-changed",
+        G_CALLBACK (subtitle_changed_cb), self);
 
-  g_signal_connect (self->playbin, "video-tags-changed",
-      G_CALLBACK (video_tags_changed_cb), self);
-  g_signal_connect (self->playbin, "audio-tags-changed",
-      G_CALLBACK (audio_tags_changed_cb), self);
-  g_signal_connect (self->playbin, "text-tags-changed",
-      G_CALLBACK (subtitle_tags_changed_cb), self);
+    g_signal_connect (self->playbin, "video-tags-changed",
+        G_CALLBACK (video_tags_changed_cb), self);
+    g_signal_connect (self->playbin, "audio-tags-changed",
+        G_CALLBACK (audio_tags_changed_cb), self);
+    g_signal_connect (self->playbin, "text-tags-changed",
+        G_CALLBACK (subtitle_tags_changed_cb), self);
+  }
+
   g_signal_connect (self->playbin, "notify::volume",
       G_CALLBACK (volume_notify_cb), self);
   g_signal_connect (self->playbin, "notify::mute",
@@ -2905,6 +3216,7 @@ gst_player_stop_internal (GstPlayer * self, gboolean transient)
       GST_PLAYER_STATE_STOPPED ? GST_PLAYER_STATE_BUFFERING :
       GST_PLAYER_STATE_STOPPED);
   self->buffering = 100;
+  self->cached_duration = GST_CLOCK_TIME_NONE;
   g_mutex_lock (&self->lock);
   if (self->media_info) {
     g_object_unref (self->media_info);
@@ -2923,6 +3235,19 @@ gst_player_stop_internal (GstPlayer * self, gboolean transient)
   self->seek_position = GST_CLOCK_TIME_NONE;
   self->last_seek_time = GST_CLOCK_TIME_NONE;
   self->rate = 1.0;
+  if (self->collection) {
+    if (self->stream_notify_id)
+      g_signal_handler_disconnect (self->collection, self->stream_notify_id);
+    self->stream_notify_id = 0;
+    gst_object_unref (self->collection);
+    self->collection = NULL;
+  }
+  g_free (self->video_sid);
+  g_free (self->audio_sid);
+  g_free (self->subtitle_sid);
+  self->video_sid = NULL;
+  self->audio_sid = NULL;
+  self->subtitle_sid = NULL;
   g_mutex_unlock (&self->lock);
 }
 
@@ -2967,6 +3292,7 @@ gst_player_seek_internal_locked (GstPlayer * self)
   GstStateChangeReturn state_ret;
   GstEvent *s_event;
   GstSeekFlags flags = 0;
+  gboolean accurate = FALSE;
 
   if (self->seek_source) {
     g_source_destroy (self->seek_source);
@@ -3001,6 +3327,14 @@ gst_player_seek_internal_locked (GstPlayer * self)
   self->is_eos = FALSE;
 
   flags |= GST_SEEK_FLAG_FLUSH;
+
+  accurate = gst_player_config_get_seek_accurate (self->config);
+
+  if (accurate) {
+    flags |= GST_SEEK_FLAG_ACCURATE;
+  } else {
+    flags &= ~GST_SEEK_FLAG_ACCURATE;
+  }
 
   if (rate != 1.0) {
     flags |= GST_SEEK_FLAG_TRICKMODE;
@@ -3373,8 +3707,15 @@ gst_player_get_current_audio_track (GstPlayer * self)
   if (!is_track_enabled (self, GST_PLAY_FLAG_AUDIO))
     return NULL;
 
-  info = (GstPlayerAudioInfo *) gst_player_stream_info_get_current (self,
-      "current-audio", GST_TYPE_PLAYER_AUDIO_INFO);
+  if (self->use_playbin3) {
+    info = (GstPlayerAudioInfo *)
+        gst_player_stream_info_get_current_from_stream_id (self,
+        self->audio_sid, GST_TYPE_PLAYER_AUDIO_INFO);
+  } else {
+    info = (GstPlayerAudioInfo *) gst_player_stream_info_get_current (self,
+        "current-audio", GST_TYPE_PLAYER_AUDIO_INFO);
+  }
+
   return info;
 }
 
@@ -3398,8 +3739,15 @@ gst_player_get_current_video_track (GstPlayer * self)
   if (!is_track_enabled (self, GST_PLAY_FLAG_VIDEO))
     return NULL;
 
-  info = (GstPlayerVideoInfo *) gst_player_stream_info_get_current (self,
-      "current-video", GST_TYPE_PLAYER_VIDEO_INFO);
+  if (self->use_playbin3) {
+    info = (GstPlayerVideoInfo *)
+        gst_player_stream_info_get_current_from_stream_id (self,
+        self->video_sid, GST_TYPE_PLAYER_VIDEO_INFO);
+  } else {
+    info = (GstPlayerVideoInfo *) gst_player_stream_info_get_current (self,
+        "current-video", GST_TYPE_PLAYER_VIDEO_INFO);
+  }
+
   return info;
 }
 
@@ -3423,9 +3771,43 @@ gst_player_get_current_subtitle_track (GstPlayer * self)
   if (!is_track_enabled (self, GST_PLAY_FLAG_SUBTITLE))
     return NULL;
 
-  info = (GstPlayerSubtitleInfo *) gst_player_stream_info_get_current (self,
-      "current-text", GST_TYPE_PLAYER_SUBTITLE_INFO);
+  if (self->use_playbin3) {
+    info = (GstPlayerSubtitleInfo *)
+        gst_player_stream_info_get_current_from_stream_id (self,
+        self->subtitle_sid, GST_TYPE_PLAYER_SUBTITLE_INFO);
+  } else {
+    info = (GstPlayerSubtitleInfo *) gst_player_stream_info_get_current (self,
+        "current-text", GST_TYPE_PLAYER_SUBTITLE_INFO);
+  }
+
   return info;
+}
+
+/* Must be called with lock */
+static gboolean
+gst_player_select_streams (GstPlayer * self)
+{
+  GList *stream_list = NULL;
+  gboolean ret = FALSE;
+
+  if (self->audio_sid)
+    stream_list = g_list_append (stream_list, g_strdup (self->audio_sid));
+  if (self->video_sid)
+    stream_list = g_list_append (stream_list, g_strdup (self->video_sid));
+  if (self->subtitle_sid)
+    stream_list = g_list_append (stream_list, g_strdup (self->subtitle_sid));
+
+  g_mutex_unlock (&self->lock);
+  if (stream_list) {
+    ret = gst_element_send_event (self->playbin,
+        gst_event_new_select_streams (stream_list));
+    g_list_free_full (stream_list, g_free);
+  } else {
+    GST_ERROR_OBJECT (self, "No available streams for select-streams");
+  }
+  g_mutex_lock (&self->lock);
+
+  return ret;
 }
 
 /**
@@ -3441,6 +3823,7 @@ gboolean
 gst_player_set_audio_track (GstPlayer * self, gint stream_index)
 {
   GstPlayerStreamInfo *info;
+  gboolean ret = TRUE;
 
   g_return_val_if_fail (GST_IS_PLAYER (self), 0);
 
@@ -3453,9 +3836,19 @@ gst_player_set_audio_track (GstPlayer * self, gint stream_index)
     return FALSE;
   }
 
-  g_object_set (G_OBJECT (self->playbin), "current-audio", stream_index, NULL);
+  if (self->use_playbin3) {
+    g_mutex_lock (&self->lock);
+    g_free (self->audio_sid);
+    self->audio_sid = g_strdup (info->stream_id);
+    ret = gst_player_select_streams (self);
+    g_mutex_unlock (&self->lock);
+  } else {
+    g_object_set (G_OBJECT (self->playbin), "current-audio", stream_index,
+        NULL);
+  }
+
   GST_DEBUG_OBJECT (self, "set stream index '%d'", stream_index);
-  return TRUE;
+  return ret;
 }
 
 /**
@@ -3471,6 +3864,7 @@ gboolean
 gst_player_set_video_track (GstPlayer * self, gint stream_index)
 {
   GstPlayerStreamInfo *info;
+  gboolean ret = TRUE;
 
   g_return_val_if_fail (GST_IS_PLAYER (self), 0);
 
@@ -3484,9 +3878,19 @@ gst_player_set_video_track (GstPlayer * self, gint stream_index)
     return FALSE;
   }
 
-  g_object_set (G_OBJECT (self->playbin), "current-video", stream_index, NULL);
+  if (self->use_playbin3) {
+    g_mutex_lock (&self->lock);
+    g_free (self->video_sid);
+    self->video_sid = g_strdup (info->stream_id);
+    ret = gst_player_select_streams (self);
+    g_mutex_unlock (&self->lock);
+  } else {
+    g_object_set (G_OBJECT (self->playbin), "current-video", stream_index,
+        NULL);
+  }
+
   GST_DEBUG_OBJECT (self, "set stream index '%d'", stream_index);
-  return TRUE;
+  return ret;
 }
 
 /**
@@ -3502,6 +3906,7 @@ gboolean
 gst_player_set_subtitle_track (GstPlayer * self, gint stream_index)
 {
   GstPlayerStreamInfo *info;
+  gboolean ret = TRUE;
 
   g_return_val_if_fail (GST_IS_PLAYER (self), 0);
 
@@ -3514,9 +3919,18 @@ gst_player_set_subtitle_track (GstPlayer * self, gint stream_index)
     return FALSE;
   }
 
-  g_object_set (G_OBJECT (self->playbin), "current-text", stream_index, NULL);
+  if (self->use_playbin3) {
+    g_mutex_lock (&self->lock);
+    g_free (self->subtitle_sid);
+    self->subtitle_sid = g_strdup (info->stream_id);
+    ret = gst_player_select_streams (self);
+    g_mutex_unlock (&self->lock);
+  } else {
+    g_object_set (G_OBJECT (self->playbin), "current-text", stream_index, NULL);
+  }
+
   GST_DEBUG_OBJECT (self, "set stream index '%d'", stream_index);
-  return TRUE;
+  return ret;
 }
 
 /**
@@ -4198,4 +4612,149 @@ gst_player_config_get_position_update_interval (const GstStructure * config)
       CONFIG_QUARK (POSITION_INTERVAL_UPDATE), G_TYPE_UINT, &interval, NULL);
 
   return interval;
+}
+
+/**
+ * gst_player_config_set_seek_accurate:
+ * @player: #GstPlayer instance
+ * @accurate: accurate seek or not
+ *
+ * Enable or disable accurate seeking. When enabled, elements will try harder
+ * to seek as accurately as possible to the requested seek position. Generally
+ * it will be slower especially for formats that don't have any indexes or
+ * timestamp markers in the stream.
+ *
+ * If accurate seeking is disabled, elements will seek as close as the request
+ * position without slowing down seeking too much.
+ *
+ * Accurate seeking is disabled by default.
+ *
+ * Since: 1.12
+ */
+void
+gst_player_config_set_seek_accurate (GstPlayer * self, gboolean accurate)
+{
+  GstStructure *config = self->config;
+  g_return_if_fail (config != NULL);
+
+  gst_structure_id_set (config,
+      CONFIG_QUARK (ACCURATE_SEEK), G_TYPE_BOOLEAN, accurate, NULL);
+}
+
+/**
+ * gst_player_config_get_seek_accurate:
+ * @config: a #GstPlayer configuration
+ *
+ * Returns: %TRUE if accurate seeking is enabled
+ *
+ * Since 1.12
+ */
+gboolean
+gst_player_config_get_seek_accurate (const GstStructure * config)
+{
+  gboolean accurate = FALSE;
+
+  g_return_val_if_fail (config != NULL, FALSE);
+
+  gst_structure_id_get (config,
+      CONFIG_QUARK (ACCURATE_SEEK), G_TYPE_BOOLEAN, &accurate, NULL);
+
+  return accurate;
+}
+
+/**
+ * gst_player_get_video_snapshot:
+ * @player: #GstPlayer instance
+ * @format: output format of the video snapshot
+ * @config: (allow-none): Additional configuration
+ *
+ * Get a snapshot of the currently selected video stream, if any. The format can be
+ * selected with @format and optional configuration is possible with @config
+ * Currently supported settings are:
+ * - width, height of type G_TYPE_INT
+ * - pixel-aspect-ratio of type GST_TYPE_FRACTION
+ *  Except for GST_PLAYER_THUMBNAIL_RAW_NATIVE format, if no config is set, pixel-aspect-ratio would be 1/1
+ *
+ * Returns: (transfer full):  Current video snapshot sample or %NULL on failure
+ *
+ * Since 1.12
+ */
+GstSample *
+gst_player_get_video_snapshot (GstPlayer * self,
+    GstPlayerSnapshotFormat format, GstStructure * config)
+{
+  gint video_tracks = 0;
+  GstSample *sample = NULL;
+  GstCaps *caps = NULL;
+  gint width = -1;
+  gint height = -1;
+  gint par_n = 1;
+  gint par_d = 1;
+  g_return_val_if_fail (GST_IS_PLAYER (self), NULL);
+
+  g_object_get (self->playbin, "n-video", &video_tracks, NULL);
+  if (video_tracks == 0) {
+    GST_DEBUG_OBJECT (self, "total video track num is 0");
+    return NULL;
+  }
+
+  switch (format) {
+    case GST_PLAYER_THUMBNAIL_RAW_xRGB:
+      caps = gst_caps_new_simple ("video/x-raw",
+          "format", G_TYPE_STRING, "xRGB", NULL);
+      break;
+    case GST_PLAYER_THUMBNAIL_RAW_BGRx:
+      caps = gst_caps_new_simple ("video/x-raw",
+          "format", G_TYPE_STRING, "BGRx", NULL);
+      break;
+    case GST_PLAYER_THUMBNAIL_JPG:
+      caps = gst_caps_new_empty_simple ("image/jpeg");
+      break;
+    case GST_PLAYER_THUMBNAIL_PNG:
+      caps = gst_caps_new_empty_simple ("image/png");
+      break;
+    case GST_PLAYER_THUMBNAIL_RAW_NATIVE:
+    default:
+      caps = gst_caps_new_empty_simple ("video/x-raw");
+      break;
+  }
+
+  if (NULL != config) {
+    if (!gst_structure_get_int (config, "width", &width))
+      width = -1;
+    if (!gst_structure_get_int (config, "height", &height))
+      height = -1;
+    if (!gst_structure_get_fraction (config, "pixel-aspect-ratio", &par_n,
+            &par_d)) {
+      if (format != GST_PLAYER_THUMBNAIL_RAW_NATIVE) {
+        par_n = 1;
+        par_d = 1;
+      } else {
+        par_n = 0;
+        par_d = 0;
+      }
+    }
+  }
+
+  if (width > 0 && height > 0) {
+    gst_caps_set_simple (caps, "width", G_TYPE_INT, width,
+        "height", G_TYPE_INT, height, NULL);
+  }
+
+  if (format != GST_PLAYER_THUMBNAIL_RAW_NATIVE) {
+    gst_caps_set_simple (caps, "pixel-aspect-ratio", GST_TYPE_FRACTION,
+        par_n, par_d, NULL);
+  } else if (NULL != config && par_n != 0 && par_d != 0) {
+    gst_caps_set_simple (caps, "pixel-aspect-ratio", GST_TYPE_FRACTION,
+        par_n, par_d, NULL);
+  }
+
+  g_signal_emit_by_name (self->playbin, "convert-sample", caps, &sample);
+  gst_caps_unref (caps);
+  if (!sample) {
+    GST_WARNING_OBJECT (self, "Failed to retrieve or convert video frame");
+    return NULL;
+  }
+
+  return sample;
 }

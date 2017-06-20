@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-02-23 15:17+0200\n"
+"POT-Creation-Date: 2017-05-04 15:09+0300\n"
 "PO-Revision-Date: 2016-12-23 20:45+0100\n"
 "Last-Translator: Stéphane Aulery <lkppo@free.fr>\n"
 "Language-Team: French <traduc@traduc.org>\n"
@@ -57,18 +57,6 @@ msgstr "Ce fichier ne contient aucun flux exploitable."
 msgid "Could not open sndfile stream for reading."
 msgstr "Impossible d’ouvrir le fichier snd en lecture."
 
-msgid "Could not establish connection to sndio"
-msgstr "Impossible de se connecter à sndio"
-
-msgid "Failed to query sndio capabilities"
-msgstr "Impossible d’interroger les capacités de sndio"
-
-msgid "Could not configure sndio"
-msgstr "Impossible de configurer sndio"
-
-msgid "Could not start sndio"
-msgstr "Impossible de démarrer sndio"
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 "Le fichier généré a un temps de lancement plus long que la durée du flux"
@@ -96,19 +84,6 @@ msgstr "Impossible de télécharger les fragments"
 
 msgid "Internal data stream error."
 msgstr "Erreur interne de flux de données."
-
-msgid "No file name specified for writing."
-msgstr "Aucun nom de fichier indiqué en écriture."
-
-#, c-format
-msgid "Given file name \"%s\" can't be converted to local file name encoding."
-msgstr ""
-"Le nom de fichier indiqué « %s » ne peut pas être converti dans l’encodage "
-"local au système de fichier."
-
-#, c-format
-msgid "Could not open file \"%s\" for writing."
-msgstr "Impossible d’ouvrir le fichier « %s » en écriture."
 
 #, c-format
 msgid "Device \"%s\" does not exist."
@@ -156,3 +131,27 @@ msgstr "Impossible de trouver le fichier de configuration du canal « %s »"
 
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "Le fichier de configuration ne contient aucun canal"
+
+#~ msgid "Could not establish connection to sndio"
+#~ msgstr "Impossible de se connecter à sndio"
+
+#~ msgid "Failed to query sndio capabilities"
+#~ msgstr "Impossible d’interroger les capacités de sndio"
+
+#~ msgid "Could not configure sndio"
+#~ msgstr "Impossible de configurer sndio"
+
+#~ msgid "Could not start sndio"
+#~ msgstr "Impossible de démarrer sndio"
+
+#~ msgid "No file name specified for writing."
+#~ msgstr "Aucun nom de fichier indiqué en écriture."
+
+#~ msgid ""
+#~ "Given file name \"%s\" can't be converted to local file name encoding."
+#~ msgstr ""
+#~ "Le nom de fichier indiqué « %s » ne peut pas être converti dans "
+#~ "l’encodage local au système de fichier."
+
+#~ msgid "Could not open file \"%s\" for writing."
+#~ msgstr "Impossible d’ouvrir le fichier « %s » en écriture."

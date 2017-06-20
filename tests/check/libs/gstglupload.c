@@ -38,6 +38,8 @@ static GstGLShader *shader;
 static GLint shader_attr_position_loc;
 static GLint shader_attr_texture_loc;
 static guint vbo, vbo_indices, vao;
+static GstGLFramebuffer *fbo;
+static GstGLMemory *fbo_tex;
 
 static const GLfloat vertices[] = {
   1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
@@ -48,7 +50,7 @@ static const GLfloat vertices[] = {
 
 static GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
 
-#define FORMAT GST_VIDEO_GL_TEXTURE_TYPE_RGBA
+#define FORMAT GST_GL_RGBA
 #define WIDTH 10
 #define HEIGHT 10
 #define RED 0xff, 0x00, 0x00, 0xff
@@ -153,6 +155,25 @@ init (gpointer data)
   shader_attr_texture_loc =
       gst_gl_shader_get_attribute_location (shader, "a_texcoord");
 
+  fbo = gst_gl_framebuffer_new_with_default_depth (context, WIDTH, HEIGHT);
+
+  {
+    GstGLMemoryAllocator *allocator;
+    GstGLVideoAllocationParams *params;
+    GstVideoInfo v_info;
+
+    allocator = gst_gl_memory_allocator_get_default (context);
+    gst_video_info_set_format (&v_info, GST_VIDEO_FORMAT_RGBA, WIDTH, HEIGHT);
+    params =
+        gst_gl_video_allocation_params_new (context, NULL, &v_info, 0, NULL,
+        GST_GL_TEXTURE_TARGET_2D, FORMAT);
+    fbo_tex =
+        (GstGLMemory *) gst_gl_base_memory_alloc ((GstGLBaseMemoryAllocator *)
+        allocator, (GstGLAllocationParams *) params);
+    gst_object_unref (allocator);
+    gst_gl_allocation_params_free ((GstGLAllocationParams *) params);
+  }
+
   if (!vbo) {
     if (gl->GenVertexArrays) {
       gl->GenVertexArrays (1, &vao);
@@ -194,13 +215,20 @@ deinit (gpointer data)
   if (vao)
     gl->DeleteVertexArrays (1, &vao);
   vao = 0;
+
+  if (fbo)
+    gst_object_unref (fbo);
+  fbo = NULL;
+
+  if (fbo_tex)
+    gst_memory_unref (GST_MEMORY_CAST (fbo_tex));
+  fbo_tex = NULL;
 }
 
-static void
-draw_render (gpointer data)
+static gboolean
+blit_tex (gpointer data)
 {
   GstGLContext *context = data;
-  GstGLContextClass *context_class = GST_GL_CONTEXT_GET_CLASS (context);
   const GstGLFuncs *gl = context->gl_vtable;
 
   gl->Clear (GL_COLOR_BUFFER_BIT);
@@ -209,8 +237,7 @@ draw_render (gpointer data)
 
   if (gl->GenVertexArrays)
     gl->BindVertexArray (vao);
-  else
-    _bind_buffer (context);
+  _bind_buffer (context);
 
   gl->ActiveTexture (GL_TEXTURE0);
   gl->BindTexture (GL_TEXTURE_2D, tex_id);
@@ -220,10 +247,16 @@ draw_render (gpointer data)
 
   if (gl->GenVertexArrays)
     gl->BindVertexArray (0);
-  else
-    _unbind_buffer (context);
+  _unbind_buffer (context);
 
-  context_class->swap_buffers (context);
+  return TRUE;
+}
+
+static void
+draw_render (gpointer data)
+{
+  gst_gl_framebuffer_draw_to_texture (fbo, fbo_tex,
+      (GstGLFramebufferFunc) blit_tex, data);
 }
 
 GST_START_TEST (test_upload_data)
@@ -299,7 +332,7 @@ GST_START_TEST (test_upload_gl_memory)
   buffer = gst_buffer_new ();
   params = gst_gl_video_allocation_params_new_wrapped_data (context, NULL,
       &in_info, 0, NULL, GST_GL_TEXTURE_TARGET_2D,
-      GST_VIDEO_GL_TEXTURE_TYPE_RGBA, rgba_data, NULL, NULL);
+      GST_GL_RGBA, rgba_data, NULL, NULL);
   gl_mem = (GstGLMemory *) gst_gl_base_memory_alloc (base_mem_alloc,
       (GstGLAllocationParams *) params);
   gst_gl_allocation_params_free ((GstGLAllocationParams *) params);

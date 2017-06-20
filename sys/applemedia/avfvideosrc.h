@@ -33,7 +33,7 @@ G_BEGIN_DECLS
 #define GST_AVF_VIDEO_SRC_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), GST_TYPE_AVF_VIDEO_SRC, GstAVFVideoSrcClass))
 #define GST_AVF_VIDEO_SRC_IMPL(obj) \
-  ((GstAVFVideoSrcImpl *) GST_AVF_VIDEO_SRC_CAST (obj)->impl)
+  ((__bridge GstAVFVideoSrcImpl *) GST_AVF_VIDEO_SRC_CAST (obj)->impl)
 #define GST_IS_AVF_VIDEO_SRC(obj) \
   (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GST_TYPE_AVF_VIDEO_SRC))
 #define GST_IS_AVF_VIDEO_SRC_CLASS(klass) \
@@ -42,10 +42,36 @@ G_BEGIN_DECLS
 typedef struct _GstAVFVideoSrc         GstAVFVideoSrc;
 typedef struct _GstAVFVideoSrcClass    GstAVFVideoSrcClass;
 
+typedef enum
+{
+    GST_AVF_VIDEO_SOURCE_POSITION_DEFAULT,
+    GST_AVF_VIDEO_SOURCE_POSITION_FRONT,
+    GST_AVF_VIDEO_SOURCE_POSITION_BACK,
+} GstAVFVideoSourcePosition;
+
+typedef enum
+{
+    GST_AVF_VIDEO_SOURCE_ORIENTATION_DEFAULT,
+    GST_AVF_VIDEO_SOURCE_ORIENTATION_PORTRAIT,
+    GST_AVF_VIDEO_SOURCE_ORIENTATION_PORTRAIT_UPSIDE_DOWN,
+    GST_AVF_VIDEO_SOURCE_ORIENTATION_LANDSCAPE_RIGHT,
+    GST_AVF_VIDEO_SOURCE_ORIENTATION_LANDSCAPE_LEFT,
+} GstAVFVideoSourceOrientation;
+
+typedef enum
+{
+    GST_AVF_VIDEO_SOURCE_DEVICE_TYPE_DEFAULT,
+    GST_AVF_VIDEO_SOURCE_DEVICE_TYPE_BUILT_IN_WIDE_ANGLE_CAMERA,
+    GST_AVF_VIDEO_SOURCE_DEVICE_TYPE_BUILT_IN_TELEPHOTO_CAMERA,
+    GST_AVF_VIDEO_SOURCE_DEVICE_TYPE_BUILT_IN_DUAL_CAMERA,
+} GstAVFVideoSourceDeviceType;
+
 struct _GstAVFVideoSrc
 {
   GstPushSrc push_src;
 
+  /* NOTE: ARC no longer allows Objective-C pointers in structs. */
+  /* Instead, use gpointer with explicit __bridge_* calls */
   gpointer impl;
 };
 

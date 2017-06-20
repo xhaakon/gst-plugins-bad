@@ -44,7 +44,7 @@
 #ifndef __GST_CV_SOBEL_H__
 #define __GST_CV_SOBEL_H__
 
-#include <gstopencvvideofilter.h>
+#include <gst/opencv/gstopencvvideofilter.h>
 
 G_BEGIN_DECLS
 
@@ -72,7 +72,6 @@ struct _GstCvSobel
   gint aperture_size;
   gboolean mask;
 
-  IplImage *cvCSobel;
   IplImage *cvGray;
   IplImage *cvSobel;
 };

@@ -35,6 +35,7 @@ endif
 libgstapplemedia_la_OBJCFLAGS =			\
 	-I$(top_srcdir)/gst-libs                \
 	-I$(top_builddir)/gst-libs              \
+	-fobjc-arc                              \
 	$(GST_OBJCFLAGS_WITH_VERSION)		\
 	$(GST_BASE_CFLAGS)			\
 	$(GST_PLUGINS_BASE_CFLAGS)
@@ -64,7 +65,6 @@ libgstapplemedia_la_LDFLAGS =			\
 	-Wl,-framework -Wl,AudioToolbox
 
 noinst_HEADERS =				\
-	qtkitvideosrc.h				\
 	avfvideosrc.h				\
 	avsamplevideosink.h			\
 	vtenc.h					\
@@ -101,14 +101,6 @@ libgstapplemedia_la_LDFLAGS +=			\
 	-Wl,-framework -Wl,OpenGL 		\
 	-Wl,-framework -Wl,IOSurface
 
-endif
-
-if HAVE_QTKIT
-libgstapplemedia_la_SOURCES +=			\
-	qtkitvideosrc.m
-
-libgstapplemedia_la_LDFLAGS +=			\
-	-Wl,-framework -Wl,QTKit
 endif
 
 if HAVE_AVFOUNDATION

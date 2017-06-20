@@ -40,6 +40,7 @@ adaptive_demux_engine_stream_state_finalize (gpointer data)
 {
   GstAdaptiveDemuxTestOutputStream *stream =
       (GstAdaptiveDemuxTestOutputStream *) data;
+  g_free (stream->name);
   if (stream->appsink)
     gst_object_unref (stream->appsink);
   if (stream->pad)
@@ -54,7 +55,9 @@ static GstAdaptiveDemuxTestOutputStream *
 getTestOutputDataByAppsink (GstAdaptiveDemuxTestEnginePrivate * priv,
     GstAppSink * appsink)
 {
-  for (guint i = 0; i < priv->engine.output_streams->len; ++i) {
+  guint i;
+
+  for (i = 0; i < priv->engine.output_streams->len; ++i) {
     GstAdaptiveDemuxTestOutputStream *state;
     state = g_ptr_array_index (priv->engine.output_streams, i);
     if (state->appsink == appsink) {
@@ -70,7 +73,9 @@ static GstAdaptiveDemuxTestOutputStream *
 getTestOutputDataByPad (GstAdaptiveDemuxTestEnginePrivate * priv,
     GstPad * pad, gboolean abort_if_not_found)
 {
-  for (guint i = 0; i < priv->engine.output_streams->len; ++i) {
+  guint i;
+
+  for (i = 0; i < priv->engine.output_streams->len; ++i) {
     GstAdaptiveDemuxTestOutputStream *stream;
     stream = g_ptr_array_index (priv->engine.output_streams, i);
     if (stream->internal_pad == pad || stream->pad == pad) {
@@ -81,6 +86,27 @@ getTestOutputDataByPad (GstAdaptiveDemuxTestEnginePrivate * priv,
     ck_abort_msg ("cannot find pad %p in the output data", pad);
   return NULL;
 }
+
+/* get the output stream entry in corresponding to the given Pad */
+static GstAdaptiveDemuxTestOutputStream *
+getTestOutputDataByName (GstAdaptiveDemuxTestEnginePrivate * priv,
+    const gchar * name, gboolean abort_if_not_found)
+{
+  guint i;
+
+  for (i = 0; i < priv->engine.output_streams->len; ++i) {
+    GstAdaptiveDemuxTestOutputStream *stream;
+    stream = g_ptr_array_index (priv->engine.output_streams, i);
+    if (strstr (stream->name, name) != NULL) {
+      return stream;
+    }
+  }
+  if (abort_if_not_found)
+    ck_abort_msg ("cannot find pad %s in the output data", name);
+  return NULL;
+}
+
+/* callback called when AppSink receives data */
 
 /* callback called when AppSink receives data */
 static GstFlowReturn
@@ -258,16 +284,17 @@ on_demuxElementAdded (GstBin * demux, GstElement * element, gpointer user_data)
   GstAdaptiveDemuxTestOutputStream *stream = NULL;
   GstPad *internal_pad;
   gchar *srcbin_name;
-  gint i;
 
   srcbin_name = GST_ELEMENT_NAME (element);
   GST_TEST_LOCK (priv);
-  for (i = 0; i < priv->engine.output_streams->len; i++) {
-    stream = g_ptr_array_index (priv->engine.output_streams, i);
-    if (strstr (srcbin_name, GST_PAD_NAME (stream->pad)) != NULL)
-      break;
+
+  stream = getTestOutputDataByName (priv, srcbin_name, FALSE);
+  if (stream == NULL) {
+    /* Pad wasn't exposed yet, create the stream */
+    stream = g_slice_new0 (GstAdaptiveDemuxTestOutputStream);
+    stream->name = g_strdup (srcbin_name);
+    g_ptr_array_add (priv->engine.output_streams, stream);
   }
-  fail_unless (stream != NULL);
 
   /* keep the reference to the internal_pad.
    * We will need it to identify the stream in the on_demuxReceivesEvent callback
@@ -306,8 +333,14 @@ on_demuxNewPad (GstElement * demux, GstPad * pad, gpointer user_data)
   fail_unless (priv != NULL);
   name = gst_pad_get_name (pad);
 
-  stream = g_slice_new0 (GstAdaptiveDemuxTestOutputStream);
-  GST_DEBUG ("created pad %p", pad);
+  GST_DEBUG ("demux created pad %p", pad);
+
+  stream = getTestOutputDataByName (priv, name, FALSE);
+  if (stream == NULL) {
+    stream = g_slice_new0 (GstAdaptiveDemuxTestOutputStream);
+    stream->name = g_strdup (name);
+    g_ptr_array_add (priv->engine.output_streams, stream);
+  }
 
   sink = gst_element_factory_make ("appsink", name);
   g_free (name);
@@ -343,8 +376,6 @@ on_demuxNewPad (GstElement * demux, GstPad * pad, gpointer user_data)
   }
   stream->pad = gst_object_ref (pad);
 
-
-  g_ptr_array_add (priv->engine.output_streams, stream);
   GST_TEST_UNLOCK (priv);
 
   pipeline = GST_ELEMENT (gst_element_get_parent (demux));
@@ -386,9 +417,10 @@ on_demuxPadRemoved (GstElement * demux, GstPad * pad, gpointer user_data)
     priv->callbacks->demux_pad_removed (&priv->engine, stream, priv->user_data);
   }
   fail_unless (stream->appsink != NULL);
-  fail_unless (stream->internal_pad != NULL);
-  gst_object_unref (stream->internal_pad);
-  stream->internal_pad = NULL;
+  if (stream->internal_pad) {
+    gst_object_unref (stream->internal_pad);
+    stream->internal_pad = NULL;
+  }
   appSink = GST_ELEMENT (stream->appsink);
   ret = gst_element_get_state (appSink, &currentState, &pending, 0);
   if ((ret == GST_STATE_CHANGE_SUCCESS && currentState == GST_STATE_PLAYING)

@@ -53,15 +53,23 @@ struct _GstGLDisplayEGL
   EGLDisplay display;
 
   gboolean foreign_display;
+
+  gpointer _padding[GST_PADDING];
 };
 
 struct _GstGLDisplayEGLClass
 {
   GstGLDisplayClass object_class;
+
+  gpointer _padding[GST_PADDING];
 };
 
 GstGLDisplayEGL *gst_gl_display_egl_new (void);
 GstGLDisplayEGL *gst_gl_display_egl_new_with_egl_display (EGLDisplay display);
+GstGLDisplayEGL *gst_gl_display_egl_from_gl_display (GstGLDisplay * display);
+EGLDisplay       gst_gl_display_egl_get_from_native (GstGLDisplayType type, guintptr display);
+
+#define GST_GL_DISPLAY_EGL_NAME "gst.gl.display.egl"
 
 G_END_DECLS
 

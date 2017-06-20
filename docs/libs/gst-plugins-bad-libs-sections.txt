@@ -788,7 +788,6 @@ GstGLFeatureFunction
 GstGLBuffer
 gst_gl_buffer_init_once
 gst_is_gl_buffer
-gst_gl_buffer_alloc
 GstGLBufferAllocationParams
 GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_BUFFER
 gst_gl_buffer_allocation_params_new
@@ -797,6 +796,8 @@ GstGLBufferAllocatorClass
 GST_GL_BUFFER_ALLOCATOR_NAME
 GST_CAPS_FEATURE_MEMORY_GL_BUFFER
 <SUBSECTION Standard>
+gst_gl_buffer_allocation_params_get_type
+GST_TYPE_GL_BUFFER_ALLOCATION_PARAMS
 GST_GL_BUFFER_CAST
 GST_GL_BUFFER_ALLOCATOR
 GST_GL_BUFFER_ALLOCATOR_CAST
@@ -847,7 +848,7 @@ GST_GL_COLOR_CONVERT_CLASS
 gst_gl_color_convert_get_type
 GST_IS_GL_COLOR_CONVERT
 GST_IS_GL_COLOR_CONVERT_CLASS
-GST_GL_TYPE_COLOR_CONVERT
+GST_TYPE_GL_COLOR_CONVERT
 </SECTION>
 
 <SECTION>
@@ -873,6 +874,7 @@ gst_gl_context_get_display
 gst_gl_context_get_gl_api
 gst_gl_context_get_gl_context
 gst_gl_context_get_gl_platform
+gst_gl_context_get_gl_platform_version
 gst_gl_context_get_current_gl_context
 gst_gl_context_get_current_gl_api
 gst_gl_context_get_thread
@@ -887,7 +889,7 @@ gst_gl_context_get_current
 <SUBSECTION Standard>
 GST_GL_CONTEXT
 GST_IS_GL_CONTEXT
-GST_GL_TYPE_CONTEXT
+GST_TYPE_GL_CONTEXT
 GST_GL_CONTEXT_CLASS
 GST_GL_CONTEXT_GET_CLASS
 GST_IS_GL_CONTEXT_CLASS
@@ -932,7 +934,7 @@ gst_gl_context_cocoa_get_pixel_format
 <SUBSECTION Standard>
 GST_GL_CONTEXT_COCOA
 GST_IS_GL_CONTEXT_COCOA
-GST_GL_TYPE_CONTEXT_COCOA
+GST_TYPE_GL_CONTEXT_COCOA
 GST_GL_CONTEXT_COCOA_CLASS
 GST_GL_CONTEXT_COCOA_GET_CLASS
 GST_IS_GL_CONTEXT_COCOA_CLASS
@@ -950,11 +952,11 @@ GstGLContextEGL
 gst_gl_context_egl_new
 gst_gl_context_egl_get_current_context
 gst_gl_context_egl_get_proc_address
-gst_gl_context_egl_get_error_string
+gst_egl_get_error_string
 <SUBSECTION Standard>
 GST_GL_CONTEXT_EGL
 GST_IS_GL_CONTEXT_EGL
-GST_GL_TYPE_CONTEXT_EGL
+GST_TYPE_GL_CONTEXT_EGL
 GST_GL_CONTEXT_EGL_CLASS
 GST_GL_CONTEXT_EGL_GET_CLASS
 GST_IS_GL_CONTEXT_EGL_CLASS
@@ -973,7 +975,7 @@ gst_gl_context_glx_get_proc_address
 <SUBSECTION Standard>
 GST_GL_CONTEXT_GLX
 GST_IS_GL_CONTEXT_GLX
-GST_GL_TYPE_CONTEXT_GLX
+GST_TYPE_GL_CONTEXT_GLX
 GST_GL_CONTEXT_GLX_CLASS
 GST_GL_CONTEXT_GLX_GET_CLASS
 GST_IS_GL_CONTEXT_GLX_CLASS
@@ -992,7 +994,7 @@ gst_gl_context_wgl_get_proc_address
 <SUBSECTION Standard>
 GST_GL_CONTEXT_WGL
 GST_IS_GL_CONTEXT_WGL
-GST_GL_TYPE_CONTEXT_WGL
+GST_TYPE_GL_CONTEXT_WGL
 GST_GL_CONTEXT_WGL_CLASS
 GST_GL_CONTEXT_WGL_GET_CLASS
 GST_IS_GL_CONTEXT_WGL_CLASS
@@ -1010,7 +1012,7 @@ gst_gl_context_eagl_get_current_context
 <SUBSECTION Standard>
 GST_GL_CONTEXT_EAGL
 GST_IS_GL_CONTEXT_EAGL
-GST_GL_TYPE_CONTEXT_EAGL
+GST_TYPE_GL_CONTEXT_EAGL
 GST_GL_CONTEXT_EAGL_CLASS
 GST_GL_CONTEXT_EAGL_GET_CLASS
 GST_IS_GL_CONTEXT_EAGL_CLASS
@@ -1039,6 +1041,9 @@ gst_gl_display_add_context
 gst_gl_display_get_gl_context_for_thread
 gst_gl_display_get_handle
 gst_gl_display_create_context
+gst_gl_display_create_window
+gst_gl_display_find_window
+gst_gl_display_remove_window
 gst_context_get_gl_display
 gst_context_set_gl_display
 <SUBSECTION Standard>
@@ -1059,24 +1064,37 @@ gst_gl_display_get_gl_api_unlocked
 
 <SECTION>
 <FILE>gstgldisplaycocoa</FILE>
-<TITLE>GstGLDIsplayCocoa</TITLE>
+<TITLE>GstGLDisplayCocoa</TITLE>
 gst_gl_display_cocoa_new
 <SUBSECTION Standard>
+GstGLDisplayCocoa
+GstGLDisplayCocoaClass
+GST_TYPE_GL_DISPLAY_COCOA
 gst_gl_display_cocoa_get_type
 GST_GL_DISPLAY_COCOA
 GST_GL_DISPLAY_COCOA_CAST
 GST_GL_DISPLAY_COCOA_CLASS
+GST_IS_GL_DISPLAY_COCOA
+GST_IS_GL_DISPLAY_COCOA_CLASS
 </SECTION>
 
 <SECTION>
 <FILE>gstgldisplayegl</FILE>
-<TITLE>GstGLDIsplayEGL</TITLE>
+<TITLE>GstGLDisplayEGL</TITLE>
 gst_gl_display_egl_new
+gst_gl_display_egl_new_with_egl_display
+gst_gl_display_egl_from_gl_display
+gst_gl_display_egl_get_from_native
 <SUBSECTION Standard>
+GstGLDisplayEGL
+GstGLDisplayEGLClass
 GST_GL_DISPLAY_EGL
 GST_GL_DISPLAY_EGL_CAST
 GST_GL_DISPLAY_EGL_CLASS
+GST_TYPE_GL_DISPLAY_EGL
 gst_gl_display_egl_get_type
+GST_IS_GL_DISPLAY_EGL
+GST_IS_GL_DISPLAY_EGL_CLASS
 </SECTION>
 
 <SECTION>
@@ -1085,10 +1103,13 @@ gst_gl_display_egl_get_type
 gst_gl_display_wayland_new
 gst_gl_display_wayland_new_with_display
 <SUBSECTION Standard>
+GST_TYPE_GL_DISPLAY_WAYLAND
 gst_gl_display_wayland_get_type
 GST_GL_DISPLAY_WAYLAND
 GST_GL_DISPLAY_WAYLAND_CAST
 GST_GL_DISPLAY_WAYLAND_CLASS
+GST_IS_GL_DISPLAY_WAYLAND
+GST_IS_GL_DISPLAY_WAYLAND_CLASS
 </SECTION>
 
 <SECTION>
@@ -1097,10 +1118,13 @@ GST_GL_DISPLAY_WAYLAND_CLASS
 gst_gl_display_x11_new
 gst_gl_display_x11_new_with_display
 <SUBSECTION Standard>
+GST_TYPE_GL_DISPLAY_X11
 gst_gl_display_x11_get_type
 GST_GL_DISPLAY_X11
 GST_GL_DISPLAY_X11_CAST
 GST_GL_DISPLAY_X11_CLASS
+GST_IS_GL_DISPLAY_X11
+GST_IS_GL_DISPLAY_X11_CLASS
 </SECTION>
 
 <SECTION>
@@ -1142,13 +1166,18 @@ GstGLBaseFilterPrivate
 <FILE>gsteglimage</FILE>
 <TITLE>GstEGLImage</TITLE>
 gst_egl_image_from_dmabuf
+gst_egl_image_from_texture
 gst_egl_image_get_image
-gst_egl_image_get_orientation
 gst_egl_image_new_wrapped
 gst_egl_image_ref
 gst_egl_image_unref
+GstEGLImageDestroyNotify
 <SUBSECTION Standard>
+GST_TYPE_EGL_IMAGE
 gst_egl_image_get_type
+GST_EGL_IMAGE
+GST_EGL_IMAGE_CAST
+GST_IS_EGL_IMAGE
 </SECTION>
 
 <SECTION>
@@ -1156,6 +1185,7 @@ gst_egl_image_get_type
 <TITLE>GstGLFilter</TITLE>
 GstGLFilter
 GstGLFilterClass
+GstGLFilterRenderFunc
 gst_gl_filter_render_to_target
 gst_gl_filter_render_to_target_with_shader
 gst_gl_filter_filter_texture
@@ -1180,10 +1210,9 @@ GST_GL_TEXTURE_TARGET_EXTERNAL_OES_STR
 GST_BUFFER_POOL_OPTION_GL_TEXTURE_TARGET_2D
 GST_BUFFER_POOL_OPTION_GL_TEXTURE_TARGET_RECTANGLE
 GST_BUFFER_POOL_OPTION_GL_TEXTURE_TARGET_EXTERNAL_OES
+GstGLFormat
 gst_gl_format_type_n_bytes
-gst_gl_texture_type_n_bytes
-gst_gl_format_from_gl_texture_type
-gst_gl_texture_type_from_format
+gst_gl_format_from_video_info
 gst_gl_sized_gl_format_from_gl_format_type
 gst_gl_texture_target_from_string
 gst_gl_texture_target_to_string
@@ -1203,6 +1232,7 @@ gst_gl_framebuffer_new_with_default_depth
 gst_gl_framebuffer_attach
 gst_gl_framebuffer_bind
 gst_gl_context_clear_framebuffer
+GstGLFramebufferFunc
 gst_gl_framebuffer_draw_to_texture
 gst_gl_framebuffer_get_effective_dimensions
 gst_gl_framebuffer_get_id
@@ -1257,6 +1287,8 @@ gst_gl_base_memory_memcpy
 GST_TYPE_GL_ALLOCATION_PARAMS
 gst_gl_allocation_params_get_type
 gst_gl_base_memory_error_quark
+GST_TYPE_GL_BASE_MEMORY
+gst_gl_base_memory_get_type
 GST_GL_BASE_MEMORY_CAST
 GST_GL_BASE_MEMORY_ALLOCATOR
 GST_GL_BASE_MEMORY_ALLOCATOR_CAST
@@ -1272,6 +1304,7 @@ GST_TYPE_GL_BASE_MEMORY_ALLOCATOR
 <FILE>gstglmemory</FILE>
 <TITLE>GstGLMemory</TITLE>
 GST_GL_MEMORY_VIDEO_FORMATS_STR
+GST_CAPS_FEATURE_MEMORY_GL_MEMORY
 GstGLVideoAllocationParams
 GST_GL_ALLOCATION_PARAMS_ALLOC_FLAG_VIDEO
 gst_gl_video_allocation_params_copy_data
@@ -1296,10 +1329,12 @@ gst_gl_memory_texsubimage
 gst_gl_memory_get_texture_height
 gst_gl_memory_get_texture_id
 gst_gl_memory_get_texture_target
-gst_gl_memory_get_texture_type
+gst_gl_memory_get_texture_format
 gst_gl_memory_get_texture_width
 gst_gl_memory_setup_buffer
 <SUBSECTION Standard>
+gst_gl_video_allocation_params_get_type
+GST_TYPE_GL_VIDEO_ALLOCATION_PARAMS
 GST_GL_MEMORY_CAST
 GST_GL_MEMORY_ALLOCATOR
 GST_GL_MEMORY_ALLOCATOR_CAST
@@ -1321,7 +1356,6 @@ GstGLMemoryEGL
 gst_gl_memory_egl_init_once
 gst_gl_memory_egl_get_display
 gst_gl_memory_egl_get_image
-gst_gl_memory_egl_get_orientation
 gst_is_gl_memory_egl
 <SUBSECTION Standard>
 GST_GL_MEMORY_EGL_CAST
@@ -1368,15 +1402,19 @@ gst_gl_overlay_compositor_draw_overlays
 gst_gl_overlay_compositor_upload_overlays
 gst_gl_overlay_compositor_free_overlays
 <SUBSECTION Standard>
+GST_TYPE_GL_OVERLAY_COMPOSITOR
 gst_gl_overlay_compositor_get_type
 GST_GL_OVERLAY_COMPOSITOR
 GST_GL_OVERLAY_COMPOSITOR_CAST
 GST_GL_OVERLAY_COMPOSITOR_CLASS
+GST_IS_GL_OVERLAY_COMPOSITOR
+GST_IS_GL_OVERLAY_COMPOSITOR_CLASS
 </SECTION>
 
 <SECTION>
 <FILE>gstglquery</FILE>
 <TITLE>GstGLQuery</TITLE>
+GstGLQueryType
 gst_gl_query_counter
 gst_gl_query_counter_log
 gst_gl_query_counter_log_valist
@@ -1394,21 +1432,29 @@ gst_gl_query_unset
 <SECTION>
 <FILE>gstglrenderbuffer</FILE>
 <TITLE>GstGLRenderbuffer</TITLE>
+GstGLRenderbufferAllocator
+GstGLRenderbufferAllocatorClass
 GST_GL_RENDERBUFFER_ALLOCATOR_NAME
 gst_gl_renderbuffer_allocation_params_new
 gst_gl_renderbuffer_allocation_params_new_wrapped
 gst_gl_renderbuffer_get_height
 gst_gl_renderbuffer_get_id
-gst_gl_renderbuffer_get_type
+gst_gl_renderbuffer_get_format
 gst_gl_renderbuffer_get_width
 gst_gl_renderbuffer_init_once
+gst_is_gl_renderbuffer
 <SUBSECTION Standard>
+GST_TYPE_RENDERBUFFER_ALLOCATION_PARAMS
+gst_gl_renderbuffer_allocation_params_get_type
 GST_GL_RENDERBUFFER_CAST
 GST_GL_RENDERBUFFER_ALLOCATOR
 GST_GL_RENDERBUFFER_ALLOCATOR_CAST
 GST_GL_RENDERBUFFER_ALLOCATOR_CLASS
 GST_GL_RENDERBUFFER_ALLOCATOR_GET_CLASS
+GST_TYPE_GL_RENDERBUFFER_ALLOCATOR
 gst_gl_renderbuffer_allocator_get_type
+GST_IS_GL_RENDERBUFFER_ALLOCATOR
+GST_IS_GL_RENDERBUFFER_ALLOCATOR_CLASS
 </SECTION>
 
 <SECTION>
@@ -1468,7 +1514,7 @@ gst_gl_shader_string_vertex_mat4_vertex_transform
 GstGLShaderPrivate
 GST_GL_SHADER
 GST_IS_GL_SHADER
-GST_GL_TYPE_SHADER
+GST_TYPE_GL_SHADER
 gst_gl_shader_get_type
 GST_GL_SHADER_CLASS
 GST_IS_GL_SHADER_CLASS
@@ -1549,6 +1595,7 @@ gst_gl_upload_get_caps
 gst_gl_upload_set_caps
 gst_gl_upload_propose_allocation
 gst_gl_upload_transform_caps
+GstGLUploadReturn
 gst_gl_upload_perform_with_buffer
 gst_gl_upload_get_input_template_caps
 <SUBSECTION Standard>
@@ -1568,20 +1615,14 @@ GstGLUploadPrivate
 <TITLE>OpenGL Miscellaneous Utilities</TITLE>
 gst_gl_handle_set_context
 gst_gl_handle_context_query
-gst_gl_context_check_framebuffer_status
-gst_gl_caps_replace_all_caps_features
 gst_gl_ensure_element_data
+gst_gl_query_local_gl_context
 gst_gl_get_plane_data_size
 gst_gl_get_plane_start
-gst_gl_run_query
 gst_gl_value_get_texture_target_mask
 gst_gl_value_set_texture_target
 gst_gl_value_set_texture_target_from_mask
-gst_gl_get_affine_transformation_meta_as_ndc
-gst_gl_multiply_matrix4
 gst_gl_check_extension
-gst_gl_context_gen_shader
-gst_gl_context_del_shader
 </SECTION>
 
 <SECTION>
@@ -1600,10 +1641,11 @@ gst_gl_view_convert_perform
 gst_gl_view_convert_reset
 gst_gl_view_convert_set_context
 <SUBSECTION Standard>
+GST_TYPE_GL_STEREO_DOWNMIX_MODE_TYPE
 gst_gl_stereo_downmix_mode_get_type
 GST_IS_GL_VIEW_CONVERT
 GST_IS_GL_VIEW_CONVERT_CLASS
-GST_GL_TYPE_VIEW_CONVERT
+GST_TYPE_GL_VIEW_CONVERT
 GST_GL_VIEW_CONVERT
 GST_GL_VIEW_CONVERT_CLASS
 GST_GL_VIEW_CONVERT_GET_CLASS
@@ -1625,7 +1667,6 @@ GstGLWindow
 GstGLWindowClass
 gst_gl_window_new
 gst_gl_window_draw
-gst_gl_window_is_running
 gst_gl_window_quit
 gst_gl_window_run
 gst_gl_window_get_context
@@ -1647,7 +1688,7 @@ gst_gl_window_set_render_rectangle
 <SUBSECTION Standard>
 GST_IS_GL_WINDOW
 GST_IS_GL_WINDOW_CLASS
-GST_GL_TYPE_WINDOW
+GST_TYPE_GL_WINDOW
 GST_GL_WINDOW
 GST_GL_WINDOW_CLASS
 GST_GL_WINDOW_GET_CLASS
@@ -1674,7 +1715,7 @@ gst_gl_window_android_egl_new
 <SUBSECTION Standard>
 GST_IS_GL_WINDOW_ANDROID_EGL
 GST_IS_GL_WINDOW_ANDROID_EGL_CLASS
-GST_GL_TYPE_WINDOW_ANDROID_EGL
+GST_TYPE_GL_WINDOW_ANDROID_EGL
 GST_GL_WINDOW_ANDROID_EGL
 GST_GL_WINDOW_ANDROID_EGL_CLASS
 GST_GL_WINDOW_ANDROID_EGL_GET_CLASS
@@ -1691,7 +1732,7 @@ gst_gl_window_cocoa_create_window
 <SUBSECTION Standard>
 GST_IS_GL_WINDOW_COCOA
 GST_IS_GL_WINDOW_COCOA_CLASS
-GST_GL_TYPE_WINDOW_COCOA
+GST_TYPE_GL_WINDOW_COCOA
 GST_GL_WINDOW_COCOA
 GST_GL_WINDOW_COCOA_CLASS
 GST_GL_WINDOW_COCOA_GET_CLASS
@@ -1710,7 +1751,7 @@ gst_gl_window_dispmanx_egl_new
 <SUBSECTION Standard>
 GST_IS_GL_WINDOW_DISPMANX_EGL
 GST_IS_GL_WINDOW_DISPMANX_EGL_CLASS
-GST_GL_TYPE_WINDOW_DISPMANX_EGL
+GST_TYPE_GL_WINDOW_DISPMANX_EGL
 GST_GL_WINDOW_DISPMANX_EGL
 GST_GL_WINDOW_DISPMANX_EGL_CLASS
 GST_GL_WINDOW_DISPMANX_EGL_GET_CLASS
@@ -1721,7 +1762,7 @@ gst_gl_window_dispmanx_egl_create_window
 
 <SECTION>
 <FILE>gstglwindoweagl</FILE>
-<TITLE>GstGLWindowEAGL</TITLE>
+<TITLE>GstGLWindowEagl</TITLE>
 <SUBSECTION Standard>
 GST_IS_GL_WINDOW_EAGL
 GST_IS_GL_WINDOW_EAGL_CLASS
@@ -1731,8 +1772,10 @@ GST_GL_WINDOW_EAGL_CLASS
 GST_GL_WINDOW_EAGL_GET_CLASS
 gst_gl_window_eagl_get_type
 <SUBSECTION Private>
-GstGLWindowEAGL
-GstGLWindowEAGLClass
+GST_TYPE_GL_WINDOW_EAGL
+GstGLWindowEagl
+GstGLWindowEaglClass
+GstGLWindowEaglPrivate
 gst_gl_window_eagl_new
 </SECTION>
 
@@ -1745,7 +1788,7 @@ gst_gl_window_wayland_egl_new
 <SUBSECTION Standard>
 GST_IS_GL_WINDOW_WAYLAND_EGL
 GST_IS_GL_WINDOW_WAYLAND_EGL_CLASS
-GST_GL_TYPE_WINDOW_WAYLAND_EGL
+GST_TYPE_GL_WINDOW_WAYLAND_EGL
 GST_GL_WINDOW_WAYLAND_EGL
 GST_GL_WINDOW_WAYLAND_EGL_CLASS
 GST_GL_WINDOW_WAYLAND_EGL_GET_CLASS
@@ -1765,7 +1808,7 @@ gst_gl_window_win32_create_window
 <SUBSECTION Standard>
 GST_IS_GL_WINDOW_WIN32
 GST_IS_GL_WINDOW_WIN32_CLASS
-GST_GL_TYPE_WINDOW_WIN32
+GST_TYPE_GL_WINDOW_WIN32
 GST_GL_WINDOW_WIN32
 GST_GL_WINDOW_WIN32_CLASS
 GST_GL_WINDOW_WIN32_GET_CLASS
@@ -1785,7 +1828,7 @@ gst_gl_window_x11_untrap_x_errors
 <SUBSECTION Standard>
 GST_IS_GL_WINDOW_X11
 GST_IS_GL_WINDOW_X11_CLASS
-GST_GL_TYPE_WINDOW_X11
+GST_TYPE_GL_WINDOW_X11
 GST_GL_WINDOW_X11
 GST_GL_WINDOW_X11_CLASS
 GST_GL_WINDOW_X11_GET_CLASS
@@ -1899,9 +1942,6 @@ GstPlayerError
 gst_player_error_get_name
 
 gst_player_get_media_info
-gst_player_get_audio_streams
-gst_player_get_video_streams
-gst_player_get_subtitle_streams
 
 gst_player_set_audio_track
 gst_player_set_video_track
@@ -1940,6 +1980,9 @@ gst_player_set_audio_video_offset
 gst_player_get_rate
 gst_player_set_rate
 
+GstPlayerSnapshotFormat
+gst_player_get_video_snapshot
+
 GstPlayerSignalDispatcher
 GstPlayerSignalDispatcherInterface
 
@@ -1952,6 +1995,9 @@ gst_player_config_get_position_update_interval
 
 gst_player_config_set_user_agent
 gst_player_config_get_user_agent
+
+gst_player_config_set_seek_accurate
+gst_player_config_get_seek_accurate
 
 <SUBSECTION Standard>
 GST_IS_PLAYER
@@ -2010,6 +2056,7 @@ gst_player_g_main_context_signal_dispatcher_get_type
 GstPlayerVideoOverlayVideoRenderer
 
 gst_player_video_overlay_video_renderer_new
+gst_player_video_overlay_video_renderer_new_with_sink
 gst_player_video_overlay_video_renderer_get_window_handle
 gst_player_video_overlay_video_renderer_set_window_handle
 
@@ -2061,6 +2108,14 @@ gst_player_media_info_is_live
 gst_player_media_info_get_image_sample
 gst_player_media_info_get_tags
 gst_player_media_info_get_stream_list
+gst_player_media_info_get_number_of_streams
+
+gst_player_media_info_get_audio_streams
+gst_player_media_info_get_number_of_audio_streams
+gst_player_media_info_get_video_streams
+gst_player_media_info_get_number_of_video_streams
+gst_player_media_info_get_subtitle_streams
+gst_player_media_info_get_number_of_subtitle_streams
 
 gst_player_stream_info_get_index
 gst_player_stream_info_get_caps

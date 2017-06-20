@@ -20,13 +20,13 @@
 
 /**
  * SECTION:element-glvideomixer
+ * @title: glvideomixer
  *
  * Composites a number of streams into a single output scene using OpenGL in
  * a similar fashion to compositor and videomixer. See the compositor plugin
  * for documentation about the #GstGLVideoMixerPad properties.
  *
- * <refsect2>
- * <title>Examples</title>
+ * ## Examples
  * |[
  * gst-launch-1.0  glvideomixer name=m ! glimagesink \
  *     videotestsrc ! video/x-raw, format=YUY2 ! glupload ! glcolorconvert ! m. \
@@ -36,7 +36,7 @@
  *     videotestsrc ! glupload ! glfiltercube ! queue ! m. \
  *     videotestsrc ! glupload ! gleffects effect=6 ! queue ! m.gst-launch-1.0  glvideomixer name=m ! glimagesink \
  * ]|
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -44,14 +44,16 @@
 #endif
 
 #include <gst/video/gstvideoaffinetransformationmeta.h>
+#include <gst/controller/gstproxycontrolbinding.h>
 
 #include "gstglvideomixer.h"
 #include "gstglmixerbin.h"
+#include "gstglutils.h"
 
 #define GST_CAT_DEFAULT gst_gl_video_mixer_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
-#define GST_GL_TYPE_VIDEO_MIXER_BACKGROUND (gst_gl_video_mixer_background_get_type())
+#define GST_TYPE_GL_VIDEO_MIXER_BACKGROUND (gst_gl_video_mixer_background_get_type())
 static GType
 gst_gl_video_mixer_background_get_type (void)
 {
@@ -337,39 +339,27 @@ _create_video_mixer_input (GstGLMixerBin * self, GstPad * mixer_pad)
     gst_object_unref (input);
     return NULL;
   }
-
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "zorder");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "xpos");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "ypos");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "width");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "height");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "alpha");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "blend-equation-rgb");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "blend-equation-alpha");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "blend-function-src-rgb");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "blend-function-src-alpha");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "blend-function-dst-rgb");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "blend-function-dst-alpha");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "blend-constant-color-red");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "blend-constant-color-green");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "blend-constant-color-blue");
-  gst_gl_object_add_control_binding_proxy (GST_OBJECT (mixer_pad),
-      GST_OBJECT (input), "blend-constant-color-alpha");
+#define ADD_BINDING(obj,ref,prop) \
+    gst_object_add_control_binding (GST_OBJECT (obj), \
+        gst_proxy_control_binding_new (GST_OBJECT (obj), prop, \
+            GST_OBJECT (ref), prop));
+  ADD_BINDING (mixer_pad, input, "zorder");
+  ADD_BINDING (mixer_pad, input, "xpos");
+  ADD_BINDING (mixer_pad, input, "ypos");
+  ADD_BINDING (mixer_pad, input, "width");
+  ADD_BINDING (mixer_pad, input, "height");
+  ADD_BINDING (mixer_pad, input, "alpha");
+  ADD_BINDING (mixer_pad, input, "blend-equation-rgb");
+  ADD_BINDING (mixer_pad, input, "blend-equation-alpha");
+  ADD_BINDING (mixer_pad, input, "blend-function-src-rgb");
+  ADD_BINDING (mixer_pad, input, "blend-function-src-alpha");
+  ADD_BINDING (mixer_pad, input, "blend-function-dst-rgb");
+  ADD_BINDING (mixer_pad, input, "blend-function-dst-alpha");
+  ADD_BINDING (mixer_pad, input, "blend-constant-color-red");
+  ADD_BINDING (mixer_pad, input, "blend-constant-color-green");
+  ADD_BINDING (mixer_pad, input, "blend-constant-color-blue");
+  ADD_BINDING (mixer_pad, input, "blend-constant-color-alpha");
+#undef ADD_BINDING
 
   input->mixer_pad = mixer_pad;
 
@@ -417,7 +407,7 @@ gst_gl_video_mixer_bin_class_init (GstGLVideoMixerBinClass * klass)
 
   g_object_class_install_property (gobject_class, PROP_BIN_BACKGROUND,
       g_param_spec_enum ("background", "Background", "Background type",
-          GST_GL_TYPE_VIDEO_MIXER_BACKGROUND,
+          GST_TYPE_GL_VIDEO_MIXER_BACKGROUND,
           DEFAULT_BACKGROUND, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   gst_element_class_set_metadata (element_class, "OpenGL video_mixer bin",
@@ -875,7 +865,7 @@ gst_gl_video_mixer_class_init (GstGLVideoMixerClass * klass)
 
   g_object_class_install_property (gobject_class, PROP_BACKGROUND,
       g_param_spec_enum ("background", "Background", "Background type",
-          GST_GL_TYPE_VIDEO_MIXER_BACKGROUND,
+          GST_TYPE_GL_VIDEO_MIXER_BACKGROUND,
           DEFAULT_BACKGROUND, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   GST_GL_MIXER_CLASS (klass)->set_caps = gst_gl_video_mixer_init_shader;
@@ -972,9 +962,13 @@ _mixer_pad_get_output_size (GstGLVideoMixer * mix,
       mix_pad->height <=
       0 ? GST_VIDEO_INFO_HEIGHT (&vagg_pad->info) : mix_pad->height;
 
-  gst_video_calculate_display_ratio (&dar_n, &dar_d, pad_width, pad_height,
-      GST_VIDEO_INFO_PAR_N (&vagg_pad->info),
-      GST_VIDEO_INFO_PAR_D (&vagg_pad->info), out_par_n, out_par_d);
+  if (!gst_video_calculate_display_ratio (&dar_n, &dar_d, pad_width, pad_height,
+          GST_VIDEO_INFO_PAR_N (&vagg_pad->info),
+          GST_VIDEO_INFO_PAR_D (&vagg_pad->info), out_par_n, out_par_d)) {
+    GST_WARNING_OBJECT (mix_pad, "Cannot calculate display aspect ratio");
+    *width = *height = 0;
+    return;
+  }
   GST_LOG_OBJECT (mix_pad, "scaling %ux%u by %u/%u (%u/%u / %u/%u)", pad_width,
       pad_height, dar_n, dar_d, GST_VIDEO_INFO_PAR_N (&vagg_pad->info),
       GST_VIDEO_INFO_PAR_D (&vagg_pad->info), out_par_n, out_par_d);
@@ -987,16 +981,38 @@ _mixer_pad_get_output_size (GstGLVideoMixer * mix,
     pad_width = gst_util_uint64_scale_int (pad_height, dar_n, dar_d);
   }
 
-  if (width)
-    *width = pad_width;
-  if (height)
-    *height = pad_height;
+  *width = pad_width;
+  *height = pad_height;
 }
 
 static GstCaps *
 _update_caps (GstVideoAggregator * vagg, GstCaps * caps, GstCaps * filter)
 {
   GstCaps *ret;
+  GList *l;
+
+  GST_OBJECT_LOCK (vagg);
+  for (l = GST_ELEMENT (vagg)->sinkpads; l; l = l->next) {
+    GstVideoAggregatorPad *vaggpad = l->data;
+
+    if (!vaggpad->info.finfo)
+      continue;
+
+    if (GST_VIDEO_INFO_FORMAT (&vaggpad->info) == GST_VIDEO_FORMAT_UNKNOWN)
+      continue;
+
+    if (GST_VIDEO_INFO_MULTIVIEW_MODE (&vaggpad->info) !=
+        GST_VIDEO_MULTIVIEW_MODE_NONE
+        && GST_VIDEO_INFO_MULTIVIEW_MODE (&vaggpad->info) !=
+        GST_VIDEO_MULTIVIEW_MODE_MONO) {
+      GST_FIXME_OBJECT (vaggpad, "Multiview support is not implemented yet");
+      GST_OBJECT_UNLOCK (vagg);
+      return NULL;
+    }
+
+  }
+
+  GST_OBJECT_UNLOCK (vagg);
 
   if (filter) {
     ret = gst_caps_intersect (caps, filter);
@@ -1129,11 +1145,11 @@ gst_gl_video_mixer_reset (GstGLMixer * mixer)
   GST_DEBUG_OBJECT (mixer, "context:%p", context);
 
   if (video_mixer->shader)
-    gst_gl_context_del_shader (context, video_mixer->shader);
+    gst_object_unref (video_mixer->shader);
   video_mixer->shader = NULL;
 
   if (video_mixer->checker)
-    gst_gl_context_del_shader (context, video_mixer->checker);
+    gst_object_unref (video_mixer->checker);
   video_mixer->checker = NULL;
 
   if (GST_GL_BASE_MIXER (mixer)->context)
@@ -1147,8 +1163,7 @@ gst_gl_video_mixer_init_shader (GstGLMixer * mixer, GstCaps * outcaps)
   GstGLVideoMixer *video_mixer = GST_GL_VIDEO_MIXER (mixer);
 
   if (video_mixer->shader)
-    gst_gl_context_del_shader (GST_GL_BASE_MIXER (mixer)->context,
-        video_mixer->shader);
+    gst_object_unref (video_mixer->shader);
 
   return gst_gl_context_gen_shader (GST_GL_BASE_MIXER (mixer)->context,
       gst_gl_shader_string_vertex_mat4_vertex_transform,
@@ -1522,7 +1537,7 @@ gst_gl_video_mixer_callback (gpointer stuff)
 
       af_meta =
           gst_buffer_get_video_affine_transformation_meta (vagg_pad->buffer);
-      gst_gl_get_affine_transformation_meta_as_ndc (af_meta, matrix);
+      gst_gl_get_affine_transformation_meta_as_ndc_ext (af_meta, matrix);
       gst_gl_shader_set_uniform_matrix_4fv (video_mixer->shader,
           "u_transformation", 1, FALSE, matrix);
     }

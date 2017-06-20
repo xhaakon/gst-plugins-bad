@@ -75,7 +75,7 @@ gst_dash_demux_test_case_new (void)
 
      static GstDashDemuxTestCase *gst_dash_demux_test_case_new (void)
 {
-  return g_object_newv (GST_TYPE_DASH_DEMUX_TEST_CASE, 0, NULL);
+  return g_object_new (GST_TYPE_DASH_DEMUX_TEST_CASE, NULL);
 }
 
 typedef struct _GstDashDemuxTestCaseClass
@@ -137,7 +137,9 @@ gst_dashdemux_http_src_start (GstTestHTTPSrc * src,
 {
   const GstTestHTTPSrcTestData *test_case =
       (const GstTestHTTPSrcTestData *) user_data;
-  for (guint i = 0; test_case->input[i].uri; ++i) {
+  guint i;
+
+  for (i = 0; test_case->input[i].uri; ++i) {
     if (g_strcmp0 (test_case->input[i].uri, uri) == 0) {
       input_data->context = (gpointer) & test_case->input[i];
       input_data->size = test_case->input[i].size;
@@ -166,11 +168,12 @@ gst_dashdemux_http_src_create (GstTestHTTPSrc * src,
   } else {
     GstMapInfo info;
     guint pattern;
+    guint64 i;
 
     pattern = offset - offset % sizeof (pattern);
 
     gst_buffer_map (buf, &info, GST_MAP_WRITE);
-    for (guint64 i = 0; i < length; ++i) {
+    for (i = 0; i < length; ++i) {
       gchar pattern_byte_to_write = (offset + i) % sizeof (pattern);
       if (pattern_byte_to_write == 0) {
         pattern = offset + i;
@@ -1380,6 +1383,9 @@ testContentProtectionDashdemuxSendsEvent (GstAdaptiveDemuxTestEngine * engine,
     fail_if (str == NULL);
     str = strstr (value, "</ContentProtection>");
     fail_if (str == NULL);
+  } else if (g_strcmp0 (system_id, "9a04f079-9840-4286-ab92-e65be0885f95") == 0) {
+    fail_unless (g_strcmp0 (origin, "dash/mpd") == 0);
+    fail_unless (g_strcmp0 (value, "dGVzdA==") == 0);
   } else {
     fail ("unexpected content protection event '%s'", system_id);
   }
@@ -1412,6 +1418,7 @@ GST_START_TEST (testContentProtection)
       "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
       "<MPD xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
       "     xmlns=\"urn:mpeg:DASH:schema:MPD:2011\""
+      "     xmlns:mspr=\"urn:microsoft:playready\""
       "     xsi:schemaLocation=\"urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd\""
       "     profiles=\"urn:mpeg:dash:profile:isoff-on-demand:2011\""
       "     type=\"static\""
@@ -1443,6 +1450,9 @@ GST_START_TEST (testContentProtection)
       "        <mas:MarlinContentIds>"
       "          <mas:MarlinContentId>urn:marlin:kid:02020202020202020202020202020202</mas:MarlinContentId>"
       "        </mas:MarlinContentIds>"
+      "      </ContentProtection>"
+      "      <ContentProtection schemeIdUri=\"urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95\" value=\"MSPR 2.0\">"
+      "        <mspr:pro>dGVzdA==</mspr:pro>"
       "      </ContentProtection>"
       "      <Representation id=\"242\""
       "                      codecs=\"vp9\""
@@ -1497,7 +1507,7 @@ GST_START_TEST (testContentProtection)
 
   gst_structure_get_uint (testData->countContentProtectionEvents, "video_00",
       &event_count);
-  fail_unless (event_count == 2);
+  fail_unless (event_count == 3);
 
   g_object_unref (testData);
   if (http_src_test_data.data)

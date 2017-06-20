@@ -162,8 +162,6 @@ struct _GstAdaptiveDemuxStream
   gboolean starting_fragment;
   gboolean first_fragment_buffer;
   gint64 download_start_time;
-  gint64 download_chunk_start_time;
-  gint64 download_total_time;
   gint64 download_total_bytes;
   guint64 current_download_rate;
 
@@ -187,6 +185,8 @@ struct _GstAdaptiveDemuxStream
 
   /* TODO check if used */
   gboolean eos;
+
+  gboolean do_block; /* TRUE if stream should block on preroll */
 };
 
 /**
@@ -209,6 +209,7 @@ struct _GstAdaptiveDemux
   GstUriDownloader *downloader;
 
   GList *streams;
+  GList *prepared_streams;
   GList *next_streams;
 
   GstSegment segment;
@@ -459,6 +460,20 @@ struct _GstAdaptiveDemuxClass
    * selected period.
    */
   GstClockTime (*get_period_start_time) (GstAdaptiveDemux *demux);
+
+  /**
+   * requires_periodical_playlist_update:
+   * @demux: #GstAdaptiveDemux
+   *
+   * Some adaptive streaming protocols allow the client to download
+   * the playlist once and build up the fragment list based on the
+   * current fragment metadata. For those protocols the demuxer
+   * doesn't need to periodically refresh the playlist. This vfunc
+   * is relevant only for live playback scenarios.
+   *
+   * Return: %TRUE if the playlist needs to be refreshed periodically by the demuxer.
+   */
+  gboolean (*requires_periodical_playlist_update) (GstAdaptiveDemux * demux);
 };
 
 GType    gst_adaptive_demux_get_type (void);

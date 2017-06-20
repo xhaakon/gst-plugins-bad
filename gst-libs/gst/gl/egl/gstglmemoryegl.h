@@ -29,7 +29,6 @@
 #include <gst/video/video.h>
 
 #include <gst/gl/gl.h>
-#include <gst/gl/egl/gstglcontext_egl.h>
 #include <gst/gl/egl/gsteglimage.h>
 
 #include <gst/gl/gstglmemory.h>
@@ -57,6 +56,8 @@ struct _GstGLMemoryEGL
   GstGLMemory mem;
 
   GstEGLImage *image;
+
+  gpointer _padding[GST_PADDING];
 };
 
 /**
@@ -72,9 +73,6 @@ gboolean      gst_is_gl_memory_egl                      (GstMemory * mem);
 EGLImageKHR   gst_gl_memory_egl_get_image               (GstGLMemoryEGL * mem);
 EGLDisplay    gst_gl_memory_egl_get_display             (GstGLMemoryEGL * mem);
 
-GstVideoGLTextureOrientation gst_gl_memory_egl_get_orientation
-                                                        (GstGLMemoryEGL * mem);
-
 /**
  * GstGLMemoryEGLAllocator
  *
@@ -85,6 +83,8 @@ struct _GstGLMemoryEGLAllocator
   /* <private> */
 
   GstGLMemoryAllocator parent;
+
+  gpointer _padding[GST_PADDING];
 };
 
 /**
@@ -96,6 +96,8 @@ struct _GstGLMemoryEGLAllocatorClass
 {
   /* <private> */
   GstGLMemoryAllocatorClass parent_class;
+
+  gpointer _padding[GST_PADDING];
 };
 
 G_END_DECLS

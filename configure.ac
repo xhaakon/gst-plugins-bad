@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.10.4],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.12.0],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 1004, 0, 1004)
+AS_LIBTOOL(GST, 1200, 0, 1200)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.10.0
-GSTPB_REQ=1.10.0
+GST_REQ=1.12.0
+GSTPB_REQ=1.12.0
 
 dnl *** autotools stuff ****
 
@@ -164,15 +164,7 @@ AX_CREATE_STDINT_H
 AC_CHECK_HEADERS([pthread.h], HAVE_PTHREAD_H=yes)
 AM_CONDITIONAL(HAVE_PTHREAD_H, test "x$HAVE_PTHREAD_H" = "xyes")
 
-if test "x$HAVE_PTHREAD_H" != "xyes"; then
-  GST_PLUGINS_SELECTED=`echo $GST_PLUGINS_SELECTED | $SED -e s/dccp//`
-fi
-
 dnl *** checks for types/defines ***
-
-dnl Check for FIONREAD ioctl declaration
-dnl used in gst/dccp
-GST_CHECK_FIONREAD
 
 dnl *** checks for structures ***
 
@@ -358,6 +350,23 @@ AC_SUBST(EXIF_LIBS)
 AC_SUBST(EXIF_CFLAGS)
 AM_CONDITIONAL(USE_EXIF, test "x$HAVE_EXIF" = "xyes")
 
+AG_GST_CHECK_FEATURE(IQA, [iqa], iqa , [
+  PKG_CHECK_MODULES(DSSIM, dssim, [
+    HAVE_DSSIM="yes"
+    HAVE_IQA="yes"
+  ], [
+    HAVE_DSSIM="no"
+    HAVE_IQA="no"
+  ])
+
+  if test "x$HAVE_DSSIM" = "xyes"; then
+    AC_DEFINE(HAVE_DSSIM, 1, [Define if you have dssim library])
+  fi
+  AC_SUBST(DSSIM_LIBS)
+  AC_SUBST(DSSIM_CFLAGS)
+])
+AM_CONDITIONAL(HAVE_DSSIM, test "x$HAVE_DSSIM" = "xyes")
+
 dnl Orc
 ORC_CHECK([0.4.17])
 
@@ -450,22 +459,6 @@ dnl used in examples
 AG_GST_DEFAULT_ELEMENTS
 
 dnl *** plug-ins to include ***
-dnl Non ported plugins (non-dependant, then dependant)
-dnl Make sure you have a space before and after all plugins
-GST_PLUGINS_NONPORTED=" cdxaparse \
- dccp faceoverlay \
- hdvparse \
- mve nuvdemux \
- patchdetect \
- sdi tta \
- videomeasure \
- linsys \
- apexsink \
- nas sdl timidity \
- wininet \
- xvid sndio libvisual"
-
-AC_SUBST(GST_PLUGINS_NONPORTED)
 
 dnl these are all the gst plug-ins, compilable without additional libs
 AG_GST_CHECK_PLUGIN(accurip)
@@ -474,17 +467,16 @@ AG_GST_CHECK_PLUGIN(adpcmenc)
 AG_GST_CHECK_PLUGIN(aiff)
 AG_GST_CHECK_PLUGIN(videoframe_audiolevel)
 AG_GST_CHECK_PLUGIN(asfmux)
+AG_GST_CHECK_PLUGIN(audiobuffersplit)
 AG_GST_CHECK_PLUGIN(audiofxbad)
 AG_GST_CHECK_PLUGIN(audiomixer)
+AG_GST_CHECK_PLUGIN(audiomixmatrix)
 AG_GST_CHECK_PLUGIN(compositor)
 AG_GST_CHECK_PLUGIN(audiovisualizers)
 AG_GST_CHECK_PLUGIN(autoconvert)
 AG_GST_CHECK_PLUGIN(bayer)
 AG_GST_CHECK_PLUGIN(camerabin2)
-AG_GST_CHECK_PLUGIN(cdxaparse)
 AG_GST_CHECK_PLUGIN(coloreffects)
-AG_GST_CHECK_PLUGIN(dataurisrc)
-AG_GST_CHECK_PLUGIN(dccp)
 AG_GST_CHECK_PLUGIN(debugutils)
 AG_GST_CHECK_PLUGIN(dvbsuboverlay)
 AG_GST_CHECK_PLUGIN(dvdspu)
@@ -496,7 +488,6 @@ AG_GST_CHECK_PLUGIN(frei0r)
 AG_GST_CHECK_PLUGIN(gaudieffects)
 AG_GST_CHECK_PLUGIN(geometrictransform)
 AG_GST_CHECK_PLUGIN(gdp)
-AG_GST_CHECK_PLUGIN(hdvparse)
 AG_GST_CHECK_PLUGIN(id3tag)
 AG_GST_CHECK_PLUGIN(inter)
 AG_GST_CHECK_PLUGIN(interlace)
@@ -510,17 +501,13 @@ AG_GST_CHECK_PLUGIN(mpegdemux)
 AG_GST_CHECK_PLUGIN(mpegtsdemux)
 AG_GST_CHECK_PLUGIN(mpegtsmux)
 AG_GST_CHECK_PLUGIN(mpegpsmux)
-AG_GST_CHECK_PLUGIN(mve)
 AG_GST_CHECK_PLUGIN(mxf)
 AG_GST_CHECK_PLUGIN(netsim)
-AG_GST_CHECK_PLUGIN(nuvdemux)
 AG_GST_CHECK_PLUGIN(onvif)
-AG_GST_CHECK_PLUGIN(patchdetect)
 AG_GST_CHECK_PLUGIN(pcapparse)
 AG_GST_CHECK_PLUGIN(pnm)
 AG_GST_CHECK_PLUGIN(rawparse)
 AG_GST_CHECK_PLUGIN(removesilence)
-AG_GST_CHECK_PLUGIN(sdi)
 AG_GST_CHECK_PLUGIN(sdp)
 AG_GST_CHECK_PLUGIN(segmentclip)
 AG_GST_CHECK_PLUGIN(siren)
@@ -529,9 +516,7 @@ AG_GST_CHECK_PLUGIN(speed)
 AG_GST_CHECK_PLUGIN(subenc)
 AG_GST_CHECK_PLUGIN(stereo)
 AG_GST_CHECK_PLUGIN(timecode)
-AG_GST_CHECK_PLUGIN(tta)
 AG_GST_CHECK_PLUGIN(videofilters)
-AG_GST_CHECK_PLUGIN(videomeasure)
 AG_GST_CHECK_PLUGIN(videoparsers)
 AG_GST_CHECK_PLUGIN(videosignal)
 AG_GST_CHECK_PLUGIN(vmnc)
@@ -543,7 +528,6 @@ dnl *** plug-ins to exclude ***
 AC_CHECK_HEADER(AVFoundation/AVFoundation.h, HAVE_AVFOUNDATION="yes", HAVE_AVFOUNDATION="no", [-])
 AC_CHECK_HEADER(MobileCoreServices/MobileCoreServices.h, HAVE_IOS="yes", HAVE_IOS="no", [-])
 AC_CHECK_HEADER(VideoToolbox/VideoToolbox.h, HAVE_VIDEOTOOLBOX="yes", HAVE_VIDEOTOOLBOX="no", [-])
-AC_CHECK_HEADER(QTKit/QTKit.h, HAVE_QTKIT="yes", HAVE_QTKIT="no", [-])
 
 if test "x$HAVE_VIDEOTOOLBOX" = "xyes"; then
   old_LIBS=$LIBS
@@ -570,10 +554,6 @@ if test "x$HAVE_VIDEOTOOLBOX" = "xyes"; then
   AC_DEFINE(HAVE_VIDEOTOOLBOX, 1, [Define if building with VideoToolbox])
 fi
 
-AM_CONDITIONAL(HAVE_QTKIT, test "x$HAVE_QTKIT" = "xyes")
-if test "x$HAVE_QTKIT" = "xyes"; then
-  AC_DEFINE(HAVE_QTKIT, 1, [Define if building with QTKit])
-fi
 dnl disable gst plugins we might not be able to build on this
 dnl platform: (ugly but minimally invasive)
 dnl FIXME: maybe move to sys, or make work with winsock2
@@ -583,13 +563,6 @@ AC_CHECK_HEADERS([winsock2.h], HAVE_WINSOCK2_H=yes)
 if test "x$HAVE_WINSOCK2_H" = "xyes"; then
   WINSOCK2_LIBS="-lws2_32"
   AC_SUBST(WINSOCK2_LIBS)
-fi
-
-if test "x$HAVE_PTHREAD_H" = "xyes"; then
-  DCCP_LIBS="$DCCP_LIBS $PTHREAD_LIBS"
-  AC_SUBST(DCCP_LIBS)
-else
-  AG_GST_DISABLE_PLUGIN(dccp)
 fi
 
 dnl *** opengl ***
@@ -692,7 +665,7 @@ AC_ARG_ENABLE([dispmanx],
        *) AC_MSG_ERROR([bad value ${enableval} for --enable-dispmanx]) ;;
      esac],[NEED_DISPMANX=auto])
 
-AG_GST_PKG_CHECK_MODULES(X, x11)
+AG_GST_PKG_CHECK_MODULES(X11_XCB, x11-xcb)
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 
@@ -700,7 +673,7 @@ HAVE_GL=no
 HAVE_GLES2=no
 HAVE_GLES3_H=no
 HAVE_WAYLAND_EGL=no
-
+HAVE_VIV_FB_EGL=no
 HAVE_EGL_RPI=no
 
 case $host in
@@ -736,6 +709,11 @@ case $host in
 
     old_LIBS=$LIBS
     old_CFLAGS=$CFLAGS
+
+    dnl imx6 / Vivante specifics
+    if test "x$HAVE_EGL" = "xyes"; then
+        AC_CHECK_LIB([EGL], [fbGetDisplay], [HAVE_VIV_FB_EGL=yes])
+    fi
 
     dnl FIXME: Mali EGL depends on GLESv1 or GLESv2
     AC_CHECK_HEADER([EGL/fbdev_window.h],
@@ -847,7 +825,7 @@ if test "x$HAVE_GLES2" = "xno"; then
 fi
 
 dnl X, GLX and OpenGL
-if test "x$HAVE_X" = "xno"; then
+if test "x$HAVE_X11_XCB" = "xno"; then
   if test "x$NEED_GLX" = "xyes"; then
     AC_MSG_ERROR([Building the GLX backend without X11 is unsupported])
   fi
@@ -883,6 +861,14 @@ if test "x$HAVE_DRM_FOURCC_HEADER" = "xyes" -a \
         "x$HAVE_GST_ALLOCATORS" = "xyes" -a \
         "x$HAVE_EGL" = "xyes"; then
           GST_GL_HAVE_DMABUF=1
+fi
+
+dnl check for Vivante DirectVIV support
+AC_CHECK_LIB(GLESv2, glTexDirectVIV, [HAVE_VIV_DIRECTVIV=yes], [HAVE_VIV_DIRECTVIV=no])
+
+GST_GL_HAVE_VIV_DIRECTVIV=0
+if test "x$HAVE_VIV_DIRECTVIV" = "xyes"; then
+          GST_GL_HAVE_VIV_DIRECTVIV=1
 fi
 
 dnl check if we can include both GL and GLES2 at the same time
@@ -1002,7 +988,7 @@ case $host in
       AC_MSG_ERROR([WGL is not available on unix])
     fi
 
-    if test "x$HAVE_X" = "xno"; then
+    if test "x$HAVE_X11_XCB" = "xno"; then
       if test "x$HAVE_WAYLAND_EGL" = "xno"; then
         AC_MSG_WARN([X or Wayland is required for OpenGL support])
       fi
@@ -1023,10 +1009,10 @@ case $host in
       fi
     fi
 
-    if test "x$HAVE_X" = "xyes" -a "x$HAVE_EGL_RPI" = "xno"; then
+    if test "x$HAVE_X11_XCB" = "xyes" -a "x$HAVE_EGL_RPI" = "xno"; then
       if test "x$NEED_X11" != "xno"; then
-        GL_LIBS="$GL_LIBS $X_LIBS"
-        GL_CFLAGS="$GL_CFLAGS $X_CFLAGS"
+        GL_LIBS="$GL_LIBS $X11_XCB_LIBS"
+        GL_CFLAGS="$GL_CFLAGS $X11_XCB_CFLAGS"
         HAVE_WINDOW_X11=yes
       fi
     fi
@@ -1040,6 +1026,16 @@ case $host in
           GL_LIBS="$GL_LIBS $WAYLAND_EGL_LIBS"
           GL_CFLAGS="$GL_CFLAGS $WAYLAND_EGL_CFLAGS"
         fi
+      fi
+    fi
+
+    if test "x$HAVE_VIV_FB_EGL" = "xyes"; then
+      if test "x$NEED_EGL" = "xno" -o "x$HAVE_EGL" = "xno"; then
+        AC_MSG_WARN([EGL is required by the Vivante EGL FB backend])
+      else
+        HAVE_WINDOW_VIV_FB=yes
+        GL_LIBS="$GL_LIBS"
+        GL_CFLAGS="$GL_CFLAGS"
       fi
     fi
 
@@ -1057,7 +1053,7 @@ case $host in
       fi
     else
       if test "x$NEED_EGL" != "xno"; then
-        if test "x$HAVE_WINDOW_WAYLAND" = "xyes" -o "x$HAVE_WINDOW_X11" = "xyes" -o "x$HAVE_WINDOW_DISPMANX" = "xyes"; then
+        if test "x$HAVE_WINDOW_WAYLAND" = "xyes" -o "x$HAVE_WINDOW_X11" = "xyes" -o "x$HAVE_WINDOW_DISPMANX" = "xyes" -o "x$HAVE_WINDOW_VIV_FB" = "xyes"; then
           GL_LIBS="$GL_LIBS -lEGL $EGL_LIBS"
           GL_CFLAGS="$GL_CFLAGS $EGL_CFLAGS"
           USE_EGL=yes
@@ -1110,10 +1106,10 @@ case $host in
       fi
 
       if test "x$USE_GLX" = "xyes"; then
-        if test "x$HAVE_X" = "xyes"; then
+        if test "x$HAVE_X11_XCB" = "xyes"; then
           if test "x$NEED_X11" != "xno"; then
-            GL_LIBS="$GL_LIBS $X_LIBS"
-            GL_CFLAGS="$GL_CFLAGS $X_CFLAGS"
+            GL_LIBS="$GL_LIBS $X11_XCB_LIBS"
+            GL_CFLAGS="$GL_CFLAGS $X11_XCB_CFLAGS"
             HAVE_WINDOW_X11=yes
           fi
         fi
@@ -1209,6 +1205,7 @@ GST_GL_HAVE_WINDOW_WAYLAND=0
 GST_GL_HAVE_WINDOW_ANDROID=0
 GST_GL_HAVE_WINDOW_DISPMANX=0
 GST_GL_HAVE_WINDOW_EAGL=0
+GST_GL_HAVE_WINDOW_VIV_FB=0
 
 if test "x$HAVE_WINDOW_X11" = "xyes"; then
   GL_WINDOWS="x11 $GL_WINDOWS"
@@ -1238,6 +1235,10 @@ if test "x$HAVE_WINDOW_EAGL" = "xyes"; then
   GL_WINDOWS="eagl $GL_WINDOWS"
   GST_GL_HAVE_WINDOW_EAGL=1
 fi
+if test "x$HAVE_WINDOW_VIV_FB" = "xyes"; then
+  GL_WINDOWS="viv-fb $GL_WINDOWS"
+  GST_GL_HAVE_WINDOW_VIV_FB=1
+fi
 
 GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
 #define GST_GL_HAVE_WINDOW_X11 $GST_GL_HAVE_WINDOW_X11
@@ -1247,6 +1248,7 @@ GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
 #define GST_GL_HAVE_WINDOW_ANDROID $GST_GL_HAVE_WINDOW_ANDROID
 #define GST_GL_HAVE_WINDOW_DISPMANX $GST_GL_HAVE_WINDOW_DISPMANX
 #define GST_GL_HAVE_WINDOW_EAGL $GST_GL_HAVE_WINDOW_EAGL
+#define GST_GL_HAVE_WINDOW_VIV_FB $GST_GL_HAVE_WINDOW_VIV_FB
 "
 
 dnl PLATFORM's
@@ -1288,6 +1290,7 @@ GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
 
 GL_CONFIG_DEFINES="$GL_CONFIG_DEFINES
 #define GST_GL_HAVE_DMABUF $GST_GL_HAVE_DMABUF
+#define GST_GL_HAVE_VIV_DIRECTVIV $GST_GL_HAVE_VIV_DIRECTVIV
 "
 
 dnl Check for no platforms/window systems
@@ -1322,8 +1325,12 @@ if test "x$GL_APIS" = "x" -o "x$GL_PLATFORMS" = "x" -o "x$GL_WINDOWS" = "x"; the
   HAVE_WINDOW_ANDROID=no
   HAVE_WINDOW_COCOA=no
   HAVE_WINDOW_EAGL=no
+  HAVE_WINDOW_VIV_FB=no
 fi
 
+AC_SUBST(GL_APIS)
+AC_SUBST(GL_PLATFORMS)
+AC_SUBST(GL_WINDOWS)
 AC_SUBST(GL_LIBS)
 AC_SUBST(GL_CFLAGS)
 AC_SUBST(GL_OBJCFLAGS)
@@ -1337,6 +1344,7 @@ AM_CONDITIONAL(HAVE_WINDOW_DISPMANX, test "x$HAVE_WINDOW_DISPMANX" = "xyes")
 AM_CONDITIONAL(HAVE_WINDOW_WAYLAND, test "x$HAVE_WINDOW_WAYLAND" = "xyes")
 AM_CONDITIONAL(HAVE_WINDOW_ANDROID, test "x$HAVE_WINDOW_ANDROID" = "xyes")
 AM_CONDITIONAL(HAVE_WINDOW_EAGL, test "x$HAVE_WINDOW_EAGL" = "xyes")
+AM_CONDITIONAL(HAVE_WINDOW_VIV_FB, test "x$HAVE_WINDOW_VIV_FB" = "xyes")
 
 AM_CONDITIONAL(USE_OPENGL, test "x$USE_OPENGL" = "xyes")
 AM_CONDITIONAL(USE_GLES2, test "x$USE_GLES2" = "xyes")
@@ -1534,7 +1542,7 @@ dnl Vulkan
 PKG_CHECK_MODULES(XCB, xcb >= 1.10, GST_VULKAN_HAVE_WINDOW_XCB=1, GST_VULKAN_HAVE_WINDOW_XCB=0)
 AM_CONDITIONAL(USE_XCB, test "x$GST_VULKAN_HAVE_WINDOW_XCB" = "x1")
 
-PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.4, GST_VULKAN_HAVE_WINDOW_WAYLAND=1, GST_VULKAN_HAVE_WINDOW_WAYLAND=0)
+PKG_CHECK_MODULES(VULKAN_WAYLAND, wayland-client >= 1.4, GST_VULKAN_HAVE_WINDOW_WAYLAND=1, GST_VULKAN_HAVE_WINDOW_WAYLAND=0)
 AM_CONDITIONAL(USE_WAYLAND, test "x$GST_VULKAN_HAVE_WINDOW_WAYLAND" = "x1")
 VULKAN_CONFIG_DEFINES="
 #define GST_VULKAN_HAVE_WINDOW_XCB $GST_VULKAN_HAVE_WINDOW_XCB
@@ -1926,10 +1934,11 @@ AG_GST_CHECK_FEATURE(NVENC, [NVIDIA Encode API], nvenc, [
       CUDA_LIBS="-L$CUDA_PREFIX/lib -L$CUDA_PREFIX/lib64 -L$CUDA_PREFIX/lib/stubs -L$CUDA_PREFIX/lib64/stubs -lcuda -lcudart"
     fi
   else
-    PKG_CHECK_MODULES([CUDA], [cuda-7.5 cudart-7.5],, [
-      PKG_CHECK_MODULES([CUDA], [cuda-7.0 cudart-7.0],, [
-        PKG_CHECK_MODULES([CUDA], [cuda-6.5 cudart-6.5],, [
-          AC_MSG_WARN([Could not find cuda headers/libraries])])])])
+    PKG_CHECK_MODULES([CUDA], [cuda-8.0 cudart-8.0],, [
+      PKG_CHECK_MODULES([CUDA], [cuda-7.5 cudart-7.5],, [
+        PKG_CHECK_MODULES([CUDA], [cuda-7.0 cudart-7.0],, [
+          PKG_CHECK_MODULES([CUDA], [cuda-6.5 cudart-6.5],, [
+            AC_MSG_WARN([Could not find cuda headers/libraries])])])])])
   fi
 
   HAVE_CUDA_H=no
@@ -2014,6 +2023,47 @@ AG_GST_CHECK_FEATURE(TINYALSA, [tinyalsa], tinyalsa, [
   AC_CHECK_HEADER(tinyalsa/asoundlib.h, HAVE_TINYALSA="yes", HAVE_TINYALSA="no")
 ])
 
+dnl check for intel mediasdk
+translit(dnm, m, l) AM_CONDITIONAL(USE_MSDK, true)
+AG_GST_CHECK_FEATURE(MSDK, [Intel MediaSDK], msdk, [
+  AC_ARG_WITH([msdk-prefix],
+          AS_HELP_STRING([--with-msdk-prefix],
+          [Use the provided prefix for detecting the Intel MediaSDK]),
+          [AS_IF([test "x$with_msdk_prefix" != "x"],
+                 [MSDK_PREFIX="$with_msdk_prefix"])],
+          [AS_IF([test "x$MFX_HOME" != "x"],
+                 [MSDK_PREFIX="$MFX_HOME"],
+                 [MSDK_PREFIX="/opt/intel/media"])])
+  MSDK_CFLAGS="-I$MSDK_PREFIX/include"
+  MSDK_LIBS="-L$MSDK_PREFIX/lib/lin_x64 -lmfx -ldl"
+  AC_SUBST(MSDK_CFLAGS)
+  AC_SUBST(MSDK_LIBS)
+
+  save_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$MSDK_CFLAGS $save_CPPFLAGS"
+  AC_CHECK_HEADER(mfxdefs.h, HAVE_MFXDEFS_H="yes", HAVE_MFXDEFS_H="no")
+  CPPFLAGS="$save_CPPFLAGS"
+
+  save_LIBS="$LIBS"
+  LIBS="$MSDK_LIBS $LIBS"
+  AC_LANG_PUSH([C++])
+  AC_CHECK_LIB(mfx,MFXInit,HAVE_MFX_LIB="yes",HAVE_MFX_LIB="no")
+  AC_LANG_POP([C++])
+  LIBS="$save_LIBS"
+
+  PKG_CHECK_MODULES(LIBVA_DRM, libva-drm, HAVE_LIBVA_DRM="yes", HAVE_LIBVA_DRM="no")
+
+  if test "x$HAVE_MFXDEFS_H" = "xyes" \
+      -a "x$HAVE_MFX_LIB" = "xyes" \
+      -a "x$HAVE_LIBVA_DRM" = "xyes"; then
+    HAVE_MSDK="yes"
+  else
+    HAVE_MSDK="no"
+  fi
+])
+AM_CONDITIONAL(USE_MSDK_LIBVA,
+    test "x$HAVE_MSDK" = "xyes" -a "x$HAVE_LIBVA_DRM" = "xyes")
+
 dnl *** ext plug-ins ***
 dnl keep this list sorted alphabetically !
 
@@ -2040,24 +2090,6 @@ dnl *** vo-aacenc ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_VOAACENC, true)
 AG_GST_CHECK_FEATURE(VOAACENC, [vo-aacenc library], vo-aacenc, [
   AG_GST_PKG_CHECK_MODULES(VOAACENC, vo-aacenc >= 0.1.0)
-])
-
-dnl *** apexsink ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_APEXSINK, true)
-AG_GST_CHECK_FEATURE(APEXSINK, [AirPort Express Wireless sink], apexsink, [
-  PKG_CHECK_MODULES(APEXSINK, [ openssl >= 0.9.5  libcrypto ], [
-    HAVE_APEXSINK="yes"
-    saved_LIBS="$LIBS"
-    LIBS=""
-    AC_SEARCH_LIBS(socket, [socket], [ ], [ APEXSINK="no" ])
-    AC_SEARCH_LIBS(gethostbyname, [nsl], [ ], [ APEXSINK="no" ])
-    APEXSINK_LIBS="$APEXSINK_LIBS $LIBS"
-    LIBS="$saved_LIBS"
-    AC_SUBST(APEXSINK_CFLAGS)
-    AC_SUBST(APEXSINK_LIBS)
-  ], [
-    APEXSINK="no"
-  ])
 ])
 
 dnl *** bs2b ***
@@ -2218,18 +2250,15 @@ dnl **** Wayland ****
 translit(dnm, m, l) AM_CONDITIONAL(USE_WAYLAND, true)
 AC_PATH_PROG([wayland_scanner], [wayland-scanner])
 AG_GST_CHECK_FEATURE(WAYLAND, [wayland sink], wayland , [
-  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.4.0, [
-    PKG_CHECK_MODULES(WAYLAND_PROTOCOLS, wayland-protocols >= 1.4, [
-      if test "x$wayland_scanner" != "x"; then
-        HAVE_WAYLAND="yes"
-        AC_SUBST(WAYLAND_PROTOCOLS_DATADIR, `$PKG_CONFIG --variable=pkgdatadir wayland-protocols`)
-      else
-        AC_MSG_RESULT([wayland-scanner is required to build the wayland plugin])
-        HAVE_WAYLAND="no"
-      fi
-      ],
-      [ HAVE_WAYLAND="no"
-    ])],
+  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.4.0 libdrm >= 2.4.55 wayland-protocols >= 1.4, [
+    if test "x$wayland_scanner" != "x"; then
+      HAVE_WAYLAND="yes"
+      AC_SUBST(WAYLAND_PROTOCOLS_DATADIR, `$PKG_CONFIG --variable=pkgdatadir wayland-protocols`)
+    else
+      AC_MSG_RESULT([wayland-scanner is required to build the wayland plugin])
+      HAVE_WAYLAND="no"
+    fi
+    ],
     [ HAVE_WAYLAND="no"
   ])
 ])
@@ -2323,8 +2352,12 @@ AG_GST_CHECK_FEATURE(FBDEV, [linux framebuffer], fbdevsink, [
 dnl *** fdkaac ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_FDK_AAC, true)
 AG_GST_CHECK_FEATURE(FDK_AAC, [fdkaac plugin], fdkaac, [
-  PKG_CHECK_MODULES(FDK_AAC, fdk-aac, HAVE_FDK_AAC="yes", [
-    HAVE_FDK_AAC="no"
+  PKG_CHECK_MODULES(FDK_AAC, fdk-aac >= 0.1.4, [
+    HAVE_FDK_AAC="yes",
+    HAVE_FDK_AAC_0_1_4="yes"
+    AC_DEFINE(HAVE_FDK_AAC_0_1_4 1, [Define if we have fdk-aac >= 0.1.4])
+  ],[
+    PKG_CHECK_MODULES(FDK_AAC, fdk-aac, HAVE_FDK_AAC="yes", HAVE_FDK_AAC="no")
   ])
 ])
 
@@ -2385,7 +2418,7 @@ dnl *** kms ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_KMS, true)
 AG_GST_CHECK_FEATURE(KMS, [drm/kms libraries], kms, [
   AG_GST_PKG_CHECK_MODULES(GST_ALLOCATORS, gstreamer-allocators-1.0)
-  PKG_CHECK_MODULES([DRM], [libdrm >= 2.4.55 libkms], HAVE_KMS=yes, HAVE_KMS=no)
+  PKG_CHECK_MODULES([KMS_DRM], [libdrm >= 2.4.55], HAVE_KMS=yes, HAVE_KMS=no)
 ])
 
 dnl *** ladspa ***
@@ -2456,17 +2489,14 @@ AG_GST_CHECK_FEATURE(DTLS, [DTLS plugin], dtls, [
   ])
 ])
 
-dnl *** linsys ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_LINSYS, true)
-AG_GST_CHECK_FEATURE(LINSYS, [Linear Systems SDI plugin], linsys, [
-  case "$host" in
-    *-*linux*)
-      HAVE_LINSYS=yes
-      ;;
-    *)
-      HAVE_LINSYS=no
-      ;;
-  esac
+dnl *** ttml ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_TTML, true)
+AG_GST_CHECK_FEATURE(TTML, [TTML plugin], ttml, [
+  PKG_CHECK_MODULES(TTML, [ libxml-2.0 >= 2.9.2 pango cairo pangocairo ], [
+    HAVE_TTML="yes"
+  ], [
+    HAVE_TTML="no"
+  ])
 ])
 
 dnl *** modplug ***
@@ -2480,16 +2510,6 @@ AG_GST_CHECK_FEATURE(MODPLUG, modplug, modplug, [
   fi
   AC_SUBST(MODPLUG_CFLAGS)
   AC_SUBST(MODPLUG_LIBS)
-])
-
-dnl *** mimic ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_MIMIC, true)
-AG_GST_CHECK_FEATURE(MIMIC, [libmimic library], mimic, [
-  MIMIC_REQUIRED=1.0
-  PKG_CHECK_MODULES(MIMIC, libmimic >= $MIMIC_REQUIRED,
-      HAVE_MIMIC=yes, HAVE_MIMIC=no)
-  AC_SUBST(MIMIC_CFLAGS)
-  AC_SUBST(MIMIC_LIBS)
 ])
 
 dnl *** mjpegtools version info ***
@@ -2686,21 +2706,6 @@ AG_GST_CHECK_FEATURE(MUSEPACK, [musepackdec], musepack, [
     ], [HAVE_MUSEPACK="no"])])
 ])
 
-dnl *** nas ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_NAS, true)
-AG_GST_CHECK_FEATURE(NAS, [nas plug-in], nassink, [
-  HAVE_NAS="no"
-  if test "x$HAVE_X" = "xyes"; then
-    save_cppflags=$CFLAGS
-    CPPFLAGS="$CPPFLAGS $X_CFLAGS"
-    AG_GST_CHECK_LIBHEADER(NAS, audio, AuOpenServer, $X_LIBS, audio/audiolib.h,
-      NAS_LIBS="$X_LIBS -laudio" NAS_CFLAGS="$X_CFLAGS")
-    CPPFLAGS="$save_cppflags"
-  fi
-  AC_SUBST(NAS_CFLAGS)
-  AC_SUBST(NAS_LIBS)
-])
-
 dnl *** neon ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_NEON, true)
 AG_GST_CHECK_FEATURE(NEON, [neon http client plugins], neonhttpsrc, [
@@ -2740,7 +2745,7 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
   dnl a new version and the no-backward-compatibility define. (There doesn't
   dnl seem to be a switch to suppress the warnings the cvcompat.h header
   dnl causes.)
-  PKG_CHECK_MODULES(OPENCV, opencv >= 2.3.0 opencv <= 3.1.0 , [
+  PKG_CHECK_MODULES(OPENCV, opencv >= 2.3.0 opencv <= 3.2.0 , [
     AC_PROG_CXX
     AC_LANG([C++])
     OLD_CPPFLAGS=$CPPFLAGS
@@ -2753,6 +2758,13 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
                       opencv2/imgproc/imgproc_c.h \
                       opencv2/objdetect/objdetect.hpp \
                       opencv2/video/background_segm.hpp], [], [something_not_found=yes])
+
+    dnl Only required for OpenCV >= 3, we have compat code for older versions
+    PKG_CHECK_MODULES(OPENCV_3, opencv >= 3, [
+      dnl check opencv_contrib headers (not always present in opencv distributions)
+      AC_CHECK_HEADERS([opencv2/bgsegm.hpp], [], [something_not_found=yes])],
+      [NOT_A_PROBLEM=yes])
+
     CPPFLAGS=$OLD_CPPFLAGS
     AC_LANG([C])
 
@@ -2840,20 +2852,6 @@ AG_GST_CHECK_FEATURE(OPUS, [opus], opus, [
   AC_SUBST(OPUS_LIBS)
 ])
 
-dnl *** pvr ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_PVR, true)
-AG_GST_CHECK_FEATURE(PVR, [pvrvideosink], pvr, [
-  PKG_CHECK_MODULES([PVR], [libtimemmgr], HAVE_PVR=yes, HAVE_PVR=no)
-  AC_SUBST(PVR_CFLAGS)
-  AC_SUBST(PVR_LIBS)
-])
-
- AC_ARG_WITH([pvr-external-headers],
-              AS_HELP_STRING([--with-pvr-external-headers],[Use system installed PVR2D headers]),
-              [AS_IF([test "x$with_pvr_external_headers" = "xno"],
-                     [PVR_CFLAGS="$PVR_CFLAGS -I\$(srcdir)/pvr_includes"])],
-              [PVR_CFLAGS="$PVR_CFLAGS -I\$(srcdir)/pvr_includes"])
-
 dnl *** rsvg ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_RSVG, true)
 AG_GST_CHECK_FEATURE(RSVG, [rsvg decoder], rsvg, [
@@ -2921,10 +2919,10 @@ AG_GST_CHECK_FEATURE(QT, [Qt elements], qt, [
       else
         HAVE_QT="yes"
         HAVE_QT_WINDOWING="no"
-        QT_VERSION="`$PKG_CONFIG --modversion Qt5Core`"
+        QT_VERSION="`$PKG_CONFIG --define-prefix --modversion Qt5Core`"
         QPA_INCLUDE_PATH=`$PKG_CONFIG --variable=includedir Qt5Core`/QtGui/${QT_VERSION}/QtGui
-        AS_IF([test -f "$QPA_INCLUDE_PATH/qpa/qplatformnativeinterface.h"], [
-          QT_CFLAGS="$QT_CFLAGS -I$QPA_INCLUDE_PATH"
+        AS_IF([test -f "$PKG_CONFIG_SYSROOT_DIR/$QPA_INCLUDE_PATH/qpa/qplatformnativeinterface.h"], [
+          QT_CFLAGS="$QT_CFLAGS -I$PKG_CONFIG_SYSROOT_DIR/$QPA_INCLUDE_PATH"
           HAVE_QT_QPA_HEADER="yes"
         ], [AC_MSG_NOTICE([Cannot find QPA])])
         if test "x$GST_GL_HAVE_WINDOW_X11" = "x1" -a "x$GST_GL_HAVE_PLATFORM_GLX" = "x1"; then
@@ -3016,50 +3014,6 @@ AG_GST_CHECK_FEATURE(VULKAN, [Vulkan elements], vulkan, [
   ], [])
 ])
 
-dnl *** libvisual ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_LIBVISUAL, true)
-AG_GST_CHECK_FEATURE(LIBVISUAL, [libvisual visualization library], libvisual, [
-  AG_GST_PKG_CHECK_MODULES(LIBVISUAL, libvisual-0.4 >= 0.4.0)
-  if test x$HAVE_LIBVISUAL = xyes; then
-    LIBVIS_PLUGINSDIR="`$PKG_CONFIG --variable=pluginsbasedir libvisual-0.4`"
-  fi
-  AC_MSG_NOTICE([libvisual pluginsdir: $LIBVIS_PLUGINSDIR])
-  if test x$LIBVIS_PLUGINSDIR != x; then
-    AC_DEFINE_UNQUOTED(LIBVISUAL_PLUGINSBASEDIR,
-        "$LIBVIS_PLUGINSDIR",
-        [directory in which the detected libvisual's plugins are located])
-  fi
-])
-
-dnl *** timidity ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_TIMIDITY, true)
-AG_GST_CHECK_FEATURE(TIMIDITY, [timidity midi soft synth plugin], timidity, [
-  PKG_CHECK_MODULES(TIMIDITY, libtimidity, [
-    HAVE_TIMIDITY="yes",
-	AC_MSG_CHECKING([for timidity.cfg])
-	timidity_cfg=""
-	if test -r /etc/timidity.cfg; then
-	  timidity_cfg=/etc/timidity.cfg
-	elif test -r /etc/timidity/timidity.cfg; then
-	  timidity_cfg=/etc/timidity/timidity.cfg
-	elif test -r /usr/share/timidity/timidity.cfg; then
-	  timidity_cfg=/usr/share/timidity/timidity.cfg
-	elif test -r /usr/local/share/timidity/timidity.cfg; then
-	  timidity_cfg=/usr/local/share/timidity/timidity.cfg
-	fi
-	if test "x$timidity_cfg" != "x"; then
-	  AC_MSG_RESULT($timidity_cfg)
-      AC_DEFINE_UNQUOTED(TIMIDITY_CFG, "$timidity_cfg", [Define location of timidity.cfg])
-	else
-	  AC_MSG_RESULT([not found])
-	fi
-  ], [
-    HAVE_TIMIDITY="no"
-  ])
-  AC_SUBST(TIMIDITY_CFLAGS)
-  AC_SUBST(TIMIDITY_LIBS)
-])
-
 dnl *** teletextdec ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_TELETEXTDEC, true)
 AG_GST_CHECK_FEATURE(TELETEXTDEC, [Teletext decoder], teletextdec, [
@@ -3086,12 +3040,6 @@ AG_GST_CHECK_FEATURE(WILDMIDI, [wildmidi midi soft synth plugin], wildmidi, [
   fi
   AC_SUBST(WILDMIDI_CFLAGS)
   AC_SUBST(WILDMIDI_LIBS)
-])
-
-dnl *** SDL ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_SDL, true)
-AG_GST_CHECK_FEATURE(SDL, [SDL plug-in], sdlvideosink sdlaudiosink, [
-    AM_PATH_SDL(, HAVE_SDL=yes, HAVE_SDL=no)
 ])
 
 dnl **** Smooth Streaming ****
@@ -3186,36 +3134,6 @@ AG_GST_CHECK_FEATURE(GME, [gme decoder], gme, [
   fi
 ])
 
-dnl *** XVID ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_XVID, true)
-AG_GST_CHECK_FEATURE(XVID, [xvid plugins], xvid, [
-  HAVE_XVID=no
-  AC_CHECK_HEADER(xvid.h, [
-    OLD_LIBS="$LIBS"
-    LIBS="$PTHREAD_LIBS $LIBM"
-    AC_CHECK_LIB(xvidcore, xvid_encore, [
-      AC_CHECK_LIB(xvidcore, xvid_decore, [
-        AC_CHECK_LIB(xvidcore, xvid_global, [
-          AC_MSG_CHECKING([for up-to-date XviD API version])
-          AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <xvid.h>]], [[
-              #if XVID_API_MAJOR(XVID_API) != 4
-              #error "Incompatible XviD API version"
-              #endif
-	      #if XVID_API_MAJOR(XVID_API) == 4 && XVID_API_MINOR(XVID_API) < 3
-              #error "Incompatible XviD API version"
-	      #endif
-          ]])],[ AC_MSG_RESULT(yes)
-            XVID_LIBS="-lxvidcore $LIBM"
-            AC_SUBST(XVID_LIBS)
-            HAVE_XVID=yes
-          ],[AC_MSG_RESULT(no) ])
-        ], )
-      ], )
-    ], )
-    LIBS="$OLD_LIBS"
-  ], )
-])
-
 dnl *** dvb ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_DVB, true)
 AG_GST_CHECK_FEATURE(DVB, [DVB Source], dvb, [
@@ -3232,16 +3150,6 @@ AG_GST_CHECK_FEATURE(DVB, [DVB Source], dvb, [
       HAVE_DVB="no"
     ])
   ], [HAVE_DVB="no"])
-])
-
-dnl *** wininet ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_WININET, true)
-AG_GST_CHECK_FEATURE(WININET, [Windows internet library], wininet, [
-  AC_MSG_CHECKING([Checking for windows internet support])
-  AC_CHECK_HEADERS([windows.h wininet.h],
-      [HAVE_WININET="yes"], [HAVE_WININET="no"],
-      [AC_INCLUDES_DEFAULT
-#include <windows.h>])
 ])
 
 dnl *** acm ***
@@ -3336,19 +3244,6 @@ AG_GST_CHECK_FEATURE(SPANDSP, [Spandsp], spandsp, [
 ])
 AC_SUBST(SPANDSP_CFLAGS)
 AC_SUBST(SPANDSP_LIBS)
-
-dnl *** sndio ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_SNDIO, true)
-AG_GST_CHECK_FEATURE(SNDIO, [sndio audio], sndio, [
-  AC_CHECK_HEADER(sndio.h, HAVE_SNDIO="yes", HAVE_SNDIO="no")
-  if test "x$HAVE_SNDIO" = "xyes"; then
-    AC_CHECK_LIB(sndio, sio_open, HAVE_SNDIO="yes", HAVE_SNDIO="no")
-    if test "x$HAVE_SNDIO" = "xyes"; then
-      SNDIO_LIBS=-lsndio
-      AC_SUBST(SNDIO_LIBS)
-    fi
-  fi
-])
 
 dnl *** hls-crypto ***
 AC_ARG_WITH([hls-crypto],
@@ -3448,7 +3343,6 @@ dnl but we still need to set the conditionals
 AM_CONDITIONAL(USE_ASSRENDER, false)
 AM_CONDITIONAL(USE_VOAMRWBENC, false)
 AM_CONDITIONAL(USE_VOAACENC, false)
-AM_CONDITIONAL(USE_APEXSINK, false)
 AM_CONDITIONAL(USE_BS2B, false)
 AM_CONDITIONAL(USE_BZ2, false)
 AM_CONDITIONAL(USE_CHROMAPRINT, false)
@@ -3475,6 +3369,7 @@ AM_CONDITIONAL(USE_GSM, false)
 AM_CONDITIONAL(USE_GTK3, false)
 AM_CONDITIONAL(USE_GTK3_GL, false)
 AM_CONDITIONAL(USE_HLS, false)
+AM_CONDITIONAL(USE_IQA, false)
 AM_CONDITIONAL(USE_KATE, false)
 AM_CONDITIONAL(USE_KMS, false)
 AM_CONDITIONAL(USE_TIGER, false)
@@ -3482,13 +3377,10 @@ AM_CONDITIONAL(USE_LADSPA, false)
 AM_CONDITIONAL(USE_LV2, false)
 AM_CONDITIONAL(USE_LIBDE265, false)
 AM_CONDITIONAL(USE_LIBMMS, false)
-AM_CONDITIONAL(USE_LINSYS, false)
 AM_CONDITIONAL(USE_MODPLUG, false)
-AM_CONDITIONAL(USE_MIMIC, false)
 AM_CONDITIONAL(USE_MPEG2ENC, false)
 AM_CONDITIONAL(USE_MPLEX, false)
 AM_CONDITIONAL(USE_MUSEPACK, false)
-AM_CONDITIONAL(USE_NAS, false)
 AM_CONDITIONAL(USE_NEON, false)
 AM_CONDITIONAL(USE_OFA, false)
 AM_CONDITIONAL(USE_OPENAL, false)
@@ -3497,12 +3389,8 @@ AM_CONDITIONAL(USE_OPENEXR, false)
 AM_CONDITIONAL(USE_OPENJPEG, false)
 AM_CONDITIONAL(USE_OPENNI2, false)
 AM_CONDITIONAL(USE_OPUS, false)
-AM_CONDITIONAL(USE_PVR, false)
 AM_CONDITIONAL(USE_QT, false)
-AM_CONDITIONAL(USE_LIBVISUAL, false)
-AM_CONDITIONAL(USE_TIMIDITY, false)
 AM_CONDITIONAL(USE_WILDMIDI, false)
-AM_CONDITIONAL(USE_SDL, false)
 AM_CONDITIONAL(USE_SMOOTHSTREAMING, false)
 AM_CONDITIONAL(USE_SNDFILE, false)
 AM_CONDITIONAL(USE_SOUNDTOUCH, false)
@@ -3510,9 +3398,7 @@ AM_CONDITIONAL(USE_SPANDSP, false)
 AM_CONDITIONAL(USE_SPC, false)
 AM_CONDITIONAL(USE_SRTP, false)
 AM_CONDITIONAL(USE_GME, false)
-AM_CONDITIONAL(USE_XVID, false)
 AM_CONDITIONAL(USE_DVB, false)
-AM_CONDITIONAL(USE_WININET, false)
 AM_CONDITIONAL(USE_ACM, false)
 AM_CONDITIONAL(USE_VDPAU, false)
 AM_CONDITIONAL(USE_SBC, false)
@@ -3521,7 +3407,6 @@ AM_CONDITIONAL(USE_ZBAR, false)
 AM_CONDITIONAL(USE_RSVG, false)
 AM_CONDITIONAL(USE_RTMP, false)
 AM_CONDITIONAL(USE_TELETEXTDEC, false)
-AM_CONDITIONAL(USE_SNDIO, false)
 AM_CONDITIONAL(USE_UVCH264, false)
 AM_CONDITIONAL(USE_WEBP, false)
 AM_CONDITIONAL(USE_WEBRTCDSP, false)
@@ -3529,6 +3414,7 @@ AM_CONDITIONAL(USE_OPENH264, false)
 AM_CONDITIONAL(USE_X265, false)
 AM_CONDITIONAL(USE_DTLS, false)
 AM_CONDITIONAL(USE_VULKAN, false)
+AM_CONDITIONAL(USE_TTML, false)
 
 fi dnl of EXT plugins
 
@@ -3614,7 +3500,6 @@ AC_CONFIG_FILES(
 Makefile
 common/Makefile
 common/m4/Makefile
-gst-plugins-bad.spec
 gst/Makefile
 gst/accurip/Makefile
 gst/adpcmdec/Makefile
@@ -3622,16 +3507,15 @@ gst/adpcmenc/Makefile
 gst/aiff/Makefile
 gst/videoframe_audiolevel/Makefile
 gst/asfmux/Makefile
+gst/audiobuffersplit/Makefile
 gst/audiofxbad/Makefile
 gst/audiomixer/Makefile
+gst/audiomixmatrix/Makefile
 gst/audiovisualizers/Makefile
 gst/autoconvert/Makefile
 gst/bayer/Makefile
 gst/camerabin2/Makefile
-gst/cdxaparse/Makefile
 gst/coloreffects/Makefile
-gst/dataurisrc/Makefile
-gst/dccp/Makefile
 gst/debugutils/Makefile
 gst/dvbsuboverlay/Makefile
 gst/dvdspu/Makefile
@@ -3643,7 +3527,6 @@ gst/frei0r/Makefile
 gst/gaudieffects/Makefile
 gst/geometrictransform/Makefile
 gst/gdp/Makefile
-gst/hdvparse/Makefile
 gst/id3tag/Makefile
 gst/inter/Makefile
 gst/interlace/Makefile
@@ -3658,17 +3541,13 @@ gst/mpegtsdemux/Makefile
 gst/mpegtsmux/Makefile
 gst/mpegtsmux/tsmux/Makefile
 gst/mpegpsmux/Makefile
-gst/mve/Makefile
 gst/mxf/Makefile
 gst/netsim/Makefile
-gst/nuvdemux/Makefile
 gst/onvif/Makefile
-gst/patchdetect/Makefile
 gst/pcapparse/Makefile
 gst/pnm/Makefile
 gst/rawparse/Makefile
 gst/removesilence/Makefile
-gst/sdi/Makefile
 gst/sdp/Makefile
 gst/segmentclip/Makefile
 gst/siren/Makefile
@@ -3676,10 +3555,8 @@ gst/smooth/Makefile
 gst/speed/Makefile
 gst/subenc/Makefile
 gst/stereo/Makefile
-gst/tta/Makefile
 gst/timecode/Makefile
 gst/videofilters/Makefile
-gst/videomeasure/Makefile
 gst/videoparsers/Makefile
 gst/videosignal/Makefile
 gst/vmnc/Makefile
@@ -3700,6 +3577,7 @@ gst-libs/gst/gl/egl/Makefile
 gst-libs/gst/gl/wayland/Makefile
 gst-libs/gst/gl/win32/Makefile
 gst-libs/gst/gl/x11/Makefile
+gst-libs/gst/gl/viv-fb/Makefile
 gst-libs/gst/insertbin/Makefile
 gst-libs/gst/interfaces/Makefile
 gst-libs/gst/codecparsers/Makefile
@@ -3710,13 +3588,14 @@ gst-libs/gst/base/Makefile
 gst-libs/gst/player/Makefile
 gst-libs/gst/video/Makefile
 gst-libs/gst/audio/Makefile
+gst-libs/gst/opencv/Makefile
+gst-libs/gst/allocators/Makefile
 sys/Makefile
 sys/dshowdecwrapper/Makefile
 sys/acmenc/Makefile
 sys/acmmp3dec/Makefile
 sys/androidmedia/Makefile
 sys/applemedia/Makefile
-sys/avc/Makefile
 sys/bluez/Makefile
 sys/d3dvideosink/Makefile
 sys/decklink/Makefile
@@ -3726,7 +3605,7 @@ sys/dshowvideosink/Makefile
 sys/dvb/Makefile
 sys/fbdev/Makefile
 sys/kms/Makefile
-sys/linsys/Makefile
+sys/msdk/Makefile
 sys/nvenc/Makefile
 sys/opensles/Makefile
 sys/shm/Makefile
@@ -3734,9 +3613,7 @@ sys/tinyalsa/Makefile
 sys/uvch264/Makefile
 sys/vcd/Makefile
 sys/vdpau/Makefile
-sys/pvr2d/Makefile
 sys/wasapi/Makefile
-sys/wininet/Makefile
 sys/winks/Makefile
 sys/winscreencap/Makefile
 tests/Makefile
@@ -3747,6 +3624,7 @@ tests/examples/avsamplesink/Makefile
 tests/examples/camerabin2/Makefile
 tests/examples/codecparsers/Makefile
 tests/examples/directfb/Makefile
+tests/examples/audiomixmatrix/Makefile
 tests/examples/gl/Makefile
 tests/examples/gl/cocoa/Makefile
 tests/examples/gl/clutter/Makefile
@@ -3773,7 +3651,6 @@ tests/icles/Makefile
 ext/voamrwbenc/Makefile
 ext/voaacenc/Makefile
 ext/assrender/Makefile
-ext/apexsink/Makefile
 ext/bs2b/Makefile
 ext/bz2/Makefile
 ext/chromaprint/Makefile
@@ -3793,19 +3670,17 @@ ext/flite/Makefile
 ext/fluidsynth/Makefile
 ext/gsm/Makefile
 ext/hls/Makefile
+ext/iqa/Makefile
 ext/kate/Makefile
 ext/ladspa/Makefile
 ext/lv2/Makefile
 ext/libde265/Makefile
 ext/libmms/Makefile
-ext/libvisual/Makefile
 ext/Makefile
 ext/modplug/Makefile
 ext/mpeg2enc/Makefile
-ext/mimic/Makefile
 ext/mplex/Makefile
 ext/musepack/Makefile
-ext/nas/Makefile
 ext/neon/Makefile
 ext/ofa/Makefile
 ext/openal/Makefile
@@ -3821,26 +3696,24 @@ ext/resindvd/Makefile
 ext/rtmp/Makefile
 ext/sbc/Makefile
 ext/schroedinger/Makefile
-ext/sdl/Makefile
 ext/smoothstreaming/Makefile
 ext/sndfile/Makefile
 ext/soundtouch/Makefile
 ext/spandsp/Makefile
-ext/sndio/Makefile
 ext/srtp/Makefile
 ext/teletextdec/Makefile
 ext/gme/Makefile
 ext/spc/Makefile
-ext/timidity/Makefile
+ext/wildmidi/Makefile
 ext/vulkan/Makefile
 ext/vulkan/xcb/Makefile
 ext/vulkan/wayland/Makefile
 ext/webp/Makefile
 ext/x265/Makefile
-ext/xvid/Makefile
 ext/zbar/Makefile
 ext/dtls/Makefile
 ext/webrtcdsp/Makefile
+ext/ttml/Makefile
 po/Makefile.in
 docs/Makefile
 docs/plugins/Makefile
@@ -3867,48 +3740,11 @@ pkgconfig/gstreamer-bad-video.pc
 pkgconfig/gstreamer-bad-video-uninstalled.pc
 pkgconfig/gstreamer-bad-audio.pc
 pkgconfig/gstreamer-bad-audio-uninstalled.pc
+pkgconfig/gstreamer-bad-allocators.pc
+pkgconfig/gstreamer-bad-allocators-uninstalled.pc
 tools/Makefile
 m4/Makefile
 )
-
-dnl Create the config.h file for Visual Studio builds
-dnl Beware of spaces and /'s in some of the shell variable contents.
-sed \
-    -e 's/.*config.h.in.*autoheader.*/\/* Autogenerated config.h created for win32 Visual Studio builds *\/\n\n\/* PREFIX -- specifically added for Windows for easier moving *\/\n#define PREFIX "C:\\\\gstreamer"/' \
-    -e 's/.* GETTEXT_PACKAGE$/#define GETTEXT_PACKAGE "'$GETTEXT_PACKAGE'"/' \
-    -e 's/.* GST_DATADIR$/#define GST_DATADIR PREFIX "\\\\share"/' \
-    -e 's/.* GST_LEVEL_DEFAULT$/#define GST_LEVEL_DEFAULT GST_LEVEL_ERROR/' \
-    -e 's/.* GST_LICENSE$/#define GST_LICENSE "'$GST_LICENSE'"/' \
-    -e 's/.* GST_API_VERSION$/#define GST_API_VERSION "'$GST_API_VERSION'"/' \
-    -e "s,.* GST_PACKAGE_NAME$,#define GST_PACKAGE_NAME \"${GST_PACKAGE_NAME}\"," \
-    -e 's/.* GST_PACKAGE_ORIGIN$/#define GST_PACKAGE_ORIGIN "Unknown package origin"/' \
-    -e "s,.* GST_PACKAGE_RELEASE_DATETIME$,#define GST_PACKAGE_RELEASE_DATETIME \"${GST_PACKAGE_RELEASE_DATETIME}\"," \
-    -e 's/.* HAVE_CPU_I386$/#define HAVE_CPU_I386 1/' \
-    -e 's/.* HAVE_STDLIB_H$/#define HAVE_STDLIB_H 1/' \
-    -e 's/.* HAVE_STRING_H$/#define HAVE_STRING_H 1/' \
-    -e 's/.* HAVE_SYS_STAT_H$/#define HAVE_SYS_STAT_H 1/' \
-    -e 's/.* HAVE_SYS_TYPES_H$/#define HAVE_SYS_TYPES_H 1/' \
-    -e 's/.* HAVE_WIN32$/#define HAVE_WIN32 1/' \
-    -e 's/.* HOST_CPU$/#define HOST_CPU "i686"/' \
-    -e 's/.* LIBDIR$/#ifdef _DEBUG\n#  define LIBDIR PREFIX "\\\\debug\\\\lib"\n#else\n#  define LIBDIR PREFIX "\\\\lib"\n#endif/' \
-    -e 's/.* LOCALEDIR$/#define LOCALEDIR PREFIX "\\\\share\\\\locale"/' \
-    -e "s/.* PACKAGE$/#define PACKAGE \"$PACKAGE\"/" \
-    -e 's/.* PACKAGE_BUGREPORT$/#define PACKAGE_BUGREPORT "http:\/\/bugzilla.gnome.org\/enter_bug.cgi?product=GStreamer"/' \
-    -e "s/.* PACKAGE_NAME$/#define PACKAGE_NAME \"$PACKAGE_NAME\"/" \
-    -e "s/.* PACKAGE_STRING$/#define PACKAGE_STRING \"$PACKAGE_STRING\"/" \
-    -e 's/.* PACKAGE_TARNAME$/#define PACKAGE_TARNAME "'$PACKAGE_TARNAME'"/' \
-    -e 's/.* PACKAGE_VERSION$/#define PACKAGE_VERSION "'$PACKAGE_VERSION'"/' \
-    -e 's/.* PLUGINDIR$/#ifdef _DEBUG\n#  define PLUGINDIR PREFIX "\\\\debug\\\\lib\\\\gstreamer-0.11"\n#else\n#  define PLUGINDIR PREFIX "\\\\lib\\\\gstreamer-0.11"\n#endif/' \
-    -e 's/.* VERSION$/#define VERSION "'$VERSION'"/' \
-    -e "s/.* DEFAULT_AUDIOSINK$/#define DEFAULT_AUDIOSINK \"directsoundsink\"/" \
-    -e "s/.* DEFAULT_AUDIOSRC$/#define DEFAULT_AUDIOSRC \"audiotestsrc\"/" \
-    -e "s/.* DEFAULT_VIDEOSRC$/#define DEFAULT_VIDEOSRC \"videotestsrc\"/" \
-    -e "s/.* DEFAULT_VISUALIZER$/#define DEFAULT_VISUALIZER \"goom\"/" \
-    -e 's/.* HAVE_WINDOWS_H$/#define HAVE_WINDOWS_H 1/' \
-    -e 's/.* HAVE_WININET_H$/#define HAVE_WININET_H 1/' \
-    -e 's/.* HAVE_WINSOCK2_H$/#define HAVE_WINSOCK2_H 1/' \
-    -e 's/.* HAVE_WS2TCPIP_H$/#define HAVE_WS2TCPIP_H 1/' \
-    config.h.in >win32/common/config.h-new
 
 AC_OUTPUT
 
