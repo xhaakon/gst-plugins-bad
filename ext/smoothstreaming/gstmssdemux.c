@@ -22,9 +22,9 @@
 
 /**
  * SECTION:element-mssdemux
+ * @title: mssdemux
  *
  * Demuxes a Microsoft's Smooth Streaming manifest into its audio and/or video streams.
- *
  *
  */
 
@@ -135,9 +135,18 @@ gst_mss_demux_stream_update_fragment_info (GstAdaptiveDemuxStream * stream);
 static gboolean gst_mss_demux_seek (GstAdaptiveDemux * demux, GstEvent * seek);
 static gint64
 gst_mss_demux_get_manifest_update_interval (GstAdaptiveDemux * demux);
+static gint64
+gst_mss_demux_stream_get_fragment_waiting_time (GstAdaptiveDemuxStream *
+    stream);
 static GstFlowReturn
 gst_mss_demux_update_manifest_data (GstAdaptiveDemux * demux,
     GstBuffer * buffer);
+static gboolean gst_mss_demux_get_live_seek_range (GstAdaptiveDemux * demux,
+    gint64 * start, gint64 * stop);
+static GstFlowReturn gst_mss_demux_data_received (GstAdaptiveDemux * demux,
+    GstAdaptiveDemuxStream * stream, GstBuffer * buffer);
+static gboolean
+gst_mss_demux_requires_periodical_playlist_update (GstAdaptiveDemux * demux);
 
 static void
 gst_mss_demux_class_init (GstMssDemuxClass * klass)
@@ -190,8 +199,15 @@ gst_mss_demux_class_init (GstMssDemuxClass * klass)
       gst_mss_demux_stream_select_bitrate;
   gstadaptivedemux_class->stream_update_fragment_info =
       gst_mss_demux_stream_update_fragment_info;
+  gstadaptivedemux_class->stream_get_fragment_waiting_time =
+      gst_mss_demux_stream_get_fragment_waiting_time;
   gstadaptivedemux_class->update_manifest_data =
       gst_mss_demux_update_manifest_data;
+  gstadaptivedemux_class->get_live_seek_range =
+      gst_mss_demux_get_live_seek_range;
+  gstadaptivedemux_class->data_received = gst_mss_demux_data_received;
+  gstadaptivedemux_class->requires_periodical_playlist_update =
+      gst_mss_demux_requires_periodical_playlist_update;
 
   GST_DEBUG_CATEGORY_INIT (mssdemux_debug, "mssdemux", 0, "mssdemux plugin");
 }
@@ -472,16 +488,14 @@ gst_mss_demux_setup_streams (GstAdaptiveDemux * demux)
     }
 
     if (protected) {
-      gsize protection_data_len;
-      guchar *decoded_data =
-          g_base64_decode (protection_data, &protection_data_len);
       GstBuffer *protection_buffer =
-          gst_buffer_new_wrapped (decoded_data, protection_data_len);
+          gst_buffer_new_wrapped ((gpointer) protection_data,
+          strlen (protection_data));
       GstEvent *event =
           gst_event_new_protection (protection_system_id, protection_buffer,
           "smooth-streaming");
 
-      GST_LOG_OBJECT (stream, "Queuing Protection event on source pad");
+      GST_LOG_OBJECT (stream, "Queueing Protection event on source pad");
       gst_adaptive_demux_stream_queue_event ((GstAdaptiveDemuxStream *) stream,
           event);
       gst_buffer_unref (protection_buffer);
@@ -648,6 +662,13 @@ gst_mss_demux_get_manifest_update_interval (GstAdaptiveDemux * demux)
   return interval;
 }
 
+static gint64
+gst_mss_demux_stream_get_fragment_waiting_time (GstAdaptiveDemuxStream * stream)
+{
+  /* Wait a second for live streams so we don't try premature fragments downloading */
+  return GST_SECOND;
+}
+
 static GstFlowReturn
 gst_mss_demux_update_manifest_data (GstAdaptiveDemux * demux,
     GstBuffer * buffer)
@@ -658,4 +679,52 @@ gst_mss_demux_update_manifest_data (GstAdaptiveDemux * demux,
 
   gst_mss_manifest_reload_fragments (mssdemux->manifest, buffer);
   return GST_FLOW_OK;
+}
+
+static gboolean
+gst_mss_demux_get_live_seek_range (GstAdaptiveDemux * demux, gint64 * start,
+    gint64 * stop)
+{
+  GstMssDemux *mssdemux = GST_MSS_DEMUX_CAST (demux);
+
+  return gst_mss_manifest_get_live_seek_range (mssdemux->manifest, start, stop);
+}
+
+static GstFlowReturn
+gst_mss_demux_data_received (GstAdaptiveDemux * demux,
+    GstAdaptiveDemuxStream * stream, GstBuffer * buffer)
+{
+  GstMssDemux *mssdemux = GST_MSS_DEMUX_CAST (demux);
+  GstMssDemuxStream *mssstream = (GstMssDemuxStream *) stream;
+  gsize available;
+
+  if (!gst_mss_manifest_is_live (mssdemux->manifest)) {
+    return GST_ADAPTIVE_DEMUX_CLASS (parent_class)->data_received (demux,
+        stream, buffer);
+  }
+
+  if (gst_mss_stream_fragment_parsing_needed (mssstream->manifest_stream)) {
+    gst_mss_manifest_live_adapter_push (mssstream->manifest_stream, buffer);
+    available =
+        gst_mss_manifest_live_adapter_available (mssstream->manifest_stream);
+    // FIXME: try to reduce this minimal size.
+    if (available < 4096) {
+      return GST_FLOW_OK;
+    } else {
+      GST_LOG_OBJECT (stream->pad, "enough data, parsing fragment.");
+      buffer =
+          gst_mss_manifest_live_adapter_take_buffer (mssstream->manifest_stream,
+          available);
+      gst_mss_stream_parse_fragment (mssstream->manifest_stream, buffer);
+    }
+  }
+
+  return GST_ADAPTIVE_DEMUX_CLASS (parent_class)->data_received (demux, stream,
+      buffer);
+}
+
+static gboolean
+gst_mss_demux_requires_periodical_playlist_update (GstAdaptiveDemux * demux)
+{
+  return TRUE;
 }

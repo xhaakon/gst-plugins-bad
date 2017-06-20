@@ -2,12 +2,12 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>h264parser: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
+<title>GstH264Parser: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="codecparsers.html" title="Bitstream parsing Library">
 <link rel="prev" href="codecparsers.html" title="Bitstream parsing Library">
-<link rel="next" href="gst-plugins-bad-libs-jpegparser.html" title="jpegparser">
+<link rel="next" href="gst-plugins-bad-libs-jpegparser.html" title="GstJpegParser">
 <meta name="generator" content="GTK-Doc V1.25 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -26,8 +26,8 @@
 <a name="gst-plugins-bad-libs-h264parser"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
-<h2><span class="refentrytitle"><a name="gst-plugins-bad-libs-h264parser.top_of_page"></a>h264parser</span></h2>
-<p>h264parser — Convenience library for h264 video
+<h2><span class="refentrytitle"><a name="gst-plugins-bad-libs-h264parser.top_of_page"></a>GstH264Parser</span></h2>
+<p>GstH264Parser — Convenience library for h264 video
 bitstream parsing.</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
@@ -311,47 +311,32 @@ bitstream parsing.</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-h264parser.description"></a><h2>Description</h2>
-<p>It offers you bitstream parsing in AVC mode or not. To identify Nals in a bitstream and
-parse its headers, you should call:</p>
+<p>It offers bitstream parsing in both AVC (length-prefixed) and Annex B
+(0x000001 start code prefix) format. To identify a NAL unit in a bitstream
+and parse its headers, first call:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-<a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-identify-nalu" title="gst_h264_parser_identify_nalu ()"><span class="type">gst_h264_parser_identify_nalu</span></a> to identify the following nalu in not AVC bitstreams
-  </li>
-<li class="listitem">
-<a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-identify-nalu-avc" title="gst_h264_parser_identify_nalu_avc ()"><span class="type">gst_h264_parser_identify_nalu_avc</span></a> to identify the nalu in AVC bitstreams
-  </li>
+<li class="listitem"><p><a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-identify-nalu" title="gst_h264_parser_identify_nalu ()"><span class="type">gst_h264_parser_identify_nalu</span></a> to identify a NAL unit in an Annex B type bitstream</p></li>
+<li class="listitem"><p><a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-identify-nalu-avc" title="gst_h264_parser_identify_nalu_avc ()"><span class="type">gst_h264_parser_identify_nalu_avc</span></a> to identify a NAL unit in an AVC type bitstream</p></li>
 </ul></div>
-<p>Then, depending on the <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnitType" title="enum GstH264NalUnitType"><span class="type">GstH264NalUnitType</span></a> of the newly parsed <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a>, you should
-call the differents functions to parse the structure:</p>
+<p>The following functions are then available for parsing the structure of the
+<a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a>, depending on the <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnitType" title="enum GstH264NalUnitType"><span class="type">GstH264NalUnitType</span></a>:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-     From <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE:CAPS"><span class="type">GST_H264_NAL_SLICE</span></a> to <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE-IDR:CAPS"><span class="type">GST_H264_NAL_SLICE_IDR</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-slice-hdr" title="gst_h264_parser_parse_slice_hdr ()"><span class="type">gst_h264_parser_parse_slice_hdr</span></a>
-</li>
-<li class="listitem">
-<a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SEI:CAPS"><span class="type">GST_H264_NAL_SEI</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-sei" title="gst_h264_parser_parse_sei ()"><span class="type">gst_h264_parser_parse_sei</span></a>
-</li>
-<li class="listitem">
-<a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SPS:CAPS"><span class="type">GST_H264_NAL_SPS</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-sps" title="gst_h264_parser_parse_sps ()"><span class="type">gst_h264_parser_parse_sps</span></a>
-</li>
-<li class="listitem">
-<a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-PPS:CAPS"><span class="type">GST_H264_NAL_PPS</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-pps" title="gst_h264_parser_parse_pps ()"><span class="type">gst_h264_parser_parse_pps</span></a>
-</li>
-<li class="listitem">
-     Any other: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-nal" title="gst_h264_parser_parse_nal ()"><span class="type">gst_h264_parser_parse_nal</span></a>
-</li>
+<li class="listitem"><p>From <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE:CAPS"><span class="type">GST_H264_NAL_SLICE</span></a> to <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE-IDR:CAPS"><span class="type">GST_H264_NAL_SLICE_IDR</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-slice-hdr" title="gst_h264_parser_parse_slice_hdr ()"><span class="type">gst_h264_parser_parse_slice_hdr</span></a></p></li>
+<li class="listitem"><p><a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SEI:CAPS"><span class="type">GST_H264_NAL_SEI</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-sei" title="gst_h264_parser_parse_sei ()"><span class="type">gst_h264_parser_parse_sei</span></a></p></li>
+<li class="listitem"><p><a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SPS:CAPS"><span class="type">GST_H264_NAL_SPS</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-sps" title="gst_h264_parser_parse_sps ()"><span class="type">gst_h264_parser_parse_sps</span></a></p></li>
+<li class="listitem"><p><a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-PPS:CAPS"><span class="type">GST_H264_NAL_PPS</span></a>: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-pps" title="gst_h264_parser_parse_pps ()"><span class="type">gst_h264_parser_parse_pps</span></a></p></li>
+<li class="listitem"><p>Any other: <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-nal" title="gst_h264_parser_parse_nal ()"><span class="type">gst_h264_parser_parse_nal</span></a></p></li>
 </ul></div>
-<p>Note: You should always call gst_h264_parser_parse_nal if you don't actually need
-<a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnitType" title="enum GstH264NalUnitType"><span class="type">GstH264NalUnitType</span></a> to be parsed for your personnal use, in order to guarantee that the
-<a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a> is always up to date.</p>
-<p>For more details about the structures, look at the ITU-T H.264 and ISO/IEC 14496-10 – MPEG-4
-Part 10 specifications, you can download them from:</p>
+<p>One of these functions *must* be called on every NAL unit in the bitstream,
+in order to keep the internal structures of the <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a> up to
+date. It is legal to call <a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-parser-parse-nal" title="gst_h264_parser_parse_nal ()"><span class="type">gst_h264_parser_parse_nal</span></a> on NAL units of any
+type, if no special parsing of the current NAL unit is required by the
+application.</p>
+<p>For more details about the structures, look at the ITU-T H.264 and ISO/IEC 14496-10 â€“ MPEG-4
+Part 10 specifications, available at:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-    ITU-T H.264: http://www.itu.int/rec/T-REC-H.264
-  </li>
-<li class="listitem">
-    ISO/IEC 14496-10: http://www.iso.org/iso/iso_catalogue/catalogue_tc/catalogue_detail.htm?csnumber=56538
-  </li>
+<li class="listitem"><p>ITU-T H.264: http://www.itu.int/rec/T-REC-H.264</p></li>
+<li class="listitem"><p>ISO/IEC 14496-10: http://www.iso.org/iso/iso_catalogue/catalogue_tc/catalogue_detail.htm?csnumber=56538</p></li>
 </ul></div>
 </div>
 <div class="refsect1">
@@ -394,10 +379,10 @@ gst_h264_parser_identify_nalu (<em class="parameter"><code><a class="link" href=
                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>,
                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> *nalu</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
- and fills <em class="parameter"><code>nalu</code></em>
- from the next nalu data from <em class="parameter"><code>data</code></em>
-</p>
+<p>Parses the headers of an Annex B coded NAL unit from <em class="parameter"><code>data</code></em>
+ and puts the
+result into <em class="parameter"><code>nalu</code></em>
+.</p>
 <div class="refsect3">
 <a name="gst-h264-parser-identify-nalu.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -414,13 +399,13 @@ gst_h264_parser_identify_nalu (<em class="parameter"><code><a class="link" href=
 </tr>
 <tr>
 <td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse</p></td>
+<td class="parameter_description"><p>The data to parse, containing an Annex B coded NAL unit</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
 <td class="parameter_name"><p>offset</p></td>
-<td class="parameter_description"><p>the offset from which to parse <em class="parameter"><code>data</code></em>
-</p></td>
+<td class="parameter_description"><p>the offset in <em class="parameter"><code>data</code></em>
+from which to parse the NAL unit</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -431,7 +416,7 @@ gst_h264_parser_identify_nalu (<em class="parameter"><code><a class="link" href=
 </tr>
 <tr>
 <td class="parameter_name"><p>nalu</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> where to store parsed nal headers</p></td>
+<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> to store the identified NAL unit in</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 </tbody>
@@ -452,8 +437,9 @@ gst_h264_parser_identify_nalu_avc (<em class="parameter"><code><a class="link" h
                                    <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
                                    <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> nal_length_size</code></em>,
                                    <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> *nalu</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
- and sets <em class="parameter"><code>nalu</code></em>
+<p>Parses the headers of an AVC coded NAL unit from <em class="parameter"><code>data</code></em>
+ and puts the result
+into <em class="parameter"><code>nalu</code></em>
 .</p>
 <div class="refsect3">
 <a name="gst-h264-parser-identify-nalu-avc.parameters"></a><h4>Parameters</h4>
@@ -471,13 +457,13 @@ gst_h264_parser_identify_nalu_avc (<em class="parameter"><code><a class="link" h
 </tr>
 <tr>
 <td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data to parse, must be the beging of the Nal unit</p></td>
+<td class="parameter_description"><p>The data to parse, containing an AVC coded NAL unit</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
 <td class="parameter_name"><p>offset</p></td>
-<td class="parameter_description"><p>the offset from which to parse <em class="parameter"><code>data</code></em>
-</p></td>
+<td class="parameter_description"><p>the offset in <em class="parameter"><code>data</code></em>
+from which to parse the NAL unit</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -493,7 +479,7 @@ gst_h264_parser_identify_nalu_avc (<em class="parameter"><code><a class="link" h
 </tr>
 <tr>
 <td class="parameter_name"><p>nalu</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> where to store parsed nal headers</p></td>
+<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> to store the identified NAL unit in</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 </tbody>
@@ -550,9 +536,9 @@ gst_h264_parser_parse_slice_hdr (<em class="parameter"><code><a class="link" hre
                                  <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264SliceHdr" title="struct GstH264SliceHdr"><span class="type">GstH264SliceHdr</span></a> *slice</code></em>,
                                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> parse_pred_weight_table</code></em>,
                                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> parse_dec_ref_pic_marking</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
-, and fills the <em class="parameter"><code>slice</code></em>
- structure.</p>
+<p>Parses <em class="parameter"><code>nalu</code></em>
+ containing a coded slice, and fills <em class="parameter"><code>slice</code></em>
+.</p>
 <div class="refsect3">
 <a name="gst-h264-parser-parse-slice-hdr.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -569,7 +555,7 @@ gst_h264_parser_parse_slice_hdr (<em class="parameter"><code><a class="link" hre
 </tr>
 <tr>
 <td class="parameter_name"><p>nalu</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE:CAPS"><span class="type">GST_H264_NAL_SLICE</span></a> <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> to parse</p></td>
+<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE:CAPS"><span class="type">GST_H264_NAL_SLICE</span></a> to <a class="link" href="gst-plugins-bad-libs-h264parser.html#GST-H264-NAL-SLICE-IDR:CAPS"><span class="type">GST_H264_NAL_SLICE_IDR</span></a> <a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> to parse</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -603,9 +589,9 @@ gst_h264_parser_parse_sps (<em class="parameter"><code><a class="link" href="gst
                            <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> *nalu</code></em>,
                            <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264SPS" title="struct GstH264SPS"><span class="type">GstH264SPS</span></a> *sps</code></em>,
                            <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> parse_vui_params</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
-, and fills the <em class="parameter"><code>sps</code></em>
- structure.</p>
+<p>Parses <em class="parameter"><code>nalu</code></em>
+ containing a Sequence Parameter Set, and fills <em class="parameter"><code>sps</code></em>
+.</p>
 <div class="refsect3">
 <a name="gst-h264-parser-parse-sps.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -650,13 +636,12 @@ gst_h264_parser_parse_sps (<em class="parameter"><code><a class="link" href="gst
 gst_h264_parser_parse_pps (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a> *nalparser</code></em>,
                            <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> *nalu</code></em>,
                            <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264PPS" title="struct GstH264PPS"><span class="type">GstH264PPS</span></a> *pps</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
-, and fills the <em class="parameter"><code>pps</code></em>
- structure.</p>
+<p>Parses <em class="parameter"><code>nalu</code></em>
+ containing a Picture Parameter Set, and fills <em class="parameter"><code>pps</code></em>
+.</p>
 <p>The resulting <em class="parameter"><code>pps</code></em>
- data structure shall be deallocated with the
-<a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-pps-clear" title="gst_h264_pps_clear ()"><code class="function">gst_h264_pps_clear()</code></a> function when it is no longer needed, or prior
-to parsing a new PPS NAL unit.</p>
+ data structure must be deallocated by the caller using
+<a class="link" href="gst-plugins-bad-libs-h264parser.html#gst-h264-pps-clear" title="gst_h264_pps_clear ()"><code class="function">gst_h264_pps_clear()</code></a>.</p>
 <div class="refsect3">
 <a name="gst-h264-parser-parse-pps.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -696,8 +681,9 @@ to parsing a new PPS NAL unit.</p>
 gst_h264_parser_parse_sei (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalParser" title="struct GstH264NalParser"><span class="type">GstH264NalParser</span></a> *nalparser</code></em>,
                            <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-h264parser.html#GstH264NalUnit" title="struct GstH264NalUnit"><span class="type">GstH264NalUnit</span></a> *nalu</code></em>,
                            <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Arrays.html#GArray"><span class="type">GArray</span></a> **messages</code></em>);</pre>
-<p>Parses <em class="parameter"><code>data</code></em>
-, create and fills the <em class="parameter"><code>messages</code></em>
+<p>Parses <em class="parameter"><code>nalu</code></em>
+ containing one or more Supplementary Enhancement Information messages,
+and allocates and fills the <em class="parameter"><code>messages</code></em>
  array.</p>
 <div class="refsect3">
 <a name="gst-h264-parser-parse-sei.parameters"></a><h4>Parameters</h4>
@@ -1280,7 +1266,7 @@ value if available, 0 otherwise</p></td>
 <tr>
 <td class="enum_member_name"><p><a name="GST-H264-PARSER-OK:CAPS"></a>GST_H264_PARSER_OK</p></td>
 <td class="enum_member_description">
-<p>The parsing succeded</p>
+<p>The parsing succeeded</p>
 </td>
 <td class="enum_member_annotations"> </td>
 </tr>
@@ -1301,21 +1287,21 @@ value if available, 0 otherwise</p></td>
 <tr>
 <td class="enum_member_name"><p><a name="GST-H264-PARSER-ERROR:CAPS"></a>GST_H264_PARSER_ERROR</p></td>
 <td class="enum_member_description">
-<p>An error occured when parsing</p>
+<p>An error occurred when parsing</p>
 </td>
 <td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-H264-PARSER-NO-NAL:CAPS"></a>GST_H264_PARSER_NO_NAL</p></td>
 <td class="enum_member_description">
-<p>No nal found during the parsing</p>
+<p>No NAL unit found during the parsing</p>
 </td>
 <td class="enum_member_annotations"> </td>
 </tr>
 <tr>
 <td class="enum_member_name"><p><a name="GST-H264-PARSER-NO-NAL-END:CAPS"></a>GST_H264_PARSER_NO_NAL_END</p></td>
 <td class="enum_member_description">
-<p>Start of the nal found, but not the end.</p>
+<p>Start of the NAL unit found, but not the end.</p>
 </td>
 <td class="enum_member_annotations"> </td>
 </tr>
@@ -1407,7 +1393,7 @@ value if available, 0 otherwise</p></td>
 <tr>
 <td class="enum_member_name"><p><a name="GST-H264-SEI-PIC-STRUCT-BOTTOM-FIELD:CAPS"></a>GST_H264_SEI_PIC_STRUCT_BOTTOM_FIELD</p></td>
 <td class="enum_member_description">
-<p>Botom field of frame</p>
+<p>Bottom field of frame</p>
 </td>
 <td class="enum_member_annotations"> </td>
 </tr>
@@ -1557,7 +1543,7 @@ value if available, 0 otherwise</p></td>
   } extension;
 };
 </pre>
-<p>Structure defining the Nal unit headers</p>
+<p>Structure defining the NAL unit headers</p>
 <div class="refsect3">
 <a name="GstH264NalUnit.members"></a><h4>Members</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -1589,7 +1575,7 @@ reference picture.</p></td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstH264NalUnit.size"></a>size</code></em>;</p></td>
-<td class="struct_member_description"><p>The size of the nal unit starting from <em class="parameter"><code>offset</code></em>
+<td class="struct_member_description"><p>The size of the NAL unit starting from <em class="parameter"><code>offset</code></em>
 , thus
 including the header bytes. e.g. <em class="parameter"><code>type</code></em>
 (nal_unit_type)</p></td>
@@ -1597,24 +1583,24 @@ including the header bytes. e.g. <em class="parameter"><code>type</code></em>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstH264NalUnit.offset"></a>offset</code></em>;</p></td>
-<td class="struct_member_description"><p>The offset of the actual start of the nal unit, thus
+<td class="struct_member_description"><p>The offset of the actual start of the NAL unit, thus
 including the header bytes</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="GstH264NalUnit.sc-offset"></a>sc_offset</code></em>;</p></td>
-<td class="struct_member_description"><p>The offset of the start code of the nal unit</p></td>
+<td class="struct_member_description"><p>The offset of the start code of the NAL unit</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> <em class="structfield"><code><a name="GstH264NalUnit.valid"></a>valid</code></em>;</p></td>
-<td class="struct_member_description"><p>If the nal unit is valid, which means it has
+<td class="struct_member_description"><p>If the NAL unit is valid, which means it has
 already been parsed</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *<em class="structfield"><code><a name="GstH264NalUnit.data"></a>data</code></em>;</p></td>
-<td class="struct_member_description"><p>The data from which the Nalu has been parsed</p></td>
+<td class="struct_member_description"><p>The data from which the NAL unit has been parsed</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
@@ -2087,7 +2073,7 @@ SchedSelIdx-th CPB size</p></td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264HRDParams.cbr-flag"></a>cbr_flag</code></em>[32];</p></td>
-<td class="struct_member_description"><p>Specifies if running in itermediate bitrate mode or constant</p></td>
+<td class="struct_member_description"><p>Specifies if running in constant or intermittent bit rate mode</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
@@ -2305,7 +2291,7 @@ otherwise.</p></td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.nal-hrd-parameters-present-flag"></a>nal_hrd_parameters_present_flag</code></em>;</p></td>
-<td class="struct_member_description"><p><a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if nal hrd parameters present in the bitstream</p></td>
+<td class="struct_member_description"><p><a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if NAL HRD parameters exist in the bitstream</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>
@@ -2315,7 +2301,7 @@ otherwise.</p></td>
 </tr>
 <tr>
 <td class="struct_member_name"><p><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstH264VUIParams.vcl-hrd-parameters-present-flag"></a>vcl_hrd_parameters_present_flag</code></em>;</p></td>
-<td class="struct_member_description"><p><a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if nal vlc hrd parameters present in the bitstream</p></td>
+<td class="struct_member_description"><p><a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if VCL HRD parameters exist in the bitstream</p></td>
 <td class="struct_member_annotations"> </td>
 </tr>
 <tr>

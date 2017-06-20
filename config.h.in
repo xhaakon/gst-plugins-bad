@@ -94,9 +94,6 @@
 /* Define to enable Android Media (used by androidmedia). */
 #undef HAVE_ANDROID_MEDIA
 
-/* Define to enable AirPort Express Wireless sink (used by apexsink). */
-#undef HAVE_APEXSINK
-
 /* Define to enable Apple video (used by applemedia). */
 #undef HAVE_APPLE_MEDIA
 
@@ -214,6 +211,9 @@
 /* define for working do while(0) macros */
 #undef HAVE_DOWHILE_MACROS
 
+/* Define if you have dssim library */
+#undef HAVE_DSSIM
+
 /* Define to enable DTLS plugin (used by dtls). */
 #undef HAVE_DTLS
 
@@ -246,12 +246,6 @@
 
 /* Define to enable fdkaac plugin (used by fdkaac). */
 #undef HAVE_FDK_AAC
-
-/* FIONREAD ioctl found in sys/filio.h */
-#undef HAVE_FIONREAD_IN_SYS_FILIO
-
-/* FIONREAD ioctl found in sys/ioclt.h */
-#undef HAVE_FIONREAD_IN_SYS_IOCTL
 
 /* Define to enable Flite plugin (used by flite). */
 #undef HAVE_FLITE
@@ -322,6 +316,9 @@
 /* Define if building for Apple iOS */
 #undef HAVE_IOS
 
+/* Define to enable iqa (used by iqa ). */
+#undef HAVE_IQA
+
 /* Use libjpeg */
 #undef HAVE_JPEG
 
@@ -355,14 +352,8 @@
 /* Define if libusb 1.x is installed */
 #undef HAVE_LIBUSB
 
-/* Define to enable libvisual visualization library (used by libvisual). */
-#undef HAVE_LIBVISUAL
-
 /* Define if we have liblilv >= 0.22 */
 #undef HAVE_LILV_0_22
-
-/* Define to enable Linear Systems SDI plugin (used by linsys). */
-#undef HAVE_LINSYS
 
 /* Define if we have liblrdf */
 #undef HAVE_LRDF
@@ -372,9 +363,6 @@
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
-
-/* Define to enable libmimic library (used by mimic). */
-#undef HAVE_MIMIC
 
 /* Define to 1 if you have a working `mmap' system call. */
 #undef HAVE_MMAP
@@ -391,11 +379,11 @@
 /* Define to 1 if you have the <msacm.h> header file. */
 #undef HAVE_MSACM_H
 
+/* Define to enable Intel MediaSDK (used by msdk). */
+#undef HAVE_MSDK
+
 /* Define to enable musepackdec (used by musepack). */
 #undef HAVE_MUSEPACK
-
-/* Define to enable nas plug-in (used by nassink). */
-#undef HAVE_NAS
 
 /* Define to enable neon http client plugins (used by neonhttpsrc). */
 #undef HAVE_NEON
@@ -426,6 +414,9 @@
 
 /* Define to enable opencv plugins (used by opencv). */
 #undef HAVE_OPENCV
+
+/* Define to 1 if you have the <opencv2/bgsegm.hpp> header file. */
+#undef HAVE_OPENCV2_BGSEGM_HPP
 
 /* Define to 1 if you have the <opencv2/core/core_c.h> header file. */
 #undef HAVE_OPENCV2_CORE_CORE_C_H
@@ -495,14 +486,8 @@
 /* Have PTHREAD_PRIO_INHERIT. */
 #undef HAVE_PTHREAD_PRIO_INHERIT
 
-/* Define to enable pvrvideosink (used by pvr). */
-#undef HAVE_PVR
-
 /* Define to enable Qt elements (used by qt). */
 #undef HAVE_QT
-
-/* Define if building with QTKit */
-#undef HAVE_QTKIT
 
 /* Define if Qt eglfs integration is installed */
 #undef HAVE_QT_EGLFS
@@ -537,9 +522,6 @@
 /* Define to enable Schroedinger video codec (used by schro). */
 #undef HAVE_SCHRO
 
-/* Define to enable SDL plug-in (used by sdlvideosink sdlaudiosink). */
-#undef HAVE_SDL
-
 /* Define to enable POSIX shared memory source and sink (used by shm). */
 #undef HAVE_SHM
 
@@ -548,9 +530,6 @@
 
 /* Define to enable sndfile plug-in (used by sfdec sfenc). */
 #undef HAVE_SNDFILE
-
-/* Define to enable sndio audio (used by sndio). */
-#undef HAVE_SNDIO
 
 /* Define to enable soundtouch plug-in (used by soundtouch). */
 #undef HAVE_SOUNDTOUCH
@@ -606,11 +585,11 @@
 /* Define if libtiger is available */
 #undef HAVE_TIGER
 
-/* Define to enable timidity midi soft synth plugin (used by timidity). */
-#undef HAVE_TIMIDITY
-
 /* Define to enable tinyalsa (used by tinyalsa). */
 #undef HAVE_TINYALSA
+
+/* Define to enable TTML plugin (used by ttml). */
+#undef HAVE_TTML
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
@@ -666,12 +645,6 @@
 /* Define to 1 if you have the <windows.h> header file. */
 #undef HAVE_WINDOWS_H
 
-/* Define to enable Windows internet library (used by wininet). */
-#undef HAVE_WININET
-
-/* Define to 1 if you have the <wininet.h> header file. */
-#undef HAVE_WININET_H
-
 /* Define to enable Winks plug-in (used by winks). */
 #undef HAVE_WINKS
 
@@ -690,9 +663,6 @@
 /* Define to enable x265 plug-in (used by x265). */
 #undef HAVE_X265
 
-/* Define to enable xvid plugins (used by xvid). */
-#undef HAVE_XVID
-
 /* Define to enable ZBar barcode detector (used by zbar). */
 #undef HAVE_ZBAR
 
@@ -701,9 +671,6 @@
 
 /* library dir */
 #undef LIBDIR
-
-/* directory in which the detected libvisual's plugins are located */
-#undef LIBVISUAL_PLUGINSBASEDIR
 
 /* gettext locale dir */
 #undef LOCALEDIR
@@ -768,9 +735,6 @@
 
 /* the target CPU */
 #undef TARGET_CPU
-
-/* Define location of timidity.cfg */
-#undef TIMIDITY_CFG
 
 /* Use Mali FB EGL platform */
 #undef USE_EGL_MALI_FB

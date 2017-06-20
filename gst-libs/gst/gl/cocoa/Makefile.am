@@ -9,13 +9,13 @@ libgstgl_cocoa_la_SOURCES = \
 	gstglcaopengllayer.m
 
 noinst_HEADERS = \
+	gstglcontext_cocoa.h \
 	gstgldisplay_cocoa.h \
 	gstglwindow_cocoa.h \
 	gstgl_cocoa_private.h
 
 libgstgl_cocoaincludedir = $(includedir)/gstreamer-@GST_API_VERSION@/gst/gl/cocoa
 libgstgl_cocoainclude_HEADERS = \
-	gstglcontext_cocoa.h \
 	gstglcaopengllayer.h
 
 libgstgl_cocoa_la_CFLAGS = \
@@ -29,6 +29,7 @@ libgstgl_cocoa_la_CFLAGS = \
 libgstgl_cocoa_la_OBJCFLAGS = \
 	-I$(top_srcdir)/gst-libs \
 	-I$(top_builddir)/gst-libs \
+	-fobjc-arc \
 	$(GL_OBJCFLAGS) \
 	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_BASE_CFLAGS) \

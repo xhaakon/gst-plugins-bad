@@ -32,6 +32,7 @@ GObject
         GstAiffParse
         GstAsfMux
         GstAssRender
+        GstAudioBufferSplit
         GstAudioDecoder
           ADPCMDec
           GstDtsDec
@@ -54,6 +55,7 @@ GObject
           GstSpectraScope
           GstSynaeScope
           GstWaveScope
+        GstAvWait
         GstBaseParse
           GstAsfParse
           GstDiracParse
@@ -68,9 +70,6 @@ GObject
           GstMpegvParse
           GstOpusParse
           GstPngParse
-          GstRawBaseParse
-            GstRawAudioParse
-            GstRawVideoParse
           GstVC1Parse
         GstBaseSink
           GstAudioBaseSink
@@ -98,12 +97,12 @@ GObject
               GstGtkGLSink
               GstGtkSink
             GstInterVideoSink
+            GstKMSSink
             GstQtSink
             GstVulkanSink
             GstWaylandSink
         GstBaseSrc
           GstAvdtpSrc
-          GstDataURISrc
           GstFliteTestSrc
           GstInterAudioSrc
           GstInterSubSrc
@@ -147,6 +146,7 @@ GObject
             GstStereo
             GstWebrtcDsp
             GstWebrtcEchoProbe
+          GstAudioMixMatrix
           GstBayer2RGB
           GstDebugSpy
           GstDtmfDetect
@@ -219,7 +219,6 @@ GObject
               GstPerspective
               GstRotate
               GstSquare
-            GstGrabcut
             GstOpencvVideoFilter
               GstCvDilateErode
                 GstCvDilate
@@ -228,18 +227,20 @@ GObject
               GstCvLaplace
               GstCvSmooth
               GstCvSobel
+              GstDewarp
               GstEdgeDetect
               GstFaceBlur
               GstFaceDetect
+              GstGrabcut
               GstHanddetect
               GstMotioncells
               GstOpencvTextOverlay
+              GstRetinex
+              GstSegmentation
               GstSkinDetect
               GstTemplateMatch
-            GstRetinex
             GstRsvgOverlay
             GstSceneChange
-            GstSegmentation
             GstSimpleVideoMark
             GstSimpleVideoMarkDetect
             GstSmooth
@@ -268,6 +269,7 @@ GObject
             GstDtlsSrtpDec
             GstDtlsSrtpEnc
           GstFPSDisplaySink
+          GstFaceOverlay
           GstGLFilterBin
           GstGLMixerBin
             GstGLVideoMixerBin
@@ -279,8 +281,6 @@ GObject
             GstCameraBin
           GstSDPDemux
           GstSdpSrc
-          GstUnalignedAudioParse
-          GstUnalignedVideoParse
           GstVideoParse
           GstViewfinderBin
           RsnDvdBin
@@ -311,8 +311,6 @@ GObject
           GstKateTag
         GstMXFDemux
         GstMidiParse
-        GstMimDec
-        GstMimEnc
         GstModPlug
         GstMpeg2enc
         GstMpegPSDemux
@@ -337,7 +335,8 @@ GObject
         GstTagMux
           GstId3Mux
         GstTeletextDec
-        GstTimeCodeWait
+        GstTtmlParse
+        GstTtmlRender
         GstUvcH264MjpgDemux
         GstVideoDecoder
           GstLibde265Dec
@@ -383,6 +382,7 @@ GObject
       GstPlugin
       GstPluginFeature
         GstDeviceProviderFactory
+        GstDynamicTypeFactory
         GstElementFactory
         GstTracerFactory
         GstTypeFindFactory
@@ -426,6 +426,10 @@ GObject
         MXFMetadataEventTrack
         MXFMetadataStaticTrack
         MXFMetadataTimelineTrack
+  PangoContext
+  PangoFontMap
+    PangoFcFontMap
+      PangoCairoFcFontMap
 GInterface
   AtkImplementorIface
   GTypePlugin
@@ -439,3 +443,4 @@ GInterface
   GstVideoOverlay
   GstWaylandVideo
   GtkBuildable
+  PangoCairoFontMap

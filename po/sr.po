@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad-1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-02-23 15:17+0200\n"
+"POT-Creation-Date: 2017-05-04 15:09+0300\n"
 "PO-Revision-Date: 2016-12-04 14:22+0200\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
@@ -58,18 +58,6 @@ msgstr "Ова датотека не садржи токове за пуштањ
 msgid "Could not open sndfile stream for reading."
 msgstr "Не могу да отворим ток датотеке звука за читање."
 
-msgid "Could not establish connection to sndio"
-msgstr "Не могу да успоставим везу са улазом/излазом звука"
-
-msgid "Failed to query sndio capabilities"
-msgstr "Нисам успео да испитам могућности улаза/излаза звука"
-
-msgid "Could not configure sndio"
-msgstr "Не могу да подесим улаз/излаз звука"
-
-msgid "Could not start sndio"
-msgstr "Не могу да покренем улаз/излаз звука"
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr "Створена датотека има дуже време припреме од трајања њеног тока"
 
@@ -95,19 +83,6 @@ msgstr "Не могу да преузмем одломке"
 
 msgid "Internal data stream error."
 msgstr "Унутрашња грешка тока података."
-
-msgid "No file name specified for writing."
-msgstr "Није наведен назив датотеке за упис."
-
-#, c-format
-msgid "Given file name \"%s\" can't be converted to local file name encoding."
-msgstr ""
-"Дати назив датотеке „%s“ не може бити претворен у кодирање назива месне "
-"датотеке."
-
-#, c-format
-msgid "Could not open file \"%s\" for writing."
-msgstr "Не могу да отворим датотеку „%s“ за упис."
 
 #, c-format
 msgid "Device \"%s\" does not exist."
@@ -154,6 +129,30 @@ msgstr "Не могу да нађем датотеку подешавања ка
 
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "Датотека подешавања канала не садржи ниједан канал"
+
+#~ msgid "Could not establish connection to sndio"
+#~ msgstr "Не могу да успоставим везу са улазом/излазом звука"
+
+#~ msgid "Failed to query sndio capabilities"
+#~ msgstr "Нисам успео да испитам могућности улаза/излаза звука"
+
+#~ msgid "Could not configure sndio"
+#~ msgstr "Не могу да подесим улаз/излаз звука"
+
+#~ msgid "Could not start sndio"
+#~ msgstr "Не могу да покренем улаз/излаз звука"
+
+#~ msgid "No file name specified for writing."
+#~ msgstr "Није наведен назив датотеке за упис."
+
+#~ msgid ""
+#~ "Given file name \"%s\" can't be converted to local file name encoding."
+#~ msgstr ""
+#~ "Дати назив датотеке „%s“ не може бити претворен у кодирање назива месне "
+#~ "датотеке."
+
+#~ msgid "Could not open file \"%s\" for writing."
+#~ msgstr "Не могу да отворим датотеку „%s“ за упис."
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "основни аудио усклађивач звучних догађаја Гстримера"

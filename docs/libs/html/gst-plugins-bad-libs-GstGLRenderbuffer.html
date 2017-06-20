@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>GstGLRenderbuffer: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
+<title>GstGLRenderBuffer: GStreamer Bad Plugins 1.0 Library Reference Manual</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Library Reference Manual">
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
@@ -15,7 +15,8 @@
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-libs-GstGLRenderbuffer.description" class="shortcut">Description</a></span>
+                  <a href="#gst-plugins-bad-libs-GstGLRenderbuffer.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-libs-GstGLRenderbuffer.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="gl.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
@@ -26,8 +27,8 @@
 <a name="gst-plugins-bad-libs-GstGLRenderbuffer"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
-<h2><span class="refentrytitle"><a name="gst-plugins-bad-libs-GstGLRenderbuffer.top_of_page"></a>GstGLRenderbuffer</span></h2>
-<p>GstGLRenderbuffer — memory subclass for GL renderbuffer objects</p>
+<h2><span class="refentrytitle"><a name="gst-plugins-bad-libs-GstGLRenderbuffer.top_of_page"></a>GstGLRenderBuffer</span></h2>
+<p>GstGLRenderBuffer — memory subclass for GL renderbuffer objects</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -73,10 +74,10 @@
 </tr>
 <tr>
 <td class="function_type">
-<span class="returnvalue">GstVideoGLTextureType</span>
+<a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="returnvalue">GstGLFormat</span></a>
 </td>
 <td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-get-type" title="gst_gl_renderbuffer_get_type ()">gst_gl_renderbuffer_get_type</a> <span class="c_punctuation">()</span>
+<a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-get-format" title="gst_gl_renderbuffer_get_format ()">gst_gl_renderbuffer_get_format</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
@@ -95,27 +96,55 @@
 <a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-gl-renderbuffer-init-once" title="gst_gl_renderbuffer_init_once ()">gst_gl_renderbuffer_init_once</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#gst-is-gl-renderbuffer" title="gst_is_gl_renderbuffer ()">gst_is_gl_renderbuffer</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
 </tbody>
 </table></div>
 </div>
-<div class="refsect1">
+<a name="GstGLRenderbufferAllocator"></a><div class="refsect1">
 <a name="gst-plugins-bad-libs-GstGLRenderbuffer.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="name">
 <col class="description">
 </colgroup>
-<tbody><tr>
+<tbody>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#GstGLRenderbufferAllocator-struct" title="GstGLRenderbufferAllocator">GstGLRenderbufferAllocator</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#GstGLRenderbufferAllocatorClass" title="GstGLRenderbufferAllocatorClass">GstGLRenderbufferAllocatorClass</a></td>
+</tr>
+<tr>
 <td class="define_keyword">#define</td>
 <td class="function_name"><a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#GST-GL-RENDERBUFFER-ALLOCATOR-NAME:CAPS" title="GST_GL_RENDERBUFFER_ALLOCATOR_NAME">GST_GL_RENDERBUFFER_ALLOCATOR_NAME</a></td>
-</tr></tbody>
+</tr>
+</tbody>
 </table></div>
 </div>
 <div class="refsect1">
+<a name="gst-plugins-bad-libs-GstGLRenderbuffer.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
+    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
+            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocator-struct">GstAllocator</a>
+                <span class="lineart">╰──</span> <a class="link" href="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemoryAllocator">GstGLBaseMemoryAllocator</a>
+                    <span class="lineart">╰──</span> GstGLRenderbufferAllocator
+</pre>
+</div>
+<div class="refsect1">
 <a name="gst-plugins-bad-libs-GstGLRenderbuffer.description"></a><h2>Description</h2>
-<p>GstGLRenderbuffer is a <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#GstGLBaseMemory" title="GstGLBaseMemory"><span class="type">GstGLBaseMemory</span></a> subclass providing support for
-OpenGL renderbuffers.  </p>
-<p><span class="type">GstGLRenderbuffer</span> is created or wrapped through <a class="link" href="gst-plugins-bad-libs-gstglbasememory.html#gst-gl-base-memory-alloc" title="gst_gl_base_memory_alloc ()"><code class="function">gst_gl_base_memory_alloc()</code></a>
+<p>GstGLRenderbuffer is a <a class="link" href="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemory" title="GstGLBaseMemory"><span class="type">GstGLBaseMemory</span></a> subclass providing support for
+OpenGL renderbuffers.</p>
+<p><span class="type">GstGLRenderbuffer</span> is created or wrapped through <a class="link" href="gst-plugins-bad-libs-GstGlBaseMemory.html#gst-gl-base-memory-alloc" title="gst_gl_base_memory_alloc ()"><code class="function">gst_gl_base_memory_alloc()</code></a>
 with <span class="type">GstGLRenderbufferAllocationParams</span>.</p>
 </div>
 <div class="refsect1">
@@ -126,7 +155,7 @@ with <span class="type">GstGLRenderbufferAllocationParams</span>.</p>
 gst_gl_renderbuffer_allocation_params_new
                                (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocationParams-struct"><span class="type">GstAllocationParams</span></a> *alloc_params</code></em>,
-                                <em class="parameter"><code><span class="type">GstVideoGLTextureType</span> renderbuffer_type</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> renderbuffer_format</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> width</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> height</code></em>);</pre>
 <div class="refsect3">
@@ -159,8 +188,8 @@ gst_gl_renderbuffer_allocation_params_new
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>renderbuffer_type</p></td>
-<td class="parameter_description"><p>the <span class="type">GstVideoGLTextureType</span> for the created textures</p></td>
+<td class="parameter_name"><p>renderbuffer_format</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> for the created textures</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 </tbody>
@@ -179,7 +208,7 @@ gst_gl_renderbuffer_allocation_params_new
 gst_gl_renderbuffer_allocation_params_new_wrapped
                                (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocationParams-struct"><span class="type">GstAllocationParams</span></a> *alloc_params</code></em>,
-                                <em class="parameter"><code><span class="type">GstVideoGLTextureType</span> renderbuffer_type</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> renderbuffer_format</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> width</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> height</code></em>,
                                 <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> gl_handle</code></em>,
@@ -216,8 +245,8 @@ gst_gl_renderbuffer_allocation_params_new_wrapped
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>renderbuffer_type</p></td>
-<td class="parameter_description"><p>the <span class="type">GstVideoGLTextureType</span> for <em class="parameter"><code>tex_id</code></em>
+<td class="parameter_name"><p>renderbuffer_format</p></td>
+<td class="parameter_description"><p>the <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> for <em class="parameter"><code>tex_id</code></em>
 </p></td>
 <td class="parameter_annotations"> </td>
 </tr>
@@ -304,11 +333,11 @@ gst_gl_renderbuffer_get_id (<em class="parameter"><code><span class="type">GstGL
 </div>
 <hr>
 <div class="refsect2">
-<a name="gst-gl-renderbuffer-get-type"></a><h3>gst_gl_renderbuffer_get_type ()</h3>
-<pre class="programlisting"><span class="returnvalue">GstVideoGLTextureType</span>
-gst_gl_renderbuffer_get_type (<em class="parameter"><code><span class="type">GstGLRenderbuffer</span> *gl_mem</code></em>);</pre>
+<a name="gst-gl-renderbuffer-get-format"></a><h3>gst_gl_renderbuffer_get_format ()</h3>
+<pre class="programlisting"><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="returnvalue">GstGLFormat</span></a>
+gst_gl_renderbuffer_get_format (<em class="parameter"><code><span class="type">GstGLRenderbuffer</span> *gl_mem</code></em>);</pre>
 <div class="refsect3">
-<a name="gst-gl-renderbuffer-get-type.parameters"></a><h4>Parameters</h4>
+<a name="gst-gl-renderbuffer-get-format.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -323,11 +352,11 @@ gst_gl_renderbuffer_get_type (<em class="parameter"><code><span class="type">Gst
 </table></div>
 </div>
 <div class="refsect3">
-<a name="gst-gl-renderbuffer-get-type.returns"></a><h4>Returns</h4>
-<p> the <span class="type">GstVideoGLTextureType</span> of <em class="parameter"><code>gl_mem</code></em>
+<a name="gst-gl-renderbuffer-get-format.returns"></a><h4>Returns</h4>
+<p> the <a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> of <em class="parameter"><code>gl_mem</code></em>
 </p>
 </div>
-<p class="since">Since: 1.10</p>
+<p class="since">Since: 1.12</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -365,9 +394,51 @@ gst_gl_renderbuffer_init_once (<em class="parameter"><code><span class="type">vo
 multiple times.  This must be called before any other GstGLRenderbuffer operation.</p>
 <p class="since">Since: 1.10</p>
 </div>
+<hr>
+<div class="refsect2">
+<a name="gst-is-gl-renderbuffer"></a><h3>gst_is_gl_renderbuffer ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+gst_is_gl_renderbuffer (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstMemory.html#GstMemory-struct"><span class="type">GstMemory</span></a> *mem</code></em>);</pre>
+<div class="refsect3">
+<a name="gst-is-gl-renderbuffer.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>mem</p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstMemory.html#GstMemory-struct"><span class="type">GstMemory</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-is-gl-renderbuffer.returns"></a><h4>Returns</h4>
+<p> whether the memory at <em class="parameter"><code>mem</code></em>
+is a <span class="type">GstGLRenderbuffer</span></p>
+</div>
+<p class="since">Since: 1.10</p>
+</div>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-GstGLRenderbuffer.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="GstGLRenderbufferAllocator-struct"></a><h3>GstGLRenderbufferAllocator</h3>
+<pre class="programlisting">typedef struct _GstGLRenderbufferAllocator GstGLRenderbufferAllocator;</pre>
+<p>Opaque <a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#GstGLRenderbufferAllocator"><span class="type">GstGLRenderbufferAllocator</span></a> struct</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstGLRenderbufferAllocatorClass"></a><h3>GstGLRenderbufferAllocatorClass</h3>
+<pre class="programlisting">typedef struct {
+  GstGLBaseMemoryAllocatorClass             parent_class;
+} GstGLRenderbufferAllocatorClass;
+</pre>
+<p>The <a class="link" href="gst-plugins-bad-libs-GstGLRenderbuffer.html#GstGLRenderbufferAllocatorClass" title="GstGLRenderbufferAllocatorClass"><span class="type">GstGLRenderbufferAllocatorClass</span></a> only contains private data</p>
+</div>
+<hr>
 <div class="refsect2">
 <a name="GST-GL-RENDERBUFFER-ALLOCATOR-NAME:CAPS"></a><h3>GST_GL_RENDERBUFFER_ALLOCATOR_NAME</h3>
 <pre class="programlisting">#define GST_GL_RENDERBUFFER_ALLOCATOR_NAME   "GLRenderbuffer"

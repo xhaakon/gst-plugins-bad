@@ -20,13 +20,11 @@
 
 /**
  * SECTION:gstjpegparser
+ * @title: GstJpegParser
  * @short_description: Convenience library for JPEG bitstream parsing.
  *
- * <refsect2>
- * <para>
  * Provides useful functions for parsing JPEG images
- * </para>
- * </refsect2>
+ *
  */
 
 #include <string.h>
@@ -576,7 +574,7 @@ build_huffman_table (GstJpegHuffmanTable * huf_table,
 
   for (i = 0; i < num_entries; i++)
     sorted_entries[i] = &entries[i];
-  qsort (sorted_entries, num_entries, sizeof (sorted_entries[0]),
+  qsort ((void *) sorted_entries, num_entries, sizeof (sorted_entries[0]),
       compare_huffman_table_entry);
 
   for (i = 0, j = 1, n = 0; i < num_entries; i++) {

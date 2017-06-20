@@ -58,7 +58,7 @@
 #  include <config.h>
 #endif
 
-#include "gstopencvutils.h"
+#include "gst/opencv/gstopencvutils.h"
 #include "gstcvsmooth.h"
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -196,6 +196,7 @@ gst_cv_smooth_class_init (GstCvSmoothClass * klass)
   gst_element_class_add_pad_template (element_class, templ);
   templ = gst_pad_template_new ("src", GST_PAD_SRC, GST_PAD_ALWAYS, caps);
   gst_element_class_add_pad_template (element_class, templ);
+  gst_caps_unref (caps);
 }
 
 /* initialize the new element

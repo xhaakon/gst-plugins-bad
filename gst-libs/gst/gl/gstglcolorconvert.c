@@ -31,6 +31,7 @@
 
 /**
  * SECTION:gstglcolorconvert
+ * @title: GstGlColorConvert
  * @short_description: convert between video color spaces and formats
  * @see_also: #GstGLUpload, #GstGLMemory, #GstGLBaseMemory
  *
@@ -419,7 +420,7 @@ struct _GstGLColorConvertPrivate
   GstGLMemory *in_tex[GST_VIDEO_MAX_PLANES];
   GstGLMemory *out_tex[GST_VIDEO_MAX_PLANES];
 
-  GstVideoGLTextureType in_tex_types[GST_VIDEO_MAX_PLANES];
+  GstGLFormat in_tex_formats[GST_VIDEO_MAX_PLANES];
 
   GLuint vao;
   GLuint vertex_buffer;
@@ -1231,7 +1232,7 @@ gst_gl_color_convert_fixate_caps (GstGLContext * context,
  * @inbuf: (transfer none): the #GstGLMemory filled #GstBuffer to convert
  *
  * Converts the data contained by @inbuf using the formats specified by the
- * #GstCaps passed to gst_gl_color_convert_set_caps() 
+ * #GstCaps passed to gst_gl_color_convert_set_caps()
  *
  * Returns: (transfer full): a converted #GstBuffer or %NULL
  *
@@ -1521,9 +1522,7 @@ _YUV_to_RGB (GstGLColorConvert * convert)
         break;
       case GST_VIDEO_FORMAT_YUY2:
       {
-        char uv_val =
-            convert->priv->in_tex_types[0] ==
-            GST_VIDEO_GL_TEXTURE_TYPE_RG ? 'g' : 'a';
+        char uv_val = convert->priv->in_tex_formats[0] == GST_GL_RG ? 'g' : 'a';
         info->templ = &templ_YUY2_UYVY_to_RGB;
         info->frag_body = g_strdup_printf (info->templ->body, 'r', uv_val,
             uv_val, 'g', 'a', pixel_order[0], pixel_order[1], pixel_order[2],
@@ -1533,9 +1532,7 @@ _YUV_to_RGB (GstGLColorConvert * convert)
       }
       case GST_VIDEO_FORMAT_UYVY:
       {
-        char y_val =
-            convert->priv->in_tex_types[0] ==
-            GST_VIDEO_GL_TEXTURE_TYPE_RG ? 'g' : 'a';
+        char y_val = convert->priv->in_tex_formats[0] == GST_GL_RG ? 'g' : 'a';
         info->templ = &templ_YUY2_UYVY_to_RGB;
         info->frag_body = g_strdup_printf (info->templ->body, y_val, 'g',
             'g', 'r', 'b', pixel_order[0], pixel_order[1], pixel_order[2],
@@ -1545,9 +1542,7 @@ _YUV_to_RGB (GstGLColorConvert * convert)
       }
       case GST_VIDEO_FORMAT_NV12:
       {
-        char val2 =
-            convert->priv->in_tex_types[1] ==
-            GST_VIDEO_GL_TEXTURE_TYPE_RG ? 'g' : 'a';
+        char val2 = convert->priv->in_tex_formats[1] == GST_GL_RG ? 'g' : 'a';
         info->templ = &templ_NV12_NV21_to_RGB;
         info->frag_body = g_strdup_printf (info->templ->body, 'r', val2,
             pixel_order[0], pixel_order[1], pixel_order[2], pixel_order[3]);
@@ -1557,9 +1552,7 @@ _YUV_to_RGB (GstGLColorConvert * convert)
       }
       case GST_VIDEO_FORMAT_NV21:
       {
-        char val2 =
-            convert->priv->in_tex_types[1] ==
-            GST_VIDEO_GL_TEXTURE_TYPE_RG ? 'g' : 'a';
+        char val2 = convert->priv->in_tex_formats[1] == GST_GL_RG ? 'g' : 'a';
         info->templ = &templ_NV12_NV21_to_RGB;
         info->frag_body = g_strdup_printf (info->templ->body, val2, 'r',
             pixel_order[0], pixel_order[1], pixel_order[2], pixel_order[3]);
@@ -1733,9 +1726,7 @@ _GRAY_to_RGB (GstGLColorConvert * convert)
       break;
     case GST_VIDEO_FORMAT_GRAY16_LE:
     {
-      char val2 =
-          convert->priv->in_tex_types[0] ==
-          GST_VIDEO_GL_TEXTURE_TYPE_RG ? 'g' : 'a';
+      char val2 = convert->priv->in_tex_formats[0] == GST_GL_RG ? 'g' : 'a';
       info->templ = &templ_COMPOSE;
       info->frag_body = g_strdup_printf (info->templ->body, val2, 'r',
           pixel_order[0], pixel_order[1], pixel_order[2], pixel_order[3]);
@@ -1743,9 +1734,7 @@ _GRAY_to_RGB (GstGLColorConvert * convert)
     }
     case GST_VIDEO_FORMAT_GRAY16_BE:
     {
-      char val2 =
-          convert->priv->in_tex_types[0] ==
-          GST_VIDEO_GL_TEXTURE_TYPE_RG ? 'g' : 'a';
+      char val2 = convert->priv->in_tex_formats[0] == GST_GL_RG ? 'g' : 'a';
       info->templ = &templ_COMPOSE;
       info->frag_body = g_strdup_printf (info->templ->body, 'r', val2,
           pixel_order[0], pixel_order[1], pixel_order[2], pixel_order[3]);
@@ -2195,8 +2184,8 @@ _do_convert_one_view (GstGLContext * context, GstGLColorConvert * convert,
     mem_width = gst_gl_memory_get_texture_width (out_tex);
     mem_height = gst_gl_memory_get_texture_height (out_tex);
 
-    if (out_tex->tex_type == GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE
-        || out_tex->tex_type == GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE_ALPHA
+    if (out_tex->tex_format == GST_GL_LUMINANCE
+        || out_tex->tex_format == GST_GL_LUMINANCE_ALPHA
         || out_width != mem_width || out_height != mem_height) {
       /* Luminance formats are not color renderable */
       /* renderering to a framebuffer only renders the intersection of all
@@ -2213,8 +2202,7 @@ _do_convert_one_view (GstGLContext * context, GstGLColorConvert * convert,
         allocator = gst_allocator_find (GST_GL_MEMORY_ALLOCATOR_NAME);
         base_mem_allocator = GST_GL_BASE_MEMORY_ALLOCATOR (allocator);
         params = gst_gl_video_allocation_params_new (context, NULL, &temp_info,
-            0, NULL, convert->priv->to_texture_target,
-            GST_VIDEO_GL_TEXTURE_TYPE_RGBA);
+            0, NULL, convert->priv->to_texture_target, GST_GL_RGBA);
 
         convert->priv->out_tex[j] =
             (GstGLMemory *) gst_gl_base_memory_alloc (base_mem_allocator,
@@ -2258,8 +2246,8 @@ out:
     mem_width = gst_gl_memory_get_texture_width (out_tex);
     mem_height = gst_gl_memory_get_texture_height (out_tex);
 
-    if (out_tex->tex_type == GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE
-        || out_tex->tex_type == GST_VIDEO_GL_TEXTURE_TYPE_LUMINANCE_ALPHA
+    if (out_tex->tex_format == GST_GL_LUMINANCE
+        || out_tex->tex_format == GST_GL_LUMINANCE_ALPHA
         || out_width != mem_width || out_height != mem_height) {
       GstMapInfo to_info, from_info;
 
@@ -2276,8 +2264,8 @@ out:
         continue;
       }
       gst_gl_memory_copy_into (convert->priv->out_tex[j],
-          out_tex->tex_id, convert->priv->to_texture_target, out_tex->tex_type,
-          mem_width, mem_height);
+          out_tex->tex_id, convert->priv->to_texture_target,
+          out_tex->tex_format, mem_width, mem_height);
       gst_memory_unmap ((GstMemory *) convert->priv->out_tex[j], &from_info);
       gst_memory_unmap ((GstMemory *) out_tex, &to_info);
     } else {
@@ -2329,7 +2317,7 @@ _do_convert (GstGLContext * context, GstGLColorConvert * convert)
       _get_n_textures (GST_VIDEO_INFO_FORMAT (&convert->out_info));
 
   {
-    gboolean tex_type_change = FALSE;
+    gboolean tex_format_change = FALSE;
     guint i, v;
 
     for (v = 0; v < views; v++) {
@@ -2347,21 +2335,21 @@ _do_convert (GstGLContext * context, GstGLColorConvert * convert)
           /* our arrays aren't that big */
           g_assert_not_reached ();
 
-        if (v > 0 && in_tex->tex_type != convert->priv->in_tex_types[i]) {
+        if (v > 0 && in_tex->tex_format != convert->priv->in_tex_formats[i]) {
           GST_ERROR_OBJECT (convert, "Cannot convert textures with "
               "different types");
           convert->priv->result = FALSE;
           return;
         }
 
-        if (convert->priv->in_tex_types[j] != in_tex->tex_type)
-          tex_type_change = TRUE;
+        if (convert->priv->in_tex_formats[j] != in_tex->tex_format)
+          tex_format_change = TRUE;
 
-        convert->priv->in_tex_types[j] = in_tex->tex_type;
+        convert->priv->in_tex_formats[j] = in_tex->tex_format;
       }
     }
 
-    if (tex_type_change)
+    if (tex_format_change)
       gst_gl_color_convert_reset_shader (convert);
   }
 
@@ -2453,6 +2441,7 @@ _do_convert_draw (GstGLContext * context, GstGLColorConvert * convert)
   struct ConvertInfo *c_info = &convert->priv->convert_info;
   guint out_width, out_height;
   gint i;
+  gboolean ret = TRUE;
 
   GLint viewport_dim[4] = { 0 };
 
@@ -2488,8 +2477,7 @@ _do_convert_draw (GstGLContext * context, GstGLColorConvert * convert)
 
   if (gl->BindVertexArray)
     gl->BindVertexArray (convert->priv->vao);
-  else
-    _bind_buffer (convert);
+  _bind_buffer (convert);
 
   for (i = c_info->in_n_textures - 1; i >= 0; i--) {
     gchar *scale_name = g_strdup_printf ("tex_scale%u", i);
@@ -2513,8 +2501,7 @@ _do_convert_draw (GstGLContext * context, GstGLColorConvert * convert)
 
   if (gl->BindVertexArray)
     gl->BindVertexArray (0);
-  else
-    _unbind_buffer (convert);
+  _unbind_buffer (convert);
 
   if (gl->DrawBuffer)
     gl->DrawBuffer (GL_NONE);
@@ -2525,9 +2512,10 @@ _do_convert_draw (GstGLContext * context, GstGLColorConvert * convert)
   gl->Viewport (viewport_dim[0], viewport_dim[1], viewport_dim[2],
       viewport_dim[3]);
 
-  gst_gl_context_check_framebuffer_status (context);
+  if (!gst_gl_context_check_framebuffer_status (context))
+    ret = FALSE;
 
   gst_gl_context_clear_framebuffer (context);
 
-  return TRUE;
+  return ret;
 }

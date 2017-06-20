@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-02-23 15:17+0200\n"
+"POT-Creation-Date: 2017-05-04 15:09+0300\n"
 "PO-Revision-Date: 2016-11-02 19:18+0100\n"
 "Last-Translator: Christian Kirbach <christian.kirbach@gmail.com>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -60,18 +60,6 @@ msgstr "Diese Datei enthält keine abspielbaren Ströme."
 msgid "Could not open sndfile stream for reading."
 msgstr "sndfile-Datenstrom konnte nicht zum Lesen geöffnet werden."
 
-msgid "Could not establish connection to sndio"
-msgstr "Es konnte keine Verbindung zu sndio hergestellt werden"
-
-msgid "Failed to query sndio capabilities"
-msgstr "Abfragen der sndio-Fähigkeiten schlug fehl"
-
-msgid "Could not configure sndio"
-msgstr "sndio konnte nicht eingestellt werden"
-
-msgid "Could not start sndio"
-msgstr "sndio konnten nicht gestartet werden"
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 "Die erzeugte Datei hat eine größere Vorlaufzeit als die Dauer ihres "
@@ -101,19 +89,6 @@ msgstr "Fragmente konnten nicht heruntergeladen werden"
 
 msgid "Internal data stream error."
 msgstr "Interner Datenstromfehler."
-
-msgid "No file name specified for writing."
-msgstr "Kein Dateiname zum Schreiben angegeben."
-
-#, c-format
-msgid "Given file name \"%s\" can't be converted to local file name encoding."
-msgstr ""
-"Der gegebene Dateiname »%s« kann nicht in lokale Dateinamen-Kodierung "
-"umgewandelt werden."
-
-#, c-format
-msgid "Could not open file \"%s\" for writing."
-msgstr "Datei »%s« konnte nicht zum Schreiben geöffnet werden."
 
 #, c-format
 msgid "Device \"%s\" does not exist."
@@ -162,6 +137,30 @@ msgstr "Kanal-Konfigurationsdatei konnte nicht gefunden werden: »%s«"
 
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "Kanal-Konfigurationsdatei enthält keine Kanäle"
+
+#~ msgid "Could not establish connection to sndio"
+#~ msgstr "Es konnte keine Verbindung zu sndio hergestellt werden"
+
+#~ msgid "Failed to query sndio capabilities"
+#~ msgstr "Abfragen der sndio-Fähigkeiten schlug fehl"
+
+#~ msgid "Could not configure sndio"
+#~ msgstr "sndio konnte nicht eingestellt werden"
+
+#~ msgid "Could not start sndio"
+#~ msgstr "sndio konnten nicht gestartet werden"
+
+#~ msgid "No file name specified for writing."
+#~ msgstr "Kein Dateiname zum Schreiben angegeben."
+
+#~ msgid ""
+#~ "Given file name \"%s\" can't be converted to local file name encoding."
+#~ msgstr ""
+#~ "Der gegebene Dateiname »%s« kann nicht in lokale Dateinamen-Kodierung "
+#~ "umgewandelt werden."
+
+#~ msgid "Could not open file \"%s\" for writing."
+#~ msgstr "Datei »%s« konnte nicht zum Schreiben geöffnet werden."
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "Voreingestellte GStreamer Tonereignis-Audioziel"

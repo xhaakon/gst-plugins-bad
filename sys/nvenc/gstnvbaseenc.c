@@ -222,6 +222,7 @@ static void gst_nv_base_enc_get_property (GObject * object, guint prop_id,
 static void gst_nv_base_enc_finalize (GObject * obj);
 static GstCaps *gst_nv_base_enc_getcaps (GstVideoEncoder * enc,
     GstCaps * filter);
+static gboolean gst_nv_base_enc_stop_bitstream_thread (GstNvBaseEnc * nvenc);
 
 static void
 gst_nv_base_enc_class_init (GstNvBaseEncClass * klass)
@@ -458,8 +459,7 @@ gst_nv_base_enc_sink_query (GstVideoEncoder * enc, GstQuery * query)
       gboolean ret;
 
       ret = gst_gl_handle_context_query ((GstElement *) nvenc, query,
-          (GstGLDisplay **) & nvenc->display,
-          (GstGLContext **) & nvenc->other_context);
+          nvenc->display, NULL, nvenc->other_context);
       if (nvenc->display)
         gst_gl_display_filter_gl_api (GST_GL_DISPLAY (nvenc->display),
             SUPPORTED_GL_APIS);
@@ -505,6 +505,8 @@ static gboolean
 gst_nv_base_enc_stop (GstVideoEncoder * enc)
 {
   GstNvBaseEnc *nvenc = GST_NV_BASE_ENC (enc);
+
+  gst_nv_base_enc_stop_bitstream_thread (nvenc);
 
   gst_nv_base_enc_free_buffers (nvenc);
 

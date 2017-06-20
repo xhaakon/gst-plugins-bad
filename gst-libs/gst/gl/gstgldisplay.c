@@ -27,7 +27,7 @@
  * @title: GstGLDisplay
  * @see_also: #GstContext, #GstGLContext, #GstGLWindow
  *
- * #GstGLDisplay represents a connection to the underlying windowing system. 
+ * #GstGLDisplay represents a connection to the underlying windowing system.
  * Elements are required to make use of #GstContext to share and propogate
  * a #GstGLDisplay.
  *
@@ -40,13 +40,13 @@
  * - GST_GL_API influences the OpenGL API requested by the OpenGL platform.
  *   Common values are 'opengl' and 'gles2'.
  *
- * <note>Certain window systems require a special function to be called to
- * initialize threading support.  As this GStreamer GL library does not preclude
- * concurrent access to the windowing system, it is strongly advised that
- * applications ensure that threading support has been initialized before any
- * other toolkit/library functionality is accessed.  Failure to do so could
- * result in sudden application abortion during execution.  The most notably
- * example of such a function is X11's XInitThreads().</note>
+ * > Certain window systems require a special function to be called to
+ * > initialize threading support.  As this GStreamer GL library does not preclude
+ * > concurrent access to the windowing system, it is strongly advised that
+ * > applications ensure that threading support has been initialized before any
+ * > other toolkit/library functionality is accessed.  Failure to do so could
+ * > result in sudden application abortion during execution.  The most notably
+ * > example of such a function is X11's XInitThreads\().
  */
 
 #ifdef HAVE_CONFIG_H
@@ -69,6 +69,9 @@
 #include <gst/gl/egl/gstgldisplay_egl.h>
 #include <gst/gl/egl/gsteglimage.h>
 #include <gst/gl/egl/gstglmemoryegl.h>
+#endif
+#if GST_GL_HAVE_WINDOW_VIV_FB
+#include <gst/gl/viv-fb/gstgldisplay_viv_fb.h>
 #endif
 
 GST_DEBUG_CATEGORY_STATIC (gst_context);
@@ -94,15 +97,60 @@ enum
 
 static guint gst_gl_display_signals[LAST_SIGNAL] = { 0 };
 
+
+static void gst_gl_display_dispose (GObject * object);
 static void gst_gl_display_finalize (GObject * object);
 static guintptr gst_gl_display_default_get_handle (GstGLDisplay * display);
+static GstGLWindow *gst_gl_display_default_create_window (GstGLDisplay *
+    display);
 
 struct _GstGLDisplayPrivate
 {
   GstGLAPI gl_api;
 
   GList *contexts;
+
+  GThread *event_thread;
+
+  GMutex thread_lock;
+  GCond thread_cond;
 };
+
+static gboolean
+_unlock_main_thread (GstGLDisplay * display)
+{
+  g_mutex_unlock (&display->priv->thread_lock);
+
+  return G_SOURCE_REMOVE;
+}
+
+static gpointer
+_event_thread_main (GstGLDisplay * display)
+{
+  g_mutex_lock (&display->priv->thread_lock);
+
+  display->main_context = g_main_context_new ();
+  display->main_loop = g_main_loop_new (display->main_context, FALSE);
+
+  g_main_context_invoke (display->main_context,
+      (GSourceFunc) _unlock_main_thread, display);
+
+  g_cond_broadcast (&display->priv->thread_cond);
+
+  g_main_loop_run (display->main_loop);
+
+  g_mutex_lock (&display->priv->thread_lock);
+  g_main_loop_unref (display->main_loop);
+  g_main_context_unref (display->main_context);
+
+  display->main_loop = NULL;
+  display->main_context = NULL;
+
+  g_cond_broadcast (&display->priv->thread_cond);
+  g_mutex_unlock (&display->priv->thread_lock);
+
+  return NULL;
+}
 
 static void
 gst_gl_display_class_init (GstGLDisplayClass * klass)
@@ -123,11 +171,13 @@ gst_gl_display_class_init (GstGLDisplayClass * klass)
   gst_gl_display_signals[CREATE_CONTEXT] =
       g_signal_new ("create-context", G_TYPE_FROM_CLASS (klass),
       G_SIGNAL_RUN_LAST, 0, NULL, NULL, g_cclosure_marshal_generic,
-      GST_GL_TYPE_CONTEXT, 1, GST_GL_TYPE_CONTEXT);
+      GST_TYPE_GL_CONTEXT, 1, GST_TYPE_GL_CONTEXT);
 
   klass->get_handle = gst_gl_display_default_get_handle;
+  klass->create_window = gst_gl_display_default_create_window;
 
   G_OBJECT_CLASS (klass)->finalize = gst_gl_display_finalize;
+  G_OBJECT_CLASS (klass)->dispose = gst_gl_display_dispose;
 }
 
 static void
@@ -138,6 +188,17 @@ gst_gl_display_init (GstGLDisplay * display)
   display->type = GST_GL_DISPLAY_TYPE_ANY;
   display->priv->gl_api = GST_GL_API_ANY;
 
+  g_mutex_init (&display->priv->thread_lock);
+  g_cond_init (&display->priv->thread_cond);
+
+  display->priv->event_thread = g_thread_new ("gldisplay-event",
+      (GThreadFunc) _event_thread_main, display);
+
+  g_mutex_lock (&display->priv->thread_lock);
+  while (!display->main_loop)
+    g_cond_wait (&display->priv->thread_cond, &display->priv->thread_lock);
+  g_mutex_unlock (&display->priv->thread_lock);
+
   GST_TRACE ("init %p", display);
 
   gst_gl_buffer_init_once ();
@@ -147,6 +208,34 @@ gst_gl_display_init (GstGLDisplay * display)
 #if GST_GL_HAVE_PLATFORM_EGL
   gst_gl_memory_egl_init_once ();
 #endif
+}
+
+static void
+gst_gl_display_dispose (GObject * object)
+{
+  GstGLDisplay *display = GST_GL_DISPLAY (object);
+
+  if (display->main_loop)
+    g_main_loop_quit (display->main_loop);
+
+  if (display->priv->event_thread) {
+    /* can't use g_thread_join() as we could lose the last ref from a user
+     * function */
+    g_mutex_lock (&display->priv->thread_lock);
+    while (display->main_loop)
+      g_cond_wait (&display->priv->thread_cond, &display->priv->thread_lock);
+    g_mutex_unlock (&display->priv->thread_lock);
+    g_thread_unref (display->priv->event_thread);
+  }
+  display->priv->event_thread = NULL;
+
+  if (display->event_source) {
+    g_source_destroy (display->event_source);
+    g_source_unref (display->event_source);
+  }
+  display->event_source = NULL;
+
+  G_OBJECT_CLASS (gst_gl_display_parent_class)->dispose (object);
 }
 
 static void
@@ -162,7 +251,11 @@ gst_gl_display_finalize (GObject * object)
     g_free (l->data);
   }
 
+  g_list_free (display->windows);
   g_list_free (display->priv->contexts);
+
+  g_cond_clear (&display->priv->thread_cond);
+  g_mutex_clear (&display->priv->thread_lock);
 
   G_OBJECT_CLASS (gst_gl_display_parent_class)->finalize (object);
 }
@@ -206,6 +299,19 @@ gst_gl_display_new (void)
 #if GST_GL_HAVE_WINDOW_WAYLAND
   if (!display && (!user_choice || g_strstr_len (user_choice, 7, "wayland")))
     display = GST_GL_DISPLAY (gst_gl_display_wayland_new (NULL));
+#endif
+#if GST_GL_HAVE_WINDOW_VIV_FB
+  if (!display && (!user_choice || g_strstr_len (user_choice, 2, "viv-fb"))) {
+    const gchar *disp_idx_str = NULL;
+    gint disp_idx = 0;
+    disp_idx_str = g_getenv ("GST_GL_VIV_FB");
+    if (disp_idx_str) {
+      gint64 v = g_ascii_strtoll (disp_idx_str, NULL, 10);
+      if (v >= G_MININT && v <= G_MAXINT)
+        disp_idx = v;
+    }
+    display = GST_GL_DISPLAY (gst_gl_display_viv_fb_new (disp_idx));
+  }
 #endif
 #if GST_GL_HAVE_PLATFORM_EGL
   if (!display && (!platform_choice
@@ -324,7 +430,7 @@ gst_gl_display_get_handle_type (GstGLDisplay * display)
 /**
  * gst_context_set_gl_display:
  * @context: a #GstContext
- * @display: resulting #GstGLDisplay
+ * @display: (transfer none): resulting #GstGLDisplay
  *
  * Sets @display on @context
  *
@@ -350,7 +456,7 @@ gst_context_set_gl_display (GstContext * context, GstGLDisplay * display)
 /**
  * gst_context_get_gl_display:
  * @context: a #GstContext
- * @display: resulting #GstGLDisplay
+ * @display: (transfer full): resulting #GstGLDisplay
  *
  * Returns: Whether @display was in @context
  *
@@ -422,6 +528,95 @@ gst_gl_display_create_context (GstGLDisplay * display,
 
   if (ret)
     *p_context = context;
+
+  return ret;
+}
+
+/**
+ * gst_gl_display_create_window:
+ * @display: a #GstGLDisplay
+ *
+ * It requires the display's object lock to be held.
+ *
+ * Returns: (transfer full): a new #GstGLWindow for @display or %NULL.
+ */
+GstGLWindow *
+gst_gl_display_create_window (GstGLDisplay * display)
+{
+  GstGLDisplayClass *klass;
+  GstGLWindow *window;
+
+  g_return_val_if_fail (GST_IS_GL_DISPLAY (display), NULL);
+  klass = GST_GL_DISPLAY_GET_CLASS (display);
+  g_return_val_if_fail (klass->create_window != NULL, NULL);
+
+  window = klass->create_window (display);
+
+  if (window)
+    display->windows = g_list_prepend (display->windows, window);
+
+  return window;
+}
+
+static GstGLWindow *
+gst_gl_display_default_create_window (GstGLDisplay * display)
+{
+  return gst_gl_window_new (display);
+}
+
+/**
+ * gst_gl_display_remove_window:
+ * @display: a #GstGLDisplay
+ * @window: a #GstGLWindow to remove
+ *
+ * Returns: if @window could be removed from @display
+ *
+ * Since: 1.12
+ */
+gboolean
+gst_gl_display_remove_window (GstGLDisplay * display, GstGLWindow * window)
+{
+  gboolean ret = FALSE;
+  GList *l;
+
+  GST_OBJECT_LOCK (display);
+  l = g_list_find (display->windows, window);
+  if (l) {
+    display->windows = g_list_delete_link (display->windows, l);
+    ret = TRUE;
+  }
+  GST_OBJECT_UNLOCK (display);
+
+  return ret;
+}
+
+/**
+ * gst_gl_display_find_window:
+ * @display: a #GstGLDisplay
+ * @data: (closure): some data to pass to @compare_func
+ * @compare_func: (scope call): a comparison function to run
+ *
+ * Execute @compare_func over the list of windows stored by @display.  The
+ * first argment to @compare_func is the #GstGLWindow being checked and the
+ * second argument is @data.
+ *
+ * Returns: (transfer none): The first #GstGLWindow that causes a match
+ *          from @compare_func
+ *
+ * Since: 1.12
+ */
+GstGLWindow *
+gst_gl_display_find_window (GstGLDisplay * display, gpointer data,
+    GCompareFunc compare_func)
+{
+  GstGLWindow *ret = NULL;
+  GList *l;
+
+  GST_OBJECT_LOCK (display);
+  l = g_list_find_custom (display->windows, data, compare_func);
+  if (l)
+    ret = l->data;
+  GST_OBJECT_UNLOCK (display);
 
   return ret;
 }

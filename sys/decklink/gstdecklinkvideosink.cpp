@@ -336,11 +336,31 @@ gst_decklink_video_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
   const GstDecklinkMode *mode;
   HRESULT ret;
   BMDVideoOutputFlags flags;
+  GstVideoInfo info;
 
   GST_DEBUG_OBJECT (self, "Setting caps %" GST_PTR_FORMAT, caps);
 
-  if (!gst_video_info_from_caps (&self->info, caps))
+  if (!gst_video_info_from_caps (&info, caps))
     return FALSE;
+
+
+  g_mutex_lock (&self->output->lock);
+  if (self->output->video_enabled) {
+    if (self->info.finfo->format == info.finfo->format &&
+        self->info.width == info.width && self->info.height == info.height) {
+      // FIXME: We should also consider the framerate as it is used
+      // for mode selection below in auto mode
+      GST_DEBUG_OBJECT (self, "Nothing relevant has changed");
+      self->info = info;
+      g_mutex_unlock (&self->output->lock);
+      return TRUE;
+    } else {
+      GST_DEBUG_OBJECT (self, "Reconfiguration not supported at this point");
+      g_mutex_unlock (&self->output->lock);
+      return FALSE;
+    }
+  }
+  g_mutex_unlock (&self->output->lock);
 
   self->output->output->SetScheduledFrameCompletionCallback (new
       GStreamerVideoOutputCallback (self));
@@ -387,6 +407,7 @@ gst_decklink_video_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
     return FALSE;
   }
 
+  self->info = info;
   g_mutex_lock (&self->output->lock);
   self->output->mode = mode;
   self->output->video_enabled = TRUE;
@@ -488,15 +509,9 @@ convert_to_internal_clock (GstDecklinkVideoSink * self,
       // according to our internal clock.
       //
       // For the duration we just scale
-      if (external > external_timestamp) {
-        guint64 diff = external - external_timestamp;
-        diff = gst_util_uint64_scale (diff, rate_d, rate_n);
-        *timestamp = internal - diff;
-      } else {
-        guint64 diff = external_timestamp - external;
-        diff = gst_util_uint64_scale (diff, rate_d, rate_n);
-        *timestamp = internal + diff;
-      }
+      *timestamp =
+          gst_clock_unadjust_with_calibration (NULL, external_timestamp,
+          internal, external, rate_n, rate_d);
 
       GST_LOG_OBJECT (self,
           "Converted %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT " (internal: %"
@@ -645,6 +660,16 @@ gst_decklink_video_sink_prepare (GstBaseSink * bsink, GstBuffer * buffer)
   }
 
   convert_to_internal_clock (self, &running_time, &running_time_duration);
+
+  if (!self->output->started) {
+    GST_LOG_OBJECT (self, "Showing video frame synchronously because PAUSED");
+    ret = self->output->output->DisplayVideoFrameSync (frame);
+    if (ret != S_OK) {
+      GST_ELEMENT_WARNING (self, STREAM, FAILED,
+          (NULL), ("Failed to show video frame synchronously: 0x%08x", ret));
+      ret = S_OK;
+    }
+  }
 
   GST_LOG_OBJECT (self, "Scheduling video frame %p at %" GST_TIME_FORMAT
       " with duration %" GST_TIME_FORMAT, frame, GST_TIME_ARGS (running_time),
@@ -961,7 +986,8 @@ gst_decklink_video_sink_change_state (GstElement * element,
       gst_decklink_video_sink_stop (self);
       break;
     case GST_STATE_CHANGE_PLAYING_TO_PAUSED:{
-      if (gst_decklink_video_sink_stop_scheduled_playback (self) == GST_STATE_CHANGE_FAILURE)
+      if (gst_decklink_video_sink_stop_scheduled_playback (self) ==
+          GST_STATE_CHANGE_FAILURE)
         ret = GST_STATE_CHANGE_FAILURE;
       break;
     }

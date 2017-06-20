@@ -24,6 +24,7 @@
 
 #include "wldisplay.h"
 #include "wlbuffer.h"
+#include "wlvideoformat.h"
 
 #include <errno.h>
 
@@ -45,6 +46,7 @@ static void
 gst_wl_display_init (GstWlDisplay * self)
 {
   self->shm_formats = g_array_new (FALSE, FALSE, sizeof (uint32_t));
+  self->dmabuf_formats = g_array_new (FALSE, FALSE, sizeof (uint32_t));
   self->wl_fd_poll = gst_poll_new (TRUE);
   self->buffers = g_hash_table_new (g_direct_hash, g_direct_equal);
   g_mutex_init (&self->buffers_mutex);
@@ -71,6 +73,7 @@ gst_wl_display_finalize (GObject * gobject)
   g_hash_table_remove_all (self->buffers);
 
   g_array_unref (self->shm_formats);
+  g_array_unref (self->dmabuf_formats);
   gst_poll_free (self->wl_fd_poll);
   g_hash_table_unref (self->buffers);
   g_mutex_clear (&self->buffers_mutex);
@@ -80,6 +83,9 @@ gst_wl_display_finalize (GObject * gobject)
 
   if (self->shm)
     wl_shm_destroy (self->shm);
+
+  if (self->dmabuf)
+    zwp_linux_dmabuf_v1_destroy (self->dmabuf);
 
   if (self->shell)
     wl_shell_destroy (self->shell);
@@ -148,6 +154,64 @@ static const struct wl_shm_listener shm_listener = {
 };
 
 static void
+dmabuf_format (void *data, struct zwp_linux_dmabuf_v1 *zwp_linux_dmabuf,
+    uint32_t format)
+{
+  GstWlDisplay *self = data;
+
+  if (gst_wl_dmabuf_format_to_video_format (format) != GST_VIDEO_FORMAT_UNKNOWN)
+    g_array_append_val (self->dmabuf_formats, format);
+}
+
+static const struct zwp_linux_dmabuf_v1_listener dmabuf_listener = {
+  dmabuf_format,
+};
+
+gboolean
+gst_wl_display_check_format_for_shm (GstWlDisplay * display,
+    GstVideoFormat format)
+{
+  enum wl_shm_format shm_fmt;
+  GArray *formats;
+  guint i;
+
+  shm_fmt = gst_video_format_to_wl_shm_format (format);
+  if (shm_fmt == (enum wl_shm_format) -1)
+    return FALSE;
+
+  formats = display->shm_formats;
+  for (i = 0; i < formats->len; i++) {
+    if (g_array_index (formats, uint32_t, i) == shm_fmt)
+      return TRUE;
+  }
+
+  return FALSE;
+}
+
+gboolean
+gst_wl_display_check_format_for_dmabuf (GstWlDisplay * display,
+    GstVideoFormat format)
+{
+  GArray *formats;
+  guint i, dmabuf_fmt;
+
+  if (!display->dmabuf)
+    return FALSE;
+
+  dmabuf_fmt = gst_video_format_to_wl_dmabuf_format (format);
+  if (dmabuf_fmt == (guint) - 1)
+    return FALSE;
+
+  formats = display->dmabuf_formats;
+  for (i = 0; i < formats->len; i++) {
+    if (g_array_index (formats, uint32_t, i) == dmabuf_fmt)
+      return TRUE;
+  }
+
+  return FALSE;
+}
+
+static void
 registry_handle_global (void *data, struct wl_registry *registry,
     uint32_t id, const char *interface, uint32_t version)
 {
@@ -167,6 +231,10 @@ registry_handle_global (void *data, struct wl_registry *registry,
   } else if (g_strcmp0 (interface, "wp_viewporter") == 0) {
     self->viewporter =
         wl_registry_bind (registry, id, &wp_viewporter_interface, 1);
+  } else if (g_strcmp0 (interface, "zwp_linux_dmabuf_v1") == 0) {
+    self->dmabuf =
+        wl_registry_bind (registry, id, &zwp_linux_dmabuf_v1_interface, 1);
+    zwp_linux_dmabuf_v1_add_listener (self->dmabuf, &dmabuf_listener, self);
   }
 }
 
@@ -279,6 +347,10 @@ gst_wl_display_new_existing (struct wl_display * display,
   if (!self->viewporter) {
     g_warning ("Wayland compositor is missing the ability to scale, video "
         "display may not work properly.");
+  }
+
+  if (!self->dmabuf) {
+    g_warning ("Could not bind to zwp_linux_dmabuf_v1");
   }
 
   self->thread = g_thread_try_new ("GstWlDisplay", gst_wl_display_thread_run,

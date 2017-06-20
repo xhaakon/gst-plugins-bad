@@ -137,8 +137,8 @@
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-glshader.description"></a><h2>Description</h2>
 <p>OpenGL fragment shader filter</p>
-<div class="refsect2">
-<a name="id-1.2.77.8.3"></a><h3>Examples</h3>
+<div class="refsect3">
+<a name="id-1.2.76.8.3"></a><h4>Examples</h4>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -150,12 +150,53 @@
   </table>
 </div>
 
-FBO (Frame Buffer Object) and GLSL (OpenGL Shading Language) are required. A <span class="type">version</span> header is required
+<p>
+FBO (Frame Buffer Object) and GLSL (OpenGL Shading Language) are required.
+Depending on the exact OpenGL version chosen and the exact requirements of
+the OpenGL implementation, a <span class="type">version</span> header may be required.</p>
+<p>The following is a simple OpenGL ES (also usable with OpenGL 3 core contexts)
+passthrough shader with the required inputs.</p>
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13</pre></td>
+        <td class="listing_code"><pre class="programlisting"><span class="gtkdoc ppc">#version 100</span>
+<span class="gtkdoc ppc">#ifdef GL_ES</span>
+precision mediump <span class="gtkdoc kwb">float</span><span class="gtkdoc opt">;</span>
+<span class="gtkdoc ppc">#endif</span>
+varying vec2 v_texcoord<span class="gtkdoc opt">;</span>
+uniform sampler2D tex<span class="gtkdoc opt">;</span>
+uniform <span class="gtkdoc kwb">float</span> time<span class="gtkdoc opt">;</span>
+uniform <span class="gtkdoc kwb">float</span> width<span class="gtkdoc opt">;</span>
+uniform <span class="gtkdoc kwb">float</span> height<span class="gtkdoc opt">;</span>
+
+<span class="gtkdoc kwb">void</span> <span class="function">main</span> <span class="gtkdoc opt">() {</span>
+  gl_FragColor <span class="gtkdoc opt">=</span> <span class="function">texture2D</span><span class="gtkdoc opt">(</span> tex<span class="gtkdoc opt">,</span> v_texcoord <span class="gtkdoc opt">);</span>
+<span class="gtkdoc opt">}</span></pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p></p>
 </div>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.77.8.4.1"></a><h3>Element Information</h3>
+<a name="id-1.2.76.8.4.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -181,7 +222,7 @@ FBO (Frame Buffer Object) and GLSL (OpenGL Shading Language) are required. A <sp
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.77.8.4.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.76.8.4.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">

@@ -105,12 +105,12 @@ gst_qt_sink_class_init (GstQtSinkClass * klass)
   gobject_class->get_property = gst_qt_sink_get_property;
 
   gst_element_class_set_metadata (gstelement_class, "Qt Video Sink",
-      "Sink/Video", "A video sink the renders to a QQuickItem",
+      "Sink/Video", "A video sink that renders to a QQuickItem",
       "Matthew Waters <matthew@centricular.com>");
 
   g_object_class_install_property (gobject_class, PROP_WIDGET,
       g_param_spec_pointer ("widget", "QQuickItem",
-          "The QQuickItem to place in the object heirachy",
+          "The QQuickItem to place in the object hierarchy",
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 
   g_object_class_install_property (gobject_class, PROP_FORCE_ASPECT_RATIO,
@@ -239,41 +239,9 @@ gst_qt_sink_query (GstBaseSink * bsink, GstQuery * query)
   switch (GST_QUERY_TYPE (query)) {
     case GST_QUERY_CONTEXT:
     {
-      const gchar *context_type;
-      GstContext *context, *old_context;
-      gboolean ret;
-
-      ret = gst_gl_handle_context_query ((GstElement *) qt_sink, query,
-          &qt_sink->display, &qt_sink->qt_context);
-
-      if (qt_sink->display)
-        gst_gl_display_filter_gl_api (qt_sink->display, gst_gl_context_get_gl_api (qt_sink->qt_context));
-
-      gst_query_parse_context_type (query, &context_type);
-
-      if (g_strcmp0 (context_type, "gst.gl.local_context") == 0) {
-        GstStructure *s;
-
-        gst_query_parse_context (query, &old_context);
-
-        if (old_context)
-          context = gst_context_copy (old_context);
-        else
-          context = gst_context_new ("gst.gl.local_context", FALSE);
-
-        s = gst_context_writable_structure (context);
-        gst_structure_set (s, "context", GST_GL_TYPE_CONTEXT, qt_sink->context,
-            NULL);
-        gst_query_set_context (query, context);
-        gst_context_unref (context);
-
-        ret = qt_sink->context != NULL;
-      }
-      GST_LOG_OBJECT (qt_sink, "context query of type %s %i", context_type,
-          ret);
-
-      if (ret)
-        return ret;
+      if (gst_gl_handle_context_query ((GstElement *) qt_sink, query,
+          qt_sink->display, qt_sink->context, qt_sink->qt_context))
+        return TRUE;
 
       /* fallthrough */
     }

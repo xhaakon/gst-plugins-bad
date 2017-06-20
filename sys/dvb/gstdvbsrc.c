@@ -21,20 +21,20 @@
  */
 /**
  * SECTION:element-dvbsrc
+ * @title: dvbsrc
  *
  * dvbsrc can be used to capture media from DVB cards. Supported DTV
  * broadcasting standards include DVB-T/C/S, ATSC, ISDB-T and DTMB.
  *
- * <refsect2>
- * <title>Example launch line</title>
+ * ## Example launch line
  * |[
- * gst-launch-1.0 dvbsrc modulation="QAM 64" trans-mode=8k bandwidth=8 frequency=514000000 code-rate-lp=AUTO code-rate-hp=2/3 guard=4  hierarchy=0 ! mpegtsdemux name=demux ! queue max-size-buffers=0 max-size-time=0 ! mpeg2dec ! xvimagesink demux. ! queue max-size-buffers=0 max-size-time=0 ! mad ! alsasink
+ * gst-launch-1.0 dvbsrc modulation="QAM 64" trans-mode=8k bandwidth=8 frequency=514000000 code-rate-lp=AUTO code-rate-hp=2/3 guard=4  hierarchy=0 ! mpegtsdemux name=demux ! queue max-size-buffers=0 max-size-time=0 ! mpegvideoparse ! mpegvideoparse ! mpeg2dec ! xvimagesink demux. ! queue max-size-buffers=0 max-size-time=0 ! mpegaudioparse ! mpg123audiodec ! audioconvert ! pulsesink
  * ]| Captures a full transport stream from DVB card 0 that is a DVB-T card at tuned frequency 514000000 Hz with other parameters as seen in the pipeline and renders the first TV program on the transport stream.
  * |[
- * gst-launch-1.0 dvbsrc modulation="QAM 64" trans-mode=8k bandwidth=8 frequency=514000000 code-rate-lp=AUTO code-rate-hp=2/3 guard=4  hierarchy=0 pids=100:256:257 ! mpegtsdemux name=demux ! queue max-size-buffers=0 max-size-time=0 ! mpeg2dec ! xvimagesink demux. ! queue max-size-buffers=0 max-size-time=0 ! mad ! alsasink
+ * gst-launch-1.0 dvbsrc modulation="QAM 64" trans-mode=8k bandwidth=8 frequency=514000000 code-rate-lp=AUTO code-rate-hp=2/3 guard=4  hierarchy=0 pids=100:256:257 ! mpegtsdemux name=demux ! queue max-size-buffers=0 max-size-time=0 ! mpegvideoparse ! mpeg2dec ! xvimagesink demux. ! queue max-size-buffers=0 max-size-time=0 ! mpegaudioparse ! mpg123audiodec ! audioconvert ! pulsesink
  * ]| Captures and renders a transport stream from DVB card 0 that is a DVB-T card for a program at tuned frequency 514000000 Hz with PMT PID 100 and elementary stream PIDs of 256, 257 with other parameters as seen in the pipeline.
  * |[
- * gst-launch-1.0 dvbsrc polarity="h" frequency=11302000 symbol-rate=27500 diseqc-source=0 pids=50:102:103 ! mpegtsdemux name=demux ! queue max-size-buffers=0 max-size-time=0 ! mpeg2dec ! xvimagesink demux. ! queue max-size-buffers=0 max-size-time=0 ! mad ! alsasink
+ * gst-launch-1.0 dvbsrc polarity="h" frequency=11302000 symbol-rate=27500 diseqc-source=0 pids=50:102:103 ! mpegtsdemux name=demux ! queue max-size-buffers=0 max-size-time=0 ! mpegvideoparse ! mpeg2dec ! xvimagesink demux. ! queue max-size-buffers=0 max-size-time=0 ! mpegaudioparse ! mpg123audiodec ! audioconvert ! pulsesink
  * ]| Captures and renders a transport stream from DVB card 0 that is a DVB-S card for a program at tuned frequency 11302000 kHz, symbol rate of 27500 kBd (kilo bauds) with PMT PID of 50 and elementary stream PIDs of 102 and 103.
  * |[
  * gst-launch-1.0 dvbsrc frequency=515142857 guard=16 trans-mode="8k" isdbt-layer-enabled=7 isdbt-partial-reception=1 isdbt-layera-fec="2/3" isdbt-layera-modulation="QPSK" isdbt-layera-segment-count=1 isdbt-layera-time-interleaving=4 isdbt-layerb-fec="3/4" isdbt-layerb-modulation="qam-64" isdbt-layerb-segment-count=12 isdbt-layerb-time-interleaving=2 isdbt-layerc-fec="1/2" isdbt-layerc-modulation="qam-64" isdbt-layerc-segment-count=0 isdbt-layerc-time-interleaving=0 delsys="isdb-t" ! tsdemux ! "video/x-h264" ! h264parse ! queue ! avdec_h264 ! videoconvert ! queue ! autovideosink
@@ -42,7 +42,7 @@
  * |[
  *  gst-launch-1.0 dvbsrc frequency=503000000 delsys="atsc" modulation="8vsb" pids=48:49:52 ! decodebin name=dec dec. ! videoconvert ! autovideosink dec. ! audioconvert ! autoaudiosink
  * ]| Captures and renders KOFY-HD in San Jose, California. This is an ATSC broadcast, PMT ID 48, Audio/Video elementary stream PIDs 49 and 52 respectively.
- * </refsect2>
+ *
  */
 
 /*
@@ -63,6 +63,7 @@
  *   DTV_ISDBS_TS_ID_LEGACY (was DVB_ISDBS_TS_ID)
  *   DTV_DVBT2_PLP_ID_LEGACY (was DVB_DVBT2_PLP_ID)
  *   NO_STREAM_ID_FILTER
+ *   DTV_STREAM_ID
  *   INTERLEAVING_AUTO
  *
  * Minor 7 (DTMB Support)
@@ -116,12 +117,10 @@
 #define SYS_DVBC_ANNEX_A SYS_DVBC_ANNEX_AC
 #endif
 
-/* NO_STREAM_ID_FILTER introduced in minor 8 */
+/* NO_STREAM_ID_FILTER & DTV_STREAMID introduced in minor 8 */
 #ifndef NO_STREAM_ID_FILTER
 #define NO_STREAM_ID_FILTER    (~0U)
 #endif
-
-/* DTV_STREAM_ID introduced in minor 8 (redefine) */
 #ifndef DTV_STREAM_ID
 #define DTV_STREAM_ID DTV_ISDBS_TS_ID
 #endif
@@ -1023,6 +1022,7 @@ static void
 gst_dvbsrc_init (GstDvbSrc * object)
 {
   int i = 0;
+  const gchar *adapter;
 
   GST_DEBUG_OBJECT (object, "Kernel DVB API version %d.%d", DVB_API_VERSION,
       DVB_API_VERSION_MINOR);
@@ -1045,7 +1045,13 @@ gst_dvbsrc_init (GstDvbSrc * object)
   object->pids[0] = 8192;
   object->pids[1] = G_MAXUINT16;
   object->dvb_buffer_size = DEFAULT_DVB_BUFFER_SIZE;
-  object->adapter_number = DEFAULT_ADAPTER;
+
+  adapter = g_getenv ("GST_DVB_ADAPTER");
+  if (adapter)
+    object->adapter_number = atoi (adapter);
+  else
+    object->adapter_number = DEFAULT_ADAPTER;
+
   object->frontend_number = DEFAULT_FRONTEND;
   object->diseqc_src = DEFAULT_DISEQC_SRC;
   object->send_diseqc = (DEFAULT_DISEQC_SRC != -1);
@@ -2217,14 +2223,8 @@ gst_dvbsrc_output_frontend_stats (GstDvbSrc * src)
   gst_element_post_message (GST_ELEMENT (src), message);
 }
 
-struct diseqc_cmd
-{
-  struct dvb_diseqc_master_cmd cmd;
-  guint32 wait;
-};
-
 static void
-diseqc_send_msg (int fd, fe_sec_voltage_t v, struct diseqc_cmd *cmd,
+diseqc_send_msg (int fd, fe_sec_voltage_t v, struct dvb_diseqc_master_cmd *cmd,
     fe_sec_tone_mode_t t, fe_sec_mini_cmd_t b)
 {
   gint err;
@@ -2242,17 +2242,15 @@ diseqc_send_msg (int fd, fe_sec_voltage_t v, struct diseqc_cmd *cmd,
   }
 
   g_usleep (15 * 1000);
-  GST_LOG ("diseqc: 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x", cmd->cmd.msg[0],
-      cmd->cmd.msg[1], cmd->cmd.msg[2], cmd->cmd.msg[3], cmd->cmd.msg[4],
-      cmd->cmd.msg[5]);
+  GST_LOG ("diseqc: 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x", cmd->msg[0],
+      cmd->msg[1], cmd->msg[2], cmd->msg[3], cmd->msg[4], cmd->msg[5]);
 
-  LOOP_WHILE_EINTR (err, ioctl (fd, FE_DISEQC_SEND_MASTER_CMD, &cmd->cmd));
+  LOOP_WHILE_EINTR (err, ioctl (fd, FE_DISEQC_SEND_MASTER_CMD, cmd));
   if (err) {
     GST_ERROR ("Sending DiSEqC command failed");
     return;
   }
 
-  g_usleep (cmd->wait * 1000);
   g_usleep (15 * 1000);
 
   LOOP_WHILE_EINTR (err, ioctl (fd, FE_DISEQC_SEND_BURST, b));
@@ -2277,12 +2275,13 @@ diseqc_send_msg (int fd, fe_sec_voltage_t v, struct diseqc_cmd *cmd,
 static void
 diseqc (int secfd, int sat_no, int voltage, int tone)
 {
-  struct diseqc_cmd cmd = { {{0xe0, 0x10, 0x38, 0xf0, 0x00, 0x00}, 4}, 0 };
+  struct dvb_diseqc_master_cmd cmd =
+      { {0xe0, 0x10, 0x38, 0xf0, 0x00, 0x00}, 4 };
 
   /* param: high nibble: reset bits, low nibble set bits,
    * bits are: option, position, polarizaion, band
    */
-  cmd.cmd.msg[3] =
+  cmd.msg[3] =
       0xf0 | (((sat_no * 4) & 0x0f) | (tone == SEC_TONE_ON ? 1 : 0) |
       (voltage == SEC_VOLTAGE_13 ? 0 : 2));
   /* send twice because some DiSEqC switches do not respond correctly the

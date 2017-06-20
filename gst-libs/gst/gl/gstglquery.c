@@ -22,7 +22,7 @@
  * SECTION:gstglquery
  * @short_description: OpenGL query abstraction
  * @title: GstGLQuery
- * @see_also: 
+ * @see_also:
  *
  * A #GstGLQuery represents and holds an OpenGL query object.  Various types of
  * queries can be run or counters retrieved.
@@ -188,7 +188,7 @@ gst_gl_query_unset (GstGLQuery * query)
 }
 
 /**
- * gst_gl_query_new:
+ * gst_gl_query_new: (skip)
  * @context: a #GstGLContext
  * @query_type: the #GstGLQueryType to create
  *

@@ -27,7 +27,7 @@
  */
 /**
  * SECTION:element-audiointerleave
- *
+ * @title: audiointerleave
  *
  */
 
@@ -330,7 +330,8 @@ gst_audio_interleave_get_channel_mask (GstAudioInterleave * self)
 {
   guint64 channel_mask = 0;
 
-  if (self->channel_positions != NULL &&
+  if (self->channels <= 64 &&
+      self->channel_positions != NULL &&
       self->channels == self->channel_positions->n_values) {
     if (!gst_audio_interleave_channel_positions_to_mask
         (self->channel_positions, self->default_channels_ordering_map,
@@ -338,7 +339,7 @@ gst_audio_interleave_get_channel_mask (GstAudioInterleave * self)
       GST_WARNING_OBJECT (self, "Invalid channel positions, using NONE");
       channel_mask = 0;
     }
-  } else {
+  } else if (self->channels <= 64) {
     GST_WARNING_OBJECT (self, "Using NONE channel positions");
   }
 
@@ -592,7 +593,7 @@ gst_audio_interleave_class_init (GstAudioInterleaveClass * klass)
 
   /**
    * GstInterleave:channel-positions
-   * 
+   *
    * Channel positions: This property controls the channel positions
    * that are used on the src caps. The number of elements should be
    * the same as the number of sink pads and the array should contain
@@ -616,7 +617,7 @@ gst_audio_interleave_class_init (GstAudioInterleaveClass * klass)
 
   /**
    * GstInterleave:channel-positions-from-input
-   * 
+   *
    * Channel positions from input: If this property is set to %TRUE the channel
    * positions will be taken from the input caps if valid channel positions for
    * the output can be constructed from them. If this is set to %TRUE setting the
@@ -826,7 +827,7 @@ gst_audio_interleave_aggregate_one_buffer (GstAudioAggregator * aagg,
   GstAudioInterleavePad *pad = GST_AUDIO_INTERLEAVE_PAD (aaggpad);
   GstMapInfo inmap;
   GstMapInfo outmap;
-  gint out_width, in_bpf, out_bpf, out_channels;
+  gint out_width, in_bpf, out_bpf, out_channels, channel;
   guint8 *outdata;
 
   out_width = GST_AUDIO_INFO_WIDTH (&aagg->info) / 8;
@@ -840,8 +841,13 @@ gst_audio_interleave_aggregate_one_buffer (GstAudioAggregator * aagg,
       " from offset %u", num_frames, pad->channel, out_channels,
       out_offset * out_bpf, in_offset * in_bpf);
 
-  outdata = outmap.data + (out_offset * out_bpf) +
-      (out_width * self->default_channels_ordering_map[pad->channel]);
+  if (self->channels > 64) {
+    channel = pad->channel;
+  } else {
+    channel = self->default_channels_ordering_map[pad->channel];
+  }
+
+  outdata = outmap.data + (out_offset * out_bpf) + (out_width * channel);
 
 
   self->func (outdata, inmap.data + (in_offset * in_bpf), out_channels,

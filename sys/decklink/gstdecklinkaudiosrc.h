@@ -52,6 +52,8 @@ struct _GstDecklinkAudioSrc
   GstDecklinkModeEnum mode;
   GstDecklinkAudioConnectionEnum connection;
   gint device_number;
+  GstDecklinkAudioChannelsEnum channels;
+  gint64 channels_found;
 
   GstAudioInfo info;
 
@@ -60,7 +62,7 @@ struct _GstDecklinkAudioSrc
   GCond cond;
   GMutex lock;
   gboolean flushing;
-  GQueue current_packets;
+  GstQueueArray *current_packets;
 
   /* properties for handling jittery timestamps */
   GstClockTime alignment_threshold;

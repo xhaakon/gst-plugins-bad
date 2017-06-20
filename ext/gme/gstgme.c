@@ -162,7 +162,11 @@ gst_gme_dec_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
         forward = TRUE;
       }
       break;
+    case GST_EVENT_CAPS:
+    case GST_EVENT_SEGMENT:
+      break;
     default:
+      forward = TRUE;
       break;
   }
   if (forward)
@@ -213,9 +217,7 @@ gst_gme_dec_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
         guint64 dest = (guint64) start;
 
         if (gme->total_duration != GST_CLOCK_TIME_NONE)
-          dest = CLAMP (dest, 0, gme->total_duration);
-        else
-          dest = MAX (0, dest);
+          dest = MIN (dest, gme->total_duration);
 
         if (dest == cur)
           break;
@@ -489,6 +491,10 @@ gst_gme_dec_change_state (GstElement * element, GstStateChange transition)
   switch (transition) {
     case GST_STATE_CHANGE_PAUSED_TO_READY:
       gst_adapter_clear (dec->adapter);
+      if (dec->player) {
+        gme_delete (dec->player);
+        dec->player = NULL;
+      }
       break;
     default:
       break;

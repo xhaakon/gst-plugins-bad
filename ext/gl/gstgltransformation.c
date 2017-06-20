@@ -21,11 +21,11 @@
 
 /**
  * SECTION:element-gltransformation
+ * @title: gltransformation
  *
  * Transforms video on the GPU.
  *
- * <refsect2>
- * <title>Examples</title>
+ * ## Examples
  * |[
  * gst-launch-1.0 gltestsrc ! gltransformation rotation-z=45 ! glimagesink
  * ]| A pipeline to rotate by 45 degrees
@@ -38,7 +38,7 @@
  * |[
  * gst-launch-1.0 gltestsrc ! gltransformation rotation-x=-45 ortho=True ! glimagesink
  * ]| Rotate the video around the X-Axis by -45° with an orthographic projection
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -49,6 +49,7 @@
 
 #include <gst/gl/gstglapi.h>
 #include <graphene-gobject.h>
+#include "gstglutils.h"
 
 #define GST_CAT_DEFAULT gst_gl_transformation_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
@@ -103,9 +104,8 @@ static gboolean gst_gl_transformation_filter_meta (GstBaseTransform * trans,
 static gboolean gst_gl_transformation_decide_allocation (GstBaseTransform *
     trans, GstQuery * query);
 
-static void gst_gl_transformation_reset_gl (GstGLFilter * filter);
-static gboolean gst_gl_transformation_stop (GstBaseTransform * trans);
-static gboolean gst_gl_transformation_init_shader (GstGLFilter * filter);
+static void gst_gl_transformation_gl_stop (GstGLBaseFilter * filter);
+static gboolean gst_gl_transformation_gl_start (GstGLBaseFilter * base_filter);
 static gboolean gst_gl_transformation_callback (gpointer stuff);
 static void gst_gl_transformation_build_mvp (GstGLTransformation *
     transformation);
@@ -137,14 +137,13 @@ gst_gl_transformation_class_init (GstGLTransformationClass * klass)
       gst_gl_transformation_decide_allocation;
   base_transform_class->filter_meta = gst_gl_transformation_filter_meta;
 
-  GST_GL_FILTER_CLASS (klass)->init_fbo = gst_gl_transformation_init_shader;
-  GST_GL_FILTER_CLASS (klass)->display_reset_cb =
-      gst_gl_transformation_reset_gl;
+  GST_GL_BASE_FILTER_CLASS (klass)->gl_start = gst_gl_transformation_gl_start;
+  GST_GL_BASE_FILTER_CLASS (klass)->gl_stop = gst_gl_transformation_gl_stop;
+
   GST_GL_FILTER_CLASS (klass)->set_caps = gst_gl_transformation_set_caps;
   GST_GL_FILTER_CLASS (klass)->filter = gst_gl_transformation_filter;
   GST_GL_FILTER_CLASS (klass)->filter_texture =
       gst_gl_transformation_filter_texture;
-  GST_BASE_TRANSFORM_CLASS (klass)->stop = gst_gl_transformation_stop;
   GST_BASE_TRANSFORM_CLASS (klass)->prepare_output_buffer =
       gst_gl_transformation_prepare_output_buffer;
 
@@ -724,10 +723,10 @@ gst_gl_transformation_decide_allocation (GstBaseTransform * trans,
 }
 
 static void
-gst_gl_transformation_reset_gl (GstGLFilter * filter)
+gst_gl_transformation_gl_stop (GstGLBaseFilter * base_filter)
 {
-  GstGLTransformation *transformation = GST_GL_TRANSFORMATION (filter);
-  const GstGLFuncs *gl = GST_GL_BASE_FILTER (filter)->context->gl_vtable;
+  GstGLTransformation *transformation = GST_GL_TRANSFORMATION (base_filter);
+  const GstGLFuncs *gl = base_filter->context->gl_vtable;
 
   if (transformation->vao) {
     gl->DeleteVertexArrays (1, &transformation->vao);
@@ -748,36 +747,21 @@ gst_gl_transformation_reset_gl (GstGLFilter * filter)
     gst_object_unref (transformation->shader);
     transformation->shader = NULL;
   }
+
+  GST_GL_BASE_FILTER_CLASS (parent_class)->gl_stop (base_filter);
 }
 
 static gboolean
-gst_gl_transformation_stop (GstBaseTransform * trans)
+gst_gl_transformation_gl_start (GstGLBaseFilter * base_filter)
 {
-  GstGLBaseFilter *basefilter = GST_GL_BASE_FILTER (trans);
-  GstGLTransformation *transformation = GST_GL_TRANSFORMATION (trans);
+  GstGLTransformation *transformation = GST_GL_TRANSFORMATION (base_filter);
 
-  /* blocking call, wait until the opengl thread has destroyed the shader */
-  if (basefilter->context && transformation->shader) {
-    gst_gl_context_del_shader (basefilter->context, transformation->shader);
-    transformation->shader = NULL;
-  }
+  if (!GST_GL_BASE_FILTER_CLASS (parent_class)->gl_start (base_filter))
+    return FALSE;
 
-  return GST_BASE_TRANSFORM_CLASS (parent_class)->stop (trans);
-}
-
-static gboolean
-gst_gl_transformation_init_shader (GstGLFilter * filter)
-{
-  GstGLTransformation *transformation = GST_GL_TRANSFORMATION (filter);
-
-  if (transformation->shader) {
-    gst_object_unref (transformation->shader);
-    transformation->shader = NULL;
-  }
-
-  if (gst_gl_context_get_gl_api (GST_GL_BASE_FILTER (filter)->context)) {
+  if (gst_gl_context_get_gl_api (base_filter->context)) {
     /* blocking call, wait until the opengl thread has compiled the shader */
-    return gst_gl_context_gen_shader (GST_GL_BASE_FILTER (filter)->context,
+    return gst_gl_context_gen_shader (base_filter->context,
         gst_gl_shader_string_vertex_mat4_vertex_transform,
         gst_gl_shader_string_fragment_default, &transformation->shader);
   }
@@ -976,19 +960,15 @@ gst_gl_transformation_callback (gpointer stuff)
   if (gl->GenVertexArrays)
     gl->BindVertexArray (transformation->vao);
 
-  if (transformation->caps_change) {
+  if (transformation->caps_change)
     _upload_vertices (transformation);
-    _bind_buffer (transformation);
-  } else if (!gl->GenVertexArrays) {
-    _bind_buffer (transformation);
-  }
+  _bind_buffer (transformation);
 
   gl->DrawElements (GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_SHORT, 0);
 
   if (gl->GenVertexArrays)
     gl->BindVertexArray (0);
-  else
-    _unbind_buffer (transformation);
+  _unbind_buffer (transformation);
 
   gst_gl_context_clear_shader (GST_GL_BASE_FILTER (filter)->context);
   transformation->caps_change = FALSE;

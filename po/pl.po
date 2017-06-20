@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.10.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-02-23 15:17+0200\n"
+"POT-Creation-Date: 2017-05-04 15:09+0300\n"
 "PO-Revision-Date: 2016-11-01 20:53+0100\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
@@ -54,18 +54,6 @@ msgstr "Ten plik nie zawiera strumieni do odtworzenia."
 msgid "Could not open sndfile stream for reading."
 msgstr "Nie udało się otworzyć strumienia sndfile do odczytu."
 
-msgid "Could not establish connection to sndio"
-msgstr "Nie udało się ustanowić połączenia z sndio"
-
-msgid "Failed to query sndio capabilities"
-msgstr "Nie udało się odpytać o możliwości sndio"
-
-msgid "Could not configure sndio"
-msgstr "Nie udało się skonfigurować sndio"
-
-msgid "Could not start sndio"
-msgstr "Nie udało się uruchomić sndio"
-
 msgid "Generated file has a larger preroll time than its streams duration"
 msgstr ""
 "Wygenerowany plik ma dłuższy czas rozbiegówki niż czas trwania strumieni"
@@ -92,19 +80,6 @@ msgstr "Nie udało się pobrać fragmentów"
 
 msgid "Internal data stream error."
 msgstr "Błąd wewnętrzny strumienia danych."
-
-msgid "No file name specified for writing."
-msgstr "Nie określono nazwy pliku do zapisu."
-
-#, c-format
-msgid "Given file name \"%s\" can't be converted to local file name encoding."
-msgstr ""
-"Podanej nazwy pliku \"%s\" nie można przekształcić do lokalnego kodowania "
-"nazw plików."
-
-#, c-format
-msgid "Could not open file \"%s\" for writing."
-msgstr "Nie udało się otworzyć pliku \"%s\" do zapisu."
 
 #, c-format
 msgid "Device \"%s\" does not exist."
@@ -152,3 +127,27 @@ msgstr "Nie udało się odnaleźć pliku konfiguracyjnego kanałów: '%s'"
 
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "Plik konfiguracyjny kanałów nie zawiera żadnych kanałów"
+
+#~ msgid "Could not establish connection to sndio"
+#~ msgstr "Nie udało się ustanowić połączenia z sndio"
+
+#~ msgid "Failed to query sndio capabilities"
+#~ msgstr "Nie udało się odpytać o możliwości sndio"
+
+#~ msgid "Could not configure sndio"
+#~ msgstr "Nie udało się skonfigurować sndio"
+
+#~ msgid "Could not start sndio"
+#~ msgstr "Nie udało się uruchomić sndio"
+
+#~ msgid "No file name specified for writing."
+#~ msgstr "Nie określono nazwy pliku do zapisu."
+
+#~ msgid ""
+#~ "Given file name \"%s\" can't be converted to local file name encoding."
+#~ msgstr ""
+#~ "Podanej nazwy pliku \"%s\" nie można przekształcić do lokalnego kodowania "
+#~ "nazw plików."
+
+#~ msgid "Could not open file \"%s\" for writing."
+#~ msgstr "Nie udało się otworzyć pliku \"%s\" do zapisu."

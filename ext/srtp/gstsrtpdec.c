@@ -46,6 +46,7 @@
 
 /**
  * SECTION:element-srtpdec
+ * @title: srtpdec
  * @see_also: srtpenc
  *
  * gstrtpdec acts as a decoder that removes security from SRTP and SRTCP
@@ -95,8 +96,7 @@
  * other means. If no rollover counter is provided by the user, 0 is
  * used by default.
  *
- * <refsect2>
- * <title>Example pipelines</title>
+ * ## Example pipelines
  * |[
  * gst-launch-1.0 udpsrc port=5004 caps='application/x-srtp, payload=(int)8, ssrc=(uint)1356955624, srtp-key=(buffer)012345678901234567890123456789012345678901234567890123456789, srtp-cipher=(string)aes-128-icm, srtp-auth=(string)hmac-sha1-80, srtcp-cipher=(string)aes-128-icm, srtcp-auth=(string)hmac-sha1-80' !  srtpdec ! rtppcmadepay ! alawdec ! pulsesink
  * ]| Receive PCMA SRTP packets through UDP using caps to specify
@@ -105,7 +105,7 @@
  * gst-launch-1.0 audiotestsrc ! alawenc ! rtppcmapay ! 'application/x-rtp, payload=(int)8, ssrc=(uint)1356955624' ! srtpenc key="012345678901234567890123456789012345678901234567890123456789" ! udpsink port=5004
  * ]| Send PCMA SRTP packets through UDP, nothing how the SSRC is forced so
  * that the receiver will recognize it.
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -142,7 +142,8 @@ enum
 enum
 {
   PROP_0,
-  PROP_REPLAY_WINDOW_SIZE
+  PROP_REPLAY_WINDOW_SIZE,
+  PROP_STATS
 };
 
 /* the capabilities of the inputs and outputs.
@@ -275,6 +276,9 @@ gst_srtp_dec_class_init (GstSrtpDecClass * klass)
           "Size of the replay protection window",
           64, 0x8000, DEFAULT_REPLAY_WINDOW_SIZE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_STATS,
+      g_param_spec_boxed ("stats", "Statistics", "Various statistics",
+          GST_TYPE_STRUCTURE, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   /* Install signals */
   /**
@@ -408,6 +412,41 @@ gst_srtp_dec_init (GstSrtpDec * filter)
   filter->roc_changed = FALSE;
 }
 
+static GstStructure *
+gst_srtp_dec_create_stats (GstSrtpDec * filter)
+{
+  GstStructure *s;
+  GValue va = G_VALUE_INIT;
+  GValue v = G_VALUE_INIT;
+
+  s = gst_structure_new_empty ("application/x-srtp-decoder-stats");
+
+  g_value_init (&va, GST_TYPE_ARRAY);
+  g_value_init (&v, GST_TYPE_STRUCTURE);
+
+  if (filter->session) {
+    srtp_stream_t stream = filter->session->stream_list;
+    while (stream) {
+      GstStructure *ss;
+      guint32 ssrc = GUINT32_FROM_BE (stream->ssrc);
+      guint32 roc = stream->rtp_rdbx.index >> 16;
+
+      ss = gst_structure_new ("application/x-srtp-stream",
+          "ssrc", G_TYPE_UINT, ssrc, "roc", G_TYPE_UINT, roc, NULL);
+
+      g_value_take_boxed (&v, ss);
+      gst_value_array_append_value (&va, &v);
+
+      stream = stream->next;
+    }
+  }
+
+  gst_structure_take_value (s, "streams", &va);
+  g_value_unset (&v);
+
+  return s;
+}
+
 static void
 gst_srtp_dec_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
@@ -439,6 +478,9 @@ gst_srtp_dec_get_property (GObject * object, guint prop_id,
   switch (prop_id) {
     case PROP_REPLAY_WINDOW_SIZE:
       g_value_set_uint (value, filter->replay_window_size);
+      break;
+    case PROP_STATS:
+      g_value_take_boxed (value, gst_srtp_dec_create_stats (filter));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

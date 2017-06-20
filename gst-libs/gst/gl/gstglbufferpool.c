@@ -28,6 +28,7 @@
 
 /**
  * SECTION:gstglbufferpool
+ * @title: GstGlBufferPool
  * @short_description: buffer pool for #GstGLBaseMemory objects
  * @see_also: #GstBufferPool, #GstGLBaseMemory, #GstGLMemory
  *
@@ -35,7 +36,7 @@
  *
  * A #GstGLBufferPool is created with gst_gl_buffer_pool_new()
  *
- * #GstGLBufferPool implements the VideoMeta buffer pool option 
+ * #GstGLBufferPool implements the VideoMeta buffer pool option
  * %GST_BUFFER_POOL_OPTION_VIDEO_META, the VideoAligment buffer pool option
  * %GST_BUFFER_POOL_OPTION_VIDEO_ALIGNMENT as well as the OpenGL specific
  * %GST_BUFFER_POOL_OPTION_GL_SYNC_META buffer pool option.
@@ -115,8 +116,13 @@ gst_gl_buffer_pool_set_config (GstBufferPool * pool, GstStructure * config)
   if (priv->allocator)
     gst_object_unref (priv->allocator);
 
-  if (allocator /* && GST_IS_GL_MEMORY_ALLOCATOR (allocator) FIXME EGLImage */ ) {
-    priv->allocator = gst_object_ref (allocator);
+  if (allocator) {
+    if (!GST_IS_GL_MEMORY_ALLOCATOR (allocator)) {
+      gst_object_unref (allocator);
+      goto wrong_allocator;
+    } else {
+      priv->allocator = gst_object_ref (allocator);
+    }
   } else {
     priv->allocator =
         GST_ALLOCATOR (gst_gl_memory_allocator_get_default (glpool->context));
@@ -239,6 +245,11 @@ wrong_caps:
   {
     GST_WARNING_OBJECT (pool,
         "failed getting geometry from caps %" GST_PTR_FORMAT, caps);
+    return FALSE;
+  }
+wrong_allocator:
+  {
+    GST_WARNING_OBJECT (pool, "Incorrect allocator type for this pool");
     return FALSE;
   }
 }

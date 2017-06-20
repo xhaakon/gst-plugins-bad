@@ -64,8 +64,10 @@ static GstGLPlatform gst_gl_context_egl_get_gl_platform (GstGLContext *
     context);
 static gboolean gst_gl_context_egl_check_feature (GstGLContext * context,
     const gchar * feature);
+static void gst_gl_context_egl_get_gl_platform_version (GstGLContext * context,
+    gint * major, gint * minor);
 
-G_DEFINE_TYPE (GstGLContextEGL, gst_gl_context_egl, GST_GL_TYPE_CONTEXT);
+G_DEFINE_TYPE (GstGLContextEGL, gst_gl_context_egl, GST_TYPE_GL_CONTEXT);
 
 static void
 gst_gl_context_egl_class_init (GstGLContextEGLClass * klass)
@@ -93,6 +95,8 @@ gst_gl_context_egl_class_init (GstGLContextEGLClass * klass)
       GST_DEBUG_FUNCPTR (gst_gl_context_egl_check_feature);
   context_class->get_current_context =
       GST_DEBUG_FUNCPTR (gst_gl_context_egl_get_current_context);
+  context_class->get_gl_platform_version =
+      GST_DEBUG_FUNCPTR (gst_gl_context_egl_get_gl_platform_version);
 }
 
 static void
@@ -106,44 +110,7 @@ gst_gl_context_egl_new (GstGLDisplay * display)
 {
   /* XXX: display type could theoretically be anything, as long as
    * eglGetDisplay supports it. */
-  return g_object_new (GST_GL_TYPE_CONTEXT_EGL, NULL);
-}
-
-const gchar *
-gst_gl_context_egl_get_error_string (EGLint err)
-{
-  switch (err) {
-    case EGL_SUCCESS:
-      return "EGL_SUCCESS";
-    case EGL_BAD_DISPLAY:
-      return "EGL_BAD_DISPLAY";
-    case EGL_NOT_INITIALIZED:
-      return "EGL_NOT_INITIALIZED";
-    case EGL_BAD_ACCESS:
-      return "EGL_BAD_ACCESS";
-    case EGL_BAD_ALLOC:
-      return "EGL_BAD_ALLOC";
-    case EGL_BAD_ATTRIBUTE:
-      return "EGL_BAD_ATTRIBUTE";
-    case EGL_BAD_CONFIG:
-      return "EGL_BAD_CONFIG";
-    case EGL_BAD_CONTEXT:
-      return "EGL_BAD_CONTEXT";
-    case EGL_BAD_CURRENT_SURFACE:
-      return "EGL_BAD_CURRENT_SURFACE";
-    case EGL_BAD_MATCH:
-      return "EGL_BAD_MATCH";
-    case EGL_BAD_NATIVE_PIXMAP:
-      return "EGL_BAD_NATIVE_PIXMAP";
-    case EGL_BAD_NATIVE_WINDOW:
-      return "EGL_BAD_NATIVE_WINDOW";
-    case EGL_BAD_PARAMETER:
-      return "EGL_BAD_PARAMETER";
-    case EGL_BAD_SURFACE:
-      return "EGL_BAD_SURFACE";
-    default:
-      return "unknown";
-  }
+  return g_object_new (GST_TYPE_GL_CONTEXT_EGL, NULL);
 }
 
 static gboolean
@@ -227,7 +194,7 @@ gst_gl_context_egl_choose_config (GstGLContextEGL * egl, GstGLAPI gl_api,
   } else {
     g_set_error (error, GST_GL_CONTEXT_ERROR, GST_GL_CONTEXT_ERROR_WRONG_CONFIG,
         "Failed to set window configuration: %s",
-        gst_gl_context_egl_get_error_string (eglGetError ()));
+        gst_egl_get_error_string (eglGetError ()));
     goto failure;
   }
 
@@ -313,7 +280,7 @@ gst_gl_context_egl_create_context (GstGLContext * context,
   EGLint egl_minor;
   gboolean need_surface = TRUE;
   guintptr external_gl_context = 0;
-  GstGLDisplay *display;
+  guintptr egl_display;
 
   egl = GST_GL_CONTEXT_EGL (context);
   window = gst_gl_context_get_window (context);
@@ -337,31 +304,23 @@ gst_gl_context_egl_create_context (GstGLContext * context,
     goto failure;
   }
 
-  display = gst_gl_context_get_display (context);
+  if (!egl->display_egl) {
+    GstGLDisplay *display = gst_gl_context_get_display (context);
 
-  if (display->type == GST_GL_DISPLAY_TYPE_EGL) {
-    egl->egl_display = (EGLDisplay) gst_gl_display_get_handle (display);
-  } else {
-    guintptr native_display = gst_gl_display_get_handle (display);
-
-    if (!native_display) {
-      GstGLWindow *window = NULL;
-      GST_WARNING ("Failed to get a global display handle, falling back to "
-          "per-window display handles.  Context sharing may not work");
-
-      if (other_context)
-        window = gst_gl_context_get_window (other_context);
-      if (!window)
-        window = gst_gl_context_get_window (context);
-      if (window) {
-        native_display = gst_gl_window_get_display (window);
-        gst_object_unref (window);
-      }
+    egl->display_egl = gst_gl_display_egl_from_gl_display (display);
+    if (!egl->display_egl) {
+      g_set_error (error, GST_GL_CONTEXT_ERROR,
+          GST_GL_CONTEXT_ERROR_RESOURCE_UNAVAILABLE,
+          "Failed to create EGLDisplay from native display");
+      gst_object_unref (display);
+      goto failure;
     }
 
-    egl->egl_display = eglGetDisplay ((EGLNativeDisplayType) native_display);
+    gst_object_unref (display);
   }
-  gst_object_unref (display);
+
+  egl_display = gst_gl_display_get_handle (GST_GL_DISPLAY (egl->display_egl));
+  egl->egl_display = (EGLDisplay) egl_display;
 
   if (eglInitialize (egl->egl_display, &egl_major, &egl_minor)) {
     GST_INFO ("egl initialized, version: %d.%d", egl_major, egl_minor);
@@ -369,7 +328,7 @@ gst_gl_context_egl_create_context (GstGLContext * context,
     g_set_error (error, GST_GL_CONTEXT_ERROR,
         GST_GL_CONTEXT_ERROR_RESOURCE_UNAVAILABLE,
         "Failed to initialize egl: %s",
-        gst_gl_context_egl_get_error_string (eglGetError ()));
+        gst_egl_get_error_string (eglGetError ()));
     goto failure;
   }
 
@@ -404,7 +363,7 @@ gst_gl_context_egl_create_context (GstGLContext * context,
     if (!eglBindAPI (EGL_OPENGL_API)) {
       g_set_error (error, GST_GL_CONTEXT_ERROR, GST_GL_CONTEXT_ERROR_FAILED,
           "Failed to bind OpenGL API: %s",
-          gst_gl_context_egl_get_error_string (eglGetError ()));
+          gst_egl_get_error_string (eglGetError ()));
       goto failure;
     }
 
@@ -472,7 +431,7 @@ gst_gl_context_egl_create_context (GstGLContext * context,
     if (!eglBindAPI (EGL_OPENGL_ES_API)) {
       g_set_error (error, GST_GL_CONTEXT_ERROR, GST_GL_CONTEXT_ERROR_FAILED,
           "Failed to bind OpenGL|ES API: %s",
-          gst_gl_context_egl_get_error_string (eglGetError ()));
+          gst_egl_get_error_string (eglGetError ()));
       goto failure;
     }
 
@@ -522,7 +481,7 @@ gst_gl_context_egl_create_context (GstGLContext * context,
     g_set_error (error, GST_GL_CONTEXT_ERROR,
         GST_GL_CONTEXT_ERROR_CREATE_CONTEXT,
         "Failed to create a OpenGL context: %s",
-        gst_gl_context_egl_get_error_string (eglGetError ()));
+        gst_egl_get_error_string (eglGetError ()));
     goto failure;
   }
   /* FIXME do we want a window vfunc ? */
@@ -533,6 +492,8 @@ gst_gl_context_egl_create_context (GstGLContext * context,
 #endif
 
   if (other_context == NULL) {
+    /* FIXME: fails to show two outputs at all.  We need a property/option for
+     * glimagesink to say its a visible context */
 #if GST_GL_HAVE_WINDOW_WAYLAND
     if (GST_IS_GL_WINDOW_WAYLAND_EGL (context->window)) {
       gst_gl_window_wayland_egl_create_window ((GstGLWindowWaylandEGL *)
@@ -595,34 +556,13 @@ gst_gl_context_egl_create_context (GstGLContext * context,
     } else {
       g_set_error (error, GST_GL_CONTEXT_ERROR, GST_GL_CONTEXT_ERROR_FAILED,
           "Failed to create window surface: %s",
-          gst_gl_context_egl_get_error_string (eglGetError ()));
+          gst_egl_get_error_string (eglGetError ()));
       goto failure;
-    }
-  }
-
-  /* EGLImage functions */
-  if (GST_GL_CHECK_GL_VERSION (egl_major, egl_minor, 1, 5)) {
-    egl->eglCreateImage = gst_gl_context_get_proc_address (context,
-        "eglCreateImage");
-    egl->eglDestroyImage = gst_gl_context_get_proc_address (context,
-        "eglDestroyImage");
-    if (egl->eglCreateImage == NULL || egl->eglDestroyImage == NULL) {
-      egl->eglCreateImage = NULL;
-      egl->eglDestroyImage = NULL;
-    }
-  } else if (gst_gl_check_extension ("EGL_KHR_image_base", egl->egl_exts)) {
-    egl->eglCreateImageKHR = gst_gl_context_get_proc_address (context,
-        "eglCreateImageKHR");
-    egl->eglDestroyImage = gst_gl_context_get_proc_address (context,
-        "eglDestroyImageKHR");
-    if (egl->eglCreateImageKHR == NULL || egl->eglDestroyImage == NULL) {
-      egl->eglCreateImageKHR = NULL;
-      egl->eglDestroyImage = NULL;
     }
   }
   egl->egl_major = egl_major;
   egl->egl_minor = egl_minor;
- 
+
   if (window)
     gst_object_unref (window);
 
@@ -656,6 +596,11 @@ gst_gl_context_egl_destroy_context (GstGLContext * context)
   egl->window_handle = 0;
 
   eglReleaseThread ();
+
+  if (egl->display_egl) {
+    gst_object_unref (egl->display_egl);
+    egl->display_egl = NULL;
+  }
 }
 
 static gboolean
@@ -683,7 +628,7 @@ gst_gl_context_egl_activate (GstGLContext * context, gboolean activate)
         egl->egl_surface = EGL_NO_SURFACE;
         if (!result) {
           GST_ERROR_OBJECT (context, "Failed to destroy old window surface: %s",
-              gst_gl_context_egl_get_error_string (eglGetError ()));
+              gst_egl_get_error_string (eglGetError ()));
           goto done;
         }
       }
@@ -694,7 +639,7 @@ gst_gl_context_egl_activate (GstGLContext * context, gboolean activate)
 
       if (egl->egl_surface == EGL_NO_SURFACE) {
         GST_ERROR_OBJECT (context, "Failed to create window surface: %s",
-            gst_gl_context_egl_get_error_string (eglGetError ()));
+            gst_egl_get_error_string (eglGetError ()));
         result = FALSE;
         goto done;
       }
@@ -709,7 +654,7 @@ gst_gl_context_egl_activate (GstGLContext * context, gboolean activate)
   if (!result) {
     GST_ERROR_OBJECT (context,
         "Failed to bind context to the current rendering thread: %s",
-        gst_gl_context_egl_get_error_string (eglGetError ()));
+        gst_egl_get_error_string (eglGetError ()));
   }
 
 done:
@@ -824,20 +769,21 @@ gst_gl_context_egl_check_feature (GstGLContext * context, const gchar * feature)
 {
   GstGLContextEGL *context_egl = GST_GL_CONTEXT_EGL (context);
 
-  if (g_strcmp0 (feature, "EGL_KHR_image_base") == 0) {
-    if (GST_GL_CHECK_GL_VERSION (context_egl->egl_major, context_egl->egl_minor, 1, 5))
-      return context_egl->eglCreateImage != NULL &&
-        context_egl->eglDestroyImage != NULL;
-    else
-      return context_egl->eglCreateImageKHR != NULL &&
-        context_egl->eglDestroyImage != NULL;
-  }
-
-  return FALSE;
+  return gst_gl_check_extension (feature, context_egl->egl_exts);
 }
 
 guintptr
 gst_gl_context_egl_get_current_context (void)
 {
   return (guintptr) eglGetCurrentContext ();
+}
+
+static void
+gst_gl_context_egl_get_gl_platform_version (GstGLContext * context,
+    gint * major, gint * minor)
+{
+  GstGLContextEGL *context_egl = GST_GL_CONTEXT_EGL (context);
+
+  *major = context_egl->egl_major;
+  *minor = context_egl->egl_minor;
 }

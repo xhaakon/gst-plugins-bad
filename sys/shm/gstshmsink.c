@@ -20,15 +20,17 @@
  */
 /**
  * SECTION:element-shmsink
+ * @title: shmsink
  *
  * Send data over shared memory to the matching source.
  *
- * <refsect2>
- * <title>Example launch lines</title>
+ * ## Example launch lines
  * |[
- * gst-launch-1.0 -v videotestsrc !  shmsink socket-path=/tmp/blah shm-size=1000000
+ * gst-launch-1.0 -v videotestsrc ! "video/x-raw, format=YUY2, color-matrix=sdtv, \
+ * chroma-site=mpeg2, width=(int)320, height=(int)240, framerate=(fraction)30/1" \
+ * ! shmsink socket-path=/tmp/blah shm-size=2000000
  * ]| Send video to shm buffers.
- * </refsect2>
+ *
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -777,11 +779,19 @@ pollthread_func (gpointer data)
   GstShmSink *self = GST_SHM_SINK (data);
   GList *item;
   GstClockTime timeout = GST_CLOCK_TIME_NONE;
+  int rv = 0;
 
   while (!self->stop) {
 
-    if (gst_poll_wait (self->poll, timeout) < 0)
+    do {
+      rv = gst_poll_wait (self->poll, timeout);
+    } while (rv < 0 && errno == EINTR);
+
+    if (rv < 0) {
+      GST_ELEMENT_ERROR (self, RESOURCE, READ, ("Failed waiting on fd activity"),
+                         ("gst_poll_wait returned %d, errno: %d", rv, errno));
       return NULL;
+    }
 
     timeout = GST_CLOCK_TIME_NONE;
 
