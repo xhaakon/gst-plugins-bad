@@ -1,9 +1,10 @@
-gst-plugins-bad1.0 (1.12.0-2) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.12.1-1) unstable; urgency=medium
 
   * Add some Provides/Replaces/Conflicts for a package split in Ubuntu that is
     no longer necessary.
+  * New upstream bugfix release
 
- -- Iain Lane <iain.lane@canonical.com>  Wed, 03 May 2017 10:07:31 +0100
+ -- Iain Lane <iain.lane@canonical.com>  Tue, 20 Jun 2017 11:50:18 +0300
 
 gst-plugins-bad1.0 (1.12.0-1) experimental; urgency=medium
 

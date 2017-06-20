@@ -131,9 +131,15 @@ Depends: ${misc:Depends},
          ${shlibs:Depends},
          gstreamer1.0-plugins-base,
          libgstreamer-plugins-bad1.0-0 (= ${binary:Version}),
-Provides: ${gstreamer:Provides}
+Provides: gstreamer1.0-plugins-bad-videoparsers,
+          gstreamer1.0-plugins-bad-faad,
+          ${gstreamer:Provides}
 Suggests: frei0r-plugins
-Replaces: gstreamer1.0-plugins-base (<< 0.11.94), gstreamer1.0-plugins-good (<< 1.1.2)
+Conflicts: gstreamer1.0-plugins-bad-videoparsers (<< 1.11.91-1ubuntu1),
+           gstreamer1.0-plugins-bad-faad (<< 1.11.91-1ubuntu1)
+Replaces: gstreamer1.0-plugins-base (<< 0.11.94), gstreamer1.0-plugins-good (<< 1.1.2),
+          gstreamer1.0-plugins-bad-videoparsers (<< 1.11.91-1ubuntu1),
+          gstreamer1.0-plugins-bad-faad (<< 1.11.91-1ubuntu1)
 Breaks: gstreamer1.0-plugins-base (<< 0.11.94), gstreamer1.0-plugins-good (<< 1.1.2)
 XB-GStreamer-Version: ${gstreamer:Version}
 XB-GStreamer-Elements: ${gstreamer:Elements}
