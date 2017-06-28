@@ -1,3 +1,11 @@
+gst-plugins-bad1.0 (1.12.1-1) unstable; urgency=medium
+
+  * Add some Provides/Replaces/Conflicts for a package split in Ubuntu that is
+    no longer necessary.
+  * New upstream bugfix release
+
+ -- Iain Lane <iain.lane@canonical.com>  Tue, 20 Jun 2017 11:50:18 +0300
+
 gst-plugins-bad1.0 (1.12.0-1ubuntu3) UNRELEASED; urgency=medium
 
   * Remove a debian/.control.in.swp file that was committed by mistake.
