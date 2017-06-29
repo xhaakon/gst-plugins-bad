@@ -1,4 +1,4 @@
-gst-plugins-bad1.0 (1.12.1-1ubuntu1) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.12.1-1ubuntu1) artful; urgency=medium
 
   * Merge with Debian unstable; remaining changes:
     + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
@@ -12,7 +12,7 @@ gst-plugins-bad1.0 (1.12.1-1ubuntu1) UNRELEASED; urgency=medium
     + C/R/P old -videoparsers and -faad
   * Remove a debian/.control.in.swp file that was committed by mistake.
 
- -- Iain Lane <iain.lane@canonical.com>  Wed, 28 Jun 2017 17:51:04 +0100
+ -- Iain Lane <iain.lane@canonical.com>  Thu, 29 Jun 2017 12:41:24 +0100
 
 gst-plugins-bad1.0 (1.12.1-1) unstable; urgency=medium
 
