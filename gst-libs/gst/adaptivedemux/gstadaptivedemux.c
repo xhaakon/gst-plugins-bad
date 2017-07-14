@@ -1476,6 +1476,39 @@ gst_adaptive_demux_can_seek (GstAdaptiveDemux * demux)
   return klass->seek != NULL;
 }
 
+static void
+gst_adaptive_demux_update_streams_segment (GstAdaptiveDemux * demux,
+    GList * streams, gint64 period_start, GstSeekType start_type,
+    GstSeekType stop_type)
+{
+  GList *iter;
+  for (iter = streams; iter; iter = g_list_next (iter)) {
+    GstAdaptiveDemuxStream *stream = iter->data;
+    GstEvent *seg_evt;
+    GstClockTime offset;
+
+    /* See comments in gst_adaptive_demux_get_period_start_time() for
+     * an explanation of the segment modifications */
+    stream->segment = demux->segment;
+    offset = gst_adaptive_demux_stream_get_presentation_offset (demux, stream);
+    stream->segment.start += offset - period_start;
+    if (GST_CLOCK_TIME_IS_VALID (demux->segment.stop))
+      stream->segment.stop += offset - period_start;
+    if (demux->segment.rate > 0 && start_type != GST_SEEK_TYPE_NONE)
+      stream->segment.position = stream->segment.start;
+    else if (demux->segment.rate < 0 && stop_type != GST_SEEK_TYPE_NONE)
+      stream->segment.position = stream->segment.stop;
+    seg_evt = gst_event_new_segment (&stream->segment);
+    gst_event_set_seqnum (seg_evt, demux->priv->segment_seqnum);
+    gst_event_replace (&stream->pending_segment, seg_evt);
+    GST_DEBUG_OBJECT (stream->pad, "Pending segment now %" GST_SEGMENT_FORMAT,
+        &stream->pending_segment);
+    gst_event_unref (seg_evt);
+    /* Make sure the first buffer after a seek has the discont flag */
+    stream->discont = TRUE;
+  }
+}
+
 #define IS_SNAP_SEEK(f) (f & (GST_SEEK_FLAG_SNAP_BEFORE |	  \
                               GST_SEEK_FLAG_SNAP_AFTER |	  \
                               GST_SEEK_FLAG_SNAP_NEAREST |	  \
@@ -1677,36 +1710,14 @@ gst_adaptive_demux_handle_seek_event (GstAdaptiveDemux * demux, GstPad * pad,
     gst_adaptive_demux_prepare_streams (demux, FALSE);
     gst_adaptive_demux_start_tasks (demux, TRUE);
   } else {
-    GList *iter;
     GstClockTime period_start =
         gst_adaptive_demux_get_period_start_time (demux);
 
     GST_ADAPTIVE_DEMUX_SEGMENT_LOCK (demux);
-    for (iter = demux->streams; iter; iter = g_list_next (iter)) {
-      GstAdaptiveDemuxStream *stream = iter->data;
-      GstEvent *seg_evt;
-      GstClockTime offset;
-
-      /* See comments in gst_adaptive_demux_get_period_start_time() for
-       * an explanation of the segment modifications */
-      stream->segment = demux->segment;
-      offset =
-          gst_adaptive_demux_stream_get_presentation_offset (demux, stream);
-      stream->segment.start += offset - period_start;
-      if (GST_CLOCK_TIME_IS_VALID (demux->segment.stop))
-        stream->segment.stop += offset - period_start;
-      if (demux->segment.rate > 0 && start_type != GST_SEEK_TYPE_NONE)
-        stream->segment.position = stream->segment.start;
-      else if (demux->segment.rate < 0 && stop_type != GST_SEEK_TYPE_NONE)
-        stream->segment.position = stream->segment.stop;
-      seg_evt = gst_event_new_segment (&stream->segment);
-      gst_event_set_seqnum (seg_evt, demux->priv->segment_seqnum);
-      gst_event_replace (&stream->pending_segment, seg_evt);
-      gst_event_unref (seg_evt);
-      /* Make sure the first buffer after a seek has the discont flag */
-      stream->discont = TRUE;
-    }
-
+    gst_adaptive_demux_update_streams_segment (demux, demux->streams,
+        period_start, start_type, stop_type);
+    gst_adaptive_demux_update_streams_segment (demux, demux->prepared_streams,
+        period_start, start_type, stop_type);
     GST_ADAPTIVE_DEMUX_SEGMENT_UNLOCK (demux);
 
     /* Restart the demux */
@@ -3595,9 +3606,12 @@ gst_adaptive_demux_stream_download_loop (GstAdaptiveDemuxStream * stream)
       break;                    /* all is good, let's go */
     case GST_FLOW_EOS:
       GST_DEBUG_OBJECT (stream->pad, "EOS, checking to stop download loop");
+
       /* we push the EOS after releasing the object lock */
       if (gst_adaptive_demux_is_live (demux)
-          && gst_adaptive_demux_stream_in_live_seek_range (demux, stream)) {
+          && (demux->segment.rate == 1.0
+              || gst_adaptive_demux_stream_in_live_seek_range (demux,
+                  stream))) {
         GstAdaptiveDemuxClass *demux_class =
             GST_ADAPTIVE_DEMUX_GET_CLASS (demux);
 
