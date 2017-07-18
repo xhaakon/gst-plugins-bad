@@ -1,3 +1,9 @@
+gst-plugins-bad1.0 (1.12.2-1) unstable; urgency=medium
+
+  * New upstream bugfix release
+
+ -- Iain Lane <iain.lane@canonical.com>  Fri, 14 Jul 2017 13:35:08 +0300
+
 gst-plugins-bad1.0 (1.12.1-1ubuntu1) artful; urgency=medium
 
   * Merge with Debian unstable; remaining changes:
