@@ -1,0 +1,42 @@
+Description: opengl: Prefer native Wayland over Xwayland
+ In the absence of any environment variable "GST_GL_WINDOW", the opengl
+ plugin would blindly try x11 before wayland. In a traditional X session,
+ or a basic Weston session this is unproblematic. However in Gnome Shell
+ a Wayland session also includes Xwayland, so both display server types
+ are available simultaneously.
+ .
+ Although Xwayland works fine for simple GLX tasks, it only supports DRI3.
+ LibVA on the other hand only supports DRI2. So VA-API would fail to
+ initialize in a Wayland Gnome Shell session because the desired DRI2
+ support is missing.
+ .
+ This simple fix just tries using wayland before x11 so that in a Gnome
+ Shell session we don't accidentally end up using Xwayland which breaks
+ video acceleration support (LP: #1698287). All other simpler single display
+ server scenarios remain unaffected. This fix only makes a difference in the
+ dual display server setup that is Xwayland (always on in Gnome Shell).
+Author: Daniel van Vugt <daniel.van.vugt@canonical.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1698287
+Forwarded: no
+Last-Update: 2017-08-08
+--- a/gst-libs/gst/gl/gstgldisplay.c	2017-05-29 15:50:43.000000000 +0800
++++ b/gst-libs/gst/gl/gstgldisplay.c	2017-08-08 16:50:03.836031943 +0800
+@@ -292,14 +292,14 @@
+       return NULL;
+   }
+ #endif
+-#if GST_GL_HAVE_WINDOW_X11
+-  if (!display && (!user_choice || g_strstr_len (user_choice, 3, "x11")))
+-    display = GST_GL_DISPLAY (gst_gl_display_x11_new (NULL));
+-#endif
+ #if GST_GL_HAVE_WINDOW_WAYLAND
+   if (!display && (!user_choice || g_strstr_len (user_choice, 7, "wayland")))
+     display = GST_GL_DISPLAY (gst_gl_display_wayland_new (NULL));
+ #endif
++#if GST_GL_HAVE_WINDOW_X11
++  if (!display && (!user_choice || g_strstr_len (user_choice, 3, "x11")))
++    display = GST_GL_DISPLAY (gst_gl_display_x11_new (NULL));
++#endif
+ #if GST_GL_HAVE_WINDOW_VIV_FB
+   if (!display && (!user_choice || g_strstr_len (user_choice, 6, "viv-fb"))) {
+     const gchar *disp_idx_str = NULL;
