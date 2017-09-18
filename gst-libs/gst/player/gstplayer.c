@@ -269,6 +269,8 @@ static void *get_from_tags (GstPlayer * self, GstPlayerMediaInfo * media_info,
     void *(*func) (GstTagList *));
 static void *get_cover_sample (GstTagList * tags);
 
+static void remove_seek_source (GstPlayer * self);
+
 static void
 gst_player_init (GstPlayer * self)
 {
@@ -1087,11 +1089,7 @@ emit_error (GstPlayer * self, GError * err)
   }
 
   self->seek_pending = FALSE;
-  if (self->seek_source) {
-    g_source_destroy (self->seek_source);
-    g_source_unref (self->seek_source);
-    self->seek_source = NULL;
-  }
+  remove_seek_source (self);
   self->seek_position = GST_CLOCK_TIME_NONE;
   self->last_seek_time = GST_CLOCK_TIME_NONE;
   g_mutex_unlock (&self->lock);
@@ -1503,10 +1501,23 @@ duration_changed_signal_data_free (DurationChangedSignalData * data)
 static void
 emit_duration_changed (GstPlayer * self, GstClockTime duration)
 {
+  gboolean updated = FALSE;
+
+  g_return_if_fail (self->cached_duration != duration);
+
   GST_DEBUG_OBJECT (self, "Duration changed %" GST_TIME_FORMAT,
       GST_TIME_ARGS (duration));
 
   self->cached_duration = duration;
+  g_mutex_lock (&self->lock);
+  if (self->media_info) {
+    self->media_info->duration = duration;
+    updated = TRUE;
+  }
+  g_mutex_unlock (&self->lock);
+  if (updated) {
+    emit_media_info_updated_signal (self);
+  }
 
   if (g_signal_handler_find (self, G_SIGNAL_MATCH_ID,
           signals[SIGNAL_DURATION_CHANGED], 0, NULL, NULL, NULL) != 0) {
@@ -1630,11 +1641,7 @@ state_changed_cb (G_GNUC_UNUSED GstBus * bus, GstMessage * msg,
 
         if (!self->media_info->seekable) {
           GST_DEBUG_OBJECT (self, "Media is not seekable");
-          if (self->seek_source) {
-            g_source_destroy (self->seek_source);
-            g_source_unref (self->seek_source);
-            self->seek_source = NULL;
-          }
+          remove_seek_source (self);
           self->seek_position = GST_CLOCK_TIME_NONE;
           self->last_seek_time = GST_CLOCK_TIME_NONE;
         } else if (self->seek_source) {
@@ -2976,9 +2983,7 @@ gst_player_main (gpointer data)
     self->media_info = NULL;
   }
 
-  if (self->seek_source)
-    g_source_unref (self->seek_source);
-  self->seek_source = NULL;
+  remove_seek_source (self);
   g_mutex_unlock (&self->lock);
 
   g_main_context_pop_thread_default (self->context);
@@ -3070,11 +3075,6 @@ gst_player_play_internal (gpointer user_data)
     state_ret = gst_element_set_state (self->playbin, GST_STATE_PLAYING);
   } else {
     state_ret = gst_element_set_state (self->playbin, GST_STATE_PAUSED);
-  }
-
-  if (state_ret == GST_STATE_CHANGE_NO_PREROLL) {
-    self->is_live = TRUE;
-    GST_DEBUG_OBJECT (self, "Pipeline is live");
   }
 
   if (state_ret == GST_STATE_CHANGE_FAILURE) {
@@ -3227,11 +3227,7 @@ gst_player_stop_internal (GstPlayer * self, gboolean transient)
     self->global_tags = NULL;
   }
   self->seek_pending = FALSE;
-  if (self->seek_source) {
-    g_source_destroy (self->seek_source);
-    g_source_unref (self->seek_source);
-    self->seek_source = NULL;
-  }
+  remove_seek_source (self);
   self->seek_position = GST_CLOCK_TIME_NONE;
   self->last_seek_time = GST_CLOCK_TIME_NONE;
   self->rate = 1.0;
@@ -3294,11 +3290,7 @@ gst_player_seek_internal_locked (GstPlayer * self)
   GstSeekFlags flags = 0;
   gboolean accurate = FALSE;
 
-  if (self->seek_source) {
-    g_source_destroy (self->seek_source);
-    g_source_unref (self->seek_source);
-    self->seek_source = NULL;
-  }
+  remove_seek_source (self);
 
   /* Only seek in PAUSED */
   if (self->current_state < GST_STATE_PAUSED) {
@@ -3460,6 +3452,17 @@ gst_player_seek (GstPlayer * self, GstClockTime position)
     }
   }
   g_mutex_unlock (&self->lock);
+}
+
+static void
+remove_seek_source (GstPlayer * self)
+{
+  if (!self->seek_source)
+    return;
+
+  g_source_destroy (self->seek_source);
+  g_source_unref (self->seek_source);
+  self->seek_source = NULL;
 }
 
 /**
@@ -4681,7 +4684,7 @@ gst_player_config_get_seek_accurate (const GstStructure * config)
  */
 GstSample *
 gst_player_get_video_snapshot (GstPlayer * self,
-    GstPlayerSnapshotFormat format, GstStructure * config)
+    GstPlayerSnapshotFormat format, const GstStructure * config)
 {
   gint video_tracks = 0;
   GstSample *sample = NULL;
