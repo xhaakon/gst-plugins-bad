@@ -1,4 +1,4 @@
-gst-plugins-bad1.0 (1.12.3-1ubuntu1) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.12.3-1ubuntu1) artful; urgency=medium
 
   * Merge with Debian unstable; remaining changes:
     + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
@@ -17,7 +17,7 @@ gst-plugins-bad1.0 (1.12.3-1ubuntu1) UNRELEASED; urgency=medium
     Cherry-pick patch from upstream. Should fix crash when using Wayland.
     Should be applied in next 1.12 release. (LP: #1718595)
 
- -- Iain Lane <iain.lane@canonical.com>  Fri, 22 Sep 2017 12:35:35 +0100
+ -- Iain Lane <iain.lane@canonical.com>  Fri, 22 Sep 2017 15:53:28 +0100
 
 gst-plugins-bad1.0 (1.12.3-1) unstable; urgency=medium
 
