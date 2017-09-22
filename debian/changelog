@@ -13,6 +13,9 @@ gst-plugins-bad1.0 (1.12.3-1ubuntu1) UNRELEASED; urgency=medium
     + debian/patches/fix-lp1698287.patch: Prefer native Wayland over
       X11/Xwayland if both are available. This fixes VA-API initialization
       failure in Gnome Shell Wayland sessions.
+  * debian/patches/0001-gl-wayland-call-eglTerminate-before-wl_display_disco.patch:
+    Cherry-pick patch from upstream. Should fix crash when using Wayland.
+    Should be applied in next 1.12 release. (LP: #1718595)
 
  -- Iain Lane <iain.lane@canonical.com>  Fri, 22 Sep 2017 12:35:35 +0100
 
