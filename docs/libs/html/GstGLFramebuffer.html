@@ -8,7 +8,7 @@
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
 <link rel="prev" href="GstGLFilter.html" title="GstGlFilter">
 <link rel="next" href="gst-plugins-bad-libs-GstGLMemory.html" title="GstGlMemory">
-<meta name="generator" content="GTK-Doc V1.25 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.26 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -82,7 +82,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
 <span class="c_punctuation">(</span><a class="link" href="GstGLFramebuffer.html#GstGLFramebufferFunc" title="GstGLFramebufferFunc ()">*GstGLFramebufferFunc</a><span class="c_punctuation">)</span> <span class="c_punctuation">()</span>
@@ -90,7 +90,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="GstGLFramebuffer.html#gst-gl-framebuffer-draw-to-texture" title="gst_gl_framebuffer_draw_to_texture ()">gst_gl_framebuffer_draw_to_texture</a> <span class="c_punctuation">()</span>
@@ -106,7 +106,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="GstGLFramebuffer.html#gst-gl-framebuffer-get-id" title="gst_gl_framebuffer_get_id ()">gst_gl_framebuffer_get_id</a> <span class="c_punctuation">()</span>
@@ -136,10 +136,15 @@
 </div>
 <div class="refsect1">
 <a name="GstGLFramebuffer.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
-    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
+    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstObject.html#GstObject-struct">GstObject</a>
             <span class="lineart">╰──</span> GstGLFramebuffer
+</pre>
+</div>
+<div class="refsect1">
+<a name="GstGLFramebuffer.includes"></a><h2>Includes</h2>
+<pre class="synopsis">#include &lt;gst/codecparsers/gstmpeg4parser.h&gt;
 </pre>
 </div>
 <div class="refsect1">
@@ -186,8 +191,8 @@ gst_gl_framebuffer_new (<em class="parameter"><code><a class="link" href="GstGLC
 <pre class="programlisting"><a class="link" href="GstGLFramebuffer.html" title="GstGLFramebuffer"><span class="returnvalue">GstGLFramebuffer</span></a> *
 gst_gl_framebuffer_new_with_default_depth
                                (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> width</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> height</code></em>);</pre>
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a> width</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a> height</code></em>);</pre>
 <div class="refsect3">
 <a name="gst-gl-framebuffer-new-with-default-depth.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -228,7 +233,7 @@ and <em class="parameter"><code>height</code></em>
 <a name="gst-gl-framebuffer-attach"></a><h3>gst_gl_framebuffer_attach ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_gl_framebuffer_attach (<em class="parameter"><code><a class="link" href="GstGLFramebuffer.html" title="GstGLFramebuffer"><span class="type">GstGLFramebuffer</span></a> *fb</code></em>,
-                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> attachment_point</code></em>,
+                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a> attachment_point</code></em>,
                            <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGlBaseMemory.html#GstGLBaseMemory" title="GstGLBaseMemory"><span class="type">GstGLBaseMemory</span></a> *mem</code></em>);</pre>
 <p>attach <em class="parameter"><code>mem</code></em>
  to <em class="parameter"><code>attachment_point</code></em>
@@ -314,8 +319,8 @@ gst_gl_context_clear_framebuffer (<em class="parameter"><code><a class="link" hr
 <hr>
 <div class="refsect2">
 <a name="GstGLFramebufferFunc"></a><h3>GstGLFramebufferFunc ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-<span class="c_punctuation">(</span>*GstGLFramebufferFunc<span class="c_punctuation">)</span> (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> stuff</code></em>);</pre>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<span class="c_punctuation">(</span>*GstGLFramebufferFunc<span class="c_punctuation">)</span> (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> stuff</code></em>);</pre>
 <p>callback definition for operating through a <a class="link" href="GstGLFramebuffer.html" title="GstGLFramebuffer"><span class="type">GstGLFramebuffer</span></a> object</p>
 <div class="refsect3">
 <a name="GstGLFramebufferFunc.parameters"></a><h4>Parameters</h4>
@@ -336,11 +341,11 @@ gst_gl_context_clear_framebuffer (<em class="parameter"><code><a class="link" hr
 <hr>
 <div class="refsect2">
 <a name="gst-gl-framebuffer-draw-to-texture"></a><h3>gst_gl_framebuffer_draw_to_texture ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_gl_framebuffer_draw_to_texture (<em class="parameter"><code><a class="link" href="GstGLFramebuffer.html" title="GstGLFramebuffer"><span class="type">GstGLFramebuffer</span></a> *fb</code></em>,
                                     <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> *mem</code></em>,
                                     <em class="parameter"><code><a class="link" href="GstGLFramebuffer.html#GstGLFramebufferFunc" title="GstGLFramebufferFunc ()"><span class="type">GstGLFramebufferFunc</span></a> func</code></em>,
-                                    <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+                                    <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
 <p>Perform the steps necessary to have the output of a glDraw* command in
 <em class="parameter"><code>func</code></em>
  update the contents of <em class="parameter"><code>mem</code></em>
@@ -366,7 +371,7 @@ gst_gl_framebuffer_draw_to_texture (<em class="parameter"><code><a class="link" 
 </tr>
 <tr>
 <td class="parameter_name"><p>func</p></td>
-<td class="parameter_description"><p> the function to run. </p></td>
+<td class="parameter_description"><p>the function to run. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="The callback is valid only during the call to the method."><span class="acronym">scope call</span></acronym>]</span></td>
 </tr>
 <tr>
@@ -391,8 +396,8 @@ gst_gl_framebuffer_draw_to_texture (<em class="parameter"><code><a class="link" 
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_gl_framebuffer_get_effective_dimensions
                                (<em class="parameter"><code><a class="link" href="GstGLFramebuffer.html" title="GstGLFramebuffer"><span class="type">GstGLFramebuffer</span></a> *fb</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> *width</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a> *height</code></em>);</pre>
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *width</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *height</code></em>);</pre>
 <p>Retreive the effective dimensions from the current attachments attached to
 <em class="parameter"><code>fb</code></em>
 .</p>
@@ -412,12 +417,12 @@ gst_gl_framebuffer_get_effective_dimensions
 </tr>
 <tr>
 <td class="parameter_name"><p>width</p></td>
-<td class="parameter_description"><p> output width. </p></td>
+<td class="parameter_description"><p>output width. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>height</p></td>
-<td class="parameter_description"><p> output height. </p></td>
+<td class="parameter_description"><p>output height. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
 </tr>
 </tbody>
@@ -428,7 +433,7 @@ gst_gl_framebuffer_get_effective_dimensions
 <hr>
 <div class="refsect2">
 <a name="gst-gl-framebuffer-get-id"></a><h3>gst_gl_framebuffer_get_id ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
 gst_gl_framebuffer_get_id (<em class="parameter"><code><a class="link" href="GstGLFramebuffer.html" title="GstGLFramebuffer"><span class="type">GstGLFramebuffer</span></a> *fb</code></em>);</pre>
 <div class="refsect3">
 <a name="gst-gl-framebuffer-get-id.parameters"></a><h4>Parameters</h4>
@@ -475,6 +480,6 @@ gst_gl_framebuffer_get_id (<em class="parameter"><code><a class="link" href="Gst
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.25</div>
+<hr>Generated by GTK-Doc V1.26</div>
 </body>
 </html>

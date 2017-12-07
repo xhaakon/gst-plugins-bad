@@ -8,7 +8,7 @@
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
 <link rel="prev" href="gst-plugins-bad-libs-GstGLDisplayX11.html" title="GstGLDisplayX11">
 <link rel="next" href="GstGLFilter.html" title="GstGlFilter">
-<meta name="generator" content="GTK-Doc V1.25 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.26 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -99,10 +99,15 @@
 </table></div>
 </div>
 <div class="refsect1">
+<a name="gst-plugins-bad-libs-GstEGLImage.includes"></a><h2>Includes</h2>
+<pre class="synopsis">#include &lt;gst/codecparsers/gstmpeg4parser.h&gt;
+</pre>
+</div>
+<div class="refsect1">
 <a name="gst-plugins-bad-libs-GstEGLImage.description"></a><h2>Description</h2>
 <p><span class="type">GstEGLImage</span> represents and holds an <span class="type">EGLImage</span> handle.</p>
 <p>A <span class="type">GstEGLImage</span> can be created from a dmabuf with <a class="link" href="gst-plugins-bad-libs-GstEGLImage.html#gst-egl-image-from-dmabuf" title="gst_egl_image_from_dmabuf ()"><code class="function">gst_egl_image_from_dmabuf()</code></a>
-or <a class="link" href="gst-plugins-bad-libs-gstglmemoryegl.html#GstGLMemoryEGL" title="GstGLMemoryEGL"><span class="type">GstGLMemoryEGL</span></a> provides a <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstAllocator.html#GstAllocator-struct"><span class="type">GstAllocator</span></a> to allocate <span class="type">EGLImage</span>'s bound to
+or <a class="link" href="gst-plugins-bad-libs-gstglmemoryegl.html#GstGLMemoryEGL" title="GstGLMemoryEGL"><span class="type">GstGLMemoryEGL</span></a> provides a <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstAllocator.html#GstAllocator-struct"><span class="type">GstAllocator</span></a> to allocate <span class="type">EGLImage</span>'s bound to
 and OpenGL texture.</p>
 </div>
 <div class="refsect1">
@@ -111,10 +116,10 @@ and OpenGL texture.</p>
 <a name="gst-egl-image-from-dmabuf"></a><h3>gst_egl_image_from_dmabuf ()</h3>
 <pre class="programlisting"><span class="returnvalue">GstEGLImage</span> *
 gst_egl_image_from_dmabuf (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>,
-                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> dmabuf</code></em>,
-                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-GstVideoAlignment.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a> *in_info</code></em>,
-                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> plane</code></em>,
-                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gsize"><span class="type">gsize</span></a> offset</code></em>);</pre>
+                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> dmabuf</code></em>,
+                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0/gst-plugins-base-libs-GstVideoAlignment.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a> *in_info</code></em>,
+                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> plane</code></em>,
+                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> offset</code></em>);</pre>
 <div class="refsect3">
 <a name="gst-egl-image-from-dmabuf.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -136,7 +141,7 @@ gst_egl_image_from_dmabuf (<em class="parameter"><code><a class="link" href="Gst
 </tr>
 <tr>
 <td class="parameter_name"><p>in_info</p></td>
-<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0gst-plugins-base-libs-GstVideoAlignment.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a> in <em class="parameter"><code>dmabuf</code></em>
+<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0/gst-plugins-base-libs-GstVideoAlignment.html#GstVideoInfo"><span class="type">GstVideoInfo</span></a> in <em class="parameter"><code>dmabuf</code></em>
 </p></td>
 <td class="parameter_annotations"> </td>
 </tr>
@@ -157,7 +162,7 @@ to create and <span class="type">GstEGLImage</span> for</p></td>
 <div class="refsect3">
 <a name="gst-egl-image-from-dmabuf.returns"></a><h4>Returns</h4>
 <p> a <span class="type">GstEGLImage</span> wrapping <em class="parameter"><code>dmabuf</code></em>
-or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> on failure</p>
+or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> on failure</p>
 </div>
 </div>
 <hr>
@@ -166,7 +171,7 @@ or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><co
 <pre class="programlisting"><span class="returnvalue">GstEGLImage</span> *
 gst_egl_image_from_texture (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>,
                             <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstGLMemory.html#GstGLMemory" title="GstGLMemory"><span class="type">GstGLMemory</span></a> *gl_mem</code></em>,
-                            <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guintptr"><span class="type">guintptr</span></a> *attribs</code></em>);</pre>
+                            <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guintptr"><span class="type">guintptr</span></a> *attribs</code></em>);</pre>
 <div class="refsect3">
 <a name="gst-egl-image-from-texture.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -196,8 +201,8 @@ gst_egl_image_from_texture (<em class="parameter"><code><a class="link" href="Gs
 </div>
 <div class="refsect3">
 <a name="gst-egl-image-from-texture.returns"></a><h4>Returns</h4>
-<p> a <span class="type">GstEGLImage</span> wrapping <em class="parameter"><code>gl_mem</code></em>
-or <a href="/usr/share/gtk-doc/html/glibglib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> on failure. </p>
+<p>a <span class="type">GstEGLImage</span> wrapping <em class="parameter"><code>gl_mem</code></em>
+or <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a> on failure. </p>
 <p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
 </div>
 </div>
@@ -234,7 +239,7 @@ gst_egl_image_get_image (<em class="parameter"><code><span class="type">GstEGLIm
 gst_egl_image_new_wrapped (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>,
                            <em class="parameter"><code><span class="type">EGLImageKHR</span> image</code></em>,
                            <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-Formats.html#GstGLFormat" title="enum GstGLFormat"><span class="type">GstGLFormat</span></a> format</code></em>,
-                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>,
+                           <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>,
                            <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-GstEGLImage.html#GstEGLImageDestroyNotify" title="GstEGLImageDestroyNotify ()"><span class="type">GstEGLImageDestroyNotify</span></a> user_data_destroy</code></em>);</pre>
 <div class="refsect3">
 <a name="gst-egl-image-new-wrapped.parameters"></a><h4>Parameters</h4>
@@ -303,7 +308,7 @@ gst_egl_image_ref (<em class="parameter"><code><span class="type">GstEGLImage</s
 </div>
 <div class="refsect3">
 <a name="gst-egl-image-ref.returns"></a><h4>Returns</h4>
-<p> <em class="parameter"><code>image</code></em>
+<p><em class="parameter"><code>image</code></em>
 . </p>
 <p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
 </div>
@@ -325,7 +330,7 @@ with the associated metadata and memory will be freed.</p>
 </colgroup>
 <tbody><tr>
 <td class="parameter_name"><p>image</p></td>
-<td class="parameter_description"><p> a <span class="type">GstEGLImage</span>. </p></td>
+<td class="parameter_description"><p>a <span class="type">GstEGLImage</span>. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></td>
 </tr></tbody>
 </table></div>
@@ -336,7 +341,7 @@ with the associated metadata and memory will be freed.</p>
 <a name="GstEGLImageDestroyNotify"></a><h3>GstEGLImageDestroyNotify ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 <span class="c_punctuation">(</span>*GstEGLImageDestroyNotify<span class="c_punctuation">)</span> (<em class="parameter"><code><span class="type">GstEGLImage</span> *image</code></em>,
-                             <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>);</pre>
+                             <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>);</pre>
 </div>
 </div>
 <div class="refsect1">
@@ -348,6 +353,6 @@ with the associated metadata and memory will be freed.</p>
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.25</div>
+<hr>Generated by GTK-Doc V1.26</div>
 </body>
 </html>
