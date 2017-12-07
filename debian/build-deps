@@ -1,3 +1,5 @@
+@GST_EXTRA_BUILD_DEPENDS@
+@GST_LIB_DEV_DEP@
 autoconf (>= 2.69)
 automake (>= 1.14)
 autopoint (>= 0.17)
@@ -12,8 +14,6 @@ gir1.2-glib-2.0
 gir1.2-gst-plugins-base-1.0
 gir1.2-gstreamer-1.0
 gobject-introspection (>= 0.9.12-4~)
-@GST_EXTRA_BUILD_DEPENDS@
-@GST_LIB_DEV_DEP@
 gstreamer@GST_ABI@-doc
 gstreamer@GST_ABI@-plugins-base (>= 1.12.0)
 gstreamer@GST_ABI@-plugins-base-doc

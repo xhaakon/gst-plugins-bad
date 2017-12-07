@@ -1,0 +1,83 @@
+From ef4d6b93e6078b7056c51a928f5620b13e55e323 Mon Sep 17 00:00:00 2001
+From: Thibault Saunier <thibault.saunier@osg.samsung.com>
+Date: Mon, 16 Oct 2017 10:43:28 +0200
+Subject: [PATCH] openjpeg: Support building with openjpeg 2.3
+
+And avoid failling the build each time openjpeg releases a new version.
+---
+ configure.ac               |  5 +++++
+ ext/openjpeg/gstopenjpeg.h |  4 +++-
+ ext/openjpeg/meson.build   | 19 ++++++++++---------
+ 3 files changed, 18 insertions(+), 10 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 3745ed246..df58fc594 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2865,6 +2865,11 @@ AG_GST_CHECK_FEATURE(OPENJPEG, [openjpeg library], openjpeg, [
+         AG_GST_PKG_CHECK_MODULES(OPENJPEG_2_2, libopenjp2 >= 2.2)
+         if test x"$HAVE_OPENJPEG_2_2" = x"yes"; then
+           AC_DEFINE([HAVE_OPENJPEG_2_2], 1, [Define if OpenJPEG 2.2 is used])
++
++          AG_GST_PKG_CHECK_MODULES(OPENJPEG_2_3, libopenjp2 >= 2.3 libopenjp2 < 2.4)
++          if test x"$HAVE_OPENJPEG_2_3" = x"yes"; then
++            AC_DEFINE([HAVE_OPENJPEG_2_3], 1, [Define if OpenJPEG 2.3 is used])
++          fi
+         fi
+     fi
+   else
+diff --git a/ext/openjpeg/gstopenjpeg.h b/ext/openjpeg/gstopenjpeg.h
+index 52410a4f7..58c2866dc 100644
+--- a/ext/openjpeg/gstopenjpeg.h
++++ b/ext/openjpeg/gstopenjpeg.h
+@@ -38,7 +38,9 @@
+ #define OPJ_CPRL CPRL
+ #else
+ #include <stdio.h>
+-# if defined(HAVE_OPENJPEG_2_2)
++# if defined(HAVE_OPENJPEG_2_3)
++#  include <openjpeg-2.3/openjpeg.h>
++# elif defined(HAVE_OPENJPEG_2_2)
+ #  include <openjpeg-2.2/openjpeg.h>
+ # elif defined(HAVE_OPENJPEG_2_1)
+ #  include <openjpeg-2.1/openjpeg.h>
+diff --git a/ext/openjpeg/meson.build b/ext/openjpeg/meson.build
+index 0d97ebb9e..f2ed2e2fd 100644
+--- a/ext/openjpeg/meson.build
++++ b/ext/openjpeg/meson.build
+@@ -6,22 +6,23 @@ openjpeg_sources = [
+ 
+ openjpeg_cargs = []
+ 
+-# Check for 2.2, 2.1, then 2.0
+-openjpeg_dep = dependency('libopenjp2', version : '>=2.2', required : false)
+-if openjpeg_dep.found()
+-  openjpeg_cargs += ['-DHAVE_OPENJPEG_2_2', '-DHAVE_OPENJPEG_2_1']
+-else
+-  openjpeg_dep = dependency('libopenjp2', version : '>=2.1', required : false)
++max_supported_version = '<2.4'
++supported_versions = [ '2.3', '2.2', '2.1' ]
++foreach version: supported_versions
++  openjpeg_dep = dependency('libopenjp2', version : ['>=' + version, max_supported_version],
++      required : false)
+   if openjpeg_dep.found()
+-    openjpeg_cargs += ['-DHAVE_OPENJPEG_2_1']
+-  else
++    openjpeg_cargs += ['-DHAVE_OPENJPEG_' + version.underscorify()]
++  endif
++endforeach
++
++if not openjpeg_dep.found()
+     openjpeg_dep = dependency('libopenjp2', required : false)
+     # Fallback to 1.5
+     if not openjpeg_dep.found()
+       openjpeg_dep = dependency('libopenjpeg1', required : false)
+       openjpeg_cargs += ['-DHAVE_OPENJPEG_1']
+     endif
+-  endif
+ endif
+ 
+ if openjpeg_dep.found()
+-- 
+2.15.0.rc1
+

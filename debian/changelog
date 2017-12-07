@@ -1,3 +1,22 @@
+gst-plugins-bad1.0 (1.12.3-2ubuntu1) bionic; urgency=medium
+
+  * Merge with Debian; remaining changes:
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 07 Dec 2017 17:43:20 +0100
+
+gst-plugins-bad1.0 (1.12.3-2) unstable; urgency=medium
+
+  * debian/patches/0001-openjpeg-Support-building-with-openjpeg-2.3.patch:
+    + Fix build against openjpeg 2.3 (Closes: #878747).
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 19 Oct 2017 15:35:50 +0200
+
+gst-plugins-bad1.0 (1.12.3-1ubuntu2) bionic; urgency=medium
+
+  * No-change rebuild against OpenCV 3.2.
+
+ -- Mattia Rizzolo <mapreri@ubuntu.com>  Sun, 29 Oct 2017 12:49:54 +0100
+
 gst-plugins-bad1.0 (1.12.3-1ubuntu1) artful; urgency=medium
 
   * Merge with Debian unstable; remaining changes:
@@ -54,12 +73,6 @@ gst-plugins-bad1.0 (1.12.2-1ubuntu1) artful; urgency=medium
 
  -- Iain Lane <iain.lane@canonical.com>  Tue, 18 Jul 2017 16:20:28 +0100
 
-gst-plugins-bad1.0 (1.12.2-1) unstable; urgency=medium
-
-  * New upstream bugfix release
-
- -- Iain Lane <iain.lane@canonical.com>  Fri, 14 Jul 2017 13:35:08 +0300
-
 gst-plugins-bad1.0 (1.12.1-1ubuntu1) artful; urgency=medium
 
   * Merge with Debian unstable; remaining changes:
@@ -75,6 +88,12 @@ gst-plugins-bad1.0 (1.12.1-1ubuntu1) artful; urgency=medium
   * Remove a debian/.control.in.swp file that was committed by mistake.
 
  -- Iain Lane <iain.lane@canonical.com>  Thu, 29 Jun 2017 12:41:24 +0100
+
+gst-plugins-bad1.0 (1.12.2-1) unstable; urgency=medium
+
+  * New upstream bugfix release
+
+ -- Iain Lane <iain.lane@canonical.com>  Fri, 14 Jul 2017 13:35:08 +0300
 
 gst-plugins-bad1.0 (1.12.1-1) unstable; urgency=medium
 
