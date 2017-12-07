@@ -2,27 +2,28 @@
 # Copyright (C) 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
 #
 # This file is distributed under the same license as the gst-plugins-bad package.
-# Freek de Kruijf <f.de.kruijf@gmail.com>, 2007, 2008, 2009, 2011, 2013, 2014, 2015, 2016.
+# Freek de Kruijf <f.de.kruijf@gmail.com>, 2007, 2008, 2009, 2011, 2013, 2014, 2015, 2016, 2017.
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.7.2\n"
+"Project-Id-Version: gst-plugins-bad 1.12.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-09-18 16:12+0300\n"
-"PO-Revision-Date: 2016-02-20 12:35+0100\n"
+"POT-Creation-Date: 2017-12-07 19:24+0200\n"
+"PO-Revision-Date: 2017-10-24 22:43+0100\n"
 "Last-Translator: Freek de Kruijf <f.de.kruijf@gmail.com>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.5\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
+"X-Generator: Lokalize 2.0\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
 msgid "failed to draw pattern"
-msgstr ""
+msgstr "patroon tekenen is mislukt"
 
 msgid "A GL error occured"
-msgstr ""
+msgstr "Er trad een GL-fout op"
 
 msgid "format wasn't negotiated before get function"
 msgstr "formaat is niet onderhandeld vóór get-functie"
@@ -105,33 +106,31 @@ msgstr "Kan de afleversystemen van het frontend-apparaat \"%s\" niet opnoemen."
 msgid "Could not open file \"%s\" for reading."
 msgstr "Kan bestand \"%s\" niet openen om te lezen."
 
-#, fuzzy
 msgid "Couldn't find channel configuration file"
-msgstr "Kon het instellingenbestand van het DVB-kanaal niet vinden"
+msgstr "Kon het configuratiebestand van het kanaal niet vinden"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't load channel configuration file: '%s'"
-msgstr "Kon het instellingenbestand \"%s\" van het DVB-kanaal niet laden"
+msgstr "Kon het configuratiebestand van het kanaal niet laden: '%s'"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't find details for channel '%s'"
-msgstr "Kon de details voor het DVB-kanaal %s niet vinden"
+msgstr "Kon details voor het kanaal '%s' niet vinden"
 
-#, fuzzy, c-format
+#, c-format
 msgid "No properties for channel '%s'"
-msgstr "Kon de details voor het DVB-kanaal %s niet vinden"
+msgstr "Geen eigenschappen voor kanaal '%s'"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to set properties for channel '%s'"
-msgstr "Kon de details voor het DVB-kanaal %s niet vinden"
+msgstr "Eigenschappen instellen voor kanaal '%s' is mislukt"
 
-#, fuzzy, c-format
+#, c-format
 msgid "Couldn't find channel configuration file: '%s'"
-msgstr "Kon het instellingenbestand van het DVB-kanaal niet vinden"
+msgstr "Kon het configuratiebestand van het kanaal niet vinden: '%s'"
 
-#, fuzzy
 msgid "Channel configuration file doesn't contain any channels"
-msgstr "Het instellingenbestand van het DVB-kanaal bevat geen kanalen"
+msgstr "Het configuratiebestand bevat geen enkel kanaal"
 
 #~ msgid "Could not establish connection to sndio"
 #~ msgstr "Kon geen verbinding opzetten naar sndio"
@@ -145,6 +144,9 @@ msgstr "Het instellingenbestand van het DVB-kanaal bevat geen kanalen"
 #~ msgid "Could not start sndio"
 #~ msgstr "Kon sndio niet starten"
 
+#~ msgid "Internal data flow error."
+#~ msgstr "Interne fout met gegevensdoorvoer."
+
 #~ msgid "No file name specified for writing."
 #~ msgstr "Geen bestandsnaam gespecificeerd voor de uitvoer."
 
@@ -156,9 +158,6 @@ msgstr "Het instellingenbestand van het DVB-kanaal bevat geen kanalen"
 
 #~ msgid "Could not open file \"%s\" for writing."
 #~ msgstr "Kan bestand \"%s\" niet openen voor uitvoer."
-
-#~ msgid "Internal data flow error."
-#~ msgstr "Interne fout met gegevensdoorvoer."
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "standaard GStreamer audiosink voor geluidsgebeurtenissen"

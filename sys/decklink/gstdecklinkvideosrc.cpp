@@ -670,15 +670,26 @@ gst_decklink_video_src_got_frame (GstElement * element,
     const GstDecklinkMode *bmode;
     GstVideoTimeCodeFlags flags = GST_VIDEO_TIME_CODE_FLAGS_NONE;
     guint field_count = 0;
+    guint skipped_frames = 0;
+    GstClockTime from_timestamp = GST_CLOCK_TIME_NONE;
+    GstClockTime to_timestamp = GST_CLOCK_TIME_NONE;
 
     while (gst_queue_array_get_length (self->current_frames) >=
         self->buffer_size) {
       CaptureFrame *tmp = (CaptureFrame *)
           gst_queue_array_pop_head_struct (self->current_frames);
-      GST_WARNING_OBJECT (self, "Dropping old frame at %" GST_TIME_FORMAT,
-          GST_TIME_ARGS (tmp->timestamp));
+      if (skipped_frames == 0)
+        from_timestamp = tmp->timestamp;
+      skipped_frames++;
+      to_timestamp = tmp->timestamp;
       capture_frame_clear (tmp);
     }
+
+    if (skipped_frames > 0)
+      GST_WARNING_OBJECT (self,
+          "Dropped %u old frames from %" GST_TIME_FORMAT " to %"
+          GST_TIME_FORMAT, skipped_frames, GST_TIME_ARGS (from_timestamp),
+          GST_TIME_ARGS (to_timestamp));
 
     memset (&f, 0, sizeof (f));
     f.frame = frame;
@@ -689,7 +700,6 @@ gst_decklink_video_src_got_frame (GstElement * element,
     f.no_signal = no_signal;
     if (dtc != NULL) {
       uint8_t hours, minutes, seconds, frames;
-      BMDTimecodeFlags bflags;
       HRESULT res;
 
       res = dtc->GetComponents (&hours, &minutes, &seconds, &frames);
@@ -698,20 +708,14 @@ gst_decklink_video_src_got_frame (GstElement * element,
             res);
         f.tc = NULL;
       } else {
-        bflags = dtc->GetFlags ();
         GST_DEBUG_OBJECT (self, "Got timecode %02d:%02d:%02d:%02d",
             hours, minutes, seconds, frames);
         bmode = gst_decklink_get_mode (mode);
-        if (bmode->interlaced) {
+        if (bmode->interlaced)
           flags =
               (GstVideoTimeCodeFlags) (flags |
               GST_VIDEO_TIME_CODE_FLAGS_INTERLACED);
-          if (bflags & bmdTimecodeFieldMark)
-            field_count = 2;
-          else
-            field_count = 1;
-        }
-        if (bflags & bmdTimecodeIsDropFrame)
+        if (bmode->fps_d == 1001 && (bmode->fps_n == 30000 || bmode->fps_n == 60000))
           flags =
               (GstVideoTimeCodeFlags) (flags |
               GST_VIDEO_TIME_CODE_FLAGS_DROP_FRAME);

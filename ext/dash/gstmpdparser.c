@@ -2504,14 +2504,14 @@ gst_mpdparser_get_rep_idx_with_min_bandwidth (GList * Representations)
 
 gint
 gst_mpdparser_get_rep_idx_with_max_bandwidth (GList * Representations,
-    gint max_bandwidth, gint max_video_width, gint max_video_height, gint
+    gint64 max_bandwidth, gint max_video_width, gint max_video_height, gint
     max_video_framerate_n, gint max_video_framerate_d)
 {
   GList *list = NULL, *best = NULL;
   GstRepresentationNode *representation;
   gint best_bandwidth = 0;
 
-  GST_DEBUG ("max_bandwidth = %i", max_bandwidth);
+  GST_DEBUG ("max_bandwidth = %" G_GINT64_FORMAT, max_bandwidth);
 
   if (Representations == NULL)
     return -1;
@@ -3708,8 +3708,8 @@ gst_mpd_client_fetch_on_load_external_resources (GstMpdClient * client)
             gst_mpd_client_fetch_external_adaptation_set (client, period,
             adapt_set);
 
-        prev = l->prev;
-        period->AdaptationSets = g_list_delete_link (period->AdaptationSets, l);
+        prev = m->prev;
+        period->AdaptationSets = g_list_delete_link (period->AdaptationSets, m);
         gst_mpdparser_free_adaptation_set_node (adapt_set);
         adapt_set = NULL;
 
@@ -3729,9 +3729,9 @@ gst_mpd_client_fetch_on_load_external_resources (GstMpdClient * client)
 
         /* Update our iterator to the first new adapt_set if any, or the next */
         if (prev)
-          l = prev->next;
+          m = prev->next;
         else
-          l = period->AdaptationSets;
+          m = period->AdaptationSets;
 
         continue;
       }
@@ -4746,14 +4746,14 @@ gst_mpd_client_setup_streaming (GstMpdClient * client,
 
   if (!representation) {
     GST_WARNING ("No valid representation in the MPD file, aborting...");
-    g_slice_free (GstActiveStream, stream);
+    gst_mpdparser_free_active_stream (stream);
     return FALSE;
   }
   stream->mimeType =
       gst_mpdparser_representation_get_mimetype (adapt_set, representation);
   if (stream->mimeType == GST_STREAM_UNKNOWN) {
     GST_WARNING ("Unknown mime type in the representation, aborting...");
-    g_slice_free (GstActiveStream, stream);
+    gst_mpdparser_free_active_stream (stream);
     return FALSE;
   }
 

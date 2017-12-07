@@ -8,7 +8,7 @@
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-assrender.html" title="assrender">
 <link rel="next" href="gst-plugins-bad-plugins-audiomixer.html" title="audiomixer">
-<meta name="generator" content="GTK-Doc V1.25 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.26 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -45,12 +45,12 @@
 <tbody>
 <tr>
 <td class="property_type">
-<a href="/usr/share/gtk-doc/html/gobjectgobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> *</td>
+<a href="/usr/share/gtk-doc/html/gobject/gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> *</td>
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-audiointerleave.html#GstAudioInterleave--channel-positions" title="The “channel-positions” property">channel-positions</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
 <tr>
-<td class="property_type"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-audiointerleave.html#GstAudioInterleave--channel-positions-from-input" title="The “channel-positions-from-input” property">channel-positions-from-input</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
@@ -72,11 +72,11 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-audiointerleave.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
-    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
-            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstElement.html#GstElement-struct">GstElement</a>
-                <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0GstAggregator.html#GstAggregator-struct">GstAggregator</a>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
+    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstObject.html#GstObject-struct">GstObject</a>
+            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstElement.html#GstElement-struct">GstElement</a>
+                <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0/GstAggregator.html#GstAggregator-struct">GstAggregator</a>
                     <span class="lineart">╰──</span> GstAudioAggregator
                         <span class="lineart">╰──</span> GstAudioInterleave
 </pre>
@@ -85,7 +85,7 @@
 <a name="gst-plugins-bad-plugins-audiointerleave.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
 <p>
 GstAudioInterleave implements
- <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstChildProxy.html#GstChildProxy-struct">GstChildProxy</a>.</p>
+ <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstChildProxy.html#GstChildProxy-struct">GstChildProxy</a>.</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-audiointerleave.description"></a><h2>Description</h2>
@@ -186,14 +186,14 @@ GstAudioInterleave implements
 <a name="gst-plugins-bad-plugins-audiointerleave.property-details"></a><h2>Property Details</h2>
 <div class="refsect2">
 <a name="GstAudioInterleave--channel-positions"></a><h3>The <code class="literal">“channel-positions”</code> property</h3>
-<pre class="programlisting">  “channel-positions”        <a href="/usr/share/gtk-doc/html/gobjectgobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> *</pre>
+<pre class="programlisting">  “channel-positions”        <a href="/usr/share/gtk-doc/html/gobject/gobject-Value-arrays.html#GValueArray"><span class="type">GValueArray</span></a> *</pre>
 <p>Channel positions used on the output.</p>
 <p>Flags: Read / Write</p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="GstAudioInterleave--channel-positions-from-input"></a><h3>The <code class="literal">“channel-positions-from-input”</code> property</h3>
-<pre class="programlisting">  “channel-positions-from-input” <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<pre class="programlisting">  “channel-positions-from-input” <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
 <p>Take channel positions from the input.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: TRUE</p>
@@ -201,6 +201,6 @@ GstAudioInterleave implements
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.25</div>
+<hr>Generated by GTK-Doc V1.26</div>
 </body>
 </html>
