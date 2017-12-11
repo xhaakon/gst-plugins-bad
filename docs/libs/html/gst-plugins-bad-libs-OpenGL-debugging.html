@@ -8,7 +8,7 @@
 <link rel="up" href="gl.html" title="OpenGL Helper Library">
 <link rel="prev" href="GstGLWindow.html" title="GstGLWindow">
 <link rel="next" href="gst-plugins-bad-libs-OpenGL-Formats.html" title="GstGlFormat">
-<meta name="generator" content="GTK-Doc V1.25 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.26 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -41,7 +41,7 @@
 <tbody>
 <tr>
 <td class="function_type">
-<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
 </td>
 <td class="function_name">
 <span class="c_punctuation">(</span><a class="link" href="gst-plugins-bad-libs-OpenGL-debugging.html#GstGLAsyncDebugLogGetMessage" title="GstGLAsyncDebugLogGetMessage ()">*GstGLAsyncDebugLogGetMessage</a><span class="c_punctuation">)</span> <span class="c_punctuation">()</span>
@@ -156,14 +156,19 @@
 </table></div>
 </div>
 <div class="refsect1">
+<a name="gst-plugins-bad-libs-OpenGL-debugging.includes"></a><h2>Includes</h2>
+<pre class="synopsis">#include &lt;gst/codecparsers/gstmpeg4parser.h&gt;
+</pre>
+</div>
+<div class="refsect1">
 <a name="gst-plugins-bad-libs-OpenGL-debugging.description"></a><h2>Description</h2>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-libs-OpenGL-debugging.functions_details"></a><h2>Functions</h2>
 <div class="refsect2">
 <a name="GstGLAsyncDebugLogGetMessage"></a><h3>GstGLAsyncDebugLogGetMessage ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
-<span class="c_punctuation">(</span>*GstGLAsyncDebugLogGetMessage<span class="c_punctuation">)</span> (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *
+<span class="c_punctuation">(</span>*GstGLAsyncDebugLogGetMessage<span class="c_punctuation">)</span> (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
 </div>
 <hr>
 <div class="refsect2">
@@ -326,13 +331,13 @@ gst_gl_async_debug_output_log_msg (<em class="parameter"><code><a class="link" h
 <a name="gst-gl-async-debug-store-log-msg"></a><h3>gst_gl_async_debug_store_log_msg ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_gl_async_debug_store_log_msg (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-debugging.html#GstGLAsyncDebug" title="struct GstGLAsyncDebug"><span class="type">GstGLAsyncDebug</span></a> *ad</code></em>,
-                                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0gstreamer-GstInfo.html#GstDebugCategory"><span class="type">GstDebugCategory</span></a> *cat</code></em>,
-                                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0gstreamer-GstInfo.html#GstDebugLevel"><span class="type">GstDebugLevel</span></a> level</code></em>,
-                                  <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *file</code></em>,
-                                  <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *function</code></em>,
-                                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> line</code></em>,
-                                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct"><span class="type">GObject</span></a> *object</code></em>,
-                                  <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *format</code></em>,
+                                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0/gstreamer-GstInfo.html#GstDebugCategory"><span class="type">GstDebugCategory</span></a> *cat</code></em>,
+                                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0/gstreamer-GstInfo.html#GstDebugLevel"><span class="type">GstDebugLevel</span></a> level</code></em>,
+                                  <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *file</code></em>,
+                                  <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *function</code></em>,
+                                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> line</code></em>,
+                                  <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct"><span class="type">GObject</span></a> *object</code></em>,
+                                  <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *format</code></em>,
                                   <em class="parameter"><code>...</code></em>);</pre>
 <p>Stores a debug message for later output by <a class="link" href="gst-plugins-bad-libs-OpenGL-debugging.html#gst-gl-async-debug-output-log-msg" title="gst_gl_async_debug_output_log_msg ()"><code class="function">gst_gl_async_debug_output_log_msg()</code></a></p>
 <div class="refsect3">
@@ -351,12 +356,12 @@ gst_gl_async_debug_store_log_msg (<em class="parameter"><code><a class="link" hr
 </tr>
 <tr>
 <td class="parameter_name"><p>cat</p></td>
-<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gstreamer-1.0gstreamer-GstInfo.html#GstDebugCategory"><span class="type">GstDebugCategory</span></a> to output the message in</p></td>
+<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gstreamer-1.0/gstreamer-GstInfo.html#GstDebugCategory"><span class="type">GstDebugCategory</span></a> to output the message in</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
 <td class="parameter_name"><p>level</p></td>
-<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gst-plugins-good-plugins-1.0gst-plugins-good-plugins-level.html#GstLevel-struct"><span class="type">GstLevel</span></a></p></td>
+<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gst-plugins-good-plugins-1.0/gst-plugins-good-plugins-level.html#GstLevel-struct"><span class="type">GstLevel</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -377,7 +382,7 @@ where the debug message originates from</p></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>object</p></td>
-<td class="parameter_description"><p> a <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct"><span class="type">GObject</span></a> to associate with the debug message. </p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct"><span class="type">GObject</span></a> to associate with the debug message. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
 </tr>
 <tr>
@@ -402,13 +407,13 @@ where the debug message originates from</p></td>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_gl_async_debug_store_log_msg_valist
                                (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-OpenGL-debugging.html#GstGLAsyncDebug" title="struct GstGLAsyncDebug"><span class="type">GstGLAsyncDebug</span></a> *ad</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0gstreamer-GstInfo.html#GstDebugCategory"><span class="type">GstDebugCategory</span></a> *cat</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0gstreamer-GstInfo.html#GstDebugLevel"><span class="type">GstDebugLevel</span></a> level</code></em>,
-                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *file</code></em>,
-                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *function</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a> line</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct"><span class="type">GObject</span></a> *object</code></em>,
-                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *format</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0/gstreamer-GstInfo.html#GstDebugCategory"><span class="type">GstDebugCategory</span></a> *cat</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0/gstreamer-GstInfo.html#GstDebugLevel"><span class="type">GstDebugLevel</span></a> level</code></em>,
+                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *file</code></em>,
+                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *function</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a> line</code></em>,
+                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct"><span class="type">GObject</span></a> *object</code></em>,
+                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *format</code></em>,
                                 <em class="parameter"><code><span class="type">va_list</span> varargs</code></em>);</pre>
 <p>Stores a debug message for later output by <a class="link" href="gst-plugins-bad-libs-OpenGL-debugging.html#gst-gl-async-debug-output-log-msg" title="gst_gl_async_debug_output_log_msg ()"><code class="function">gst_gl_async_debug_output_log_msg()</code></a></p>
 <div class="refsect3">
@@ -427,12 +432,12 @@ gst_gl_async_debug_store_log_msg_valist
 </tr>
 <tr>
 <td class="parameter_name"><p>cat</p></td>
-<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gstreamer-1.0gstreamer-GstInfo.html#GstDebugCategory"><span class="type">GstDebugCategory</span></a> to output the message in</p></td>
+<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gstreamer-1.0/gstreamer-GstInfo.html#GstDebugCategory"><span class="type">GstDebugCategory</span></a> to output the message in</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
 <td class="parameter_name"><p>level</p></td>
-<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gst-plugins-good-plugins-1.0gst-plugins-good-plugins-level.html#GstLevel-struct"><span class="type">GstLevel</span></a></p></td>
+<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gst-plugins-good-plugins-1.0/gst-plugins-good-plugins-level.html#GstLevel-struct"><span class="type">GstLevel</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -453,7 +458,7 @@ where the debug message originates from</p></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>object</p></td>
-<td class="parameter_description"><p> a <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct"><span class="type">GObject</span></a> to associate with the debug message. </p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct"><span class="type">GObject</span></a> to associate with the debug message. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
 </tr>
 <tr>
@@ -494,17 +499,17 @@ where the debug message originates from</p></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>cat</p></td>
-<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gstreamer-1.0gstreamer-GstInfo.html#GstDebugCategory"><span class="type">GstDebugCategory</span></a> to output the message in</p></td>
+<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gstreamer-1.0/gstreamer-GstInfo.html#GstDebugCategory"><span class="type">GstDebugCategory</span></a> to output the message in</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
 <td class="parameter_name"><p>level</p></td>
-<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gst-plugins-good-plugins-1.0gst-plugins-good-plugins-level.html#GstLevel-struct"><span class="type">GstLevel</span></a></p></td>
+<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gst-plugins-good-plugins-1.0/gst-plugins-good-plugins-level.html#GstLevel-struct"><span class="type">GstLevel</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
 <td class="parameter_name"><p>object</p></td>
-<td class="parameter_description"><p> a <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct"><span class="type">GObject</span></a> to associate with the debug message. </p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct"><span class="type">GObject</span></a> to associate with the debug message. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
 </tr>
 <tr>
@@ -544,17 +549,17 @@ where the debug message originates from</p></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>cat</p></td>
-<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gstreamer-1.0gstreamer-GstInfo.html#GstDebugCategory"><span class="type">GstDebugCategory</span></a> to output the message in</p></td>
+<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gstreamer-1.0/gstreamer-GstInfo.html#GstDebugCategory"><span class="type">GstDebugCategory</span></a> to output the message in</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
 <td class="parameter_name"><p>level</p></td>
-<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gst-plugins-good-plugins-1.0gst-plugins-good-plugins-level.html#GstLevel-struct"><span class="type">GstLevel</span></a></p></td>
+<td class="parameter_description"><p>the <a href="/usr/share/gtk-doc/html/gst-plugins-good-plugins-1.0/gst-plugins-good-plugins-level.html#GstLevel-struct"><span class="type">GstLevel</span></a></p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
 <td class="parameter_name"><p>object</p></td>
-<td class="parameter_description"><p> a <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct"><span class="type">GObject</span></a> to associate with the debug message. </p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct"><span class="type">GObject</span></a> to associate with the debug message. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
 </tr>
 <tr>
@@ -577,10 +582,10 @@ where the debug message originates from</p></td>
 <a name="gst-gl-insert-debug-marker"></a><h3>gst_gl_insert_debug_marker ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_gl_insert_debug_marker (<em class="parameter"><code><a class="link" href="GstGLContext.html" title="GstGLContext"><span class="type">GstGLContext</span></a> *context</code></em>,
-                            <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *format</code></em>,
+                            <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *format</code></em>,
                             <em class="parameter"><code>...</code></em>);</pre>
 <p>Inserts a marker into a GL debug stream.  Requires the 'gldebugmarker'
-debug category to be at least <a href="/usr/share/gtk-doc/html/gstreamer-1.0gstreamer-GstInfo.html#GST-LEVEL-FIXME:CAPS"><code class="literal">GST_LEVEL_FIXME</code></a>.</p>
+debug category to be at least <a href="/usr/share/gtk-doc/html/gstreamer-1.0/gstreamer-GstInfo.html#GST-LEVEL-FIXME:CAPS"><code class="literal">GST_LEVEL_FIXME</code></a>.</p>
 <div class="refsect3">
 <a name="gst-gl-insert-debug-marker.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -629,6 +634,6 @@ provided API.</p>
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.25</div>
+<hr>Generated by GTK-Doc V1.26</div>
 </body>
 </html>

@@ -8,7 +8,7 @@
 <link rel="up" href="base.html" title="GStreamer Base classes from gst-plugins-bad">
 <link rel="prev" href="GstAggregator.html" title="GstAggregator">
 <link rel="next" href="video.html" title="Video helpers and baseclasses">
-<meta name="generator" content="GTK-Doc V1.25 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.26 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -42,7 +42,7 @@
 <tbody>
 <tr>
 <td class="function_type">
-<a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="returnvalue">GstBuffer</span></a> *
+<a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstBuffer.html#GstBuffer-struct"><span class="returnvalue">GstBuffer</span></a> *
 </td>
 <td class="function_name">
 <a class="link" href="GstAggregatorPad.html#gst-aggregator-pad-steal-buffer" title="gst_aggregator_pad_steal_buffer ()">gst_aggregator_pad_steal_buffer</a> <span class="c_punctuation">()</span>
@@ -50,7 +50,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="returnvalue">GstBuffer</span></a> *
+<a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstBuffer.html#GstBuffer-struct"><span class="returnvalue">GstBuffer</span></a> *
 </td>
 <td class="function_name">
 <a class="link" href="GstAggregatorPad.html#gst-aggregator-pad-get-buffer" title="gst_aggregator_pad_get_buffer ()">gst_aggregator_pad_get_buffer</a> <span class="c_punctuation">()</span>
@@ -58,7 +58,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="GstAggregatorPad.html#gst-aggregator-pad-drop-buffer" title="gst_aggregator_pad_drop_buffer ()">gst_aggregator_pad_drop_buffer</a> <span class="c_punctuation">()</span>
@@ -66,7 +66,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="GstAggregatorPad.html#gst-aggregator-pad-is-eos" title="gst_aggregator_pad_is_eos ()">gst_aggregator_pad_is_eos</a> <span class="c_punctuation">()</span>
@@ -96,12 +96,17 @@
 </div>
 <div class="refsect1">
 <a name="GstAggregatorPad.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
-    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
-            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstPad.html#GstPad-struct">GstPad</a>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
+    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstObject.html#GstObject-struct">GstObject</a>
+            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPad.html#GstPad-struct">GstPad</a>
                 <span class="lineart">╰──</span> GstAggregatorPad
                     <span class="lineart">╰──</span> <a class="link" href="GstVideoAggregatorPad.html" title="GstVideoAggregatorPad">GstVideoAggregatorPad</a>
+</pre>
+</div>
+<div class="refsect1">
+<a name="GstAggregatorPad.includes"></a><h2>Includes</h2>
+<pre class="synopsis">#include &lt;gst/codecparsers/gstmpeg4parser.h&gt;
 </pre>
 </div>
 <div class="refsect1">
@@ -111,7 +116,7 @@
 <a name="GstAggregatorPad.functions_details"></a><h2>Functions</h2>
 <div class="refsect2">
 <a name="gst-aggregator-pad-steal-buffer"></a><h3>gst_aggregator_pad_steal_buffer ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="returnvalue">GstBuffer</span></a> *
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstBuffer.html#GstBuffer-struct"><span class="returnvalue">GstBuffer</span></a> *
 gst_aggregator_pad_steal_buffer (<em class="parameter"><code><a class="link" href="GstAggregatorPad.html" title="GstAggregatorPad"><span class="type">GstAggregatorPad</span></a> *pad</code></em>);</pre>
 <p>Steal the ref to the buffer currently queued in <em class="parameter"><code>pad</code></em>
 .</p>
@@ -132,7 +137,7 @@ gst_aggregator_pad_steal_buffer (<em class="parameter"><code><a class="link" hre
 </div>
 <div class="refsect3">
 <a name="gst-aggregator-pad-steal-buffer.returns"></a><h4>Returns</h4>
-<p> The buffer in <em class="parameter"><code>pad</code></em>
+<p>The buffer in <em class="parameter"><code>pad</code></em>
 or NULL if no buffer was
 queued. You should unref the buffer after usage. </p>
 <p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
@@ -141,7 +146,7 @@ queued. You should unref the buffer after usage. </p>
 <hr>
 <div class="refsect2">
 <a name="gst-aggregator-pad-get-buffer"></a><h3>gst_aggregator_pad_get_buffer ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/gstreamer-1.0GstBuffer.html#GstBuffer-struct"><span class="returnvalue">GstBuffer</span></a> *
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstBuffer.html#GstBuffer-struct"><span class="returnvalue">GstBuffer</span></a> *
 gst_aggregator_pad_get_buffer (<em class="parameter"><code><a class="link" href="GstAggregatorPad.html" title="GstAggregatorPad"><span class="type">GstAggregatorPad</span></a> *pad</code></em>);</pre>
 <div class="refsect3">
 <a name="gst-aggregator-pad-get-buffer.parameters"></a><h4>Parameters</h4>
@@ -160,7 +165,7 @@ gst_aggregator_pad_get_buffer (<em class="parameter"><code><a class="link" href=
 </div>
 <div class="refsect3">
 <a name="gst-aggregator-pad-get-buffer.returns"></a><h4>Returns</h4>
-<p> A reference to the buffer in <em class="parameter"><code>pad</code></em>
+<p>A reference to the buffer in <em class="parameter"><code>pad</code></em>
 or
 NULL if no buffer was queued. You should unref the buffer after
 usage. </p>
@@ -170,7 +175,7 @@ usage. </p>
 <hr>
 <div class="refsect2">
 <a name="gst-aggregator-pad-drop-buffer"></a><h3>gst_aggregator_pad_drop_buffer ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_aggregator_pad_drop_buffer (<em class="parameter"><code><a class="link" href="GstAggregatorPad.html" title="GstAggregatorPad"><span class="type">GstAggregatorPad</span></a> *pad</code></em>);</pre>
 <p>Drop the buffer currently queued in <em class="parameter"><code>pad</code></em>
 .</p>
@@ -198,7 +203,7 @@ gst_aggregator_pad_drop_buffer (<em class="parameter"><code><a class="link" href
 <hr>
 <div class="refsect2">
 <a name="gst-aggregator-pad-is-eos"></a><h3>gst_aggregator_pad_is_eos ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 gst_aggregator_pad_is_eos (<em class="parameter"><code><a class="link" href="GstAggregatorPad.html" title="GstAggregatorPad"><span class="type">GstAggregatorPad</span></a> *pad</code></em>);</pre>
 </div>
 </div>
@@ -251,6 +256,6 @@ pads to be flushed while others might not be.</p></td>
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.25</div>
+<hr>Generated by GTK-Doc V1.26</div>
 </body>
 </html>

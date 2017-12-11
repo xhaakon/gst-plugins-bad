@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.12.3],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.12.4],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,7 +51,7 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 1203, 0, 1203)
+AS_LIBTOOL(GST, 1204, 0, 1204)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.12.0
@@ -2809,19 +2809,8 @@ dnl *** OpenJPEG ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_OPENJPEG, true)
 AG_GST_CHECK_FEATURE(OPENJPEG, [openjpeg library], openjpeg, [
   HAVE_OPENJPEG="no"
-  AG_GST_PKG_CHECK_MODULES(OPENJPEG, libopenjp2 >= 2.0)
-  if test x"$HAVE_OPENJPEG" = x"yes"; then
-    dnl minor API changes in v2.1
-    AG_GST_PKG_CHECK_MODULES(OPENJPEG_2_1, libopenjp2 >= 2.1)
-    if test x"$HAVE_OPENJPEG_2_1" = x"yes"; then
-      AC_DEFINE([HAVE_OPENJPEG_2_1], 1, [Define if OpenJPEG 2.1 is used])
-        dnl include paths changed for v2.2
-        AG_GST_PKG_CHECK_MODULES(OPENJPEG_2_2, libopenjp2 >= 2.2)
-        if test x"$HAVE_OPENJPEG_2_2" = x"yes"; then
-          AC_DEFINE([HAVE_OPENJPEG_2_2], 1, [Define if OpenJPEG 2.2 is used])
-        fi
-    fi
-  else
+  AG_GST_PKG_CHECK_MODULES(OPENJPEG, libopenjp2 >= 2.1)
+  if test x"$HAVE_OPENJPEG" != x"yes"; then
     # Fallback to v1.5
     OPENJPEG_LIBS=""
     PKG_CHECK_MODULES(OPENJPEG, libopenjpeg1,

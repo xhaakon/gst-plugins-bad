@@ -8,7 +8,7 @@
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-coloreffects.html" title="coloreffects">
 <link rel="next" href="gst-plugins-bad-plugins-cvdilate.html" title="cvdilate">
-<meta name="generator" content="GTK-Doc V1.25 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.26 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -70,12 +70,12 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-compositor.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
-    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobjectgobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstObject.html#GstObject-struct">GstObject</a>
-            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstElement.html#GstElement-struct">GstElement</a>
-                <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0GstAggregator.html#GstAggregator-struct">GstAggregator</a>
-                    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0GstVideoAggregator.html#GstVideoAggregator-struct">GstVideoAggregator</a>
+<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
+    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstObject.html#GstObject-struct">GstObject</a>
+            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstElement.html#GstElement-struct">GstElement</a>
+                <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0/GstAggregator.html#GstAggregator-struct">GstAggregator</a>
+                    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-bad-libs-1.0/GstVideoAggregator.html#GstVideoAggregator-struct">GstVideoAggregator</a>
                         <span class="lineart">╰──</span> GstCompositor
 </pre>
 </div>
@@ -83,7 +83,7 @@
 <a name="gst-plugins-bad-plugins-compositor.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
 <p>
 GstCompositor implements
- <a href="/usr/share/gtk-doc/html/gstreamer-1.0GstChildProxy.html#GstChildProxy-struct">GstChildProxy</a>.</p>
+ <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstChildProxy.html#GstChildProxy-struct">GstChildProxy</a>.</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-compositor.description"></a><h2>Description</h2>
@@ -95,13 +95,13 @@ biggest incoming video stream and the framerate of the fastest incoming one.</p>
 <p>Individual parameters for each input stream can be configured on the
 <span class="type">GstCompositorPad</span>:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem"><p>"xpos": The x-coordinate position of the top-left corner of the picture (<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)</p></li>
-<li class="listitem"><p>"ypos": The y-coordinate position of the top-left corner of the picture (<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)</p></li>
-<li class="listitem"><p>"width": The width of the picture; the input will be scaled if necessary (<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)</p></li>
-<li class="listitem"><p>"height": The height of the picture; the input will be scaled if necessary (<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gint"><span class="type">gint</span></a>)</p></li>
+<li class="listitem"><p>"xpos": The x-coordinate position of the top-left corner of the picture (<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a>)</p></li>
+<li class="listitem"><p>"ypos": The y-coordinate position of the top-left corner of the picture (<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a>)</p></li>
+<li class="listitem"><p>"width": The width of the picture; the input will be scaled if necessary (<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a>)</p></li>
+<li class="listitem"><p>"height": The height of the picture; the input will be scaled if necessary (<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a>)</p></li>
 <li class="listitem"><p>"alpha": The transparency of the picture; between 0.0 and 1.0. The blending
-is a simple copy when fully-transparent (0.0) and fully-opaque (1.0). (<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a>)</p></li>
-<li class="listitem"><p>"zorder": The z-order position of the picture in the composition (<a href="/usr/share/gtk-doc/html/glibglib-Basic-Types.html#guint"><span class="type">guint</span></a>)</p></li>
+is a simple copy when fully-transparent (0.0) and fully-opaque (1.0). (<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a>)</p></li>
+<li class="listitem"><p>"zorder": The z-order position of the picture in the composition (<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a>)</p></li>
 </ul></div>
 <div class="refsect3">
 <a name="id-1.2.17.8.6"></a><h4>Sample pipelines</h4>
@@ -345,6 +345,6 @@ framerate of the output video is 10 frames per second.</p>
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.25</div>
+<hr>Generated by GTK-Doc V1.26</div>
 </body>
 </html>
