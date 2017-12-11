@@ -1,4 +1,3 @@
-0001-gl-wayland-call-eglTerminate-before-wl_display_disco.patch
 01_fix-modplug-linking.patch
 0001-openjpeg-Support-building-with-openjpeg-2.3.patch
 pcfile-requires-plugins-good

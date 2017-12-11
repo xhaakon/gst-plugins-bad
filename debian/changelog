@@ -1,3 +1,23 @@
+gst-plugins-bad1.0 (1.12.4-2ubuntu1) UNRELEASED; urgency=medium
+
+  * Merge with Debian unstable; remaining changes:
+    + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
+    moved to -good.
+    + Provide gstreamer-plugins-bad-1.0.pc with Requires on
+      gstreamer-plugins-good-1.0 - the package we've moved the referenced
+      library to. This maintains compatibility with upstream software and
+      other distributions.
+    + Disable gl and glx on armhf as it's not useful there.
+    + debian/control{,.in}: Update Vcs-* for Ubuntu
+    + C/R/P old -videoparsers and -faad
+    + debian/patches/fix-lp1698287.patch: Prefer native Wayland over
+      X11/Xwayland if both are available. This fixes VA-API initialization
+      failure in Gnome Shell Wayland sessions.
+  * debian/patches/0001-gl-wayland-call-eglTerminate-before-wl_display_disco.patch:
+    Drop, applied upstream.
+
+ -- Iain Lane <iain.lane@canonical.com>  Mon, 11 Dec 2017 15:12:02 +0000
+
 gst-plugins-bad1.0 (1.12.4-2) unstable; urgency=medium
 
   * debian/rules:
