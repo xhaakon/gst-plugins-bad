@@ -15,6 +15,8 @@ gst-plugins-bad1.0 (1.12.4-2ubuntu1) UNRELEASED; urgency=medium
       failure in Gnome Shell Wayland sessions.
   * debian/patches/0001-gl-wayland-call-eglTerminate-before-wl_display_disco.patch:
     Drop, applied upstream.
+  * debian/patches/0001-openjpeg-Support-building-with-openjpeg-2.3.patch:
+    Same
 
  -- Iain Lane <iain.lane@canonical.com>  Mon, 11 Dec 2017 15:12:02 +0000
 
