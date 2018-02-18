@@ -1,0 +1,27 @@
+From b23231d8c32770f24f0667c7a0f4097ce49fc46d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <sebastian@centricular.com>
+Date: Sun, 18 Feb 2018 12:01:07 +0200
+Subject: [PATCH] colormanagement: Link to libgstbase for basetransform
+
+---
+ ext/colormanagement/Makefile.am | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/ext/colormanagement/Makefile.am b/ext/colormanagement/Makefile.am
+index ff4a7c2ef..e61e7201e 100644
+--- a/ext/colormanagement/Makefile.am
++++ b/ext/colormanagement/Makefile.am
+@@ -3,8 +3,8 @@ plugin_LTLIBRARIES = libgstcolormanagement.la
+ libgstcolormanagement_la_SOURCES = gstcolormanagement.c \
+ 	gstlcms.c
+ 
+-libgstcolormanagement_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_CFLAGS) $(LCMS2_CFLAGS)
+-libgstcolormanagement_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) -lgstvideo-1.0 $(GST_LIBS) $(LCMS2_LIBS)
++libgstcolormanagement_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS) $(LCMS2_CFLAGS)
++libgstcolormanagement_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) -lgstvideo-1.0 $(GST_BASE_LIBS) $(GST_LIBS) $(LCMS2_LIBS)
+ libgstcolormanagement_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+ libgstcolormanagement_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
+ 
+-- 
+2.16.1
+
