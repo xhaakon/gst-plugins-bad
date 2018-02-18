@@ -121,6 +121,45 @@ G_DEFINE_TYPE_WITH_CODE (GstWaylandSink, gst_wayland_sink, GST_TYPE_VIDEO_SINK,
     G_IMPLEMENT_INTERFACE (GST_TYPE_WAYLAND_VIDEO,
         gst_wayland_sink_waylandvideo_init));
 
+/* A tiny GstVideoBufferPool subclass that modify the options to remove
+ * VideoAlignment. To support VideoAlignment we would need to pass the padded
+ * width/height + stride and use the viewporter interface to crop, a bit like
+ * we use to do with XV. It would still be quite limited. It's a bit retro,
+ * hopefully there will be a better Wayland interface in the future. */
+
+GType gst_wayland_pool_get_type (void);
+
+typedef struct
+{
+  GstVideoBufferPool parent;
+} GstWaylandPool;
+
+typedef struct
+{
+  GstVideoBufferPoolClass parent;
+} GstWaylandPoolClass;
+
+G_DEFINE_TYPE (GstWaylandPool, gst_wayland_pool, GST_TYPE_VIDEO_BUFFER_POOL);
+
+static const gchar **
+gst_wayland_pool_get_options (GstBufferPool * pool)
+{
+  static const gchar *options[] = { GST_BUFFER_POOL_OPTION_VIDEO_META, NULL };
+  return options;
+}
+
+static void
+gst_wayland_pool_class_init (GstWaylandPoolClass * klass)
+{
+  GstBufferPoolClass *pool_class = GST_BUFFER_POOL_CLASS (klass);
+  pool_class->get_options = gst_wayland_pool_get_options;
+}
+
+static void
+gst_wayland_pool_init (GstWaylandPool * pool)
+{
+}
+
 static void
 gst_wayland_sink_class_init (GstWaylandSinkClass * klass)
 {
@@ -457,7 +496,7 @@ gst_wayland_create_pool (GstWaylandSink * sink, GstCaps * caps)
   gsize size = sink->video_info.size;
   GstAllocator *alloc;
 
-  pool = gst_video_buffer_pool_new ();
+  pool = g_object_new (gst_wayland_pool_get_type (), NULL);
 
   structure = gst_buffer_pool_get_config (pool);
   gst_buffer_pool_config_set_params (structure, caps, size, 2, 0);
@@ -539,10 +578,10 @@ gst_wayland_sink_propose_allocation (GstBaseSink * bsink, GstQuery * query)
   if (need_pool)
     pool = gst_wayland_create_pool (sink, caps);
 
-  if (pool) {
-    gst_query_add_allocation_pool (query, pool, sink->video_info.size, 2, 0);
+  gst_query_add_allocation_pool (query, pool, sink->video_info.size, 2, 0);
+  if (pool)
     g_object_unref (pool);
-  }
+
   alloc = gst_wl_shm_allocator_get ();
   gst_query_add_allocation_param (query, alloc, NULL);
   gst_query_add_allocation_meta (query, GST_VIDEO_META_API_TYPE, NULL);
@@ -571,7 +610,7 @@ static const struct wl_callback_listener frame_callback_listener = {
 
 /* must be called with the render lock */
 static void
-render_last_buffer (GstWaylandSink * sink)
+render_last_buffer (GstWaylandSink * sink, gboolean redraw)
 {
   GstWlBuffer *wlbuffer;
   const GstVideoInfo *info = NULL;
@@ -585,7 +624,7 @@ render_last_buffer (GstWaylandSink * sink)
   callback = wl_surface_frame (surface);
   wl_callback_add_listener (callback, &frame_callback_listener, sink);
 
-  if (G_UNLIKELY (sink->video_info_changed)) {
+  if (G_UNLIKELY (sink->video_info_changed && !redraw)) {
     info = &sink->video_info;
     sink->video_info_changed = FALSE;
   }
@@ -600,6 +639,7 @@ gst_wayland_sink_show_frame (GstVideoSink * vsink, GstBuffer * buffer)
   GstWlBuffer *wlbuffer;
   GstVideoMeta *vmeta;
   GstVideoFormat format;
+  GstVideoInfo old_vinfo;
   GstMemory *mem;
   struct wl_buffer *wbuf = NULL;
 
@@ -645,6 +685,7 @@ gst_wayland_sink_show_frame (GstVideoSink * vsink, GstBuffer * buffer)
   /* update video info from video meta */
   mem = gst_buffer_peek_memory (buffer, 0);
 
+  old_vinfo = sink->video_info;
   vmeta = gst_buffer_get_video_meta (buffer);
   if (vmeta) {
     gint i;
@@ -653,7 +694,7 @@ gst_wayland_sink_show_frame (GstVideoSink * vsink, GstBuffer * buffer)
       sink->video_info.offset[i] = vmeta->offset[i];
       sink->video_info.stride[i] = vmeta->stride[i];
     }
-    sink->video_info.size = mem->size;
+    sink->video_info.size = gst_buffer_get_size (buffer);
   }
 
   GST_LOG_OBJECT (sink, "buffer %p does not have a wl_buffer from our "
@@ -673,12 +714,17 @@ gst_wayland_sink_show_frame (GstVideoSink * vsink, GstBuffer * buffer)
   }
 
   if (!wbuf && gst_wl_display_check_format_for_shm (sink->display, format)) {
-    if (gst_is_fd_memory (mem)) {
+    if (gst_buffer_n_memory (buffer) == 1 && gst_is_fd_memory (mem))
       wbuf = gst_wl_shm_memory_construct_wl_buffer (mem, sink->display,
           &sink->video_info);
-    } else {
+
+    /* If nothing worked, copy into our internal pool */
+    if (!wbuf) {
       GstVideoFrame src, dst;
       GstVideoInfo src_info = sink->video_info;
+
+      /* rollback video info changes */
+      sink->video_info = old_vinfo;
 
       /* we don't know how to create a wl_buffer directly from the provided
        * memory, so we have to copy the data to shm memory that we know how
@@ -695,6 +741,9 @@ gst_wayland_sink_show_frame (GstVideoSink * vsink, GstBuffer * buffer)
 
         config = gst_buffer_pool_get_config (sink->pool);
         gst_buffer_pool_config_get_params (config, &caps, NULL, NULL, NULL);
+
+        /* revert back to default strides and offsets */
+        gst_video_info_from_caps (&sink->video_info, caps);
         gst_buffer_pool_config_set_params (config, caps, sink->video_info.size,
             2, 0);
 
@@ -754,7 +803,7 @@ render:
   }
 
   gst_buffer_replace (&sink->last_buffer, to_render);
-  render_last_buffer (sink);
+  render_last_buffer (sink, FALSE);
 
   if (buffer != to_render)
     gst_buffer_unref (to_render);
@@ -897,7 +946,7 @@ gst_wayland_sink_expose (GstVideoOverlay * overlay)
   g_mutex_lock (&sink->render_lock);
   if (sink->last_buffer && !sink->redraw_pending) {
     GST_DEBUG_OBJECT (sink, "redrawing last buffer");
-    render_last_buffer (sink);
+    render_last_buffer (sink, TRUE);
   }
   g_mutex_unlock (&sink->render_lock);
 }

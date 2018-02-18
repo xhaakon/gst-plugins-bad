@@ -169,9 +169,9 @@ gst_mxf_mux_class_init (GstMXFMuxClass * klass)
   gstaggregator_class->sink_event = GST_DEBUG_FUNCPTR (gst_mxf_mux_sink_event);
   gstaggregator_class->stop = GST_DEBUG_FUNCPTR (gst_mxf_mux_stop);
   gstaggregator_class->aggregate = GST_DEBUG_FUNCPTR (gst_mxf_mux_aggregate);
-  gstaggregator_class->sinkpads_type = GST_TYPE_MXF_MUX_PAD;
 
-  gst_element_class_add_static_pad_template (gstelement_class, &src_templ);
+  gst_element_class_add_static_pad_template_with_gtype (gstelement_class,
+      &src_templ, GST_TYPE_MXF_MUX_PAD);
 
   p = mxf_essence_element_writer_get_pad_templates ();
   while (p && *p) {
@@ -489,7 +489,7 @@ gst_mxf_mux_create_metadata (GstMXFMux * mux)
       return GST_FLOW_ERROR;
     }
 
-    buffer = gst_aggregator_pad_get_buffer (GST_AGGREGATOR_PAD (pad));
+    buffer = gst_aggregator_pad_peek_buffer (GST_AGGREGATOR_PAD (pad));
     if (pad->writer->update_descriptor)
       pad->writer->update_descriptor (pad->descriptor,
           caps, pad->mapping_data, buffer);
@@ -692,7 +692,7 @@ gst_mxf_mux_create_metadata (GstMXFMux * mux)
           mux->metadata_list = g_list_prepend (mux->metadata_list, track);
 
           caps = gst_pad_get_current_caps (GST_PAD_CAST (pad));
-          buffer = gst_aggregator_pad_get_buffer (GST_AGGREGATOR_PAD (pad));
+          buffer = gst_aggregator_pad_peek_buffer (GST_AGGREGATOR_PAD (pad));
           track->parent.track_id = n + 1;
           track->parent.track_number =
               pad->writer->get_track_number_template (pad->descriptor,
@@ -812,7 +812,7 @@ gst_mxf_mux_create_metadata (GstMXFMux * mux)
           track->parent.track_number = 0;
 
           caps = gst_pad_get_current_caps (GST_PAD_CAST (pad));
-          buffer = gst_aggregator_pad_get_buffer (GST_AGGREGATOR_PAD (pad));
+          buffer = gst_aggregator_pad_peek_buffer (GST_AGGREGATOR_PAD (pad));
           pad->writer->get_edit_rate (pad->descriptor,
               caps, pad->mapping_data,
               buffer, source_package, source_track, &track->edit_rate);
@@ -1208,7 +1208,7 @@ static const guint8 _gc_essence_element_ul[] = {
 static GstFlowReturn
 gst_mxf_mux_handle_buffer (GstMXFMux * mux, GstMXFMuxPad * pad)
 {
-  GstBuffer *buf = gst_aggregator_pad_get_buffer (GST_AGGREGATOR_PAD (pad));
+  GstBuffer *buf = gst_aggregator_pad_peek_buffer (GST_AGGREGATOR_PAD (pad));
   GstBuffer *outbuf = NULL;
   GstMapInfo map;
   gsize buf_size;
@@ -1231,7 +1231,7 @@ gst_mxf_mux_handle_buffer (GstMXFMux * mux, GstMXFMuxPad * pad)
   } else if (!flush) {
     if (buf)
       gst_buffer_unref (buf);
-    buf = gst_aggregator_pad_steal_buffer (GST_AGGREGATOR_PAD (pad));
+    buf = gst_aggregator_pad_pop_buffer (GST_AGGREGATOR_PAD (pad));
   }
 
   if (buf) {
@@ -1466,7 +1466,7 @@ gst_mxf_mux_handle_eos (GstMXFMux * mux)
     for (l = GST_ELEMENT_CAST (mux)->sinkpads; l; l = l->next) {
       GstMXFMuxPad *pad = l->data;
       GstBuffer *buffer =
-          gst_aggregator_pad_get_buffer (GST_AGGREGATOR_PAD (pad));
+          gst_aggregator_pad_peek_buffer (GST_AGGREGATOR_PAD (pad));
 
       GstClockTime next_gc_timestamp =
           gst_util_uint64_scale ((mux->last_gc_position + 1) * GST_SECOND,
@@ -1780,7 +1780,7 @@ gst_mxf_mux_aggregate (GstAggregator * aggregator, gboolean timeout)
       if (!pad_eos)
         eos = FALSE;
 
-      buffer = gst_aggregator_pad_get_buffer (GST_AGGREGATOR_PAD (pad));
+      buffer = gst_aggregator_pad_peek_buffer (GST_AGGREGATOR_PAD (pad));
 
       if ((!pad_eos || pad->have_complete_edit_unit ||
               gst_adapter_available (pad->adapter) > 0 || buffer)

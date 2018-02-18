@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.12.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-12-07 19:24+0200\n"
+"POT-Creation-Date: 2018-02-15 17:13+0000\n"
 "PO-Revision-Date: 2017-10-24 22:43+0100\n"
 "Last-Translator: Freek de Kruijf <f.de.kruijf@gmail.com>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
@@ -19,14 +19,8 @@ msgstr ""
 "X-Generator: Lokalize 2.0\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-msgid "failed to draw pattern"
-msgstr "patroon tekenen is mislukt"
-
-msgid "A GL error occured"
-msgstr "Er trad een GL-fout op"
-
-msgid "format wasn't negotiated before get function"
-msgstr "formaat is niet onderhandeld vóór get-functie"
+msgid "No URL set."
+msgstr ""
 
 msgid "OpenCV failed to load template image"
 msgstr "OpenCV kon sjabloonafbeelding niet laden"
@@ -131,6 +125,15 @@ msgstr "Kon het configuratiebestand van het kanaal niet vinden: '%s'"
 
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "Het configuratiebestand bevat geen enkel kanaal"
+
+#~ msgid "failed to draw pattern"
+#~ msgstr "patroon tekenen is mislukt"
+
+#~ msgid "A GL error occured"
+#~ msgstr "Er trad een GL-fout op"
+
+#~ msgid "format wasn't negotiated before get function"
+#~ msgstr "formaat is niet onderhandeld vóór get-functie"
 
 #~ msgid "Could not establish connection to sndio"
 #~ msgstr "Kon geen verbinding opzetten naar sndio"

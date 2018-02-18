@@ -1,5 +1,10 @@
 msdk_sources = [
   'gstmsdk.c',
+  'gstmsdkcontext.c',
+  'gstmsdkcontextutil.c',
+  'gstmsdksystemmemory.c',
+  'gstmsdkvideomemory.c',
+  'gstmsdkbufferpool.c',
   'gstmsdkdec.c',
   'gstmsdkenc.c',
   'gstmsdkh264dec.c',
@@ -8,22 +13,20 @@ msdk_sources = [
   'gstmsdkh265enc.c',
   'gstmsdkmjpegdec.c',
   'gstmsdkmjpegenc.c',
+  'gstmsdkmpeg2dec.c',
   'gstmsdkmpeg2enc.c',
+  'gstmsdkvp8dec.c',
   'gstmsdkvp8enc.c',
+  'gstmsdkvc1dec.c',
   'msdk.c',
-  'dummy.cpp', # This forces C++ linking of gstmsdk, which is
-               # required by libmfx.a. This can be removed when we
-               # depend on a version of meson that has a fix for
-               # https://github.com/mesonbuild/meson/issues/1653
 ]
 
 if host_machine.system() == 'windows'
-  msdk_sources += 'msdk_d3d.c'
+  msdk_sources += ['msdk_d3d.c', 'gstmsdkallocator_d3d.c' ]
 else
-  msdk_sources += 'msdk_libva.c'
+  msdk_sources += ['msdk_libva.c', 'gstmsdkallocator_libva.c']
 endif
 
-python3 = find_program('python3')
 msdk_root = run_command(python3, '-c', 'import os; print(os.environ.get("INTELMEDIASDKROOT", os.environ.get("MFX_HOME", "")))').stdout().strip()
 
 if msdk_root != ''
@@ -38,8 +41,9 @@ if msdk_root != ''
   else
     libva_dep = dependency('libva-drm', required: false)
     libdl_dep = cc.find_library('dl', required: false)
-    msdk_dep = declare_dependency(include_directories: msdk_incdir, dependencies: [msdk_lib, libva_dep, libdl_dep])
-    msdk_dep_found = msdk_lib.found() and libva_dep.found() and libdl_dep.found()
+    libgudev_dep = dependency('gudev-1.0', required : false)
+    msdk_dep = declare_dependency(include_directories: msdk_incdir, dependencies: [msdk_lib, libva_dep, libdl_dep, libgudev_dep])
+    msdk_dep_found = msdk_lib.found() and libva_dep.found() and libdl_dep.found() and libgudev_dep.found()
   endif
 
   if msdk_dep_found

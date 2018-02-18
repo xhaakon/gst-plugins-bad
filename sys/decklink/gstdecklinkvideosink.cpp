@@ -38,12 +38,12 @@ public:
     g_mutex_init (&m_mutex);
   }
 
-  virtual HRESULT QueryInterface (REFIID, LPVOID *)
+  virtual HRESULT WINAPI QueryInterface (REFIID, LPVOID *)
   {
     return E_NOINTERFACE;
   }
 
-  virtual ULONG AddRef (void)
+  virtual ULONG WINAPI AddRef (void)
   {
     ULONG ret;
 
@@ -55,7 +55,7 @@ public:
     return ret;
   }
 
-  virtual ULONG Release (void)
+  virtual ULONG WINAPI Release (void)
   {
     ULONG ret;
 
@@ -71,8 +71,8 @@ public:
     return ret;
   }
 
-  virtual HRESULT ScheduledFrameCompleted (IDeckLinkVideoFrame * completedFrame,
-      BMDOutputFrameCompletionResult result)
+  virtual HRESULT WINAPI ScheduledFrameCompleted (IDeckLinkVideoFrame *
+      completedFrame, BMDOutputFrameCompletionResult result)
   {
     switch (result) {
       case bmdOutputFrameCompleted:
@@ -96,9 +96,15 @@ public:
     return S_OK;
   }
 
-  virtual HRESULT ScheduledPlaybackHasStopped (void)
+  virtual HRESULT WINAPI ScheduledPlaybackHasStopped (void)
   {
     GST_LOG_OBJECT (m_sink, "Scheduled playback stopped");
+
+    if (m_sink->output) {
+      g_mutex_lock (&m_sink->output->lock);
+      g_cond_signal (&m_sink->output->cond);
+      g_mutex_unlock (&m_sink->output->lock);
+    }
 
     return S_OK;
   }
@@ -120,7 +126,10 @@ enum
   PROP_MODE,
   PROP_DEVICE_NUMBER,
   PROP_VIDEO_FORMAT,
-  PROP_TIMECODE_FORMAT
+  PROP_TIMECODE_FORMAT,
+  PROP_KEYER_MODE,
+  PROP_KEYER_LEVEL,
+  PROP_HW_SERIAL_NUMBER
 };
 
 static void gst_decklink_video_sink_set_property (GObject * object,
@@ -227,6 +236,25 @@ gst_decklink_video_sink_class_init (GstDecklinkVideoSinkClass * klass)
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
               G_PARAM_CONSTRUCT)));
 
+  g_object_class_install_property (gobject_class, PROP_KEYER_MODE,
+      g_param_spec_enum ("keyer-mode", "Keyer mode",
+          "Keyer mode to be enabled",
+          GST_TYPE_DECKLINK_KEYER_MODE,
+          GST_DECKLINK_KEYER_MODE_OFF,
+          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
+              G_PARAM_CONSTRUCT)));
+
+  g_object_class_install_property (gobject_class, PROP_KEYER_LEVEL,
+      g_param_spec_int ("keyer-level", "Keyer level",
+          "Keyer level", 0, 255, 255,
+          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
+              G_PARAM_CONSTRUCT)));
+
+  g_object_class_install_property (gobject_class, PROP_HW_SERIAL_NUMBER,
+      g_param_spec_string ("hw-serial-number", "Hardware serial number",
+          "The serial number (hardware ID) of the Decklink card",
+          NULL, (GParamFlags) (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)));
+
   templ_caps = gst_decklink_mode_get_template_caps (FALSE);
   templ_caps = gst_caps_make_writable (templ_caps);
   /* For output we support any framerate and only really care about timestamps */
@@ -289,6 +317,14 @@ gst_decklink_video_sink_set_property (GObject * object, guint property_id,
           gst_decklink_timecode_format_from_enum ((GstDecklinkTimecodeFormat)
           g_value_get_enum (value));
       break;
+    case PROP_KEYER_MODE:
+      self->keyer_mode =
+          gst_decklink_keyer_mode_from_enum ((GstDecklinkKeyerMode)
+          g_value_get_enum (value));
+      break;
+    case PROP_KEYER_LEVEL:
+      self->keyer_level = g_value_get_int (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -314,6 +350,19 @@ gst_decklink_video_sink_get_property (GObject * object, guint property_id,
     case PROP_TIMECODE_FORMAT:
       g_value_set_enum (value,
           gst_decklink_timecode_format_to_enum (self->timecode_format));
+      break;
+    case PROP_KEYER_MODE:
+      g_value_set_enum (value,
+          gst_decklink_keyer_mode_to_enum (self->keyer_mode));
+      break;
+    case PROP_KEYER_LEVEL:
+      g_value_set_int (value, self->keyer_level);
+      break;
+    case PROP_HW_SERIAL_NUMBER:
+      if (self->output)
+        g_value_set_string (value, self->output->hw_serial_number);
+      else
+        g_value_set_string (value, NULL);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -387,6 +436,24 @@ gst_decklink_video_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
     g_assert (mode != NULL);
   };
 
+  /* enable or disable keyer */
+  if (self->output->keyer != NULL) {
+    if (self->keyer_mode == bmdKeyerModeOff) {
+      self->output->keyer->Disable ();
+    } else if (self->keyer_mode == bmdKeyerModeInternal) {
+      self->output->keyer->Enable (false);
+      self->output->keyer->SetLevel (self->keyer_level);
+    } else if (self->keyer_mode == bmdKeyerModeExternal) {
+      self->output->keyer->Enable (true);
+      self->output->keyer->SetLevel (self->keyer_level);
+    } else {
+      g_assert_not_reached ();
+    }
+  } else if (self->keyer_mode != bmdKeyerModeOff) {
+    GST_WARNING_OBJECT (self, "Failed to set keyer to mode %d",
+        self->keyer_mode);
+  }
+
   /* The timecode_format itself is used when we embed the actual timecode data
    * into the frame. Now we only need to know which of the two standards the
    * timecode format will adhere to: VITC or RP188, and send the appropriate
@@ -403,7 +470,8 @@ gst_decklink_video_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
 
   ret = self->output->output->EnableVideoOutput (mode->mode, flags);
   if (ret != S_OK) {
-    GST_WARNING_OBJECT (self, "Failed to enable video output: 0x%08x", ret);
+    GST_WARNING_OBJECT (self, "Failed to enable video output: 0x%08lx",
+        (unsigned long) ret);
     return FALSE;
   }
 
@@ -458,17 +526,16 @@ gst_decklink_video_sink_render (GstBaseSink * bsink, GstBuffer * buffer)
   return GST_FLOW_OK;
 }
 
-static void
-convert_to_internal_clock (GstDecklinkVideoSink * self,
+void
+gst_decklink_video_sink_convert_to_internal_clock (GstDecklinkVideoSink * self,
     GstClockTime * timestamp, GstClockTime * duration)
 {
-  GstClock *clock, *audio_clock;
+  GstClock *clock;
 
   g_assert (timestamp != NULL);
 
   clock = gst_element_get_clock (GST_ELEMENT_CAST (self));
-  audio_clock = gst_decklink_output_get_audio_clock (self->output);
-  if (clock && clock != self->output->clock && clock != audio_clock) {
+  if (clock && clock != self->output->clock) {
     GstClockTime internal, external, rate_n, rate_d;
     gst_clock_get_calibration (self->output->clock, &internal, &external,
         &rate_n, &rate_d);
@@ -610,7 +677,7 @@ gst_decklink_video_sink_prepare (GstBaseSink * bsink, GstBuffer * buffer)
       &frame);
   if (ret != S_OK) {
     GST_ELEMENT_ERROR (self, STREAM, FAILED,
-        (NULL), ("Failed to create video frame: 0x%08x", ret));
+        (NULL), ("Failed to create video frame: 0x%08lx", (unsigned long) ret));
     return GST_FLOW_ERROR;
   }
 
@@ -622,7 +689,8 @@ gst_decklink_video_sink_prepare (GstBaseSink * bsink, GstBuffer * buffer)
 
   frame->GetBytes ((void **) &outdata);
   indata = (guint8 *) GST_VIDEO_FRAME_PLANE_DATA (&vframe, 0);
-  stride = MIN (GST_VIDEO_FRAME_PLANE_STRIDE (&vframe, 0), frame->GetRowBytes());
+  stride =
+      MIN (GST_VIDEO_FRAME_PLANE_STRIDE (&vframe, 0), frame->GetRowBytes ());
   for (i = 0; i < self->info.height; i++) {
     memcpy (outdata, indata, stride);
     indata += GST_VIDEO_FRAME_PLANE_STRIDE (&vframe, 0);
@@ -650,7 +718,8 @@ gst_decklink_video_sink_prepare (GstBaseSink * bsink, GstBuffer * buffer)
         (uint8_t) tc_meta->tc.seconds, (uint8_t) tc_meta->tc.frames, bflags);
     if (ret != S_OK) {
       GST_ERROR_OBJECT (self,
-          "Failed to set timecode %s to video frame: 0x%08x", tc_str, ret);
+          "Failed to set timecode %s to video frame: 0x%08lx", tc_str,
+          (unsigned long) ret);
       flow_ret = GST_FLOW_ERROR;
       g_free (tc_str);
       goto out;
@@ -659,14 +728,15 @@ gst_decklink_video_sink_prepare (GstBaseSink * bsink, GstBuffer * buffer)
     g_free (tc_str);
   }
 
-  convert_to_internal_clock (self, &running_time, &running_time_duration);
+  gst_decklink_video_sink_convert_to_internal_clock (self, &running_time, &running_time_duration);
 
   if (!self->output->started) {
     GST_LOG_OBJECT (self, "Showing video frame synchronously because PAUSED");
     ret = self->output->output->DisplayVideoFrameSync (frame);
     if (ret != S_OK) {
       GST_ELEMENT_WARNING (self, STREAM, FAILED,
-          (NULL), ("Failed to show video frame synchronously: 0x%08x", ret));
+          (NULL), ("Failed to show video frame synchronously: 0x%08lx",
+              (unsigned long) ret));
       ret = S_OK;
     }
   }
@@ -679,7 +749,7 @@ gst_decklink_video_sink_prepare (GstBaseSink * bsink, GstBuffer * buffer)
       running_time, running_time_duration, GST_SECOND);
   if (ret != S_OK) {
     GST_ELEMENT_ERROR (self, STREAM, FAILED,
-        (NULL), ("Failed to schedule frame: 0x%08x", ret));
+        (NULL), ("Failed to schedule frame: 0x%08lx", (unsigned long) ret));
     flow_ret = GST_FLOW_ERROR;
     goto out;
   }
@@ -708,6 +778,8 @@ gst_decklink_video_sink_open (GstBaseSink * bsink)
     GST_ERROR_OBJECT (self, "Failed to acquire output");
     return FALSE;
   }
+
+  g_object_notify (G_OBJECT (self), "hw-serial-number");
 
   mode = gst_decklink_get_mode (self->mode);
   g_assert (mode != NULL);
@@ -773,97 +845,127 @@ gst_decklink_video_sink_start_scheduled_playback (GstElement * element)
   GstClockTime start_time;
   HRESULT res;
   bool active;
+  GstClock *clock = NULL;
 
-  if (self->output->video_enabled && (!self->output->audiosink
-          || self->output->audio_enabled)
-      && (GST_STATE (self) == GST_STATE_PLAYING
-          || GST_STATE_PENDING (self) == GST_STATE_PLAYING)) {
-    GstClock *clock = NULL;
-
-    clock = gst_element_get_clock (element);
-    if (!clock) {
-      GST_ELEMENT_ERROR (self, STREAM, FAILED, (NULL),
-          ("Scheduled playback supposed to start but we have no clock"));
-      return;
-    }
-    // Need to unlock to get the clock time
-    g_mutex_unlock (&self->output->lock);
-
-    // FIXME: start time is the same for the complete pipeline,
-    // but what we need here is the start time of this element!
-    start_time = gst_element_get_base_time (element);
-    if (start_time != GST_CLOCK_TIME_NONE)
-      start_time = gst_clock_get_time (clock) - start_time;
-
-    // FIXME: This will probably not work
-    if (start_time == GST_CLOCK_TIME_NONE)
-      start_time = 0;
-
-    // Current times of internal and external clock when we go to
-    // playing. We need this to convert the pipeline running time
-    // to the running time of the hardware
-    //
-    // We can't use the normal base time for the external clock
-    // because we might go to PLAYING later than the pipeline
-    self->internal_base_time =
-        gst_clock_get_internal_time (self->output->clock);
-    self->external_base_time = gst_clock_get_internal_time (clock);
-
-    convert_to_internal_clock (self, &start_time, NULL);
-
-    g_mutex_lock (&self->output->lock);
-    // Check if someone else started in the meantime
-    if (self->output->started) {
-      gst_object_unref (clock);
-      return;
-    }
-
-    active = false;
-    self->output->output->IsScheduledPlaybackRunning (&active);
-    if (active) {
-      GST_DEBUG_OBJECT (self, "Stopping scheduled playback");
-
-      self->output->started = FALSE;
-
-      res = self->output->output->StopScheduledPlayback (0, 0, 0);
-      if (res != S_OK) {
-        GST_ELEMENT_ERROR (self, STREAM, FAILED,
-            (NULL), ("Failed to stop scheduled playback: 0x%08x", res));
-        gst_object_unref (clock);
-        return;
-      }
-    }
-
+  // Check if we're already started
+  if (self->output->started) {
+    GST_DEBUG_OBJECT (self, "Already started");
+    return;
+  }
+  // Check if we're ready to start:
+  // we need video and audio enabled, if there is audio
+  // and both of the two elements need to be set to PLAYING already
+  if (!self->output->video_enabled) {
     GST_DEBUG_OBJECT (self,
-        "Starting scheduled playback at %" GST_TIME_FORMAT,
-        GST_TIME_ARGS (start_time));
+        "Not starting scheduled playback yet: video not enabled yet!");
+    return;
+  }
 
-    res =
-        self->output->output->StartScheduledPlayback (start_time,
-        GST_SECOND, 1.0);
+  if (self->output->audiosink && !self->output->audio_enabled) {
+    GST_DEBUG_OBJECT (self,
+        "Not starting scheduled playback yet: "
+        "have audio but not enabled yet!");
+    return;
+  }
+
+  if ((GST_STATE (self) != GST_STATE_PLAYING
+          && GST_STATE_PENDING (self) != GST_STATE_PLAYING)
+      || (self->output->audiosink &&
+          GST_STATE (self->output->audiosink) != GST_STATE_PLAYING
+          && GST_STATE_PENDING (self->output->audiosink) !=
+          GST_STATE_PLAYING)) {
+    GST_DEBUG_OBJECT (self,
+        "Not starting scheduled playback yet: "
+        "Elements are not set to PLAYING yet");
+    return;
+  }
+
+  clock = gst_element_get_clock (element);
+  if (!clock) {
+    GST_ELEMENT_ERROR (self, STREAM, FAILED, (NULL),
+        ("Scheduled playback supposed to start but we have no clock"));
+    return;
+  }
+  // Need to unlock to get the clock time
+  g_mutex_unlock (&self->output->lock);
+
+  // FIXME: start time is the same for the complete pipeline,
+  // but what we need here is the start time of this element!
+  start_time = gst_element_get_base_time (element);
+  if (start_time != GST_CLOCK_TIME_NONE)
+    start_time = gst_clock_get_time (clock) - start_time;
+
+  // FIXME: This will probably not work
+  if (start_time == GST_CLOCK_TIME_NONE)
+    start_time = 0;
+
+  // Current times of internal and external clock when we go to
+  // playing. We need this to convert the pipeline running time
+  // to the running time of the hardware
+  //
+  // We can't use the normal base time for the external clock
+  // because we might go to PLAYING later than the pipeline
+  self->internal_base_time = gst_clock_get_internal_time (self->output->clock);
+  self->external_base_time = gst_clock_get_internal_time (clock);
+
+  gst_decklink_video_sink_convert_to_internal_clock (self, &start_time, NULL);
+
+  g_mutex_lock (&self->output->lock);
+  // Check if someone else started in the meantime
+  if (self->output->started) {
+    gst_object_unref (clock);
+    return;
+  }
+
+  active = false;
+  self->output->output->IsScheduledPlaybackRunning (&active);
+  if (active) {
+    GST_DEBUG_OBJECT (self, "Stopping scheduled playback");
+
+    self->output->started = FALSE;
+
+    res = self->output->output->StopScheduledPlayback (0, 0, 0);
     if (res != S_OK) {
       GST_ELEMENT_ERROR (self, STREAM, FAILED,
-          (NULL), ("Failed to start scheduled playback: 0x%08x", res));
+          (NULL), ("Failed to stop scheduled playback: 0x%08lx",
+              (unsigned long) res));
       gst_object_unref (clock);
       return;
     }
-
-    self->output->started = TRUE;
-    self->output->clock_restart = TRUE;
-
-    // Need to unlock to get the clock time
-    g_mutex_unlock (&self->output->lock);
-
-    // Sample the clocks again to get the most accurate values
-    // after we started scheduled playback
-    self->internal_base_time =
-        gst_clock_get_internal_time (self->output->clock);
-    self->external_base_time = gst_clock_get_internal_time (clock);
-    g_mutex_lock (&self->output->lock);
-    gst_object_unref (clock);
-  } else {
-    GST_DEBUG_OBJECT (self, "Not starting scheduled playback yet");
+    // Wait until scheduled playback actually stopped
+    do {
+      g_cond_wait (&self->output->cond, &self->output->lock);
+      self->output->output->IsScheduledPlaybackRunning (&active);
+    } while (active);
   }
+
+  GST_DEBUG_OBJECT (self,
+      "Starting scheduled playback at %" GST_TIME_FORMAT,
+      GST_TIME_ARGS (start_time));
+
+  res =
+      self->output->output->StartScheduledPlayback (start_time,
+      GST_SECOND, 1.0);
+  if (res != S_OK) {
+    GST_ELEMENT_ERROR (self, STREAM, FAILED,
+        (NULL), ("Failed to start scheduled playback: 0x%08lx",
+            (unsigned long) res));
+    gst_object_unref (clock);
+    return;
+  }
+
+  self->output->started = TRUE;
+  self->output->clock_restart = TRUE;
+
+  // Need to unlock to get the clock time
+  g_mutex_unlock (&self->output->lock);
+
+  // Sample the clocks again to get the most accurate values
+  // after we started scheduled playback
+  self->internal_base_time = gst_clock_get_internal_time (self->output->clock);
+  self->external_base_time = gst_clock_get_internal_time (clock);
+  g_mutex_lock (&self->output->lock);
+  gst_object_unref (clock);
 }
 
 static GstStateChangeReturn
@@ -889,7 +991,7 @@ gst_decklink_video_sink_stop_scheduled_playback (GstDecklinkVideoSink * self)
     if (start_time == GST_CLOCK_TIME_NONE)
       start_time = 0;
 
-    convert_to_internal_clock (self, &start_time, NULL);
+    gst_decklink_video_sink_convert_to_internal_clock (self, &start_time, NULL);
 
     // The start time is now the running time when we stopped
     // playback
@@ -907,15 +1009,24 @@ gst_decklink_video_sink_stop_scheduled_playback (GstDecklinkVideoSink * self)
 
   g_mutex_lock (&self->output->lock);
   self->output->started = FALSE;
-  g_mutex_unlock (&self->output->lock);
   res = self->output->output->StopScheduledPlayback (start_time, 0, GST_SECOND);
   if (res != S_OK) {
     GST_ELEMENT_ERROR (self, STREAM, FAILED,
-        (NULL), ("Failed to stop scheduled playback: 0x%08x", res));
+        (NULL), ("Failed to stop scheduled playback: 0x%08lx", (unsigned long)
+            res));
     ret = GST_STATE_CHANGE_FAILURE;
+  } else {
+    bool active = false;
+
+    // Wait until scheduled playback actually stopped
+    do {
+        g_cond_wait (&self->output->cond, &self->output->lock);
+        self->output->output->IsScheduledPlaybackRunning (&active);
+    } while (active);
   }
   self->internal_base_time = GST_CLOCK_TIME_NONE;
   self->external_base_time = GST_CLOCK_TIME_NONE;
+  g_mutex_unlock (&self->output->lock);
 
   return ret;
 }
@@ -940,17 +1051,14 @@ gst_decklink_video_sink_change_state (GstElement * element,
               self->output->clock, TRUE));
       break;
     case GST_STATE_CHANGE_PAUSED_TO_PLAYING:{
-      GstClock *clock, *audio_clock;
+      GstClock *clock;
 
       clock = gst_element_get_clock (GST_ELEMENT_CAST (self));
       if (clock) {
-        audio_clock = gst_decklink_output_get_audio_clock (self->output);
-        if (clock && clock != self->output->clock && clock != audio_clock) {
+        if (clock && clock != self->output->clock) {
           gst_clock_set_master (self->output->clock, clock);
         }
         gst_object_unref (clock);
-        if (audio_clock)
-          gst_object_unref (audio_clock);
       } else {
         GST_ELEMENT_ERROR (self, STREAM, FAILED,
             (NULL), ("Need a clock to go to PLAYING"));

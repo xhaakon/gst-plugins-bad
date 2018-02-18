@@ -8,7 +8,7 @@
 <link rel="up" href="player.html" title="Player Library">
 <link rel="prev" href="player.html" title="Player Library">
 <link rel="next" href="GstPlayerMediaInfo.html" title="GstPlayerMediaInfo">
-<meta name="generator" content="GTK-Doc V1.26 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.27 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -339,7 +339,7 @@
 </tr>
 <tr>
 <td class="function_type">
-<a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0/gst-plugins-base-libs-GstVideoAlignment.html#GstVideoMultiviewMode"><span class="returnvalue">GstVideoMultiviewMode</span></a>
+<a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0/gst-plugins-base-libs-GstVideoAlignment.html#GstVideoMultiviewFramePacking"><span class="returnvalue">GstVideoMultiviewFramePacking</span></a>
 </td>
 <td class="function_name">
 <a class="link" href="GstPlayer.html#gst-player-get-multiview-mode" title="gst_player_get_multiview_mode ()">gst_player_get_multiview_mode</a> <span class="c_punctuation">()</span>
@@ -771,7 +771,8 @@ performed.</p>
 </div>
 <div class="refsect3">
 <a name="gst-player-new.returns"></a><h4>Returns</h4>
-<p> a new <a class="link" href="GstPlayer.html" title="GstPlayer"><span class="type">GstPlayer</span></a> instance</p>
+<p>a new <a class="link" href="GstPlayer.html" title="GstPlayer"><span class="type">GstPlayer</span></a> instance. </p>
+<p><span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></p>
 </div>
 </div>
 <hr>
@@ -1563,7 +1564,10 @@ gst_player_set_subtitle_track_enabled (<em class="parameter"><code><a class="lin
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_player_set_subtitle_uri (<em class="parameter"><code><a class="link" href="GstPlayer.html" title="GstPlayer"><span class="type">GstPlayer</span></a> *player</code></em>,
                              <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *uri</code></em>);</pre>
-<p>Sets the external subtitle URI.</p>
+<p>Sets the external subtitle URI. This should be combined with a call to
+gst_player_set_subtitle_track_enabled(<em class="parameter"><code>player</code></em>
+, TRUE) so the subtitles are actually
+rendered.</p>
 <div class="refsect3">
 <a name="gst-player-set-subtitle-uri.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
@@ -1844,7 +1848,7 @@ error -1 is returned.</p>
 <hr>
 <div class="refsect2">
 <a name="gst-player-get-multiview-mode"></a><h3>gst_player_get_multiview_mode ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0/gst-plugins-base-libs-GstVideoAlignment.html#GstVideoMultiviewMode"><span class="returnvalue">GstVideoMultiviewMode</span></a>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0/gst-plugins-base-libs-GstVideoAlignment.html#GstVideoMultiviewFramePacking"><span class="returnvalue">GstVideoMultiviewFramePacking</span></a>
 gst_player_get_multiview_mode (<em class="parameter"><code><a class="link" href="GstPlayer.html" title="GstPlayer"><span class="type">GstPlayer</span></a> *player</code></em>);</pre>
 <p>Retrieve the current value of the indicated <em class="parameter"><code>type</code></em>
 .</p>
@@ -1875,7 +1879,7 @@ gst_player_get_multiview_mode (<em class="parameter"><code><a class="link" href=
 <a name="gst-player-set-multiview-mode"></a><h3>gst_player_set_multiview_mode ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 gst_player_set_multiview_mode (<em class="parameter"><code><a class="link" href="GstPlayer.html" title="GstPlayer"><span class="type">GstPlayer</span></a> *player</code></em>,
-                               <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0/gst-plugins-base-libs-GstVideoAlignment.html#GstVideoMultiviewMode"><span class="type">GstVideoMultiviewMode</span></a> mode</code></em>);</pre>
+                               <em class="parameter"><code><a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0/gst-plugins-base-libs-GstVideoAlignment.html#GstVideoMultiviewFramePacking"><span class="type">GstVideoMultiviewFramePacking</span></a> mode</code></em>);</pre>
 <p>Sets the current value of the indicated mode <em class="parameter"><code>type</code></em>
  to the passed
 value.</p>
@@ -2259,7 +2263,7 @@ Since 1.10. </p>
 <div class="refsect2">
 <a name="gst-player-config-set-seek-accurate"></a><h3>gst_player_config_set_seek_accurate ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
-gst_player_config_set_seek_accurate (<em class="parameter"><code><a class="link" href="GstPlayer.html" title="GstPlayer"><span class="type">GstPlayer</span></a> *player</code></em>,
+gst_player_config_set_seek_accurate (<em class="parameter"><code><a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstStructure.html#GstStructure-struct"><span class="type">GstStructure</span></a> *config</code></em>,
                                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> accurate</code></em>);</pre>
 <p>Enable or disable accurate seeking. When enabled, elements will try harder
 to seek as accurately as possible to the requested seek position. Generally
@@ -2278,8 +2282,8 @@ position without slowing down seeking too much.</p>
 </colgroup>
 <tbody>
 <tr>
-<td class="parameter_name"><p>player</p></td>
-<td class="parameter_description"><p><a class="link" href="GstPlayer.html" title="GstPlayer"><span class="type">GstPlayer</span></a> instance</p></td>
+<td class="parameter_name"><p>config</p></td>
+<td class="parameter_description"><p>a <a class="link" href="GstPlayer.html" title="GstPlayer"><span class="type">GstPlayer</span></a> configuration</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -2769,6 +2773,6 @@ user_function (<a class="link" href="GstPlayer.html" title="GstPlayer"><span cla
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.26</div>
+<hr>Generated by GTK-Doc V1.27</div>
 </body>
 </html>

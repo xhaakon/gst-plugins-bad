@@ -216,6 +216,7 @@ gst_vulkan_display_new (GstVulkanInstance * instance)
     GST_FIXME ("creating dummy display");
 
     display = g_object_new (GST_TYPE_VULKAN_DISPLAY, NULL);
+    gst_object_ref_sink (display);
     display->instance = gst_object_ref (instance);
   }
 
@@ -448,11 +449,15 @@ gst_vulkan_display_type_to_extension_string (GstVulkanDisplayType type)
   if (type == GST_VULKAN_DISPLAY_TYPE_NONE)
     return NULL;
 
+#if GST_VULKAN_HAVE_WINDOW_XCB
   if (type & GST_VULKAN_DISPLAY_TYPE_XCB)
     return VK_KHR_XCB_SURFACE_EXTENSION_NAME;
+#endif
 
+#if GST_VULKAN_HAVE_WINDOW_WAYLAND
   if (type & GST_VULKAN_DISPLAY_TYPE_WAYLAND)
     return VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME;
+#endif
 
   return NULL;
 }

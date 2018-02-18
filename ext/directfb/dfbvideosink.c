@@ -466,6 +466,7 @@ gst_dfb_buffer_pool_new (GstDfbVideoSink * dfbvideosink)
   g_return_val_if_fail (GST_IS_DFBVIDEOSINK (dfbvideosink), NULL);
 
   pool = g_object_new (GST_TYPE_DFB_BUFFER_POOL, NULL);
+  g_object_ref_sink (pool);
   pool->dfbvideosink = gst_object_ref (dfbvideosink);
 
   GST_LOG_OBJECT (pool, "new dfb buffer pool %p", pool);
@@ -1848,6 +1849,7 @@ gst_dfbvideosink_show_frame (GstBaseSink * bsink, GstBuffer * buf)
     caps = gst_pad_get_current_caps (GST_BASE_SINK_PAD (bsink));
     if (!gst_video_info_from_caps (&src_info, caps)) {
       GST_WARNING_OBJECT (dfbvideosink, "failed getting video info");
+      gst_caps_unref (caps);
       ret = GST_FLOW_ERROR;
       goto beach;
     }
@@ -1855,6 +1857,7 @@ gst_dfbvideosink_show_frame (GstBaseSink * bsink, GstBuffer * buf)
     str = gst_structure_get_string (structure, "format");
     if (str == NULL) {
       GST_WARNING ("failed grabbing fourcc from caps %" GST_PTR_FORMAT, caps);
+      gst_caps_unref (caps);
       ret = GST_FLOW_ERROR;
       goto beach;
     }
@@ -2270,6 +2273,12 @@ gst_dfbvideosink_propose_allocation (GstBaseSink * bsink, GstQuery * query)
 
   gst_query_parse_allocation (query, &caps, &need_pool);
 
+  if (!caps) {
+    GST_WARNING_OBJECT (dfbvideosink, "Missing caps in allocation query.");
+    return FALSE;
+  }
+
+  /* FIXME re-using buffer pool breaks renegotiation */
   if ((pool = dfbvideosink->pool))
     gst_object_ref (pool);
 
@@ -2290,6 +2299,16 @@ gst_dfbvideosink_propose_allocation (GstBaseSink * bsink, GstQuery * query)
       return FALSE;
     }
     gst_structure_free (config);
+  } else {
+    GstVideoInfo info;
+
+    if (!gst_video_info_from_caps (&info, caps)) {
+      GST_WARNING_OBJECT (dfbvideosink,
+          "Invalid video caps in allocation query");
+      return FALSE;
+    }
+
+    size = info.size;
   }
 
   gst_query_add_allocation_pool (query, pool, size, 1, 0);

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.12.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-12-07 19:24+0200\n"
+"POT-Creation-Date: 2018-02-15 17:13+0000\n"
 "PO-Revision-Date: 2017-05-08 11:49+0200\n"
 "Last-Translator: Alexander Shopov <ash@kambanaria.org>\n"
 "Language-Team: Bulgarian <dict@ludost.net>\n"
@@ -20,14 +20,8 @@ msgstr ""
 "X-Bugs: Report translation errors to the Language-Team address.\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-msgid "failed to draw pattern"
-msgstr "шарката не може да се изобрази"
-
-msgid "A GL error occured"
-msgstr "Грешка от GL"
-
-msgid "format wasn't negotiated before get function"
-msgstr "форматът не е бил уточнен преди извикване на функцията за получаване"
+msgid "No URL set."
+msgstr ""
 
 msgid "OpenCV failed to load template image"
 msgstr "OpenCV не успя да зареди изображението-шаблон"
@@ -130,3 +124,13 @@ msgstr "Файлът с настройките на каналите не мож
 
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "Файлът с настройките на каналите не съдържа никакви канали"
+
+#~ msgid "failed to draw pattern"
+#~ msgstr "шарката не може да се изобрази"
+
+#~ msgid "A GL error occured"
+#~ msgstr "Грешка от GL"
+
+#~ msgid "format wasn't negotiated before get function"
+#~ msgstr ""
+#~ "форматът не е бил уточнен преди извикване на функцията за получаване"

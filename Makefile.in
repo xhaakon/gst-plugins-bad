@@ -14,8 +14,6 @@
 
 @SET_MAKE@
 
-# various tests to make sure we dist the win32 stuff (for MSVC builds) right
-
 # include this snippet to add a common release: target by using
 # include $(top_srcdir)/common/release.mak
 
@@ -202,10 +200,9 @@ CSCOPE = cscope
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(top_srcdir)/common/coverage/lcov.mak \
 	$(top_srcdir)/common/cruft.mak $(top_srcdir)/common/po.mak \
-	$(top_srcdir)/common/release.mak \
-	$(top_srcdir)/common/win32.mak ABOUT-NLS AUTHORS COPYING \
+	$(top_srcdir)/common/release.mak ABOUT-NLS AUTHORS COPYING \
 	COPYING.LIB ChangeLog INSTALL NEWS README compile config.guess \
-	config.rpath config.sub install-sh ltmain.sh missing
+	config.rpath config.sub depcomp install-sh ltmain.sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -254,6 +251,8 @@ ACMENC_CFLAGS = @ACMENC_CFLAGS@
 ACMMP3DEC_CFLAGS = @ACMMP3DEC_CFLAGS@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
+AOM_CFLAGS = @AOM_CFLAGS@
+AOM_LIBS = @AOM_LIBS@
 AR = @AR@
 AS = @AS@
 ASSRENDER_CFLAGS = @ASSRENDER_CFLAGS@
@@ -273,12 +272,6 @@ CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CHROMAPRINT_CFLAGS = @CHROMAPRINT_CFLAGS@
 CHROMAPRINT_LIBS = @CHROMAPRINT_LIBS@
-CLUTTER_CFLAGS = @CLUTTER_CFLAGS@
-CLUTTER_GLX_CFLAGS = @CLUTTER_GLX_CFLAGS@
-CLUTTER_GLX_LIBS = @CLUTTER_GLX_LIBS@
-CLUTTER_LIBS = @CLUTTER_LIBS@
-CLUTTER_X11_CFLAGS = @CLUTTER_X11_CFLAGS@
-CLUTTER_X11_LIBS = @CLUTTER_X11_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CUDA_CFLAGS = @CUDA_CFLAGS@
@@ -321,8 +314,6 @@ DVDNAV_LIBS = @DVDNAV_LIBS@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
-EGL_CFLAGS = @EGL_CFLAGS@
-EGL_LIBS = @EGL_LIBS@
 EGREP = @EGREP@
 ERROR_CFLAGS = @ERROR_CFLAGS@
 ERROR_CXXFLAGS = @ERROR_CXXFLAGS@
@@ -330,6 +321,7 @@ ERROR_OBJCFLAGS = @ERROR_OBJCFLAGS@
 EXEEXT = @EXEEXT@
 EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
+EXTRA_CFLAGS = @EXTRA_CFLAGS@
 FAAC_LIBS = @FAAC_LIBS@
 FAAD_LIBS = @FAAD_LIBS@
 FDK_AAC_CFLAGS = @FDK_AAC_CFLAGS@
@@ -351,8 +343,6 @@ GIO_LDFLAGS = @GIO_LDFLAGS@
 GIO_LIBS = @GIO_LIBS@
 GIO_UNIX_CFLAGS = @GIO_UNIX_CFLAGS@
 GIO_UNIX_LIBS = @GIO_UNIX_LIBS@
-GLES2_CFLAGS = @GLES2_CFLAGS@
-GLES2_LIBS = @GLES2_LIBS@
 GLIB_CFLAGS = @GLIB_CFLAGS@
 GLIB_EXTRA_CFLAGS = @GLIB_EXTRA_CFLAGS@
 GLIB_GENMARSHAL = @GLIB_GENMARSHAL@
@@ -360,23 +350,11 @@ GLIB_LIBS = @GLIB_LIBS@
 GLIB_MKENUMS = @GLIB_MKENUMS@
 GLIB_PREFIX = @GLIB_PREFIX@
 GLIB_REQ = @GLIB_REQ@
-GL_APIS = @GL_APIS@
-GL_CFLAGS = @GL_CFLAGS@
-GL_LIBS = @GL_LIBS@
-GL_OBJCFLAGS = @GL_OBJCFLAGS@
-GL_PLATFORMS = @GL_PLATFORMS@
-GL_WINDOWS = @GL_WINDOWS@
 GME_LIBS = @GME_LIBS@
-GMODULE_EXPORT_CFLAGS = @GMODULE_EXPORT_CFLAGS@
-GMODULE_EXPORT_LIBS = @GMODULE_EXPORT_LIBS@
-GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
-GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
 GNUSTL_LIBS = @GNUSTL_LIBS@
-GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
-GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
 GSM_LIBS = @GSM_LIBS@
 GSTPB_PLUGINS_DIR = @GSTPB_PLUGINS_DIR@
@@ -397,6 +375,8 @@ GST_CONTROLLER_CFLAGS = @GST_CONTROLLER_CFLAGS@
 GST_CONTROLLER_LIBS = @GST_CONTROLLER_LIBS@
 GST_CURRENT = @GST_CURRENT@
 GST_CXXFLAGS = @GST_CXXFLAGS@
+GST_GL_CFLAGS = @GST_GL_CFLAGS@
+GST_GL_LIBS = @GST_GL_LIBS@
 GST_LEVEL_DEFAULT = @GST_LEVEL_DEFAULT@
 GST_LIBS = @GST_LIBS@
 GST_LIBVERSION = @GST_LIBVERSION@
@@ -434,20 +414,15 @@ GST_PLUGINS_UGLY_CFLAGS = @GST_PLUGINS_UGLY_CFLAGS@
 GST_PLUGINS_UGLY_DIR = @GST_PLUGINS_UGLY_DIR@
 GST_PLUGINS_UGLY_LIBS = @GST_PLUGINS_UGLY_LIBS@
 GST_PLUGIN_LDFLAGS = @GST_PLUGIN_LDFLAGS@
-GST_PLUGIN_LIBTOOLFLAGS = @GST_PLUGIN_LIBTOOLFLAGS@
 GST_PREFIX = @GST_PREFIX@
 GST_REVISION = @GST_REVISION@
+GST_SDP_CFLAGS = @GST_SDP_CFLAGS@
+GST_SDP_LIBS = @GST_SDP_LIBS@
 GST_TOOLS_DIR = @GST_TOOLS_DIR@
 GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
 GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
-GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
-GTK3_GL_LIBS = @GTK3_GL_LIBS@
 GTK3_LIBS = @GTK3_LIBS@
-GTK3_WAYLAND_CFLAGS = @GTK3_WAYLAND_CFLAGS@
-GTK3_WAYLAND_LIBS = @GTK3_WAYLAND_LIBS@
-GTK3_X11_CFLAGS = @GTK3_X11_CFLAGS@
-GTK3_X11_LIBS = @GTK3_X11_LIBS@
 GTKDOC_CHECK = @GTKDOC_CHECK@
 GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
 GTKDOC_DEPS_LIBS = @GTKDOC_DEPS_LIBS@
@@ -459,25 +434,16 @@ GTK_LIBS = @GTK_LIBS@
 GTK_VERSION = @GTK_VERSION@
 G_UDEV_CFLAGS = @G_UDEV_CFLAGS@
 G_UDEV_LIBS = @G_UDEV_LIBS@
-HAVE_CLUTTER = @HAVE_CLUTTER@
-HAVE_CLUTTER_GLX = @HAVE_CLUTTER_GLX@
-HAVE_CLUTTER_X11 = @HAVE_CLUTTER_X11@
 HAVE_CXX = @HAVE_CXX@
 HAVE_DIRECT3D = @HAVE_DIRECT3D@
 HAVE_DIRECTSOUND = @HAVE_DIRECTSOUND@
 HAVE_DTS = @HAVE_DTS@
-HAVE_EGL = @HAVE_EGL@
 HAVE_FAAC = @HAVE_FAAC@
 HAVE_FAAD = @HAVE_FAAD@
 HAVE_FLITE = @HAVE_FLITE@
-HAVE_GL = @HAVE_GL@
-HAVE_GLES2 = @HAVE_GLES2@
-HAVE_GRAPHENE = @HAVE_GRAPHENE@
 HAVE_GSM = @HAVE_GSM@
 HAVE_GTK3 = @HAVE_GTK3@
-HAVE_JPEG = @HAVE_JPEG@
 HAVE_OPENJPEG = @HAVE_OPENJPEG@
-HAVE_PNG = @HAVE_PNG@
 HAVE_SRTP = @HAVE_SRTP@
 HAVE_WASAPI = @HAVE_WASAPI@
 HAVE_WILDMIDI = @HAVE_WILDMIDI@
@@ -501,11 +467,12 @@ INTROSPECTION_LIBS = @INTROSPECTION_LIBS@
 INTROSPECTION_MAKEFILE = @INTROSPECTION_MAKEFILE@
 INTROSPECTION_SCANNER = @INTROSPECTION_SCANNER@
 INTROSPECTION_TYPELIBDIR = @INTROSPECTION_TYPELIBDIR@
-JPEG_LIBS = @JPEG_LIBS@
 KATE_CFLAGS = @KATE_CFLAGS@
 KATE_LIBS = @KATE_LIBS@
 KMS_DRM_CFLAGS = @KMS_DRM_CFLAGS@
 KMS_DRM_LIBS = @KMS_DRM_LIBS@
+LCMS2_CFLAGS = @LCMS2_CFLAGS@
+LCMS2_LIBS = @LCMS2_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBDC1394_CFLAGS = @LIBDC1394_CFLAGS@
@@ -519,11 +486,11 @@ LIBGCRYPT_LIBS = @LIBGCRYPT_LIBS@
 LIBICONV = @LIBICONV@
 LIBINTL = @LIBINTL@
 LIBM = @LIBM@
+LIBMFX_CFLAGS = @LIBMFX_CFLAGS@
+LIBMFX_LIBS = @LIBMFX_LIBS@
 LIBMMS_CFLAGS = @LIBMMS_CFLAGS@
 LIBMMS_LIBS = @LIBMMS_LIBS@
 LIBOBJS = @LIBOBJS@
-LIBPNG_CFLAGS = @LIBPNG_CFLAGS@
-LIBPNG_LIBS = @LIBPNG_LIBS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIBUDEV_CFLAGS = @LIBUDEV_CFLAGS@
@@ -551,7 +518,6 @@ MANIFEST_TOOL = @MANIFEST_TOOL@
 MJPEG_CFLAGS = @MJPEG_CFLAGS@
 MJPEG_LIBS = @MJPEG_LIBS@
 MKDIR_P = @MKDIR_P@
-MOC = @MOC@
 MODPLUG_CFLAGS = @MODPLUG_CFLAGS@
 MODPLUG_LIBS = @MODPLUG_LIBS@
 MPEG2ENC_CFLAGS = @MPEG2ENC_CFLAGS@
@@ -569,6 +535,8 @@ NEON_CFLAGS = @NEON_CFLAGS@
 NEON_LIBS = @NEON_LIBS@
 NETTLE_CFLAGS = @NETTLE_CFLAGS@
 NETTLE_LIBS = @NETTLE_LIBS@
+NICE_CFLAGS = @NICE_CFLAGS@
+NICE_LIBS = @NICE_LIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
 NVENCODE_CFLAGS = @NVENCODE_CFLAGS@
@@ -593,6 +561,8 @@ OPENH264_CFLAGS = @OPENH264_CFLAGS@
 OPENH264_LIBS = @OPENH264_LIBS@
 OPENJPEG_CFLAGS = @OPENJPEG_CFLAGS@
 OPENJPEG_LIBS = @OPENJPEG_LIBS@
+OPENMPT_CFLAGS = @OPENMPT_CFLAGS@
+OPENMPT_LIBS = @OPENMPT_LIBS@
 OPENNI2_CFLAGS = @OPENNI2_CFLAGS@
 OPENNI2_LIBS = @OPENNI2_LIBS@
 OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
@@ -630,18 +600,7 @@ PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_VERSION = @PYTHON_VERSION@
-QT_ANDROID_CFLAGS = @QT_ANDROID_CFLAGS@
-QT_ANDROID_LIBS = @QT_ANDROID_LIBS@
-QT_CFLAGS = @QT_CFLAGS@
-QT_LIBS = @QT_LIBS@
-QT_MAC_CFLAGS = @QT_MAC_CFLAGS@
-QT_MAC_LIBS = @QT_MAC_LIBS@
-QT_WAYLAND_CFLAGS = @QT_WAYLAND_CFLAGS@
-QT_WAYLAND_LIBS = @QT_WAYLAND_LIBS@
-QT_X11_CFLAGS = @QT_X11_CFLAGS@
-QT_X11_LIBS = @QT_X11_LIBS@
 RANLIB = @RANLIB@
-RCC = @RCC@
 RSVG_CFLAGS = @RSVG_CFLAGS@
 RSVG_LIBS = @RSVG_LIBS@
 RTMP_CFLAGS = @RTMP_CFLAGS@
@@ -650,9 +609,6 @@ SBC_CFLAGS = @SBC_CFLAGS@
 SBC_LIBS = @SBC_LIBS@
 SCHRO_CFLAGS = @SCHRO_CFLAGS@
 SCHRO_LIBS = @SCHRO_LIBS@
-SDL_CFLAGS = @SDL_CFLAGS@
-SDL_CLUTTER = @SDL_CLUTTER@
-SDL_LIBS = @SDL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -666,6 +622,8 @@ SPANDSP_LIBS = @SPANDSP_LIBS@
 SPC_LIBS = @SPC_LIBS@
 SRTP_CFLAGS = @SRTP_CFLAGS@
 SRTP_LIBS = @SRTP_LIBS@
+SRT_CFLAGS = @SRT_CFLAGS@
+SRT_LIBS = @SRT_LIBS@
 SSH2_CFLAGS = @SSH2_CFLAGS@
 SSH2_LIBS = @SSH2_LIBS@
 STRIP = @STRIP@
@@ -675,16 +633,15 @@ TIGER_CFLAGS = @TIGER_CFLAGS@
 TIGER_LIBS = @TIGER_LIBS@
 TTML_CFLAGS = @TTML_CFLAGS@
 TTML_LIBS = @TTML_LIBS@
-UIC = @UIC@
-USE_GLES2 = @USE_GLES2@
 USE_NLS = @USE_NLS@
-USE_OPENGL = @USE_OPENGL@
 VALGRIND_CFLAGS = @VALGRIND_CFLAGS@
 VALGRIND_LIBS = @VALGRIND_LIBS@
 VALGRIND_PATH = @VALGRIND_PATH@
 VDPAU_CFLAGS = @VDPAU_CFLAGS@
 VDPAU_LIBS = @VDPAU_LIBS@
 VERSION = @VERSION@
+VISIBILITY_CFLAGS = @VISIBILITY_CFLAGS@
+VISIBILITY_CXXFLAGS = @VISIBILITY_CXXFLAGS@
 VOAACENC_CFLAGS = @VOAACENC_CFLAGS@
 VOAACENC_LIBS = @VOAACENC_LIBS@
 VOAMRWBENC_CFLAGS = @VOAMRWBENC_CFLAGS@
@@ -697,8 +654,6 @@ WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
 WARNING_OBJCFLAGS = @WARNING_OBJCFLAGS@
 WASAPI_LIBS = @WASAPI_LIBS@
 WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
-WAYLAND_EGL_CFLAGS = @WAYLAND_EGL_CFLAGS@
-WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
 WEBP_CFLAGS = @WEBP_CFLAGS@
@@ -713,14 +668,10 @@ WINSCREENCAP_LIBS = @WINSCREENCAP_LIBS@
 WINSOCK2_LIBS = @WINSOCK2_LIBS@
 X11_CFLAGS = @X11_CFLAGS@
 X11_LIBS = @X11_LIBS@
-X11_XCB_CFLAGS = @X11_XCB_CFLAGS@
-X11_XCB_LIBS = @X11_XCB_LIBS@
 X265_CFLAGS = @X265_CFLAGS@
 X265_LIBS = @X265_LIBS@
 XCB_CFLAGS = @XCB_CFLAGS@
 XCB_LIBS = @XCB_LIBS@
-XCOMPOSITE_CFLAGS = @XCOMPOSITE_CFLAGS@
-XCOMPOSITE_LIBS = @XCOMPOSITE_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
 XGETTEXT_EXTRA_OPTIONS = @XGETTEXT_EXTRA_OPTIONS@
@@ -801,49 +752,40 @@ DIST_SUBDIRS = \
 	gst gst-libs sys ext pkgconfig \
 	m4 common docs tests po tools
 
-
-# the MANIFEST contains all win32 related files that should be disted
-win32 = $(shell cat $(top_srcdir)/win32/MANIFEST)
-
-# wildcard is apparently not portable to other makes, hence the use of find
-# these are library .def files with the symbols to export
-win32defs = $(shell find $(top_srcdir)/win32/common -name '*.def')
-
-# wildcard is apparently not portable to other makes, hence the use of find
-# these are files that need to be disted with CRLF line endings:
-win32crlf = $(shell find $(top_srcdir)/win32 -name '*.dsw' -o -name '*.dsp')
-
-# include before EXTRA_DIST for win32 assignment
 EXTRA_DIST = \
 	depcomp \
 	AUTHORS COPYING NEWS README RELEASE REQUIREMENTS \
-	ChangeLog gst-plugins-bad.doap autogen.sh $(win32) \
+	ChangeLog gst-plugins-bad.doap autogen.sh \
 	$(shell find "$(top_srcdir)" -type f -name meson.build ! -path "$(top_srcdir)/$(PACKAGE_TARNAME)-*" ) \
-	meson_options.txt config.h.meson \
+	meson_options.txt \
 	gst-libs/gst/interfaces/build_mkenum.py \
 	gst-libs/gst/mpegts/mpegts_enum.py \
+	gst-libs/gst/webrtc/webrtc_mkenum.py \
 	ext/srtp/srtp_mkenum.py \
-	ext/vulkan/vkconfig.h.meson gst-libs/gst/gl/gstglconfig.h.meson
+	ext/vulkan/vkconfig.h.meson
 
 DISTCLEANFILES = _stdint.h
 
 # cruft: plugins that have been merged or moved or renamed
 CRUFT_FILES = \
-	$(top_builddir)/win32/common/config.h-new \
 	$(top_builddir)/gst-plugins-bad.spec \
 	$(top_builddir)/common/shave \
 	$(top_builddir)/common/shave-libtool \
 	$(top_builddir)/docs/plugins/xml/plugin-sdp.xml \
 	$(top_builddir)/ext/alsaspdif/.libs/*.{so,dll,DLL,dylib} \
 	$(top_builddir)/ext/gtk/.libs/libgstgtksink.so \
+	$(top_builddir)/ext/gtk/.libs/libgstgtk.so \
 	$(top_builddir)/ext/hls/.libs/libgstfragmented* \
 	$(top_builddir)/ext/ivorbis/.libs/*.{so,dll,DLL,dylib} \
 	$(top_builddir)/ext/jack/.libs/*.{so,dll,DLL,dylib} \
+	$(top_builddir)/ext/libde265/.libs/libgstlibde265.{so,dll,DLL,dylib} \
 	$(top_builddir)/ext/teletextdec/.libs/libgstteletextdec.so \
 	$(top_builddir)/gst/opus/.libs/libgstopus.{so,dll,DLL,dylib} \
 	$(top_builddir)/ext/mpg123/.libs/*.{so,dll,DLL,dylib} \
+	$(top_builddir)/ext/qt/.libs/*.{so,dll,DLL,dylib} \
 	$(top_builddir)/gst/aacparse/.libs/*.{so,dll,DLL,dylib} \
 	$(top_builddir)/gst/amrparse/.libs/*.{so,dll,DLL,dylib} \
+	$(top_builddir)/gst/audiomixer/.libs/*.{so,dll,DLL,dylib} \
 	$(top_builddir)/gst/audioparsers/.libs/*.{so,dll,DLL,dylib} \
 	$(top_builddir)/gst/camerabin2/.libs/libgstcamerabin2.so \
 	$(top_builddir)/gst/flacparse/.libs/*.{so,dll,DLL,dylib} \
@@ -860,6 +802,7 @@ CRUFT_FILES = \
 	$(top_builddir)/gst/valve/.libs/*.{so,dll,DLL,dylib} \
 	$(top_builddir)/gst/videoparsers/.libs/libgsth263parse* \
 	$(top_builddir)/gst-libs/gst/baseparse/.libs/libgstbaseparse* \
+	$(top_builddir)/sys/d3dvideosink/.libs/libgstd3dvideosink.{dll,DLL} \
 	$(top_builddir)/sys/oss4/.libs/*.{so,dll,DLL,dylib} \
 	$(top_builddir)/tests/check/elements/{aac,ac3,amr,flac,mpegaudio,dca}parse \
 	$(top_builddir)/tests/check/elements/autocolorspace \
@@ -885,6 +828,7 @@ CRUFT_DIRS = \
 	$(top_srcdir)/docs/plugins/tmpl \
 	$(top_srcdir)/gst/aacparse \
 	$(top_srcdir)/gst/amrparse \
+	$(top_srcdir)/gst/audiomixer \
 	$(top_srcdir)/gst/camerabin \
 	$(top_srcdir)/gst/dataurisrc \
 	$(top_srcdir)/gst/flacparse \
@@ -902,10 +846,14 @@ CRUFT_DIRS = \
 	$(top_srcdir)/gst/shapewipe \
 	$(top_srcdir)/gst/valve \
 	$(top_srcdir)/gst-libs/gst/baseparse \
+	$(top_srcdir)/gst-libs/gst/base \
 	$(top_srcdir)/gst-libs/gst/egl \
+	$(top_srcdir)/gst-libs/gst/gl \
 	$(top_srcdir)/gst-libs/gst/signalprocessor \
-	$(top_srcdir)/tests/examples/gl/gtk/gtkvideooverlay \
+	$(top_srcdir)/tests/examples/gl \
 	$(top_srcdir)/tests/examples/scaletempo \
+	$(top_srcdir)/tests/examples/gtk \
+	$(top_srcdir)/tests/examples/qt \
 	$(top_srcdir)/tests/examples/shapewipe \
 	$(top_srcdir)/tests/examples/switch \
 	$(top_srcdir)/tests/examples/jack \
@@ -913,16 +861,20 @@ CRUFT_DIRS = \
 	$(top_srcdir)/ext/amrwbenc \
 	$(top_srcdir)/ext/cog \
 	$(top_srcdir)/ext/eglgles \
+	$(top_srcdir)/ext/gsettings \
+	$(top_srcdir)/ext/gtk \
 	$(top_srcdir)/ext/ivorbis \
 	$(top_srcdir)/ext/jack \
 	$(top_srcdir)/ext/metadata \
 	$(top_srcdir)/ext/mimic \
 	$(top_srcdir)/ext/mpg123 \
+	$(top_srcdir)/ext/qt \
 	$(top_srcdir)/ext/swfdec \
 	$(top_srcdir)/ext/tarkin \
 	$(top_srcdir)/ext/theora \
 	$(top_srcdir)/ext/vp8 \
-	$(top_srcdir)/sys/mfc
+	$(top_srcdir)/sys/mfc \
+	$(top_srcdir)/win32
 
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
@@ -930,7 +882,7 @@ all: config.h
 .SUFFIXES:
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(top_srcdir)/common/win32.mak $(top_srcdir)/common/release.mak $(top_srcdir)/common/po.mak $(top_srcdir)/common/coverage/lcov.mak $(top_srcdir)/common/cruft.mak $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(top_srcdir)/common/release.mak $(top_srcdir)/common/po.mak $(top_srcdir)/common/coverage/lcov.mak $(top_srcdir)/common/cruft.mak $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -952,7 +904,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 	esac;
-$(top_srcdir)/common/win32.mak $(top_srcdir)/common/release.mak $(top_srcdir)/common/po.mak $(top_srcdir)/common/coverage/lcov.mak $(top_srcdir)/common/cruft.mak $(am__empty):
+$(top_srcdir)/common/release.mak $(top_srcdir)/common/po.mak $(top_srcdir)/common/coverage/lcov.mak $(top_srcdir)/common/cruft.mak $(am__empty):
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -1412,76 +1364,6 @@ uninstall-am:
 .PRECIOUS: Makefile
 
 
-win32-debug:
-	@echo; \
-	echo win32     = $(win32); \
-	echo; \
-	echo win32defs = $(win32defs); \
-	echo; \
-	echo win32crlf = $(win32crlf); \
-	echo
-
-win32-check-crlf:
-	@echo Checking win32 files for CR LF line endings ...; \
-	fail=0 ; \
-	for each in $(win32crlf) ; do \
-	  result=`perl -e 'print grep(/\r\n/,<>)' "$$each" | wc -l`; \
-	  if test "$$result" = 0 ; then \
-	    echo $$each must be fixed to have CRLF line endings ; \
-	    fail=1; \
-	  fi ; \
-	done ; \
-	exit $$fail
-
-# make sure all symbols we export on linux are defined in the win32 .def too
-# (don't care about other unixes for now, it's enough if it works on one of
-# the linux build bots; we assume .so )
-check-exports:
-	@fail=0 ; \
-	for l in $(win32defs); do \
-	  libbase=`basename "$$l" ".def"`; \
-	  libso=`find "$(top_builddir)" -name "$$libbase-@GST_API_VERSION@.so" | grep -v /_build/ | head -n1`; \
-	  libdef="$(top_srcdir)/win32/common/$$libbase.def"; \
-	  if test "x$$libso" != "x"; then \
-	    echo Checking symbols in $$libso; \
-	    if ! ($(top_srcdir)/common/check-exports $$libdef $$libso) ; then \
-	      echo "$$libdef"; \
-	      if test "$$libbase" != "libgstgl"; then \
-	        fail=1; \
-	      fi; \
-	    fi; \
-	  fi; \
-	done ; \
-	if test $$fail != 0; then \
-	  echo '-----------------------------------------------------------'; \
-	  echo 'Run this to update the .def files:'; \
-	  echo 'make update-exports'; \
-	  echo '-----------------------------------------------------------'; \
-	fi; \
-	exit $$fail
-
-update-exports:
-	make check-exports 2>&1 | patch -p1
-	if test -f "$(top_srcdir)/win32/common/libgstgl.def"; then \
-	  git checkout "$(top_srcdir)/win32/common/libgstgl.def";  \
-	fi
-	git add $(top_srcdir)/win32/common/lib*.def
-	git diff --cached -- $(top_srcdir)/win32/common/
-	echo '^^^--- updated and staged changes above'
-
-# complain about nonportable printf format strings (%lld, %llu, %zu etc.)
-check-nonportable-print-format:
-	@fail=0 ; \
-	loc=`find "$(top_srcdir)" -name '*.c' | xargs grep -n -e '%[0-9]*ll[udx]' -e '%[0-9]*z[udx]'`; \
-	if test "x$$loc" != "x"; then \
-	  echo "Please fix the following print format strings:" ; \
-	  find "$(top_srcdir)" -name '*.c' | xargs grep -n -e '%[0-9]*ll[udx]' -e '%[0-9]*z[udx]'; \
-	  fail=1; \
-	fi; \
-	exit $$fail
-
-dist-hook: check-exports win32-check-crlf
-
 release: dist
 	@$(MAKE) $(PACKAGE)-$(VERSION).tar.xz.sha256sum
 	@echo
@@ -1589,8 +1471,6 @@ lcov:
 
 @GST_GCOV_ENABLED_FALSE@lcov-report:
 @GST_GCOV_ENABLED_FALSE@	echo "Need to reconfigure with --enable-gcov"
-
-check: check-exports
 
 check-cruft:
 	@cruft_files=""; cruft_dirs=""; \

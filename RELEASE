@@ -1,15 +1,16 @@
 
-Release notes for GStreamer Bad Plugins 1.12.4
+Release notes for GStreamer Bad Plugins 1.12.0
 
-The GStreamer team is proud to announce the fourth bugfix release in the stable
-1.12 release series of your favourite cross-platform multimedia framework!
-
-
-This release only contains bugfixes and it is safe to update from 1.12.x. For a
-full list of bugfixes see Bugzilla.
+The GStreamer team is pleased to announce the first release in the stable 1.12
+release series. The 1.12 release series is adding new features on top of the
+1.0, 1.2, 1.4, 1.6, 1.8 and 1.10 series and is part of the API and ABI-stable
+1.x release series of the GStreamer multimedia framework.
 
 
-See /releases/1.12/ for the full release notes.
+Full release notes can be found here
+
+
+Binaries for Android, iOS, Mac OS X and Windows will be provided in the next days.
 
 
 "That an accusation?"
@@ -60,13 +61,12 @@ contains a set of codecs plugins based on libav (formerly gst-ffmpeg)
 
 Bugs fixed in this release
      
-      * 784593 : aggregator: Invalidate pad's tail position ...
-      * 787293 : glimagesink: met segment fault when exit app on wayland
-      * 787942 : ttmlparse: Doesn't implement default showBackground behaviour
-      * 789999 : hlsdemux: Fix memory leak caused by double buffer map
-      * 790042 : waylandsink:  memory leak of shm allocator
-      * 790812 : dashdemux: Segmentation fault coredump issue with xlink external AdaptationSet
-      * 791258 : amcvideoenc: when flushing, better handle IllegalStateException received from getOutputBuffer
+      * 773681 : directsoundsink: High cpu usage on windows x86
+      * 764947 : autodetect: bring element down to NULL on a successful choice
+      * 780976 : webrtcdsp: do not fail to start if webrtcechoprobe is not found
+      * 782046 : glupload: passthrough composition caps features in directviv upload
+      * 782119 : meson: ext/hls/libgsthls.so needs -lm
+      * 782078 : qtkitvideosrc: Removed in order to avoid obsolete APIs
 
 ==== Download ====
 
@@ -103,16 +103,10 @@ subscribe to the gstreamer-devel list.
         
 Contributors to this release
     
-      * Chris Bass
-      * Edward Hervey
-      * Jan Alexander Steffens (heftig)
-      * Jun Xie
-      * Mathieu Duponchelle
-      * Matthew Waters
-      * Ponnam Srinivas
+      * George Kiagiadakis
+      * Haihua Hu
+      * Josep Torra
       * Sebastian Dröge
-      * Shinya Saito
-      * Thiago Santos
-      * Ursula Maplehurst
-      * Vivia Nikolaidou
+      * Tim-Philipp Müller
+      * Ting-Wei Lan
  

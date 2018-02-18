@@ -45,24 +45,54 @@ G_BEGIN_DECLS
 
 typedef struct _GstNetSim GstNetSim;
 typedef struct _GstNetSimClass GstNetSimClass;
-typedef struct _GstNetSimPrivate GstNetSimPrivate;
+
+typedef enum
+{
+  DISTRIBUTION_UNIFORM,
+  DISTRIBUTION_NORMAL,
+  DISTRIBUTION_GAMMA
+} GstNetSimDistribution;
+
+typedef struct
+{
+  gboolean generate;
+  gdouble z0;
+  gdouble z1;
+} NormalDistributionState;
 
 struct _GstNetSim
 {
   GstElement parent;
 
-  GstNetSimPrivate *priv;
+  GstPad *sinkpad;
+  GstPad *srcpad;
 
-  /*< private > */
-  gpointer _gst_reserved[GST_PADDING];
+  GMutex loop_mutex;
+  GCond start_cond;
+  GMainLoop *main_loop;
+  gboolean running;
+  GRand *rand_seed;
+  gsize bucket_size;
+  GstClockTime prev_time;
+  NormalDistributionState delay_state;
+  gint64 last_ready_time;
+
+  /* properties */
+  gint min_delay;
+  gint max_delay;
+  GstNetSimDistribution delay_distribution;
+  gfloat delay_probability;
+  gfloat drop_probability;
+  gfloat duplicate_probability;
+  guint drop_packets;
+  gint max_kbps;
+  gint max_bucket_size;
+  gboolean allow_reordering;
 };
 
 struct _GstNetSimClass
 {
   GstElementClass parent_class;
-
-  /*< private > */
-  gpointer _gst_reserved[GST_PADDING];
 };
 
 GType gst_net_sim_get_type (void);

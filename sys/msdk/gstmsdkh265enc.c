@@ -32,7 +32,12 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include <mfxplugin.h>
+
+#ifdef HAVE_LIBMFX
+#  include <mfx/mfxplugin.h>
+#else
+#  include "mfxplugin.h"
+#endif
 
 #include "gstmsdkh265enc.h"
 
@@ -66,7 +71,7 @@ gst_msdkh265enc_configure (GstMsdkEnc * encoder)
   mfxStatus status;
   const mfxPluginUID *uid;
 
-  session = msdk_context_get_session (encoder->context);
+  session = gst_msdk_context_get_session (encoder->context);
 
   if (encoder->hardware)
     uid = &MFX_PLUGINID_HEVCE_HW;

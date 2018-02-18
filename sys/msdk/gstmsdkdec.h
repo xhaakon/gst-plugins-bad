@@ -35,6 +35,7 @@
 #include <gst/gst.h>
 #include <gst/video/video.h>
 #include "msdk.h"
+#include "gstmsdkcontext.h"
 
 G_BEGIN_DECLS
 
@@ -64,14 +65,23 @@ struct _GstMsdkDec
   GstVideoInfo output_info;
   GstBufferPool *pool;
   GstVideoInfo pool_info;
+  mfxFrameAllocResponse alloc_resp;
+  gboolean use_video_memory;
+  gboolean initialized;
+
+  /* for packetization */
+  GstAdapter *adapter;
+  gboolean is_packetized;
 
   /* MFX context */
-  MsdkContext *context;
+  GstMsdkContext *context;
   mfxVideoParam param;
   GPtrArray *extra_params;
-  GArray *surfaces;
   GArray *tasks;
   guint next_task;
+
+  GList *decoded_msdk_surfaces;
+  GList *locked_buffer;
 
   /* element properties */
   gboolean hardware;

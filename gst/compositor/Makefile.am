@@ -16,13 +16,11 @@ libgstcompositor_la_CFLAGS =  \
 	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(ORC_CFLAGS)
 libgstcompositor_la_LIBADD =  \
-	$(top_builddir)/gst-libs/gst/base/libgstbadbase-$(GST_API_VERSION).la \
 	$(top_builddir)/gst-libs/gst/video/libgstbadvideo-$(GST_API_VERSION).la \
 	$(GST_PLUGINS_BASE_LIBS) \
 	-lgstvideo-@GST_API_VERSION@ \
 	$(GST_BASE_LIBS) $(GST_LIBS) $(ORC_LIBS) $(LIBM)
 libgstcompositor_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstcompositor_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 
 # headers we need but don't want installed
 noinst_HEADERS = \

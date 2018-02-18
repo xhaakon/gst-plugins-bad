@@ -1,16 +1,16 @@
 project('gst-plugins-bad', 'c', 'cpp',
-  version : '1.12.4',
-  meson_version : '>= 0.36.0',
+  version : '1.13.1',
+  meson_version : '>= 0.40.1',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
 
 gst_version = meson.project_version()
 version_arr = gst_version.split('.')
-gst_version_major = version_arr[0]
-gst_version_minor = version_arr[1]
-gst_version_micro = version_arr[2]
-if version_arr.length() == 4
-  gst_version_nano = version_arr[3]
+gst_version_major = version_arr[0].to_int()
+gst_version_minor = version_arr[1].to_int()
+gst_version_micro = version_arr[2].to_int()
+ if version_arr.length() == 4
+  gst_version_nano = version_arr[3].to_int()
 else
   gst_version_nano = 0
 endif
@@ -22,7 +22,7 @@ api_version = '1.0'
 soversion = 0
 # maintaining compatibility with the previous libtool versioning
 # current = minor * 100 + micro
-libversion = '@0@.@1@.0'.format(soversion, gst_version_minor.to_int() * 100 + gst_version_micro.to_int())
+libversion = '@0@.@1@.0'.format(soversion, gst_version_minor * 100 + gst_version_micro)
 
 plugins_install_dir = '@0@/gstreamer-1.0'.format(get_option('libdir'))
 
@@ -51,6 +51,22 @@ else
   endif
 
   noseh_link_args = []
+endif
+
+# Symbol visibility
+if cc.has_argument('-fvisibility=hidden')
+  add_project_arguments('-fvisibility=hidden', language: 'c')
+endif
+if cxx.has_argument('-fvisibility=hidden')
+  add_project_arguments('-fvisibility=hidden', language: 'cpp')
+endif
+
+# Disable strict aliasing
+if cc.has_argument('-fno-strict-aliasing')
+  add_project_arguments('-fno-strict-aliasing', language: 'c')
+endif
+if cxx.has_argument('-fno-strict-aliasing')
+  add_project_arguments('-fno-strict-aliasing', language: 'cpp')
 endif
 
 cdata = configuration_data()
@@ -187,6 +203,7 @@ check_functions = [
 # check token HAVE_ORC
 # check token HAVE_OSX
 # check token HAVE_OSX_VIDEO
+  ['HAVE_PIPE2', 'pipe2'],
 # check token HAVE_PNG
 # check token HAVE_PVR
 # check token HAVE_QUICKTIME
@@ -223,7 +240,6 @@ check_functions = [
 # check token HAVE_WAYLAND
 # check token HAVE_WEBP
 # check token HAVE_WILDMIDI
-# check token HAVE_WILDMIDI_0_2_2
 # check token HAVE_WIN32
 # check token HAVE_WININET
 # check token HAVE_WINKS
@@ -244,26 +260,38 @@ cdata.set('SIZEOF_LONG', cc.sizeof('long'))
 cdata.set('SIZEOF_SHORT', cc.sizeof('short'))
 cdata.set('SIZEOF_VOIDP', cc.sizeof('void*'))
 
-cdata.set('VERSION', '"@0@"'.format(gst_version))
-cdata.set('PACKAGE', '"gst-plugins-bad"')
-cdata.set('PACKAGE_VERSION', '"@0@"'.format(gst_version))
-cdata.set('PACKAGE_BUGREPORT', '"http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer"')
-cdata.set('PACKAGE_NAME', '"GStreamer Bad Plug-ins"')
-cdata.set('GETTEXT_PACKAGE', '"gst-plugins-bad-1.0"')
-cdata.set('GST_API_VERSION', '"@0@"'.format(api_version))
-cdata.set('GST_PACKAGE_NAME', '"GStreamer Bad Plug-ins"')
-cdata.set('GST_PACKAGE_ORIGIN', '"Unknown package origin"')
-cdata.set('GST_LICENSE', '"LGPL"')
-cdata.set('LIBDIR', '"@0@"'.format(get_option('libdir')))
+cdata.set_quoted('VERSION', gst_version)
+cdata.set_quoted('PACKAGE', 'gst-plugins-bad')
+cdata.set_quoted('PACKAGE_VERSION', gst_version)
+cdata.set_quoted('PACKAGE_BUGREPORT', 'http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer')
+cdata.set_quoted('PACKAGE_NAME', 'GStreamer Bad Plug-ins')
+cdata.set_quoted('GETTEXT_PACKAGE', 'gst-plugins-bad-1.0')
+cdata.set_quoted('GST_API_VERSION', api_version)
+cdata.set_quoted('GST_LICENSE', 'LGPL')
+cdata.set_quoted('LIBDIR', join_paths(get_option('prefix'), get_option('libdir')))
+
+# GStreamer package name and origin url
+gst_package_name = get_option('with-package-name')
+if gst_package_name == ''
+  if gst_version_nano == 0
+    gst_package_name = 'GStreamer Bad Plug-ins source release'
+  elif gst_version_nano == 1
+    gst_package_name = 'GStreamer Bad Plug-ins git'
+  else
+    gst_package_name = 'GStreamer Bad Plug-ins prerelease'
+  endif
+endif
+cdata.set_quoted('GST_PACKAGE_NAME', gst_package_name)
+cdata.set_quoted('GST_PACKAGE_ORIGIN', get_option('with-package-origin'))
 
 # FIXME: This should be exposed as a configuration option
 host_system = host_machine.system()
 if host_system == 'linux'
-  cdata.set('DEFAULT_VIDEOSRC', '"v4l2src"')
+  cdata.set_quoted('DEFAULT_VIDEOSRC', 'v4l2src')
 elif host_system == 'osx'
-  cdata.set('DEFAULT_VIDEOSRC', '"avfvideosrc"')
+  cdata.set_quoted('DEFAULT_VIDEOSRC', 'avfvideosrc')
 else
-  cdata.set('DEFAULT_VIDEOSRC', '"videotestsrc"')
+  cdata.set_quoted('DEFAULT_VIDEOSRC', 'videotestsrc')
 endif
 
 # Mandatory GST deps
@@ -298,11 +326,53 @@ gsttag_dep = dependency('gstreamer-tag-1.0', version : gst_req,
     fallback : ['gst-plugins-base', 'tag_dep'])
 gstvideo_dep = dependency('gstreamer-video-1.0', version : gst_req,
     fallback : ['gst-plugins-base', 'video_dep'])
+if host_machine.system() != 'windows'
+  gstcheck_dep = dependency('gstreamer-check-1.0', version : gst_req,
+    fallback : ['gstreamer', 'gst_check_dep'])
+endif
+
+# GStreamer OpenGL
+gstgl_dep = dependency('gstreamer-gl-1.0', version : gst_req,
+    fallback : ['gst-plugins-base', 'gstgl_dep'], required: false)
+
+build_gstgl = gstgl_dep.found() # FIXME: add option?
+
+if build_gstgl
+  if gstgl_dep.type_name() == 'pkgconfig'
+    gst_gl_apis = gstgl_dep.get_pkgconfig_variable('gl_apis').split()
+    gst_gl_winsys = gstgl_dep.get_pkgconfig_variable('gl_winsys').split()
+    gst_gl_platforms = gstgl_dep.get_pkgconfig_variable('gl_platforms').split()
+  else
+    gstbase = subproject('gst-plugins-base')
+    gst_gl_apis = gstbase.get_variable('enabled_gl_apis')
+    gst_gl_winsys = gstbase.get_variable('enabled_gl_winsys')
+    gst_gl_platforms = gstbase.get_variable('enabled_gl_platforms')
+  endif
+
+  message('GStreamer OpenGL window systems: @0@'.format(' '.join(gst_gl_winsys)))
+  message('GStreamer OpenGL platforms: @0@'.format(' '.join(gst_gl_platforms)))
+  message('GStreamer OpenGL apis: @0@'.format(' '.join(gst_gl_apis)))
+
+  foreach ws : ['x11', 'wayland', 'android', 'cocoa', 'eagl', 'win32', 'dispmanx', 'viv_fb']
+    set_variable('gst_gl_have_window_@0@'.format(ws), gst_gl_winsys.contains(ws))
+  endforeach
+
+  foreach p : ['glx', 'egl', 'cgl', 'eagl', 'wgl']
+    set_variable('gst_gl_have_platform_@0@'.format(p), gst_gl_platforms.contains(p))
+  endforeach
+
+  foreach api : ['opengl', 'gles2']
+    set_variable('gst_gl_have_api_@0@'.format(api), gst_gl_apis.contains(api))
+  endforeach
+endif
 
 libm = cc.find_library('m', required : false)
-glib_dep = dependency('glib-2.0', version : glib_req)
-gio_dep = dependency('gio-2.0', version : glib_req)
-gmodule_dep = dependency('gmodule-2.0', version : glib_req)
+glib_dep = dependency('glib-2.0', version : glib_req,
+  fallback: ['glib', 'libglib_dep'])
+gmodule_dep = dependency('gmodule-2.0',
+  fallback: ['glib', 'libgmodule_dep'])
+gio_dep = dependency('gio-2.0',
+  fallback: ['glib', 'libgio_dep'])
 x11_dep = dependency('x11', required : false)
 
 # Used by dtls and hls
@@ -374,18 +444,14 @@ else
     endif
 endif
 
-configure_file(input : 'config.h.meson',
-  output : 'config.h',
-  configuration : cdata)
-
 gst_plugins_bad_args = ['-DHAVE_CONFIG_H']
 configinc = include_directories('.')
 libsinc = include_directories('gst-libs')
 
-vs_module_defs_dir = meson.current_source_dir() + '/win32/common/'
-
 # Used by the *_mkenum.py helper scripts
 glib_mkenums = find_program('glib-mkenums')
+
+python3 = import('python3').find_python()
 
 gir = find_program('g-ir-scanner', required : false)
 gnome = import('gnome')
@@ -399,7 +465,14 @@ subdir('gst-libs')
 subdir('gst')
 subdir('sys')
 subdir('ext')
+subdir('tests')
 subdir('pkgconfig')
 
-python3 = find_program('python3')
+configure_file(output : 'config.h', configuration : cdata)
+
+# xgettext is optional (on Windows for instance)
+if find_program('xgettext', required : false).found()
+  subdir('po')
+endif
+
 run_command(python3, '-c', 'import shutil; shutil.copy("hooks/pre-commit.hook", ".git/hooks/pre-commit")')

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad-1.7.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-12-07 19:24+0200\n"
+"POT-Creation-Date: 2018-02-15 17:13+0000\n"
 "PO-Revision-Date: 2016-05-06 16:02-0300\n"
 "Last-Translator: Fabrício Godoy <skarllot@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <ldpbr-translation@lists.sourceforge."
@@ -19,14 +19,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-msgid "failed to draw pattern"
+msgid "No URL set."
 msgstr ""
-
-msgid "A GL error occured"
-msgstr ""
-
-msgid "format wasn't negotiated before get function"
-msgstr "O formato não foi negociado antes da chamada da função"
 
 msgid "OpenCV failed to load template image"
 msgstr "O OpenCV falhou ao carregar a imagem modelo"
@@ -135,6 +129,9 @@ msgstr "Não foi possível encontrar o arquivo de configuração de canal DVB"
 #, fuzzy
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "O arquivo de configuração de canal DVB não contém nenhum canal"
+
+#~ msgid "format wasn't negotiated before get function"
+#~ msgstr "O formato não foi negociado antes da chamada da função"
 
 #~ msgid "Could not establish connection to sndio"
 #~ msgstr "Não foi possível estabelecer a conexão para sndio"

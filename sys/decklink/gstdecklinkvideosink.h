@@ -53,6 +53,8 @@ struct _GstDecklinkVideoSink
   gint device_number;
   GstDecklinkVideoFormat video_format;
   BMDTimecodeFormat timecode_format;
+  BMDKeyerMode keyer_mode;
+  gint keyer_level;
 
   GstVideoInfo info;
 
@@ -68,6 +70,9 @@ struct _GstDecklinkVideoSinkClass
 };
 
 GType gst_decklink_video_sink_get_type (void);
+
+void gst_decklink_video_sink_convert_to_internal_clock (GstDecklinkVideoSink * self,
+    GstClockTime * timestamp, GstClockTime * duration);
 
 G_END_DECLS
 

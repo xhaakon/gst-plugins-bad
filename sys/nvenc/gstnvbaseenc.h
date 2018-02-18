@@ -69,6 +69,7 @@ typedef struct {
   gint            qp_max;
   gint            qp_const;
   guint           bitrate;
+  gint            gop_size;
 
   CUcontext       cuda_ctx;
   void          * encoder;
@@ -77,6 +78,7 @@ typedef struct {
   GValue        * input_formats;                  /* OBJECT LOCK */
 
   GstVideoCodecState *input_state;
+  volatile gint       reconfig;                   /* ATOMIC */
   gboolean            gl_input;
 
   /* allocated buffers */

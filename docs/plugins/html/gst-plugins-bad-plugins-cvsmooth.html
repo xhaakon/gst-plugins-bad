@@ -8,7 +8,7 @@
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-cvlaplace.html" title="cvlaplace">
 <link rel="next" href="gst-plugins-bad-plugins-cvsobel.html" title="cvsobel">
-<meta name="generator" content="GTK-Doc V1.26 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.27 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -87,6 +87,26 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--width" title="The “width” property">width</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--kernel-height" title="The “kernel-height” property">kernel-height</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--kernel-width" title="The “kernel-width” property">kernel-width</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--position-x" title="The “position-x” property">position-x</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-cvsmooth.html#GstCvSmooth--position-y" title="The “position-y” property">position-y</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -119,7 +139,7 @@
 <a name="gst-plugins-bad-plugins-cvsmooth.description"></a><h2>Description</h2>
 <p>Smooths the image using thes cvSmooth OpenCV function.</p>
 <div class="refsect2">
-<a name="id-1.2.22.7.3"></a><h3>Example launch line</h3>
+<a name="id-1.2.20.7.3"></a><h3>Example launch line</h3>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -135,7 +155,7 @@
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.22.7.4.1"></a><h3>Element Information</h3>
+<a name="id-1.2.20.7.4.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -161,7 +181,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.22.7.4.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.20.7.4.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -298,10 +318,10 @@
 <div class="refsect2">
 <a name="GstCvSmooth--height"></a><h3>The <code class="literal">“height”</code> property</h3>
 <pre class="programlisting">  “height”                   <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
-<p>The gaussian kernel height (must be positive and odd).</p>
+<p>Height of the area to blur (in pixels).</p>
 <p>Flags: Read / Write</p>
 <p>Allowed values: &gt;= 0</p>
-<p>Default value: 3</p>
+<p>Default value: 2147483647</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -316,14 +336,50 @@
 <div class="refsect2">
 <a name="GstCvSmooth--width"></a><h3>The <code class="literal">“width”</code> property</h3>
 <pre class="programlisting">  “width”                    <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>Width of the area to blur (in pixels).</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 2147483647</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstCvSmooth--kernel-height"></a><h3>The <code class="literal">“kernel-height”</code> property</h3>
+<pre class="programlisting">  “kernel-height”            <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>The gaussian kernel height (must be positive and odd).</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 3</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstCvSmooth--kernel-width"></a><h3>The <code class="literal">“kernel-width”</code> property</h3>
+<pre class="programlisting">  “kernel-width”             <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
 <p>The gaussian kernel width (must be positive and odd).If type is median, this means the aperture linear size.Check OpenCV docs: http://docs.opencv.org/2.4/modules/imgproc/doc/filtering.htm.</p>
 <p>Flags: Read / Write</p>
 <p>Allowed values: &gt;= 1</p>
 <p>Default value: 3</p>
 </div>
+<hr>
+<div class="refsect2">
+<a name="GstCvSmooth--position-x"></a><h3>The <code class="literal">“position-x”</code> property</h3>
+<pre class="programlisting">  “position-x”               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>Starting x position for blur (in pixels).</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstCvSmooth--position-y"></a><h3>The <code class="literal">“position-y”</code> property</h3>
+<pre class="programlisting">  “position-y”               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>Starting y position for blur (in pixels).</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 0</p>
+</div>
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.26</div>
+<hr>Generated by GTK-Doc V1.27</div>
 </body>
 </html>

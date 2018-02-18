@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-bad 1.12.4\n"
+"Project-Id-Version: gst-plugins-bad 1.13.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-12-07 19:24+0200\n"
+"POT-Creation-Date: 2018-02-15 17:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,16 +16,8 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ext/gl/gstgltestsrc.c:489
-msgid "failed to draw pattern"
-msgstr ""
-
-#: ext/gl/gstgltestsrc.c:490
-msgid "A GL error occured"
-msgstr ""
-
-#: ext/gl/gstgltestsrc.c:496
-msgid "format wasn't negotiated before get function"
+#: ext/curl/gstcurlhttpsrc.c:1265
+msgid "No URL set."
 msgstr ""
 
 #: ext/opencv/gsttemplatematch.cpp:186
@@ -56,7 +48,7 @@ msgid "Could not read DVD."
 msgstr ""
 
 #: ext/smoothstreaming/gstmssdemux.c:421
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:720
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:721
 msgid "This file contains no playable streams."
 msgstr ""
 
@@ -86,40 +78,40 @@ msgstr ""
 msgid "Subpicture format was not configured before data flow"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3410
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3553
 msgid "Failed to get fragment URL."
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3789
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3936
 msgid "Couldn't download fragments"
 msgstr ""
 
-#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:3878
+#: gst-libs/gst/adaptivedemux/gstadaptivedemux.c:4025
 #: gst/mpegtsdemux/mpegtsbase.c:1610
 msgid "Internal data stream error."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1579 sys/dvb/gstdvbsrc.c:1793
+#: sys/dvb/gstdvbsrc.c:1580 sys/dvb/gstdvbsrc.c:1794
 #, c-format
 msgid "Device \"%s\" does not exist."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1583
+#: sys/dvb/gstdvbsrc.c:1584
 #, c-format
 msgid "Could not open frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1602
+#: sys/dvb/gstdvbsrc.c:1603
 #, c-format
 msgid "Could not get settings from frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1619
+#: sys/dvb/gstdvbsrc.c:1620
 #, c-format
 msgid "Cannot enumerate delivery systems from frontend device \"%s\"."
 msgstr ""
 
-#: sys/dvb/gstdvbsrc.c:1797
+#: sys/dvb/gstdvbsrc.c:1798
 #, c-format
 msgid "Could not open file \"%s\" for reading."
 msgstr ""

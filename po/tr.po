@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad-1.12.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-12-07 19:24+0200\n"
+"POT-Creation-Date: 2018-02-15 17:13+0000\n"
 "PO-Revision-Date: 2017-05-05 11:07+0300\n"
 "Last-Translator: Mehmet Kececi <mkececi@mehmetkececi.com>\n"
 "Language-Team: Turkish <gnu-tr-u12a@lists.sourceforge.net>\n"
@@ -20,14 +20,8 @@ msgstr ""
 "X-Bugs: Report translation errors to the Language-Team address.\n"
 "X-Project-Style: gnome\n"
 
-msgid "failed to draw pattern"
-msgstr "desen çizimi başarısız oldu"
-
-msgid "A GL error occured"
-msgstr "Bir GL hatası oluştu"
-
-msgid "format wasn't negotiated before get function"
-msgstr "get fonksiyonundan önce biçim görüşülemedi"
+msgid "No URL set."
+msgstr ""
 
 msgid "OpenCV failed to load template image"
 msgstr "OpenCV şablon görüntüsü yüklenemedi"
@@ -131,6 +125,15 @@ msgstr "Kanal yapılandırma dosyası bulamadı: '%s'"
 
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "Kanal yapılandırma dosyası herhangi bir kanal içermez"
+
+#~ msgid "failed to draw pattern"
+#~ msgstr "desen çizimi başarısız oldu"
+
+#~ msgid "A GL error occured"
+#~ msgstr "Bir GL hatası oluştu"
+
+#~ msgid "format wasn't negotiated before get function"
+#~ msgstr "get fonksiyonundan önce biçim görüşülemedi"
 
 #~ msgid "Couldn't get the Manifest's URI"
 #~ msgstr "Manifest URI alınamadı"

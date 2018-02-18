@@ -69,10 +69,16 @@ struct _GstCvSmooth
 
   gint type;
 
-  gint width;
-  gint height;
+  gint kernelwidth;
+  gint kernelheight;
   gdouble colorsigma;
   gdouble spatialsigma;
+
+  /* coordinates to apply the effect to */
+  gint positionx;
+  gint positiony;
+  gint width;
+  gint height;
 };
 
 struct _GstCvSmoothClass

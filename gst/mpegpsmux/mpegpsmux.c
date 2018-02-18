@@ -229,7 +229,6 @@ mpegpsmux_create_stream (MpegPsMux * mux, MpegPsPadData * ps_data, GstPad * pad)
   }
 
   s = gst_caps_get_structure (caps, 0);
-  g_return_val_if_fail (s != NULL, FALSE);
 
   if (gst_structure_has_name (s, "video/x-dirac")) {
     GST_DEBUG_OBJECT (pad, "Creating Dirac stream");
@@ -651,9 +650,9 @@ mpegpsmux_release_pad (GstElement * element, GstPad * pad)
       gst_buffer_unref (pad_data->codec_data);
       pad_data->codec_data = NULL;
     }
+    if (pad_data->stream_id == mux->video_stream_id)
+      mux->video_stream_id = 0;
   }
-  if (pad_data->stream_id == mux->video_stream_id)
-    mux->video_stream_id = 0;
   GST_OBJECT_UNLOCK (pad);
 
   gst_collect_pads_remove_pad (mux->collect, pad);
