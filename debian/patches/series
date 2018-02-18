@@ -1,1 +1,2 @@
 01_fix-modplug-linking.patch
+0001-configure-Add-configure-check-for-gmodule-no-export-.patch

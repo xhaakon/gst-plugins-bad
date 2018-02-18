@@ -3,7 +3,6 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstadpcmdec.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstadpcmenc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaiff.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaudiofxbad.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaudiomixer.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstasfmux.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstassrender.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaudiobuffersplit.so
@@ -17,6 +16,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstbz2.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcamerabin.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstchromaprint.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcoloreffects.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcolormanagement.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcompositor.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcurl.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdashdemux.so
@@ -38,11 +38,11 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgdp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgeometrictransform.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgme.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgsm.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstgtk.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgsthls.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstid3tag.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstinter.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstinterlace.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstipcpipeline.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstivfparse.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstivtc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstkate.so
@@ -65,13 +65,13 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmxf.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstnetsim.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstofa.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenal.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopencv.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopengl.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenexr.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenjpeg.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenmpt.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopusparse.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstpcapparse.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstpnm.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstproxy.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstremovesilence.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrfbsrc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrsvg.so
@@ -100,6 +100,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvideosignal.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvmnc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvoaacenc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstvoamrwbenc.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstwebrtc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstwebrtcdsp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstwebp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstwildmidi.so
