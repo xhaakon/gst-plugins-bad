@@ -307,139 +307,138 @@ gst_hls_variant_stream_compare_by_bitrate (gconstpointer a, gconstpointer b)
   return vs_a->bandwidth - vs_b->bandwidth;
 }
 
+/* If we have MEDIA-SEQUENCE, ensure that it's consistent. If it is not,
+ * the client SHOULD halt playback (6.3.4), which is what we do then. */
 static gboolean
-gst_m3u8_update_check_consistent_media_seqnums (GstM3U8 * self,
-    gboolean have_mediasequence, GList * previous_files)
+check_media_seqnums (GstM3U8 * self, GList * previous_files)
 {
-  if (!previous_files)
+  GList *l, *m;
+  GstM3U8MediaFile *f1 = NULL, *f2 = NULL;
+
+  g_return_val_if_fail (previous_files, FALSE);
+
+  if (!self->files) {
+    /* Empty playlists are trivially consistent */
     return TRUE;
+  }
 
-  /* If we have MEDIA-SEQUENCE, ensure that it's consistent. If it is not,
-   * the client SHOULD halt playback (6.3.4), which is what we do then.
-   *
-   * If we don't have MEDIA-SEQUENCE, we check URIs in the previous and
-   * current playlist to calculate the/a correct MEDIA-SEQUENCE for the new
-   * playlist in relation to the old. That is, same URIs get the same number
-   * and later URIs get higher numbers */
-  if (have_mediasequence) {
-    GList *l, *m;
-    GstM3U8MediaFile *f1 = NULL, *f2 = NULL;
+  /* Find first case of higher/equal sequence number in new playlist.
+   * From there on we can linearly step ahead */
+  for (l = self->files; l; l = l->next) {
+    gboolean match = FALSE;
 
-    /* Find first case of higher/equal sequence number in new playlist or
-     * same URI. From there on we can linearly step ahead */
-    for (l = self->files; l; l = l->next) {
-      gboolean match = FALSE;
+    f1 = l->data;
+    for (m = previous_files; m; m = m->next) {
+      f2 = m->data;
 
-      f1 = l->data;
-      for (m = previous_files; m; m = m->next) {
-        f2 = m->data;
-
-        if (f1->sequence >= f2->sequence || g_str_equal (f1->uri, f2->uri)) {
-          match = TRUE;
-          break;
-        }
-      }
-      if (match)
+      if (f1->sequence >= f2->sequence) {
+        match = TRUE;
         break;
+      }
     }
+    if (match)
+      break;
+  }
 
-    if (!l) {
-      /* No match, no sequence in the new playlist was higher than
-       * any in the old, and no URI was found again. This is bad! */
-      GST_ERROR ("Media sequences inconsistent, ignoring");
+  /* We must have seen at least one entry on each list */
+  g_assert (f1 != NULL);
+  g_assert (f2 != NULL);
+
+  if (!l) {
+    /* No match, no sequence in the new playlist was higher than
+     * any in the old. This is bad! */
+    GST_ERROR ("Media sequence doesn't continue: last new %" G_GINT64_FORMAT
+        " < last old %" G_GINT64_FORMAT, f1->sequence, f2->sequence);
+    return FALSE;
+  }
+
+  for (; l && m; l = l->next, m = m->next) {
+    f1 = l->data;
+    f2 = m->data;
+
+    if (f1->sequence == f2->sequence && !g_str_equal (f1->uri, f2->uri)) {
+      /* Same sequence, different URI. This is bad! */
+      GST_ERROR ("Media URIs inconsistent (sequence %" G_GINT64_FORMAT
+          "): had '%s', got '%s'", f1->sequence, f2->uri, f1->uri);
       return FALSE;
-    } else {
-      g_assert (f1 != NULL);
-      g_assert (f2 != NULL);
-
-      for (; l && m; l = l->next, m = m->next) {
-        f1 = l->data;
-        f2 = m->data;
-
-        if (f1->sequence == f2->sequence) {
-          if (!g_str_equal (f1->uri, f2->uri)) {
-            /* Same sequence, different URI. This is bad! */
-            GST_ERROR ("Media sequences inconsistent, ignoring");
-            return FALSE;
-          } else {
-            /* Good case, we advance and check the next one */
-          }
-        } else if (g_str_equal (f1->uri, f2->uri)) {
-          /* Same URIs but different sequences, this is bad! */
-          GST_ERROR ("Media sequences inconsistent, ignoring");
-          return FALSE;
-        } else {
-          /* Not same URI, not same sequence but by construction sequence
-           * must be higher in the new one. All good in that case, if it
-           * isn't then this means that sequence numbers are decreasing
-           * or files were inserted */
-          if (f1->sequence < f2->sequence) {
-            GST_ERROR ("Media sequences inconsistent, ignoring");
-            return FALSE;
-          }
-        }
-      }
-
-      /* All good if we're getting here */
-    }
-  } else {
-    GList *l, *m;
-    GstM3U8MediaFile *f1 = NULL, *f2 = NULL;
-    gint64 mediasequence;
-
-    for (l = self->files; l; l = l->next) {
-      gboolean match = FALSE;
-
-      f1 = l->data;
-      for (m = previous_files; m; m = m->next) {
-        f2 = m->data;
-
-        if (g_str_equal (f1->uri, f2->uri)) {
-          match = TRUE;
-          break;
-        }
-      }
-
-      if (match)
-        break;
-    }
-
-    if (!l) {
-      /* No match, this means f2 is the last item in the previous playlist
-       * and we have to start our new playlist at that sequence */
-      mediasequence = f2->sequence + 1;
-
-      for (l = self->files; l; l = l->next) {
-        f1 = l->data;
-        f1->sequence = mediasequence;
-        mediasequence++;
-      }
-    } else {
-      /* Match, check that all following ones are matching too and continue
-       * sequence numbers from there on */
-
-      mediasequence = f2->sequence;
-
-      for (; l; l = l->next) {
-        f1 = l->data;
-        f2 = m ? m->data : NULL;
-
-        f1->sequence = mediasequence;
-        mediasequence++;
-
-        if (f2) {
-          if (!g_str_equal (f1->uri, f2->uri)) {
-            GST_WARNING ("Inconsistent URIs after playlist update");
-          }
-        }
-
-        if (m)
-          m = m->next;
-      }
+    } else if (f1->sequence < f2->sequence) {
+      /* Not same sequence but by construction sequence must be higher in the
+       * new one. All good in that case, if it isn't then this means that
+       * sequence numbers are decreasing or files were inserted */
+      GST_ERROR ("Media sequences inconsistent: %" G_GINT64_FORMAT " < %"
+          G_GINT64_FORMAT ": URIs new '%s' old '%s'", f1->sequence,
+          f2->sequence, f1->uri, f2->uri);
+      return FALSE;
     }
   }
 
+  /* All good if we're getting here */
   return TRUE;
+}
+
+/* If we don't have MEDIA-SEQUENCE, we check URIs in the previous and
+ * current playlist to calculate the/a correct MEDIA-SEQUENCE for the new
+ * playlist in relation to the old. That is, same URIs get the same number
+ * and later URIs get higher numbers */
+static void
+generate_media_seqnums (GstM3U8 * self, GList * previous_files)
+{
+  GList *l, *m;
+  GstM3U8MediaFile *f1 = NULL, *f2 = NULL;
+  gint64 mediasequence;
+
+  g_return_if_fail (previous_files);
+
+  /* Find first case of same URI in new playlist.
+   * From there on we can linearly step ahead */
+  for (l = self->files; l; l = l->next) {
+    gboolean match = FALSE;
+
+    f1 = l->data;
+    for (m = previous_files; m; m = m->next) {
+      f2 = m->data;
+
+      if (g_str_equal (f1->uri, f2->uri)) {
+        match = TRUE;
+        break;
+      }
+    }
+
+    if (match)
+      break;
+  }
+
+  if (l) {
+    /* Match, check that all following ones are matching too and continue
+     * sequence numbers from there on */
+
+    mediasequence = f2->sequence;
+
+    for (; l && m; l = l->next, m = m->next) {
+      f1 = l->data;
+      f2 = m->data;
+
+      f1->sequence = mediasequence;
+      mediasequence++;
+
+      if (!g_str_equal (f1->uri, f2->uri)) {
+        GST_WARNING ("Inconsistent URIs after playlist update: '%s' != '%s'",
+            f1->uri, f2->uri);
+      }
+    }
+  } else {
+    /* No match, this means f2 is the last item in the previous playlist
+     * and we have to start our new playlist at that sequence */
+    mediasequence = f2->sequence + 1;
+    l = self->files;
+  }
+
+  for (; l; l = l->next) {
+    f1 = l->data;
+
+    f1->sequence = mediasequence;
+    mediasequence++;
+  }
 }
 
 /*
@@ -692,8 +691,13 @@ gst_m3u8_update (GstM3U8 * self, gchar * data)
   self->files = g_list_reverse (self->files);
 
   if (previous_files) {
-    gboolean consistent = gst_m3u8_update_check_consistent_media_seqnums (self,
-        have_mediasequence, previous_files);
+    gboolean consistent = TRUE;
+
+    if (have_mediasequence) {
+      consistent = check_media_seqnums (self, previous_files);
+    } else {
+      generate_media_seqnums (self, previous_files);
+    }
 
     g_list_foreach (previous_files, (GFunc) gst_m3u8_media_file_unref, NULL);
     g_list_free (previous_files);
@@ -1525,8 +1529,15 @@ gst_hls_master_playlist_new_from_data (gchar * data, const gchar * base_uri)
       data += stream->iframe ? 26 : 18;
       while (data && parse_attributes (&data, &a, &v)) {
         if (g_str_equal (a, "BANDWIDTH")) {
+          if (!stream->bandwidth) {
+            if (!int_from_string (v, NULL, &stream->bandwidth))
+              GST_WARNING ("Error while reading BANDWIDTH");
+          }
+        } else if (g_str_equal (a, "AVERAGE-BANDWIDTH")) {
+          GST_DEBUG
+              ("AVERAGE-BANDWIDTH attribute available. Using it as stream bandwidth");
           if (!int_from_string (v, NULL, &stream->bandwidth))
-            GST_WARNING ("Error while reading BANDWIDTH");
+            GST_WARNING ("Error while reading AVERAGE-BANDWIDTH");
         } else if (g_str_equal (a, "PROGRAM-ID")) {
           if (!int_from_string (v, NULL, &stream->program_id))
             GST_WARNING ("Error while reading PROGRAM-ID");

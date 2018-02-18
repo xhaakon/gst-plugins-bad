@@ -8,7 +8,7 @@
 <link rel="up" href="codecparsers.html" title="Bitstream parsing Library">
 <link rel="prev" href="gst-plugins-bad-libs-jpegparser.html" title="GstJpegParser">
 <link rel="next" href="gst-plugins-bad-libs-mpeg4parser.html" title="GstMpeg4Parser">
-<meta name="generator" content="GTK-Doc V1.26 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.27 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -53,7 +53,7 @@ bitstream parsing.</p>
 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-sequence-header" title="gst_mpeg_video_parse_sequence_header ()">gst_mpeg_video_parse_sequence_header</a> <span class="c_punctuation">()</span>
+<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-packet-parse-sequence-header" title="gst_mpeg_video_packet_parse_sequence_header ()">gst_mpeg_video_packet_parse_sequence_header</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
@@ -61,7 +61,7 @@ bitstream parsing.</p>
 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-picture-header" title="gst_mpeg_video_parse_picture_header ()">gst_mpeg_video_parse_picture_header</a> <span class="c_punctuation">()</span>
+<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-packet-parse-sequence-extension" title="gst_mpeg_video_packet_parse_sequence_extension ()">gst_mpeg_video_packet_parse_sequence_extension</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
@@ -69,7 +69,7 @@ bitstream parsing.</p>
 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-picture-extension" title="gst_mpeg_video_parse_picture_extension ()">gst_mpeg_video_parse_picture_extension</a> <span class="c_punctuation">()</span>
+<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-packet-parse-sequence-display-extension" title="gst_mpeg_video_packet_parse_sequence_display_extension ()">gst_mpeg_video_packet_parse_sequence_display_extension</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
@@ -77,7 +77,7 @@ bitstream parsing.</p>
 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-gop" title="gst_mpeg_video_parse_gop ()">gst_mpeg_video_parse_gop</a> <span class="c_punctuation">()</span>
+<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-packet-parse-sequence-scalable-extension" title="gst_mpeg_video_packet_parse_sequence_scalable_extension ()">gst_mpeg_video_packet_parse_sequence_scalable_extension</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
@@ -85,7 +85,7 @@ bitstream parsing.</p>
 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-sequence-extension" title="gst_mpeg_video_parse_sequence_extension ()">gst_mpeg_video_parse_sequence_extension</a> <span class="c_punctuation">()</span>
+<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-packet-parse-picture-header" title="gst_mpeg_video_packet_parse_picture_header ()">gst_mpeg_video_packet_parse_picture_header</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
@@ -93,7 +93,7 @@ bitstream parsing.</p>
 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-sequence-display-extension" title="gst_mpeg_video_parse_sequence_display_extension ()">gst_mpeg_video_parse_sequence_display_extension</a> <span class="c_punctuation">()</span>
+<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-packet-parse-picture-extension" title="gst_mpeg_video_packet_parse_picture_extension ()">gst_mpeg_video_packet_parse_picture_extension</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
@@ -101,7 +101,23 @@ bitstream parsing.</p>
 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
 </td>
 <td class="function_name">
-<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-parse-quant-matrix-extension" title="gst_mpeg_video_parse_quant_matrix_extension ()">gst_mpeg_video_parse_quant_matrix_extension</a> <span class="c_punctuation">()</span>
+<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-packet-parse-gop" title="gst_mpeg_video_packet_parse_gop ()">gst_mpeg_video_packet_parse_gop</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-packet-parse-slice-header" title="gst_mpeg_video_packet_parse_slice_header ()">gst_mpeg_video_packet_parse_slice_header</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#gst-mpeg-video-packet-parse-quant-matrix-extension" title="gst_mpeg_video_packet_parse_quant_matrix_extension ()">gst_mpeg_video_packet_parse_quant_matrix_extension</a> <span class="c_punctuation">()</span>
 </td>
 </tr>
 <tr>
@@ -254,21 +270,17 @@ next packet found</p></td>
 </div>
 <hr>
 <div class="refsect2">
-<a name="gst-mpeg-video-parse-sequence-header"></a><h3>gst_mpeg_video_parse_sequence_header ()</h3>
+<a name="gst-mpeg-video-packet-parse-sequence-header"></a><h3>gst_mpeg_video_packet_parse_sequence_header ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-gst_mpeg_video_parse_sequence_header (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> *seqhdr</code></em>,
-                                      <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
-                                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
-                                      <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
-<div class="warning">
-<p><code class="literal">gst_mpeg_video_parse_sequence_header</code> is deprecated and should not be used in newly-written code.</p>
-<p>Use <code class="function">gst_mpeg_video_packet_parse_sequence_header()</code> instead.</p>
-</div>
+gst_mpeg_video_packet_parse_sequence_header
+                               (<em class="parameter"><code>const <span class="type">GstMpegVideoPacket</span> *packet</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> *seqhdr</code></em>);</pre>
 <p>Parses the <em class="parameter"><code>seqhdr</code></em>
- Mpeg Video Sequence Header structure members from <em class="parameter"><code>data</code></em>
+ MPEG Video Sequence Header structure members
+from video <em class="parameter"><code>packet</code></em>
 </p>
 <div class="refsect3">
-<a name="gst-mpeg-video-parse-sequence-header.parameters"></a><h4>Parameters</h4>
+<a name="gst-mpeg-video-packet-parse-sequence-header.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -276,216 +288,38 @@ gst_mpeg_video_parse_sequence_header (<em class="parameter"><code><a class="link
 <col width="200px" class="parameters_annotations">
 </colgroup>
 <tbody>
+<tr>
+<td class="parameter_name"><p>packet</p></td>
+<td class="parameter_description"><p>The <span class="type">GstMpegVideoPacket</span> that carries the data</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
 <tr>
 <td class="parameter_name"><p>seqhdr</p></td>
 <td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> structure to fill. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
 </tr>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data from which to parse the sequence header</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>The size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>offset</p></td>
-<td class="parameter_description"><p>The offset in byte from which to start parsing <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
 </tbody>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="gst-mpeg-video-parse-sequence-header.returns"></a><h4>Returns</h4>
+<a name="gst-mpeg-video-packet-parse-sequence-header.returns"></a><h4>Returns</h4>
 <p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the seqhdr could be parsed correctly, <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
 </div>
+<p class="since">Since: 1.2</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="gst-mpeg-video-parse-picture-header"></a><h3>gst_mpeg_video_parse_picture_header ()</h3>
+<a name="gst-mpeg-video-packet-parse-sequence-extension"></a><h3>gst_mpeg_video_packet_parse_sequence_extension ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-gst_mpeg_video_parse_picture_header (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureHdr" title="struct GstMpegVideoPictureHdr"><span class="type">GstMpegVideoPictureHdr</span></a> *hdr</code></em>,
-                                     <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
-                                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
-                                     <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
-<div class="warning">
-<p><code class="literal">gst_mpeg_video_parse_picture_header</code> is deprecated and should not be used in newly-written code.</p>
-<p>Use <code class="function">gst_mpeg_video_packet_parse_picture_header()</code> instead.</p>
-</div>
-<p>Parsers the <em class="parameter"><code>hdr</code></em>
- Mpeg Video Picture Header structure members from <em class="parameter"><code>data</code></em>
-</p>
-<div class="refsect3">
-<a name="gst-mpeg-video-parse-picture-header.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>hdr</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureHdr" title="struct GstMpegVideoPictureHdr"><span class="type">GstMpegVideoPictureHdr</span></a> structure to fill. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
-</tr>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data from which to parse the picture header</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>The size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>offset</p></td>
-<td class="parameter_description"><p>The offset in byte from which to start the parsing</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-mpeg-video-parse-picture-header.returns"></a><h4>Returns</h4>
-<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the picture sequence could be parsed correctly, <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>
-otherwise.</p>
-</div>
-</div>
-<hr>
-<div class="refsect2">
-<a name="gst-mpeg-video-parse-picture-extension"></a><h3>gst_mpeg_video_parse_picture_extension ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-gst_mpeg_video_parse_picture_extension
-                               (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureExt" title="struct GstMpegVideoPictureExt"><span class="type">GstMpegVideoPictureExt</span></a> *ext</code></em>,
-                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
-<div class="warning">
-<p><code class="literal">gst_mpeg_video_parse_picture_extension</code> is deprecated and should not be used in newly-written code.</p>
-<p>Use <code class="function">gst_mpeg_video_packet_parse_picture_extension()</code> instead.</p>
-</div>
-<p>Parse the <em class="parameter"><code>ext</code></em>
- Mpeg Video Picture Extension structure members from <em class="parameter"><code>data</code></em>
-</p>
-<div class="refsect3">
-<a name="gst-mpeg-video-parse-picture-extension.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>ext</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureExt" title="struct GstMpegVideoPictureExt"><span class="type">GstMpegVideoPictureExt</span></a> structure to fill. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
-</tr>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data from which to parse the picture extension</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>The size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>offset</p></td>
-<td class="parameter_description"><p>The offset in byte from which to start the parsing</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-mpeg-video-parse-picture-extension.returns"></a><h4>Returns</h4>
-<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the picture extension could be parsed correctly,
-<a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
-</div>
-</div>
-<hr>
-<div class="refsect2">
-<a name="gst-mpeg-video-parse-gop"></a><h3>gst_mpeg_video_parse_gop ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-gst_mpeg_video_parse_gop (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoGop" title="struct GstMpegVideoGop"><span class="type">GstMpegVideoGop</span></a> *gop</code></em>,
-                          <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
-                          <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
-                          <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
-<div class="warning">
-<p><code class="literal">gst_mpeg_video_parse_gop</code> is deprecated and should not be used in newly-written code.</p>
-<p>Use <code class="function">gst_mpeg_video_packet_parse_gop()</code> instead.</p>
-</div>
-<p>Parses the <em class="parameter"><code>gop</code></em>
- Mpeg Video Group of Picture structure members from <em class="parameter"><code>data</code></em>
-</p>
-<div class="refsect3">
-<a name="gst-mpeg-video-parse-gop.parameters"></a><h4>Parameters</h4>
-<div class="informaltable"><table class="informaltable" width="100%" border="0">
-<colgroup>
-<col width="150px" class="parameters_name">
-<col class="parameters_description">
-<col width="200px" class="parameters_annotations">
-</colgroup>
-<tbody>
-<tr>
-<td class="parameter_name"><p>gop</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoGop" title="struct GstMpegVideoGop"><span class="type">GstMpegVideoGop</span></a> structure to fill. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
-</tr>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data from which to parse the gop</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>The size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>offset</p></td>
-<td class="parameter_description"><p>The offset in byte from which to start the parsing</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-</tbody>
-</table></div>
-</div>
-<div class="refsect3">
-<a name="gst-mpeg-video-parse-gop.returns"></a><h4>Returns</h4>
-<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the gop could be parsed correctly, <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
-</div>
-</div>
-<hr>
-<div class="refsect2">
-<a name="gst-mpeg-video-parse-sequence-extension"></a><h3>gst_mpeg_video_parse_sequence_extension ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-gst_mpeg_video_parse_sequence_extension
-                               (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceExt" title="struct GstMpegVideoSequenceExt"><span class="type">GstMpegVideoSequenceExt</span></a> *seqext</code></em>,
-                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
-<div class="warning">
-<p><code class="literal">gst_mpeg_video_parse_sequence_extension</code> is deprecated and should not be used in newly-written code.</p>
-<p>Use <code class="function">gst_mpeg_video_packet_parse_sequence_extension()</code> instead.</p>
-</div>
+gst_mpeg_video_packet_parse_sequence_extension
+                               (<em class="parameter"><code>const <span class="type">GstMpegVideoPacket</span> *packet</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceExt" title="struct GstMpegVideoSequenceExt"><span class="type">GstMpegVideoSequenceExt</span></a> *seqext</code></em>);</pre>
 <p>Parses the <em class="parameter"><code>seqext</code></em>
- Mpeg Video Sequence Extension structure members from <em class="parameter"><code>data</code></em>
+ MPEG Video Sequence Extension structure members
+from video <em class="parameter"><code>packet</code></em>
 </p>
 <div class="refsect3">
-<a name="gst-mpeg-video-parse-sequence-extension.parameters"></a><h4>Parameters</h4>
+<a name="gst-mpeg-video-packet-parse-sequence-extension.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -493,66 +327,38 @@ gst_mpeg_video_parse_sequence_extension
 <col width="200px" class="parameters_annotations">
 </colgroup>
 <tbody>
+<tr>
+<td class="parameter_name"><p>packet</p></td>
+<td class="parameter_description"><p>The <span class="type">GstMpegVideoPacket</span> that carries the data</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
 <tr>
 <td class="parameter_name"><p>seqext</p></td>
 <td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceExt" title="struct GstMpegVideoSequenceExt"><span class="type">GstMpegVideoSequenceExt</span></a> structure to fill. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
 </tr>
-<tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data from which to parse the sequence extension</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>The size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>offset</p></td>
-<td class="parameter_description"><p>The offset in byte from which to start parsing <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
 </tbody>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="gst-mpeg-video-parse-sequence-extension.returns"></a><h4>Returns</h4>
+<a name="gst-mpeg-video-packet-parse-sequence-extension.returns"></a><h4>Returns</h4>
 <p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the seqext could be parsed correctly, <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
 </div>
+<p class="since">Since: 1.2</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="gst-mpeg-video-parse-sequence-display-extension"></a><h3>gst_mpeg_video_parse_sequence_display_extension ()</h3>
+<a name="gst-mpeg-video-packet-parse-sequence-display-extension"></a><h3>gst_mpeg_video_packet_parse_sequence_display_extension ()</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-gst_mpeg_video_parse_sequence_display_extension
-                               (<em class="parameter"><code><span class="type">GstMpegVideoSequenceDisplayExt</span> *seqdisplayext</code></em>,
-                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
-<div class="warning"><p><code class="literal">gst_mpeg_video_parse_sequence_display_extension</code> is deprecated and should not be used in newly-written code.</p></div>
-</div>
-<hr>
-<div class="refsect2">
-<a name="gst-mpeg-video-parse-quant-matrix-extension"></a><h3>gst_mpeg_video_parse_quant_matrix_extension ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
-gst_mpeg_video_parse_quant_matrix_extension
-                               (<em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoQuantMatrixExt" title="struct GstMpegVideoQuantMatrixExt"><span class="type">GstMpegVideoQuantMatrixExt</span></a> *quant</code></em>,
-                                <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> size</code></em>,
-                                <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a> offset</code></em>);</pre>
-<div class="warning">
-<p><code class="literal">gst_mpeg_video_parse_quant_matrix_extension</code> is deprecated and should not be used in newly-written code.</p>
-<p>Use <code class="function">gst_mpeg_video_packet_parse_quant_matrix_extension()</code> instead.</p>
-</div>
-<p>Parses the <em class="parameter"><code>quant</code></em>
- Mpeg Video Quant Matrix Extension structure members from
-<em class="parameter"><code>data</code></em>
+gst_mpeg_video_packet_parse_sequence_display_extension
+                               (<em class="parameter"><code>const <span class="type">GstMpegVideoPacket</span> *packet</code></em>,
+                                <em class="parameter"><code><span class="type">GstMpegVideoSequenceDisplayExt</span> *seqdisplayext</code></em>);</pre>
+<p>Parses the <em class="parameter"><code>seqext</code></em>
+ MPEG Video Sequence Display Extension structure
+members from video <em class="parameter"><code>packet</code></em>
 </p>
 <div class="refsect3">
-<a name="gst-mpeg-video-parse-quant-matrix-extension.parameters"></a><h4>Parameters</h4>
+<a name="gst-mpeg-video-packet-parse-sequence-display-extension.parameters"></a><h4>Parameters</h4>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
 <col width="150px" class="parameters_name">
@@ -561,34 +367,271 @@ gst_mpeg_video_parse_quant_matrix_extension
 </colgroup>
 <tbody>
 <tr>
-<td class="parameter_name"><p>quant</p></td>
-<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoQuantMatrixExt" title="struct GstMpegVideoQuantMatrixExt"><span class="type">GstMpegVideoQuantMatrixExt</span></a> structure to fill. </p></td>
+<td class="parameter_name"><p>packet</p></td>
+<td class="parameter_description"><p>The <span class="type">GstMpegVideoPacket</span> that carries the data</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>seqdisplayext</p></td>
+<td class="parameter_description"><p>The <span class="type">GstMpegVideoSequenceDisplayExt</span>
+structure to fill. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-mpeg-video-packet-parse-sequence-display-extension.returns"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the seqext could be parsed correctly, <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
+</div>
+<p class="since">Since: 1.2</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-mpeg-video-packet-parse-sequence-scalable-extension"></a><h3>gst_mpeg_video_packet_parse_sequence_scalable_extension ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+gst_mpeg_video_packet_parse_sequence_scalable_extension
+                               (<em class="parameter"><code>const <span class="type">GstMpegVideoPacket</span> *packet</code></em>,
+                                <em class="parameter"><code><span class="type">GstMpegVideoSequenceScalableExt</span> *seqscaleext</code></em>);</pre>
+<p>Parses the <em class="parameter"><code>seqscaleext</code></em>
+ MPEG Video Sequence Scalable Extension structure
+members from video <em class="parameter"><code>packet</code></em>
+</p>
+<div class="refsect3">
+<a name="gst-mpeg-video-packet-parse-sequence-scalable-extension.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>packet</p></td>
+<td class="parameter_description"><p>The <span class="type">GstMpegVideoPacket</span> that carries the data</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>seqscaleext</p></td>
+<td class="parameter_description"><p>The <span class="type">GstMpegVideoSequenceScalableExt</span> structure to fill. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-mpeg-video-packet-parse-sequence-scalable-extension.returns"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the seqext could be parsed correctly, <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
+</div>
+<p class="since">Since: 1.2</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-mpeg-video-packet-parse-picture-header"></a><h3>gst_mpeg_video_packet_parse_picture_header ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+gst_mpeg_video_packet_parse_picture_header
+                               (<em class="parameter"><code>const <span class="type">GstMpegVideoPacket</span> *packet</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureHdr" title="struct GstMpegVideoPictureHdr"><span class="type">GstMpegVideoPictureHdr</span></a> *pichdr</code></em>);</pre>
+<p>Parsers the <em class="parameter"><code>pichdr</code></em>
+ MPEG Video Picture Header structure members
+from video <em class="parameter"><code>packet</code></em>
+</p>
+<div class="refsect3">
+<a name="gst-mpeg-video-packet-parse-picture-header.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>packet</p></td>
+<td class="parameter_description"><p>The <span class="type">GstMpegVideoPacket</span> that carries the data</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>pichdr</p></td>
+<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureHdr" title="struct GstMpegVideoPictureHdr"><span class="type">GstMpegVideoPictureHdr</span></a> structure to fill. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-mpeg-video-packet-parse-picture-header.returns"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the picture sequence could be parsed correctly, <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>
+otherwise.</p>
+</div>
+<p class="since">Since: 1.2</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-mpeg-video-packet-parse-picture-extension"></a><h3>gst_mpeg_video_packet_parse_picture_extension ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+gst_mpeg_video_packet_parse_picture_extension
+                               (<em class="parameter"><code>const <span class="type">GstMpegVideoPacket</span> *packet</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureExt" title="struct GstMpegVideoPictureExt"><span class="type">GstMpegVideoPictureExt</span></a> *picext</code></em>);</pre>
+<p>Parse the <em class="parameter"><code>ext</code></em>
+ MPEG Video Picture Extension structure members from
+video <em class="parameter"><code>packet</code></em>
+</p>
+<div class="refsect3">
+<a name="gst-mpeg-video-packet-parse-picture-extension.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>packet</p></td>
+<td class="parameter_description"><p>The <span class="type">GstMpegVideoPacket</span> that carries the data</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>ext</p></td>
+<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoPictureExt" title="struct GstMpegVideoPictureExt"><span class="type">GstMpegVideoPictureExt</span></a> structure to fill. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-mpeg-video-packet-parse-picture-extension.returns"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the picture extension could be parsed correctly,
+<a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
+</div>
+<p class="since">Since: 1.2</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-mpeg-video-packet-parse-gop"></a><h3>gst_mpeg_video_packet_parse_gop ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+gst_mpeg_video_packet_parse_gop (<em class="parameter"><code>const <span class="type">GstMpegVideoPacket</span> *packet</code></em>,
+                                 <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoGop" title="struct GstMpegVideoGop"><span class="type">GstMpegVideoGop</span></a> *gop</code></em>);</pre>
+<p>Parses the <em class="parameter"><code>gop</code></em>
+ MPEG Video Group of Picture structure members from
+video <em class="parameter"><code>packet</code></em>
+</p>
+<div class="refsect3">
+<a name="gst-mpeg-video-packet-parse-gop.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>packet</p></td>
+<td class="parameter_description"><p>The <span class="type">GstMpegVideoPacket</span> that carries the data</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>gop</p></td>
+<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoGop" title="struct GstMpegVideoGop"><span class="type">GstMpegVideoGop</span></a> structure to fill. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-mpeg-video-packet-parse-gop.returns"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the gop could be parsed correctly, <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
+</div>
+<p class="since">Since: 1.2</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-mpeg-video-packet-parse-slice-header"></a><h3>gst_mpeg_video_packet_parse_slice_header ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+gst_mpeg_video_packet_parse_slice_header
+                               (<em class="parameter"><code>const <span class="type">GstMpegVideoPacket</span> *packet</code></em>,
+                                <em class="parameter"><code><span class="type">GstMpegVideoSliceHdr</span> *slice_hdr</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> *seq_hdr</code></em>,
+                                <em class="parameter"><code><span class="type">GstMpegVideoSequenceScalableExt</span> *seqscaleext</code></em>);</pre>
+<p>Parses the <em class="parameter"><code>GstMpegVideoSliceHdr</code></em>
+  structure members from <em class="parameter"><code>data</code></em>
+</p>
+<div class="refsect3">
+<a name="gst-mpeg-video-packet-parse-slice-header.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>packet</p></td>
+<td class="parameter_description"><p>The <span class="type">GstMpegVideoPacket</span> that carries the data</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>slice_hdr</p></td>
+<td class="parameter_description"><p>The <span class="type">GstMpegVideoSliceHdr</span> structure to fill. </p></td>
 <td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
 </tr>
 <tr>
-<td class="parameter_name"><p>data</p></td>
-<td class="parameter_description"><p>The data from which to parse the Quantization Matrix extension</p></td>
+<td class="parameter_name"><p>seqhdr</p></td>
+<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoSequenceHdr" title="struct GstMpegVideoSequenceHdr"><span class="type">GstMpegVideoSequenceHdr</span></a> header</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>size</p></td>
-<td class="parameter_description"><p>The size of <em class="parameter"><code>data</code></em>
-</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>offset</p></td>
-<td class="parameter_description"><p>The offset in byte from which to start the parsing</p></td>
+<td class="parameter_name"><p>seqscaleext</p></td>
+<td class="parameter_description"><p>The <span class="type">GstMpegVideoSequenceScalableExt</span> header</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <div class="refsect3">
-<a name="gst-mpeg-video-parse-quant-matrix-extension.returns"></a><h4>Returns</h4>
+<a name="gst-mpeg-video-packet-parse-slice-header.returns"></a><h4>Returns</h4>
+<p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the slice could be parsed correctly, <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
+</div>
+<p class="since">Since: 1.2</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="gst-mpeg-video-packet-parse-quant-matrix-extension"></a><h3>gst_mpeg_video_packet_parse_quant_matrix_extension ()</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+gst_mpeg_video_packet_parse_quant_matrix_extension
+                               (<em class="parameter"><code>const <span class="type">GstMpegVideoPacket</span> *packet</code></em>,
+                                <em class="parameter"><code><a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoQuantMatrixExt" title="struct GstMpegVideoQuantMatrixExt"><span class="type">GstMpegVideoQuantMatrixExt</span></a> *quant</code></em>);</pre>
+<p>Parses the <em class="parameter"><code>quant</code></em>
+ MPEG Video Quantization Matrix Extension
+structure members from video <em class="parameter"><code>packet</code></em>
+</p>
+<div class="refsect3">
+<a name="gst-mpeg-video-packet-parse-quant-matrix-extension.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>packet</p></td>
+<td class="parameter_description"><p>The <span class="type">GstMpegVideoPacket</span> that carries the data</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>quant</p></td>
+<td class="parameter_description"><p>The <a class="link" href="gst-plugins-bad-libs-mpegvideoparser.html#GstMpegVideoQuantMatrixExt" title="struct GstMpegVideoQuantMatrixExt"><span class="type">GstMpegVideoQuantMatrixExt</span></a> structure to fill. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="gst-mpeg-video-packet-parse-quant-matrix-extension.returns"></a><h4>Returns</h4>
 <p> <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the quant matrix extension could be parsed correctly,
 <a href="/usr/share/gtk-doc/html/glib/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
 </div>
+<p class="since">Since: 1.2</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -1488,6 +1531,6 @@ order.</p>
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.26</div>
+<hr>Generated by GTK-Doc V1.27</div>
 </body>
 </html>

@@ -17,10 +17,6 @@ GObject
       GstControlSource
       GstElement
         GstAggregator
-          GstAudioAggregator
-            GstAudioInterleave
-            GstAudioMixer
-              GstLiveAdder
           GstMXFMux
           GstVideoAggregator
             GstCompositor
@@ -76,7 +72,6 @@ GObject
           GstAudioBaseSink
             GstAudioSink
               GstOpenALSink
-            GstDecklinkAudioSink
           GstAvdtpSink
           GstChecksumSink
           GstCurlBaseSink
@@ -87,20 +82,17 @@ GObject
               GstCurlFtpSink
               GstCurlHttpSink
               GstCurlSmtpSink
+          GstDecklinkAudioSink
           GstDecklinkVideoSink
           GstInterAudioSink
           GstInterSubSink
           GstRTMPSink
           GstShmSink
           GstVideoSink
+            GstDfbVideoSink
             GstFBDEVSink
-            GstGLImageSink
-            GstGtkBaseSink
-              GstGtkGLSink
-              GstGtkSink
             GstInterVideoSink
             GstKMSSink
-            GstQtSink
             GstVulkanSink
             GstWaylandSink
         GstBaseSrc
@@ -116,13 +108,13 @@ GObject
             GstAudioBaseSrc
               GstAudioSrc
                 GstOpenalSrc
+            GstCurlHttpSrc
             GstDC1394Src
             GstDecklinkAudioSrc
             GstDecklinkVideoSrc
             GstDvbSrc
-            GstGLTestSrc
             GstMMS
-            GstQtSrc
+            GstNeonhttpSrc
             GstRTMPSrc
             GstRfbSrc
             GstShmSrc
@@ -133,7 +125,6 @@ GObject
             GstAccurip
             GstAudioChannelMix
             GstBPMDetect
-            GstBs2b
             GstChromaprint
             GstLADSPAFilter
               ladspa-amp-so-amp-mono
@@ -146,49 +137,11 @@ GObject
               ladspa-sine-so-sine-fcaa
             GstOFA
             GstStereo
-            GstWebrtcDsp
-            GstWebrtcEchoProbe
           GstAudioMixMatrix
           GstBayer2RGB
           GstDebugSpy
           GstDtmfDetect
           GstFreeverb
-          GstGLBaseFilter
-            GstGLColorConvertElement
-            GstGLDownloadElement
-            GstGLFilter
-              GstGLColorBalance
-              GstGLColorscale
-              GstGLDeinterlace
-              GstGLDifferenceMatte
-              GstGLEffects
-                GstGLEffectsGeneric
-                gleffects_blur
-                gleffects_bulge
-                gleffects_fisheye
-                gleffects_glow
-                gleffects_heat
-                gleffects_identity
-                gleffects_laplacian
-                gleffects_lumaxpro
-                gleffects_mirror
-                gleffects_sepia
-                gleffects_sin
-                gleffects_sobel
-                gleffects_square
-                gleffects_squeeze
-                gleffects_stretch
-                gleffects_tunnel
-                gleffects_twirl
-                gleffects_xpro
-                gleffects_xray
-              GstGLFilterApp
-              GstGLFilterCube
-              GstGLFilterGlass
-              GstGLFilterShader
-              GstGLOverlay
-              GstGLViewConvertElement
-            GstGLUploadElement
           GstIvtc
           GstRGB2Bayer
           GstRemoveSilence
@@ -221,6 +174,7 @@ GObject
               GstPerspective
               GstRotate
               GstSquare
+            GstLcms
             GstOpencvVideoFilter
               GstCvDilateErode
                 GstCvDilate
@@ -249,7 +203,6 @@ GObject
             GstSolarize
             GstVideoAnalyse
             GstVideoDiff
-            GstZBar
             GstZebraStripe
           GstVulkanUpload
           GstWatchdog
@@ -272,19 +225,19 @@ GObject
             GstDtlsSrtpEnc
           GstFPSDisplaySink
           GstFaceOverlay
-          GstGLFilterBin
           GstGLMixerBin
             GstGLVideoMixerBin
-          GstGLSinkBin
-            GstGLImageSinkBin
-          GstGLSrcBin
           GstHlsSink
+          GstHlsSink2
           GstPipeline
             GstCameraBin
+            GstIpcSlavePipeline
+          GstProxySrc
           GstSDPDemux
           GstSdpSrc
           GstVideoParse
           GstViewfinderBin
+          GstWebRTCBin
           RsnDvdBin
         GstBz2dec
         GstBz2enc
@@ -302,9 +255,10 @@ GObject
         GstFluidDec
         GstGDPDepay
         GstGDPPay
-        GstGLStereoSplit
         GstGmeDec
         GstInterlace
+        GstIpcPipelineSink
+        GstIpcPipelineSrc
         GstJP2kDecimator
         GstJifMux
         GstKateDec
@@ -314,18 +268,18 @@ GObject
         GstMXFDemux
         GstMidiParse
         GstModPlug
-        GstMpeg2enc
         GstMpegPSDemux
-        GstMplex
         GstMusepackDec
         GstNetSim
+        GstNonstreamAudioDecoder
+          GstWildmidiDec
         GstPcapParse
         GstPitch
+        GstProxySink
         GstRTPBasePayload
           GstRtpAsfPay
         GstRtpOnvifParse
         GstRtpOnvifTimestamp
-        GstSFDec
         GstSegmentClip
           GstAudioSegmentClip
           GstVideoSegmentClip
@@ -361,7 +315,6 @@ GObject
           GstX265Enc
         GstVideoFrameAudioLevel
         GstWebvttEnc
-        GstWildmidi
         GstY4mDec
         MpegPsMux
         MpegTSBase
@@ -369,12 +322,8 @@ GObject
           MpegTSParse2
         MpegTsMux
       GstGLContext
-      GstGLShader
       GstPad
         GstAggregatorPad
-          GstAudioAggregatorPad
-            GstAudioInterleavePad
-            GstAudioMixerPad
           GstMXFMuxPad
           GstVideoAggregatorPad
             GstCompositorPad
@@ -393,7 +342,7 @@ GObject
       GstRegistry
       GstTask
       GstTaskPool
-    GtkWidget
+      GstWebRTCRTPTransceiver
   GstColorBalanceChannel
   GstEncodingProfile
   GstVdpDevice
@@ -436,7 +385,6 @@ GObject
     PangoFcFontMap
       PangoCairoFcFontMap
 GInterface
-  AtkImplementorIface
   GTypePlugin
   GstChildProxy
   GstColorBalance
@@ -447,5 +395,4 @@ GInterface
   GstURIHandler
   GstVideoOverlay
   GstWaylandVideo
-  GtkBuildable
   PangoCairoFontMap

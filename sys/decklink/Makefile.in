@@ -96,8 +96,12 @@ target_triplet = @target@
 @DECKLINK_OSX_TRUE@am__append_2 = \
 @DECKLINK_OSX_TRUE@	osx/DeckLinkAPIDispatch.cpp
 
-@DECKLINK_OSX_FALSE@am__append_3 = \
-@DECKLINK_OSX_FALSE@	linux/DeckLinkAPIDispatch.cpp
+@DECKLINK_OSX_FALSE@@DECKLINK_WIN_TRUE@am__append_3 = \
+@DECKLINK_OSX_FALSE@@DECKLINK_WIN_TRUE@	win/DeckLinkAPIDispatch.cpp \
+@DECKLINK_OSX_FALSE@@DECKLINK_WIN_TRUE@	win/DeckLinkAPI_i.c
+
+@DECKLINK_OSX_FALSE@@DECKLINK_WIN_FALSE@am__append_4 = \
+@DECKLINK_OSX_FALSE@@DECKLINK_WIN_FALSE@	linux/DeckLinkAPIDispatch.cpp
 
 subdir = sys/decklink
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -177,25 +181,28 @@ libgstdecklink_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 am__libgstdecklink_la_SOURCES_DIST = gstdecklink.cpp \
 	gstdecklinkaudiosink.cpp gstdecklinkvideosink.cpp \
 	gstdecklinkaudiosrc.cpp gstdecklinkvideosrc.cpp \
-	osx/DeckLinkAPIDispatch.cpp linux/DeckLinkAPIDispatch.cpp
+	osx/DeckLinkAPIDispatch.cpp win/DeckLinkAPIDispatch.cpp \
+	win/DeckLinkAPI_i.c linux/DeckLinkAPIDispatch.cpp
 am__dirstamp = $(am__leading_dot)dirstamp
 @DECKLINK_OSX_TRUE@am__objects_1 = osx/libgstdecklink_la-DeckLinkAPIDispatch.lo
-@DECKLINK_OSX_FALSE@am__objects_2 = linux/libgstdecklink_la-DeckLinkAPIDispatch.lo
+@DECKLINK_OSX_FALSE@@DECKLINK_WIN_TRUE@am__objects_2 = win/libgstdecklink_la-DeckLinkAPIDispatch.lo \
+@DECKLINK_OSX_FALSE@@DECKLINK_WIN_TRUE@	win/libgstdecklink_la-DeckLinkAPI_i.lo
+@DECKLINK_OSX_FALSE@@DECKLINK_WIN_FALSE@am__objects_3 = linux/libgstdecklink_la-DeckLinkAPIDispatch.lo
 am_libgstdecklink_la_OBJECTS = libgstdecklink_la-gstdecklink.lo \
 	libgstdecklink_la-gstdecklinkaudiosink.lo \
 	libgstdecklink_la-gstdecklinkvideosink.lo \
 	libgstdecklink_la-gstdecklinkaudiosrc.lo \
 	libgstdecklink_la-gstdecklinkvideosrc.lo $(am__objects_1) \
-	$(am__objects_2)
+	$(am__objects_2) $(am__objects_3)
 libgstdecklink_la_OBJECTS = $(am_libgstdecklink_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 libgstdecklink_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
-	$(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
-	$(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
-	$(libgstdecklink_la_LDFLAGS) $(LDFLAGS) -o $@
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(libgstdecklink_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -212,6 +219,24 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CFLAGS) $(CFLAGS)
+AM_V_CC = $(am__v_CC_@AM_V@)
+am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
+am__v_CC_0 = @echo "  CC      " $@;
+am__v_CC_1 = 
+CCLD = $(CC)
+LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+AM_V_CCLD = $(am__v_CCLD_@AM_V@)
+am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
+am__v_CCLD_0 = @echo "  CCLD    " $@;
+am__v_CCLD_1 = 
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
@@ -265,6 +290,8 @@ ACMENC_CFLAGS = @ACMENC_CFLAGS@
 ACMMP3DEC_CFLAGS = @ACMMP3DEC_CFLAGS@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
+AOM_CFLAGS = @AOM_CFLAGS@
+AOM_LIBS = @AOM_LIBS@
 AR = @AR@
 AS = @AS@
 ASSRENDER_CFLAGS = @ASSRENDER_CFLAGS@
@@ -284,12 +311,6 @@ CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CHROMAPRINT_CFLAGS = @CHROMAPRINT_CFLAGS@
 CHROMAPRINT_LIBS = @CHROMAPRINT_LIBS@
-CLUTTER_CFLAGS = @CLUTTER_CFLAGS@
-CLUTTER_GLX_CFLAGS = @CLUTTER_GLX_CFLAGS@
-CLUTTER_GLX_LIBS = @CLUTTER_GLX_LIBS@
-CLUTTER_LIBS = @CLUTTER_LIBS@
-CLUTTER_X11_CFLAGS = @CLUTTER_X11_CFLAGS@
-CLUTTER_X11_LIBS = @CLUTTER_X11_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CUDA_CFLAGS = @CUDA_CFLAGS@
@@ -332,8 +353,6 @@ DVDNAV_LIBS = @DVDNAV_LIBS@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
-EGL_CFLAGS = @EGL_CFLAGS@
-EGL_LIBS = @EGL_LIBS@
 EGREP = @EGREP@
 ERROR_CFLAGS = @ERROR_CFLAGS@
 ERROR_CXXFLAGS = @ERROR_CXXFLAGS@
@@ -341,6 +360,7 @@ ERROR_OBJCFLAGS = @ERROR_OBJCFLAGS@
 EXEEXT = @EXEEXT@
 EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
+EXTRA_CFLAGS = @EXTRA_CFLAGS@
 FAAC_LIBS = @FAAC_LIBS@
 FAAD_LIBS = @FAAD_LIBS@
 FDK_AAC_CFLAGS = @FDK_AAC_CFLAGS@
@@ -362,8 +382,6 @@ GIO_LDFLAGS = @GIO_LDFLAGS@
 GIO_LIBS = @GIO_LIBS@
 GIO_UNIX_CFLAGS = @GIO_UNIX_CFLAGS@
 GIO_UNIX_LIBS = @GIO_UNIX_LIBS@
-GLES2_CFLAGS = @GLES2_CFLAGS@
-GLES2_LIBS = @GLES2_LIBS@
 GLIB_CFLAGS = @GLIB_CFLAGS@
 GLIB_EXTRA_CFLAGS = @GLIB_EXTRA_CFLAGS@
 GLIB_GENMARSHAL = @GLIB_GENMARSHAL@
@@ -371,23 +389,11 @@ GLIB_LIBS = @GLIB_LIBS@
 GLIB_MKENUMS = @GLIB_MKENUMS@
 GLIB_PREFIX = @GLIB_PREFIX@
 GLIB_REQ = @GLIB_REQ@
-GL_APIS = @GL_APIS@
-GL_CFLAGS = @GL_CFLAGS@
-GL_LIBS = @GL_LIBS@
-GL_OBJCFLAGS = @GL_OBJCFLAGS@
-GL_PLATFORMS = @GL_PLATFORMS@
-GL_WINDOWS = @GL_WINDOWS@
 GME_LIBS = @GME_LIBS@
-GMODULE_EXPORT_CFLAGS = @GMODULE_EXPORT_CFLAGS@
-GMODULE_EXPORT_LIBS = @GMODULE_EXPORT_LIBS@
-GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
-GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
 GNUSTL_LIBS = @GNUSTL_LIBS@
-GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
-GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
 GSM_LIBS = @GSM_LIBS@
 GSTPB_PLUGINS_DIR = @GSTPB_PLUGINS_DIR@
@@ -408,6 +414,8 @@ GST_CONTROLLER_CFLAGS = @GST_CONTROLLER_CFLAGS@
 GST_CONTROLLER_LIBS = @GST_CONTROLLER_LIBS@
 GST_CURRENT = @GST_CURRENT@
 GST_CXXFLAGS = @GST_CXXFLAGS@
+GST_GL_CFLAGS = @GST_GL_CFLAGS@
+GST_GL_LIBS = @GST_GL_LIBS@
 GST_LEVEL_DEFAULT = @GST_LEVEL_DEFAULT@
 GST_LIBS = @GST_LIBS@
 GST_LIBVERSION = @GST_LIBVERSION@
@@ -445,20 +453,15 @@ GST_PLUGINS_UGLY_CFLAGS = @GST_PLUGINS_UGLY_CFLAGS@
 GST_PLUGINS_UGLY_DIR = @GST_PLUGINS_UGLY_DIR@
 GST_PLUGINS_UGLY_LIBS = @GST_PLUGINS_UGLY_LIBS@
 GST_PLUGIN_LDFLAGS = @GST_PLUGIN_LDFLAGS@
-GST_PLUGIN_LIBTOOLFLAGS = @GST_PLUGIN_LIBTOOLFLAGS@
 GST_PREFIX = @GST_PREFIX@
 GST_REVISION = @GST_REVISION@
+GST_SDP_CFLAGS = @GST_SDP_CFLAGS@
+GST_SDP_LIBS = @GST_SDP_LIBS@
 GST_TOOLS_DIR = @GST_TOOLS_DIR@
 GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
 GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
-GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
-GTK3_GL_LIBS = @GTK3_GL_LIBS@
 GTK3_LIBS = @GTK3_LIBS@
-GTK3_WAYLAND_CFLAGS = @GTK3_WAYLAND_CFLAGS@
-GTK3_WAYLAND_LIBS = @GTK3_WAYLAND_LIBS@
-GTK3_X11_CFLAGS = @GTK3_X11_CFLAGS@
-GTK3_X11_LIBS = @GTK3_X11_LIBS@
 GTKDOC_CHECK = @GTKDOC_CHECK@
 GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
 GTKDOC_DEPS_LIBS = @GTKDOC_DEPS_LIBS@
@@ -470,25 +473,16 @@ GTK_LIBS = @GTK_LIBS@
 GTK_VERSION = @GTK_VERSION@
 G_UDEV_CFLAGS = @G_UDEV_CFLAGS@
 G_UDEV_LIBS = @G_UDEV_LIBS@
-HAVE_CLUTTER = @HAVE_CLUTTER@
-HAVE_CLUTTER_GLX = @HAVE_CLUTTER_GLX@
-HAVE_CLUTTER_X11 = @HAVE_CLUTTER_X11@
 HAVE_CXX = @HAVE_CXX@
 HAVE_DIRECT3D = @HAVE_DIRECT3D@
 HAVE_DIRECTSOUND = @HAVE_DIRECTSOUND@
 HAVE_DTS = @HAVE_DTS@
-HAVE_EGL = @HAVE_EGL@
 HAVE_FAAC = @HAVE_FAAC@
 HAVE_FAAD = @HAVE_FAAD@
 HAVE_FLITE = @HAVE_FLITE@
-HAVE_GL = @HAVE_GL@
-HAVE_GLES2 = @HAVE_GLES2@
-HAVE_GRAPHENE = @HAVE_GRAPHENE@
 HAVE_GSM = @HAVE_GSM@
 HAVE_GTK3 = @HAVE_GTK3@
-HAVE_JPEG = @HAVE_JPEG@
 HAVE_OPENJPEG = @HAVE_OPENJPEG@
-HAVE_PNG = @HAVE_PNG@
 HAVE_SRTP = @HAVE_SRTP@
 HAVE_WASAPI = @HAVE_WASAPI@
 HAVE_WILDMIDI = @HAVE_WILDMIDI@
@@ -512,11 +506,12 @@ INTROSPECTION_LIBS = @INTROSPECTION_LIBS@
 INTROSPECTION_MAKEFILE = @INTROSPECTION_MAKEFILE@
 INTROSPECTION_SCANNER = @INTROSPECTION_SCANNER@
 INTROSPECTION_TYPELIBDIR = @INTROSPECTION_TYPELIBDIR@
-JPEG_LIBS = @JPEG_LIBS@
 KATE_CFLAGS = @KATE_CFLAGS@
 KATE_LIBS = @KATE_LIBS@
 KMS_DRM_CFLAGS = @KMS_DRM_CFLAGS@
 KMS_DRM_LIBS = @KMS_DRM_LIBS@
+LCMS2_CFLAGS = @LCMS2_CFLAGS@
+LCMS2_LIBS = @LCMS2_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBDC1394_CFLAGS = @LIBDC1394_CFLAGS@
@@ -530,11 +525,11 @@ LIBGCRYPT_LIBS = @LIBGCRYPT_LIBS@
 LIBICONV = @LIBICONV@
 LIBINTL = @LIBINTL@
 LIBM = @LIBM@
+LIBMFX_CFLAGS = @LIBMFX_CFLAGS@
+LIBMFX_LIBS = @LIBMFX_LIBS@
 LIBMMS_CFLAGS = @LIBMMS_CFLAGS@
 LIBMMS_LIBS = @LIBMMS_LIBS@
 LIBOBJS = @LIBOBJS@
-LIBPNG_CFLAGS = @LIBPNG_CFLAGS@
-LIBPNG_LIBS = @LIBPNG_LIBS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIBUDEV_CFLAGS = @LIBUDEV_CFLAGS@
@@ -562,7 +557,6 @@ MANIFEST_TOOL = @MANIFEST_TOOL@
 MJPEG_CFLAGS = @MJPEG_CFLAGS@
 MJPEG_LIBS = @MJPEG_LIBS@
 MKDIR_P = @MKDIR_P@
-MOC = @MOC@
 MODPLUG_CFLAGS = @MODPLUG_CFLAGS@
 MODPLUG_LIBS = @MODPLUG_LIBS@
 MPEG2ENC_CFLAGS = @MPEG2ENC_CFLAGS@
@@ -580,6 +574,8 @@ NEON_CFLAGS = @NEON_CFLAGS@
 NEON_LIBS = @NEON_LIBS@
 NETTLE_CFLAGS = @NETTLE_CFLAGS@
 NETTLE_LIBS = @NETTLE_LIBS@
+NICE_CFLAGS = @NICE_CFLAGS@
+NICE_LIBS = @NICE_LIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
 NVENCODE_CFLAGS = @NVENCODE_CFLAGS@
@@ -604,6 +600,8 @@ OPENH264_CFLAGS = @OPENH264_CFLAGS@
 OPENH264_LIBS = @OPENH264_LIBS@
 OPENJPEG_CFLAGS = @OPENJPEG_CFLAGS@
 OPENJPEG_LIBS = @OPENJPEG_LIBS@
+OPENMPT_CFLAGS = @OPENMPT_CFLAGS@
+OPENMPT_LIBS = @OPENMPT_LIBS@
 OPENNI2_CFLAGS = @OPENNI2_CFLAGS@
 OPENNI2_LIBS = @OPENNI2_LIBS@
 OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
@@ -641,18 +639,7 @@ PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_VERSION = @PYTHON_VERSION@
-QT_ANDROID_CFLAGS = @QT_ANDROID_CFLAGS@
-QT_ANDROID_LIBS = @QT_ANDROID_LIBS@
-QT_CFLAGS = @QT_CFLAGS@
-QT_LIBS = @QT_LIBS@
-QT_MAC_CFLAGS = @QT_MAC_CFLAGS@
-QT_MAC_LIBS = @QT_MAC_LIBS@
-QT_WAYLAND_CFLAGS = @QT_WAYLAND_CFLAGS@
-QT_WAYLAND_LIBS = @QT_WAYLAND_LIBS@
-QT_X11_CFLAGS = @QT_X11_CFLAGS@
-QT_X11_LIBS = @QT_X11_LIBS@
 RANLIB = @RANLIB@
-RCC = @RCC@
 RSVG_CFLAGS = @RSVG_CFLAGS@
 RSVG_LIBS = @RSVG_LIBS@
 RTMP_CFLAGS = @RTMP_CFLAGS@
@@ -661,9 +648,6 @@ SBC_CFLAGS = @SBC_CFLAGS@
 SBC_LIBS = @SBC_LIBS@
 SCHRO_CFLAGS = @SCHRO_CFLAGS@
 SCHRO_LIBS = @SCHRO_LIBS@
-SDL_CFLAGS = @SDL_CFLAGS@
-SDL_CLUTTER = @SDL_CLUTTER@
-SDL_LIBS = @SDL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -677,6 +661,8 @@ SPANDSP_LIBS = @SPANDSP_LIBS@
 SPC_LIBS = @SPC_LIBS@
 SRTP_CFLAGS = @SRTP_CFLAGS@
 SRTP_LIBS = @SRTP_LIBS@
+SRT_CFLAGS = @SRT_CFLAGS@
+SRT_LIBS = @SRT_LIBS@
 SSH2_CFLAGS = @SSH2_CFLAGS@
 SSH2_LIBS = @SSH2_LIBS@
 STRIP = @STRIP@
@@ -686,16 +672,15 @@ TIGER_CFLAGS = @TIGER_CFLAGS@
 TIGER_LIBS = @TIGER_LIBS@
 TTML_CFLAGS = @TTML_CFLAGS@
 TTML_LIBS = @TTML_LIBS@
-UIC = @UIC@
-USE_GLES2 = @USE_GLES2@
 USE_NLS = @USE_NLS@
-USE_OPENGL = @USE_OPENGL@
 VALGRIND_CFLAGS = @VALGRIND_CFLAGS@
 VALGRIND_LIBS = @VALGRIND_LIBS@
 VALGRIND_PATH = @VALGRIND_PATH@
 VDPAU_CFLAGS = @VDPAU_CFLAGS@
 VDPAU_LIBS = @VDPAU_LIBS@
 VERSION = @VERSION@
+VISIBILITY_CFLAGS = @VISIBILITY_CFLAGS@
+VISIBILITY_CXXFLAGS = @VISIBILITY_CXXFLAGS@
 VOAACENC_CFLAGS = @VOAACENC_CFLAGS@
 VOAACENC_LIBS = @VOAACENC_LIBS@
 VOAMRWBENC_CFLAGS = @VOAMRWBENC_CFLAGS@
@@ -708,8 +693,6 @@ WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
 WARNING_OBJCFLAGS = @WARNING_OBJCFLAGS@
 WASAPI_LIBS = @WASAPI_LIBS@
 WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
-WAYLAND_EGL_CFLAGS = @WAYLAND_EGL_CFLAGS@
-WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
 WEBP_CFLAGS = @WEBP_CFLAGS@
@@ -724,14 +707,10 @@ WINSCREENCAP_LIBS = @WINSCREENCAP_LIBS@
 WINSOCK2_LIBS = @WINSOCK2_LIBS@
 X11_CFLAGS = @X11_CFLAGS@
 X11_LIBS = @X11_LIBS@
-X11_XCB_CFLAGS = @X11_XCB_CFLAGS@
-X11_XCB_LIBS = @X11_XCB_LIBS@
 X265_CFLAGS = @X265_CFLAGS@
 X265_LIBS = @X265_LIBS@
 XCB_CFLAGS = @XCB_CFLAGS@
 XCB_LIBS = @XCB_LIBS@
-XCOMPOSITE_CFLAGS = @XCOMPOSITE_CFLAGS@
-XCOMPOSITE_LIBS = @XCOMPOSITE_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
 XGETTEXT_EXTRA_OPTIONS = @XGETTEXT_EXTRA_OPTIONS@
@@ -821,10 +800,10 @@ libgstdecklink_la_LIBADD = \
 	$(LIBM)
 
 libgstdecklink_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) $(am__append_1)
-libgstdecklink_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 libgstdecklink_la_SOURCES = gstdecklink.cpp gstdecklinkaudiosink.cpp \
 	gstdecklinkvideosink.cpp gstdecklinkaudiosrc.cpp \
-	gstdecklinkvideosrc.cpp $(am__append_2) $(am__append_3)
+	gstdecklinkvideosrc.cpp $(am__append_2) $(am__append_3) \
+	$(am__append_4)
 noinst_HEADERS = \
 	gstdecklink.h \
 	gstdecklinkaudiosink.h \
@@ -851,12 +830,13 @@ noinst_HEADERS = \
 EXTRA_DIST = \
 	linux/DeckLinkAPIDispatch.cpp \
 	osx/DeckLinkAPIDispatch.cpp \
-	win/DeckLinkAPIDispatch.cpp
+	win/DeckLinkAPIDispatch.cpp \
+	win/DeckLinkAPI_i.c
 
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .cpp .lo .o .obj
+.SUFFIXES: .c .cpp .lo .o .obj
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -929,6 +909,16 @@ osx/$(DEPDIR)/$(am__dirstamp):
 	@: > osx/$(DEPDIR)/$(am__dirstamp)
 osx/libgstdecklink_la-DeckLinkAPIDispatch.lo: osx/$(am__dirstamp) \
 	osx/$(DEPDIR)/$(am__dirstamp)
+win/$(am__dirstamp):
+	@$(MKDIR_P) win
+	@: > win/$(am__dirstamp)
+win/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) win/$(DEPDIR)
+	@: > win/$(DEPDIR)/$(am__dirstamp)
+win/libgstdecklink_la-DeckLinkAPIDispatch.lo: win/$(am__dirstamp) \
+	win/$(DEPDIR)/$(am__dirstamp)
+win/libgstdecklink_la-DeckLinkAPI_i.lo: win/$(am__dirstamp) \
+	win/$(DEPDIR)/$(am__dirstamp)
 linux/$(am__dirstamp):
 	@$(MKDIR_P) linux
 	@: > linux/$(am__dirstamp)
@@ -947,6 +937,8 @@ mostlyclean-compile:
 	-rm -f linux/*.lo
 	-rm -f osx/*.$(OBJEXT)
 	-rm -f osx/*.lo
+	-rm -f win/*.$(OBJEXT)
+	-rm -f win/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -958,6 +950,39 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstdecklink_la-gstdecklinkvideosrc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@linux/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@osx/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@win/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@win/$(DEPDIR)/libgstdecklink_la-DeckLinkAPI_i.Plo@am__quote@
+
+.c.o:
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
+
+.c.obj:
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.c.lo:
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
+win/libgstdecklink_la-DeckLinkAPI_i.lo: win/DeckLinkAPI_i.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT win/libgstdecklink_la-DeckLinkAPI_i.lo -MD -MP -MF win/$(DEPDIR)/libgstdecklink_la-DeckLinkAPI_i.Tpo -c -o win/libgstdecklink_la-DeckLinkAPI_i.lo `test -f 'win/DeckLinkAPI_i.c' || echo '$(srcdir)/'`win/DeckLinkAPI_i.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) win/$(DEPDIR)/libgstdecklink_la-DeckLinkAPI_i.Tpo win/$(DEPDIR)/libgstdecklink_la-DeckLinkAPI_i.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='win/DeckLinkAPI_i.c' object='win/libgstdecklink_la-DeckLinkAPI_i.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o win/libgstdecklink_la-DeckLinkAPI_i.lo `test -f 'win/DeckLinkAPI_i.c' || echo '$(srcdir)/'`win/DeckLinkAPI_i.c
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -984,53 +1009,60 @@ distclean-compile:
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
 
 libgstdecklink_la-gstdecklink.lo: gstdecklink.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgstdecklink_la-gstdecklink.lo -MD -MP -MF $(DEPDIR)/libgstdecklink_la-gstdecklink.Tpo -c -o libgstdecklink_la-gstdecklink.lo `test -f 'gstdecklink.cpp' || echo '$(srcdir)/'`gstdecklink.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgstdecklink_la-gstdecklink.lo -MD -MP -MF $(DEPDIR)/libgstdecklink_la-gstdecklink.Tpo -c -o libgstdecklink_la-gstdecklink.lo `test -f 'gstdecklink.cpp' || echo '$(srcdir)/'`gstdecklink.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstdecklink_la-gstdecklink.Tpo $(DEPDIR)/libgstdecklink_la-gstdecklink.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstdecklink.cpp' object='libgstdecklink_la-gstdecklink.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgstdecklink_la-gstdecklink.lo `test -f 'gstdecklink.cpp' || echo '$(srcdir)/'`gstdecklink.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgstdecklink_la-gstdecklink.lo `test -f 'gstdecklink.cpp' || echo '$(srcdir)/'`gstdecklink.cpp
 
 libgstdecklink_la-gstdecklinkaudiosink.lo: gstdecklinkaudiosink.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgstdecklink_la-gstdecklinkaudiosink.lo -MD -MP -MF $(DEPDIR)/libgstdecklink_la-gstdecklinkaudiosink.Tpo -c -o libgstdecklink_la-gstdecklinkaudiosink.lo `test -f 'gstdecklinkaudiosink.cpp' || echo '$(srcdir)/'`gstdecklinkaudiosink.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgstdecklink_la-gstdecklinkaudiosink.lo -MD -MP -MF $(DEPDIR)/libgstdecklink_la-gstdecklinkaudiosink.Tpo -c -o libgstdecklink_la-gstdecklinkaudiosink.lo `test -f 'gstdecklinkaudiosink.cpp' || echo '$(srcdir)/'`gstdecklinkaudiosink.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstdecklink_la-gstdecklinkaudiosink.Tpo $(DEPDIR)/libgstdecklink_la-gstdecklinkaudiosink.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstdecklinkaudiosink.cpp' object='libgstdecklink_la-gstdecklinkaudiosink.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgstdecklink_la-gstdecklinkaudiosink.lo `test -f 'gstdecklinkaudiosink.cpp' || echo '$(srcdir)/'`gstdecklinkaudiosink.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgstdecklink_la-gstdecklinkaudiosink.lo `test -f 'gstdecklinkaudiosink.cpp' || echo '$(srcdir)/'`gstdecklinkaudiosink.cpp
 
 libgstdecklink_la-gstdecklinkvideosink.lo: gstdecklinkvideosink.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgstdecklink_la-gstdecklinkvideosink.lo -MD -MP -MF $(DEPDIR)/libgstdecklink_la-gstdecklinkvideosink.Tpo -c -o libgstdecklink_la-gstdecklinkvideosink.lo `test -f 'gstdecklinkvideosink.cpp' || echo '$(srcdir)/'`gstdecklinkvideosink.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgstdecklink_la-gstdecklinkvideosink.lo -MD -MP -MF $(DEPDIR)/libgstdecklink_la-gstdecklinkvideosink.Tpo -c -o libgstdecklink_la-gstdecklinkvideosink.lo `test -f 'gstdecklinkvideosink.cpp' || echo '$(srcdir)/'`gstdecklinkvideosink.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstdecklink_la-gstdecklinkvideosink.Tpo $(DEPDIR)/libgstdecklink_la-gstdecklinkvideosink.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstdecklinkvideosink.cpp' object='libgstdecklink_la-gstdecklinkvideosink.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgstdecklink_la-gstdecklinkvideosink.lo `test -f 'gstdecklinkvideosink.cpp' || echo '$(srcdir)/'`gstdecklinkvideosink.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgstdecklink_la-gstdecklinkvideosink.lo `test -f 'gstdecklinkvideosink.cpp' || echo '$(srcdir)/'`gstdecklinkvideosink.cpp
 
 libgstdecklink_la-gstdecklinkaudiosrc.lo: gstdecklinkaudiosrc.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgstdecklink_la-gstdecklinkaudiosrc.lo -MD -MP -MF $(DEPDIR)/libgstdecklink_la-gstdecklinkaudiosrc.Tpo -c -o libgstdecklink_la-gstdecklinkaudiosrc.lo `test -f 'gstdecklinkaudiosrc.cpp' || echo '$(srcdir)/'`gstdecklinkaudiosrc.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgstdecklink_la-gstdecklinkaudiosrc.lo -MD -MP -MF $(DEPDIR)/libgstdecklink_la-gstdecklinkaudiosrc.Tpo -c -o libgstdecklink_la-gstdecklinkaudiosrc.lo `test -f 'gstdecklinkaudiosrc.cpp' || echo '$(srcdir)/'`gstdecklinkaudiosrc.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstdecklink_la-gstdecklinkaudiosrc.Tpo $(DEPDIR)/libgstdecklink_la-gstdecklinkaudiosrc.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstdecklinkaudiosrc.cpp' object='libgstdecklink_la-gstdecklinkaudiosrc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgstdecklink_la-gstdecklinkaudiosrc.lo `test -f 'gstdecklinkaudiosrc.cpp' || echo '$(srcdir)/'`gstdecklinkaudiosrc.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgstdecklink_la-gstdecklinkaudiosrc.lo `test -f 'gstdecklinkaudiosrc.cpp' || echo '$(srcdir)/'`gstdecklinkaudiosrc.cpp
 
 libgstdecklink_la-gstdecklinkvideosrc.lo: gstdecklinkvideosrc.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgstdecklink_la-gstdecklinkvideosrc.lo -MD -MP -MF $(DEPDIR)/libgstdecklink_la-gstdecklinkvideosrc.Tpo -c -o libgstdecklink_la-gstdecklinkvideosrc.lo `test -f 'gstdecklinkvideosrc.cpp' || echo '$(srcdir)/'`gstdecklinkvideosrc.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgstdecklink_la-gstdecklinkvideosrc.lo -MD -MP -MF $(DEPDIR)/libgstdecklink_la-gstdecklinkvideosrc.Tpo -c -o libgstdecklink_la-gstdecklinkvideosrc.lo `test -f 'gstdecklinkvideosrc.cpp' || echo '$(srcdir)/'`gstdecklinkvideosrc.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstdecklink_la-gstdecklinkvideosrc.Tpo $(DEPDIR)/libgstdecklink_la-gstdecklinkvideosrc.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gstdecklinkvideosrc.cpp' object='libgstdecklink_la-gstdecklinkvideosrc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgstdecklink_la-gstdecklinkvideosrc.lo `test -f 'gstdecklinkvideosrc.cpp' || echo '$(srcdir)/'`gstdecklinkvideosrc.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgstdecklink_la-gstdecklinkvideosrc.lo `test -f 'gstdecklinkvideosrc.cpp' || echo '$(srcdir)/'`gstdecklinkvideosrc.cpp
 
 osx/libgstdecklink_la-DeckLinkAPIDispatch.lo: osx/DeckLinkAPIDispatch.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT osx/libgstdecklink_la-DeckLinkAPIDispatch.lo -MD -MP -MF osx/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Tpo -c -o osx/libgstdecklink_la-DeckLinkAPIDispatch.lo `test -f 'osx/DeckLinkAPIDispatch.cpp' || echo '$(srcdir)/'`osx/DeckLinkAPIDispatch.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT osx/libgstdecklink_la-DeckLinkAPIDispatch.lo -MD -MP -MF osx/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Tpo -c -o osx/libgstdecklink_la-DeckLinkAPIDispatch.lo `test -f 'osx/DeckLinkAPIDispatch.cpp' || echo '$(srcdir)/'`osx/DeckLinkAPIDispatch.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) osx/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Tpo osx/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='osx/DeckLinkAPIDispatch.cpp' object='osx/libgstdecklink_la-DeckLinkAPIDispatch.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o osx/libgstdecklink_la-DeckLinkAPIDispatch.lo `test -f 'osx/DeckLinkAPIDispatch.cpp' || echo '$(srcdir)/'`osx/DeckLinkAPIDispatch.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o osx/libgstdecklink_la-DeckLinkAPIDispatch.lo `test -f 'osx/DeckLinkAPIDispatch.cpp' || echo '$(srcdir)/'`osx/DeckLinkAPIDispatch.cpp
+
+win/libgstdecklink_la-DeckLinkAPIDispatch.lo: win/DeckLinkAPIDispatch.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT win/libgstdecklink_la-DeckLinkAPIDispatch.lo -MD -MP -MF win/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Tpo -c -o win/libgstdecklink_la-DeckLinkAPIDispatch.lo `test -f 'win/DeckLinkAPIDispatch.cpp' || echo '$(srcdir)/'`win/DeckLinkAPIDispatch.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) win/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Tpo win/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='win/DeckLinkAPIDispatch.cpp' object='win/libgstdecklink_la-DeckLinkAPIDispatch.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o win/libgstdecklink_la-DeckLinkAPIDispatch.lo `test -f 'win/DeckLinkAPIDispatch.cpp' || echo '$(srcdir)/'`win/DeckLinkAPIDispatch.cpp
 
 linux/libgstdecklink_la-DeckLinkAPIDispatch.lo: linux/DeckLinkAPIDispatch.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT linux/libgstdecklink_la-DeckLinkAPIDispatch.lo -MD -MP -MF linux/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Tpo -c -o linux/libgstdecklink_la-DeckLinkAPIDispatch.lo `test -f 'linux/DeckLinkAPIDispatch.cpp' || echo '$(srcdir)/'`linux/DeckLinkAPIDispatch.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT linux/libgstdecklink_la-DeckLinkAPIDispatch.lo -MD -MP -MF linux/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Tpo -c -o linux/libgstdecklink_la-DeckLinkAPIDispatch.lo `test -f 'linux/DeckLinkAPIDispatch.cpp' || echo '$(srcdir)/'`linux/DeckLinkAPIDispatch.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) linux/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Tpo linux/$(DEPDIR)/libgstdecklink_la-DeckLinkAPIDispatch.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='linux/DeckLinkAPIDispatch.cpp' object='linux/libgstdecklink_la-DeckLinkAPIDispatch.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(libgstdecklink_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o linux/libgstdecklink_la-DeckLinkAPIDispatch.lo `test -f 'linux/DeckLinkAPIDispatch.cpp' || echo '$(srcdir)/'`linux/DeckLinkAPIDispatch.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstdecklink_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o linux/libgstdecklink_la-DeckLinkAPIDispatch.lo `test -f 'linux/DeckLinkAPIDispatch.cpp' || echo '$(srcdir)/'`linux/DeckLinkAPIDispatch.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1039,6 +1071,7 @@ clean-libtool:
 	-rm -rf .libs _libs
 	-rm -rf linux/.libs linux/_libs
 	-rm -rf osx/.libs osx/_libs
+	-rm -rf win/.libs win/_libs
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -1159,6 +1192,8 @@ distclean-generic:
 	-rm -f linux/$(am__dirstamp)
 	-rm -f osx/$(DEPDIR)/$(am__dirstamp)
 	-rm -f osx/$(am__dirstamp)
+	-rm -f win/$(DEPDIR)/$(am__dirstamp)
+	-rm -f win/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1169,7 +1204,7 @@ clean-am: clean-generic clean-libtool clean-pluginLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR) linux/$(DEPDIR) osx/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) linux/$(DEPDIR) osx/$(DEPDIR) win/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1215,7 +1250,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR) linux/$(DEPDIR) osx/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) linux/$(DEPDIR) osx/$(DEPDIR) win/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

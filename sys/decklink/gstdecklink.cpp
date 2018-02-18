@@ -167,6 +167,25 @@ gst_decklink_timecode_format_get_type (void)
 }
 
 GType
+gst_decklink_keyer_mode_get_type (void)
+{
+  static gsize id = 0;
+  static const GEnumValue keyermodes[] = {
+    {GST_DECKLINK_KEYER_MODE_OFF, "Off", "off"},
+    {GST_DECKLINK_KEYER_MODE_INTERNAL, "Internal", "internal"},
+    {GST_DECKLINK_KEYER_MODE_EXTERNAL, "External", "external"},
+    {0, NULL, NULL}
+  };
+
+  if (g_once_init_enter (&id)) {
+    GType tmp = g_enum_register_static ("GstDecklinkKeyerMode", keyermodes);
+    g_once_init_leave (&id, tmp);
+  }
+
+  return (GType) id;
+}
+
+GType
 gst_decklink_audio_connection_get_type (void)
 {
   static gsize id = 0;
@@ -293,6 +312,18 @@ static const struct
   {bmdTimecodeVITC, GST_DECKLINK_TIMECODE_FORMAT_VITC},
   {bmdTimecodeVITCField2, GST_DECKLINK_TIMECODE_FORMAT_VITCFIELD2},
   {bmdTimecodeSerial, GST_DECKLINK_TIMECODE_FORMAT_SERIAL}
+  /* *INDENT-ON* */
+};
+
+static const struct
+{
+  BMDKeyerMode keymode;
+  GstDecklinkKeyerMode gstkeymode;
+} kmodes[] = {
+  /* *INDENT-OFF* */
+  {bmdKeyerModeOff, GST_DECKLINK_KEYER_MODE_OFF},
+  {bmdKeyerModeInternal, GST_DECKLINK_KEYER_MODE_INTERNAL},
+  {bmdKeyerModeExternal, GST_DECKLINK_KEYER_MODE_EXTERNAL}
   /* *INDENT-ON* */
 };
 
@@ -448,6 +479,25 @@ gst_decklink_timecode_format_to_enum (BMDTimecodeFormat f)
   }
   g_assert_not_reached ();
   return GST_DECKLINK_TIMECODE_FORMAT_RP188ANY;
+}
+
+const BMDKeyerMode
+gst_decklink_keyer_mode_from_enum (GstDecklinkKeyerMode m)
+{
+  return kmodes[m].keymode;
+}
+
+const GstDecklinkKeyerMode
+gst_decklink_keyer_mode_to_enum (BMDKeyerMode m)
+{
+  guint i;
+
+  for (i = 0; i < G_N_ELEMENTS (kmodes); i++) {
+    if (kmodes[i].keymode == m)
+      return (GstDecklinkKeyerMode) i;
+  }
+  g_assert_not_reached ();
+  return GST_DECKLINK_KEYER_MODE_OFF;
 }
 
 static const BMDVideoConnection connections[] = {
@@ -757,11 +807,14 @@ public:
     void (*got_video_frame) (GstElement * videosrc,
         IDeckLinkVideoInputFrame * frame, GstDecklinkModeEnum mode,
         GstClockTime capture_time, GstClockTime stream_time,
-        GstClockTime stream_duration, IDeckLinkTimecode * dtc, gboolean
-        no_signal) = NULL;
+        GstClockTime stream_duration, GstClockTime hardware_time,
+        GstClockTime hardware_duration, IDeckLinkTimecode * dtc,
+        gboolean no_signal) = NULL;
     void (*got_audio_packet) (GstElement * videosrc,
         IDeckLinkAudioInputPacket * packet, GstClockTime capture_time,
-        GstClockTime packet_time, gboolean no_signal) = NULL;
+        GstClockTime stream_time, GstClockTime stream_duration,
+        GstClockTime hardware_time, GstClockTime hardware_duration,
+        gboolean no_signal) = NULL;
     GstDecklinkModeEnum mode;
     GstClockTime capture_time = GST_CLOCK_TIME_NONE;
     GstClockTime base_time = 0;
@@ -769,6 +822,9 @@ public:
     GstClock *clock = NULL;
     HRESULT res;
     BMDTimeValue stream_time = GST_CLOCK_TIME_NONE;
+    BMDTimeValue stream_duration = GST_CLOCK_TIME_NONE;
+    BMDTimeValue hardware_time = GST_CLOCK_TIME_NONE;
+    BMDTimeValue hardware_duration = GST_CLOCK_TIME_NONE;
 
     g_mutex_lock (&m_input->lock);
     if (m_input->videosrc) {
@@ -807,16 +863,24 @@ public:
     }
 
     if (got_video_frame && videosrc && video_frame) {
-      BMDTimeValue stream_duration = GST_CLOCK_TIME_NONE;
       IDeckLinkTimecode *dtc = 0;
 
       res =
           video_frame->GetStreamTime (&stream_time, &stream_duration,
           GST_SECOND);
       if (res != S_OK) {
-        GST_ERROR ("Failed to get stream time: 0x%08x", res);
+        GST_ERROR ("Failed to get stream time: 0x%08lx", (unsigned long) res);
         stream_time = GST_CLOCK_TIME_NONE;
         stream_duration = GST_CLOCK_TIME_NONE;
+      }
+
+      res =
+          video_frame->GetHardwareReferenceTimestamp (GST_SECOND,
+          &hardware_time, &hardware_duration);
+      if (res != S_OK) {
+        GST_ERROR ("Failed to get hardware time: 0x%08lx", (unsigned long) res);
+        hardware_time = GST_CLOCK_TIME_NONE;
+        hardware_duration = GST_CLOCK_TIME_NONE;
       }
 
       if (m_input->videosrc) {
@@ -828,19 +892,22 @@ public:
             &dtc);
 
         if (res != S_OK) {
-          GST_DEBUG_OBJECT (videosrc, "Failed to get timecode: 0x%08x", res);
+          GST_DEBUG_OBJECT (videosrc, "Failed to get timecode: 0x%08lx",
+              (unsigned long) res);
           dtc = NULL;
         }
       }
 
       /* passing dtc reference */
       got_video_frame (videosrc, video_frame, mode, capture_time,
-          stream_time, stream_duration, dtc, no_signal);
+          stream_time, stream_duration, hardware_time, hardware_duration, dtc,
+          no_signal);
     }
 
     if (got_audio_packet && audiosrc && audio_packet) {
       m_input->got_audio_packet (audiosrc, audio_packet, capture_time,
-          stream_time, no_signal);
+          stream_time, stream_duration, hardware_time, hardware_duration,
+          no_signal);
     } else {
       if (!audio_packet)
         GST_DEBUG ("Received no audio packet at %" GST_TIME_FORMAT,
@@ -850,6 +917,149 @@ public:
     gst_object_replace ((GstObject **) & videosrc, NULL);
     gst_object_replace ((GstObject **) & audiosrc, NULL);
     gst_object_replace ((GstObject **) & clock, NULL);
+
+    return S_OK;
+  }
+};
+
+class GStreamerDecklinkMemoryAllocator:public IDeckLinkMemoryAllocator
+{
+private:
+  GMutex m_mutex;
+  uint32_t m_lastBufferSize;
+  uint32_t m_nonEmptyCalls;
+  GstQueueArray *m_buffers;
+  gint m_refcount;
+
+  void _clearBufferPool ()
+  {
+    uint8_t *buf;
+
+    if (!m_buffers)
+        return;
+
+    while ((buf = (uint8_t *) gst_queue_array_pop_head (m_buffers)))
+      g_free (buf - 128);
+  }
+
+public:
+    GStreamerDecklinkMemoryAllocator ()
+  : IDeckLinkMemoryAllocator (),
+      m_lastBufferSize (0),
+      m_nonEmptyCalls (0), m_buffers (NULL), m_refcount (1)
+  {
+    g_mutex_init (&m_mutex);
+
+    m_buffers = gst_queue_array_new (60);
+  }
+
+  virtual ~ GStreamerDecklinkMemoryAllocator () {
+    Decommit ();
+
+    gst_queue_array_free (m_buffers);
+
+    g_mutex_clear (&m_mutex);
+  }
+
+  virtual HRESULT STDMETHODCALLTYPE QueryInterface (REFIID, LPVOID *)
+  {
+    return E_NOINTERFACE;
+  }
+
+  virtual ULONG STDMETHODCALLTYPE AddRef (void)
+  {
+    ULONG ret;
+
+    g_mutex_lock (&m_mutex);
+    m_refcount++;
+    ret = m_refcount;
+    g_mutex_unlock (&m_mutex);
+
+    return ret;
+  }
+
+  virtual ULONG STDMETHODCALLTYPE Release (void)
+  {
+    ULONG ret;
+
+    g_mutex_lock (&m_mutex);
+    m_refcount--;
+    ret = m_refcount;
+    g_mutex_unlock (&m_mutex);
+
+
+    if (ret == 0) {
+      delete this;
+    }
+
+    return ret;
+  }
+
+  virtual HRESULT STDMETHODCALLTYPE
+      AllocateBuffer (uint32_t bufferSize, void **allocatedBuffer)
+  {
+    uint8_t *buf;
+
+    g_mutex_lock (&m_mutex);
+
+    /* If buffer size changed since last call, empty buffer pool */
+    if (bufferSize != m_lastBufferSize) {
+      _clearBufferPool ();
+      m_lastBufferSize = bufferSize;
+    }
+
+    /* Look if there is a free buffer in the pool */
+    if (!(buf = (uint8_t *) gst_queue_array_pop_head (m_buffers))) {
+      /* If not, alloc a new one */
+      buf = (uint8_t *) g_malloc (bufferSize + 128);
+      *((uint32_t *) buf) = bufferSize;
+      buf += 128;
+    }
+    *allocatedBuffer = (void *) buf;
+
+    /* If there are still unused buffers in the pool
+     * remove one of them every fifth call */
+    if (gst_queue_array_get_length (m_buffers) > 0) {
+      if (++m_nonEmptyCalls >= 5) {
+        buf = (uint8_t *) gst_queue_array_pop_head (m_buffers) - 128;
+        g_free (buf);
+        m_nonEmptyCalls = 0;
+      }
+    } else {
+      m_nonEmptyCalls = 0;
+    }
+
+    g_mutex_unlock (&m_mutex);
+
+    return S_OK;
+  }
+
+  virtual HRESULT STDMETHODCALLTYPE ReleaseBuffer (void *buffer)
+  {
+    g_mutex_lock (&m_mutex);
+
+    /* Put the buffer back to the pool if size matches with current pool */
+    uint32_t size = *(uint32_t *) ((uint8_t *) buffer - 128);
+    if (size == m_lastBufferSize) {
+      gst_queue_array_push_tail (m_buffers, buffer);
+    } else {
+      g_free (((uint8_t *) buffer) - 128);
+    }
+
+    g_mutex_unlock (&m_mutex);
+
+    return S_OK;
+  }
+
+  virtual HRESULT STDMETHODCALLTYPE Commit ()
+  {
+    return S_OK;
+  }
+
+  virtual HRESULT STDMETHODCALLTYPE Decommit ()
+  {
+    /* Clear all remaining pools */
+    _clearBufferPool ();
 
     return S_OK;
   }
@@ -907,8 +1117,7 @@ gst_decklink_com_thread (gpointer data)
 #endif /* _MSC_VER */
 
 static GOnce devices_once = G_ONCE_INIT;
-static int n_devices;
-static Device devices[10];
+static GPtrArray *devices;      /* array of Device */
 
 static gpointer
 init_devices (gpointer data)
@@ -937,25 +1146,32 @@ init_devices (gpointer data)
     return NULL;
   }
 
+  devices = g_ptr_array_new ();
+
   i = 0;
   ret = iterator->Next (&decklink);
   while (ret == S_OK) {
+    Device *dev;
+
+    dev = g_new0 (Device, 1);
+
+    g_mutex_init (&dev->input.lock);
+    g_mutex_init (&dev->output.lock);
+    g_cond_init (&dev->output.cond);
+
     ret = decklink->QueryInterface (IID_IDeckLinkInput,
-        (void **) &devices[i].input.input);
+        (void **) &dev->input.input);
     if (ret != S_OK) {
-      GST_WARNING ("selected device does not have input interface: 0x%08x",
-          ret);
+      GST_WARNING ("selected device does not have input interface: 0x%08lx",
+          (unsigned long) ret);
     } else {
       IDeckLinkDisplayModeIterator *mode_iter;
 
-      devices[i].input.device = decklink;
-      devices[i].input.
-          input->SetCallback (new GStreamerDecklinkInputCallback (&devices[i].
-              input));
+      dev->input.device = decklink;
+      dev->input.input->
+          SetCallback (new GStreamerDecklinkInputCallback (&dev->input));
 
-      if ((ret =
-              devices[i].input.input->GetDisplayModeIterator (&mode_iter)) ==
-          S_OK) {
+      if ((ret = dev->input.input->GetDisplayModeIterator (&mode_iter)) == S_OK) {
         IDeckLinkDisplayMode *mode;
 
         GST_DEBUG ("Input %d supports:", i);
@@ -978,21 +1194,19 @@ init_devices (gpointer data)
     }
 
     ret = decklink->QueryInterface (IID_IDeckLinkOutput,
-        (void **) &devices[i].output.output);
+        (void **) &dev->output.output);
     if (ret != S_OK) {
-      GST_WARNING ("selected device does not have output interface: 0x%08x",
-          ret);
+      GST_WARNING ("selected device does not have output interface: 0x%08lx",
+          (unsigned long) ret);
     } else {
       IDeckLinkDisplayModeIterator *mode_iter;
 
-      devices[i].output.device = decklink;
-      devices[i].output.clock =
-          gst_decklink_clock_new ("GstDecklinkOutputClock");
-      GST_DECKLINK_CLOCK_CAST (devices[i].output.clock)->output =
-          &devices[i].output;
+      dev->output.device = decklink;
+      dev->output.clock = gst_decklink_clock_new ("GstDecklinkOutputClock");
+      GST_DECKLINK_CLOCK_CAST (dev->output.clock)->output = &dev->output;
 
       if ((ret =
-              devices[i].output.output->GetDisplayModeIterator (&mode_iter)) ==
+              dev->output.output->GetDisplayModeIterator (&mode_iter)) ==
           S_OK) {
         IDeckLinkDisplayMode *mode;
 
@@ -1016,30 +1230,48 @@ init_devices (gpointer data)
     }
 
     ret = decklink->QueryInterface (IID_IDeckLinkConfiguration,
-        (void **) &devices[i].input.config);
+        (void **) &dev->input.config);
     if (ret != S_OK) {
-      GST_WARNING ("selected device does not have config interface: 0x%08x",
-          ret);
+      GST_WARNING ("selected device does not have config interface: 0x%08lx",
+          (unsigned long) ret);
+    } else {
+      char *serial_number;
+
+      ret =
+          dev->input.
+          config->GetString (bmdDeckLinkConfigDeviceInformationSerialNumber,
+          (COMSTR_T *) & serial_number);
+      if (ret == S_OK) {
+        CONVERT_COM_STRING (serial_number);
+        dev->output.hw_serial_number = g_strdup (serial_number);
+        dev->input.hw_serial_number = g_strdup (serial_number);
+        GST_DEBUG ("device %d has serial number %s", i, serial_number);
+        FREE_COM_STRING (serial_number);
+      }
     }
 
     ret = decklink->QueryInterface (IID_IDeckLinkAttributes,
-        (void **) &devices[i].input.attributes);
-    devices[i].output.attributes = devices[i].input.attributes;
+        (void **) &dev->input.attributes);
+    dev->output.attributes = dev->input.attributes;
     if (ret != S_OK) {
-      GST_WARNING ("selected device does not have attributes interface: 0x%08x",
-          ret);
+      GST_WARNING ("selected device does not have attributes interface: "
+          "0x%08lx", (unsigned long) ret);
     }
+
+    ret = decklink->QueryInterface (IID_IDeckLinkKeyer,
+        (void **) &dev->output.keyer);
+
+    g_ptr_array_add (devices, dev);
+
+    /* We only warn of failure to obtain the keyer interface if the keyer
+     * is enabled by keyer_mode
+     */
 
     ret = iterator->Next (&decklink);
     i++;
-
-    if (i == 10) {
-      GST_WARNING ("this hardware has more then 10 devices");
-      break;
-    }
   }
 
-  n_devices = i;
+  GST_INFO ("Detected %u devices", devices->len);
 
   iterator->Release ();
 
@@ -1050,13 +1282,18 @@ GstDecklinkOutput *
 gst_decklink_acquire_nth_output (gint n, GstElement * sink, gboolean is_audio)
 {
   GstDecklinkOutput *output;
+  Device *device;
 
   g_once (&devices_once, init_devices, NULL);
 
-  if (n >= n_devices)
+  if (devices == NULL)
     return NULL;
 
-  output = &devices[n].output;
+  if (n < 0 || (guint) n >= devices->len)
+    return NULL;
+
+  device = (Device *) g_ptr_array_index (devices, n);
+  output = &device->output;
   if (!output->output) {
     GST_ERROR ("Device %d has no output", n);
     return NULL;
@@ -1082,11 +1319,16 @@ void
 gst_decklink_release_nth_output (gint n, GstElement * sink, gboolean is_audio)
 {
   GstDecklinkOutput *output;
+  Device *device;
 
-  if (n >= n_devices)
+  if (devices == NULL)
     return;
 
-  output = &devices[n].output;
+  if (n < 0 || (guint) n >= devices->len)
+    return;
+
+  device = (Device *) g_ptr_array_index (devices, n);
+  output = &device->output;
   g_assert (output->output);
 
   g_mutex_lock (&output->lock);
@@ -1102,50 +1344,30 @@ gst_decklink_release_nth_output (gint n, GstElement * sink, gboolean is_audio)
   g_mutex_unlock (&output->lock);
 }
 
-void
-gst_decklink_output_set_audio_clock (GstDecklinkOutput * output,
-    GstClock * clock)
-{
-  g_mutex_lock (&output->lock);
-  if (output->audio_clock)
-    gst_object_unref (output->audio_clock);
-  output->audio_clock = clock;
-  if (clock)
-    gst_object_ref (clock);
-  g_mutex_unlock (&output->lock);
-}
-
-
-GstClock *
-gst_decklink_output_get_audio_clock (GstDecklinkOutput * output)
-{
-  GstClock *ret = NULL;
-
-  g_mutex_lock (&output->lock);
-  if (output->audio_clock)
-    ret = GST_CLOCK_CAST (gst_object_ref (output->audio_clock));
-  g_mutex_unlock (&output->lock);
-
-  return ret;
-}
-
 GstDecklinkInput *
 gst_decklink_acquire_nth_input (gint n, GstElement * src, gboolean is_audio)
 {
   GstDecklinkInput *input;
+  Device *device;
 
   g_once (&devices_once, init_devices, NULL);
 
-  if (n >= n_devices)
+  if (devices == NULL)
     return NULL;
 
-  input = &devices[n].input;
+  if (n < 0 || (guint) n >= devices->len)
+    return NULL;
+
+  device = (Device *) g_ptr_array_index (devices, n);
+  input = &device->input;
   if (!input->input) {
     GST_ERROR ("Device %d has no input", n);
     return NULL;
   }
 
   g_mutex_lock (&input->lock);
+  input->input->SetVideoInputFrameMemoryAllocator (new
+      GStreamerDecklinkMemoryAllocator);
   if (is_audio && !input->audiosrc) {
     input->audiosrc = GST_ELEMENT_CAST (gst_object_ref (src));
     g_mutex_unlock (&input->lock);
@@ -1165,11 +1387,17 @@ void
 gst_decklink_release_nth_input (gint n, GstElement * src, gboolean is_audio)
 {
   GstDecklinkInput *input;
+  Device *device;
 
-  if (n >= n_devices)
+  if (devices == NULL)
     return;
 
-  input = &devices[n].input;
+  if (n < 0 || (guint) n >= devices->len)
+    return;
+
+  device = (Device *) g_ptr_array_index (devices, n);
+
+  input = &device->input;
   g_assert (input->input);
 
   g_mutex_lock (&input->lock);
@@ -1209,6 +1437,8 @@ gst_decklink_clock_new (const gchar * name)
   GstDecklinkClock *self =
       GST_DECKLINK_CLOCK (g_object_new (GST_TYPE_DECKLINK_CLOCK, "name", name,
           "clock-type", GST_CLOCK_TYPE_OTHER, NULL));
+
+  gst_object_ref_sink (self);
 
   return GST_CLOCK_CAST (self);
 }
@@ -1265,9 +1495,9 @@ gst_decklink_clock_get_internal_time (GstClock * clock)
   GST_LOG_OBJECT (clock,
       "result %" GST_TIME_FORMAT " time %" GST_TIME_FORMAT " last time %"
       GST_TIME_FORMAT " offset %" GST_TIME_FORMAT " start time %"
-      GST_TIME_FORMAT " (ret: 0x%08x)", GST_TIME_ARGS (result),
+      GST_TIME_FORMAT " (ret: 0x%08lx)", GST_TIME_ARGS (result),
       GST_TIME_ARGS (time), GST_TIME_ARGS (last_time), GST_TIME_ARGS (offset),
-      GST_TIME_ARGS (start_time), ret);
+      GST_TIME_ARGS (start_time), (unsigned long) ret);
 
   return result;
 }

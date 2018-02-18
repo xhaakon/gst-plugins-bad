@@ -48,9 +48,11 @@ struct _GstAvWait
   GstElement parent;
 
   GstVideoTimeCode *tc;
-  gboolean from_string;
   GstClockTime target_running_time;
   GstAvWaitMode mode;
+
+  GstVideoTimeCode *end_tc;
+  GstClockTime running_time_to_end_at;
 
   GstPad *asrcpad, *asinkpad, *vsrcpad, *vsinkpad;
 
@@ -60,10 +62,14 @@ struct _GstAvWait
   GstSegment asegment, vsegment;
 
   GstClockTime running_time_to_wait_for;
+  GstClockTime last_seen_video_running_time;
+  GstVideoTimeCode *last_seen_tc;
 
   gboolean video_eos_flag;
   gboolean audio_flush_flag;
   gboolean shutdown_flag;
+
+  gboolean dropping;
 
   GCond cond;
   GMutex mutex;

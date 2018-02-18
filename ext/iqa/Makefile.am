@@ -12,7 +12,6 @@ libgstiqa_la_CFLAGS =  \
 libgstiqa_la_CFLAGS += $(DSSIM_CFLAGS)
 
 libgstiqa_la_LIBADD =  \
-	$(top_builddir)/gst-libs/gst/base/libgstbadbase-$(GST_API_VERSION).la \
 	$(top_builddir)/gst-libs/gst/video/libgstbadvideo-$(GST_API_VERSION).la \
 	$(GST_PLUGINS_BASE_LIBS) \
 	$(GST_BASE_LIBS) $(GST_LIBS)
@@ -20,7 +19,6 @@ libgstiqa_la_LIBADD =  \
 libgstiqa_la_LIBADD += $(DSSIM_LIBS)
 
 libgstiqa_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstiqa_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 
 noinst_HEADERS = \
 	iqa.h

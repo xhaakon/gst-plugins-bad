@@ -25,31 +25,61 @@
 #include <gst/audio/gstaudiosrc.h>
 #include <gst/audio/gstaudiosink.h>
 
+#include <mmdeviceapi.h>
 #include <audioclient.h>
 
-const gchar *
-gst_wasapi_util_hresult_to_string (HRESULT hr);
+/* Static Caps shared between source, sink, and device provider */
+#define GST_WASAPI_STATIC_CAPS "audio/x-raw, " \
+        "format = (string) " GST_AUDIO_FORMATS_ALL ", " \
+        "layout = (string) interleaved, " \
+        "rate = " GST_AUDIO_RATE_RANGE ", " \
+        "channels = " GST_AUDIO_CHANNELS_RANGE
 
-gboolean
-gst_wasapi_util_get_default_device_client (GstElement * element,
-                                           gboolean capture,
-                                           IAudioClient ** ret_client);
+/* Device role enum property */
+typedef enum
+{
+  GST_WASAPI_DEVICE_ROLE_CONSOLE,
+  GST_WASAPI_DEVICE_ROLE_MULTIMEDIA,
+  GST_WASAPI_DEVICE_ROLE_COMMS
+} GstWasapiDeviceRole;
+#define GST_WASAPI_DEVICE_TYPE_ROLE (gst_wasapi_device_role_get_type())
+GType gst_wasapi_device_role_get_type (void);
+
+/* Utilities */
+
+gint gst_wasapi_device_role_to_erole (gint role);
+
+gint gst_wasapi_erole_to_device_role (gint erole);
+
+gchar *gst_wasapi_util_hresult_to_string (HRESULT hr);
+
+gboolean gst_wasapi_util_get_devices (GstElement * element, gboolean active,
+    GList ** devices);
+
+gboolean gst_wasapi_util_get_device_client (GstElement * element,
+    gboolean capture, gint role, const wchar_t * device_strid,
+    IMMDevice ** ret_device, IAudioClient ** ret_client);
+
+gboolean gst_wasapi_util_get_device_format (GstElement * element,
+    gint device_mode, IMMDevice * device, IAudioClient * client,
+    WAVEFORMATEX ** ret_format);
 
 gboolean gst_wasapi_util_get_render_client (GstElement * element,
-                                            IAudioClient *client,
-                                            IAudioRenderClient ** ret_render_client);
+    IAudioClient * client, IAudioRenderClient ** ret_render_client);
 
 gboolean gst_wasapi_util_get_capture_client (GstElement * element,
-                                             IAudioClient * client,
-                                             IAudioCaptureClient ** ret_capture_client);
+    IAudioClient * client, IAudioCaptureClient ** ret_capture_client);
 
 gboolean gst_wasapi_util_get_clock (GstElement * element,
-                                    IAudioClient * client,
-                                    IAudioClock ** ret_clock);
+    IAudioClient * client, IAudioClock ** ret_clock);
 
-void
-gst_wasapi_util_audio_info_to_waveformatex (GstAudioInfo *info,
-                                       WAVEFORMATEXTENSIBLE *format);
+gboolean gst_wasapi_util_parse_waveformatex (WAVEFORMATEXTENSIBLE * format,
+    GstCaps * template_caps, GstCaps ** out_caps,
+    GstAudioChannelPosition ** out_positions);
+
+void gst_wasapi_util_get_best_buffer_sizes (GstAudioRingBufferSpec * spec,
+    gboolean exclusive, REFERENCE_TIME default_period,
+    REFERENCE_TIME min_period, REFERENCE_TIME * ret_period,
+    REFERENCE_TIME * ret_buffer_duration);
 
 #endif /* __GST_WASAPI_UTIL_H__ */
-

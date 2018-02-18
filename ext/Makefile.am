@@ -4,6 +4,12 @@ else
 ASSRENDER_DIR =
 endif
 
+if USE_AOM
+AOM_DIR= aom
+else
+AOM_DIR=
+endif
+
 if USE_VOAMRWBENC
 VOAMRWBENC_DIR = voamrwbenc
 else
@@ -20,6 +26,12 @@ if USE_BZ2
 BZ2_DIR=bz2
 else
 BZ2_DIR=
+endif
+
+if USE_LCMS2
+COLORMANAGEMENT_DIR=colormanagement
+else
+COLORMANAGEMENT_DIR=
 endif
 
 if USE_CHROMAPRINT
@@ -74,18 +86,6 @@ if USE_GL
 GL_DIR=gl
 else
 GL_DIR=
-endif
-
-if USE_GTK3
-GTK3_DIR=gtk
-else
-GTK3_DIR=
-endif
-
-if USE_QT
-QT_DIR=qt
-else
-QT_DIR=
 endif
 
 if USE_RESINDVD
@@ -232,6 +232,12 @@ else
 OPENH264_DIR =
 endif
 
+if USE_OPENMPT
+OPENMPT_DIR=openmpt
+else
+OPENMPT_DIR=
+endif
+
 if USE_OPENNI2
 OPENNI2_DIR=openni2
 else
@@ -316,6 +322,12 @@ else
 SPC_DIR=
 endif
 
+if USE_SRT
+SRT_DIR=srt
+else
+SRT_DIR=
+endif
+
 if USE_SRTP
 SRTP_DIR=srtp
 else
@@ -382,6 +394,12 @@ else
 WEBRTCDSP_DIR=
 endif
 
+if USE_WEBRTC
+WEBRTC_DIR=webrtc
+else
+WEBRTC_DIR=
+endif
+
 if USE_TTML
 TTML_DIR=ttml
 else
@@ -391,10 +409,12 @@ endif
 SUBDIRS=\
 	$(VOAACENC_DIR) \
 	$(ASSRENDER_DIR) \
+	$(AOM_DIR) \
 	$(VOAMRWBENC_DIR) \
 	$(AUDIOFILE_DIR) \
 	$(BS2B_DIR) \
 	$(BZ2_DIR) \
+	$(COLORMANAGEMENT_DIR) \
 	$(CHROMAPRINT_DIR) \
 	$(CURL_DIR) \
 	$(DASH_DIR) \
@@ -405,8 +425,6 @@ SUBDIRS=\
 	$(DTS_DIR) \
 	$(RESINDVD_DIR) \
 	$(GL_DIR) \
-	$(GTK3_DIR) \
-	$(QT_DIR) \
 	$(FAAC_DIR) \
 	$(FAAD_DIR) \
 	$(FDK_AAC_DIR) \
@@ -431,6 +449,7 @@ SUBDIRS=\
 	$(OPENEXR_DIR) \
 	$(OPENH264_DIR) \
 	$(OPENJPEG_DIR) \
+	$(OPENMPT_DIR) \
 	$(OPENNI2_DIR) \
 	$(OPUS_DIR) \
 	$(RSVG_DIR) \
@@ -443,6 +462,7 @@ SUBDIRS=\
 	$(SPANDSP_DIR) \
 	$(GME_DIR) \
 	$(SPC_DIR) \
+	$(SRT_DIR) \
 	$(SRTP_DIR) \
 	$(TELETEXTDEC_DIR) \
 	$(WILDMIDI_DIR) \
@@ -454,12 +474,15 @@ SUBDIRS=\
 	$(DTLS_DIR) \
 	$(VULKAN_DIR) \
 	$(WEBRTCDSP_DIR) \
-	$(TTML_DIR)
+	$(TTML_DIR) \
+	$(WEBRTC_DIR)
 
 DIST_SUBDIRS = \
 	assrender \
+	aom \
 	bs2b \
 	bz2 \
+	colormanagement \
 	chromaprint \
 	curl \
 	dash \
@@ -482,8 +505,6 @@ DIST_SUBDIRS = \
 	daala \
 	dts \
 	gl \
-	gtk \
-	qt \
 	modplug \
 	mpeg2enc \
 	mplex \
@@ -494,6 +515,7 @@ DIST_SUBDIRS = \
 	opencv \
 	openexr \
 	openh264 \
+	openmpt \
 	openni2 \
 	openjpeg \
 	opus \
@@ -506,6 +528,7 @@ DIST_SUBDIRS = \
 	soundtouch \
 	spandsp \
 	spc \
+	srt \
 	srtp \
 	gme \
 	teletextdec \
@@ -519,6 +542,7 @@ DIST_SUBDIRS = \
 	dtls \
 	vulkan \
 	webrtcdsp \
-	ttml
+	ttml \
+	webrtc
 
 include $(top_srcdir)/common/parallel-subdirs.mak

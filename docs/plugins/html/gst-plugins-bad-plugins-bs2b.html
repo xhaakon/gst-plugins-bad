@@ -8,15 +8,14 @@
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-autoconvert.html" title="autoconvert">
 <link rel="next" href="gst-plugins-bad-plugins-bulge.html" title="bulge">
-<meta name="generator" content="GTK-Doc V1.26 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.27 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-bs2b.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-bs2b.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_interfaces">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-bs2b.description" class="shortcut">Description</a></span><span id="nav_interfaces">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-bs2b.implemented-interfaces" class="shortcut">Implemented Interfaces</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-bs2b.properties" class="shortcut">Properties</a></span>
 </td>
@@ -56,7 +55,7 @@
 </tbody>
 </table></div>
 </div>
-<a name="GstBs2b"></a><div class="refsect1">
+<div class="refsect1">
 <a name="gst-plugins-bad-plugins-bs2b.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
@@ -65,20 +64,9 @@
 </colgroup>
 <tbody><tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-bs2b.html#GstBs2b-struct" title="struct GstBs2b">GstBs2b</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-bs2b.html#GstBs2b" title="struct GstBs2b">GstBs2b</a></td>
 </tr></tbody>
 </table></div>
-</div>
-<div class="refsect1">
-<a name="gst-plugins-bad-plugins-bs2b.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
-    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstObject.html#GstObject-struct">GstObject</a>
-            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstElement.html#GstElement-struct">GstElement</a>
-                <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-libs-1.0/GstBaseTransform.html#GstBaseTransform-struct">GstBaseTransform</a>
-                    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0/GstAudioFilter.html#GstAudioFilter-struct">GstAudioFilter</a>
-                        <span class="lineart">╰──</span> GstBs2b
-</pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-bs2b.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
@@ -92,7 +80,7 @@ GstBs2b implements
 It does so by mixing the left and right channel in a way that simulates
 a stereo speaker setup while using headphones.</p>
 <div class="refsect3">
-<a name="id-1.2.10.8.3"></a><h4>Example pipelines</h4>
+<a name="id-1.2.8.6.3"></a><h4>Example pipelines</h4>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -109,7 +97,7 @@ a stereo speaker setup while using headphones.</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.10.8.4.1"></a><h3>Element Information</h3>
+<a name="id-1.2.8.6.4.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -135,7 +123,7 @@ a stereo speaker setup while using headphones.</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.10.8.4.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.8.6.4.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -202,8 +190,11 @@ a stereo speaker setup while using headphones.</p>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-bs2b.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstBs2b-struct"></a><h3>struct GstBs2b</h3>
-<pre class="programlisting">struct GstBs2b;</pre>
+<a name="GstBs2b"></a><h3>struct GstBs2b</h3>
+<pre class="programlisting">struct GstBs2b {
+  GstAudioFilter element;
+};
+</pre>
 </div>
 </div>
 <div class="refsect1">
@@ -228,6 +219,6 @@ a stereo speaker setup while using headphones.</p>
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.26</div>
+<hr>Generated by GTK-Doc V1.27</div>
 </body>
 </html>

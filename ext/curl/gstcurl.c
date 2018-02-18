@@ -20,6 +20,8 @@
 #include <config.h>
 #endif
 
+#include <gst/gst-i18n-plugin.h>
+
 #include "gstcurlbasesink.h"
 #include "gstcurltlssink.h"
 #include "gstcurlhttpsink.h"
@@ -29,10 +31,17 @@
 #ifdef HAVE_SSH2
 #include "gstcurlsftpsink.h"
 #endif
+#include "gstcurlhttpsrc.h"
 
 static gboolean
 plugin_init (GstPlugin * plugin)
 {
+#ifdef ENABLE_NLS
+  GST_DEBUG ("binding text domain %s to locale dir %s", GETTEXT_PACKAGE,
+      LOCALEDIR);
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+#endif /* ENABLE_NLS */
 
   if (!gst_element_register (plugin, "curlhttpsink", GST_RANK_NONE,
           GST_TYPE_CURL_HTTP_SINK))
@@ -55,6 +64,9 @@ plugin_init (GstPlugin * plugin)
           GST_TYPE_CURL_SFTP_SINK))
     return FALSE;
 #endif
+  if (!gst_element_register (plugin, "curlhttpsrc", GST_RANK_SECONDARY,
+          GST_TYPE_CURLHTTPSRC))
+    return FALSE;
 
   return TRUE;
 }

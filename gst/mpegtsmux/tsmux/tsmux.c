@@ -267,7 +267,7 @@ tsmux_get_si_interval (TsMux * mux)
  *
  * Add a Service Information #GstMpegtsSection to the stream
  *
- * Returns: #TRUE on success, #FALSE otherwise
+ * Returns: %TRUE on success, %FALSE otherwise
  */
 gboolean
 tsmux_add_mpegts_si_section (TsMux * mux, GstMpegtsSection * section)
@@ -1104,6 +1104,8 @@ tsmux_write_stream_packet (TsMux * mux, TsMuxStream * stream)
 
   gst_buffer_unmap (buf, &map);
 
+  GST_DEBUG_OBJECT (mux, "Writing PES of size %d",
+      (int) gst_buffer_get_size (buf));
   res = tsmux_packet_out (mux, buf, cur_pcr);
 
   /* Reset all dynamic flags */

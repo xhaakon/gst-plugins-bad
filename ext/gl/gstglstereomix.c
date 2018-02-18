@@ -81,10 +81,8 @@ gst_gl_stereo_mix_pad_init (GstGLStereoMixPad * pad)
 #define gst_gl_stereo_mix_parent_class parent_class
 G_DEFINE_TYPE (GstGLStereoMix, gst_gl_stereo_mix, GST_TYPE_GL_MIXER);
 
-static GstCaps *_update_caps (GstVideoAggregator * vagg, GstCaps * caps,
-    GstCaps * filter);
-static gboolean _negotiated_caps (GstVideoAggregator * videoaggregator,
-    GstCaps * caps);
+static GstCaps *_update_caps (GstVideoAggregator * vagg, GstCaps * caps);
+static gboolean _negotiated_caps (GstAggregator * aggregator, GstCaps * caps);
 gboolean gst_gl_stereo_mix_make_output (GstGLStereoMix * mix);
 static gboolean gst_gl_stereo_mix_process_frames (GstGLStereoMix * mixer);
 
@@ -182,16 +180,16 @@ gst_gl_stereo_mix_class_init (GstGLStereoMixClass * klass)
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   gst_element_class_add_static_pad_template (element_class, &src_factory);
-  gst_element_class_add_static_pad_template (element_class, &sink_factory);
+  gst_element_class_add_static_pad_template_with_gtype (element_class,
+      &sink_factory, GST_TYPE_GL_STEREO_MIX_PAD);
 
-  agg_class->sinkpads_type = GST_TYPE_GL_STEREO_MIX_PAD;
   agg_class->stop = gst_gl_stereo_mix_stop;
   agg_class->start = gst_gl_stereo_mix_start;
   agg_class->src_query = gst_gl_stereo_mix_src_query;
+  agg_class->negotiated_src_caps = _negotiated_caps;
 
   videoaggregator_class->aggregate_frames = gst_gl_stereo_mix_aggregate_frames;
   videoaggregator_class->update_caps = _update_caps;
-  videoaggregator_class->negotiated_caps = _negotiated_caps;
   videoaggregator_class->get_output_buffer =
       gst_gl_stereo_mix_get_output_buffer;
 
@@ -470,7 +468,7 @@ get_converted_caps (GstGLStereoMix * mix, GstCaps * caps)
 
 /* Return the possible output caps based on inputs and downstream prefs */
 static GstCaps *
-_update_caps (GstVideoAggregator * vagg, GstCaps * caps, GstCaps * filter)
+_update_caps (GstVideoAggregator * vagg, GstCaps * caps)
 {
   GstGLStereoMix *mix = GST_GL_STEREO_MIX (vagg);
   GList *l;
@@ -563,16 +561,16 @@ _update_caps (GstVideoAggregator * vagg, GstCaps * caps, GstCaps * filter)
 
 /* Called after videoaggregator fixates our caps */
 static gboolean
-_negotiated_caps (GstVideoAggregator * vagg, GstCaps * caps)
+_negotiated_caps (GstAggregator * agg, GstCaps * caps)
 {
+  GstVideoAggregator *vagg = GST_VIDEO_AGGREGATOR (agg);
   GstGLStereoMix *mix = GST_GL_STEREO_MIX (vagg);
   GstCaps *in_caps;
 
   GST_LOG_OBJECT (mix, "Configured output caps %" GST_PTR_FORMAT, caps);
 
-  if (GST_VIDEO_AGGREGATOR_CLASS (parent_class)->negotiated_caps)
-    if (!GST_VIDEO_AGGREGATOR_CLASS (parent_class)->negotiated_caps (vagg,
-            caps))
+  if (GST_AGGREGATOR_CLASS (parent_class)->negotiated_src_caps)
+    if (!GST_AGGREGATOR_CLASS (parent_class)->negotiated_src_caps (agg, caps))
       return FALSE;
 
   /* Update the glview_convert output */

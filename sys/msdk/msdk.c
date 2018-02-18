@@ -30,11 +30,34 @@
  */
 
 #include "msdk.h"
+#include "gstmsdkvideomemory.h"
+#include "gstmsdksystemmemory.h"
 
 GST_DEBUG_CATEGORY_EXTERN (gst_msdkenc_debug);
 #define GST_CAT_DEFAULT gst_msdkenc_debug
 
 #define INVALID_INDEX         ((guint) -1)
+#define GST_MSDK_ALIGNMENT_PADDING(num) (32 - ((num) & 31))
+
+struct map
+{
+  GstVideoFormat format;
+  mfxU16 mfx_chroma_format;
+  mfxU32 mfx_fourcc;
+};
+
+#define GST_VIDEO_INFO_TO_MFX_MAP(FORMAT, CHROMA, FOURCC) \
+    { GST_VIDEO_FORMAT_##FORMAT, MFX_CHROMAFORMAT_##CHROMA, MFX_FOURCC_##FOURCC }
+
+static const struct map gst_msdk_video_format_to_mfx_map[] = {
+  GST_VIDEO_INFO_TO_MFX_MAP (NV12, YUV420, NV12),
+  GST_VIDEO_INFO_TO_MFX_MAP (YV12, YUV420, YV12),
+  GST_VIDEO_INFO_TO_MFX_MAP (I420, YUV420, YV12),
+  GST_VIDEO_INFO_TO_MFX_MAP (YUY2, YUV422, YUY2),
+  GST_VIDEO_INFO_TO_MFX_MAP (UYVY, YUV422, UYVY),
+  GST_VIDEO_INFO_TO_MFX_MAP (BGRA, YUV444, RGB4),
+  {0, 0, 0}
+};
 
 static inline guint
 msdk_get_free_surface_index (mfxFrameSurface1 * surfaces, guint size)
@@ -77,39 +100,144 @@ msdk_frame_to_surface (GstVideoFrame * frame, mfxFrameSurface1 * surface)
   guint8 *src, *dst;
   guint sstride, dstride;
   guint width, height;
-  guint i;
+  guint i, p;
 
   if (!surface->Data.MemId) {
-    surface->Data.Y = GST_VIDEO_FRAME_COMP_DATA (frame, 0);
-    surface->Data.UV = GST_VIDEO_FRAME_COMP_DATA (frame, 1);
-    surface->Data.Pitch = GST_VIDEO_FRAME_COMP_STRIDE (frame, 0);
+    switch (frame->info.finfo->format) {
+      case GST_VIDEO_FORMAT_NV12:
+        surface->Data.Y = GST_VIDEO_FRAME_COMP_DATA (frame, 0);
+        surface->Data.UV = GST_VIDEO_FRAME_COMP_DATA (frame, 1);
+        surface->Data.Pitch = GST_VIDEO_FRAME_COMP_STRIDE (frame, 0);
+        break;
+
+      case GST_VIDEO_FORMAT_YV12:
+      case GST_VIDEO_FORMAT_I420:
+        surface->Data.Y = GST_VIDEO_FRAME_COMP_DATA (frame, 0);
+        surface->Data.U = GST_VIDEO_FRAME_COMP_DATA (frame, 1);
+        surface->Data.V = GST_VIDEO_FRAME_COMP_DATA (frame, 2);
+        surface->Data.Pitch = GST_VIDEO_FRAME_COMP_STRIDE (frame, 0);
+        break;
+
+      case GST_VIDEO_FORMAT_YUY2:
+        surface->Data.Y = GST_VIDEO_FRAME_PLANE_DATA (frame, 0);
+        surface->Data.Pitch = GST_VIDEO_FRAME_COMP_STRIDE (frame, 0);
+        surface->Data.U = surface->Data.Y + 1;
+        surface->Data.V = surface->Data.Y + 3;
+        break;
+      case GST_VIDEO_FORMAT_UYVY:
+        surface->Data.Y = GST_VIDEO_FRAME_PLANE_DATA (frame, 0);
+        surface->Data.Pitch = GST_VIDEO_FRAME_COMP_STRIDE (frame, 0);
+        surface->Data.U = surface->Data.Y;
+        surface->Data.Y = surface->Data.U + 1;
+        surface->Data.V = surface->Data.U + 2;
+        break;
+
+      case GST_VIDEO_FORMAT_BGRA:
+        surface->Data.R = GST_VIDEO_FRAME_COMP_DATA (frame, 0);
+        surface->Data.G = surface->Data.R - 1;
+        surface->Data.B = surface->Data.R - 2;
+        surface->Data.Pitch = GST_VIDEO_FRAME_COMP_STRIDE (frame, 0);
+        break;
+
+      default:
+        g_assert_not_reached ();
+        break;
+    }
+
     return;
   }
 
-  /* Y Plane */
-  width = GST_VIDEO_FRAME_COMP_WIDTH (frame, 0);
-  height = GST_VIDEO_FRAME_COMP_HEIGHT (frame, 0);
-  src = GST_VIDEO_FRAME_COMP_DATA (frame, 0);
-  sstride = GST_VIDEO_FRAME_COMP_STRIDE (frame, 0);
-  dst = surface->Data.Y;
-  dstride = surface->Data.Pitch;
 
-  for (i = 0; i < height; i++) {
-    memcpy (dst, src, width);
-    src += sstride;
-    dst += dstride;
-  }
+  switch (frame->info.finfo->format) {
+    case GST_VIDEO_FORMAT_NV12:
+      width = GST_VIDEO_FRAME_COMP_WIDTH (frame, 0);
+      for (p = 0; p < 2; p++) {
+        height = GST_VIDEO_FRAME_COMP_HEIGHT (frame, p);
+        src = GST_VIDEO_FRAME_COMP_DATA (frame, p);
+        sstride = GST_VIDEO_FRAME_COMP_STRIDE (frame, p);
+        dst = p == 0 ? surface->Data.Y : surface->Data.UV;
+        dstride = surface->Data.Pitch;
 
-  /* UV Plane */
-  height = GST_VIDEO_FRAME_COMP_HEIGHT (frame, 1);
-  src = GST_VIDEO_FRAME_COMP_DATA (frame, 1);
-  sstride = GST_VIDEO_FRAME_COMP_STRIDE (frame, 1);
-  dst = surface->Data.UV;
+        for (i = 0; i < height; i++) {
+          memcpy (dst, src, width);
+          src += sstride;
+          dst += dstride;
+        }
+      }
+      break;
 
-  for (i = 0; i < height; i++) {
-    memcpy (dst, src, width);
-    src += sstride;
-    dst += dstride;
+    case GST_VIDEO_FORMAT_YV12:
+    case GST_VIDEO_FORMAT_I420:
+      for (p = 0; p < 3; p++) {
+        width = GST_VIDEO_FRAME_COMP_WIDTH (frame, p);
+        height = GST_VIDEO_FRAME_COMP_HEIGHT (frame, p);
+        src = GST_VIDEO_FRAME_COMP_DATA (frame, p);
+        sstride = GST_VIDEO_FRAME_COMP_STRIDE (frame, p);
+        switch (p) {
+          case 0:
+            dst = surface->Data.Y;
+            break;
+          case 1:
+            dst = surface->Data.U;
+            break;
+          case 2:
+            dst = surface->Data.V;
+            break;
+          default:
+            g_assert_not_reached ();
+            break;
+        }
+        dstride = surface->Data.Pitch;
+        if (p > 0)
+          dstride = dstride / 2;
+
+        for (i = 0; i < height; i++) {
+          memcpy (dst, src, width);
+          src += sstride;
+          dst += dstride;
+        }
+      }
+      break;
+
+    case GST_VIDEO_FORMAT_YUY2:
+    case GST_VIDEO_FORMAT_UYVY:
+      width = GST_VIDEO_FRAME_COMP_WIDTH (frame, 0);
+      height = GST_VIDEO_FRAME_COMP_HEIGHT (frame, 0);
+      src = GST_VIDEO_FRAME_COMP_DATA (frame, 0);
+      sstride = GST_VIDEO_FRAME_COMP_STRIDE (frame, 0);
+      dst = surface->Data.Y;
+      dstride = surface->Data.Pitch;
+
+      width *= 2;
+      width = MIN (sstride, width);
+
+      for (i = 0; i < height; i++) {
+        memcpy (dst, src, width);
+        src += sstride;
+        dst += dstride;
+      }
+      break;
+
+    case GST_VIDEO_FORMAT_BGRA:
+      width = GST_VIDEO_FRAME_COMP_WIDTH (frame, 0);
+      height = GST_VIDEO_FRAME_COMP_HEIGHT (frame, 0);
+      src = GST_VIDEO_FRAME_COMP_DATA (frame, 0);
+      sstride = GST_VIDEO_FRAME_COMP_STRIDE (frame, 0);
+      dst = surface->Data.B;
+      dstride = surface->Data.Pitch;
+
+      width *= 4;
+
+      for (i = 0; i < height; i++) {
+        memcpy (dst, src, width);
+        src += sstride;
+        dst += dstride;
+      }
+      break;
+
+    default:
+      g_assert_not_reached ();
+      break;
   }
 }
 
@@ -256,4 +384,103 @@ msdk_is_available (void)
 
   msdk_close_session (session);
   return TRUE;
+}
+
+void
+gst_msdk_set_video_alignment (GstVideoInfo * info,
+    GstVideoAlignment * alignment)
+{
+  guint i, width, height;
+
+  width = GST_VIDEO_INFO_WIDTH (info);
+  height = GST_VIDEO_INFO_HEIGHT (info);
+
+  gst_video_alignment_reset (alignment);
+  for (i = 0; i < GST_VIDEO_INFO_N_PLANES (info); i++)
+    alignment->stride_align[i] = 31;    /* 32-byte alignment */
+
+  if (width & 31)
+    alignment->padding_right = GST_MSDK_ALIGNMENT_PADDING (width);
+  if (height & 31)
+    alignment->padding_bottom = GST_MSDK_ALIGNMENT_PADDING (height);
+}
+
+static const struct map *
+_map_lookup_format (GstVideoFormat format)
+{
+  const struct map *m = gst_msdk_video_format_to_mfx_map;
+
+  for (; m->format != 0; m++) {
+    if (m->format == format)
+      return m;
+  }
+  return NULL;
+}
+
+gint
+gst_msdk_get_mfx_chroma_from_format (GstVideoFormat format)
+{
+  const struct map *const m = _map_lookup_format (format);
+
+  return m ? m->mfx_chroma_format : -1;
+}
+
+gint
+gst_msdk_get_mfx_fourcc_from_format (GstVideoFormat format)
+{
+  const struct map *const m = _map_lookup_format (format);
+
+  return m ? m->mfx_fourcc : -1;
+}
+
+void
+gst_msdk_set_mfx_frame_info_from_video_info (mfxFrameInfo * mfx_info,
+    GstVideoInfo * info)
+{
+  g_return_if_fail (info && mfx_info);
+
+  mfx_info->Width = GST_ROUND_UP_32 (GST_VIDEO_INFO_WIDTH (info));
+  mfx_info->Height = GST_ROUND_UP_32 (GST_VIDEO_INFO_HEIGHT (info));
+  mfx_info->CropW = GST_VIDEO_INFO_WIDTH (info);
+  mfx_info->CropH = GST_VIDEO_INFO_HEIGHT (info);
+  mfx_info->FrameRateExtN = GST_VIDEO_INFO_FPS_N (info);
+  mfx_info->FrameRateExtD = GST_VIDEO_INFO_FPS_D (info);
+  mfx_info->AspectRatioW = GST_VIDEO_INFO_PAR_N (info);
+  mfx_info->AspectRatioH = GST_VIDEO_INFO_PAR_D (info);
+  mfx_info->PicStruct = MFX_PICSTRUCT_PROGRESSIVE;      /* this is by default */
+  mfx_info->FourCC =
+      gst_msdk_get_mfx_fourcc_from_format (GST_VIDEO_INFO_FORMAT (info));
+  mfx_info->ChromaFormat =
+      gst_msdk_get_mfx_chroma_from_format (GST_VIDEO_INFO_FORMAT (info));
+
+  return;
+}
+
+gboolean
+gst_msdk_is_msdk_buffer (GstBuffer * buf)
+{
+  GstAllocator *allocator;
+  GstMemory *mem = gst_buffer_peek_memory (buf, 0);
+
+  allocator = GST_MEMORY_CAST (mem)->allocator;
+
+  if (allocator && (GST_IS_MSDK_VIDEO_ALLOCATOR (allocator) ||
+          GST_IS_MSDK_SYSTEM_ALLOCATOR (allocator)))
+    return TRUE;
+  else
+    return FALSE;
+}
+
+mfxFrameSurface1 *
+gst_msdk_get_surface_from_buffer (GstBuffer * buf)
+{
+  GstAllocator *allocator;
+  GstMemory *mem = gst_buffer_peek_memory (buf, 0);
+
+  allocator = GST_MEMORY_CAST (mem)->allocator;
+
+  if (GST_IS_MSDK_VIDEO_ALLOCATOR (allocator))
+    return GST_MSDK_VIDEO_MEMORY_CAST (mem)->surface;
+  else
+    return GST_MSDK_SYSTEM_MEMORY_CAST (mem)->surface;
 }

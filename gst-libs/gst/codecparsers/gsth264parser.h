@@ -184,6 +184,15 @@ typedef enum
  * @GST_H264_PARSER_ERROR: An error occurred when parsing
  * @GST_H264_PARSER_NO_NAL: No NAL unit found during the parsing
  * @GST_H264_PARSER_NO_NAL_END: Start of the NAL unit found, but not the end.
+ *     This will be returned if no start/sync marker for the next NAL unit was
+ *     found. In this case the parser will assume that the end of the data is
+ *     also the end of the NAL unit. Whether this assumption is correct or not
+ *     depends on the context, which only the caller can know, which is why a
+ *     special result value is returned in this case. If the data is NAL-aligned
+ *     then #GST_H264_PARSER_NO_NAL_END can be treated just like
+ *     #GST_H264_PARSER_OK. If the data is not guaranteed to be NAL-aligned,
+ *     then the caller probably wants to collect more data until there's another
+ *     sync marker or the end of the stream has been reached.
  *
  * The result of parsing H264 data.
  */
@@ -1015,65 +1024,87 @@ struct _GstH264NalParser
   GstH264PPS *last_pps;
 };
 
+GST_EXPORT
 GstH264NalParser *gst_h264_nal_parser_new             (void);
 
+GST_EXPORT
 GstH264ParserResult gst_h264_parser_identify_nalu     (GstH264NalParser *nalparser,
                                                        const guint8 *data, guint offset,
                                                        gsize size, GstH264NalUnit *nalu);
 
+GST_EXPORT
 GstH264ParserResult gst_h264_parser_identify_nalu_unchecked (GstH264NalParser *nalparser,
                                                        const guint8 *data, guint offset,
                                                        gsize size, GstH264NalUnit *nalu);
 
+GST_EXPORT
 GstH264ParserResult gst_h264_parser_identify_nalu_avc (GstH264NalParser *nalparser, const guint8 *data,
                                                        guint offset, gsize size, guint8 nal_length_size,
                                                        GstH264NalUnit *nalu);
 
+GST_EXPORT
 GstH264ParserResult gst_h264_parser_parse_nal         (GstH264NalParser *nalparser,
                                                        GstH264NalUnit *nalu);
 
+GST_EXPORT
 GstH264ParserResult gst_h264_parser_parse_slice_hdr   (GstH264NalParser *nalparser, GstH264NalUnit *nalu,
                                                        GstH264SliceHdr *slice, gboolean parse_pred_weight_table,
                                                        gboolean parse_dec_ref_pic_marking);
 
+GST_EXPORT
 GstH264ParserResult gst_h264_parser_parse_subset_sps  (GstH264NalParser *nalparser, GstH264NalUnit *nalu,
                                                        GstH264SPS *sps, gboolean parse_vui_params);
 
+GST_EXPORT
 GstH264ParserResult gst_h264_parser_parse_sps         (GstH264NalParser *nalparser, GstH264NalUnit *nalu,
                                                        GstH264SPS *sps, gboolean parse_vui_params);
 
+GST_EXPORT
 GstH264ParserResult gst_h264_parser_parse_pps         (GstH264NalParser *nalparser,
                                                        GstH264NalUnit *nalu, GstH264PPS *pps);
 
+GST_EXPORT
 GstH264ParserResult gst_h264_parser_parse_sei         (GstH264NalParser *nalparser,
                                                        GstH264NalUnit *nalu, GArray ** messages);
 
+GST_EXPORT
 void gst_h264_nal_parser_free                         (GstH264NalParser *nalparser);
 
+GST_EXPORT
 GstH264ParserResult gst_h264_parse_subset_sps         (GstH264NalUnit *nalu,
                                                        GstH264SPS *sps, gboolean parse_vui_params);
 
+GST_EXPORT
 GstH264ParserResult gst_h264_parse_sps                (GstH264NalUnit *nalu,
                                                        GstH264SPS *sps, gboolean parse_vui_params);
 
+GST_EXPORT
 GstH264ParserResult gst_h264_parse_pps                (GstH264NalParser *nalparser,
                                                        GstH264NalUnit *nalu, GstH264PPS *pps);
 
+GST_EXPORT
 void                gst_h264_sps_clear                (GstH264SPS *sps);
+
+GST_EXPORT
 void                gst_h264_pps_clear                (GstH264PPS *pps);
 
+GST_EXPORT
 void    gst_h264_quant_matrix_8x8_get_zigzag_from_raster (guint8 out_quant[64],
                                                           const guint8 quant[64]);
 
+GST_EXPORT
 void    gst_h264_quant_matrix_8x8_get_raster_from_zigzag (guint8 out_quant[64],
                                                           const guint8 quant[64]);
 
+GST_EXPORT
 void    gst_h264_quant_matrix_4x4_get_zigzag_from_raster (guint8 out_quant[16],
                                                           const guint8 quant[16]);
 
+GST_EXPORT
 void    gst_h264_quant_matrix_4x4_get_raster_from_zigzag (guint8 out_quant[16],
                                                           const guint8 quant[16]);
 
+GST_EXPORT
 void gst_h264_video_calculate_framerate (const GstH264SPS * sps, guint field_pic_flag,
     guint pic_struct, gint * fps_num, gint * fps_den);
 

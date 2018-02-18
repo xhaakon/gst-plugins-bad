@@ -304,9 +304,9 @@ static JNINativeMethod native_methods[] = {
   {(gchar *) "gst_ah_camera_on_error",
         (gchar *) "(ILandroid/hardware/Camera;JJ)V",
       (void *) gst_ah_camera_on_error},
-//  {(gchar *) "gst_ah_camera_on_auto_focus",
-//        (gchar *) "(ZLandroid/hardware/Camera;JJ)V",
-//      (void *) gst_ah_camera_on_auto_focus}
+  {(gchar *) "gst_ah_camera_on_auto_focus",
+        (gchar *) "(ZLandroid/hardware/Camera;JJ)V",
+      (void *) gst_ah_camera_on_auto_focus}
 };
 
 static gboolean
@@ -1590,8 +1590,8 @@ _init_classes (void)
 
   if (!org_freedesktop_gstreamer_androidmedia_gstahccallback.klass) {
     org_freedesktop_gstreamer_androidmedia_gstahccallback.klass =
-        gst_amc_jni_get_class (env, &err,
-        "org/freedesktop/gstreamer/androidmedia/GstAhcCallback");
+        gst_amc_jni_get_application_class (env,
+        "org/freedesktop/gstreamer/androidmedia/GstAhcCallback", &err);
   }
   if (!org_freedesktop_gstreamer_androidmedia_gstahccallback.klass)
     goto failed;

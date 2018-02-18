@@ -35,6 +35,7 @@
 #include <gst/gst.h>
 #include <gst/video/gstvideoencoder.h>
 #include "msdk.h"
+#include "gstmsdkcontext.h"
 
 G_BEGIN_DECLS
 
@@ -69,16 +70,28 @@ struct _GstMsdkEnc
   GList *pending_frames;
 
   /* MFX context */
-  MsdkContext *context;
+  GstMsdkContext *context;
   mfxVideoParam param;
   guint num_surfaces;
-  mfxFrameSurface1 *surfaces;
   guint num_tasks;
   MsdkEncTask *tasks;
   guint next_task;
 
+  gboolean has_vpp;
+  mfxVideoParam vpp_param;
+  guint num_vpp_surfaces;
+  /* Input interfaces, output above */
+  mfxFrameAllocResponse vpp_alloc_resp;
+  mfxFrameAllocResponse alloc_resp;
+
   mfxExtBuffer *extra_params[MAX_EXTRA_PARAMS];
   guint num_extra_params;
+
+  GstBufferPool *msdk_pool;
+  GstBufferPool *msdk_converted_pool;
+  GstVideoInfo aligned_info;
+  gboolean use_video_memory;
+  gboolean initialized;
 
   /* element properties */
   gboolean hardware;
@@ -112,6 +125,8 @@ struct _MsdkEncTask
   GstVideoCodecFrame *input_frame;
   mfxSyncPoint sync_point;
   mfxBitstream output_bitstream;
+  gboolean more_data;
+  guint pending_frame_number;
 };
 
 GType gst_msdkenc_get_type (void);

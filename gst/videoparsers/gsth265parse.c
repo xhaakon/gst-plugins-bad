@@ -1456,6 +1456,8 @@ gst_h265_parse_update_src_caps (GstH265Parse * h265parse, GstCaps * caps)
     caps = gst_caps_copy (sink_caps);
   } else {
     gint crop_width, crop_height;
+    const gchar *chroma_format = NULL;
+    guint bit_depth_chroma;
 
     if (sps->conformance_window_flag) {
       crop_width = sps->crop_rect_width;
@@ -1536,6 +1538,32 @@ gst_h265_parse_update_src_caps (GstH265Parse * h265parse, GstCaps * caps)
         gst_base_parse_set_latency (GST_BASE_PARSE (h265parse), latency,
             latency);
       }
+
+      bit_depth_chroma = sps->bit_depth_chroma_minus8 + 8;
+
+      switch (sps->chroma_format_idc) {
+        case 0:
+          chroma_format = "4:0:0";
+          bit_depth_chroma = 0;
+          break;
+        case 1:
+          chroma_format = "4:2:0";
+          break;
+        case 2:
+          chroma_format = "4:2:2";
+          break;
+        case 3:
+          chroma_format = "4:4:4";
+          break;
+        default:
+          break;
+      }
+
+      if (chroma_format)
+        gst_caps_set_simple (caps, "chroma-format", G_TYPE_STRING,
+            chroma_format, "bit-depth-luma", G_TYPE_UINT,
+            sps->bit_depth_luma_minus8 + 8, "bit-depth-chroma", G_TYPE_UINT,
+            bit_depth_chroma, NULL);
     }
   }
 
@@ -2121,6 +2149,10 @@ gst_h265_parse_set_caps (GstBaseParse * parse, GstCaps * caps)
     if (h265parse->align == GST_H265_PARSE_ALIGN_NAL)
       h265parse->split_packetized = TRUE;
     h265parse->packetized = TRUE;
+
+    /* We got all the caps infos from the codec_data so can already set the
+     * src caps. */
+    gst_h265_parse_update_src_caps (h265parse, NULL);
   }
 
   return TRUE;
@@ -2149,7 +2181,7 @@ refuse_caps:
 }
 
 static void
-remove_fields (GstCaps * caps)
+remove_fields (GstCaps * caps, gboolean all)
 {
   guint i, n;
 
@@ -2157,8 +2189,10 @@ remove_fields (GstCaps * caps)
   for (i = 0; i < n; i++) {
     GstStructure *s = gst_caps_get_structure (caps, i);
 
-    gst_structure_remove_field (s, "alignment");
-    gst_structure_remove_field (s, "stream-format");
+    if (all) {
+      gst_structure_remove_field (s, "alignment");
+      gst_structure_remove_field (s, "stream-format");
+    }
     gst_structure_remove_field (s, "parsed");
   }
 }
@@ -2167,28 +2201,24 @@ static GstCaps *
 gst_h265_parse_get_caps (GstBaseParse * parse, GstCaps * filter)
 {
   GstCaps *peercaps, *templ;
-  GstCaps *res;
+  GstCaps *res, *tmp, *pcopy;
 
   templ = gst_pad_get_pad_template_caps (GST_BASE_PARSE_SINK_PAD (parse));
   if (filter) {
     GstCaps *fcopy = gst_caps_copy (filter);
     /* Remove the fields we convert */
-    remove_fields (fcopy);
+    remove_fields (fcopy, TRUE);
     peercaps = gst_pad_peer_query_caps (GST_BASE_PARSE_SRC_PAD (parse), fcopy);
     gst_caps_unref (fcopy);
   } else
     peercaps = gst_pad_peer_query_caps (GST_BASE_PARSE_SRC_PAD (parse), NULL);
 
-  if (peercaps) {
-    peercaps = gst_caps_make_writable (peercaps);
-    remove_fields (peercaps);
+  pcopy = gst_caps_copy (peercaps);
+  remove_fields (pcopy, TRUE);
 
-    res = gst_caps_intersect_full (peercaps, templ, GST_CAPS_INTERSECT_FIRST);
-    gst_caps_unref (peercaps);
-    gst_caps_unref (templ);
-  } else {
-    res = templ;
-  }
+  res = gst_caps_intersect_full (pcopy, templ, GST_CAPS_INTERSECT_FIRST);
+  gst_caps_unref (pcopy);
+  gst_caps_unref (templ);
 
   if (filter) {
     GstCaps *tmp = gst_caps_intersect_full (res, filter,
@@ -2197,6 +2227,15 @@ gst_h265_parse_get_caps (GstBaseParse * parse, GstCaps * filter)
     res = tmp;
   }
 
+  /* Try if we can put the downstream caps first */
+  remove_fields (peercaps, FALSE);
+  tmp = gst_caps_intersect_full (peercaps, res, GST_CAPS_INTERSECT_FIRST);
+  if (!gst_caps_is_empty (tmp))
+    res = gst_caps_merge (tmp, res);
+  else
+    gst_caps_unref (tmp);
+
+  gst_caps_unref (peercaps);
   return res;
 }
 

@@ -773,29 +773,25 @@ gst_player_get_property (GObject * object, guint prop_id,
     }
     case PROP_MEDIA_INFO:{
       GstPlayerMediaInfo *media_info = gst_player_get_media_info (self);
-      g_value_set_object (value, media_info);
-      g_object_unref (media_info);
+      g_value_take_object (value, media_info);
       break;
     }
     case PROP_CURRENT_AUDIO_TRACK:{
       GstPlayerAudioInfo *audio_info =
           gst_player_get_current_audio_track (self);
-      g_value_set_object (value, audio_info);
-      g_object_unref (audio_info);
+      g_value_take_object (value, audio_info);
       break;
     }
     case PROP_CURRENT_VIDEO_TRACK:{
       GstPlayerVideoInfo *video_info =
           gst_player_get_current_video_track (self);
-      g_value_set_object (value, video_info);
-      g_object_unref (video_info);
+      g_value_take_object (value, video_info);
       break;
     }
     case PROP_CURRENT_SUBTITLE_TRACK:{
       GstPlayerSubtitleInfo *subtitle_info =
           gst_player_get_current_subtitle_track (self);
-      g_value_set_object (value, subtitle_info);
-      g_object_unref (subtitle_info);
+      g_value_take_object (value, subtitle_info);
       break;
     }
     case PROP_VOLUME:
@@ -3025,7 +3021,7 @@ gst_player_init_once (G_GNUC_UNUSED gpointer user_data)
  * no special video set up will be done and some default handling will be
  * performed.
  *
- * Returns: a new #GstPlayer instance
+ * Returns: (transfer full): a new #GstPlayer instance
  */
 GstPlayer *
 gst_player_new (GstPlayerVideoRenderer * video_renderer,
@@ -3039,6 +3035,7 @@ gst_player_new (GstPlayerVideoRenderer * video_renderer,
   self =
       g_object_new (GST_TYPE_PLAYER, "video-renderer", video_renderer,
       "signal-dispatcher", signal_dispatcher, NULL);
+  gst_object_ref_sink (self);
 
   if (video_renderer)
     g_object_unref (video_renderer);
@@ -3506,7 +3503,9 @@ gst_player_set_uri (GstPlayer * self, const gchar * val)
  * @player: #GstPlayer instance
  * @uri: subtitle URI
  *
- * Sets the external subtitle URI.
+ * Sets the external subtitle URI. This should be combined with a call to
+ * gst_player_set_subtitle_track_enabled(@player, TRUE) so the subtitles are actually
+ * rendered.
  */
 void
 gst_player_set_subtitle_uri (GstPlayer * self, const gchar * suburi)
@@ -4226,12 +4225,13 @@ gst_player_get_color_balance (GstPlayer * self, GstPlayerColorBalanceType type)
  *
  * Since: 1.10
  */
-GstVideoMultiviewMode
+GstVideoMultiviewFramePacking
 gst_player_get_multiview_mode (GstPlayer * self)
 {
-  GstVideoMultiviewMode val = GST_VIDEO_MULTIVIEW_MODE_NONE;
+  GstVideoMultiviewFramePacking val = GST_VIDEO_MULTIVIEW_FRAME_PACKING_NONE;
 
-  g_return_val_if_fail (GST_IS_PLAYER (self), GST_VIDEO_MULTIVIEW_MODE_NONE);
+  g_return_val_if_fail (GST_IS_PLAYER (self),
+      GST_VIDEO_MULTIVIEW_FRAME_PACKING_NONE);
 
   g_object_get (self, "video-multiview-mode", &val, NULL);
 
@@ -4249,7 +4249,8 @@ gst_player_get_multiview_mode (GstPlayer * self)
  * Since: 1.10
  */
 void
-gst_player_set_multiview_mode (GstPlayer * self, GstVideoMultiviewMode mode)
+gst_player_set_multiview_mode (GstPlayer * self,
+    GstVideoMultiviewFramePacking mode)
 {
   g_return_if_fail (GST_IS_PLAYER (self));
 
@@ -4619,7 +4620,7 @@ gst_player_config_get_position_update_interval (const GstStructure * config)
 
 /**
  * gst_player_config_set_seek_accurate:
- * @player: #GstPlayer instance
+ * @config: a #GstPlayer configuration
  * @accurate: accurate seek or not
  *
  * Enable or disable accurate seeking. When enabled, elements will try harder
@@ -4635,9 +4636,8 @@ gst_player_config_get_position_update_interval (const GstStructure * config)
  * Since: 1.12
  */
 void
-gst_player_config_set_seek_accurate (GstPlayer * self, gboolean accurate)
+gst_player_config_set_seek_accurate (GstStructure * config, gboolean accurate)
 {
-  GstStructure *config = self->config;
   g_return_if_fail (config != NULL);
 
   gst_structure_id_set (config,

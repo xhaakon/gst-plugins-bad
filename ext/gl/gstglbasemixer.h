@@ -47,8 +47,6 @@ typedef struct _GstGLBaseMixerPadClass GstGLBaseMixerPadClass;
 struct _GstGLBaseMixerPad
 {
   GstVideoAggregatorPad parent;                /* subclass the pad */
-
-  gboolean negotiated;
 };
 
 struct _GstGLBaseMixerPadClass
@@ -91,15 +89,10 @@ struct _GstGLBaseMixerClass
   GstVideoAggregatorClass parent_class;
   GstGLAPI supported_gl_api;
 
-  gboolean (*propose_allocation) (GstGLBaseMixer * mix, GstGLBaseMixerPad * pad, GstQuery * decide_query, GstQuery *query);
-  gboolean (*decide_allocation) (GstGLBaseMixer * mix, GstQuery * decide_query);
-
   gpointer _padding[GST_PADDING];
 };
 
 GType gst_gl_base_mixer_get_type(void);
-
-GstBufferPool *gst_gl_base_mixer_get_buffer_pool (GstGLBaseMixer * mix);
 
 G_END_DECLS
 #endif /* __GST_GL_BASE_MIXER_H__ */

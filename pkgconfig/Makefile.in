@@ -89,8 +89,6 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-@HAVE_GST_GL_TRUE@am__append_1 = gstreamer-gl-@GST_API_VERSION@.pc
-@HAVE_GST_GL_TRUE@am__append_2 = gstreamer-gl-@GST_API_VERSION@-uninstalled.pc
 subdir = pkgconfig
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
@@ -133,15 +131,13 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES = gstreamer-plugins-bad.pc \
 	gstreamer-plugins-bad-uninstalled.pc gstreamer-codecparsers.pc \
 	gstreamer-codecparsers-uninstalled.pc gstreamer-insertbin.pc \
-	gstreamer-insertbin-uninstalled.pc gstreamer-gl.pc \
-	gstreamer-gl-uninstalled.pc gstreamer-mpegts.pc \
+	gstreamer-insertbin-uninstalled.pc gstreamer-mpegts.pc \
 	gstreamer-mpegts-uninstalled.pc gstreamer-player.pc \
 	gstreamer-player-uninstalled.pc gstreamer-wayland.pc \
-	gstreamer-wayland-uninstalled.pc gstreamer-bad-base.pc \
-	gstreamer-bad-base-uninstalled.pc gstreamer-bad-video.pc \
+	gstreamer-wayland-uninstalled.pc gstreamer-webrtc.pc \
+	gstreamer-webrtc-uninstalled.pc gstreamer-bad-video.pc \
 	gstreamer-bad-video-uninstalled.pc gstreamer-bad-audio.pc \
-	gstreamer-bad-audio-uninstalled.pc gstreamer-bad-allocators.pc \
-	gstreamer-bad-allocators-uninstalled.pc
+	gstreamer-bad-audio-uninstalled.pc
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -193,18 +189,12 @@ am__installdirs = "$(DESTDIR)$(pkgconfigdir)"
 DATA = $(pkgconfig_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 am__DIST_COMMON = $(srcdir)/Makefile.in \
-	$(srcdir)/gstreamer-bad-allocators-uninstalled.pc.in \
-	$(srcdir)/gstreamer-bad-allocators.pc.in \
 	$(srcdir)/gstreamer-bad-audio-uninstalled.pc.in \
 	$(srcdir)/gstreamer-bad-audio.pc.in \
-	$(srcdir)/gstreamer-bad-base-uninstalled.pc.in \
-	$(srcdir)/gstreamer-bad-base.pc.in \
 	$(srcdir)/gstreamer-bad-video-uninstalled.pc.in \
 	$(srcdir)/gstreamer-bad-video.pc.in \
 	$(srcdir)/gstreamer-codecparsers-uninstalled.pc.in \
 	$(srcdir)/gstreamer-codecparsers.pc.in \
-	$(srcdir)/gstreamer-gl-uninstalled.pc.in \
-	$(srcdir)/gstreamer-gl.pc.in \
 	$(srcdir)/gstreamer-insertbin-uninstalled.pc.in \
 	$(srcdir)/gstreamer-insertbin.pc.in \
 	$(srcdir)/gstreamer-mpegts-uninstalled.pc.in \
@@ -214,7 +204,9 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(srcdir)/gstreamer-plugins-bad-uninstalled.pc.in \
 	$(srcdir)/gstreamer-plugins-bad.pc.in \
 	$(srcdir)/gstreamer-wayland-uninstalled.pc.in \
-	$(srcdir)/gstreamer-wayland.pc.in
+	$(srcdir)/gstreamer-wayland.pc.in \
+	$(srcdir)/gstreamer-webrtc-uninstalled.pc.in \
+	$(srcdir)/gstreamer-webrtc.pc.in
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 ACLOCAL_AMFLAGS = @ACLOCAL_AMFLAGS@
@@ -222,6 +214,8 @@ ACMENC_CFLAGS = @ACMENC_CFLAGS@
 ACMMP3DEC_CFLAGS = @ACMMP3DEC_CFLAGS@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
+AOM_CFLAGS = @AOM_CFLAGS@
+AOM_LIBS = @AOM_LIBS@
 AR = @AR@
 AS = @AS@
 ASSRENDER_CFLAGS = @ASSRENDER_CFLAGS@
@@ -241,12 +235,6 @@ CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CHROMAPRINT_CFLAGS = @CHROMAPRINT_CFLAGS@
 CHROMAPRINT_LIBS = @CHROMAPRINT_LIBS@
-CLUTTER_CFLAGS = @CLUTTER_CFLAGS@
-CLUTTER_GLX_CFLAGS = @CLUTTER_GLX_CFLAGS@
-CLUTTER_GLX_LIBS = @CLUTTER_GLX_LIBS@
-CLUTTER_LIBS = @CLUTTER_LIBS@
-CLUTTER_X11_CFLAGS = @CLUTTER_X11_CFLAGS@
-CLUTTER_X11_LIBS = @CLUTTER_X11_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CUDA_CFLAGS = @CUDA_CFLAGS@
@@ -289,8 +277,6 @@ DVDNAV_LIBS = @DVDNAV_LIBS@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
-EGL_CFLAGS = @EGL_CFLAGS@
-EGL_LIBS = @EGL_LIBS@
 EGREP = @EGREP@
 ERROR_CFLAGS = @ERROR_CFLAGS@
 ERROR_CXXFLAGS = @ERROR_CXXFLAGS@
@@ -298,6 +284,7 @@ ERROR_OBJCFLAGS = @ERROR_OBJCFLAGS@
 EXEEXT = @EXEEXT@
 EXIF_CFLAGS = @EXIF_CFLAGS@
 EXIF_LIBS = @EXIF_LIBS@
+EXTRA_CFLAGS = @EXTRA_CFLAGS@
 FAAC_LIBS = @FAAC_LIBS@
 FAAD_LIBS = @FAAD_LIBS@
 FDK_AAC_CFLAGS = @FDK_AAC_CFLAGS@
@@ -319,8 +306,6 @@ GIO_LDFLAGS = @GIO_LDFLAGS@
 GIO_LIBS = @GIO_LIBS@
 GIO_UNIX_CFLAGS = @GIO_UNIX_CFLAGS@
 GIO_UNIX_LIBS = @GIO_UNIX_LIBS@
-GLES2_CFLAGS = @GLES2_CFLAGS@
-GLES2_LIBS = @GLES2_LIBS@
 GLIB_CFLAGS = @GLIB_CFLAGS@
 GLIB_EXTRA_CFLAGS = @GLIB_EXTRA_CFLAGS@
 GLIB_GENMARSHAL = @GLIB_GENMARSHAL@
@@ -328,23 +313,11 @@ GLIB_LIBS = @GLIB_LIBS@
 GLIB_MKENUMS = @GLIB_MKENUMS@
 GLIB_PREFIX = @GLIB_PREFIX@
 GLIB_REQ = @GLIB_REQ@
-GL_APIS = @GL_APIS@
-GL_CFLAGS = @GL_CFLAGS@
-GL_LIBS = @GL_LIBS@
-GL_OBJCFLAGS = @GL_OBJCFLAGS@
-GL_PLATFORMS = @GL_PLATFORMS@
-GL_WINDOWS = @GL_WINDOWS@
 GME_LIBS = @GME_LIBS@
-GMODULE_EXPORT_CFLAGS = @GMODULE_EXPORT_CFLAGS@
-GMODULE_EXPORT_LIBS = @GMODULE_EXPORT_LIBS@
-GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
-GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
 GNUSTL_LIBS = @GNUSTL_LIBS@
-GRAPHENE_CFLAGS = @GRAPHENE_CFLAGS@
-GRAPHENE_LIBS = @GRAPHENE_LIBS@
 GREP = @GREP@
 GSM_LIBS = @GSM_LIBS@
 GSTPB_PLUGINS_DIR = @GSTPB_PLUGINS_DIR@
@@ -365,6 +338,8 @@ GST_CONTROLLER_CFLAGS = @GST_CONTROLLER_CFLAGS@
 GST_CONTROLLER_LIBS = @GST_CONTROLLER_LIBS@
 GST_CURRENT = @GST_CURRENT@
 GST_CXXFLAGS = @GST_CXXFLAGS@
+GST_GL_CFLAGS = @GST_GL_CFLAGS@
+GST_GL_LIBS = @GST_GL_LIBS@
 GST_LEVEL_DEFAULT = @GST_LEVEL_DEFAULT@
 GST_LIBS = @GST_LIBS@
 GST_LIBVERSION = @GST_LIBVERSION@
@@ -402,20 +377,15 @@ GST_PLUGINS_UGLY_CFLAGS = @GST_PLUGINS_UGLY_CFLAGS@
 GST_PLUGINS_UGLY_DIR = @GST_PLUGINS_UGLY_DIR@
 GST_PLUGINS_UGLY_LIBS = @GST_PLUGINS_UGLY_LIBS@
 GST_PLUGIN_LDFLAGS = @GST_PLUGIN_LDFLAGS@
-GST_PLUGIN_LIBTOOLFLAGS = @GST_PLUGIN_LIBTOOLFLAGS@
 GST_PREFIX = @GST_PREFIX@
 GST_REVISION = @GST_REVISION@
+GST_SDP_CFLAGS = @GST_SDP_CFLAGS@
+GST_SDP_LIBS = @GST_SDP_LIBS@
 GST_TOOLS_DIR = @GST_TOOLS_DIR@
 GST_VIDEO_CFLAGS = @GST_VIDEO_CFLAGS@
 GST_VIDEO_LIBS = @GST_VIDEO_LIBS@
 GTK3_CFLAGS = @GTK3_CFLAGS@
-GTK3_GL_CFLAGS = @GTK3_GL_CFLAGS@
-GTK3_GL_LIBS = @GTK3_GL_LIBS@
 GTK3_LIBS = @GTK3_LIBS@
-GTK3_WAYLAND_CFLAGS = @GTK3_WAYLAND_CFLAGS@
-GTK3_WAYLAND_LIBS = @GTK3_WAYLAND_LIBS@
-GTK3_X11_CFLAGS = @GTK3_X11_CFLAGS@
-GTK3_X11_LIBS = @GTK3_X11_LIBS@
 GTKDOC_CHECK = @GTKDOC_CHECK@
 GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
 GTKDOC_DEPS_LIBS = @GTKDOC_DEPS_LIBS@
@@ -427,25 +397,16 @@ GTK_LIBS = @GTK_LIBS@
 GTK_VERSION = @GTK_VERSION@
 G_UDEV_CFLAGS = @G_UDEV_CFLAGS@
 G_UDEV_LIBS = @G_UDEV_LIBS@
-HAVE_CLUTTER = @HAVE_CLUTTER@
-HAVE_CLUTTER_GLX = @HAVE_CLUTTER_GLX@
-HAVE_CLUTTER_X11 = @HAVE_CLUTTER_X11@
 HAVE_CXX = @HAVE_CXX@
 HAVE_DIRECT3D = @HAVE_DIRECT3D@
 HAVE_DIRECTSOUND = @HAVE_DIRECTSOUND@
 HAVE_DTS = @HAVE_DTS@
-HAVE_EGL = @HAVE_EGL@
 HAVE_FAAC = @HAVE_FAAC@
 HAVE_FAAD = @HAVE_FAAD@
 HAVE_FLITE = @HAVE_FLITE@
-HAVE_GL = @HAVE_GL@
-HAVE_GLES2 = @HAVE_GLES2@
-HAVE_GRAPHENE = @HAVE_GRAPHENE@
 HAVE_GSM = @HAVE_GSM@
 HAVE_GTK3 = @HAVE_GTK3@
-HAVE_JPEG = @HAVE_JPEG@
 HAVE_OPENJPEG = @HAVE_OPENJPEG@
-HAVE_PNG = @HAVE_PNG@
 HAVE_SRTP = @HAVE_SRTP@
 HAVE_WASAPI = @HAVE_WASAPI@
 HAVE_WILDMIDI = @HAVE_WILDMIDI@
@@ -469,11 +430,12 @@ INTROSPECTION_LIBS = @INTROSPECTION_LIBS@
 INTROSPECTION_MAKEFILE = @INTROSPECTION_MAKEFILE@
 INTROSPECTION_SCANNER = @INTROSPECTION_SCANNER@
 INTROSPECTION_TYPELIBDIR = @INTROSPECTION_TYPELIBDIR@
-JPEG_LIBS = @JPEG_LIBS@
 KATE_CFLAGS = @KATE_CFLAGS@
 KATE_LIBS = @KATE_LIBS@
 KMS_DRM_CFLAGS = @KMS_DRM_CFLAGS@
 KMS_DRM_LIBS = @KMS_DRM_LIBS@
+LCMS2_CFLAGS = @LCMS2_CFLAGS@
+LCMS2_LIBS = @LCMS2_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBDC1394_CFLAGS = @LIBDC1394_CFLAGS@
@@ -487,11 +449,11 @@ LIBGCRYPT_LIBS = @LIBGCRYPT_LIBS@
 LIBICONV = @LIBICONV@
 LIBINTL = @LIBINTL@
 LIBM = @LIBM@
+LIBMFX_CFLAGS = @LIBMFX_CFLAGS@
+LIBMFX_LIBS = @LIBMFX_LIBS@
 LIBMMS_CFLAGS = @LIBMMS_CFLAGS@
 LIBMMS_LIBS = @LIBMMS_LIBS@
 LIBOBJS = @LIBOBJS@
-LIBPNG_CFLAGS = @LIBPNG_CFLAGS@
-LIBPNG_LIBS = @LIBPNG_LIBS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIBUDEV_CFLAGS = @LIBUDEV_CFLAGS@
@@ -519,7 +481,6 @@ MANIFEST_TOOL = @MANIFEST_TOOL@
 MJPEG_CFLAGS = @MJPEG_CFLAGS@
 MJPEG_LIBS = @MJPEG_LIBS@
 MKDIR_P = @MKDIR_P@
-MOC = @MOC@
 MODPLUG_CFLAGS = @MODPLUG_CFLAGS@
 MODPLUG_LIBS = @MODPLUG_LIBS@
 MPEG2ENC_CFLAGS = @MPEG2ENC_CFLAGS@
@@ -537,6 +498,8 @@ NEON_CFLAGS = @NEON_CFLAGS@
 NEON_LIBS = @NEON_LIBS@
 NETTLE_CFLAGS = @NETTLE_CFLAGS@
 NETTLE_LIBS = @NETTLE_LIBS@
+NICE_CFLAGS = @NICE_CFLAGS@
+NICE_LIBS = @NICE_LIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
 NVENCODE_CFLAGS = @NVENCODE_CFLAGS@
@@ -561,6 +524,8 @@ OPENH264_CFLAGS = @OPENH264_CFLAGS@
 OPENH264_LIBS = @OPENH264_LIBS@
 OPENJPEG_CFLAGS = @OPENJPEG_CFLAGS@
 OPENJPEG_LIBS = @OPENJPEG_LIBS@
+OPENMPT_CFLAGS = @OPENMPT_CFLAGS@
+OPENMPT_LIBS = @OPENMPT_LIBS@
 OPENNI2_CFLAGS = @OPENNI2_CFLAGS@
 OPENNI2_LIBS = @OPENNI2_LIBS@
 OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
@@ -598,18 +563,7 @@ PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
 PYTHON_PLATFORM = @PYTHON_PLATFORM@
 PYTHON_PREFIX = @PYTHON_PREFIX@
 PYTHON_VERSION = @PYTHON_VERSION@
-QT_ANDROID_CFLAGS = @QT_ANDROID_CFLAGS@
-QT_ANDROID_LIBS = @QT_ANDROID_LIBS@
-QT_CFLAGS = @QT_CFLAGS@
-QT_LIBS = @QT_LIBS@
-QT_MAC_CFLAGS = @QT_MAC_CFLAGS@
-QT_MAC_LIBS = @QT_MAC_LIBS@
-QT_WAYLAND_CFLAGS = @QT_WAYLAND_CFLAGS@
-QT_WAYLAND_LIBS = @QT_WAYLAND_LIBS@
-QT_X11_CFLAGS = @QT_X11_CFLAGS@
-QT_X11_LIBS = @QT_X11_LIBS@
 RANLIB = @RANLIB@
-RCC = @RCC@
 RSVG_CFLAGS = @RSVG_CFLAGS@
 RSVG_LIBS = @RSVG_LIBS@
 RTMP_CFLAGS = @RTMP_CFLAGS@
@@ -618,9 +572,6 @@ SBC_CFLAGS = @SBC_CFLAGS@
 SBC_LIBS = @SBC_LIBS@
 SCHRO_CFLAGS = @SCHRO_CFLAGS@
 SCHRO_LIBS = @SCHRO_LIBS@
-SDL_CFLAGS = @SDL_CFLAGS@
-SDL_CLUTTER = @SDL_CLUTTER@
-SDL_LIBS = @SDL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -634,6 +585,8 @@ SPANDSP_LIBS = @SPANDSP_LIBS@
 SPC_LIBS = @SPC_LIBS@
 SRTP_CFLAGS = @SRTP_CFLAGS@
 SRTP_LIBS = @SRTP_LIBS@
+SRT_CFLAGS = @SRT_CFLAGS@
+SRT_LIBS = @SRT_LIBS@
 SSH2_CFLAGS = @SSH2_CFLAGS@
 SSH2_LIBS = @SSH2_LIBS@
 STRIP = @STRIP@
@@ -643,16 +596,15 @@ TIGER_CFLAGS = @TIGER_CFLAGS@
 TIGER_LIBS = @TIGER_LIBS@
 TTML_CFLAGS = @TTML_CFLAGS@
 TTML_LIBS = @TTML_LIBS@
-UIC = @UIC@
-USE_GLES2 = @USE_GLES2@
 USE_NLS = @USE_NLS@
-USE_OPENGL = @USE_OPENGL@
 VALGRIND_CFLAGS = @VALGRIND_CFLAGS@
 VALGRIND_LIBS = @VALGRIND_LIBS@
 VALGRIND_PATH = @VALGRIND_PATH@
 VDPAU_CFLAGS = @VDPAU_CFLAGS@
 VDPAU_LIBS = @VDPAU_LIBS@
 VERSION = @VERSION@
+VISIBILITY_CFLAGS = @VISIBILITY_CFLAGS@
+VISIBILITY_CXXFLAGS = @VISIBILITY_CXXFLAGS@
 VOAACENC_CFLAGS = @VOAACENC_CFLAGS@
 VOAACENC_LIBS = @VOAACENC_LIBS@
 VOAMRWBENC_CFLAGS = @VOAMRWBENC_CFLAGS@
@@ -665,8 +617,6 @@ WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
 WARNING_OBJCFLAGS = @WARNING_OBJCFLAGS@
 WASAPI_LIBS = @WASAPI_LIBS@
 WAYLAND_CFLAGS = @WAYLAND_CFLAGS@
-WAYLAND_EGL_CFLAGS = @WAYLAND_EGL_CFLAGS@
-WAYLAND_EGL_LIBS = @WAYLAND_EGL_LIBS@
 WAYLAND_LIBS = @WAYLAND_LIBS@
 WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
 WEBP_CFLAGS = @WEBP_CFLAGS@
@@ -681,14 +631,10 @@ WINSCREENCAP_LIBS = @WINSCREENCAP_LIBS@
 WINSOCK2_LIBS = @WINSOCK2_LIBS@
 X11_CFLAGS = @X11_CFLAGS@
 X11_LIBS = @X11_LIBS@
-X11_XCB_CFLAGS = @X11_XCB_CFLAGS@
-X11_XCB_LIBS = @X11_XCB_LIBS@
 X265_CFLAGS = @X265_CFLAGS@
 X265_LIBS = @X265_LIBS@
 XCB_CFLAGS = @XCB_CFLAGS@
 XCB_LIBS = @XCB_LIBS@
-XCOMPOSITE_CFLAGS = @XCOMPOSITE_CFLAGS@
-XCOMPOSITE_LIBS = @XCOMPOSITE_LIBS@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_015 = @XGETTEXT_015@
 XGETTEXT_EXTRA_OPTIONS = @XGETTEXT_EXTRA_OPTIONS@
@@ -762,26 +708,26 @@ top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
 
 ### all of the standard pc files we need to generate
-pcverfiles = gstreamer-plugins-bad-@GST_API_VERSION@.pc \
+pcverfiles = \
+	gstreamer-plugins-bad-@GST_API_VERSION@.pc \
 	gstreamer-codecparsers-@GST_API_VERSION@.pc \
 	gstreamer-insertbin-@GST_API_VERSION@.pc \
 	gstreamer-mpegts-@GST_API_VERSION@.pc \
 	gstreamer-player-@GST_API_VERSION@.pc \
-	gstreamer-bad-base-@GST_API_VERSION@.pc \
+	gstreamer-webrtc-@GST_API_VERSION@.pc \
 	gstreamer-bad-audio-@GST_API_VERSION@.pc \
-	gstreamer-bad-video-@GST_API_VERSION@.pc \
-	gstreamer-bad-allocators-@GST_API_VERSION@.pc $(am__append_1)
-pcverfiles_uninstalled =  \
+	gstreamer-bad-video-@GST_API_VERSION@.pc
+
+pcverfiles_uninstalled = \
 	gstreamer-plugins-bad-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-codecparsers-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-insertbin-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-mpegts-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-player-@GST_API_VERSION@-uninstalled.pc \
-	gstreamer-bad-base-@GST_API_VERSION@-uninstalled.pc \
+	gstreamer-webrtc-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-bad-audio-@GST_API_VERSION@-uninstalled.pc \
-	gstreamer-bad-video-@GST_API_VERSION@-uninstalled.pc \
-	gstreamer-bad-allocators-@GST_API_VERSION@-uninstalled.pc \
-	$(am__append_2)
+	gstreamer-bad-video-@GST_API_VERSION@-uninstalled.pc
+
 cp_verbose = $(cp_verbose_$(V))
 cp_verbose_ = $(cp_verbose_$(AM_DEFAULT_VERBOSITY))
 cp_verbose_0 = @echo "  CP     $@";
@@ -791,14 +737,12 @@ CLEANFILES = $(pcverfiles) $(pcverfiles_uninstalled)
 pcinfiles = \
            gstreamer-plugins-bad.pc.in gstreamer-plugins-bad-uninstalled.pc.in \
            gstreamer-codecparsers.pc.in gstreamer-codecparsers-uninstalled.pc.in \
-           gstreamer-gl.pc.in gstreamer-gl-uninstalled.pc.in \
            gstreamer-insertbin.pc.in gstreamer-insertbin-uninstalled.pc.in \
            gstreamer-mpegts.pc.in gstreamer-mpegts-uninstalled.pc.in \
            gstreamer-player.pc.in gstreamer-player-uninstalled.pc.in \
+           gstreamer-webrtc.pc.in gstreamer-webrtc-uninstalled.pc.in \
            gstreamer-bad-audio.pc.in gstreamer-bad-audio-uninstalled.pc.in \
-           gstreamer-bad-video.pc.in gstreamer-bad-video-uninstalled.pc.in \
-           gstreamer-bad-base.pc.in gstreamer-bad-base-uninstalled.pc.in \
-           gstreamer-bad-allocators.pc.in gstreamer-bad-allocators-uninstalled.pc.in
+           gstreamer-bad-video.pc.in gstreamer-bad-video-uninstalled.pc.in
 
 DISTCLEANFILES = $(pcinfiles:.in=)
 EXTRA_DIST = $(pcinfiles)
@@ -846,10 +790,6 @@ gstreamer-insertbin.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-insert
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-insertbin-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-insertbin-uninstalled.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-gstreamer-gl.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-gl.pc.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-gstreamer-gl-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-gl-uninstalled.pc.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-mpegts.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-mpegts.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-mpegts-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-mpegts-uninstalled.pc.in
@@ -862,9 +802,9 @@ gstreamer-wayland.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-wayland.
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-wayland-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-wayland-uninstalled.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-gstreamer-bad-base.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-base.pc.in
+gstreamer-webrtc.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-webrtc.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-gstreamer-bad-base-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-base-uninstalled.pc.in
+gstreamer-webrtc-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-webrtc-uninstalled.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-bad-video.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-video.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
@@ -873,10 +813,6 @@ gstreamer-bad-video-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstr
 gstreamer-bad-audio.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-audio.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-bad-audio-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-audio-uninstalled.pc.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-gstreamer-bad-allocators.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-allocators.pc.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-gstreamer-bad-allocators-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-allocators-uninstalled.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 mostlyclean-libtool:
@@ -1075,7 +1011,6 @@ all-local: $(pcverfiles) $(pcverfiles_uninstalled)
 ### rather than hardcoding it in the file directly.
 	$(AM_V_GEN) sed \
 		-e "s|[@]audiolibdir[@]|$(abs_top_builddir)/gst-libs/gst/audio/.libs|" \
-		-e "s|[@]baselibdir[@]|$(abs_top_builddir)/gst-libs/gst/base/.libs|" \
 		-e "s|[@]videolibdir[@]|$(abs_top_builddir)/gst-libs/gst/video/.libs|" \
 		-e "s|[@]codecparserslibdir[@]|$(abs_top_builddir)/gst-libs/gst/codecparsers/.libs|" \
 		-e "s|[@]gllibdir[@]|$(abs_top_builddir)/gst-libs/gst/gl/.libs|" \
@@ -1083,6 +1018,7 @@ all-local: $(pcverfiles) $(pcverfiles_uninstalled)
 		-e "s|[@]mpegtslibdir[@]|$(abs_top_builddir)/gst-libs/gst/mpegts/.libs|" \
 		-e "s|[@]playerlibdir[@]|$(abs_top_builddir)/gst-libs/gst/player/.libs|" \
 		-e "s|[@]waylandlibdir[@]|$(abs_top_builddir)/gst-libs/gst/wayland/.libs|" \
+		-e "s|[@]webrtclibdir[@]|$(abs_top_builddir)/gst-libs/gst/webrtc/.libs|" \
 		-e "s|[@]basecamerabinsrclibdir[@]|$(abs_top_builddir)/gst-libs/gst/basecamerabinsrc/.libs|" \
 		-e "s|[@]photographylibdir[@]|$(abs_top_builddir)/gst-libs/gst/interfaces/.libs|" \
 		$< > $@.tmp && mv $@.tmp $@

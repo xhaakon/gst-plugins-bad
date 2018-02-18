@@ -8,15 +8,14 @@
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-wavescope.html" title="wavescope">
 <link rel="next" href="gst-plugins-bad-plugins-webrtcechoprobe.html" title="webrtcechoprobe">
-<meta name="generator" content="GTK-Doc V1.26 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.27 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-webrtcdsp.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-webrtcdsp.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-webrtcdsp.description" class="shortcut">Description</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-webrtcdsp.properties" class="shortcut">Properties</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
@@ -136,7 +135,7 @@
 </tbody>
 </table></div>
 </div>
-<a name="GstWebrtcDsp"></a><div class="refsect1">
+<div class="refsect1">
 <a name="gst-plugins-bad-plugins-webrtcdsp.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
@@ -145,20 +144,9 @@
 </colgroup>
 <tbody><tr>
 <td class="datatype_keyword"> </td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp-struct" title="GstWebrtcDsp">GstWebrtcDsp</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp" title="GstWebrtcDsp">GstWebrtcDsp</a></td>
 </tr></tbody>
 </table></div>
-</div>
-<div class="refsect1">
-<a name="gst-plugins-bad-plugins-webrtcdsp.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
-    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstObject.html#GstObject-struct">GstObject</a>
-            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstElement.html#GstElement-struct">GstElement</a>
-                <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-libs-1.0/GstBaseTransform.html#GstBaseTransform-struct">GstBaseTransform</a>
-                    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0/GstAudioFilter.html#GstAudioFilter-struct">GstAudioFilter</a>
-                        <span class="lineart">╰──</span> GstWebrtcDsp
-</pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-webrtcdsp.description"></a><h2>Description</h2>
@@ -180,7 +168,7 @@ Additonally, to simplify the code, the probe element must be created
 before the DSP sink pad is activated. It does not need to be in any
 particular state and does not even need to be added to the pipeline yet.</p>
 <div class="refsect2">
-<a name="id-1.2.134.7.5"></a><h3>Example launch line</h3>
+<a name="id-1.2.91.5.5"></a><h3>Example launch line</h3>
 <p>As a conveniance, the echo canceller can be tested using an echo loop. In
 this configuration, one would expect a single echo to be heard.</p>
 <div class="informalexample">
@@ -217,7 +205,7 @@ represent a real pipeline.</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.134.7.6.1"></a><h3>Element Information</h3>
+<a name="id-1.2.91.5.6.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -243,7 +231,7 @@ represent a real pipeline.</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.134.7.6.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.91.5.6.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -302,7 +290,7 @@ represent a real pipeline.</p>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-webrtcdsp.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstWebrtcDsp-struct"></a><h3>GstWebrtcDsp</h3>
+<a name="GstWebrtcDsp"></a><h3>GstWebrtcDsp</h3>
 <pre class="programlisting">typedef struct _GstWebrtcDsp GstWebrtcDsp;</pre>
 </div>
 </div>
@@ -458,6 +446,6 @@ represent a real pipeline.</p>
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.26</div>
+<hr>Generated by GTK-Doc V1.27</div>
 </body>
 </html>

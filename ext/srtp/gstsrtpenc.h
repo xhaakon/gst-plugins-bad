@@ -47,8 +47,7 @@
 #ifndef __GST_SRTPENC_H__
 #define __GST_SRTPENC_H__
 
-#include <gst/gst.h>
-#include <srtp/srtp.h>
+#include "gstsrtp.h"
 
 G_BEGIN_DECLS
 
@@ -84,6 +83,8 @@ struct _GstSrtpEnc
 
   guint replay_window_size;
   gboolean allow_repeat_tx;
+
+  GHashTable *ssrcs_set;
 };
 
 struct _GstSrtpEncClass
