@@ -1,6 +1,15 @@
 gst-plugins-bad1.0 (1.13.1-1) experimental; urgency=medium
 
   * New upstream development release.
+  * debian/control.in:
+    + Move OpenCV plugin and library into its own binary package (Closes: #862024).
+  * debian/gstreamer-plugins-bad.install:
+    + Ship haar cascade files for handdetect (Closes: #877587).
+  * debian/build-deps.in,
+    debian/gstreamer-plugins-bad.install:
+    + Build SRTP plugin against libsrtp2.
+    + Ship new lcms2, openmpt, faceoverlay, ipcpipeline, proxy, ttml
+      and webrtc plugins.
 
  -- Sebastian Dröge <slomo@debian.org>  Sun, 18 Feb 2018 10:18:08 +0200
 
