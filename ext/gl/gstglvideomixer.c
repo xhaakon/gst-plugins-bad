@@ -34,7 +34,7 @@
  *     glupload ! glcolorconvert ! m. \
  *     videotestsrc ! glupload ! gleffects effect=2 ! queue ! m.  \
  *     videotestsrc ! glupload ! glfiltercube ! queue ! m. \
- *     videotestsrc ! glupload ! gleffects effect=6 ! queue ! m.gst-launch-1.0  glvideomixer name=m ! glimagesink \
+ *     videotestsrc ! glupload ! gleffects effect=6 ! queue ! m.
  * ]|
  *
  */
@@ -43,15 +43,25 @@
 #include "config.h"
 #endif
 
-#include <gst/video/gstvideoaffinetransformationmeta.h>
 #include <gst/controller/gstproxycontrolbinding.h>
+#include <gst/gl/gstglfuncs.h>
+#include <gst/video/gstvideoaffinetransformationmeta.h>
 
 #include "gstglvideomixer.h"
+
 #include "gstglmixerbin.h"
 #include "gstglutils.h"
 
 #define GST_CAT_DEFAULT gst_gl_video_mixer_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+
+static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink_%u",
+    GST_PAD_SINK,
+    GST_PAD_REQUEST,
+    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE_WITH_FEATURES
+        (GST_CAPS_FEATURE_MEMORY_GL_MEMORY,
+            "RGBA"))
+    );
 
 #define GST_TYPE_GL_VIDEO_MIXER_BACKGROUND (gst_gl_video_mixer_background_get_type())
 static GType
@@ -453,12 +463,10 @@ static void gst_gl_video_mixer_set_property (GObject * object, guint prop_id,
 static void gst_gl_video_mixer_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 
-static GstCaps *_update_caps (GstVideoAggregator * vagg, GstCaps * caps,
-    GstCaps * filter);
-static GstCaps *_fixate_caps (GstVideoAggregator * vagg, GstCaps * caps);
-static gboolean gst_gl_video_mixer_propose_allocation (GstGLBaseMixer *
-    base_mix, GstGLBaseMixerPad * base_pad, GstQuery * decide_query,
-    GstQuery * query);
+static GstCaps *_update_caps (GstVideoAggregator * vagg, GstCaps * caps);
+static GstCaps *_fixate_caps (GstAggregator * agg, GstCaps * caps);
+static gboolean gst_gl_video_mixer_propose_allocation (GstAggregator *
+    agg, GstAggregatorPad * agg_pad, GstQuery * decide_query, GstQuery * query);
 static void gst_gl_video_mixer_reset (GstGLMixer * mixer);
 static gboolean gst_gl_video_mixer_init_shader (GstGLMixer * mixer,
     GstCaps * outcaps);
@@ -833,14 +841,20 @@ static void
 gst_gl_video_mixer_release_pad (GstElement * element, GstPad * p)
 {
   GstGLVideoMixerPad *pad = GST_GL_VIDEO_MIXER_PAD (p);
+
+  /* we call the base class first as this will remove the pad from
+   * the aggregator, thus stopping misc callbacks from being called,
+   * one of which (process_textures) will recreate the vertex_buffer
+   * if it is destroyed */
+  GST_ELEMENT_CLASS (g_type_class_peek_parent (G_OBJECT_GET_CLASS (element)))
+      ->release_pad (element, p);
+
   if (pad->vertex_buffer) {
     GstGLBaseMixer *mix = GST_GL_BASE_MIXER (element);
     gst_gl_context_thread_add (mix->context, (GstGLContextThreadFunc)
         _del_buffer, &pad->vertex_buffer);
     pad->vertex_buffer = 0;
   }
-  GST_ELEMENT_CLASS (g_type_class_peek_parent (G_OBJECT_GET_CLASS (element)))
-      ->release_pad (element, p);
 }
 
 static void
@@ -850,7 +864,6 @@ gst_gl_video_mixer_class_init (GstGLVideoMixerClass * klass)
   GstElementClass *element_class;
   GstAggregatorClass *agg_class = (GstAggregatorClass *) klass;
   GstVideoAggregatorClass *vagg_class = (GstVideoAggregatorClass *) klass;
-  GstGLBaseMixerClass *mix_class = GST_GL_BASE_MIXER_CLASS (klass);
 
   gobject_class = (GObjectClass *) klass;
   element_class = GST_ELEMENT_CLASS (klass);
@@ -863,6 +876,9 @@ gst_gl_video_mixer_class_init (GstGLVideoMixerClass * klass)
       "Filter/Effect/Video/Compositor", "OpenGL video_mixer",
       "Matthew Waters <matthew@centricular.com>");
 
+  gst_element_class_add_static_pad_template_with_gtype (element_class,
+      &sink_factory, GST_TYPE_GL_VIDEO_MIXER_PAD);
+
   g_object_class_install_property (gobject_class, PROP_BACKGROUND,
       g_param_spec_enum ("background", "Background", "Background type",
           GST_TYPE_GL_VIDEO_MIXER_BACKGROUND,
@@ -873,12 +889,11 @@ gst_gl_video_mixer_class_init (GstGLVideoMixerClass * klass)
   GST_GL_MIXER_CLASS (klass)->process_textures =
       gst_gl_video_mixer_process_textures;
 
+
   vagg_class->update_caps = _update_caps;
-  vagg_class->fixate_caps = _fixate_caps;
 
-  agg_class->sinkpads_type = GST_TYPE_GL_VIDEO_MIXER_PAD;
-
-  mix_class->propose_allocation = gst_gl_video_mixer_propose_allocation;
+  agg_class->fixate_src_caps = _fixate_caps;
+  agg_class->propose_allocation = gst_gl_video_mixer_propose_allocation;
 
   GST_GL_BASE_MIXER_CLASS (klass)->supported_gl_api =
       GST_GL_API_OPENGL | GST_GL_API_OPENGL3 | GST_GL_API_GLES2;
@@ -924,11 +939,11 @@ gst_gl_video_mixer_get_property (GObject * object, guint prop_id,
 }
 
 static gboolean
-gst_gl_video_mixer_propose_allocation (GstGLBaseMixer * base_mix,
-    GstGLBaseMixerPad * base_pad, GstQuery * decide_query, GstQuery * query)
+gst_gl_video_mixer_propose_allocation (GstAggregator * agg,
+    GstAggregatorPad * agg_pad, GstQuery * decide_query, GstQuery * query)
 {
-  if (!GST_GL_BASE_MIXER_CLASS (parent_class)->propose_allocation (base_mix,
-          base_pad, decide_query, query))
+  if (!GST_AGGREGATOR_CLASS (parent_class)->propose_allocation (agg,
+          agg_pad, decide_query, query))
     return FALSE;
 
   gst_query_add_allocation_meta (query,
@@ -986,7 +1001,7 @@ _mixer_pad_get_output_size (GstGLVideoMixer * mix,
 }
 
 static GstCaps *
-_update_caps (GstVideoAggregator * vagg, GstCaps * caps, GstCaps * filter)
+_update_caps (GstVideoAggregator * vagg, GstCaps * caps)
 {
   GstCaps *ret;
   GList *l;
@@ -1014,18 +1029,15 @@ _update_caps (GstVideoAggregator * vagg, GstCaps * caps, GstCaps * filter)
 
   GST_OBJECT_UNLOCK (vagg);
 
-  if (filter) {
-    ret = gst_caps_intersect (caps, filter);
-  } else {
-    ret = gst_caps_ref (caps);
-  }
+  ret = gst_caps_ref (caps);
 
   return ret;
 }
 
 static GstCaps *
-_fixate_caps (GstVideoAggregator * vagg, GstCaps * caps)
+_fixate_caps (GstAggregator * agg, GstCaps * caps)
 {
+  GstVideoAggregator *vagg = GST_VIDEO_AGGREGATOR (agg);
   GstGLVideoMixer *mix = GST_GL_VIDEO_MIXER (vagg);
   gint best_width = 0, best_height = 0;
   gint best_fps_n = 0, best_fps_d = 0;
@@ -1099,7 +1111,7 @@ _fixate_caps (GstVideoAggregator * vagg, GstCaps * caps)
 }
 
 static gboolean
-_reset_pad_gl (GstAggregator * agg, GstAggregatorPad * aggpad, gpointer udata)
+_reset_pad_gl (GstElement * agg, GstPad * aggpad, gpointer udata)
 {
   const GstGLFuncs *gl = GST_GL_BASE_MIXER (agg)->context->gl_vtable;
   GstGLVideoMixerPad *pad = GST_GL_VIDEO_MIXER_PAD (aggpad);
@@ -1132,8 +1144,7 @@ _reset_gl (GstGLContext * context, GstGLVideoMixer * video_mixer)
     video_mixer->checker_vbo = 0;
   }
 
-  gst_aggregator_iterate_sinkpads (GST_AGGREGATOR (video_mixer), _reset_pad_gl,
-      NULL);
+  gst_element_foreach_sink_pad (GST_ELEMENT (video_mixer), _reset_pad_gl, NULL);
 }
 
 static void
@@ -1164,6 +1175,9 @@ gst_gl_video_mixer_init_shader (GstGLMixer * mixer, GstCaps * outcaps)
 
   if (video_mixer->shader)
     gst_object_unref (video_mixer->shader);
+
+  /* need reconfigure output geometry */
+  video_mixer->output_geo_change = TRUE;
 
   return gst_gl_context_gen_shader (GST_GL_BASE_MIXER (mixer)->context,
       gst_gl_shader_string_vertex_mat4_vertex_transform,
@@ -1487,7 +1501,8 @@ gst_gl_video_mixer_callback (gpointer stuff)
 
     _init_vbo_indices (video_mixer);
 
-    if (pad->geometry_change || !pad->vertex_buffer) {
+    if (video_mixer->output_geo_change
+        || pad->geometry_change || !pad->vertex_buffer) {
       gint pad_width, pad_height;
       gfloat w, h;
 
@@ -1555,6 +1570,8 @@ gst_gl_video_mixer_callback (gpointer stuff)
 
     walk = g_list_next (walk);
   }
+
+  video_mixer->output_geo_change = FALSE;
   GST_OBJECT_UNLOCK (video_mixer);
 
   gl->DisableVertexAttribArray (attr_position_loc);

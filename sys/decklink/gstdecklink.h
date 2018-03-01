@@ -34,10 +34,10 @@
 #ifdef G_OS_WIN32
 #include "win/DeckLinkAPI.h"
 
+#include <stdio.h>
 #include <comutil.h>
 
 #define bool BOOL
-
 #define COMSTR_T BSTR
 /* MinGW does not have comsuppw.lib, so no _com_util::ConvertBSTRToString */
 # ifdef __MINGW32__
@@ -46,11 +46,12 @@
 # else
 #  define CONVERT_COM_STRING(s) BSTR _s = (BSTR)s; s = _com_util::ConvertBSTRToString(_s); ::SysFreeString(_s);
 #  define FREE_COM_STRING(s) delete[] s;
-# endif
+# endif /* __MINGW32__ */
 #else
 #define COMSTR_T const char*
 #define CONVERT_COM_STRING(s)
 #define FREE_COM_STRING(s)
+#define WINAPI
 #endif /* G_OS_WIN32 */
 
 typedef enum {
@@ -155,11 +156,32 @@ typedef enum {
 #define GST_TYPE_DECKLINK_TIMECODE_FORMAT (gst_decklink_timecode_format_get_type ())
 GType gst_decklink_timecode_format_get_type (void);
 
+typedef enum
+{
+  GST_DECKLINK_KEYER_MODE_OFF,
+  GST_DECKLINK_KEYER_MODE_INTERNAL,
+  GST_DECKLINK_KEYER_MODE_EXTERNAL
+} GstDecklinkKeyerMode;
+#define GST_TYPE_DECKLINK_KEYER_MODE (gst_decklink_keyer_mode_get_type ())
+GType gst_decklink_keyer_mode_get_type (void);
+
+/* Enum BMDKeyerMode options of off, internal and external @@@ DJ @@@ */
+
+typedef uint32_t BMDKeyerMode;
+enum _BMDKeyerMode
+{
+  bmdKeyerModeOff = /* 'off' */ 0,
+  bmdKeyerModeInternal = /* 'int' */ 1,
+  bmdKeyerModeExternal = /* 'ext' */ 2
+};
+
 const BMDPixelFormat gst_decklink_pixel_format_from_type (GstDecklinkVideoFormat t);
 const gint gst_decklink_bpp_from_type (GstDecklinkVideoFormat t);
 const GstDecklinkVideoFormat gst_decklink_type_from_video_format (GstVideoFormat f);
 const BMDTimecodeFormat gst_decklink_timecode_format_from_enum (GstDecklinkTimecodeFormat f);
 const GstDecklinkTimecodeFormat gst_decklink_timecode_format_to_enum (BMDTimecodeFormat f);
+const BMDKeyerMode gst_decklink_keyer_mode_from_enum (GstDecklinkKeyerMode m);
+const GstDecklinkKeyerMode gst_decklink_keyer_mode_to_enum (BMDKeyerMode m);
 
 typedef struct _GstDecklinkMode GstDecklinkMode;
 struct _GstDecklinkMode {
@@ -186,20 +208,23 @@ struct _GstDecklinkOutput {
   IDeckLink *device;
   IDeckLinkOutput *output;
   IDeckLinkAttributes *attributes;
+  IDeckLinkKeyer *keyer;
+
+  gchar *hw_serial_number;
+
   GstClock *clock;
   GstClockTime clock_start_time, clock_last_time, clock_epoch;
   GstClockTimeDiff clock_offset;
-  gboolean started, clock_restart;
+  gboolean started;
+  gboolean clock_restart;
 
   /* Everything below protected by mutex */
   GMutex lock;
+  GCond cond;
 
   /* Set by the video source */
   /* Configured mode or NULL */
   const GstDecklinkMode *mode;
-
-  /* Set by the audio sink */
-  GstClock *audio_clock;
 
   GstElement *audiosink;
   gboolean audio_enabled;
@@ -215,17 +240,19 @@ struct _GstDecklinkInput {
   IDeckLinkConfiguration *config;
   IDeckLinkAttributes *attributes;
 
+  gchar *hw_serial_number;
+
   /* Everything below protected by mutex */
   GMutex lock;
 
   /* Set by the video source */
-  void (*got_video_frame) (GstElement *videosrc, IDeckLinkVideoInputFrame * frame, GstDecklinkModeEnum mode, GstClockTime capture_time, GstClockTime stream_time, GstClockTime stream_duration, IDeckLinkTimecode *dtc, gboolean no_signal);
+  void (*got_video_frame) (GstElement *videosrc, IDeckLinkVideoInputFrame * frame, GstDecklinkModeEnum mode, GstClockTime capture_time, GstClockTime stream_time, GstClockTime stream_duration, GstClockTime hardware_time, GstClockTime hardware_duration, IDeckLinkTimecode *dtc, gboolean no_signal);
   /* Configured mode or NULL */
   const GstDecklinkMode *mode;
   BMDPixelFormat format;
 
   /* Set by the audio source */
-  void (*got_audio_packet) (GstElement *videosrc, IDeckLinkAudioInputPacket * packet, GstClockTime capture_time, GstClockTime packet_time, gboolean no_signal);
+  void (*got_audio_packet) (GstElement *videosrc, IDeckLinkAudioInputPacket * packet, GstClockTime capture_time, GstClockTime stream_time, GstClockTime stream_duration, GstClockTime hardware_time, GstClockTime hardware_duration, gboolean no_signal);
 
   GstElement *audiosrc;
   gboolean audio_enabled;
@@ -236,9 +263,6 @@ struct _GstDecklinkInput {
 
 GstDecklinkOutput * gst_decklink_acquire_nth_output (gint n, GstElement * sink, gboolean is_audio);
 void                gst_decklink_release_nth_output (gint n, GstElement * sink, gboolean is_audio);
-
-void                gst_decklink_output_set_audio_clock (GstDecklinkOutput * output, GstClock * clock);
-GstClock *          gst_decklink_output_get_audio_clock (GstDecklinkOutput * output);
 
 GstDecklinkInput *  gst_decklink_acquire_nth_input (gint n, GstElement * src, gboolean is_audio);
 void                gst_decklink_release_nth_input (gint n, GstElement * src, gboolean is_audio);

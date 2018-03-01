@@ -8,15 +8,14 @@
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-webrtcdsp.html" title="webrtcdsp">
 <link rel="next" href="gst-plugins-bad-plugins-ttmlparse.html" title="ttmlparse">
-<meta name="generator" content="GTK-Doc V1.26 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.27 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-webrtcechoprobe.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-webrtcechoprobe.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
+                  <a href="#gst-plugins-bad-plugins-webrtcechoprobe.description" class="shortcut">Description</a></span>
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
@@ -32,7 +31,7 @@
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
-<a name="GstWebrtcEchoProbe"></a><div class="refsect1">
+<div class="refsect1">
 <a name="gst-plugins-bad-plugins-webrtcechoprobe.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
@@ -41,20 +40,9 @@
 </colgroup>
 <tbody><tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-webrtcechoprobe.html#GstWebrtcEchoProbe-struct" title="struct GstWebrtcEchoProbe">GstWebrtcEchoProbe</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-webrtcechoprobe.html#GstWebrtcEchoProbe" title="struct GstWebrtcEchoProbe">GstWebrtcEchoProbe</a></td>
 </tr></tbody>
 </table></div>
-</div>
-<div class="refsect1">
-<a name="gst-plugins-bad-plugins-webrtcechoprobe.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
-    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstObject.html#GstObject-struct">GstObject</a>
-            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstElement.html#GstElement-struct">GstElement</a>
-                <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-libs-1.0/GstBaseTransform.html#GstBaseTransform-struct">GstBaseTransform</a>
-                    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0/GstAudioFilter.html#GstAudioFilter-struct">GstAudioFilter</a>
-                        <span class="lineart">╰──</span> GstWebrtcEchoProbe
-</pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-webrtcechoprobe.description"></a><h2>Description</h2>
@@ -63,7 +51,7 @@ documentation for more details.</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.135.6.3.1"></a><h3>Element Information</h3>
+<a name="id-1.2.92.4.3.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -89,7 +77,7 @@ documentation for more details.</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.135.6.3.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.92.4.3.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -148,13 +136,35 @@ documentation for more details.</p>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-webrtcechoprobe.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstWebrtcEchoProbe-struct"></a><h3>struct GstWebrtcEchoProbe</h3>
-<pre class="programlisting">struct GstWebrtcEchoProbe;</pre>
+<a name="GstWebrtcEchoProbe"></a><h3>struct GstWebrtcEchoProbe</h3>
+<pre class="programlisting">struct GstWebrtcEchoProbe {
+  GstAudioFilter parent;
+
+  /* This lock is required as the DSP may need to lock itself using it's
+   * object lock and also lock the probe. The natural order for the DSP is
+   * to lock the DSP and then the echo probe. If we where using the probe
+   * object lock, we'd be racing with GstBin which will lock sink to src,
+   * and may accidently reverse the order. */
+  GMutex lock;
+
+  /* Protected by the lock */
+  GstAudioInfo info;
+  guint period_size;
+  GstClockTime latency;
+  gint delay;
+
+  GstSegment segment;
+  GstAdapter *adapter;
+
+  /* Private */
+  gboolean acquired;
+};
+</pre>
 <p>The adder object structure.</p>
 </div>
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.26</div>
+<hr>Generated by GTK-Doc V1.27</div>
 </body>
 </html>

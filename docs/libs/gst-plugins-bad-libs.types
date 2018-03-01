@@ -1,20 +1,12 @@
 #include <gst/gst.h>
 
-#include <gst/base/gstaggregator.h>
-#include <gst/audio/gstaudioaggregator.h>
 #include <gst/video/gstvideoaggregator.h>
 #include <gst/codecparsers/gsth264parser.h>
 #include <gst/codecparsers/gstmpegvideoparser.h>
 #include <gst/insertbin/gstinsertbin.h>
 #include <gst/mpegts/mpegts.h>
-#include <gst/gl/gl.h>
 #include <gst/player/player.h>
-
-gst_aggregator_get_type
-gst_aggregator_pad_get_type
-
-gst_audio_aggregator_get_type
-gst_audio_aggregator_pad_get_type
+#include <gst/webrtc/webrtc.h>
 
 gst_video_aggregator_get_type
 gst_video_aggregator_pad_get_type
@@ -39,29 +31,6 @@ gst_mpegts_stream_type_get_type
 gst_insert_bin_get_type
 
 
-gst_gl_allocation_params_get_type
-gst_gl_base_memory_allocator_get_type
-gst_gl_buffer_allocation_params_get_type
-gst_gl_buffer_allocator_get_type
-gst_gl_video_allocation_params_get_type
-gst_gl_memory_allocator_get_type
-gst_gl_memory_pbo_allocator_get_type
-gst_gl_renderbuffer_allocation_params_get_type
-gst_gl_renderbuffer_allocator_get_type
-gst_gl_base_filter_get_type
-gst_gl_buffer_pool_get_type
-gst_gl_color_convert_get_type
-gst_gl_context_get_type
-gst_gl_display_get_type
-gst_gl_filter_get_type
-gst_gl_framebuffer_get_type
-gst_gl_shader_get_type
-gst_glsl_stage_get_type
-gst_gl_overlay_compositor_get_type
-gst_gl_upload_get_type
-gst_gl_view_convert_get_type
-gst_gl_window_get_type
-
 gst_player_audio_info_get_type
 gst_player_color_balance_type_get_type
 gst_player_error_get_type
@@ -76,4 +45,23 @@ gst_player_video_info_get_type
 gst_player_video_overlay_video_renderer_get_type
 gst_player_video_renderer_get_type
 gst_player_visualization_get_type
+
+
+gst_webrtc_dtls_setup_get_type
+gst_webrtc_dtls_transport_get_type
+gst_webrtc_dtls_transport_state_get_type
+gst_webrtc_ice_component_get_type
+gst_webrtc_ice_connection_state_get_type
+gst_webrtc_ice_gathering_state_get_type
+gst_webrtc_ice_role_get_type
+gst_webrtc_sdp_type_get_type
+gst_webrtc_ice_transport_get_type
+gst_webrtc_peer_connection_state_get_type
+gst_webrtc_rtp_receiver_get_type
+gst_webrtc_rtp_sender_get_type
+gst_webrtc_session_description_get_type
+gst_webrtc_signaling_state_get_type
+gst_webrtc_rtp_transceiver_direction_get_type
+gst_webrtc_rtp_transceiver_get_type
+gst_webrtc_stats_type_get_type
 

@@ -32,6 +32,7 @@ G_BEGIN_DECLS
 #define GST_TYPE_VIDEO_AGGREGATOR_PAD (gst_video_aggregator_pad_get_type())
 #define GST_VIDEO_AGGREGATOR_PAD(obj) \
         (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_VIDEO_AGGREGATOR_PAD, GstVideoAggregatorPad))
+#define GST_VIDEO_AGGREGATOR_PAD_CAST(obj) ((GstVideoAggregatorPad *)(obj))
 #define GST_VIDEO_AGGREGATOR_PAD_CLASS(klass) \
         (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_COMPOSITOR_PAD, GstVideoAggregatorPadClass))
 #define GST_IS_VIDEO_AGGREGATOR_PAD(obj) \
@@ -61,13 +62,6 @@ struct _GstVideoAggregatorPad
   GstVideoInfo info;
 
   GstBuffer *buffer;
-  /* The caps on the pad may not match the buffer above because of two reasons:
-   * 1) When caps change, the info above will get updated, but the buffer might
-   *    not since it might be pending on the GstAggregatorPad
-   * 2) We might reject the new buffer in fill_queues() and reuse a previous
-   *    buffer which has older GstVideoInfo
-   * Hence, we need to maintain a GstVideoInfo for mapping buffers separately */
-  GstVideoInfo buffer_vinfo;
 
   GstVideoFrame *aggregated_frame;
 
@@ -75,8 +69,13 @@ struct _GstVideoAggregatorPad
   guint zorder;
   gboolean ignore_eos;
 
+  /* Subclasses can force an alpha channel in the (input thus output)
+   * colorspace format */
+  gboolean needs_alpha;
+
   /* < private > */
   GstVideoAggregatorPadPrivate *priv;
+
   gpointer          _gst_reserved[GST_PADDING];
 };
 
@@ -106,6 +105,7 @@ struct _GstVideoAggregatorPadClass
   gpointer          _gst_reserved[GST_PADDING_LARGE];
 };
 
+GST_EXPORT
 GType gst_video_aggregator_pad_get_type (void);
 
 G_END_DECLS

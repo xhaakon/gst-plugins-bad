@@ -3,7 +3,7 @@
   <description>Network Simulator</description>
   <filename>../../gst/netsim/.libs/libgstnetsim.so</filename>
   <basename>libgstnetsim.so</basename>
-  <version>1.12.4</version>
+  <version>1.13.1</version>
   <license>LGPL</license>
   <source>gst-plugins-bad</source>
   <package>GStreamer Bad Plug-ins source release</package>
@@ -14,7 +14,7 @@
       <longname>Network Simulator</longname>
       <class>Filter/Network</class>
       <description>An element that simulates network jitter, packet loss and packet duplication</description>
-      <author>Philippe Kalaf &lt;philippe.kalaf@collabora.co.uk&gt;</author>
+      <author>Philippe Kalaf &lt;philippe.kalaf@collabora.co.uk&gt;, Havard Graff &lt;havard@pexip.com&gt;</author>
       <pads>
         <caps>
           <name>sink</name>

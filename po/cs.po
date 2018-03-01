@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.12.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-12-07 19:24+0200\n"
+"POT-Creation-Date: 2018-02-15 17:13+0000\n"
 "PO-Revision-Date: 2017-09-13 14:36+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
@@ -23,14 +23,8 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: Gtranslator 2.91.7\n"
 
-msgid "failed to draw pattern"
-msgstr "selhalo vykreslení vzoru"
-
-msgid "A GL error occured"
-msgstr "Vyskytla se chyba GL"
-
-msgid "format wasn't negotiated before get function"
-msgstr "formát nebyl vyjednán před získáním funkce"
+msgid "No URL set."
+msgstr ""
 
 msgid "OpenCV failed to load template image"
 msgstr "OpenCV selhalo při načítání obrazu šablony"
@@ -136,3 +130,12 @@ msgstr "Nezdařilo se najít soubor s nastavením kanálu: „%s“"
 
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "Soubor s nastavením kanálů neobsahuje žádné kanály"
+
+#~ msgid "failed to draw pattern"
+#~ msgstr "selhalo vykreslení vzoru"
+
+#~ msgid "A GL error occured"
+#~ msgstr "Vyskytla se chyba GL"
+
+#~ msgid "format wasn't negotiated before get function"
+#~ msgstr "formát nebyl vyjednán před získáním funkce"

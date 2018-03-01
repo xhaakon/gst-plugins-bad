@@ -139,6 +139,139 @@
  * adapt quickly to bandwidth changes, we will not be able to rely
  * on downstream buffering, and will instead manage an internal queue.
  *
+ *
+ * Keyframe trick-mode implementation:
+ *
+ * When requested (with GST_SEEK_FLAG_TRICKMODE_KEY_UNIT) and if the format
+ * is supported (ISOBMFF profiles), dashdemux can download only keyframes
+ * in order to provide fast forward/reverse playback without exceeding the
+ * available bandwith/cpu/memory usage.
+ *
+ * This is done in two parts:
+ * 1) Parsing ISOBMFF atoms to detect the location of keyframes and only
+ *    download/push those.
+ * 2) Deciding what the ideal next keyframe to download is in order to
+ *    provide as many keyframes as possible without rebuffering.
+ *
+ * * Keyframe-only downloads:
+ *
+ * For each beginning of fragment, the fragment header will be parsed in
+ * gst_dash_demux_parse_isobmff() and then the information (offset, pts...)
+ * of each keyframe will be stored in moof_sync_samples.
+ *
+ * gst_dash_demux_stream_update_fragment_info() will specify the range
+ * start and end of the current keyframe, which will cause GstAdaptiveDemux
+ * to do a new upstream range request.
+ *
+ * When advancing, if there are still some keyframes in the current
+ * fragment, gst_dash_demux_stream_advance_fragment() will call
+ * gst_dash_demux_stream_advance_sync_sample() which decides what the next
+ * keyframe to get will be (it can be in reverse order for example, or
+ * might not be the *next* keyframe but one further as explained below).
+ *
+ * If no more keyframes are available in the current fragment, dash will
+ * advance to the next fragment (just like in the normal case) or to a
+ * fragment much further away (as explained below).
+ *
+ *
+ * * Deciding the optimal "next" keyframe/fragment to download:
+ *
+ * The main reason for doing keyframe-only downloads is for trick-modes
+ * (i.e. being able to do fast reverse/forward playback with limited
+ * bandwith/cpu/memory).
+ *
+ * Downloading all keyframes might not be the optimal solution, especially
+ * at high playback rates, since the time taken to download the keyframe
+ * might exceed the available running time between two displayed frames
+ * (i.e. all frames would end up arriving late). This would cause severe
+ * rebuffering.
+ *
+ * Note: The values specified below can be in either the segment running
+ * time or in absolute values. Where position values need to be converted
+ * to segment running time the "running_time(val)" notation is used, and
+ * where running time need ot be converted to segment poisition the
+ * "position(val)" notation is used.
+ *
+ * The goal instead is to be able to download/display as many frames as
+ * possible for a given playback rate. For that the implementation will
+ * take into account:
+ *  * The requested playback rate and segment
+ *  * The average time to request and download a keyframe (in running time)
+ *  * The current position of dashdemux in the stream
+ *  * The current downstream (i.e. sink) position (in running time)
+ *
+ * To reach this goal we consider that there is some amount of buffering
+ * (in time) between dashdemux and the display sink. While we do not know
+ * the exact amount of buffering available, a safe and reasonable assertion
+ * is that there is at least a second (in running time).
+ *
+ * The average time to request and fully download a keyframe (with or
+ * without fragment header) is obtained by averaging the
+ * GstAdaptiveDemuxStream->last_download_time and is stored in
+ * GstDashDemuxStream->average_download_time. Those values include the
+ * network latency and full download time, which are more interesting and
+ * correct than just bitrates (with small download sizes, the impact of the
+ * network latency is much higher).
+ *
+ * The current position is calculated based on the fragment timestamp and
+ * the current keyframe index within that fragment. It is stored in
+ * GstDashDemuxStream->actual_position.
+ *
+ * The downstream position of the pipeline is obtained via QoS events and
+ * is stored in GstAdaptiveDemuxStream->qos_earliest_time (note: it's a
+ * running time value).
+ *
+ * The estimated buffering level between dashdemux and downstream is
+ * therefore:
+ *   buffering_level = running_time(actual_position) - qos_earliest_time
+ *
+ * In order to avoid rebuffering, we want to ensure that the next keyframe
+ * (including potential fragment header) we request will be download, demuxed
+ * and decoded in time so that it is not late. That next keyframe time is
+ * called the "target_time" and is calculated whenever we have finished
+ * pushing a keyframe downstream.
+ *
+ * One simple observation at this point is that we *need* to make sure that
+ * the target time is chosen such that:
+ *   running_time(target_time) > qos_earliest_time + average_download_time
+ *
+ * i.e. we chose a target time which will be greater than the time at which
+ * downstream will be once we request and download the keyframe (otherwise
+ * we're guaranteed to be late).
+ *
+ * This would provide the highest number of displayed frames per
+ * second, but it is just a *minimal* value and is not enough as-is,
+ * since it doesn't take into account the following items which could
+ * cause frames to arrive late (and therefore rebuffering):
+ * * Network jitter (i.e. by how much the download time can fluctuate)
+ * * Network stalling
+ * * Different keyframe sizes (and therefore download time)
+ * * Decoding speed
+ *
+ * Instead, we adjust the target time calculation based on the
+ * buffering_level.
+ *
+ * The smaller the buffering level is (i.e. the closer we are between
+ * current and downstream), the more aggresively we skip forward (and
+ * guarantee the keyframe will be downloaded, decoded and displayed in
+ * time). And the higher the buffering level, the least aggresivelly
+ * we need to skip forward (and therefore display more frames per
+ * second).
+ *
+ * Right now the threshold for agressive switching is set to 3
+ * average_download_time. Below that buffering level we set the target time
+ * to at least 3 average_download_time distance beyond the
+ * qos_earliest_time.
+ *
+ * If we are above that buffering level we set the target time to:
+ *      position(running_time(position) + average_download_time)
+ *
+ * The logic is therefore:
+ * WHILE(!EOS)
+ *   Calculate target_time
+ *   Advance to keyframe/fragment for that target_time
+ *   Adaptivedemux downloads that keyframe/fragment
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -724,6 +857,10 @@ gst_dash_demux_setup_all_streams (GstDashDemux * demux)
     stream->index = i;
     stream->pending_seek_ts = GST_CLOCK_TIME_NONE;
     stream->sidx_position = GST_CLOCK_TIME_NONE;
+    stream->actual_position = GST_CLOCK_TIME_NONE;
+    stream->target_time = GST_CLOCK_TIME_NONE;
+    /* Set a default average keyframe download time of a quarter of a second */
+    stream->average_download_time = 250 * GST_MSECOND;
     if (active_stream->cur_adapt_set &&
         active_stream->cur_adapt_set->RepresentationBase &&
         active_stream->cur_adapt_set->RepresentationBase->ContentProtection) {
@@ -1130,6 +1267,7 @@ gst_dash_demux_stream_update_fragment_info (GstAdaptiveDemuxStream * stream)
 
   /* Reset chunk size if any */
   stream->fragment.chunk_size = 0;
+  dashstream->current_fragment_keyframe_distance = GST_CLOCK_TIME_NONE;
 
   if (GST_ADAPTIVE_DEMUX_STREAM_NEED_HEADER (stream) && isombff) {
     gst_dash_demux_stream_update_headers_info (stream);
@@ -1143,8 +1281,7 @@ gst_dash_demux_stream_update_fragment_info (GstAdaptiveDemuxStream * stream)
   }
 
   if (dashstream->moof_sync_samples
-      && GST_ADAPTIVE_DEMUX (dashdemux)->
-      segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
+      && GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (dashdemux)) {
     GstDashStreamSyncSample *sync_sample =
         &g_array_index (dashstream->moof_sync_samples, GstDashStreamSyncSample,
         dashstream->current_sync_sample);
@@ -1152,11 +1289,38 @@ gst_dash_demux_stream_update_fragment_info (GstAdaptiveDemuxStream * stream)
     gst_mpd_client_get_next_fragment (dashdemux->client, dashstream->index,
         &fragment);
 
+    if (isombff && dashstream->sidx_position != GST_CLOCK_TIME_NONE
+        && SIDX (dashstream)->entries) {
+      GstSidxBoxEntry *entry = SIDX_CURRENT_ENTRY (dashstream);
+      dashstream->current_fragment_timestamp = fragment.timestamp = entry->pts;
+      dashstream->current_fragment_duration = fragment.duration =
+          entry->duration;
+    } else {
+      dashstream->current_fragment_timestamp = fragment.timestamp;
+      dashstream->current_fragment_duration = fragment.duration;
+    }
+
+    dashstream->current_fragment_keyframe_distance =
+        fragment.duration / dashstream->moof_sync_samples->len;
+    dashstream->actual_position =
+        fragment.timestamp +
+        dashstream->current_sync_sample *
+        dashstream->current_fragment_keyframe_distance;
+    if (stream->segment.rate < 0.0)
+      dashstream->actual_position +=
+          dashstream->current_fragment_keyframe_distance;
+    dashstream->actual_position =
+        MIN (dashstream->actual_position,
+        fragment.timestamp + fragment.duration);
+
     stream->fragment.uri = fragment.uri;
     stream->fragment.timestamp = GST_CLOCK_TIME_NONE;
     stream->fragment.duration = GST_CLOCK_TIME_NONE;
     stream->fragment.range_start = sync_sample->start_offset;
     stream->fragment.range_end = sync_sample->end_offset;
+
+    GST_DEBUG_OBJECT (stream->pad, "Actual position %" GST_TIME_FORMAT,
+        GST_TIME_ARGS (dashstream->actual_position));
 
     return GST_FLOW_OK;
   }
@@ -1179,21 +1343,33 @@ gst_dash_demux_stream_update_fragment_info (GstAdaptiveDemuxStream * stream)
       GstSidxBoxEntry *entry = SIDX_CURRENT_ENTRY (dashstream);
       stream->fragment.range_start =
           dashstream->sidx_base_offset + entry->offset;
-      stream->fragment.timestamp = entry->pts;
-      stream->fragment.duration = entry->duration;
+      dashstream->actual_position = stream->fragment.timestamp = entry->pts;
+      dashstream->current_fragment_timestamp = stream->fragment.timestamp =
+          entry->pts;
+      dashstream->current_fragment_duration = stream->fragment.duration =
+          entry->duration;
       if (stream->demux->segment.rate < 0.0) {
         stream->fragment.range_end =
             stream->fragment.range_start + entry->size - 1;
+        dashstream->actual_position += entry->duration;
       } else {
         stream->fragment.range_end = fragment.range_end;
       }
     } else {
-      stream->fragment.timestamp = fragment.timestamp;
-      stream->fragment.duration = fragment.duration;
+      dashstream->actual_position = stream->fragment.timestamp =
+          fragment.timestamp;
+      dashstream->current_fragment_timestamp = fragment.timestamp;
+      dashstream->current_fragment_duration = stream->fragment.duration =
+          fragment.duration;
+      if (stream->demux->segment.rate < 0.0)
+        dashstream->actual_position += fragment.duration;
       stream->fragment.range_start =
           MAX (fragment.range_start, dashstream->sidx_base_offset);
       stream->fragment.range_end = fragment.range_end;
     }
+
+    GST_DEBUG_OBJECT (stream->pad, "Actual position %" GST_TIME_FORMAT,
+        GST_TIME_ARGS (dashstream->actual_position));
 
     return GST_FLOW_OK;
   }
@@ -1313,6 +1489,7 @@ gst_dash_demux_stream_seek (GstAdaptiveDemuxStream * stream, gboolean forward,
     g_array_free (dashstream->moof_sync_samples, TRUE);
   dashstream->moof_sync_samples = NULL;
   dashstream->current_sync_sample = -1;
+  dashstream->target_time = GST_CLOCK_TIME_NONE;
 
   is_isobmff = gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client);
 
@@ -1360,6 +1537,8 @@ gst_dash_demux_stream_seek (GstAdaptiveDemuxStream * stream, gboolean forward,
     }
   }
 
+  stream->discont = TRUE;
+
   return GST_FLOW_OK;
 }
 
@@ -1368,9 +1547,8 @@ gst_dash_demux_stream_has_next_sync_sample (GstAdaptiveDemuxStream * stream)
 {
   GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
 
-  if (dashstream->moof_sync_samples
-      && GST_ADAPTIVE_DEMUX (stream->demux)->
-      segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
+  if (dashstream->moof_sync_samples &&
+      GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (stream->demux)) {
     if (stream->demux->segment.rate > 0.0) {
       if (dashstream->current_sync_sample + 1 <
           dashstream->moof_sync_samples->len)
@@ -1402,32 +1580,100 @@ gst_dash_demux_stream_has_next_subfragment (GstAdaptiveDemuxStream * stream)
 }
 
 static gboolean
-gst_dash_demux_stream_advance_sync_sample (GstAdaptiveDemuxStream * stream)
+gst_dash_demux_stream_advance_sync_sample (GstAdaptiveDemuxStream * stream,
+    GstClockTime target_time)
 {
   GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
   gboolean fragment_finished = FALSE;
+  guint idx = -1;
 
-  if (dashstream->moof_sync_samples
-      && GST_ADAPTIVE_DEMUX (stream->demux)->
-      segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
+  if (GST_CLOCK_TIME_IS_VALID (target_time)) {
+    GST_LOG_OBJECT (stream->pad,
+        "target_time:%" GST_TIME_FORMAT " fragment ts %" GST_TIME_FORMAT
+        " average keyframe dist: %" GST_TIME_FORMAT
+        " current keyframe dist: %" GST_TIME_FORMAT
+        " fragment duration:%" GST_TIME_FORMAT,
+        GST_TIME_ARGS (target_time),
+        GST_TIME_ARGS (dashstream->current_fragment_timestamp),
+        GST_TIME_ARGS (dashstream->keyframe_average_distance),
+        GST_TIME_ARGS (dashstream->current_fragment_keyframe_distance),
+        GST_TIME_ARGS (stream->fragment.duration));
+
     if (stream->demux->segment.rate > 0.0) {
-      dashstream->current_sync_sample++;
-      if (dashstream->current_sync_sample >= dashstream->moof_sync_samples->len) {
-        fragment_finished = TRUE;
-      }
+      idx =
+          (target_time -
+          dashstream->current_fragment_timestamp) /
+          dashstream->current_fragment_keyframe_distance;
+
+      /* Prevent getting stuck in a loop due to rounding errors */
+      if (idx == dashstream->current_sync_sample)
+        idx++;
     } else {
-      if (dashstream->current_sync_sample == -1) {
-        dashstream->current_sync_sample =
-            dashstream->moof_sync_samples->len - 1;
-      } else if (dashstream->current_sync_sample == 0) {
-        dashstream->current_sync_sample = -1;
-        fragment_finished = TRUE;
+      GstClockTime end_time =
+          dashstream->current_fragment_timestamp +
+          dashstream->current_fragment_duration;
+
+      if (end_time < target_time) {
+        idx = dashstream->moof_sync_samples->len;
       } else {
-        dashstream->current_sync_sample--;
+        idx =
+            (end_time -
+            target_time) / dashstream->current_fragment_keyframe_distance;
+        if (idx == dashstream->moof_sync_samples->len) {
+          dashstream->current_sync_sample = -1;
+          fragment_finished = TRUE;
+          goto beach;
+        }
+        idx = dashstream->moof_sync_samples->len - 1 - idx;
+      }
+
+      /* Prevent getting stuck in a loop due to rounding errors */
+      if (idx == dashstream->current_sync_sample) {
+        if (idx == 0) {
+          dashstream->current_sync_sample = -1;
+          fragment_finished = TRUE;
+          goto beach;
+        }
+
+        idx--;
       }
     }
   }
 
+  GST_DEBUG_OBJECT (stream->pad,
+      "Advancing sync sample #%d target #%d",
+      dashstream->current_sync_sample, idx);
+
+  if (idx != -1 && idx >= dashstream->moof_sync_samples->len) {
+    dashstream->current_sync_sample = -1;
+    fragment_finished = TRUE;
+    goto beach;
+  }
+
+  if (stream->demux->segment.rate > 0.0) {
+    /* Try to get the sync sample for the target time */
+    if (idx != -1) {
+      dashstream->current_sync_sample = idx;
+    } else {
+      dashstream->current_sync_sample++;
+      if (dashstream->current_sync_sample >= dashstream->moof_sync_samples->len) {
+        fragment_finished = TRUE;
+      }
+    }
+  } else {
+    if (idx != -1) {
+      dashstream->current_sync_sample = idx;
+    } else if (dashstream->current_sync_sample == -1) {
+      dashstream->current_sync_sample = dashstream->moof_sync_samples->len - 1;
+    } else if (dashstream->current_sync_sample == 0) {
+      dashstream->current_sync_sample = -1;
+      fragment_finished = TRUE;
+    } else {
+      dashstream->current_sync_sample--;
+    }
+  }
+
+beach:
   GST_DEBUG_OBJECT (stream->pad,
       "Advancing sync sample #%d fragment_finished:%d",
       dashstream->current_sync_sample, fragment_finished);
@@ -1483,9 +1729,8 @@ gst_dash_demux_stream_has_next_fragment (GstAdaptiveDemuxStream * stream)
   GstDashDemux *dashdemux = GST_DASH_DEMUX_CAST (stream->demux);
   GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
 
-  if (dashstream->moof_sync_samples
-      && GST_ADAPTIVE_DEMUX (dashdemux)->
-      segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
+  if (dashstream->moof_sync_samples &&
+      GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (dashdemux)) {
     if (gst_dash_demux_stream_has_next_sync_sample (stream))
       return TRUE;
   }
@@ -1499,19 +1744,329 @@ gst_dash_demux_stream_has_next_fragment (GstAdaptiveDemuxStream * stream)
       dashstream->active_stream, stream->demux->segment.rate > 0.0);
 }
 
+/* The goal here is to figure out, once we have pushed a keyframe downstream,
+ * what the next ideal keyframe to download is.
+ * 
+ * This is done based on:
+ * * the current internal position (i.e. actual_position)
+ * * the reported downstream position (QoS feedback)
+ * * the average keyframe download time (average_download_time)
+ */
+static GstClockTime
+gst_dash_demux_stream_get_target_time (GstDashDemux * dashdemux,
+    GstAdaptiveDemuxStream * stream, GstClockTime cur_position,
+    GstClockTime min_skip)
+{
+  GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
+  GstClockTime cur_running, min_running, min_position;
+  GstClockTimeDiff diff;
+  GstClockTime ret = cur_position;
+  GstClockTime deadline;
+  GstClockTime earliest_time = GST_CLOCK_TIME_NONE;
+
+  g_assert (min_skip > 0);
+
+  /* minimum stream position we have to skip to */
+  if (stream->segment.rate > 0)
+    min_position = cur_position + min_skip;
+  else if (cur_position < min_skip)
+    min_position = 0;
+  else
+    min_position = cur_position - min_skip;
+
+  /* Use current clock time or the QoS earliest time, whichever is further in
+   * the future. The QoS time is only updated on every QoS event and
+   * especially not if e.g. a videodecoder or converter drops a frame further
+   * downstream.
+   *
+   * We only use the times if we ever received a QoS event since the last
+   * flush, as otherwise base_time and clock might not be correct because of a
+   * still pre-rolling sink
+   */
+  if (stream->qos_earliest_time != GST_CLOCK_TIME_NONE) {
+    GstClock *clock;
+
+    clock = gst_element_get_clock (GST_ELEMENT_CAST (dashdemux));
+
+    if (clock) {
+      GstClockTime base_time;
+      GstClockTime now_time;
+
+      base_time = gst_element_get_base_time (GST_ELEMENT_CAST (dashdemux));
+      now_time = gst_clock_get_time (clock);
+      if (now_time > base_time)
+        now_time -= base_time;
+      else
+        now_time = 0;
+
+      gst_object_unref (clock);
+
+      earliest_time = MAX (now_time, stream->qos_earliest_time);
+    } else {
+      earliest_time = stream->qos_earliest_time;
+    }
+  }
+
+  /* our current position in running time */
+  cur_running =
+      gst_segment_to_running_time (&stream->segment, GST_FORMAT_TIME,
+      cur_position);
+
+  /* the minimum position we have to skip to in running time */
+  min_running =
+      gst_segment_to_running_time (&stream->segment, GST_FORMAT_TIME,
+      min_position);
+
+  GST_DEBUG_OBJECT (stream->pad,
+      "position: current %" GST_TIME_FORMAT " min next %" GST_TIME_FORMAT,
+      GST_TIME_ARGS (cur_position), GST_TIME_ARGS (min_position));
+  GST_DEBUG_OBJECT (stream->pad,
+      "running time: current %" GST_TIME_FORMAT " min next %" GST_TIME_FORMAT
+      " earliest %" GST_TIME_FORMAT, GST_TIME_ARGS (cur_running),
+      GST_TIME_ARGS (min_running), GST_TIME_ARGS (earliest_time));
+
+  /* Take configured maximum video bandwidth and framerate into account */
+  {
+    GstClockTime min_run_dist, min_frame_dist, diff = 0;
+    guint max_fps_n, max_fps_d;
+
+    min_run_dist = min_skip / ABS (stream->segment.rate);
+
+    if (dashdemux->max_video_framerate_n != 0) {
+      max_fps_n = dashdemux->max_video_framerate_n;
+      max_fps_d = dashdemux->max_video_framerate_d;
+    } else {
+      /* more than 10 fps is not very useful if we're skipping anyway */
+      max_fps_n = 10;
+      max_fps_d = 1;
+    }
+
+    min_frame_dist = gst_util_uint64_scale_ceil (GST_SECOND,
+        max_fps_d, max_fps_n);
+
+    GST_DEBUG_OBJECT (stream->pad,
+        "Have max framerate %d/%d - Min dist %" GST_TIME_FORMAT
+        ", min requested dist %" GST_TIME_FORMAT,
+        max_fps_n, max_fps_d,
+        GST_TIME_ARGS (min_run_dist), GST_TIME_ARGS (min_frame_dist));
+    if (min_frame_dist > min_run_dist)
+      diff = MAX (diff, min_frame_dist - min_run_dist);
+
+    if (dashdemux->max_bitrate != 0) {
+      guint64 max_bitrate = gst_util_uint64_scale_ceil (GST_SECOND,
+          8 * dashstream->keyframe_average_size,
+          dashstream->keyframe_average_distance) * ABS (stream->segment.rate);
+
+      if (max_bitrate > dashdemux->max_bitrate) {
+        min_frame_dist = gst_util_uint64_scale_ceil (GST_SECOND,
+            8 * dashstream->keyframe_average_size,
+            dashdemux->max_bitrate) * ABS (stream->segment.rate);
+
+        GST_DEBUG_OBJECT (stream->pad,
+            "Have max bitrate %u - Min dist %" GST_TIME_FORMAT
+            ", min requested dist %" GST_TIME_FORMAT, dashdemux->max_bitrate,
+            GST_TIME_ARGS (min_run_dist), GST_TIME_ARGS (min_frame_dist));
+        if (min_frame_dist > min_run_dist)
+          diff = MAX (diff, min_frame_dist - min_run_dist);
+      }
+    }
+
+    if (diff > 0) {
+      GST_DEBUG_OBJECT (stream->pad,
+          "Skipping further ahead by %" GST_TIME_FORMAT, GST_TIME_ARGS (diff));
+      min_running += diff;
+    }
+  }
+
+  if (earliest_time == GST_CLOCK_TIME_NONE) {
+    GstClockTime run_key_dist;
+
+    run_key_dist =
+        dashstream->keyframe_average_distance / ABS (stream->segment.rate);
+
+    /* If we don't have downstream information (such as at startup or
+     * without live sinks), just get the next time by taking the minimum
+     * amount we have to skip ahead
+     * Except if it takes us longer to download */
+    if (run_key_dist > dashstream->average_download_time)
+      ret =
+          gst_segment_position_from_running_time (&stream->segment,
+          GST_FORMAT_TIME, min_running);
+    else
+      ret = gst_segment_position_from_running_time (&stream->segment,
+          GST_FORMAT_TIME,
+          min_running - run_key_dist + dashstream->average_download_time);
+
+    GST_DEBUG_OBJECT (stream->pad,
+        "Advancing to %" GST_TIME_FORMAT " (was %" GST_TIME_FORMAT ")",
+        GST_TIME_ARGS (ret), GST_TIME_ARGS (min_position));
+
+    goto out;
+  }
+
+  /* Figure out the difference, in running time, between where we are and
+   * where downstream is */
+  diff = min_running - earliest_time;
+  GST_LOG_OBJECT (stream->pad,
+      "min_running %" GST_TIME_FORMAT " diff %" GST_STIME_FORMAT
+      " average_download %" GST_TIME_FORMAT, GST_TIME_ARGS (min_running),
+      GST_STIME_ARGS (diff), GST_TIME_ARGS (dashstream->average_download_time));
+
+  /* Have at least 500ms or 3 keyframes safety between current position and downstream */
+  deadline = MAX (500 * GST_MSECOND, 3 * dashstream->average_download_time);
+
+  /* The furthest away we are from the current position, the least we need to advance */
+  if (diff < 0 || diff < deadline) {
+    /* Force skipping (but not more than 1s ahead) */
+    ret =
+        gst_segment_position_from_running_time (&stream->segment,
+        GST_FORMAT_TIME, earliest_time + MIN (deadline, GST_SECOND));
+    GST_DEBUG_OBJECT (stream->pad,
+        "MUST SKIP to at least %" GST_TIME_FORMAT " (was %" GST_TIME_FORMAT ")",
+        GST_TIME_ARGS (ret), GST_TIME_ARGS (min_position));
+  } else if (diff < 4 * dashstream->average_download_time) {
+    /* Go forward a bit less aggresively (and at most 1s forward) */
+    ret = gst_segment_position_from_running_time (&stream->segment,
+        GST_FORMAT_TIME, min_running + MIN (GST_SECOND,
+            2 * dashstream->average_download_time));
+    GST_DEBUG_OBJECT (stream->pad,
+        "MUST SKIP to at least %" GST_TIME_FORMAT " (was %" GST_TIME_FORMAT ")",
+        GST_TIME_ARGS (ret), GST_TIME_ARGS (min_position));
+  } else {
+    /* Get the next position satisfying the download time */
+    ret = gst_segment_position_from_running_time (&stream->segment,
+        GST_FORMAT_TIME, min_running);
+    GST_DEBUG_OBJECT (stream->pad,
+        "Advance to %" GST_TIME_FORMAT " (was %" GST_TIME_FORMAT ")",
+        GST_TIME_ARGS (ret), GST_TIME_ARGS (min_position));
+  }
+
+out:
+
+  {
+    GstClockTime cur_skip =
+        (cur_position < ret) ? ret - cur_position : cur_position - ret;
+
+    if (dashstream->average_skip_size == 0) {
+      dashstream->average_skip_size = cur_skip;
+    } else {
+      dashstream->average_skip_size =
+          (cur_skip + 3 * dashstream->average_skip_size) / 4;
+    }
+
+    if (dashstream->average_skip_size >
+        cur_skip + dashstream->keyframe_average_distance
+        && dashstream->average_skip_size > min_skip) {
+      if (stream->segment.rate > 0)
+        ret = cur_position + dashstream->average_skip_size;
+      else if (cur_position > dashstream->average_skip_size)
+        ret = cur_position - dashstream->average_skip_size;
+      else
+        ret = 0;
+    }
+  }
+
+  return ret;
+}
+
 static GstFlowReturn
 gst_dash_demux_stream_advance_fragment (GstAdaptiveDemuxStream * stream)
 {
   GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
   GstDashDemux *dashdemux = GST_DASH_DEMUX_CAST (stream->demux);
+  GstClockTime target_time = GST_CLOCK_TIME_NONE;
+  GstClockTime previous_position;
+  GstFlowReturn ret;
 
   GST_DEBUG_OBJECT (stream->pad, "Advance fragment");
 
+  /* Update download statistics */
+  if (dashstream->moof_sync_samples &&
+      GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (dashdemux) &&
+      GST_CLOCK_TIME_IS_VALID (stream->last_download_time)) {
+    if (GST_CLOCK_TIME_IS_VALID (dashstream->average_download_time)) {
+      dashstream->average_download_time =
+          (3 * dashstream->average_download_time +
+          stream->last_download_time) / 4;
+    } else {
+      dashstream->average_download_time = stream->last_download_time;
+    }
+
+    GST_DEBUG_OBJECT (stream->pad,
+        "Download time last: %" GST_TIME_FORMAT " average: %" GST_TIME_FORMAT,
+        GST_TIME_ARGS (stream->last_download_time),
+        GST_TIME_ARGS (dashstream->average_download_time));
+  }
+
+  previous_position = dashstream->actual_position;
+
+  /* Update internal position */
+  if (GST_CLOCK_TIME_IS_VALID (dashstream->actual_position)) {
+    GstClockTime dur;
+    if (dashstream->moof_sync_samples
+        && GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (dashdemux)) {
+      GST_LOG_OBJECT (stream->pad, "current sync sample #%d",
+          dashstream->current_sync_sample);
+      if (dashstream->current_sync_sample == -1) {
+        dur = 0;
+      } else if (dashstream->current_sync_sample <
+          dashstream->moof_sync_samples->len) {
+        dur = dashstream->current_fragment_keyframe_distance;
+      } else {
+        if (gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client) &&
+            dashstream->sidx_position != GST_CLOCK_TIME_NONE
+            && SIDX (dashstream)->entries) {
+          GstSidxBoxEntry *entry = SIDX_CURRENT_ENTRY (dashstream);
+          dur = entry->duration;
+        } else {
+          dur =
+              dashstream->current_fragment_timestamp +
+              dashstream->current_fragment_duration -
+              dashstream->actual_position;
+        }
+      }
+    } else if (gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client) &&
+        dashstream->sidx_position != GST_CLOCK_TIME_NONE
+        && SIDX (dashstream)->entries) {
+      GstSidxBoxEntry *entry = SIDX_CURRENT_ENTRY (dashstream);
+      dur = entry->duration;
+    } else {
+      dur = stream->fragment.duration;
+    }
+
+    if (dashstream->moof_sync_samples
+        && GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (dashdemux)) {
+      /* We just downloaded the header, we actually use the previous
+       * target_time now as it was not used up yet */
+      if (dashstream->current_sync_sample == -1)
+        target_time = dashstream->target_time;
+      else
+        target_time =
+            gst_dash_demux_stream_get_target_time (dashdemux, stream,
+            dashstream->actual_position, dur);
+      dashstream->actual_position = target_time;
+    } else {
+      /* Adjust based on direction */
+      if (stream->demux->segment.rate > 0.0)
+        dashstream->actual_position += dur;
+      else if (dashstream->actual_position >= dur)
+        dashstream->actual_position -= dur;
+      else
+        dashstream->actual_position = 0;
+    }
+
+    GST_DEBUG_OBJECT (stream->pad, "Actual position %" GST_TIME_FORMAT,
+        GST_TIME_ARGS (dashstream->actual_position));
+  }
+  dashstream->target_time = target_time;
+
+  GST_DEBUG_OBJECT (stream->pad, "target_time: %" GST_TIME_FORMAT,
+      GST_TIME_ARGS (target_time));
+
   /* If downloading only keyframes, switch to the next one or fall through */
-  if (dashstream->moof_sync_samples
-      && GST_ADAPTIVE_DEMUX (dashdemux)->
-      segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
-    if (gst_dash_demux_stream_advance_sync_sample (stream))
+  if (dashstream->moof_sync_samples &&
+      GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (dashdemux)) {
+    if (gst_dash_demux_stream_advance_sync_sample (stream, target_time))
       return GST_FLOW_OK;
   }
 
@@ -1527,21 +2082,81 @@ gst_dash_demux_stream_advance_fragment (GstAdaptiveDemuxStream * stream)
   dashstream->moof_sync_samples = NULL;
   dashstream->current_sync_sample = -1;
 
-  if (gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client)) {
-    if (gst_dash_demux_stream_advance_subfragment (stream))
-      return GST_FLOW_OK;
+  /* Check if we just need to 'advance' to the next fragment, or if we
+   * need to skip by more. */
+  if (GST_CLOCK_TIME_IS_VALID (target_time)
+      && GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (stream->demux) &&
+      dashstream->active_stream->mimeType == GST_STREAM_VIDEO) {
+    GstClockTime actual_ts;
+    GstSeekFlags flags = 0;
+
+    /* Key-unit trick mode, seek to fragment containing target time
+     *
+     * We first try seeking without snapping. As above code to skip keyframes
+     * in the current fragment was not successful, we should go at least one
+     * fragment ahead. Due to rounding errors we could end up at the same
+     * fragment again here, in which case we retry seeking with the SNAP_AFTER
+     * flag.
+     *
+     * We don't always set that flag as we would then end up one further
+     * fragment in the future in all good cases.
+     */
+    while (TRUE) {
+      ret =
+          gst_dash_demux_stream_seek (stream, (stream->segment.rate > 0), flags,
+          target_time, &actual_ts);
+
+      if (ret != GST_FLOW_OK) {
+        GST_WARNING_OBJECT (stream->pad, "Failed to seek to %" GST_TIME_FORMAT,
+            GST_TIME_ARGS (target_time));
+        /* Give up */
+        if (flags != 0)
+          break;
+
+        /* Retry with skipping ahead */
+        flags |= GST_SEEK_FLAG_SNAP_AFTER;
+        continue;
+      }
+
+      GST_DEBUG_OBJECT (stream->pad,
+          "Skipped to %" GST_TIME_FORMAT " (wanted %" GST_TIME_FORMAT ", was %"
+          GST_TIME_FORMAT ")", GST_TIME_ARGS (actual_ts),
+          GST_TIME_ARGS (target_time), GST_TIME_ARGS (previous_position));
+
+      if ((stream->segment.rate > 0 && actual_ts <= previous_position) ||
+          (stream->segment.rate < 0 && actual_ts >= previous_position)) {
+        /* Give up */
+        if (flags != 0)
+          break;
+
+        /* Retry with forcing skipping ahead */
+        flags |= GST_SEEK_FLAG_SNAP_AFTER;
+
+        continue;
+      }
+
+      /* All good */
+      break;
+    }
+  } else {
+    /* Normal mode, advance to the next fragment */
+    if (gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client)) {
+      if (gst_dash_demux_stream_advance_subfragment (stream))
+        return GST_FLOW_OK;
+    }
+
+    if (dashstream->adapter)
+      gst_adapter_clear (dashstream->adapter);
+
+    gst_isoff_sidx_parser_clear (&dashstream->sidx_parser);
+    dashstream->sidx_base_offset = 0;
+    dashstream->sidx_position = GST_CLOCK_TIME_NONE;
+    dashstream->allow_sidx = TRUE;
+
+    ret = gst_mpd_client_advance_segment (dashdemux->client,
+        dashstream->active_stream, stream->demux->segment.rate > 0.0);
   }
-
-  gst_isoff_sidx_parser_clear (&dashstream->sidx_parser);
-  gst_isoff_sidx_parser_init (&dashstream->sidx_parser);
-  dashstream->sidx_base_offset = 0;
-  dashstream->sidx_position = GST_CLOCK_TIME_NONE;
-  dashstream->allow_sidx = TRUE;
-  if (dashstream->adapter)
-    gst_adapter_clear (dashstream->adapter);
-
-  return gst_mpd_client_advance_segment (dashdemux->client,
-      dashstream->active_stream, stream->demux->segment.rate > 0.0);
+  return ret;
 }
 
 static gboolean
@@ -1561,6 +2176,12 @@ gst_dash_demux_stream_select_bitrate (GstAdaptiveDemuxStream * stream,
     goto end;
   }
 
+  /* In key-frame trick mode don't change bitrates */
+  if (GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (demux)) {
+    GST_DEBUG_OBJECT (demux, "In key-frame trick mode, not changing bitrates");
+    goto end;
+  }
+
   /* retrieve representation list */
   if (active_stream->cur_adapt_set)
     rep_list = active_stream->cur_adapt_set->Representations;
@@ -1576,7 +2197,7 @@ gst_dash_demux_stream_select_bitrate (GstAdaptiveDemuxStream * stream,
   }
 
   /* get representation index with current max_bandwidth */
-  if ((base_demux->segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) ||
+  if (GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (base_demux) ||
       ABS (base_demux->segment.rate) <= 1.0) {
     new_index =
         gst_mpdparser_get_rep_idx_with_max_bandwidth (rep_list, bitrate,
@@ -1653,6 +2274,7 @@ gst_dash_demux_stream_select_bitrate (GstAdaptiveDemuxStream * stream,
       g_array_free (dashstream->moof_sync_samples, TRUE);
     dashstream->moof_sync_samples = NULL;
     dashstream->current_sync_sample = -1;
+    dashstream->target_time = GST_CLOCK_TIME_NONE;
   }
 
 end:
@@ -1748,7 +2370,9 @@ gst_dash_demux_seek (GstAdaptiveDemux * demux, GstEvent * seek)
   /* Update the current sequence on all streams */
   for (iter = streams; iter; iter = g_list_next (iter)) {
     GstAdaptiveDemuxStream *stream = iter->data;
+    GstDashDemuxStream *dashstream = iter->data;
 
+    dashstream->average_skip_size = 0;
     if (gst_dash_demux_stream_seek (stream, rate >= 0, 0, target_pos,
             NULL) != GST_FLOW_OK)
       return FALSE;
@@ -1986,6 +2610,9 @@ gst_dash_demux_stream_fragment_start (GstAdaptiveDemux * demux,
   GstDashDemux *dashdemux = GST_DASH_DEMUX_CAST (demux);
   GstDashDemuxStream *dashstream = (GstDashDemuxStream *) stream;
 
+  GST_LOG_OBJECT (stream->pad, "Actual position %" GST_TIME_FORMAT,
+      GST_TIME_ARGS (dashstream->actual_position));
+
   dashstream->current_index_header_or_data = 0;
   dashstream->current_offset = -1;
 
@@ -1996,7 +2623,7 @@ gst_dash_demux_stream_fragment_start (GstAdaptiveDemux * demux,
    * buffer. We need offsets to be consistent between moof and mdat
    */
   if (dashstream->is_isobmff && dashdemux->allow_trickmode_key_units
-      && (demux->segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS)
+      && GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (demux)
       && dashstream->active_stream->mimeType == GST_STREAM_VIDEO)
     stream->discont = TRUE;
 
@@ -2017,15 +2644,14 @@ gst_dash_demux_stream_fragment_finished (GstAdaptiveDemux * demux,
    * buffer. We need offsets to be consistent between moof and mdat
    */
   if (dashstream->is_isobmff && dashdemux->allow_trickmode_key_units
-      && (demux->segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS)
+      && GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (demux)
       && dashstream->active_stream->mimeType == GST_STREAM_VIDEO)
     stream->discont = TRUE;
 
   /* Only handle fragment advancing specifically for SIDX if we're not
    * in key unit mode */
   if (!(dashstream->moof_sync_samples
-          && GST_ADAPTIVE_DEMUX (dashdemux)->
-          segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS)
+          && GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (dashdemux))
       && gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client)
       && dashstream->sidx_parser.status == GST_ISOFF_SIDX_PARSER_FINISHED) {
     /* fragment is advanced on data_received when byte limits are reached */
@@ -2055,8 +2681,7 @@ gst_dash_demux_need_another_chunk (GstAdaptiveDemuxStream * stream)
    * random guess for the moof size
    */
   if (dashstream->is_isobmff
-      && (GST_ADAPTIVE_DEMUX (stream->demux)->
-          segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS)
+      && GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (stream->demux)
       && dashstream->active_stream->mimeType == GST_STREAM_VIDEO
       && !stream->downloading_header && !stream->downloading_index
       && dashdemux->allow_trickmode_key_units) {
@@ -2067,20 +2692,41 @@ gst_dash_demux_need_another_chunk (GstAdaptiveDemuxStream * stream)
       /* Do we have the first fourcc already or are we in the middle */
       if (dashstream->isobmff_parser.current_fourcc == 0) {
         stream->fragment.chunk_size += dashstream->moof_average_size;
-        if (dashstream->first_sync_sample_always_after_moof)
-          stream->fragment.chunk_size +=
-              dashstream->first_sync_sample_average_size;
+        if (dashstream->first_sync_sample_always_after_moof) {
+          gboolean first = FALSE;
+          /* Check if we'll really need that first sample */
+          if (GST_CLOCK_TIME_IS_VALID (dashstream->target_time)) {
+            first =
+                ((dashstream->target_time -
+                    dashstream->current_fragment_timestamp) /
+                dashstream->keyframe_average_distance) == 0 ? TRUE : FALSE;
+          } else if (stream->segment.rate > 0) {
+            first = TRUE;
+          }
+
+          if (first)
+            stream->fragment.chunk_size += dashstream->keyframe_average_size;
+        }
       }
 
       if (gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client) &&
           dashstream->sidx_parser.sidx.entries) {
-        guint64 sidx_end_offset =
+        guint64 sidx_start_offset =
             dashstream->sidx_base_offset +
-            SIDX_CURRENT_ENTRY (dashstream)->offset +
-            SIDX_CURRENT_ENTRY (dashstream)->size;
-        guint64 downloaded_end_offset =
-            dashstream->current_offset +
-            gst_adapter_available (dashstream->adapter);
+            SIDX_CURRENT_ENTRY (dashstream)->offset;
+        guint64 sidx_end_offset =
+            sidx_start_offset + SIDX_CURRENT_ENTRY (dashstream)->size;
+        guint64 downloaded_end_offset;
+
+        if (dashstream->current_offset == GST_CLOCK_TIME_NONE) {
+          downloaded_end_offset = sidx_start_offset;
+        } else {
+          downloaded_end_offset =
+              dashstream->current_offset +
+              gst_adapter_available (dashstream->adapter);
+        }
+
+        downloaded_end_offset = MAX (downloaded_end_offset, sidx_start_offset);
 
         if (stream->fragment.chunk_size +
             downloaded_end_offset > sidx_end_offset) {
@@ -2096,7 +2742,9 @@ gst_dash_demux_need_another_chunk (GstAdaptiveDemuxStream * stream)
             &g_array_index (dashstream->moof_sync_samples,
             GstDashStreamSyncSample, 0);
         guint64 end_offset = sync_sample->end_offset + 1;
-        guint64 downloaded_end_offset =
+        guint64 downloaded_end_offset;
+
+        downloaded_end_offset =
             dashstream->current_offset +
             gst_adapter_available (dashstream->adapter);
 
@@ -2129,11 +2777,11 @@ gst_dash_demux_need_another_chunk (GstAdaptiveDemuxStream * stream)
      * trickmodes while doing chunked downloading. In that case
      * just download from here to the end now */
     if (dashstream->moof
-        && (GST_ADAPTIVE_DEMUX (stream->demux)->
-            segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS))
+        && GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (stream->demux)) {
       stream->fragment.chunk_size = -1;
-    else
+    } else {
       stream->fragment.chunk_size = 0;
+    }
   }
 
   return stream->fragment.chunk_size != 0;
@@ -2527,31 +3175,80 @@ gst_dash_demux_find_sync_samples (GstAdaptiveDemux * demux,
   }
 
   {
-    GstDashStreamSyncSample *sync_sample =
-        &g_array_index (dash_stream->moof_sync_samples, GstDashStreamSyncSample,
-        0);
-    guint size = sync_sample->end_offset + 1 - sync_sample->start_offset;
+    GstDashStreamSyncSample *sync_sample;
+    guint i;
+    guint size;
+    GstClockTime current_keyframe_distance;
 
-    if (dash_stream->first_sync_sample_average_size) {
-      if (dash_stream->first_sync_sample_average_size < size)
-        dash_stream->first_sync_sample_average_size =
-            (size * 3 + dash_stream->first_sync_sample_average_size) / 4;
+    for (i = 0; i < dash_stream->moof_sync_samples->len; i++) {
+      sync_sample =
+          &g_array_index (dash_stream->moof_sync_samples,
+          GstDashStreamSyncSample, i);
+      size = sync_sample->end_offset + 1 - sync_sample->start_offset;
+
+      if (dash_stream->keyframe_average_size) {
+        /* Over-estimate the keyframe size */
+        if (dash_stream->keyframe_average_size < size)
+          dash_stream->keyframe_average_size =
+              (size * 3 + dash_stream->keyframe_average_size) / 4;
+        else
+          dash_stream->keyframe_average_size =
+              (size + dash_stream->keyframe_average_size * 3) / 4;
+      } else {
+        dash_stream->keyframe_average_size = size;
+      }
+
+      if (i == 0) {
+        if (dash_stream->moof_offset + dash_stream->moof_size + 8 <
+            sync_sample->start_offset) {
+          dash_stream->first_sync_sample_after_moof = FALSE;
+          dash_stream->first_sync_sample_always_after_moof = FALSE;
+        } else {
+          dash_stream->first_sync_sample_after_moof =
+              (dash_stream->moof_sync_samples->len == 1
+              || demux->segment.rate > 0.0);
+        }
+      }
+    }
+
+    g_assert (stream->fragment.duration != 0);
+    g_assert (stream->fragment.duration != GST_CLOCK_TIME_NONE);
+
+    if (gst_mpd_client_has_isoff_ondemand_profile (dashdemux->client)
+        && dash_stream->sidx_position != GST_CLOCK_TIME_NONE
+        && SIDX (dash_stream)->entries) {
+      GstSidxBoxEntry *entry = SIDX_CURRENT_ENTRY (dash_stream);
+      current_keyframe_distance =
+          entry->duration / dash_stream->moof_sync_samples->len;
+    } else {
+      current_keyframe_distance =
+          stream->fragment.duration / dash_stream->moof_sync_samples->len;
+    }
+    dash_stream->current_fragment_keyframe_distance = current_keyframe_distance;
+
+    if (dash_stream->keyframe_average_distance) {
+      /* Under-estimate the keyframe distance */
+      if (dash_stream->keyframe_average_distance > current_keyframe_distance)
+        dash_stream->keyframe_average_distance =
+            (dash_stream->keyframe_average_distance * 3 +
+            current_keyframe_distance) / 4;
       else
-        dash_stream->first_sync_sample_average_size =
-            (size + dash_stream->first_sync_sample_average_size * 3) / 4;
+        dash_stream->keyframe_average_distance =
+            (dash_stream->keyframe_average_distance +
+            current_keyframe_distance * 3) / 4;
     } else {
-      dash_stream->first_sync_sample_average_size = size;
+      dash_stream->keyframe_average_distance = current_keyframe_distance;
     }
 
-    if (dash_stream->moof_offset + dash_stream->moof_size + 8 <
-        sync_sample->start_offset) {
-      dash_stream->first_sync_sample_after_moof = FALSE;
-      dash_stream->first_sync_sample_always_after_moof = FALSE;
-    } else {
-      dash_stream->first_sync_sample_after_moof =
-          (dash_stream->moof_sync_samples->len == 1
-          || demux->segment.rate > 0.0);
-    }
+    GST_DEBUG_OBJECT (stream->pad,
+        "average keyframe sample size: %" G_GUINT64_FORMAT,
+        dash_stream->keyframe_average_size);
+    GST_DEBUG_OBJECT (stream->pad,
+        "average keyframe distance: %" GST_TIME_FORMAT " (%" GST_TIME_FORMAT
+        ")", GST_TIME_ARGS (dash_stream->keyframe_average_distance),
+        GST_TIME_ARGS (current_keyframe_distance));
+    GST_DEBUG_OBJECT (stream->pad, "first sync sample after moof: %d",
+        dash_stream->first_sync_sample_after_moof);
   }
 
   return TRUE;
@@ -2593,15 +3290,29 @@ gst_dash_demux_handle_isobmff (GstAdaptiveDemux * demux,
      * reuse the data if the sync sample follows the moof */
     if (dash_stream->active_stream->mimeType == GST_STREAM_VIDEO
         && gst_dash_demux_find_sync_samples (demux, stream) &&
-        GST_ADAPTIVE_DEMUX (stream->demux)->
-        segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
+        GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (stream->demux)) {
+      guint idx = -1;
 
-      if (dash_stream->first_sync_sample_after_moof) {
+      if (GST_CLOCK_TIME_IS_VALID (dash_stream->target_time)) {
+        idx =
+            (dash_stream->target_time -
+            dash_stream->current_fragment_timestamp) /
+            dash_stream->current_fragment_keyframe_distance;
+      } else if (stream->segment.rate > 0) {
+        idx = 0;
+      }
+
+      GST_DEBUG_OBJECT (stream->pad, "target %" GST_TIME_FORMAT " idx %d",
+          GST_TIME_ARGS (dash_stream->target_time), idx);
+      /* Figure out target time */
+
+      if (dash_stream->first_sync_sample_after_moof && idx == 0) {
         /* If we're here, don't throw away data but collect sync
          * sample while we're at it below. We're doing chunked
          * downloading so might need to adjust the next chunk size for
          * the remainder */
         dash_stream->current_sync_sample = 0;
+        GST_DEBUG_OBJECT (stream->pad, "Using first keyframe after header");
       }
     }
 
@@ -2660,9 +3371,7 @@ gst_dash_demux_handle_isobmff (GstAdaptiveDemux * demux,
   /* We're actually running in key-units trick mode */
   if (dash_stream->active_stream->mimeType == GST_STREAM_VIDEO
       && dash_stream->moof_sync_samples
-      && GST_ADAPTIVE_DEMUX (stream->demux)->
-      segment.flags & GST_SEGMENT_FLAG_TRICKMODE_KEY_UNITS) {
-
+      && GST_ADAPTIVE_DEMUX_IN_TRICKMODE_KEY_UNITS (stream->demux)) {
     if (dash_stream->current_sync_sample == -1) {
       /* We're doing chunked downloading and wait for finishing the current
        * chunk so we can jump to the first keyframe */

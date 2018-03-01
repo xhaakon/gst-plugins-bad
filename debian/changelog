@@ -1,3 +1,34 @@
+gst-plugins-bad1.0 (1.13.1-1ubuntu1) UNRELEASED; urgency=medium
+
+  * Merge with Debian unstable; remaining changes:
+    + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
+      moved to -good.
+    + Provide gstreamer-plugins-bad-1.0.pc with Requires on
+      gstreamer-plugins-good-1.0 - the package we've moved the referenced
+      library to. This maintains compatibility with upstream software and
+      other distributions.
+    + Disable gl and glx on armhf as it's not useful there.
+    + debian/control{,.in}: Update Vcs-* for Ubuntu
+    + C/R/P old -videoparsers and -faad
+  * debian/patches/fix-lp1698287.patch: gl has been removed, drop the patch
+
+ -- Iain Lane <iain.lane@canonical.com>  Thu, 01 Mar 2018 11:58:19 +0000
+
+gst-plugins-bad1.0 (1.13.1-1) experimental; urgency=medium
+
+  * New upstream development release.
+  * debian/control.in:
+    + Move OpenCV plugin and library into its own binary package (Closes: #862024).
+  * debian/gstreamer-plugins-bad.install:
+    + Ship haar cascade files for handdetect (Closes: #877587).
+  * debian/build-deps.in,
+    debian/gstreamer-plugins-bad.install:
+    + Build SRTP plugin against libsrtp2.
+    + Ship new lcms2, openmpt, faceoverlay, ipcpipeline, proxy, ttml
+      and webrtc plugins.
+
+ -- Sebastian Dröge <slomo@debian.org>  Sun, 18 Feb 2018 10:18:08 +0200
+
 gst-plugins-bad1.0 (1.12.4-2ubuntu1) bionic; urgency=medium
 
   * Merge with Debian unstable; remaining changes:

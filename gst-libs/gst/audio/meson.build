@@ -1,5 +1,5 @@
-badaudio_sources = ['gstaudioaggregator.c']
-badaudio_headers = ['gstaudioaggregator.h']
+badaudio_sources = ['gstnonstreamaudiodecoder.c']
+badaudio_headers = ['gstnonstreamaudiodecoder.h']
 install_headers(badaudio_headers, subdir : 'gstreamer-1.0/gst/audio')
 
 
@@ -10,10 +10,9 @@ gstbadaudio = library('gstbadaudio-' + api_version,
   version : libversion,
   soversion : soversion,
   install : true,
-  dependencies : [gstbadbase_dep, gstaudio_dep],
-  vs_module_defs: vs_module_defs_dir + 'libgstbadaudio.def',
+  dependencies : [gstaudio_dep, gstbase_dep],
 )
 
 gstbadaudio_dep = declare_dependency(link_with : gstbadaudio,
   include_directories : [libsinc],
-  dependencies : [gstbadbase_dep, gstaudio_dep])
+  dependencies : [gstaudio_dep, gstbase_dep])

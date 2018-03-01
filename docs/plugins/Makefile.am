@@ -39,7 +39,7 @@ HFILE_GLOB= \
 CFILE_GLOB= \
   $(top_srcdir)/gst/*/*.c $(top_srcdir)/ext/*/*.c $(top_srcdir)/sys/*/*.c \
   $(top_srcdir)/ext/*/*.cc $(top_srcdir)/ext/*/*.cpp  $(top_srcdir)/sys/*/*.cpp \
-  $(top_srcdir)/ext/*/*.m $(top_srcdir)/sys/*/*.m
+  $(top_srcdir)/sys/*/*.m
 
 # Header files to ignore when scanning.
 IGNORE_HFILES =
@@ -103,7 +103,7 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/rtmp/gstrtmpsink.h \
 	$(top_srcdir)/ext/spandsp/gstspanplc.h \
 	$(top_srcdir)/ext/spandsp/gstdtmfdetect.h \
-	$(top_srcdir)/ext/wildmidi/gstwildmidi.h \
+	$(top_srcdir)/ext/wildmidi/gstwildmididec.h \
 	$(top_srcdir)/ext/voaacenc/gstvoaacenc.h \
 	$(top_srcdir)/ext/voamrwbenc/gstvoamrwbenc.h \
 	$(top_srcdir)/ext/webrtcdsp/gstwebrtcdsp.h \

@@ -36,6 +36,10 @@ GST_DEBUG_CATEGORY_STATIC (gst_decklink_audio_src_debug);
 #define DEFAULT_DISCONT_WAIT          (1 * GST_SECOND)
 #define DEFAULT_CHANNELS              (GST_DECKLINK_AUDIO_CHANNELS_2)
 
+#ifndef ABSDIFF
+#define ABSDIFF(x, y) ( (x) > (y) ? ((x) - (y)) : ((y) - (x)) )
+#endif
+
 enum
 {
   PROP_0,
@@ -45,6 +49,7 @@ enum
   PROP_DISCONT_WAIT,
   PROP_BUFFER_SIZE,
   PROP_CHANNELS,
+  PROP_HW_SERIAL_NUMBER
 };
 
 static GstStaticPadTemplate sink_template = GST_STATIC_PAD_TEMPLATE ("src",
@@ -61,6 +66,10 @@ typedef struct
 {
   IDeckLinkAudioInputPacket *packet;
   GstClockTime timestamp;
+  GstClockTime stream_timestamp;
+  GstClockTime stream_duration;
+  GstClockTime hardware_timestamp;
+  GstClockTime hardware_duration;
   gboolean no_signal;
 } CapturePacket;
 
@@ -180,6 +189,11 @@ gst_decklink_audio_src_class_init (GstDecklinkAudioSrcClass * klass)
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
               G_PARAM_CONSTRUCT)));
 
+  g_object_class_install_property (gobject_class, PROP_HW_SERIAL_NUMBER,
+      g_param_spec_string ("hw-serial-number", "Hardware serial number",
+          "The serial number (hardware ID) of the Decklink card",
+          NULL, (GParamFlags) (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)));
+
   gst_element_class_add_static_pad_template (element_class, &sink_template);
 
   gst_element_class_set_static_metadata (element_class, "Decklink Audio Source",
@@ -266,6 +280,12 @@ gst_decklink_audio_src_get_property (GObject * object, guint property_id,
       break;
     case PROP_CHANNELS:
       g_value_set_enum (value, self->channels);
+      break;
+    case PROP_HW_SERIAL_NUMBER:
+      if (self->input)
+        g_value_set_string (value, self->input->hw_serial_number);
+      else
+        g_value_set_string (value, NULL);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -404,7 +424,8 @@ gst_decklink_audio_src_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
         self->input->config->SetInt (bmdDeckLinkConfigAudioInputConnection,
         conn);
     if (ret != S_OK) {
-      GST_ERROR ("set configuration (audio input connection): 0x%08x", ret);
+      GST_ERROR ("set configuration (audio input connection): 0x%08lx",
+          (unsigned long) ret);
       return FALSE;
     }
   }
@@ -412,7 +433,8 @@ gst_decklink_audio_src_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
   ret = self->input->input->EnableAudioInput (bmdAudioSampleRate48kHz,
       sample_depth, self->info.channels);
   if (ret != S_OK) {
-    GST_WARNING_OBJECT (self, "Failed to enable audio input: 0x%08x", ret);
+    GST_WARNING_OBJECT (self, "Failed to enable audio input: 0x%08lx",
+        (unsigned long) ret);
     return FALSE;
   }
 
@@ -467,7 +489,9 @@ gst_decklink_audio_src_get_caps (GstBaseSrc * bsrc, GstCaps * filter)
 static void
 gst_decklink_audio_src_got_packet (GstElement * element,
     IDeckLinkAudioInputPacket * packet, GstClockTime capture_time,
-    GstClockTime packet_time, gboolean no_signal)
+    GstClockTime stream_time, GstClockTime stream_duration,
+    GstClockTime hardware_time, GstClockTime hardware_duration,
+    gboolean no_signal)
 {
   GstDecklinkAudioSrc *self = GST_DECKLINK_AUDIO_SRC_CAST (element);
   GstClockTime timestamp;
@@ -475,7 +499,7 @@ gst_decklink_audio_src_got_packet (GstElement * element,
   GST_LOG_OBJECT (self,
       "Got audio packet at %" GST_TIME_FORMAT " / %" GST_TIME_FORMAT
       ", no signal %d", GST_TIME_ARGS (capture_time),
-      GST_TIME_ARGS (packet_time), no_signal);
+      GST_TIME_ARGS (stream_time), no_signal);
 
   g_mutex_lock (&self->input->lock);
   if (self->input->videosrc) {
@@ -488,22 +512,22 @@ gst_decklink_audio_src_got_packet (GstElement * element,
     }
 
     if (videosrc->first_time == GST_CLOCK_TIME_NONE)
-      videosrc->first_time = packet_time;
+      videosrc->first_time = stream_time;
 
     if (videosrc->skip_first_time > 0
-        && packet_time - videosrc->first_time < videosrc->skip_first_time) {
+        && stream_time - videosrc->first_time < videosrc->skip_first_time) {
       GST_DEBUG_OBJECT (self,
           "Skipping frame as requested: %" GST_TIME_FORMAT " < %"
-          GST_TIME_FORMAT, GST_TIME_ARGS (packet_time),
+          GST_TIME_FORMAT, GST_TIME_ARGS (stream_time),
           GST_TIME_ARGS (videosrc->skip_first_time + videosrc->first_time));
       g_mutex_unlock (&self->input->lock);
       return;
     }
 
     if (videosrc->output_stream_time)
-      timestamp = packet_time;
+      timestamp = stream_time;
     else
-      timestamp = gst_clock_adjust_with_calibration (NULL, packet_time,
+      timestamp = gst_clock_adjust_with_calibration (NULL, stream_time,
           videosrc->current_time_mapping.xbase,
           videosrc->current_time_mapping.b, videosrc->current_time_mapping.num,
           videosrc->current_time_mapping.den);
@@ -542,6 +566,10 @@ gst_decklink_audio_src_got_packet (GstElement * element,
     memset (&p, 0, sizeof (p));
     p.packet = packet;
     p.timestamp = timestamp;
+    p.stream_timestamp = stream_time;
+    p.stream_duration = stream_duration;
+    p.hardware_timestamp = hardware_time;
+    p.hardware_duration = hardware_duration;
     p.no_signal = no_signal;
     packet->AddRef ();
     gst_queue_array_push_tail_struct (self->current_packets, &p);
@@ -564,6 +592,10 @@ gst_decklink_audio_src_create (GstPushSrc * bsrc, GstBuffer ** buffer)
   GstClockTime start_time, end_time;
   guint64 start_offset, end_offset;
   gboolean discont = FALSE;
+  static GstStaticCaps stream_reference =
+      GST_STATIC_CAPS ("timestamp/x-decklink-stream");
+  static GstStaticCaps hardware_reference =
+      GST_STATIC_CAPS ("timestamp/x-decklink-hardware");
 
 retry:
   g_mutex_lock (&self->lock);
@@ -673,10 +705,81 @@ retry:
         self->info.rate) - timestamp;
   }
 
+  // Detect gaps in stream time
+  self->processed += sample_count;
+  if (self->expected_stream_time != GST_CLOCK_TIME_NONE
+      && p.stream_timestamp == GST_CLOCK_TIME_NONE) {
+    /* We missed a frame. Extrapolate the timestamps */
+    p.stream_timestamp = self->expected_stream_time;
+    p.stream_duration =
+        gst_util_uint64_scale_int (sample_count, GST_SECOND, self->info.rate);
+  }
+  if (self->last_hardware_time != GST_CLOCK_TIME_NONE
+      && p.hardware_timestamp == GST_CLOCK_TIME_NONE) {
+    /* This should always happen when the previous one also does, but let's
+     * have two separate checks just in case */
+    GstClockTime start_hw_offset, end_hw_offset;
+    start_hw_offset =
+        gst_util_uint64_scale (self->last_hardware_time, self->info.rate,
+        GST_SECOND);
+    end_hw_offset = start_hw_offset + sample_count;
+    p.hardware_timestamp =
+        gst_util_uint64_scale_int (end_hw_offset, GST_SECOND, self->info.rate);
+    /* Will be the same as the stream duration - reuse it */
+    p.hardware_duration = p.stream_duration;
+  }
+
+  if (p.stream_timestamp != GST_CLOCK_TIME_NONE) {
+    GstClockTime start_stream_time, end_stream_time;
+
+    start_stream_time = p.stream_timestamp;
+
+    start_offset =
+        gst_util_uint64_scale (start_stream_time, self->info.rate, GST_SECOND);
+
+    end_offset = start_offset + sample_count;
+    end_stream_time = gst_util_uint64_scale_int (end_offset, GST_SECOND,
+        self->info.rate);
+
+    /* With drop-frame we have gaps of 1 sample every now and then (rounding
+     * errors because of the samples-per-frame pattern which is not 100%
+     * accurate), and due to rounding errors in the calculations these can be
+     * 2>x>1 */
+    if (self->expected_stream_time != GST_CLOCK_TIME_NONE &&
+        ABSDIFF (self->expected_stream_time, p.stream_timestamp) >
+        gst_util_uint64_scale (2, GST_SECOND, self->info.rate)) {
+      GstMessage *msg;
+      GstClockTime running_time;
+
+      self->dropped +=
+          gst_util_uint64_scale (ABSDIFF (self->expected_stream_time,
+              p.stream_timestamp), self->info.rate, GST_SECOND);
+      running_time =
+          gst_segment_to_running_time (&GST_BASE_SRC (self)->segment,
+          GST_FORMAT_TIME, timestamp);
+
+      msg =
+          gst_message_new_qos (GST_OBJECT (self), TRUE, running_time,
+          p.stream_timestamp, timestamp, duration);
+      gst_message_set_qos_stats (msg, GST_FORMAT_DEFAULT, self->processed,
+          self->dropped);
+      gst_element_post_message (GST_ELEMENT (self), msg);
+    }
+    self->expected_stream_time = end_stream_time;
+  }
+  self->last_hardware_time = p.hardware_timestamp;
+
   if (p.no_signal)
     GST_BUFFER_FLAG_SET (*buffer, GST_BUFFER_FLAG_GAP);
   GST_BUFFER_TIMESTAMP (*buffer) = timestamp;
   GST_BUFFER_DURATION (*buffer) = duration;
+
+  gst_buffer_add_reference_timestamp_meta (*buffer,
+      gst_static_caps_get (&stream_reference), p.stream_timestamp,
+      p.stream_duration);
+  gst_buffer_add_reference_timestamp_meta (*buffer,
+      gst_static_caps_get (&hardware_reference), p.hardware_timestamp,
+      p.hardware_duration);
 
   GST_DEBUG_OBJECT (self,
       "Outputting buffer %p with timestamp %" GST_TIME_FORMAT " and duration %"
@@ -768,6 +871,8 @@ gst_decklink_audio_src_open (GstDecklinkAudioSrc * self)
     GST_ERROR_OBJECT (self, "Failed to acquire input");
     return FALSE;
   }
+
+  g_object_notify (G_OBJECT (self), "hw-serial-number");
 
   g_mutex_lock (&self->input->lock);
   if (self->channels > 0) {
@@ -870,6 +975,9 @@ gst_decklink_audio_src_change_state (GstElement * element,
 
   switch (transition) {
     case GST_STATE_CHANGE_NULL_TO_READY:
+      self->processed = 0;
+      self->dropped = 0;
+      self->expected_stream_time = GST_CLOCK_TIME_NONE;
       if (!gst_decklink_audio_src_open (self)) {
         ret = GST_STATE_CHANGE_FAILURE;
         goto out;

@@ -43,6 +43,7 @@
 #endif
 
 #include <gst/video/video.h>
+#include <gst/video/videooverlay.h>
 #include <gst/allocators/gstdmabuf.h>
 
 #include <drm.h>
@@ -64,28 +65,110 @@ GST_DEBUG_CATEGORY_STATIC (gst_kms_sink_debug);
 GST_DEBUG_CATEGORY_STATIC (CAT_PERFORMANCE);
 #define GST_CAT_DEFAULT gst_kms_sink_debug
 
+static GstFlowReturn gst_kms_sink_show_frame (GstVideoSink * vsink,
+    GstBuffer * buf);
+static void gst_kms_sink_video_overlay_init (GstVideoOverlayInterface * iface);
+static void gst_kms_sink_drain (GstKMSSink * self);
+
 #define parent_class gst_kms_sink_parent_class
 G_DEFINE_TYPE_WITH_CODE (GstKMSSink, gst_kms_sink, GST_TYPE_VIDEO_SINK,
     GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, GST_PLUGIN_NAME, 0,
         GST_PLUGIN_DESC);
-    GST_DEBUG_CATEGORY_GET (CAT_PERFORMANCE, "GST_PERFORMANCE"));
+    GST_DEBUG_CATEGORY_GET (CAT_PERFORMANCE, "GST_PERFORMANCE");
+    G_IMPLEMENT_INTERFACE (GST_TYPE_VIDEO_OVERLAY,
+        gst_kms_sink_video_overlay_init));
 
 enum
 {
   PROP_DRIVER_NAME = 1,
+  PROP_BUS_ID,
   PROP_CONNECTOR_ID,
   PROP_PLANE_ID,
   PROP_FORCE_MODESETTING,
+  PROP_CAN_SCALE,
+  PROP_DISPLAY_WIDTH,
+  PROP_DISPLAY_HEIGHT,
   PROP_N
 };
 
 static GParamSpec *g_properties[PROP_N] = { NULL, };
 
+static void
+gst_kms_sink_set_render_rectangle (GstVideoOverlay * overlay,
+    gint x, gint y, gint width, gint height)
+{
+  GstKMSSink *self = GST_KMS_SINK (overlay);
+
+  GST_DEBUG_OBJECT (self, "Setting render rectangle to (%d,%d) %dx%d", x, y,
+      width, height);
+
+  GST_OBJECT_LOCK (self);
+
+  if (width == -1 && height == -1) {
+    x = 0;
+    y = 0;
+    width = self->hdisplay;
+    height = self->vdisplay;
+  }
+
+  if (width <= 0 || height <= 0)
+    goto done;
+
+  self->pending_rect.x = x;
+  self->pending_rect.y = y;
+  self->pending_rect.w = width;
+  self->pending_rect.h = height;
+
+  if (self->can_scale ||
+      (self->render_rect.w == width && self->render_rect.h == height)) {
+    self->render_rect = self->pending_rect;
+  } else {
+    self->reconfigure = TRUE;
+    GST_DEBUG_OBJECT (self, "Waiting for new caps to apply render rectangle");
+  }
+
+done:
+  GST_OBJECT_UNLOCK (self);
+}
+
+static void
+gst_kms_sink_expose (GstVideoOverlay * overlay)
+{
+  GstKMSSink *self = GST_KMS_SINK (overlay);
+
+  GST_DEBUG_OBJECT (overlay, "Expose called by application");
+
+  if (!self->can_scale) {
+    GST_OBJECT_LOCK (self);
+    if (self->reconfigure) {
+      GST_OBJECT_UNLOCK (self);
+      GST_DEBUG_OBJECT (overlay, "Sending a reconfigure event");
+      gst_pad_push_event (GST_BASE_SINK_PAD (self),
+          gst_event_new_reconfigure ());
+    } else {
+      GST_DEBUG_OBJECT (overlay, "Applying new render rectangle");
+      /* size of the rectangle does not change, only the (x,y) position changes */
+      self->render_rect = self->pending_rect;
+      GST_OBJECT_UNLOCK (self);
+    }
+  }
+
+  gst_kms_sink_show_frame (GST_VIDEO_SINK (self), NULL);
+}
+
+static void
+gst_kms_sink_video_overlay_init (GstVideoOverlayInterface * iface)
+{
+  iface->expose = gst_kms_sink_expose;
+  iface->set_render_rectangle = gst_kms_sink_set_render_rectangle;
+}
+
 static int
 kms_open (gchar ** driver)
 {
   static const char *drivers[] = { "i915", "radeon", "nouveau", "vmwgfx",
-    "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm"
+    "exynos", "amdgpu", "imx-drm", "rockchip", "atmel-hlcdc", "msm",
+    "xilinx_drm", "vc4",
   };
   int i, fd = -1;
 
@@ -303,8 +386,10 @@ get_drm_caps (GstKMSSink * self)
   ret = drmGetCap (self->fd, DRM_CAP_PRIME, &has_prime);
   if (ret)
     GST_WARNING_OBJECT (self, "could not get prime capability");
-  else
+  else {
     self->has_prime_import = (gboolean) (has_prime & DRM_PRIME_CAP_IMPORT);
+    self->has_prime_export = (gboolean) (has_prime & DRM_PRIME_CAP_EXPORT);
+  }
 
   has_async_page_flip = 0;
   ret = drmGetCap (self->fd, DRM_CAP_ASYNC_PAGE_FLIP, &has_async_page_flip);
@@ -313,8 +398,10 @@ get_drm_caps (GstKMSSink * self)
   else
     self->has_async_page_flip = (gboolean) has_async_page_flip;
 
-  GST_INFO_OBJECT (self, "prime import (%s) / async page flip (%s)",
+  GST_INFO_OBJECT (self,
+      "prime import (%s) / prime export (%s) / async page flip (%s)",
       self->has_prime_import ? "✓" : "✗",
+      self->has_prime_export ? "✓" : "✗",
       self->has_async_page_flip ? "✓" : "✗");
 
   return TRUE;
@@ -506,8 +593,8 @@ gst_kms_sink_start (GstBaseSink * bsink)
   pres = NULL;
   plane = NULL;
 
-  if (self->devname)
-    self->fd = drmOpen (self->devname, NULL);
+  if (self->devname || self->bus_id)
+    self->fd = drmOpen (self->devname, self->bus_id);
   else
     self->fd = kms_open (&self->devname);
   if (self->fd < 0)
@@ -516,8 +603,6 @@ gst_kms_sink_start (GstBaseSink * bsink)
   log_drm_version (self);
   if (!get_drm_caps (self))
     goto bail;
-
-  self->can_scale = TRUE;
 
   res = drmModeGetResources (self->fd);
   if (!res)
@@ -566,8 +651,20 @@ retry_find_plane:
   GST_INFO_OBJECT (self, "connector id = %d / crtc id = %d / plane id = %d",
       self->conn_id, self->crtc_id, self->plane_id);
 
+  GST_OBJECT_LOCK (self);
   self->hdisplay = crtc->mode.hdisplay;
   self->vdisplay = crtc->mode.vdisplay;
+
+  if (self->render_rect.w == 0 || self->render_rect.h == 0) {
+    self->render_rect.x = 0;
+    self->render_rect.y = 0;
+    self->render_rect.w = self->hdisplay;
+    self->render_rect.h = self->vdisplay;
+  }
+
+  self->pending_rect = self->render_rect;
+  GST_OBJECT_UNLOCK (self);
+
   self->buffer_id = crtc->buffer_id;
 
   self->mm_width = conn->mmWidth;
@@ -579,6 +676,9 @@ retry_find_plane:
   self->pollfd.fd = self->fd;
   gst_poll_add_fd (self->poll, &self->pollfd);
   gst_poll_fd_ctl_read (self->poll, &self->pollfd, TRUE);
+
+  g_object_notify_by_pspec (G_OBJECT (self), g_properties[PROP_DISPLAY_WIDTH]);
+  g_object_notify_by_pspec (G_OBJECT (self), g_properties[PROP_DISPLAY_HEIGHT]);
 
   ret = TRUE;
 
@@ -675,6 +775,9 @@ gst_kms_sink_stop (GstBaseSink * bsink)
 
   self = GST_KMS_SINK (bsink);
 
+  if (self->allocator)
+    gst_kms_allocator_clear_cache (self->allocator);
+
   gst_buffer_replace (&self->last_buffer, NULL);
   gst_caps_replace (&self->allowed_caps, NULL);
   gst_object_replace ((GstObject **) & self->pool, NULL);
@@ -688,6 +791,19 @@ gst_kms_sink_stop (GstBaseSink * bsink)
     drmClose (self->fd);
     self->fd = -1;
   }
+
+  GST_OBJECT_LOCK (bsink);
+  self->hdisplay = 0;
+  self->vdisplay = 0;
+  self->pending_rect.x = 0;
+  self->pending_rect.y = 0;
+  self->pending_rect.w = 0;
+  self->pending_rect.h = 0;
+  self->render_rect = self->pending_rect;
+  GST_OBJECT_UNLOCK (bsink);
+
+  g_object_notify_by_pspec (G_OBJECT (self), g_properties[PROP_DISPLAY_WIDTH]);
+  g_object_notify_by_pspec (G_OBJECT (self), g_properties[PROP_DISPLAY_HEIGHT]);
 
   return TRUE;
 }
@@ -705,15 +821,48 @@ gst_kms_sink_get_caps (GstBaseSink * bsink, GstCaps * filter)
 {
   GstKMSSink *self;
   GstCaps *caps, *out_caps;
+  GstStructure *s;
+  guint dpy_par_n, dpy_par_d;
 
   self = GST_KMS_SINK (bsink);
 
   caps = gst_kms_sink_get_allowed_caps (self);
-  if (caps && filter) {
+  if (!caps)
+    return NULL;
+
+  GST_OBJECT_LOCK (self);
+
+  if (!self->can_scale) {
+    out_caps = gst_caps_new_empty ();
+    gst_video_calculate_device_ratio (self->hdisplay, self->vdisplay,
+        self->mm_width, self->mm_height, &dpy_par_n, &dpy_par_d);
+
+    s = gst_structure_copy (gst_caps_get_structure (caps, 0));
+    gst_structure_set (s, "width", G_TYPE_INT, self->pending_rect.w,
+        "height", G_TYPE_INT, self->pending_rect.h,
+        "pixel-aspect-ratio", GST_TYPE_FRACTION, dpy_par_n, dpy_par_d, NULL);
+
+    gst_caps_append_structure (out_caps, s);
+
+    out_caps = gst_caps_merge (out_caps, caps);
+    caps = NULL;
+
+    /* enforce our display aspect ratio */
+    gst_caps_set_simple (out_caps, "pixel-aspect-ratio", GST_TYPE_FRACTION,
+        dpy_par_n, dpy_par_d, NULL);
+  } else {
+    out_caps = gst_caps_make_writable (caps);
+    caps = NULL;
+  }
+
+  GST_OBJECT_UNLOCK (self);
+
+  GST_DEBUG_OBJECT (self, "Proposing caps %" GST_PTR_FORMAT, out_caps);
+
+  if (filter) {
+    caps = out_caps;
     out_caps = gst_caps_intersect_full (caps, filter, GST_CAPS_INTERSECT_FIRST);
     gst_caps_unref (caps);
-  } else {
-    out_caps = caps;
   }
 
   return out_caps;
@@ -777,8 +926,14 @@ gst_kms_sink_calculate_display_ratio (GstKMSSink * self, GstVideoInfo * vinfo)
   video_par_n = GST_VIDEO_INFO_PAR_N (vinfo);
   video_par_d = GST_VIDEO_INFO_PAR_D (vinfo);
 
-  gst_video_calculate_device_ratio (self->hdisplay, self->vdisplay,
-      self->mm_width, self->mm_height, &dpy_par_n, &dpy_par_d);
+  if (self->can_scale) {
+    gst_video_calculate_device_ratio (self->hdisplay, self->vdisplay,
+        self->mm_width, self->mm_height, &dpy_par_n, &dpy_par_d);
+  } else {
+    GST_VIDEO_SINK_WIDTH (self) = video_width;
+    GST_VIDEO_SINK_HEIGHT (self) = video_height;
+    goto out;
+  }
 
   if (!gst_video_calculate_display_ratio (&dar_n, &dar_d, video_width,
           video_height, video_par_n, video_par_d, dpy_par_n, dpy_par_d))
@@ -809,6 +964,8 @@ gst_kms_sink_calculate_display_ratio (GstKMSSink * self, GstVideoInfo * vinfo)
         gst_util_uint64_scale_int (video_height, dar_n, dar_d);
     GST_VIDEO_SINK_HEIGHT (self) = video_height;
   }
+
+out:
   GST_DEBUG_OBJECT (self, "scaling to %dx%d", GST_VIDEO_SINK_WIDTH (self),
       GST_VIDEO_SINK_HEIGHT (self));
 
@@ -823,6 +980,11 @@ gst_kms_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
   GstBufferPool *newpool, *oldpool;
 
   self = GST_KMS_SINK (bsink);
+
+  /* We are going to change the internal buffer pool, which means it will no
+   * longer be compatbile with the last_buffer size. Drain now, as we won't be
+   * able to do that later on. */
+  gst_kms_sink_drain (self);
 
   if (!gst_video_info_from_caps (&vinfo, caps))
     goto invalid_format;
@@ -852,6 +1014,13 @@ gst_kms_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
     goto modesetting_failed;
 
   self->vinfo = vinfo;
+
+  GST_OBJECT_LOCK (self);
+  if (self->reconfigure) {
+    self->reconfigure = FALSE;
+    self->render_rect = self->pending_rect;
+  }
+  GST_OBJECT_UNLOCK (self);
 
   GST_DEBUG_OBJECT (self, "negotiated caps = %" GST_PTR_FORMAT, caps);
 
@@ -917,13 +1086,20 @@ gst_kms_sink_propose_allocation (GstBaseSink * bsink, GstQuery * query)
     pool = gst_kms_sink_create_pool (self, caps, size, 0);
     if (!pool)
       goto no_pool;
+
+    /* Only export for pool used upstream */
+    if (self->has_prime_export) {
+      GstStructure *config = gst_buffer_pool_get_config (pool);
+      gst_buffer_pool_config_add_option (config,
+          GST_BUFFER_POOL_OPTION_KMS_PRIME_EXPORT);
+      gst_buffer_pool_set_config (pool, config);
+    }
   }
 
-  if (pool) {
-    /* we need at least 2 buffer because we hold on to the last one */
-    gst_query_add_allocation_pool (query, pool, size, 2, 0);
+  /* we need at least 2 buffer because we hold on to the last one */
+  gst_query_add_allocation_pool (query, pool, size, 2, 0);
+  if (pool)
     gst_object_unref (pool);
-  }
 
   gst_query_add_allocation_meta (query, GST_VIDEO_META_API_TYPE, NULL);
   gst_query_add_allocation_meta (query, GST_VIDEO_CROP_META_API_TYPE, NULL);
@@ -1025,21 +1201,6 @@ event_failed:
   }
 }
 
-static GstMemory *
-get_cached_kmsmem (GstMemory * mem)
-{
-  return gst_mini_object_get_qdata (GST_MINI_OBJECT (mem),
-      g_quark_from_static_string ("kmsmem"));
-}
-
-static void
-set_cached_kmsmem (GstMemory * mem, GstMemory * kmsmem)
-{
-  return gst_mini_object_set_qdata (GST_MINI_OBJECT (mem),
-      g_quark_from_static_string ("kmsmem"), kmsmem,
-      (GDestroyNotify) gst_memory_unref);
-}
-
 static gboolean
 gst_kms_sink_import_dmabuf (GstKMSSink * self, GstBuffer * inbuf,
     GstBuffer ** outbuf)
@@ -1102,7 +1263,7 @@ gst_kms_sink_import_dmabuf (GstKMSSink * self, GstBuffer * inbuf,
       return FALSE;
   }
 
-  kmsmem = (GstKMSMemory *) get_cached_kmsmem (mems[0]);
+  kmsmem = (GstKMSMemory *) gst_kms_allocator_get_cached (mems[0]);
   if (kmsmem) {
     GST_LOG_OBJECT (self, "found KMS mem %p in DMABuf mem %p with fb id = %d",
         kmsmem, mems[0], kmsmem->fb_id);
@@ -1115,14 +1276,14 @@ gst_kms_sink_import_dmabuf (GstKMSSink * self, GstBuffer * inbuf,
   GST_LOG_OBJECT (self, "found these prime ids: %d, %d, %d, %d", prime_fds[0],
       prime_fds[1], prime_fds[2], prime_fds[3]);
 
-  kmsmem = gst_kms_allocator_dmabuf_import (self->allocator, prime_fds,
-      n_planes, mems_skip, &self->vinfo);
+  kmsmem = gst_kms_allocator_dmabuf_import (self->allocator,
+      prime_fds, n_planes, mems_skip, &self->vinfo);
   if (!kmsmem)
     return FALSE;
 
   GST_LOG_OBJECT (self, "setting KMS mem %p to DMABuf mem %p with fb id = %d",
       kmsmem, mems[0], kmsmem->fb_id);
-  set_cached_kmsmem (mems[0], GST_MEMORY_CAST (kmsmem));
+  gst_kms_allocator_cache (self->allocator, mems[0], GST_MEMORY_CAST (kmsmem));
 
 wrap_mem:
   *outbuf = gst_buffer_new ();
@@ -1135,26 +1296,12 @@ wrap_mem:
 }
 
 static GstBuffer *
-gst_kms_sink_get_input_buffer (GstKMSSink * self, GstBuffer * inbuf)
+gst_kms_sink_copy_to_dumb_buffer (GstKMSSink * self, GstBuffer * inbuf)
 {
-  GstMemory *mem;
-  GstBuffer *buf;
   GstFlowReturn ret;
   GstVideoFrame inframe, outframe;
   gboolean success;
-
-  mem = gst_buffer_peek_memory (inbuf, 0);
-  if (!mem)
-    return NULL;
-
-  if (gst_is_kms_memory (mem))
-    return gst_buffer_ref (inbuf);
-
-  buf = NULL;
-  if (gst_kms_sink_import_dmabuf (self, inbuf, &buf))
-    return buf;
-
-  GST_CAT_INFO_OBJECT (CAT_PERFORMANCE, self, "frame copy");
+  GstBuffer *buf = NULL;
 
   if (!gst_buffer_pool_set_active (self->pool, TRUE))
     goto activate_pool_failed;
@@ -1189,13 +1336,13 @@ activate_pool_failed:
   {
     GST_ELEMENT_ERROR (self, STREAM, FAILED, ("failed to activate buffer pool"),
         ("failed to activate buffer pool"));
-    goto bail;
+    return NULL;
   }
 create_buffer_failed:
   {
     GST_ELEMENT_ERROR (self, STREAM, FAILED, ("allocation failed"),
         ("failed to create buffer"));
-    goto bail;
+    return NULL;
   }
 error_copy_buffer:
   {
@@ -1214,11 +1361,39 @@ error_map_src_buffer:
   }
 }
 
+static GstBuffer *
+gst_kms_sink_get_input_buffer (GstKMSSink * self, GstBuffer * inbuf)
+{
+  GstMemory *mem;
+  GstBuffer *buf = NULL;
+
+  mem = gst_buffer_peek_memory (inbuf, 0);
+  if (!mem)
+    return NULL;
+
+  if (gst_is_kms_memory (mem))
+    return gst_buffer_ref (inbuf);
+
+  if (gst_kms_sink_import_dmabuf (self, inbuf, &buf))
+    goto done;
+
+  GST_CAT_INFO_OBJECT (CAT_PERFORMANCE, self, "frame copy");
+  buf = gst_kms_sink_copy_to_dumb_buffer (self, inbuf);
+
+done:
+  /* Copy all the non-memory related metas, this way CropMeta will be
+   * available upon GstVideoOverlay::expose calls. */
+  if (buf)
+    gst_buffer_copy_into (buf, inbuf, GST_BUFFER_COPY_METADATA, 0, -1);
+
+  return buf;
+}
+
 static GstFlowReturn
 gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
 {
   gint ret;
-  GstBuffer *buffer;
+  GstBuffer *buffer = NULL;
   guint32 fb_id;
   GstKMSSink *self;
   GstVideoCropMeta *crop;
@@ -1231,7 +1406,14 @@ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
 
   res = GST_FLOW_ERROR;
 
-  buffer = gst_kms_sink_get_input_buffer (self, buf);
+  if (buf)
+    buffer = gst_kms_sink_get_input_buffer (self, buf);
+  else if (self->last_buffer)
+    buffer = gst_buffer_ref (self->last_buffer);
+
+  /* Make sure buf is not used accidentally */
+  buf = NULL;
+
   if (!buffer)
     return GST_FLOW_ERROR;
   fb_id = gst_kms_memory_get_fb_id (gst_buffer_peek_memory (buffer, 0));
@@ -1240,6 +1422,7 @@ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
 
   GST_TRACE_OBJECT (self, "displaying fb %d", fb_id);
 
+  GST_OBJECT_LOCK (self);
   if (self->modesetting_enabled) {
     self->buffer_id = fb_id;
     goto sync_frame;
@@ -1260,11 +1443,14 @@ gst_kms_sink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
   src.w = GST_VIDEO_SINK_WIDTH (self);
   src.h = GST_VIDEO_SINK_HEIGHT (self);
 
-  dst.w = self->hdisplay;
-  dst.h = self->vdisplay;
+  dst.w = self->render_rect.w;
+  dst.h = self->render_rect.h;
 
 retry_set_plane:
   gst_video_sink_center_rect (src, dst, &result, self->can_scale);
+
+  result.x += self->render_rect.x;
+  result.y += self->render_rect.y;
 
   if (crop) {
     src.w = crop->width;
@@ -1272,6 +1458,24 @@ retry_set_plane:
   } else {
     src.w = GST_VIDEO_INFO_WIDTH (&self->vinfo);
     src.h = GST_VIDEO_INFO_HEIGHT (&self->vinfo);
+  }
+
+  /* handle out of screen case */
+  if ((result.x + result.w) > self->hdisplay)
+    result.w = self->hdisplay - result.x;
+
+  if ((result.y + result.h) > self->vdisplay)
+    result.h = self->vdisplay - result.y;
+
+  if (result.w <= 0 || result.h <= 0) {
+    GST_WARNING_OBJECT (self, "video is out of display range");
+    goto sync_frame;
+  }
+
+  /* to make sure it can be show when driver don't support scale */
+  if (!self->can_scale) {
+    src.w = result.w;
+    src.h = result.h;
   }
 
   GST_TRACE_OBJECT (self,
@@ -1292,12 +1496,16 @@ retry_set_plane:
 
 sync_frame:
   /* Wait for the previous frame to complete redraw */
-  if (!gst_kms_sink_sync (self))
+  if (!gst_kms_sink_sync (self)) {
+    GST_OBJECT_UNLOCK (self);
     goto bail;
+  }
 
-  gst_buffer_replace (&self->last_buffer, buffer);
+  if (buffer != self->last_buffer)
+    gst_buffer_replace (&self->last_buffer, buffer);
   g_clear_pointer (&self->tmp_kmsmem, gst_memory_unref);
 
+  GST_OBJECT_UNLOCK (self);
   res = GST_FLOW_OK;
 
 bail:
@@ -1312,6 +1520,7 @@ buffer_invalid:
   }
 set_plane_failed:
   {
+    GST_OBJECT_UNLOCK (self);
     GST_DEBUG_OBJECT (self, "result = { %d, %d, %d, %d} / "
         "src = { %d, %d, %d %d } / dst = { %d, %d, %d %d }", result.x, result.y,
         result.w, result.h, src.x, src.y, src.w, src.h, dst.x, dst.y, dst.w,
@@ -1322,10 +1531,52 @@ set_plane_failed:
   }
 no_disp_ratio:
   {
+    GST_OBJECT_UNLOCK (self);
     GST_ELEMENT_ERROR (self, CORE, NEGOTIATION, (NULL),
         ("Error calculating the output display ratio of the video."));
     goto bail;
   }
+}
+
+static void
+gst_kms_sink_drain (GstKMSSink * self)
+{
+  GstParentBufferMeta *parent_meta;
+
+  GST_DEBUG_OBJECT (self, "draining");
+
+  if (!self->last_buffer)
+    return;
+
+  /* We only need to return the last_buffer if it depends on upstream buffer.
+   * In this case, the last_buffer will have a GstParentBufferMeta set. */
+  parent_meta = gst_buffer_get_parent_buffer_meta (self->last_buffer);
+  if (parent_meta) {
+    GstBuffer *dumb_buf;
+    dumb_buf = gst_kms_sink_copy_to_dumb_buffer (self, parent_meta->buffer);
+    gst_kms_allocator_clear_cache (self->allocator);
+    gst_kms_sink_show_frame (GST_VIDEO_SINK (self), dumb_buf);
+    gst_buffer_unref (dumb_buf);
+  }
+}
+
+static gboolean
+gst_kms_sink_query (GstBaseSink * bsink, GstQuery * query)
+{
+  GstKMSSink *self = GST_KMS_SINK (bsink);
+
+  switch (GST_QUERY_TYPE (query)) {
+    case GST_QUERY_ALLOCATION:
+    case GST_QUERY_DRAIN:
+    {
+      gst_kms_sink_drain (self);
+      break;
+    }
+    default:
+      break;
+  }
+
+  return GST_BASE_SINK_CLASS (parent_class)->query (bsink, query);
 }
 
 static void
@@ -1338,7 +1589,12 @@ gst_kms_sink_set_property (GObject * object, guint prop_id,
 
   switch (prop_id) {
     case PROP_DRIVER_NAME:
+      g_free (sink->devname);
       sink->devname = g_value_dup_string (value);
+      break;
+    case PROP_BUS_ID:
+      g_free (sink->bus_id);
+      sink->bus_id = g_value_dup_string (value);
       break;
     case PROP_CONNECTOR_ID:
       sink->conn_id = g_value_get_int (value);
@@ -1349,8 +1605,12 @@ gst_kms_sink_set_property (GObject * object, guint prop_id,
     case PROP_FORCE_MODESETTING:
       sink->modesetting_enabled = g_value_get_boolean (value);
       break;
+    case PROP_CAN_SCALE:
+      sink->can_scale = g_value_get_boolean (value);
+      break;
     default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      if (!gst_video_overlay_set_property (object, PROP_N, prop_id, value))
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
   }
 }
@@ -1367,6 +1627,9 @@ gst_kms_sink_get_property (GObject * object, guint prop_id,
     case PROP_DRIVER_NAME:
       g_value_take_string (value, sink->devname);
       break;
+    case PROP_BUS_ID:
+      g_value_take_string (value, sink->bus_id);
+      break;
     case PROP_CONNECTOR_ID:
       g_value_set_int (value, sink->conn_id);
       break;
@@ -1375,6 +1638,19 @@ gst_kms_sink_get_property (GObject * object, guint prop_id,
       break;
     case PROP_FORCE_MODESETTING:
       g_value_set_boolean (value, sink->modesetting_enabled);
+      break;
+    case PROP_CAN_SCALE:
+      g_value_set_boolean (value, sink->can_scale);
+      break;
+    case PROP_DISPLAY_WIDTH:
+      GST_OBJECT_LOCK (sink);
+      g_value_set_int (value, sink->hdisplay);
+      GST_OBJECT_UNLOCK (sink);
+      break;
+    case PROP_DISPLAY_HEIGHT:
+      GST_OBJECT_LOCK (sink);
+      g_value_set_int (value, sink->vdisplay);
+      GST_OBJECT_UNLOCK (sink);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1389,6 +1665,7 @@ gst_kms_sink_finalize (GObject * object)
 
   sink = GST_KMS_SINK (object);
   g_clear_pointer (&sink->devname, g_free);
+  g_clear_pointer (&sink->bus_id, g_free);
   gst_poll_free (sink->poll);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
@@ -1400,6 +1677,7 @@ gst_kms_sink_init (GstKMSSink * sink)
   sink->fd = -1;
   sink->conn_id = -1;
   sink->plane_id = -1;
+  sink->can_scale = TRUE;
   gst_poll_fd_init (&sink->pollfd);
   sink->poll = gst_poll_new (TRUE);
   gst_video_info_init (&sink->vinfo);
@@ -1432,6 +1710,7 @@ gst_kms_sink_class_init (GstKMSSinkClass * klass)
   basesink_class->set_caps = GST_DEBUG_FUNCPTR (gst_kms_sink_set_caps);
   basesink_class->get_caps = GST_DEBUG_FUNCPTR (gst_kms_sink_get_caps);
   basesink_class->propose_allocation = gst_kms_sink_propose_allocation;
+  basesink_class->query = gst_kms_sink_query;
 
   videosink_class->show_frame = gst_kms_sink_show_frame;
 
@@ -1448,6 +1727,17 @@ gst_kms_sink_class_init (GstKMSSinkClass * klass)
    */
   g_properties[PROP_DRIVER_NAME] = g_param_spec_string ("driver-name",
       "device name", "DRM device driver name", NULL,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_CONSTRUCT);
+
+  /**
+   * kmssink:bus-id:
+   *
+   * If you have a system with multiple displays for the same driver-name,
+   * you can choose which display to use by setting the DRM bus ID. Otherwise,
+   * the driver decides which one.
+   */
+  g_properties[PROP_BUS_ID] = g_param_spec_string ("bus-id",
+      "Bus ID", "DRM bus ID", NULL,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_CONSTRUCT);
 
   /**
@@ -1484,7 +1774,43 @@ gst_kms_sink_class_init (GstKMSSinkClass * klass)
       "When enabled, the sink try to configure the display mode", FALSE,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_CONSTRUCT);
 
+  /**
+   * kmssink:can-scale:
+   *
+   * User can tell kmssink if the driver can support scale.
+   */
+  g_properties[PROP_CAN_SCALE] =
+      g_param_spec_boolean ("can-scale", "can scale",
+      "User can tell kmssink if the driver can support scale", TRUE,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_CONSTRUCT);
+
+  /**
+   * kmssink:display-width
+   *
+   * Actual width of the display. This is read only and only available in
+   * PAUSED and PLAYING state. It's meant to be used with
+   * gst_video_overlay_set_render_rectangle() function.
+   */
+  g_properties[PROP_DISPLAY_WIDTH] =
+      g_param_spec_int ("display-width", "Display Width",
+      "Width of the display surface in pixels", 0, G_MAXINT, 0,
+      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
+  /**
+   * kmssink:display-height
+   *
+   * Actual height of the display. This is read only and only available in
+   * PAUSED and PLAYING state. It's meant to be used with
+   * gst_video_overlay_set_render_rectangle() function.
+   */
+  g_properties[PROP_DISPLAY_HEIGHT] =
+      g_param_spec_int ("display-height", "Display Height",
+      "Height of the display surface in pixels", 0, G_MAXINT, 0,
+      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (gobject_class, PROP_N, g_properties);
+
+  gst_video_overlay_install_properties (gobject_class, PROP_N);
 }
 
 static gboolean

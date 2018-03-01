@@ -2004,7 +2004,7 @@
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Tuning Timeout</NICK>
-<BLURB>Milliseconds to wait before giving up tuning/locking on a signal.</BLURB>
+<BLURB>Microseconds to wait before giving up tuning/locking on a signal.</BLURB>
 <DEFAULT>10000000000</DEFAULT>
 </ARG>
 
@@ -18234,7 +18234,7 @@
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Tuning Timeout</NICK>
-<BLURB>Milliseconds to wait before giving up tuning/locking on a signal.</BLURB>
+<BLURB>Microseconds to wait before giving up tuning/locking on a signal.</BLURB>
 <DEFAULT>10000000000</DEFAULT>
 </ARG>
 
@@ -47223,9 +47223,9 @@
 <TYPE>gint</TYPE>
 <RANGE>>= 0</RANGE>
 <FLAGS>rw</FLAGS>
-<NICK>height (kernel height)</NICK>
-<BLURB>The gaussian kernel height (must be positive and odd).</BLURB>
-<DEFAULT>3</DEFAULT>
+<NICK>height of area to blur</NICK>
+<BLURB>Height of the area to blur (in pixels).</BLURB>
+<DEFAULT>2147483647</DEFAULT>
 </ARG>
 
 <ARG>
@@ -47241,11 +47241,51 @@
 <ARG>
 <NAME>GstCvSmooth::width</NAME>
 <TYPE>gint</TYPE>
+<RANGE>>= 0</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>width of area to blur</NICK>
+<BLURB>Width of the area to blur (in pixels).</BLURB>
+<DEFAULT>2147483647</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCvSmooth::kernel-height</NAME>
+<TYPE>gint</TYPE>
+<RANGE>>= 0</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>kernel height</NICK>
+<BLURB>The gaussian kernel height (must be positive and odd).</BLURB>
+<DEFAULT>3</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCvSmooth::kernel-width</NAME>
+<TYPE>gint</TYPE>
 <RANGE>>= 1</RANGE>
 <FLAGS>rw</FLAGS>
-<NICK>width (kernel width)</NICK>
+<NICK>kernel width</NICK>
 <BLURB>The gaussian kernel width (must be positive and odd).If type is median, this means the aperture linear size.Check OpenCV docs: http://docs.opencv.org/2.4/modules/imgproc/doc/filtering.htm.</BLURB>
 <DEFAULT>3</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCvSmooth::position-x</NAME>
+<TYPE>gint</TYPE>
+<RANGE>>= 0</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>starting x position for blur</NICK>
+<BLURB>Starting x position for blur (in pixels).</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCvSmooth::position-y</NAME>
+<TYPE>gint</TYPE>
+<RANGE>>= 0</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>starting y position for blur</NICK>
+<BLURB>Starting y position for blur (in pixels).</BLURB>
+<DEFAULT>0</DEFAULT>
 </ARG>
 
 <ARG>
@@ -58955,7 +58995,7 @@
 <FLAGS>rw</FLAGS>
 <NICK>Eyes profile</NICK>
 <BLURB>Location of Haar cascade file to use for eye-pair detection.</BLURB>
-<DEFAULT>"/usr/share/OpenCV/haarcascades/haarcascade_mcs_eyepair_small.xml"</DEFAULT>
+<DEFAULT>"/usr/share/opencv/haarcascades/haarcascade_mcs_eyepair_small.xml"</DEFAULT>
 </ARG>
 
 <ARG>
@@ -59005,7 +59045,7 @@
 <FLAGS>rw</FLAGS>
 <NICK>Mouth profile</NICK>
 <BLURB>Location of Haar cascade file to use for mouth detection.</BLURB>
-<DEFAULT>"/usr/share/OpenCV/haarcascades/haarcascade_mcs_mouth.xml"</DEFAULT>
+<DEFAULT>"/usr/share/opencv/haarcascades/haarcascade_mcs_mouth.xml"</DEFAULT>
 </ARG>
 
 <ARG>
@@ -59015,7 +59055,7 @@
 <FLAGS>rw</FLAGS>
 <NICK>Nose profile</NICK>
 <BLURB>Location of Haar cascade file to use for nose detection.</BLURB>
-<DEFAULT>"/usr/share/OpenCV/haarcascades/haarcascade_mcs_nose.xml"</DEFAULT>
+<DEFAULT>"/usr/share/opencv/haarcascades/haarcascade_mcs_nose.xml"</DEFAULT>
 </ARG>
 
 <ARG>
@@ -59025,7 +59065,7 @@
 <FLAGS>rw</FLAGS>
 <NICK>Face profile</NICK>
 <BLURB>Location of Haar cascade file to use for face detection.</BLURB>
-<DEFAULT>"/usr/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml"</DEFAULT>
+<DEFAULT>"/usr/share/opencv/haarcascades/haarcascade_frontalface_default.xml"</DEFAULT>
 </ARG>
 
 <ARG>
@@ -59065,7 +59105,7 @@
 <FLAGS>rw</FLAGS>
 <NICK>Profile</NICK>
 <BLURB>Location of Haar cascade file to use for face blurion.</BLURB>
-<DEFAULT>"/usr/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml"</DEFAULT>
+<DEFAULT>"/usr/share/opencv/haarcascades/haarcascade_frontalface_default.xml"</DEFAULT>
 </ARG>
 
 <ARG>
@@ -67911,6 +67951,16 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 </ARG>
 
 <ARG>
+<NAME>GstDecklinkVideoSrc::hw-serial-number</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>r</FLAGS>
+<NICK>Hardware serial number</NICK>
+<BLURB>The serial number (hardware ID) of the Decklink card.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
 <NAME>GstDecklinkVideoSink::device-number</NAME>
 <TYPE>gint</TYPE>
 <RANGE>>= 0</RANGE>
@@ -67948,6 +67998,36 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <NICK>Timecode format</NICK>
 <BLURB>Timecode format type to use for playback.</BLURB>
 <DEFAULT>bmdTimecodeRP188Any</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDecklinkVideoSink::hw-serial-number</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>r</FLAGS>
+<NICK>Hardware serial number</NICK>
+<BLURB>The serial number (hardware ID) of the Decklink card.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDecklinkVideoSink::keyer-level</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[0,255]</RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Keyer level</NICK>
+<BLURB>Keyer level.</BLURB>
+<DEFAULT>255</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDecklinkVideoSink::keyer-mode</NAME>
+<TYPE>GstDecklinkKeyerMode</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Keyer mode</NICK>
+<BLURB>Keyer mode to be enabled.</BLURB>
+<DEFAULT>Off</DEFAULT>
 </ARG>
 
 <ARG>
@@ -68011,6 +68091,16 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 </ARG>
 
 <ARG>
+<NAME>GstDecklinkAudioSrc::hw-serial-number</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>r</FLAGS>
+<NICK>Hardware serial number</NICK>
+<BLURB>The serial number (hardware ID) of the Decklink card.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
 <NAME>GstDecklinkAudioSink::device-number</NAME>
 <TYPE>gint</TYPE>
 <RANGE>>= 0</RANGE>
@@ -68018,6 +68108,46 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <NICK>Device number</NICK>
 <BLURB>Output device instance to use.</BLURB>
 <DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDecklinkAudioSink::hw-serial-number</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>r</FLAGS>
+<NICK>Hardware serial number</NICK>
+<BLURB>The serial number (hardware ID) of the Decklink card.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDecklinkAudioSink::alignment-threshold</NAME>
+<TYPE>guint64</TYPE>
+<RANGE><= 18446744073709551614</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Alignment Threshold</NICK>
+<BLURB>Timestamp alignment threshold in nanoseconds.</BLURB>
+<DEFAULT>40000000</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDecklinkAudioSink::buffer-time</NAME>
+<TYPE>guint64</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Buffer Time</NICK>
+<BLURB>Size of audio buffer in microseconds, this is the minimum latency that the sink reports.</BLURB>
+<DEFAULT>50000</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstDecklinkAudioSink::discont-wait</NAME>
+<TYPE>guint64</TYPE>
+<RANGE><= 18446744073709551614</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Discont Wait</NICK>
+<BLURB>Window of time in nanoseconds to wait before creating a discontinuity.</BLURB>
+<DEFAULT>1000000000</DEFAULT>
 </ARG>
 
 <ARG>
@@ -69076,7 +69206,7 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <RANGE></RANGE>
 <FLAGS>rw</FLAGS>
 <NICK>Is client</NICK>
-<BLURB>Set to true if the decoder should act asclient and initiate the handshake.</BLURB>
+<BLURB>Set to true if the decoder should act as client and initiate the handshake.</BLURB>
 <DEFAULT>FALSE</DEFAULT>
 </ARG>
 
@@ -69446,7 +69576,7 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <RANGE></RANGE>
 <FLAGS>rwx</FLAGS>
 <NICK>Maximum delay (ms)</NICK>
-<BLURB>The maximum delay in ms to apply to buffers.</BLURB>
+<BLURB>The maximum delay (inclusive) in ms to apply to buffers.</BLURB>
 <DEFAULT>400</DEFAULT>
 </ARG>
 
@@ -69458,6 +69588,46 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <NICK>Minimum delay (ms)</NICK>
 <BLURB>The minimum delay in ms to apply to buffers.</BLURB>
 <DEFAULT>200</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstNetSim::allow-reordering</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Allow Reordering</NICK>
+<BLURB>When delaying packets, are they allowed to be reordered or not.</BLURB>
+<DEFAULT>TRUE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstNetSim::delay-distribution</NAME>
+<TYPE>GstNetSimDistribution</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Delay Distribution</NICK>
+<BLURB>Distribution for the amount of delay.</BLURB>
+<DEFAULT>uniform</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstNetSim::max-bucket-size</NAME>
+<TYPE>gint</TYPE>
+<RANGE>>= G_MAXULONG</RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Maximum Bucket Size (Kb)</NICK>
+<BLURB>The size of the token bucket, related to burstiness resilience (-1 = unlimited).</BLURB>
+<DEFAULT>-1</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstNetSim::max-kbps</NAME>
+<TYPE>gint</TYPE>
+<RANGE>>= G_MAXULONG</RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Maximum Kbps</NICK>
+<BLURB>The maximum number of kilobits to let through per second (-1 = unlimited).</BLURB>
+<DEFAULT>-1</DEFAULT>
 </ARG>
 
 <ARG>
@@ -72221,6 +72391,56 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 </ARG>
 
 <ARG>
+<NAME>GstKMSSink::bus-id</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Bus ID</NICK>
+<BLURB>DRM bus ID.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstKMSSink::can-scale</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>can scale</NICK>
+<BLURB>User can tell kmssink if the driver can support scale.</BLURB>
+<DEFAULT>TRUE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstKMSSink::display-height</NAME>
+<TYPE>gint</TYPE>
+<RANGE>>= 0</RANGE>
+<FLAGS>r</FLAGS>
+<NICK>Display Height</NICK>
+<BLURB>Height of the display surface in pixels.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstKMSSink::display-width</NAME>
+<TYPE>gint</TYPE>
+<RANGE>>= 0</RANGE>
+<FLAGS>r</FLAGS>
+<NICK>Display Width</NICK>
+<BLURB>Width of the display surface in pixels.</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstKMSSink::render-rectangle</NAME>
+<TYPE>GstValueArray</TYPE>
+<RANGE></RANGE>
+<FLAGS>w</FLAGS>
+<NICK>Render Rectangle</NICK>
+<BLURB>The render rectangle ('<x, y, width, height>').</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
 <NAME>GstBs2b::fcut</NAME>
 <TYPE>gint</TYPE>
 <RANGE>[300,2000]</RANGE>
@@ -72881,6 +73101,16 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 </ARG>
 
 <ARG>
+<NAME>GstAvWait::end-timecode</NAME>
+<TYPE>GstVideoTimeCode*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>End timecode (object)</NICK>
+<BLURB>Timecode to end at in timecode mode (object).</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
 <NAME>GstDewarp::display-mode</NAME>
 <TYPE>GstDewarpDisplayMode</TYPE>
 <RANGE></RANGE>
@@ -72978,5 +73208,555 @@ Gestures in the defined region of interest will emit messages.</BLURB>
 <NICK>Pixel Aspect Ratio</NICK>
 <BLURB>The pixel aspect ratio of the device.</BLURB>
 <DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstIpcPipelineSrc::ack-time</NAME>
+<TYPE>guint64</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Ack time</NICK>
+<BLURB>Maximum time to wait for a response to a message.</BLURB>
+<DEFAULT>10000000</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstIpcPipelineSrc::fdin</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[G_MAXULONG,65535]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Input file descriptor</NICK>
+<BLURB>File descriptor to read data from.</BLURB>
+<DEFAULT>-1</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstIpcPipelineSrc::fdout</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[G_MAXULONG,65535]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Output file descriptor</NICK>
+<BLURB>File descriptor to write data through.</BLURB>
+<DEFAULT>-1</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstIpcPipelineSrc::read-chunk-size</NAME>
+<TYPE>guint</TYPE>
+<RANGE>[1,16777216]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Read chunk size</NICK>
+<BLURB>Read chunk size.</BLURB>
+<DEFAULT>65536</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstIpcPipelineSink::ack-time</NAME>
+<TYPE>guint64</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Ack time</NICK>
+<BLURB>Maximum time to wait for a response to a message.</BLURB>
+<DEFAULT>10000000</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstIpcPipelineSink::fdin</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[G_MAXULONG,65535]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Input file descriptor</NICK>
+<BLURB>File descriptor to received data from.</BLURB>
+<DEFAULT>-1</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstIpcPipelineSink::fdout</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[G_MAXULONG,65535]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Output file descriptor</NICK>
+<BLURB>File descriptor to send data through.</BLURB>
+<DEFAULT>-1</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstIpcPipelineSink::read-chunk-size</NAME>
+<TYPE>guint</TYPE>
+<RANGE>[1,16777216]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Read chunk size</NICK>
+<BLURB>Read chunk size.</BLURB>
+<DEFAULT>4096</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::automatic-redirect</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>automatic-redirect</NICK>
+<BLURB>Allow HTTP Redirections (HTTP Status Code 300 series).</BLURB>
+<DEFAULT>TRUE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::compress</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Compress</NICK>
+<BLURB>Allow compressed content encodings.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::cookies</NAME>
+<TYPE>GStrv</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Cookies</NICK>
+<BLURB>List of HTTP Cookies.</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::extra-headers</NAME>
+<TYPE>GstStructure*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Extra Headers</NICK>
+<BLURB>Extra headers to append to the HTTP request.</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::http-version</NAME>
+<TYPE>GstCurlHttpVersionType</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>HTTP-Version</NICK>
+<BLURB>The preferred HTTP protocol version.</BLURB>
+<DEFAULT>HTTP Version 2.0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::keep-alive</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Keep-Alive</NICK>
+<BLURB>Toggle keep-alive for connection reuse.</BLURB>
+<DEFAULT>TRUE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::location</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Location</NICK>
+<BLURB>URI of resource to read.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::max-connection-time</NAME>
+<TYPE>guint</TYPE>
+<RANGE>[2,60]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Max-Connection-Time</NICK>
+<BLURB>Maximum amount of time to keep-alive HTTP connections.</BLURB>
+<DEFAULT>30</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::max-connections</NAME>
+<TYPE>guint</TYPE>
+<RANGE>[1,255]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Max-Connections</NICK>
+<BLURB>Maximum number of concurrent connections allowed for HTTP/1.x.</BLURB>
+<DEFAULT>255</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::max-connections-per-proxy</NAME>
+<TYPE>guint</TYPE>
+<RANGE>[1,60]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Max-Connections-Per-Proxy</NICK>
+<BLURB>Maximum number of concurrent connections allowed per proxy for HTTP/1.x.</BLURB>
+<DEFAULT>30</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::max-connections-per-server</NAME>
+<TYPE>guint</TYPE>
+<RANGE>[1,60]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Max-Connections-Per-Server</NICK>
+<BLURB>Maximum number of connections allowed per server for HTTP/1.x.</BLURB>
+<DEFAULT>5</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::max-redirect</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[G_MAXULONG,255]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Max-Redirect</NICK>
+<BLURB>Maximum number of permitted redirections. -1 is unlimited.</BLURB>
+<DEFAULT>-1</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::proxy</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Proxy</NICK>
+<BLURB>URI of HTTP proxy server.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::proxy-id</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>proxy-id</NICK>
+<BLURB>HTTP proxy URI user id for authentication.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::proxy-pw</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>proxy-pw</NICK>
+<BLURB>HTTP proxy URI password for authentication.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::retries</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[G_MAXULONG,9999]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Retries</NICK>
+<BLURB>Maximum number of retries until giving up (-1=infinite).</BLURB>
+<DEFAULT>-1</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::ssl-ca-file</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>SSL CA File</NICK>
+<BLURB>Location of an SSL CA file to use for checking SSL certificates.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::ssl-strict</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>SSL Strict</NICK>
+<BLURB>Strict SSL certificate checking.</BLURB>
+<DEFAULT>TRUE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::timeout</NAME>
+<TYPE>gint</TYPE>
+<RANGE>[0,3600]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Timeout</NICK>
+<BLURB>Value in seconds before timeout a blocking request (0 = no timeout).</BLURB>
+<DEFAULT>0</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::user-agent</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>User-Agent</NICK>
+<BLURB>URI of resource requested.</BLURB>
+<DEFAULT>"GStreamer curlhttpsrc libcurl/7.57.0"</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::user-id</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>user-id</NICK>
+<BLURB>HTTP location URI user id for authentication.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstCurlHttpSrc::user-pw</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>user-pw</NICK>
+<BLURB>HTTP location URI password for authentication.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWildmidiDec::enhanced-resampling</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Enhanced resampling</NICK>
+<BLURB>Use enhanced resampling if set to TRUE, or linear interpolation if set to FALSE.</BLURB>
+<DEFAULT>TRUE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWildmidiDec::log-volume-scale</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Logarithmic volume scale</NICK>
+<BLURB>Use a logarithmic volume scale if set to TRUE, or a linear scale if set to FALSE.</BLURB>
+<DEFAULT>TRUE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWildmidiDec::output-buffer-size</NAME>
+<TYPE>guint</TYPE>
+<RANGE>[1,1073741823]</RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Output buffer size</NICK>
+<BLURB>Size of each output buffer, in samples (actual size can be smaller than this during flush or EOS).</BLURB>
+<DEFAULT>1024</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWildmidiDec::reverb</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Reverb</NICK>
+<BLURB>Whether or not to enable the WildMidi 8 reflection reverb engine to add more depth to the sound.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstHlsSink2::location</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>File Location</NICK>
+<BLURB>Location of the file to write.</BLURB>
+<DEFAULT>"segment%05d.ts"</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstHlsSink2::max-files</NAME>
+<TYPE>guint</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Max files</NICK>
+<BLURB>Maximum number of files to keep on disk. Once the maximum is reached,old files start to be deleted to make room for new ones.</BLURB>
+<DEFAULT>10</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstHlsSink2::playlist-length</NAME>
+<TYPE>guint</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Playlist length</NICK>
+<BLURB>Length of HLS playlist. To allow players to conform to section 6.3.3 of the HLS specification, this should be at least 3. If set to 0, the playlist will be infinite.</BLURB>
+<DEFAULT>5</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstHlsSink2::playlist-location</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Playlist Location</NICK>
+<BLURB>Location of the playlist to write.</BLURB>
+<DEFAULT>"playlist.m3u8"</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstHlsSink2::playlist-root</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Playlist Root</NICK>
+<BLURB>Location of the playlist to write.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstHlsSink2::target-duration</NAME>
+<TYPE>guint</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Target duration</NICK>
+<BLURB>The target duration in seconds of a segment/file. (0 - disabled, useful for management of segment duration by the streaming server).</BLURB>
+<DEFAULT>15</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstLcms::dest-profile</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Destination ICC profile file</NICK>
+<BLURB>Specify the destination ICC profile file to apply.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstLcms::embedded-profile</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Embedded Profile</NICK>
+<BLURB>Extract and use source profiles embedded in images.</BLURB>
+<DEFAULT>TRUE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstLcms::input-profile</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Input ICC profile file</NICK>
+<BLURB>Specify the input ICC profile file to apply.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstLcms::intent</NAME>
+<TYPE>GstLcmsIntent</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Rendering intent</NICK>
+<BLURB>Select the rendering intent of the color correction.</BLURB>
+<DEFAULT>Perceptual</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstLcms::lookup</NAME>
+<TYPE>GstLcmsLookupMethod</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Lookup method</NICK>
+<BLURB>Select the caching method for the color compensation calculations.</BLURB>
+<DEFAULT>Calculate and cache color replacement values on first occurence</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstLcms::preserve-black</NAME>
+<TYPE>gboolean</TYPE>
+<RANGE></RANGE>
+<FLAGS>rwx</FLAGS>
+<NICK>Preserve black</NICK>
+<BLURB>Select whether purely black pixels should be preserved.</BLURB>
+<DEFAULT>FALSE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstProxySrc::proxysink</NAME>
+<TYPE>GstProxySink*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Proxysink</NICK>
+<BLURB>Matching proxysink.</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebRTCBin::connection-state</NAME>
+<TYPE>GstWebRTCPeerConnectionState</TYPE>
+<RANGE></RANGE>
+<FLAGS>r</FLAGS>
+<NICK>Connection State</NICK>
+<BLURB>The overall connection state of this element.</BLURB>
+<DEFAULT>GST_WEBRTC_PEER_CONNECTION_STATE_NEW</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebRTCBin::ice-connection-state</NAME>
+<TYPE>GstWebRTCICEConnectionState</TYPE>
+<RANGE></RANGE>
+<FLAGS>r</FLAGS>
+<NICK>ICE connection state</NICK>
+<BLURB>The collective connection state of all ICETransport's.</BLURB>
+<DEFAULT>GST_WEBRTC_ICE_CONNECTION_STATE_NEW</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebRTCBin::ice-gathering-state</NAME>
+<TYPE>GstWebRTCICEGatheringState</TYPE>
+<RANGE></RANGE>
+<FLAGS>r</FLAGS>
+<NICK>ICE gathering state</NICK>
+<BLURB>The collective gathering state of all ICETransport's.</BLURB>
+<DEFAULT>GST_WEBRTC_ICE_GATHERING_STATE_NEW</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebRTCBin::local-description</NAME>
+<TYPE>GstWebRTCSessionDescription*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Local Description</NICK>
+<BLURB>The local SDP description to use for this connection.</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebRTCBin::remote-description</NAME>
+<TYPE>GstWebRTCSessionDescription*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>Remote Description</NICK>
+<BLURB>The remote SDP description to use for this connection.</BLURB>
+<DEFAULT></DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebRTCBin::signaling-state</NAME>
+<TYPE>GstWebRTCSignalingState</TYPE>
+<RANGE></RANGE>
+<FLAGS>r</FLAGS>
+<NICK>Signaling State</NICK>
+<BLURB>The signaling state of this element.</BLURB>
+<DEFAULT>GST_WEBRTC_SIGNALING_STATE_STABLE</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebRTCBin::stun-server</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>STUN Server</NICK>
+<BLURB>The STUN server of the form stun://hostname:port.</BLURB>
+<DEFAULT>NULL</DEFAULT>
+</ARG>
+
+<ARG>
+<NAME>GstWebRTCBin::turn-server</NAME>
+<TYPE>gchar*</TYPE>
+<RANGE></RANGE>
+<FLAGS>rw</FLAGS>
+<NICK>TURN Server</NICK>
+<BLURB>The TURN server of the form turn(s)://username:password@host:port.</BLURB>
+<DEFAULT>NULL</DEFAULT>
 </ARG>
 

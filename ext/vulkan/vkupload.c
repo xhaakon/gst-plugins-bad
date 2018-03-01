@@ -109,23 +109,23 @@ _buffer_propose_allocation (gpointer impl, GstQuery * decide_query,
   struct BufferUpload *raw = impl;
   gboolean need_pool;
   GstCaps *caps;
+  GstVideoInfo info;
   guint size;
+  GstBufferPool *pool = NULL;
 
   gst_query_parse_allocation (query, &caps, &need_pool);
 
   if (caps == NULL)
     return;
 
+  if (!gst_video_info_from_caps (&info, caps))
+    return;
+
+  /* the normal size of a frame */
+  size = info.size;
+
   if (need_pool) {
-    GstBufferPool *pool;
     GstStructure *config;
-    GstVideoInfo info;
-
-    if (!gst_video_info_from_caps (&info, caps))
-      return;
-
-    /* the normal size of a frame */
-    size = info.size;
 
     pool = gst_vulkan_buffer_pool_new (raw->upload->device);
 
@@ -136,10 +136,11 @@ _buffer_propose_allocation (gpointer impl, GstQuery * decide_query,
       g_object_unref (pool);
       return;
     }
-
-    gst_query_add_allocation_pool (query, pool, size, 1, 0);
-    g_object_unref (pool);
   }
+
+  gst_query_add_allocation_pool (query, pool, size, 1, 0);
+  if (pool)
+    g_object_unref (pool);
 
   return;
 }
@@ -793,7 +794,8 @@ gst_vulkan_upload_prepare_output_buffer (GstBaseTransform * bt,
   GstVulkanUpload *vk_upload = GST_VULKAN_UPLOAD (bt);
   GstFlowReturn ret;
 
-  do {
+restart:
+  {
     gpointer method_impl;
     const struct UploadMethod *method;
 
@@ -802,24 +804,24 @@ gst_vulkan_upload_prepare_output_buffer (GstBaseTransform * bt,
 
     ret = method->perform (method_impl, inbuf, outbuf);
     if (ret != GST_FLOW_OK) {
-      do {
-        if (!_upload_find_method (vk_upload)) {
-          GST_ELEMENT_ERROR (bt, RESOURCE, NOT_FOUND,
-              ("Could not find suitable uploader"), (NULL));
-          return GST_FLOW_ERROR;
-        }
+    next_method:
+      if (!_upload_find_method (vk_upload)) {
+        GST_ELEMENT_ERROR (bt, RESOURCE, NOT_FOUND,
+            ("Could not find suitable uploader"), (NULL));
+        return GST_FLOW_ERROR;
+      }
 
-        method = upload_methods[vk_upload->current_impl];
-        method_impl = vk_upload->upload_impls[vk_upload->current_impl];
-        if (!method->set_caps (method_impl, vk_upload->in_caps,
-                vk_upload->out_caps))
-          /* try the next method */
-          continue;
-      } while (FALSE);
+      method = upload_methods[vk_upload->current_impl];
+      method_impl = vk_upload->upload_impls[vk_upload->current_impl];
+      if (!method->set_caps (method_impl, vk_upload->in_caps,
+              vk_upload->out_caps))
+        /* try the next method */
+        goto next_method;
+
       /* try the uploading with the next method */
-      continue;
+      goto restart;
     }
-  } while (FALSE);
+  }
 
   if (ret == GST_FLOW_OK) {
     /* basetransform doesn't unref if they're the same */

@@ -93,9 +93,6 @@ enum
   PROP_MUTE
 };
 
-static HRESULT (WINAPI * pDSoundCaptureCreate) (LPGUID,
-    LPDIRECTSOUNDCAPTURE *, LPUNKNOWN);
-
 static void gst_directsound_src_finalize (GObject * object);
 
 static void gst_directsound_src_set_property (GObject * object,
@@ -141,10 +138,7 @@ static GstStaticPadTemplate directsound_src_src_factory =
 GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("audio/x-raw, "
-        "format = (string) { S16LE, S8 }, "
-        "layout = (string) interleaved, "
-        "rate = (int) [ 1, MAX ], " "channels = (int) [ 1, 2 ]"));
+    GST_STATIC_CAPS (GST_DIRECTSOUND_SRC_CAPS));
 
 #define gst_directsound_src_parent_class parent_class
 G_DEFINE_TYPE_WITH_CODE (GstDirectSoundSrc, gst_directsound_src,
@@ -410,22 +404,6 @@ gst_directsound_src_open (GstAudioSrc * asrc)
 
   dsoundsrc = GST_DIRECTSOUND_SRC (asrc);
 
-  /* Open dsound.dll */
-  dsoundsrc->DSoundDLL = LoadLibrary ("dsound.dll");
-  if (!dsoundsrc->DSoundDLL) {
-    goto dsound_open;
-  }
-
-  /* Building the DLL Calls */
-  pDSoundCaptureCreate =
-      (void *) GetProcAddress (dsoundsrc->DSoundDLL,
-      TEXT ("DirectSoundCaptureCreate"));
-
-  /* If everything is not ok */
-  if (!pDSoundCaptureCreate) {
-    goto capture_function;
-  }
-
   if (dsoundsrc->device_id) {
     GST_DEBUG_OBJECT (asrc, "device id set to: %s ", dsoundsrc->device_id);
     dsoundsrc->device_guid = string_to_guid (dsoundsrc->device_id);
@@ -446,7 +424,8 @@ gst_directsound_src_open (GstAudioSrc * asrc)
     }
   }
   /* Create capture object */
-  hRes = pDSoundCaptureCreate (dsoundsrc->device_guid, &dsoundsrc->pDSC, NULL);
+  hRes =
+      DirectSoundCaptureCreate (dsoundsrc->device_guid, &dsoundsrc->pDSC, NULL);
 
 
   if (FAILED (hRes)) {
@@ -459,33 +438,16 @@ gst_directsound_src_open (GstAudioSrc * asrc)
 
   return TRUE;
 
-capture_function:
-  {
-    FreeLibrary (dsoundsrc->DSoundDLL);
-    GST_ELEMENT_ERROR (dsoundsrc, RESOURCE, OPEN_READ,
-        ("Unable to get capturecreate function"), (NULL));
-    return FALSE;
-  }
 capture_enumerate:
   {
-    FreeLibrary (dsoundsrc->DSoundDLL);
     GST_ELEMENT_ERROR (dsoundsrc, RESOURCE, OPEN_READ,
         ("Unable to enumerate audio capture devices"), (NULL));
     return FALSE;
   }
 capture_object:
   {
-    FreeLibrary (dsoundsrc->DSoundDLL);
     GST_ELEMENT_ERROR (dsoundsrc, RESOURCE, OPEN_READ,
         ("Unable to create capture object"), (NULL));
-    return FALSE;
-  }
-dsound_open:
-  {
-    DWORD err = GetLastError ();
-    GST_ELEMENT_ERROR (dsoundsrc, RESOURCE, OPEN_READ,
-        ("Unable to open dsound.dll"), (NULL));
-    g_print ("0x%lx\n", HRESULT_FROM_WIN32 (err));
     return FALSE;
   }
 }
@@ -501,9 +463,6 @@ gst_directsound_src_close (GstAudioSrc * asrc)
 
   /* Release capture handler  */
   IDirectSoundCapture_Release (dsoundsrc->pDSC);
-
-  /* Close library */
-  FreeLibrary (dsoundsrc->DSoundDLL);
 
   if (dsoundsrc->mixer)
     mixerClose (dsoundsrc->mixer);

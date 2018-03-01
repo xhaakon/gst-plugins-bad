@@ -36,6 +36,10 @@ GST_DEBUG_CATEGORY_STATIC (gst_decklink_video_src_debug);
 #define DEFAULT_SKIP_FIRST_TIME (0)
 #define DEFAULT_DROP_NO_SIGNAL_FRAMES (FALSE)
 
+#ifndef ABSDIFF
+#define ABSDIFF(x, y) ( (x) > (y) ? ((x) - (y)) : ((y) - (x)) )
+#endif
+
 enum
 {
   PROP_0,
@@ -48,13 +52,18 @@ enum
   PROP_OUTPUT_STREAM_TIME,
   PROP_SKIP_FIRST_TIME,
   PROP_DROP_NO_SIGNAL_FRAMES,
-  PROP_SIGNAL
+  PROP_SIGNAL,
+  PROP_HW_SERIAL_NUMBER
 };
 
 typedef struct
 {
   IDeckLinkVideoInputFrame *frame;
   GstClockTime timestamp, duration;
+  GstClockTime stream_timestamp;
+  GstClockTime stream_duration;
+  GstClockTime hardware_timestamp;
+  GstClockTime hardware_duration;
   GstDecklinkModeEnum mode;
   BMDPixelFormat format;
   GstVideoTimeCode *tc;
@@ -207,6 +216,11 @@ gst_decklink_video_src_class_init (GstDecklinkVideoSrcClass * klass)
           "True if there is a valid input signal available",
           FALSE, (GParamFlags) (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)));
 
+  g_object_class_install_property (gobject_class, PROP_HW_SERIAL_NUMBER,
+      g_param_spec_string ("hw-serial-number", "Hardware serial number",
+          "The serial number (hardware ID) of the Decklink card",
+          NULL, (GParamFlags) (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)));
+
   templ_caps = gst_decklink_mode_get_template_caps (TRUE);
   gst_element_class_add_pad_template (element_class,
       gst_pad_template_new ("src", GST_PAD_SRC, GST_PAD_ALWAYS, templ_caps));
@@ -355,6 +369,12 @@ gst_decklink_video_src_get_property (GObject * object, guint property_id,
     case PROP_SIGNAL:
       g_value_set_boolean (value, !self->no_signal);
       break;
+    case PROP_HW_SERIAL_NUMBER:
+      if (self->input)
+        g_value_set_string (value, self->input->hw_serial_number);
+      else
+        g_value_set_string (value, NULL);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -421,7 +441,8 @@ gst_decklink_video_src_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
         gst_decklink_get_connection (self->connection));
     if (ret != S_OK) {
       GST_ERROR_OBJECT (self,
-          "Failed to set configuration (input source): 0x%08x", ret);
+          "Failed to set configuration (input source): 0x%08lx",
+          (unsigned long) ret);
       return FALSE;
     }
 
@@ -430,7 +451,8 @@ gst_decklink_video_src_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
           bmdAnalogVideoFlagCompositeSetup75);
       if (ret != S_OK) {
         GST_ERROR_OBJECT (self,
-            "Failed to set configuration (composite setup): 0x%08x", ret);
+            "Failed to set configuration (composite setup): 0x%08lx",
+            (unsigned long) ret);
         return FALSE;
       }
     }
@@ -447,7 +469,8 @@ gst_decklink_video_src_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
           &autoDetection);
       if (ret != S_OK) {
         GST_ERROR_OBJECT (self,
-            "Failed to get attribute (autodetection): 0x%08x", ret);
+            "Failed to get attribute (autodetection): 0x%08lx",
+            (unsigned long) ret);
         return FALSE;
       }
       if (autoDetection)
@@ -465,7 +488,8 @@ gst_decklink_video_src_set_caps (GstBaseSrc * bsrc, GstCaps * caps)
   format = self->caps_format;
   ret = self->input->input->EnableVideoInput (mode->mode, format, flags);
   if (ret != S_OK) {
-    GST_WARNING_OBJECT (self, "Failed to enable video input: 0x%08x", ret);
+    GST_WARNING_OBJECT (self, "Failed to enable video input: 0x%08lx",
+        (unsigned long) ret);
     return FALSE;
   }
 
@@ -620,7 +644,8 @@ static void
 gst_decklink_video_src_got_frame (GstElement * element,
     IDeckLinkVideoInputFrame * frame, GstDecklinkModeEnum mode,
     GstClockTime capture_time, GstClockTime stream_time,
-    GstClockTime stream_duration, IDeckLinkTimecode * dtc, gboolean no_signal)
+    GstClockTime stream_duration, GstClockTime hardware_time,
+    GstClockTime hardware_duration, IDeckLinkTimecode * dtc, gboolean no_signal)
 {
   GstDecklinkVideoSrc *self = GST_DECKLINK_VIDEO_SRC_CAST (element);
   GstClockTime timestamp, duration;
@@ -695,6 +720,10 @@ gst_decklink_video_src_got_frame (GstElement * element,
     f.frame = frame;
     f.timestamp = timestamp;
     f.duration = duration;
+    f.stream_timestamp = stream_time;
+    f.stream_duration = stream_duration;
+    f.hardware_timestamp = hardware_time;
+    f.hardware_duration = hardware_duration;
     f.mode = mode;
     f.format = frame->GetPixelFormat ();
     f.no_signal = no_signal;
@@ -704,8 +733,8 @@ gst_decklink_video_src_got_frame (GstElement * element,
 
       res = dtc->GetComponents (&hours, &minutes, &seconds, &frames);
       if (res != S_OK) {
-        GST_ERROR ("Could not get components for timecode %p: 0x%08x", dtc,
-            res);
+        GST_ERROR ("Could not get components for timecode %p: 0x%08lx", dtc,
+            (unsigned long) res);
         f.tc = NULL;
       } else {
         GST_DEBUG_OBJECT (self, "Got timecode %02d:%02d:%02d:%02d",
@@ -747,6 +776,10 @@ gst_decklink_video_src_create (GstPushSrc * bsrc, GstBuffer ** buffer)
   GstCaps *caps;
   gboolean caps_changed = FALSE;
   const GstDecklinkMode *mode;
+  static GstStaticCaps stream_reference =
+      GST_STATIC_CAPS ("timestamp/x-decklink-stream");
+  static GstStaticCaps hardware_reference =
+      GST_STATIC_CAPS ("timestamp/x-decklink-hardware");
 
   g_mutex_lock (&self->lock);
   while (gst_queue_array_is_empty (self->current_frames) && !self->flushing) {
@@ -796,6 +829,29 @@ gst_decklink_video_src_create (GstPushSrc * bsrc, GstBuffer ** buffer)
     }
   }
 
+  /* 1 ns error can be just a rounding error, so that's OK. The Decklink
+   * drivers give us a really steady stream time, so anything above 1 ns can't
+   * be a rounding error and is therefore something to worry about */
+  if (self->expected_stream_time != GST_CLOCK_TIME_NONE &&
+      ABSDIFF (self->expected_stream_time, f.stream_timestamp) > 1) {
+    GstMessage *msg;
+    GstClockTime running_time;
+
+    self->dropped += f.stream_timestamp - self->expected_stream_time;
+    running_time = gst_segment_to_running_time (&GST_BASE_SRC (self)->segment,
+        GST_FORMAT_TIME, f.timestamp);
+
+    msg = gst_message_new_qos (GST_OBJECT (self), TRUE, running_time, f.stream_timestamp,
+        f.timestamp, f.duration);
+    gst_message_set_qos_stats (msg, GST_FORMAT_TIME, self->processed,
+        self->dropped);
+    gst_element_post_message (GST_ELEMENT (self), msg);
+  }
+  if (self->first_stream_time == GST_CLOCK_TIME_NONE)
+    self->first_stream_time = f.stream_timestamp;
+  self->processed = f.stream_timestamp - self->dropped - self->first_stream_time;
+  self->expected_stream_time = f.stream_timestamp + f.stream_duration;
+
   g_mutex_unlock (&self->lock);
   if (caps_changed) {
     caps = gst_decklink_mode_get_caps (f.mode, f.format, TRUE);
@@ -844,6 +900,12 @@ gst_decklink_video_src_create (GstPushSrc * bsrc, GstBuffer ** buffer)
   GST_BUFFER_DURATION (*buffer) = f.duration;
   if (f.tc != NULL)
     gst_buffer_add_video_time_code_meta (*buffer, f.tc);
+  gst_buffer_add_reference_timestamp_meta (*buffer,
+      gst_static_caps_get (&stream_reference), f.stream_timestamp,
+      f.stream_duration);
+  gst_buffer_add_reference_timestamp_meta (*buffer,
+      gst_static_caps_get (&hardware_reference), f.hardware_timestamp,
+      f.hardware_duration);
 
   mode = gst_decklink_get_mode (self->mode);
   if (mode->interlaced && mode->tff)
@@ -940,6 +1002,8 @@ gst_decklink_video_src_open (GstDecklinkVideoSrc * self)
     return FALSE;
   }
 
+  g_object_notify (G_OBJECT (self), "hw-serial-number");
+
   mode = gst_decklink_get_mode (self->mode);
   g_assert (mode != NULL);
   g_mutex_lock (&self->input->lock);
@@ -1026,7 +1090,7 @@ gst_decklink_video_src_start_streams (GstElement * element)
     res = self->input->input->StartStreams ();
     if (res != S_OK) {
       GST_ELEMENT_ERROR (self, STREAM, FAILED,
-          (NULL), ("Failed to start streams: 0x%08x", res));
+          (NULL), ("Failed to start streams: 0x%08lx", (unsigned long) res));
       return;
     }
   } else {
@@ -1043,6 +1107,10 @@ gst_decklink_video_src_change_state (GstElement * element,
 
   switch (transition) {
     case GST_STATE_CHANGE_NULL_TO_READY:
+      self->processed = 0;
+      self->dropped = 0;
+      self->expected_stream_time = GST_CLOCK_TIME_NONE;
+      self->first_stream_time = GST_CLOCK_TIME_NONE;
       if (!gst_decklink_video_src_open (self)) {
         ret = GST_STATE_CHANGE_FAILURE;
         goto out;
@@ -1080,7 +1148,7 @@ gst_decklink_video_src_change_state (GstElement * element,
       res = self->input->input->StopStreams ();
       if (res != S_OK) {
         GST_ELEMENT_ERROR (self, STREAM, FAILED,
-            (NULL), ("Failed to stop streams: 0x%08x", res));
+            (NULL), ("Failed to stop streams: 0x%08lx", (unsigned long) res));
         ret = GST_STATE_CHANGE_FAILURE;
       }
       break;

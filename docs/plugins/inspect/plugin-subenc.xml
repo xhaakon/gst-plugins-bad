@@ -3,7 +3,7 @@
   <description>subtitle encoders</description>
   <filename>../../gst/subenc/.libs/libgstsubenc.so</filename>
   <basename>libgstsubenc.so</basename>
-  <version>1.12.4</version>
+  <version>1.13.1</version>
   <license>LGPL</license>
   <source>gst-plugins-bad</source>
   <package>GStreamer Bad Plug-ins source release</package>
@@ -47,7 +47,7 @@
           <name>src</name>
           <direction>source</direction>
           <presence>always</presence>
-          <details>text/vtt</details>
+          <details>application/x-subtitle-vtt</details>
         </caps>
       </pads>
     </element>

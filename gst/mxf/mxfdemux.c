@@ -916,6 +916,7 @@ gst_mxf_demux_update_tracks (GstMXFDemux * demux)
   guint component_index;
   GstFlowReturn ret;
   GList *pads = NULL, *l;
+  GstVideoTimeCode start_timecode = GST_VIDEO_TIME_CODE_INIT;
 
   g_rw_lock_writer_lock (&demux->metadata_lock);
   GST_DEBUG_OBJECT (demux, "Updating tracks");
@@ -941,6 +942,60 @@ gst_mxf_demux_update_tracks (GstMXFDemux * demux)
   }
 
   first_run = (demux->src->len == 0);
+
+  /* For material packages, there must be one timecode track with one
+   * continuous timecode. For source packages there might be multiple,
+   * discontinuous timecode components.
+   * TODO: Support multiple timecode components
+   */
+  for (i = 0; i < current_package->n_tracks; i++) {
+    MXFMetadataTimelineTrack *track = NULL;
+    MXFMetadataSequence *sequence = NULL;
+    MXFMetadataTimecodeComponent *component = NULL;
+
+    if (!current_package->tracks[i]) {
+      GST_WARNING_OBJECT (demux, "Unresolved track");
+      continue;
+    }
+
+    if (!MXF_IS_METADATA_TIMELINE_TRACK (current_package->tracks[i])) {
+      GST_DEBUG_OBJECT (demux, "No timeline track");
+      continue;
+    }
+
+
+    track = MXF_METADATA_TIMELINE_TRACK (current_package->tracks[i]);
+
+    if (!track->parent.sequence)
+      continue;
+    sequence = track->parent.sequence;
+    if (sequence->n_structural_components != 1 ||
+        !sequence->structural_components[0]
+        ||
+        !MXF_IS_METADATA_TIMECODE_COMPONENT (sequence->structural_components
+            [0]))
+      continue;
+
+    component =
+        MXF_METADATA_TIMECODE_COMPONENT (sequence->structural_components[0]);
+
+    /* Not a timecode track */
+    if (track->parent.type && (track->parent.type & 0xf0) != 0x10)
+      continue;
+
+    /* Main timecode track must have id 1, all others must be 0 */
+    if (track->parent.track_id != 1)
+      continue;
+
+    gst_video_time_code_init (&start_timecode, track->edit_rate.n,
+        track->edit_rate.d, NULL, (component->drop_frame
+            ?
+            GST_VIDEO_TIME_CODE_FLAGS_DROP_FRAME
+            : GST_VIDEO_TIME_CODE_FLAGS_NONE), 0, 0, 0, 0, 0);
+    gst_video_time_code_add_frames (&start_timecode, track->origin);
+    gst_video_time_code_add_frames (&start_timecode, component->start_timecode);
+    break;
+  }
 
   for (i = 0; i < current_package->n_tracks; i++) {
     MXFMetadataTimelineTrack *track = NULL;
@@ -1156,6 +1211,8 @@ gst_mxf_demux_update_tracks (GstMXFDemux * demux)
 
     pad->material_package = current_package;
     pad->material_track = track;
+
+    pad->start_timecode = start_timecode;
 
     /* If we just added the pad initialize for the current component */
     if (first_run && MXF_IS_METADATA_MATERIAL_PACKAGE (current_package)) {
@@ -1880,6 +1937,31 @@ gst_mxf_demux_handle_generic_container_essence_element (GstMXFDemux * demux,
     GST_BUFFER_OFFSET (outbuf) = GST_BUFFER_OFFSET_NONE;
     GST_BUFFER_OFFSET_END (outbuf) = GST_BUFFER_OFFSET_NONE;
 
+    if (pad->material_track->parent.type == MXF_METADATA_TRACK_PICTURE_ESSENCE
+        && pad->start_timecode.config.fps_n != 0
+        && pad->start_timecode.config.fps_d != 0) {
+      if (etrack->intra_only) {
+        GstVideoTimeCode timecode = pad->start_timecode;
+
+        gst_video_time_code_add_frames (&timecode,
+            pad->current_material_track_position);
+        gst_buffer_add_video_time_code_meta (outbuf, &timecode);
+      } else if (pts != G_MAXUINT64) {
+        GstVideoTimeCode timecode = pad->start_timecode;
+
+        gst_video_time_code_add_frames (&timecode,
+            pad->current_component_start_position);
+        gst_video_time_code_add_frames (&timecode,
+            gst_util_uint64_scale (pts,
+                pad->material_track->edit_rate.n *
+                pad->current_essence_track->source_track->edit_rate.d,
+                pad->material_track->edit_rate.d *
+                pad->current_essence_track->source_track->edit_rate.n));
+        gst_buffer_add_video_time_code_meta (outbuf, &timecode);
+      }
+
+    }
+
     /* Update accumulated error and compensate */
     {
       guint64 abs_error =
@@ -1916,11 +1998,12 @@ gst_mxf_demux_handle_generic_container_essence_element (GstMXFDemux * demux,
     pad->current_material_track_position++;
 
     GST_DEBUG_OBJECT (demux,
-        "Pushing buffer of size %" G_GSIZE_FORMAT " for track %u: timestamp %"
-        GST_TIME_FORMAT " duration %" GST_TIME_FORMAT " position %"
-        G_GUINT64_FORMAT, gst_buffer_get_size (outbuf),
+        "Pushing buffer of size %" G_GSIZE_FORMAT " for track %u: pts %"
+        GST_TIME_FORMAT " dts %" GST_TIME_FORMAT " duration %" GST_TIME_FORMAT
+        " position %" G_GUINT64_FORMAT, gst_buffer_get_size (outbuf),
         pad->material_track->parent.track_id,
-        GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (outbuf)),
+        GST_TIME_ARGS (GST_BUFFER_PTS (outbuf)),
+        GST_TIME_ARGS (GST_BUFFER_DTS (outbuf)),
         GST_TIME_ARGS (GST_BUFFER_DURATION (outbuf)),
         pad->current_essence_track_position);
 
@@ -3265,9 +3348,6 @@ gst_mxf_demux_chain (GstPad * pad, GstObject * parent, GstBuffer * inbuf)
       demux->offset += flush;
       continue;
     }
-
-    if (G_UNLIKELY (ret != GST_FLOW_OK))
-      break;
 
     /* Need more data */
     if (demux->run_in == -1 && demux->offset < 64 * 1024)

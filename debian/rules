@@ -49,7 +49,7 @@ gst_abi=$(gst_major).$(gst_minor)
 gst_lib=libgstreamer$(gst_abi)-0
 gst_lib_dev=libgstreamer$(gst_abi)-dev
 # what gstreamer version is needed
-gst_lib_dev_dep=$(gst_lib_dev) (>= 1.12.0)
+gst_lib_dev_dep=$(gst_lib_dev) (>= 1.13.1)
 
 gst_pkgname=gstreamer$(gst_abi)
 gst_deb_abi=$(gst_abi)-0
@@ -67,14 +67,7 @@ gst_extra_build_depends += , libdrm-dev (>= 2.4.55) [linux-any]
 gst_extra_build_depends += , wayland-protocols (>= 1.4) [linux-any]
 gst_extra_build_depends += , libvulkan-dev [linux-any]
 
-# The plugins are basically the same.
-# Link special names to a template file.
-# still need "*.install" to be done by hand
-# 
-# EXTRA_PLUGINS: See debian/README.Debian for docs
-EXTRA_PLUGINS +=
-
-PLUGINS += plugins-bad $(EXTRA_PLUGINS)
+PLUGINS += plugins-bad opencv
 ifeq ($(DEB_HOST_ARCH_OS),linux)
 PLUGINS +=
 endif
@@ -158,6 +151,9 @@ pre-build::
 	sed -e 's/@GST_ABI@/$(gst_abi)/g' -e 's,@wayland@,$(wayland),g' \
 			debian/libgstreamer-plugins-bad.install \
 			> debian/libgstreamer-plugins-bad$(gst_deb_abi).install
+	sed -e 's/@GST_ABI@/$(gst_abi)/g' \
+			debian/libgstreamer-opencv.install \
+			> debian/libgstreamer-opencv$(gst_deb_abi).install
 	sed 's/@GST_ABI@/$(gst_abi)/g' debian/libgstreamer-plugins-bad-dev.install \
 			> debian/libgstreamer-plugins-bad$(gst_abi)-dev.install
 	cp debian/gir1.2-gst-plugins-bad.install \
@@ -167,9 +163,6 @@ maint: debian/control
 
 debian/build-deps: debian/build-deps.in debian/rules
 	cat $< > $@
-	for plugin in $(EXTRA_PLUGINS); do \
-		sh debian/extra deps $$plugin >> $@; \
-	done
 	sort $@ -o $@
 
 debian/control: debian/control.in debian/build-deps debian/mk.control debian/rules
@@ -184,23 +177,6 @@ debian/control: debian/control.in debian/build-deps debian/mk.control debian/rul
 		-e 's/@GST_EXTRA_BUILD_DEPENDS@/$(gst_extra_build_depends)/g' \
 		-e '/^Build-Depends\(-Indep\)\?/s/\ *,\ */,\n               /g' \
 		>$@
-
-	for plugin in $(EXTRA_PLUGINS); do \
-		sh debian/extra control $$plugin | sed \
-			-e 's/@GST_ABI@/$(gst_abi)/g' \
-			-e 's/@GST_PKGNAME@/$(gst_pkgname)/g' \
-			-e 's/@GST_LIB@/$(gst_lib)/g' \
-			-e 's/@GST_LIB_DEV@/$(gst_lib_dev)/g' \
-			-e 's/@GST_LIB_DEV_DEP@/$(gst_lib_dev_dep)/g' \
-			-e 's/@GST_PLUGINS_LIB@/$(gst_plugins_lib)/g' \
-			-e 's/@GST_PLUGINS_LIB_DEV@/$(gst_plugins_lib_dev)/g' \
-			-e 's/@GST_PLUGINS_LIB_DEV_DEP@/$(gst_plugins_lib_dev_dep)/g' \
-			-e 's/@GST_GCONF_LIB@/$(gst_gconf_lib)/g' \
-			-e 's/@GST_GCONF_LIB_DEV@/$(gst_gconf_lib_dev)/g' \
-			-e 's/@GST_GCONF_LIB_DEV_DEP@/$(gst_gconf_lib_dev_dep)/g' \
-			>> $@; \
-	done
-
 
 DEB_CONFIGURE_EXTRA_FLAGS += \
 	--libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH) \
@@ -226,6 +202,7 @@ common-binary-fixup-arch::
 		$(CURDIR)/debian/libgstreamer-plugins-bad$(gst_abi)-dev/usr/lib/*/libgstbasecamerabinsrc* \
 		$(CURDIR)/debian/libgstreamer-plugins-bad$(gst_abi)-dev/usr/lib/*/libgstphotography*
 	LD_LIBRARY_PATH=debian/libgstreamer-plugins-bad1.0-0/usr/lib/$(DEB_HOST_MULTIARCH):$(LD_LIBRARY_PATH) \
+	LD_LIBRARY_PATH=debian/libgstreamer-plugins-bad1.0-0/usr/lib/$(DEB_HOST_MULTIARCH):debian/libgstreamer-opencv1.0-0/usr/lib/$(DEB_HOST_MULTIARCH):$(LD_LIBRARY_PATH) \
 		dh_gstscancodecs
 
 clean::
@@ -242,6 +219,7 @@ gst_patch = $(shell echo $(gst_version) | cut -d '.' -f 2)
 gst_patch_next = $(shell expr $(gst_patch) + 1)
 gst_version_next = $(shell echo $(gst_version) | cut -d '.' -f-1).$(gst_patch_next)
 DEB_DH_MAKESHLIBS_ARGS_libgstreamer-plugins-bad$(gst_deb_abi) += -V "libgstreamer-plugins-bad$(gst_deb_abi) (>= $(gst_version)), libgstreamer-plugins-bad$(gst_deb_abi) (<< $(gst_version_next))"
+DEB_DH_MAKESHLIBS_ARGS_libgstreamer-opencv$(gst_deb_abi) += -V "libgstreamer-opencv$(gst_deb_abi) (>= $(gst_version)), libgstreamer-opencv$(gst_deb_abi) (<< $(gst_version_next))"
 DEB_INSTALL_DOCS_ALL += debian/README.Debian NEWS
 
 # Disable inclusion of large upstream ChangeLog

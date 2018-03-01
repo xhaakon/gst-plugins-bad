@@ -108,7 +108,8 @@ gst_openh264enc_slice_mode_get_type (void)
 {
   static const GEnumValue types[] = {
     {GST_OPENH264_SLICE_MODE_N_SLICES, "Fixed number of slices", "n-slices"},
-    {GST_OPENH264_SLICE_MODE_AUTO, "Number of slices equal to number of threads", "auto"},
+    {GST_OPENH264_SLICE_MODE_AUTO,
+        "Number of slices equal to number of threads", "auto"},
     {0, NULL, NULL},
   };
   static gsize id = 0;
@@ -295,13 +296,15 @@ gst_openh264enc_class_init (GstOpenh264EncClass * klass)
       g_param_spec_uint ("bitrate", "Bitrate",
           "Bitrate (in bits per second)",
           0, G_MAXUINT, DEFAULT_BITRATE,
-          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
+          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
+              GST_PARAM_MUTABLE_PLAYING)));
 
   g_object_class_install_property (gobject_class, PROP_MAX_BITRATE,
       g_param_spec_uint ("max-bitrate", "Max Bitrate",
           "Maximum Bitrate (in bits per second)",
           0, G_MAXUINT, DEFAULT_MAX_BITRATE,
-          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
+          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
+              GST_PARAM_MUTABLE_PLAYING)));
 
   g_object_class_install_property (gobject_class, PROP_QP_MIN,
       g_param_spec_uint ("qp-min", "Minimum Quantizer",
@@ -391,6 +394,8 @@ gst_openh264enc_init (GstOpenh264Enc * openh264enc)
   openh264enc->num_slices = DEFAULT_NUM_SLICES;
   openh264enc->encoder = NULL;
   openh264enc->complexity = DEFAULT_COMPLEXITY;
+  openh264enc->bitrate_changed = FALSE;
+  openh264enc->max_bitrate_changed = FALSE;
   gst_openh264enc_set_usage_type (openh264enc, CAMERA_VIDEO_REAL_TIME);
   gst_openh264enc_set_rate_control (openh264enc, RC_QUALITY_MODE);
 }
@@ -441,11 +446,21 @@ gst_openh264enc_set_property (GObject * object, guint property_id,
 
   switch (property_id) {
     case PROP_BITRATE:
-      openh264enc->bitrate = g_value_get_uint (value);
+      GST_OBJECT_LOCK (openh264enc);
+      if (openh264enc->bitrate != g_value_get_uint (value)) {
+        openh264enc->bitrate = g_value_get_uint (value);
+        openh264enc->bitrate_changed = TRUE;
+      }
+      GST_OBJECT_UNLOCK (openh264enc);
       break;
 
     case PROP_MAX_BITRATE:
-      openh264enc->max_bitrate = g_value_get_uint (value);
+      GST_OBJECT_LOCK (openh264enc);
+      if (openh264enc->max_bitrate != g_value_get_uint (value)) {
+        openh264enc->max_bitrate = g_value_get_uint (value);
+        openh264enc->max_bitrate_changed = TRUE;
+      }
+      GST_OBJECT_UNLOCK (openh264enc);
       break;
 
     case PROP_QP_MIN:
@@ -502,7 +517,8 @@ gst_openh264enc_set_property (GObject * object, guint property_id,
       break;
 
     case PROP_SLICE_MODE:
-      openh264enc->slice_mode = (GstOpenh264EncSliceMode) g_value_get_enum (value);
+      openh264enc->slice_mode =
+          (GstOpenh264EncSliceMode) g_value_get_enum (value);
       break;
 
     case PROP_NUM_SLICES:
@@ -699,6 +715,8 @@ gst_openh264enc_set_format (GstVideoEncoder * encoder,
   unsigned int uiTraceLevel = WELS_LOG_ERROR;
   openh264enc->encoder->SetOption (ENCODER_OPTION_TRACE_LEVEL, &uiTraceLevel);
 
+  GST_OBJECT_LOCK (openh264enc);
+
   openh264enc->encoder->GetDefaultParams (&enc_params);
 
   enc_params.iUsageType = openh264enc->usage_type;
@@ -741,7 +759,7 @@ gst_openh264enc_set_format (GstVideoEncoder * encoder,
       slice_mode = SM_SINGLE_SLICE;
     else
       slice_mode = SM_FIXEDSLCNUM_SLICE;
-     n_slices = openh264enc->num_slices;
+    n_slices = openh264enc->num_slices;
   } else if (openh264enc->slice_mode == GST_OPENH264_SLICE_MODE_AUTO) {
 #if OPENH264_MAJOR == 1 && OPENH264_MINOR < 6
     slice_mode = SM_AUTO_SLICE;
@@ -766,6 +784,11 @@ gst_openh264enc_set_format (GstVideoEncoder * encoder,
   openh264enc->framerate = (1 + fps_n / fps_d);
 
   ret = openh264enc->encoder->InitializeExt (&enc_params);
+
+  openh264enc->bitrate_changed = FALSE;
+  openh264enc->max_bitrate_changed = FALSE;
+
+  GST_OBJECT_UNLOCK (openh264enc);
 
   if (ret != cmResultSuccess) {
     GST_ERROR_OBJECT (openh264enc, "failed to initialize encoder");
@@ -809,6 +832,37 @@ gst_openh264enc_handle_frame (GstVideoEncoder * encoder,
   gint i, j;
   gsize buf_length = 0;
 
+  GST_OBJECT_LOCK (openh264enc);
+
+  if (openh264enc->bitrate_changed || openh264enc->max_bitrate_changed) {
+    SEncParamExt enc_params;
+    if (openh264enc->encoder->GetOption (ENCODER_OPTION_SVC_ENCODE_PARAM_EXT,
+            &enc_params) == cmResultSuccess) {
+      if (openh264enc->bitrate_changed) {
+        enc_params.iTargetBitrate = openh264enc->bitrate;
+        enc_params.sSpatialLayers[0].iSpatialBitrate =
+            enc_params.iTargetBitrate;
+      }
+      if (openh264enc->max_bitrate_changed) {
+        enc_params.iMaxBitrate = openh264enc->max_bitrate;
+        enc_params.sSpatialLayers[0].iMaxSpatialBitrate =
+            enc_params.iMaxBitrate;
+      }
+      if (openh264enc->encoder->SetOption (ENCODER_OPTION_SVC_ENCODE_PARAM_EXT,
+              &enc_params) != cmResultSuccess) {
+        GST_WARNING_OBJECT (openh264enc,
+            "Error changing bitrate/max bitrate, unable to set new enc_params");
+      }
+    } else {
+      GST_WARNING_OBJECT (openh264enc,
+          "Error changing bitrate/max bitrate, unable to get enc_params");
+    }
+    openh264enc->bitrate_changed = FALSE;
+    openh264enc->max_bitrate_changed = FALSE;
+  }
+
+  GST_OBJECT_UNLOCK (openh264enc);
+
   if (frame) {
     src_pic = new SSourcePicture;
 
@@ -830,7 +884,7 @@ gst_openh264enc_handle_frame (GstVideoEncoder * encoder,
     } else {
       openh264enc->time_per_frame = (guint64)
           (openh264enc->time_per_frame * 0.8 + (frame->pts -
-          openh264enc->previous_timestamp) * 0.2);
+              openh264enc->previous_timestamp) * 0.2);
       openh264enc->previous_timestamp = frame->pts;
       if (openh264enc->frame_count % 10 == 0) {
         fps = GST_SECOND / (gdouble) openh264enc->time_per_frame;

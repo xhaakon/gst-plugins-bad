@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-bad 1.12.0\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-12-07 19:24+0200\n"
+"POT-Creation-Date: 2018-02-15 17:13+0000\n"
 "PO-Revision-Date: 2017-05-21 19:05+0800\n"
 "Last-Translator: Sebastian Rasmussen <sebras@gmail.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -19,14 +19,8 @@ msgstr ""
 "X-Bugs: Report translation errors to the Language-Team address.\n"
 "X-Generator: Poedit 1.8.11\n"
 
-msgid "failed to draw pattern"
-msgstr "misslyckades med att rita mönster"
-
-msgid "A GL error occured"
-msgstr "Ett GL-fel inträffade"
-
-msgid "format wasn't negotiated before get function"
-msgstr "formatet förhandlades inte fram innan hämtfunktionen"
+msgid "No URL set."
+msgstr ""
 
 msgid "OpenCV failed to load template image"
 msgstr "OpenCV misslyckades med att läsa in mallbild"
@@ -128,6 +122,15 @@ msgstr "Kunde ej hitta konfigurationsfil för kanal: ”%s”"
 
 msgid "Channel configuration file doesn't contain any channels"
 msgstr "Konfigurationsfil för kanal innehåller inga kanaler"
+
+#~ msgid "failed to draw pattern"
+#~ msgstr "misslyckades med att rita mönster"
+
+#~ msgid "A GL error occured"
+#~ msgstr "Ett GL-fel inträffade"
+
+#~ msgid "format wasn't negotiated before get function"
+#~ msgstr "formatet förhandlades inte fram innan hämtfunktionen"
 
 #~ msgid "default GStreamer sound events audiosink"
 #~ msgstr "standard GStreamer-ljudutgång för ljudhändelser"

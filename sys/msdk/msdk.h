@@ -32,30 +32,48 @@
 #ifndef __MSDK_H__
 #define __MSDK_H__
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <string.h>
 
 #include <gst/gst.h>
 #include <gst/video/video.h>
-#include "mfxvideo.h"
+
+#ifdef HAVE_LIBMFX
+#  include <mfx/mfxvideo.h>
+#else
+#  include "mfxvideo.h"
+#endif
 
 G_BEGIN_DECLS
-
-typedef struct _MsdkContext MsdkContext;
 
 mfxSession msdk_open_session (gboolean hardware);
 void msdk_close_session (mfxSession session);
 
 gboolean msdk_is_available (void);
 
-MsdkContext *msdk_open_context (gboolean hardware);
-void msdk_close_context (MsdkContext * context);
-mfxSession msdk_context_get_session (MsdkContext * context);
-
 mfxFrameSurface1 *msdk_get_free_surface (mfxFrameSurface1 * surfaces,
     guint size);
 void msdk_frame_to_surface (GstVideoFrame * frame, mfxFrameSurface1 * surface);
 
 const gchar *msdk_status_to_string (mfxStatus status);
+
+void gst_msdk_set_video_alignment (GstVideoInfo * info,
+    GstVideoAlignment * alignment);
+
+/* Conversion from Gstreamer to libmfx */
+gint gst_msdk_get_mfx_chroma_from_format (GstVideoFormat format);
+gint gst_msdk_get_mfx_fourcc_from_format (GstVideoFormat format);
+void gst_msdk_set_mfx_frame_info_from_video_info (mfxFrameInfo * mfx_info,
+    GstVideoInfo * info);
+
+gboolean
+gst_msdk_is_msdk_buffer (GstBuffer * buf);
+
+mfxFrameSurface1 *
+gst_msdk_get_surface_from_buffer (GstBuffer * buf);
 
 G_END_DECLS
 
