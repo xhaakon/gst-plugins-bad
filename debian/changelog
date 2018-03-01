@@ -1,4 +1,4 @@
-gst-plugins-bad1.0 (1.13.1-1ubuntu1) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.13.1-1ubuntu1) bionic; urgency=medium
 
   * Merge with Debian unstable; remaining changes:
     + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
@@ -12,7 +12,7 @@ gst-plugins-bad1.0 (1.13.1-1ubuntu1) UNRELEASED; urgency=medium
     + C/R/P old -videoparsers and -faad
   * debian/patches/fix-lp1698287.patch: gl has been removed, drop the patch
 
- -- Iain Lane <iain.lane@canonical.com>  Thu, 01 Mar 2018 11:58:19 +0000
+ -- Iain Lane <iain.lane@canonical.com>  Thu, 01 Mar 2018 15:06:38 +0000
 
 gst-plugins-bad1.0 (1.13.1-1) experimental; urgency=medium
 
