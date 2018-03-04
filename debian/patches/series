@@ -1,4 +1,1 @@
 01_fix-modplug-linking.patch
-0001-configure-Add-configure-check-for-gmodule-no-export-.patch
-0001-gl-GL_LIBS-does-not-exist-anymore-but-X11_LIBS-does-.patch
-0001-colormanagement-Link-to-libgstbase-for-basetransform.patch
