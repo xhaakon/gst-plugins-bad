@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2008 Ole André Vadla Ravnås <ole.andre.ravnas@tandberg.com>
+ * Copyright (C) 2018 Centricular Ltd.
+ *   Author: Nirbheek Chauhan <nirbheek@centricular.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -25,20 +27,25 @@
 #include "gstwasapisrc.h"
 #include "gstwasapidevice.h"
 
+GST_DEBUG_CATEGORY (gst_wasapi_debug);
+
 static gboolean
 plugin_init (GstPlugin * plugin)
 {
-  if (!gst_element_register (plugin, "wasapisink", GST_RANK_NONE,
+  if (!gst_element_register (plugin, "wasapisink", GST_RANK_PRIMARY,
           GST_TYPE_WASAPI_SINK))
     return FALSE;
 
-  if (!gst_element_register (plugin, "wasapisrc", GST_RANK_NONE,
+  if (!gst_element_register (plugin, "wasapisrc", GST_RANK_PRIMARY,
           GST_TYPE_WASAPI_SRC))
     return FALSE;
 
   if (!gst_device_provider_register (plugin, "wasapideviceprovider",
           GST_RANK_PRIMARY, GST_TYPE_WASAPI_DEVICE_PROVIDER))
     return FALSE;
+
+  GST_DEBUG_CATEGORY_INIT (gst_wasapi_debug, "wasapi",
+      0, "Windows audio session API generic");
 
   return TRUE;
 }

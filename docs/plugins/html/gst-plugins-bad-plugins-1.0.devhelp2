@@ -6,8 +6,11 @@
       <sub name="aiffparse" link="gst-plugins-bad-plugins-aiffparse.html"/>
       <sub name="aiffmux" link="gst-plugins-bad-plugins-aiffmux.html"/>
       <sub name="assrender" link="gst-plugins-bad-plugins-assrender.html"/>
+      <sub name="audiolatency" link="gst-plugins-bad-plugins-audiolatency.html"/>
+      <sub name="audiobuffersplit" link="gst-plugins-bad-plugins-audiobuffersplit.html"/>
       <sub name="audioparse" link="gst-plugins-bad-plugins-audioparse.html"/>
       <sub name="autoconvert" link="gst-plugins-bad-plugins-autoconvert.html"/>
+      <sub name="avwait" link="gst-plugins-bad-plugins-avwait.html"/>
       <sub name="bs2b" link="gst-plugins-bad-plugins-bs2b.html"/>
       <sub name="bulge" link="gst-plugins-bad-plugins-bulge.html"/>
       <sub name="burn" link="gst-plugins-bad-plugins-burn.html"/>
@@ -16,12 +19,16 @@
       <sub name="circle" link="gst-plugins-bad-plugins-circle.html"/>
       <sub name="coloreffects" link="gst-plugins-bad-plugins-coloreffects.html"/>
       <sub name="compositor" link="gst-plugins-bad-plugins-compositor.html"/>
+      <sub name="curlhttpsrc" link="gst-plugins-bad-plugins-curlhttpsrc.html"/>
+      <sub name="curlsftpsink" link="gst-plugins-bad-plugins-curlsftpsink.html"/>
       <sub name="cvdilate" link="gst-plugins-bad-plugins-cvdilate.html"/>
       <sub name="cverode" link="gst-plugins-bad-plugins-cverode.html"/>
       <sub name="cvequalizehist" link="gst-plugins-bad-plugins-cvequalizehist.html"/>
       <sub name="cvlaplace" link="gst-plugins-bad-plugins-cvlaplace.html"/>
       <sub name="cvsmooth" link="gst-plugins-bad-plugins-cvsmooth.html"/>
       <sub name="cvsobel" link="gst-plugins-bad-plugins-cvsobel.html"/>
+      <sub name="dc1394src" link="gst-plugins-bad-plugins-dc1394src.html"/>
+      <sub name="dewarp" link="gst-plugins-bad-plugins-dewarp.html"/>
       <sub name="diffuse" link="gst-plugins-bad-plugins-diffuse.html"/>
       <sub name="dilate" link="gst-plugins-bad-plugins-dilate.html"/>
       <sub name="dodge" link="gst-plugins-bad-plugins-dodge.html"/>
@@ -34,7 +41,11 @@
       <sub name="faac" link="gst-plugins-bad-plugins-faac.html"/>
       <sub name="faad" link="gst-plugins-bad-plugins-faad.html"/>
       <sub name="faceblur" link="gst-plugins-bad-plugins-faceblur.html"/>
+      <sub name="faceoverlay" link="gst-plugins-bad-plugins-faceoverlay.html"/>
       <sub name="facedetect" link="gst-plugins-bad-plugins-facedetect.html"/>
+      <sub name="fakevideosink" link="gst-plugins-bad-plugins-fakevideosink.html"/>
+      <sub name="fdkaacdec" link="gst-plugins-bad-plugins-fdkaacdec.html"/>
+      <sub name="fdkaacenc" link="gst-plugins-bad-plugins-fdkaacenc.html"/>
       <sub name="festival" link="gst-plugins-bad-plugins-festival.html"/>
       <sub name="fisheye" link="gst-plugins-bad-plugins-fisheye.html"/>
       <sub name="fpsdisplaysink" link="gst-plugins-bad-plugins-fpsdisplaysink.html"/>
@@ -44,30 +55,39 @@
       <sub name="glstereomix" link="gst-plugins-bad-plugins-glstereomix.html"/>
       <sub name="glvideomixerelement" link="gst-plugins-bad-plugins-glvideomixerelement.html"/>
       <sub name="glvideomixer" link="gst-plugins-bad-plugins-glvideomixer.html"/>
+      <sub name="hlssink2" link="gst-plugins-bad-plugins-hlssink2.html"/>
       <sub name="iqa" link="gst-plugins-bad-plugins-IQA.html"/>
+      <sub name="ipcpipelinesink" link="gst-plugins-bad-plugins-ipcpipelinesink.html"/>
+      <sub name="ipcpipelinesrc" link="gst-plugins-bad-plugins-ipcpipelinesrc.html"/>
+      <sub name="ipcslavepipeline" link="gst-plugins-bad-plugins-ipcslavepipeline.html"/>
       <sub name="jpegparse" link="gst-plugins-bad-plugins-jpegparse.html"/>
       <sub name="kaleidoscope" link="gst-plugins-bad-plugins-kaleidoscope.html"/>
       <sub name="liveadder" link="gst-plugins-bad-plugins-liveadder.html"/>
       <sub name="marble" link="gst-plugins-bad-plugins-marble.html"/>
-      <sub name="mimenc" link="gst-plugins-bad-plugins-mimenc.html"/>
-      <sub name="mimdec" link="gst-plugins-bad-plugins-mimdec.html"/>
       <sub name="mirror" link="gst-plugins-bad-plugins-mirror.html"/>
       <sub name="modplug" link="gst-plugins-bad-plugins-modplug.html"/>
       <sub name="mpeg2enc" link="gst-plugins-bad-plugins-mpeg2enc.html"/>
       <sub name="mpegpsmux" link="gst-plugins-bad-plugins-mpegpsmux.html"/>
       <sub name="mpegtsmux" link="gst-plugins-bad-plugins-mpegtsmux.html"/>
       <sub name="mplex" link="gst-plugins-bad-plugins-mplex.html"/>
+      <sub name="musepackdec" link="gst-plugins-bad-plugins-musepackdec.html"/>
       <sub name="neonhttpsrc" link="gst-plugins-bad-plugins-neonhttpsrc.html"/>
       <sub name="ofa" link="gst-plugins-bad-plugins-ofa.html"/>
       <sub name="openalsrc" link="gst-plugins-bad-plugins-openalsrc.html"/>
       <sub name="openalsink" link="gst-plugins-bad-plugins-openalsink.html"/>
+      <sub name="openh264dec" link="gst-plugins-bad-plugins-openh264dec.html"/>
+      <sub name="openh264enc" link="gst-plugins-bad-plugins-openh264enc.html"/>
       <sub name="pcapparse" link="gst-plugins-bad-plugins-pcapparse.html"/>
       <sub name="pinch" link="gst-plugins-bad-plugins-pinch.html"/>
+      <sub name="proxysink" link="gst-plugins-bad-plugins-proxysink.html"/>
+      <sub name="proxysrc" link="gst-plugins-bad-plugins-proxysrc.html"/>
       <sub name="rawaudioparse" link="gst-plugins-bad-plugins-rawaudioparse.html"/>
       <sub name="rawvideoparse" link="gst-plugins-bad-plugins-rawvideoparse.html"/>
       <sub name="rfbsrc" link="gst-plugins-bad-plugins-rfbsrc.html"/>
       <sub name="rtmpsink" link="gst-plugins-bad-plugins-rtmpsink.html"/>
       <sub name="rtmpsrc" link="gst-plugins-bad-plugins-rtmpsrc.html"/>
+      <sub name="sbcdec" link="gst-plugins-bad-plugins-sbcdec.html"/>
+      <sub name="sbcenc" link="gst-plugins-bad-plugins-sbcenc.html"/>
       <sub name="shmsink" link="gst-plugins-bad-plugins-shmsink.html"/>
       <sub name="shmsrc" link="gst-plugins-bad-plugins-shmsrc.html"/>
       <sub name="sdpdemux" link="gst-plugins-bad-plugins-sdpdemux.html"/>
@@ -80,6 +100,7 @@
       <sub name="square" link="gst-plugins-bad-plugins-square.html"/>
       <sub name="stretch" link="gst-plugins-bad-plugins-stretch.html"/>
       <sub name="templatematch" link="gst-plugins-bad-plugins-templatematch.html"/>
+      <sub name="timecodestamper" link="gst-plugins-bad-plugins-timecodestamper.html"/>
       <sub name="opencvtextoverlay" link="gst-plugins-bad-plugins-opencvtextoverlay.html"/>
       <sub name="tunnel" link="gst-plugins-bad-plugins-tunnel.html"/>
       <sub name="twirl" link="gst-plugins-bad-plugins-twirl.html"/>
@@ -90,7 +111,10 @@
       <sub name="zbar" link="gst-plugins-bad-plugins-zbar.html"/>
       <sub name="voaacenc" link="gst-plugins-bad-plugins-voaacenc.html"/>
       <sub name="voamrwbenc" link="gst-plugins-bad-plugins-voamrwbenc.html"/>
+      <sub name="vulkansink" link="gst-plugins-bad-plugins-vulkansink.html"/>
+      <sub name="vulkanupload" link="gst-plugins-bad-plugins-vulkanupload.html"/>
       <sub name="wavescope" link="gst-plugins-bad-plugins-wavescope.html"/>
+      <sub name="webrtcbin" link="gst-plugins-bad-plugins-webrtcbin.html"/>
       <sub name="webrtcdsp" link="gst-plugins-bad-plugins-webrtcdsp.html"/>
       <sub name="webrtcechoprobe" link="gst-plugins-bad-plugins-webrtcechoprobe.html"/>
       <sub name="ttmlparse" link="gst-plugins-bad-plugins-ttmlparse.html"/>
@@ -98,6 +122,7 @@
     </sub>
     <sub name="gst-plugins-bad Plugins" link="ch02.html">
       <sub name="aiff" link="gst-plugins-bad-plugins-plugin-aiff.html"/>
+      <sub name="audiolatency" link="gst-plugins-bad-plugins-plugin-audiolatency.html"/>
       <sub name="audiovisualizers" link="gst-plugins-bad-plugins-plugin-audiovisualizers.html"/>
       <sub name="autoconvert" link="gst-plugins-bad-plugins-plugin-autoconvert.html"/>
       <sub name="assrender" link="gst-plugins-bad-plugins-plugin-assrender.html"/>
@@ -154,6 +179,15 @@
     <keyword type="property" name="The “embeddedfonts” property" link="gst-plugins-bad-plugins-assrender.html#GstAssRender--embeddedfonts"/>
     <keyword type="property" name="The “enable” property" link="gst-plugins-bad-plugins-assrender.html#GstAssRender--enable"/>
     <keyword type="property" name="The “wait-text” property" link="gst-plugins-bad-plugins-assrender.html#GstAssRender--wait-text"/>
+    <keyword type="struct" name="struct GstAudioLatency" link="gst-plugins-bad-plugins-audiolatency.html#GstAudioLatency-struct"/>
+    <keyword type="property" name="The “average-latency” property" link="gst-plugins-bad-plugins-audiolatency.html#GstAudioLatency--average-latency"/>
+    <keyword type="property" name="The “last-latency” property" link="gst-plugins-bad-plugins-audiolatency.html#GstAudioLatency--last-latency"/>
+    <keyword type="property" name="The “print-latency” property" link="gst-plugins-bad-plugins-audiolatency.html#GstAudioLatency--print-latency"/>
+    <keyword type="struct" name="struct GstAudioBufferSplit" link="gst-plugins-bad-plugins-audiobuffersplit.html#GstAudioBufferSplit-struct"/>
+    <keyword type="property" name="The “alignment-threshold” property" link="gst-plugins-bad-plugins-audiobuffersplit.html#GstAudioBufferSplit--alignment-threshold"/>
+    <keyword type="property" name="The “discont-wait” property" link="gst-plugins-bad-plugins-audiobuffersplit.html#GstAudioBufferSplit--discont-wait"/>
+    <keyword type="property" name="The “output-buffer-duration” property" link="gst-plugins-bad-plugins-audiobuffersplit.html#GstAudioBufferSplit--output-buffer-duration"/>
+    <keyword type="property" name="The “strict-buffer-size” property" link="gst-plugins-bad-plugins-audiobuffersplit.html#GstAudioBufferSplit--strict-buffer-size"/>
     <keyword type="struct" name="struct GstAudioParse" link="gst-plugins-bad-plugins-audioparse.html#GstAudioParse-struct"/>
     <keyword type="property" name="The “channels” property" link="gst-plugins-bad-plugins-audioparse.html#GstAudioParse--channels"/>
     <keyword type="property" name="The “depth” property" link="gst-plugins-bad-plugins-audioparse.html#GstAudioParse--depth"/>
@@ -169,7 +203,14 @@
     <keyword type="struct" name="struct GstAutoConvert" link="gst-plugins-bad-plugins-autoconvert.html#GstAutoConvert-struct"/>
     <keyword type="property" name="The “factories” property" link="gst-plugins-bad-plugins-autoconvert.html#GstAutoConvert--factories"/>
     <keyword type="property" name="The “initial-identity” property" link="gst-plugins-bad-plugins-autoconvert.html#GstAutoConvert--initial-identity"/>
-    <keyword type="struct" name="struct GstBs2b" link="gst-plugins-bad-plugins-bs2b.html#GstBs2b"/>
+    <keyword type="struct" name="struct GstAvWait" link="gst-plugins-bad-plugins-avwait.html#GstAvWait-struct"/>
+    <keyword type="enum" name="enum GstAvWaitMode" link="gst-plugins-bad-plugins-avwait.html#GstAvWaitMode"/>
+    <keyword type="property" name="The “mode” property" link="gst-plugins-bad-plugins-avwait.html#GstAvWait--mode"/>
+    <keyword type="property" name="The “target-running-time” property" link="gst-plugins-bad-plugins-avwait.html#GstAvWait--target-running-time"/>
+    <keyword type="property" name="The “target-timecode” property" link="gst-plugins-bad-plugins-avwait.html#GstAvWait--target-timecode"/>
+    <keyword type="property" name="The “target-timecode-string” property" link="gst-plugins-bad-plugins-avwait.html#GstAvWait--target-timecode-string"/>
+    <keyword type="property" name="The “end-timecode” property" link="gst-plugins-bad-plugins-avwait.html#GstAvWait--end-timecode"/>
+    <keyword type="struct" name="struct GstBs2b" link="gst-plugins-bad-plugins-bs2b.html#GstBs2b-struct"/>
     <keyword type="property" name="The “fcut” property" link="gst-plugins-bad-plugins-bs2b.html#GstBs2b--fcut"/>
     <keyword type="property" name="The “feed” property" link="gst-plugins-bad-plugins-bs2b.html#GstBs2b--feed"/>
     <keyword type="struct" name="struct GstBulge" link="gst-plugins-bad-plugins-bulge.html#GstBulge-struct"/>
@@ -191,6 +232,31 @@
     <keyword type="struct" name="struct GstCompositor" link="gst-plugins-bad-plugins-compositor.html#GstCompositor-struct"/>
     <keyword type="enum" name="enum GstCompositorBackground" link="gst-plugins-bad-plugins-compositor.html#GstCompositorBackground"/>
     <keyword type="property" name="The “background” property" link="gst-plugins-bad-plugins-compositor.html#GstCompositor--background"/>
+    <keyword type="struct" name="struct GstCurlHttpSrc" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc-struct"/>
+    <keyword type="property" name="The “automatic-redirect” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--automatic-redirect"/>
+    <keyword type="property" name="The “compress” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--compress"/>
+    <keyword type="property" name="The “cookies” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--cookies"/>
+    <keyword type="property" name="The “extra-headers” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--extra-headers"/>
+    <keyword type="property" name="The “http-version” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--http-version"/>
+    <keyword type="property" name="The “keep-alive” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--keep-alive"/>
+    <keyword type="property" name="The “location” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--location"/>
+    <keyword type="property" name="The “max-connection-time” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--max-connection-time"/>
+    <keyword type="property" name="The “max-connections” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--max-connections"/>
+    <keyword type="property" name="The “max-connections-per-proxy” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--max-connections-per-proxy"/>
+    <keyword type="property" name="The “max-connections-per-server” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--max-connections-per-server"/>
+    <keyword type="property" name="The “max-redirect” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--max-redirect"/>
+    <keyword type="property" name="The “proxy” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--proxy"/>
+    <keyword type="property" name="The “proxy-id” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--proxy-id"/>
+    <keyword type="property" name="The “proxy-pw” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--proxy-pw"/>
+    <keyword type="property" name="The “retries” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--retries"/>
+    <keyword type="property" name="The “ssl-ca-file” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--ssl-ca-file"/>
+    <keyword type="property" name="The “ssl-strict” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--ssl-strict"/>
+    <keyword type="property" name="The “timeout” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--timeout"/>
+    <keyword type="property" name="The “user-agent” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--user-agent"/>
+    <keyword type="property" name="The “user-id” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--user-id"/>
+    <keyword type="property" name="The “user-pw” property" link="gst-plugins-bad-plugins-curlhttpsrc.html#GstCurlHttpSrc--user-pw"/>
+    <keyword type="struct" name="struct GstCurlSftpSink" link="gst-plugins-bad-plugins-curlsftpsink.html#GstCurlSftpSink-struct"/>
+    <keyword type="property" name="The “create-dirs” property" link="gst-plugins-bad-plugins-curlsftpsink.html#GstCurlSftpSink--create-dirs"/>
     <keyword type="struct" name="struct GstCvDilate" link="gst-plugins-bad-plugins-cvdilate.html#GstCvDilate-struct"/>
     <keyword type="struct" name="struct GstCvErode" link="gst-plugins-bad-plugins-cverode.html#GstCvErode-struct"/>
     <keyword type="struct" name="struct GstCvEqualizeHist" link="gst-plugins-bad-plugins-cvequalizehist.html#GstCvEqualizeHist-struct"/>
@@ -218,6 +284,22 @@
     <keyword type="property" name="The “x-order” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--x-order"/>
     <keyword type="property" name="The “y-order” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--y-order"/>
     <keyword type="property" name="The “mask” property" link="gst-plugins-bad-plugins-cvsobel.html#GstCvSobel--mask"/>
+    <keyword type="struct" name="struct GstDC1394Src" link="gst-plugins-bad-plugins-dc1394src.html#GstDC1394Src-struct"/>
+    <keyword type="property" name="The “dma” property" link="gst-plugins-bad-plugins-dc1394src.html#GstDC1394Src--dma"/>
+    <keyword type="property" name="The “guid” property" link="gst-plugins-bad-plugins-dc1394src.html#GstDC1394Src--guid"/>
+    <keyword type="property" name="The “iso” property" link="gst-plugins-bad-plugins-dc1394src.html#GstDC1394Src--iso"/>
+    <keyword type="property" name="The “unit” property" link="gst-plugins-bad-plugins-dc1394src.html#GstDC1394Src--unit"/>
+    <keyword type="struct" name="struct GstDewarp" link="gst-plugins-bad-plugins-dewarp.html#GstDewarp-struct"/>
+    <keyword type="enum" name="enum GstDewarpDisplayMode" link="gst-plugins-bad-plugins-dewarp.html#GstDewarpDisplayMode"/>
+    <keyword type="enum" name="enum GstDewarpInterpolationMode" link="gst-plugins-bad-plugins-dewarp.html#GstDewarpInterpolationMode"/>
+    <keyword type="property" name="The “display-mode” property" link="gst-plugins-bad-plugins-dewarp.html#GstDewarp--display-mode"/>
+    <keyword type="property" name="The “inner-radius” property" link="gst-plugins-bad-plugins-dewarp.html#GstDewarp--inner-radius"/>
+    <keyword type="property" name="The “interpolation-method” property" link="gst-plugins-bad-plugins-dewarp.html#GstDewarp--interpolation-method"/>
+    <keyword type="property" name="The “outer-radius” property" link="gst-plugins-bad-plugins-dewarp.html#GstDewarp--outer-radius"/>
+    <keyword type="property" name="The “x-center” property" link="gst-plugins-bad-plugins-dewarp.html#GstDewarp--x-center"/>
+    <keyword type="property" name="The “x-remap-correction” property" link="gst-plugins-bad-plugins-dewarp.html#GstDewarp--x-remap-correction"/>
+    <keyword type="property" name="The “y-center” property" link="gst-plugins-bad-plugins-dewarp.html#GstDewarp--y-center"/>
+    <keyword type="property" name="The “y-remap-correction” property" link="gst-plugins-bad-plugins-dewarp.html#GstDewarp--y-remap-correction"/>
     <keyword type="struct" name="struct GstDiffuse" link="gst-plugins-bad-plugins-diffuse.html#GstDiffuse-struct"/>
     <keyword type="property" name="The “scale” property" link="gst-plugins-bad-plugins-diffuse.html#GstDiffuse--scale"/>
     <keyword type="struct" name="struct GstDilate" link="gst-plugins-bad-plugins-dilate.html#GstDilate-struct"/>
@@ -311,6 +393,12 @@
     <keyword type="property" name="The “min-size-height” property" link="gst-plugins-bad-plugins-faceblur.html#GstFaceBlur--min-size-height"/>
     <keyword type="property" name="The “min-size-width” property" link="gst-plugins-bad-plugins-faceblur.html#GstFaceBlur--min-size-width"/>
     <keyword type="property" name="The “scale-factor” property" link="gst-plugins-bad-plugins-faceblur.html#GstFaceBlur--scale-factor"/>
+    <keyword type="struct" name="struct GstFaceOverlay" link="gst-plugins-bad-plugins-faceoverlay.html#GstFaceOverlay-struct"/>
+    <keyword type="property" name="The “h” property" link="gst-plugins-bad-plugins-faceoverlay.html#GstFaceOverlay--h"/>
+    <keyword type="property" name="The “location” property" link="gst-plugins-bad-plugins-faceoverlay.html#GstFaceOverlay--location"/>
+    <keyword type="property" name="The “w” property" link="gst-plugins-bad-plugins-faceoverlay.html#GstFaceOverlay--w"/>
+    <keyword type="property" name="The “x” property" link="gst-plugins-bad-plugins-faceoverlay.html#GstFaceOverlay--x"/>
+    <keyword type="property" name="The “y” property" link="gst-plugins-bad-plugins-faceoverlay.html#GstFaceOverlay--y"/>
     <keyword type="struct" name="struct GstFaceDetect" link="gst-plugins-bad-plugins-facedetect.html#GstFaceDetect-struct"/>
     <keyword type="enum" name="enum GstFaceDetectUpdates" link="gst-plugins-bad-plugins-facedetect.html#GstFaceDetectUpdates"/>
     <keyword type="property" name="The “display” property" link="gst-plugins-bad-plugins-facedetect.html#GstFaceDetect--display"/>
@@ -325,6 +413,10 @@
     <keyword type="property" name="The “scale-factor” property" link="gst-plugins-bad-plugins-facedetect.html#GstFaceDetect--scale-factor"/>
     <keyword type="property" name="The “updates” property" link="gst-plugins-bad-plugins-facedetect.html#GstFaceDetect--updates"/>
     <keyword type="property" name="The “min-stddev” property" link="gst-plugins-bad-plugins-facedetect.html#GstFaceDetect--min-stddev"/>
+    <keyword type="struct" name="struct GstFakeVideoSink" link="gst-plugins-bad-plugins-fakevideosink.html#GstFakeVideoSink-struct"/>
+    <keyword type="struct" name="struct GstFdkAacDec" link="gst-plugins-bad-plugins-fdkaacdec.html#GstFdkAacDec-struct"/>
+    <keyword type="struct" name="struct GstFdkAacEnc" link="gst-plugins-bad-plugins-fdkaacenc.html#GstFdkAacEnc-struct"/>
+    <keyword type="property" name="The “bitrate” property" link="gst-plugins-bad-plugins-fdkaacenc.html#GstFdkAacEnc--bitrate"/>
     <keyword type="struct" name="struct GstFestival" link="gst-plugins-bad-plugins-festival.html#GstFestival-struct"/>
     <keyword type="struct" name="struct GstFisheye" link="gst-plugins-bad-plugins-fisheye.html#GstFisheye-struct"/>
     <keyword type="struct" name="struct GstFPSDisplaySink" link="gst-plugins-bad-plugins-fpsdisplaysink.html#GstFPSDisplaySink-struct"/>
@@ -354,6 +446,27 @@
     <keyword type="struct" name="struct GstGLVideoMixer" link="gst-plugins-bad-plugins-glvideomixerelement.html#GstGLVideoMixer-struct"/>
     <keyword type="enum" name="enum GstGLVideoMixerBackground" link="gst-plugins-bad-plugins-glvideomixerelement.html#GstGLVideoMixerBackground"/>
     <keyword type="property" name="The “background” property" link="gst-plugins-bad-plugins-glvideomixerelement.html#GstGLVideoMixer--background"/>
+    <keyword type="struct" name="struct GstHlsSink2" link="gst-plugins-bad-plugins-hlssink2.html#GstHlsSink2-struct"/>
+    <keyword type="property" name="The “location” property" link="gst-plugins-bad-plugins-hlssink2.html#GstHlsSink2--location"/>
+    <keyword type="property" name="The “max-files” property" link="gst-plugins-bad-plugins-hlssink2.html#GstHlsSink2--max-files"/>
+    <keyword type="property" name="The “playlist-length” property" link="gst-plugins-bad-plugins-hlssink2.html#GstHlsSink2--playlist-length"/>
+    <keyword type="property" name="The “playlist-location” property" link="gst-plugins-bad-plugins-hlssink2.html#GstHlsSink2--playlist-location"/>
+    <keyword type="property" name="The “playlist-root” property" link="gst-plugins-bad-plugins-hlssink2.html#GstHlsSink2--playlist-root"/>
+    <keyword type="property" name="The “target-duration” property" link="gst-plugins-bad-plugins-hlssink2.html#GstHlsSink2--target-duration"/>
+    <keyword type="struct" name="struct GstIpcPipelineSink" link="gst-plugins-bad-plugins-ipcpipelinesink.html#GstIpcPipelineSink-struct"/>
+    <keyword type="property" name="The “ack-time” property" link="gst-plugins-bad-plugins-ipcpipelinesink.html#GstIpcPipelineSink--ack-time"/>
+    <keyword type="property" name="The “fdin” property" link="gst-plugins-bad-plugins-ipcpipelinesink.html#GstIpcPipelineSink--fdin"/>
+    <keyword type="property" name="The “fdout” property" link="gst-plugins-bad-plugins-ipcpipelinesink.html#GstIpcPipelineSink--fdout"/>
+    <keyword type="property" name="The “read-chunk-size” property" link="gst-plugins-bad-plugins-ipcpipelinesink.html#GstIpcPipelineSink--read-chunk-size"/>
+    <keyword type="signal" name="The “disconnect” signal" link="gst-plugins-bad-plugins-ipcpipelinesink.html#GstIpcPipelineSink-disconnect"/>
+    <keyword type="struct" name="struct GstIpcPipelineSrc" link="gst-plugins-bad-plugins-ipcpipelinesrc.html#GstIpcPipelineSrc-struct"/>
+    <keyword type="property" name="The “ack-time” property" link="gst-plugins-bad-plugins-ipcpipelinesrc.html#GstIpcPipelineSrc--ack-time"/>
+    <keyword type="property" name="The “fdin” property" link="gst-plugins-bad-plugins-ipcpipelinesrc.html#GstIpcPipelineSrc--fdin"/>
+    <keyword type="property" name="The “fdout” property" link="gst-plugins-bad-plugins-ipcpipelinesrc.html#GstIpcPipelineSrc--fdout"/>
+    <keyword type="property" name="The “read-chunk-size” property" link="gst-plugins-bad-plugins-ipcpipelinesrc.html#GstIpcPipelineSrc--read-chunk-size"/>
+    <keyword type="signal" name="The “disconnect” signal" link="gst-plugins-bad-plugins-ipcpipelinesrc.html#GstIpcPipelineSrc-disconnect"/>
+    <keyword type="signal" name="The “forward-message” signal" link="gst-plugins-bad-plugins-ipcpipelinesrc.html#GstIpcPipelineSrc-forward-message"/>
+    <keyword type="struct" name="struct GstIpcSlavePipeline" link="gst-plugins-bad-plugins-ipcslavepipeline.html#GstIpcSlavePipeline-struct"/>
     <keyword type="struct" name="struct GstJpegParse" link="gst-plugins-bad-plugins-jpegparse.html#GstJpegParse-struct"/>
     <keyword type="struct" name="struct GstKaleidoscope" link="gst-plugins-bad-plugins-kaleidoscope.html#GstKaleidoscope-struct"/>
     <keyword type="property" name="The “angle” property" link="gst-plugins-bad-plugins-kaleidoscope.html#GstKaleidoscope--angle"/>
@@ -423,6 +536,7 @@
     <keyword type="property" name="The “sector-size” property" link="gst-plugins-bad-plugins-mplex.html#GstMplex--sector-size"/>
     <keyword type="property" name="The “system-headers” property" link="gst-plugins-bad-plugins-mplex.html#GstMplex--system-headers"/>
     <keyword type="property" name="The “vbr” property" link="gst-plugins-bad-plugins-mplex.html#GstMplex--vbr"/>
+    <keyword type="struct" name="GstMusepackDec" link="gst-plugins-bad-plugins-musepackdec.html#GstMusepackDec-struct"/>
     <keyword type="struct" name="struct GstNeonhttpSrc" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc-struct"/>
     <keyword type="property" name="The “location” property" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc--location"/>
     <keyword type="property" name="The “proxy” property" link="gst-plugins-bad-plugins-neonhttpsrc.html#GstNeonhttpSrc--proxy"/>
@@ -452,6 +566,26 @@
     <keyword type="property" name="The “user-context” property" link="gst-plugins-bad-plugins-openalsink.html#GstOpenALSink--user-context"/>
     <keyword type="property" name="The “user-device” property" link="gst-plugins-bad-plugins-openalsink.html#GstOpenALSink--user-device"/>
     <keyword type="property" name="The “user-source” property" link="gst-plugins-bad-plugins-openalsink.html#GstOpenALSink--user-source"/>
+    <keyword type="struct" name="struct GstOpenh264Dec" link="gst-plugins-bad-plugins-openh264dec.html#GstOpenh264Dec-struct"/>
+    <keyword type="struct" name="struct GstOpenh264Enc" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc-struct"/>
+    <keyword type="property" name="The “adaptive-quantization” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--adaptive-quantization"/>
+    <keyword type="property" name="The “background-detection” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--background-detection"/>
+    <keyword type="property" name="The “bitrate” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--bitrate"/>
+    <keyword type="property" name="The “deblocking” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--deblocking"/>
+    <keyword type="property" name="The “enable-denoise” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--enable-denoise"/>
+    <keyword type="property" name="The “enable-frame-skip” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--enable-frame-skip"/>
+    <keyword type="property" name="The “gop-size” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--gop-size"/>
+    <keyword type="property" name="The “max-slice-size” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--max-slice-size"/>
+    <keyword type="property" name="The “multi-thread” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--multi-thread"/>
+    <keyword type="property" name="The “num-slices” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--num-slices"/>
+    <keyword type="property" name="The “rate-control” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--rate-control"/>
+    <keyword type="property" name="The “scene-change-detection” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--scene-change-detection"/>
+    <keyword type="property" name="The “slice-mode” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--slice-mode"/>
+    <keyword type="property" name="The “usage-type” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--usage-type"/>
+    <keyword type="property" name="The “complexity” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--complexity"/>
+    <keyword type="property" name="The “max-bitrate” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--max-bitrate"/>
+    <keyword type="property" name="The “qp-max” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--qp-max"/>
+    <keyword type="property" name="The “qp-min” property" link="gst-plugins-bad-plugins-openh264enc.html#GstOpenh264Enc--qp-min"/>
     <keyword type="struct" name="struct GstPcapParse" link="gst-plugins-bad-plugins-pcapparse.html#GstPcapParse-struct"/>
     <keyword type="property" name="The “dst-ip” property" link="gst-plugins-bad-plugins-pcapparse.html#GstPcapParse--dst-ip"/>
     <keyword type="property" name="The “dst-port” property" link="gst-plugins-bad-plugins-pcapparse.html#GstPcapParse--dst-port"/>
@@ -461,6 +595,9 @@
     <keyword type="property" name="The “ts-offset” property" link="gst-plugins-bad-plugins-pcapparse.html#GstPcapParse--ts-offset"/>
     <keyword type="struct" name="struct GstPinch" link="gst-plugins-bad-plugins-pinch.html#GstPinch-struct"/>
     <keyword type="property" name="The “intensity” property" link="gst-plugins-bad-plugins-pinch.html#GstPinch--intensity"/>
+    <keyword type="struct" name="struct GstProxySink" link="gst-plugins-bad-plugins-proxysink.html#GstProxySink-struct"/>
+    <keyword type="struct" name="struct GstProxySrc" link="gst-plugins-bad-plugins-proxysrc.html#GstProxySrc-struct"/>
+    <keyword type="property" name="The “proxysink” property" link="gst-plugins-bad-plugins-proxysrc.html#GstProxySrc--proxysink"/>
     <keyword type="struct" name="struct GstRfbSrc" link="gst-plugins-bad-plugins-rfbsrc.html#GstRfbSrc-struct"/>
     <keyword type="property" name="The “host” property" link="gst-plugins-bad-plugins-rfbsrc.html#GstRfbSrc--host"/>
     <keyword type="property" name="The “port” property" link="gst-plugins-bad-plugins-rfbsrc.html#GstRfbSrc--port"/>
@@ -479,6 +616,8 @@
     <keyword type="struct" name="struct GstRTMPSrc" link="gst-plugins-bad-plugins-rtmpsrc.html#GstRTMPSrc-struct"/>
     <keyword type="property" name="The “location” property" link="gst-plugins-bad-plugins-rtmpsrc.html#GstRTMPSrc--location"/>
     <keyword type="property" name="The “timeout” property" link="gst-plugins-bad-plugins-rtmpsrc.html#GstRTMPSrc--timeout"/>
+    <keyword type="struct" name="struct GstSbcDec" link="gst-plugins-bad-plugins-sbcdec.html#GstSbcDec-struct"/>
+    <keyword type="struct" name="struct GstSbcEnc" link="gst-plugins-bad-plugins-sbcenc.html#GstSbcEnc-struct"/>
     <keyword type="struct" name="struct GstShmSink" link="gst-plugins-bad-plugins-shmsink.html#GstShmSink-struct"/>
     <keyword type="property" name="The “perms” property" link="gst-plugins-bad-plugins-shmsink.html#GstShmSink--perms"/>
     <keyword type="property" name="The “shm-size” property" link="gst-plugins-bad-plugins-shmsink.html#GstShmSink--shm-size"/>
@@ -519,6 +658,14 @@
     <keyword type="property" name="The “display” property" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch--display"/>
     <keyword type="property" name="The “method” property" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch--method"/>
     <keyword type="property" name="The “template” property" link="gst-plugins-bad-plugins-templatematch.html#GstTemplateMatch--template"/>
+    <keyword type="struct" name="struct GstTimeCodeStamper" link="gst-plugins-bad-plugins-timecodestamper.html#GstTimeCodeStamper-struct"/>
+    <keyword type="property" name="The “daily-jam” property" link="gst-plugins-bad-plugins-timecodestamper.html#GstTimeCodeStamper--daily-jam"/>
+    <keyword type="property" name="The “drop-frame” property" link="gst-plugins-bad-plugins-timecodestamper.html#GstTimeCodeStamper--drop-frame"/>
+    <keyword type="property" name="The “override-existing” property" link="gst-plugins-bad-plugins-timecodestamper.html#GstTimeCodeStamper--override-existing"/>
+    <keyword type="property" name="The “source-clock” property" link="gst-plugins-bad-plugins-timecodestamper.html#GstTimeCodeStamper--source-clock"/>
+    <keyword type="property" name="The “post-messages” property" link="gst-plugins-bad-plugins-timecodestamper.html#GstTimeCodeStamper--post-messages"/>
+    <keyword type="property" name="The “first-timecode” property" link="gst-plugins-bad-plugins-timecodestamper.html#GstTimeCodeStamper--first-timecode"/>
+    <keyword type="property" name="The “first-timecode-to-now” property" link="gst-plugins-bad-plugins-timecodestamper.html#GstTimeCodeStamper--first-timecode-to-now"/>
     <keyword type="struct" name="struct GstOpencvTextOverlay" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay-struct"/>
     <keyword type="property" name="The “colorB” property" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay--colorB"/>
     <keyword type="property" name="The “colorG” property" link="gst-plugins-bad-plugins-opencvtextoverlay.html#GstOpencvTextOverlay--colorG"/>
@@ -554,7 +701,7 @@
     <keyword type="property" name="The “amplitude” property" link="gst-plugins-bad-plugins-waterripple.html#GstWaterRipple--amplitude"/>
     <keyword type="property" name="The “phase” property" link="gst-plugins-bad-plugins-waterripple.html#GstWaterRipple--phase"/>
     <keyword type="property" name="The “wavelength” property" link="gst-plugins-bad-plugins-waterripple.html#GstWaterRipple--wavelength"/>
-    <keyword type="struct" name="struct GstZBar" link="gst-plugins-bad-plugins-zbar.html#GstZBar"/>
+    <keyword type="struct" name="struct GstZBar" link="gst-plugins-bad-plugins-zbar.html#GstZBar-struct"/>
     <keyword type="property" name="The “message” property" link="gst-plugins-bad-plugins-zbar.html#GstZBar--message"/>
     <keyword type="property" name="The “cache” property" link="gst-plugins-bad-plugins-zbar.html#GstZBar--cache"/>
     <keyword type="property" name="The “attach-frame” property" link="gst-plugins-bad-plugins-zbar.html#GstZBar--attach-frame"/>
@@ -562,8 +709,31 @@
     <keyword type="property" name="The “bitrate” property" link="gst-plugins-bad-plugins-voaacenc.html#GstVoAacEnc--bitrate"/>
     <keyword type="struct" name="struct GstVoAmrWbEnc" link="gst-plugins-bad-plugins-voamrwbenc.html#GstVoAmrWbEnc-struct"/>
     <keyword type="property" name="The “band-mode” property" link="gst-plugins-bad-plugins-voamrwbenc.html#GstVoAmrWbEnc--band-mode"/>
+    <keyword type="struct" name="struct GstVulkanSink" link="gst-plugins-bad-plugins-vulkansink.html#GstVulkanSink-struct"/>
+    <keyword type="property" name="The “force-aspect-ratio” property" link="gst-plugins-bad-plugins-vulkansink.html#GstVulkanSink--force-aspect-ratio"/>
+    <keyword type="property" name="The “pixel-aspect-ratio” property" link="gst-plugins-bad-plugins-vulkansink.html#GstVulkanSink--pixel-aspect-ratio"/>
+    <keyword type="struct" name="struct GstVulkanUpload" link="gst-plugins-bad-plugins-vulkanupload.html#GstVulkanUpload-struct"/>
     <keyword type="struct" name="struct GstWaveScope" link="gst-plugins-bad-plugins-wavescope.html#GstWaveScope-struct"/>
     <keyword type="property" name="The “style” property" link="gst-plugins-bad-plugins-wavescope.html#GstWaveScope--style"/>
+    <keyword type="struct" name="GstWebRTCBin" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-struct"/>
+    <keyword type="property" name="The “connection-state” property" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--connection-state"/>
+    <keyword type="property" name="The “ice-connection-state” property" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--ice-connection-state"/>
+    <keyword type="property" name="The “ice-gathering-state” property" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--ice-gathering-state"/>
+    <keyword type="property" name="The “local-description” property" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--local-description"/>
+    <keyword type="property" name="The “remote-description” property" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--remote-description"/>
+    <keyword type="property" name="The “signaling-state” property" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--signaling-state"/>
+    <keyword type="property" name="The “stun-server” property" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--stun-server"/>
+    <keyword type="property" name="The “turn-server” property" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--turn-server"/>
+    <keyword type="signal" name="The “add-ice-candidate” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-add-ice-candidate"/>
+    <keyword type="signal" name="The “add-transceiver” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-add-transceiver"/>
+    <keyword type="signal" name="The “create-answer” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-create-answer"/>
+    <keyword type="signal" name="The “create-offer” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-create-offer"/>
+    <keyword type="signal" name="The “get-stats” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-get-stats"/>
+    <keyword type="signal" name="The “get-transceivers” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-get-transceivers"/>
+    <keyword type="signal" name="The “on-ice-candidate” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-on-ice-candidate"/>
+    <keyword type="signal" name="The “on-negotiation-needed” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-on-negotiation-needed"/>
+    <keyword type="signal" name="The “set-local-description” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-set-local-description"/>
+    <keyword type="signal" name="The “set-remote-description” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-set-remote-description"/>
     <keyword type="struct" name="GstWebrtcDsp" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp"/>
     <keyword type="property" name="The “echo-cancel” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--echo-cancel"/>
     <keyword type="property" name="The “experimental-agc” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--experimental-agc"/>
@@ -586,6 +756,9 @@
     <keyword type="struct" name="struct GstWebrtcEchoProbe" link="gst-plugins-bad-plugins-webrtcechoprobe.html#GstWebrtcEchoProbe"/>
     <keyword type="struct" name="struct GstTtmlParse" link="gst-plugins-bad-plugins-ttmlparse.html#GstTtmlParse-struct"/>
     <keyword type="struct" name="struct GstTtmlRender" link="gst-plugins-bad-plugins-ttmlrender.html#GstTtmlRender-struct"/>
+    <keyword type="constant" name="MODE_TIMECODE" link="gst-plugins-bad-plugins-avwait.html#MODE-TIMECODE:CAPS"/>
+    <keyword type="constant" name="MODE_RUNNING_TIME" link="gst-plugins-bad-plugins-avwait.html#MODE-RUNNING-TIME:CAPS"/>
+    <keyword type="constant" name="MODE_VIDEO_FIRST" link="gst-plugins-bad-plugins-avwait.html#MODE-VIDEO-FIRST:CAPS"/>
     <keyword type="constant" name="GST_COLOR_EFFECTS_PRESET_NONE" link="gst-plugins-bad-plugins-coloreffects.html#GST-COLOR-EFFECTS-PRESET-NONE:CAPS"/>
     <keyword type="constant" name="GST_COLOR_EFFECTS_PRESET_HEAT" link="gst-plugins-bad-plugins-coloreffects.html#GST-COLOR-EFFECTS-PRESET-HEAT:CAPS"/>
     <keyword type="constant" name="GST_COLOR_EFFECTS_PRESET_SEPIA" link="gst-plugins-bad-plugins-coloreffects.html#GST-COLOR-EFFECTS-PRESET-SEPIA:CAPS"/>
@@ -596,6 +769,13 @@
     <keyword type="constant" name="COMPOSITOR_BACKGROUND_BLACK" link="gst-plugins-bad-plugins-compositor.html#COMPOSITOR-BACKGROUND-BLACK:CAPS"/>
     <keyword type="constant" name="COMPOSITOR_BACKGROUND_WHITE" link="gst-plugins-bad-plugins-compositor.html#COMPOSITOR-BACKGROUND-WHITE:CAPS"/>
     <keyword type="constant" name="COMPOSITOR_BACKGROUND_TRANSPARENT" link="gst-plugins-bad-plugins-compositor.html#COMPOSITOR-BACKGROUND-TRANSPARENT:CAPS"/>
+    <keyword type="constant" name="GST_DEWARP_DISPLAY_PANORAMA" link="gst-plugins-bad-plugins-dewarp.html#GST-DEWARP-DISPLAY-PANORAMA:CAPS"/>
+    <keyword type="constant" name="GST_DEWARP_DISPLAY_DOUBLE_PANORAMA" link="gst-plugins-bad-plugins-dewarp.html#GST-DEWARP-DISPLAY-DOUBLE-PANORAMA:CAPS"/>
+    <keyword type="constant" name="GST_DEWARP_DISPLAY_QUAD_VIEW" link="gst-plugins-bad-plugins-dewarp.html#GST-DEWARP-DISPLAY-QUAD-VIEW:CAPS"/>
+    <keyword type="constant" name="GST_DEWARP_INTER_NEAREST" link="gst-plugins-bad-plugins-dewarp.html#GST-DEWARP-INTER-NEAREST:CAPS"/>
+    <keyword type="constant" name="GST_DEWARP_INTER_LINEAR" link="gst-plugins-bad-plugins-dewarp.html#GST-DEWARP-INTER-LINEAR:CAPS"/>
+    <keyword type="constant" name="GST_DEWARP_INTER_CUBIC" link="gst-plugins-bad-plugins-dewarp.html#GST-DEWARP-INTER-CUBIC:CAPS"/>
+    <keyword type="constant" name="GST_DEWARP_INTER_LANCZOS4" link="gst-plugins-bad-plugins-dewarp.html#GST-DEWARP-INTER-LANCZOS4:CAPS"/>
     <keyword type="constant" name="GST_FACEDETECT_UPDATES_EVERY_FRAME" link="gst-plugins-bad-plugins-facedetect.html#GST-FACEDETECT-UPDATES-EVERY-FRAME:CAPS"/>
     <keyword type="constant" name="GST_FACEDETECT_UPDATES_ON_CHANGE" link="gst-plugins-bad-plugins-facedetect.html#GST-FACEDETECT-UPDATES-ON-CHANGE:CAPS"/>
     <keyword type="constant" name="GST_FACEDETECT_UPDATES_ON_FACE" link="gst-plugins-bad-plugins-facedetect.html#GST-FACEDETECT-UPDATES-ON-FACE:CAPS"/>

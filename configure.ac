@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.13.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.13.90],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 1301, 0, 1301)
+AS_LIBTOOL(GST, 1390, 0, 1390)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.13.1
-GSTPB_REQ=1.13.1
+GST_REQ=1.13.90
+GSTPB_REQ=1.13.90
 
 dnl *** autotools stuff ****
 
@@ -185,6 +185,9 @@ AC_CHECK_FUNC(gethostbyname,,[AC_CHECK_LIB(nsl,gethostbyname)])
 dnl GLib is required
 GLIB_REQ=2.40.0
 AG_GST_GLIB_CHECK([$GLIB_REQ])
+
+dnl Needed by plugins that use g_module_*() API
+PKG_CHECK_MODULES(GMODULE_NO_EXPORT, gmodule-no-export-2.0)
 
 dnl checks for gstreamer
 dnl uninstalled is selected preferentially -- see pkg-config(1)
@@ -425,6 +428,7 @@ AG_GST_CHECK_PLUGIN(videoframe_audiolevel)
 AG_GST_CHECK_PLUGIN(asfmux)
 AG_GST_CHECK_PLUGIN(audiobuffersplit)
 AG_GST_CHECK_PLUGIN(audiofxbad)
+AG_GST_CHECK_PLUGIN(audiolatency)
 AG_GST_CHECK_PLUGIN(audiomixmatrix)
 AG_GST_CHECK_PLUGIN(compositor)
 AG_GST_CHECK_PLUGIN(audiovisualizers)
@@ -2174,12 +2178,6 @@ AG_GST_CHECK_FEATURE(SBC, [SBC bluetooth audio codec], sbc, [
   AG_GST_PKG_CHECK_MODULES(SBC, [sbc >= 1.0])
 ])
 
-dnl *** schroedinger ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_SCHRO, true)
-AG_GST_CHECK_FEATURE(SCHRO, [Schroedinger video codec], schro, [
-  AG_GST_PKG_CHECK_MODULES(SCHRO, schroedinger-1.0 >= 1.0.10)
-])
-
 dnl *** zbar ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_ZBAR, true)
 AG_GST_CHECK_FEATURE(ZBAR, [ZBar barcode detector], zbar, [
@@ -2296,7 +2294,7 @@ AG_GST_CHECK_FEATURE(WEBRTCDSP, [WebRTC Audio Processing], webrtcdsp, [
 dnl *** WebRTC ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_WEBRTC, true)
 AG_GST_CHECK_FEATURE(WEBRTC, [WebRTC], webrtc, [
-  PKG_CHECK_MODULES(NICE, nice >= 0.1, [
+  PKG_CHECK_MODULES(NICE, nice >= 0.1.14, [
     HAVE_WEBRTC="yes" ], [
     HAVE_WEBRTC="no"
   ])
@@ -2372,7 +2370,6 @@ AM_CONDITIONAL(USE_DVB, false)
 AM_CONDITIONAL(USE_ACM, false)
 AM_CONDITIONAL(USE_VDPAU, false)
 AM_CONDITIONAL(USE_SBC, false)
-AM_CONDITIONAL(USE_SCHRO, false)
 AM_CONDITIONAL(USE_ZBAR, false)
 AM_CONDITIONAL(USE_RSVG, false)
 AM_CONDITIONAL(USE_RTMP, false)
@@ -2494,6 +2491,7 @@ gst/videoframe_audiolevel/Makefile
 gst/asfmux/Makefile
 gst/audiobuffersplit/Makefile
 gst/audiofxbad/Makefile
+gst/audiolatency/Makefile
 gst/audiomixmatrix/Makefile
 gst/audiovisualizers/Makefile
 gst/autoconvert/Makefile
@@ -2658,7 +2656,6 @@ ext/rsvg/Makefile
 ext/resindvd/Makefile
 ext/rtmp/Makefile
 ext/sbc/Makefile
-ext/schroedinger/Makefile
 ext/smoothstreaming/Makefile
 ext/sndfile/Makefile
 ext/soundtouch/Makefile

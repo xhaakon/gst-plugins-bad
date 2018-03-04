@@ -103,6 +103,7 @@ typedef struct
 {
   int sock;
   GSocketAddress *sockaddr;
+  gboolean sent_headers;
 } SRTClient;
 
 static SRTClient *
@@ -391,6 +392,21 @@ failed:
 }
 
 static gboolean
+send_buffer_internal (GstSRTBaseSink * sink,
+    const GstMapInfo * mapinfo, gpointer user_data)
+{
+  SRTClient *client = user_data;
+
+  if (srt_sendmsg2 (client->sock, (char *) mapinfo->data, mapinfo->size,
+          0) == SRT_ERROR) {
+    GST_WARNING_OBJECT (sink, "%s", srt_getlasterror_str ());
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+static gboolean
 gst_srt_server_sink_send_buffer (GstSRTBaseSink * sink,
     const GstMapInfo * mapinfo)
 {
@@ -403,17 +419,25 @@ gst_srt_server_sink_send_buffer (GstSRTBaseSink * sink,
     SRTClient *client = clients->data;
     clients = clients->next;
 
-    if (srt_sendmsg2 (client->sock, (char *) mapinfo->data, mapinfo->size,
-            0) == SRT_ERROR) {
-      GST_WARNING_OBJECT (self, "%s", srt_getlasterror_str ());
+    if (!client->sent_headers) {
+      if (!gst_srt_base_sink_send_headers (sink, send_buffer_internal, client))
+        goto err;
 
-      priv->clients = g_list_remove (priv->clients, client);
-      GST_OBJECT_UNLOCK (sink);
-      g_signal_emit (self, signals[SIG_CLIENT_REMOVED], 0, client->sock,
-          client->sockaddr);
-      srt_client_free (client);
-      GST_OBJECT_LOCK (sink);
+      client->sent_headers = TRUE;
     }
+
+    if (!send_buffer_internal (sink, mapinfo, client))
+      goto err;
+
+    continue;
+
+  err:
+    priv->clients = g_list_remove (priv->clients, client);
+    GST_OBJECT_UNLOCK (sink);
+    g_signal_emit (self, signals[SIG_CLIENT_REMOVED], 0, client->sock,
+        client->sockaddr);
+    srt_client_free (client);
+    GST_OBJECT_LOCK (sink);
   }
   GST_OBJECT_UNLOCK (sink);
 
@@ -425,7 +449,6 @@ gst_srt_server_sink_stop (GstBaseSink * sink)
 {
   GstSRTServerSink *self = GST_SRT_SERVER_SINK (sink);
   GstSRTServerSinkPrivate *priv = GST_SRT_SERVER_SINK_GET_PRIVATE (self);
-  gboolean ret = TRUE;
   GList *clients;
 
   GST_DEBUG_OBJECT (self, "closing client sockets");
@@ -457,7 +480,7 @@ gst_srt_server_sink_stop (GstBaseSink * sink)
 
   g_clear_pointer (&priv->context, g_main_context_unref);
 
-  return ret;
+  return GST_BASE_SINK_CLASS (parent_class)->stop (sink);
 }
 
 static gboolean

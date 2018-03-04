@@ -19,17 +19,20 @@ libgstmsdk_la_SOURCES = \
 	gstmsdkvc1dec.c \
 	gstmsdkdec.c \
 	gstmsdkenc.c \
-	gstmsdk.c
+	gstmsdk.c \
+        msdk-enums.c
 
 # Causes linking libgstmsdk.la with CXXLINK, required by libmfx
 nodist_EXTRA_libgstmsdk_la_SOURCES = not_present.cxx
 
 noinst_HEADERS = \
 	msdk.h \
+        msdk-enums.h \
 	gstmsdkcontext.h \
 	gstmsdkcontextutil.h \
 	gstmsdksystemmemory.h \
 	gstmsdkvideomemory.h \
+	gstmsdkallocator.h \
 	gstmsdkbufferpool.h \
 	gstmsdkh264dec.h \
 	gstmsdkh264enc.h \
@@ -72,6 +75,12 @@ libgstmsdk_la_CFLAGS += \
 	$(LIBVA_DRM_CFLAGS)
 libgstmsdk_la_LIBADD += \
 	$(LIBVA_DRM_LIBS)
+noinst_HEADERS += \
+	msdk_libva.h
 endif
+
+# TODO: add support for windows compilation
+EXTRA_DIST = \
+	msdk_d3d.c
 
 libgstmsdk_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)

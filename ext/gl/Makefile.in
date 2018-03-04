@@ -169,7 +169,8 @@ am__DEPENDENCIES_1 =
 libgstopenglmixers_la_DEPENDENCIES = $(top_builddir)/gst-libs/gst/video/libgstbadvideo-@GST_API_VERSION@.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am__libgstopenglmixers_la_SOURCES_DIST = gstopengl.c gstglbasemixer.c \
 	gstglmixer.c gstglmixerbin.c gstglstereomix.c gstglutils.c \
 	gstglvideomixer.c gstglmosaic.c
@@ -362,6 +363,8 @@ GLIB_MKENUMS = @GLIB_MKENUMS@
 GLIB_PREFIX = @GLIB_PREFIX@
 GLIB_REQ = @GLIB_REQ@
 GME_LIBS = @GME_LIBS@
+GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
+GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
@@ -618,8 +621,6 @@ RTMP_CFLAGS = @RTMP_CFLAGS@
 RTMP_LIBS = @RTMP_LIBS@
 SBC_CFLAGS = @SBC_CFLAGS@
 SBC_LIBS = @SBC_LIBS@
-SCHRO_CFLAGS = @SCHRO_CFLAGS@
-SCHRO_LIBS = @SCHRO_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -775,7 +776,7 @@ libgstopenglmixers_la_CFLAGS = \
 	$(GST_BASE_CFLAGS) \
 	$(GST_CONTROLLER_CFLAGS) \
 	$(GST_CFLAGS) \
-	$(GL_CFLAGS)
+	$(X11_CFLAGS)
 
 libgstopenglmixers_la_LIBADD = \
 	$(top_builddir)/gst-libs/gst/video/libgstbadvideo-@GST_API_VERSION@.la \
@@ -784,7 +785,7 @@ libgstopenglmixers_la_LIBADD = \
 	$(GST_BASE_LIBS) \
 	$(GST_CONTROLLER_LIBS) \
 	$(GST_LIBS) \
-	$(GL_LIBS) \
+	$(X11_LIBS) \
 	$(LIBM)
 
 libgstopenglmixers_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)

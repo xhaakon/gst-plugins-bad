@@ -1,7 +1,7 @@
 /* GStreamer SRT plugin based on libsrt
  * Copyright (C) 2017, Collabora Ltd.
  *   Author:Justin Kim <justin.kim@collabora.com>
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
  * License as published by the Free Software Foundation; either
@@ -123,10 +123,71 @@ gst_srt_base_sink_finalize (GObject * object)
 {
   GstSRTBaseSink *self = GST_SRT_BASE_SINK (object);
 
+  g_clear_pointer (&self->headers, gst_buffer_list_unref);
   g_clear_pointer (&self->uri, gst_uri_unref);
   g_clear_pointer (&self->passphrase, g_free);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
+}
+
+static gboolean
+gst_srt_base_sink_set_caps (GstBaseSink * sink, GstCaps * caps)
+{
+  GstSRTBaseSink *self = GST_SRT_BASE_SINK (sink);
+  GstStructure *s;
+  const GValue *streamheader;
+
+  GST_DEBUG_OBJECT (self, "setcaps %" GST_PTR_FORMAT, caps);
+
+  g_clear_pointer (&self->headers, gst_buffer_list_unref);
+
+  s = gst_caps_get_structure (caps, 0);
+  streamheader = gst_structure_get_value (s, "streamheader");
+
+  if (!streamheader) {
+    GST_DEBUG_OBJECT (self, "'streamheader' field not present");
+  } else if (GST_VALUE_HOLDS_BUFFER (streamheader)) {
+    GST_DEBUG_OBJECT (self, "'streamheader' field holds buffer");
+    self->headers = gst_buffer_list_new_sized (1);
+    gst_buffer_list_add (self->headers, g_value_dup_boxed (streamheader));
+  } else if (GST_VALUE_HOLDS_ARRAY (streamheader)) {
+    guint i, size;
+
+    GST_DEBUG_OBJECT (self, "'streamheader' field holds array");
+
+    size = gst_value_array_get_size (streamheader);
+    self->headers = gst_buffer_list_new_sized (size);
+
+    for (i = 0; i < size; i++) {
+      const GValue *v = gst_value_array_get_value (streamheader, i);
+      if (!GST_VALUE_HOLDS_BUFFER (v)) {
+        GST_ERROR_OBJECT (self, "'streamheader' item of unexpected type '%s'",
+            G_VALUE_TYPE_NAME (v));
+        return FALSE;
+      }
+
+      gst_buffer_list_add (self->headers, g_value_dup_boxed (v));
+    }
+  } else {
+    GST_ERROR_OBJECT (self, "'streamheader' field has unexpected type '%s'",
+        G_VALUE_TYPE_NAME (streamheader));
+    return FALSE;
+  }
+
+  GST_DEBUG_OBJECT (self, "Collected streamheaders: %u buffers",
+      self->headers ? gst_buffer_list_length (self->headers) : 0);
+
+  return TRUE;
+}
+
+static gboolean
+gst_srt_base_sink_stop (GstBaseSink * sink)
+{
+  GstSRTBaseSink *self = GST_SRT_BASE_SINK (sink);
+
+  g_clear_pointer (&self->headers, gst_buffer_list_unref);
+
+  return TRUE;
 }
 
 static GstFlowReturn
@@ -136,6 +197,12 @@ gst_srt_base_sink_render (GstBaseSink * sink, GstBuffer * buffer)
   GstMapInfo info;
   GstSRTBaseSinkClass *bclass = GST_SRT_BASE_SINK_GET_CLASS (sink);
   GstFlowReturn ret = GST_FLOW_OK;
+
+  if (self->headers && GST_BUFFER_FLAG_IS_SET (buffer, GST_BUFFER_FLAG_HEADER)) {
+    GST_DEBUG_OBJECT (self, "Have streamheaders,"
+        " ignoring header %" GST_PTR_FORMAT, buffer);
+    return GST_FLOW_OK;
+  }
 
   GST_TRACE_OBJECT (self, "sending buffer %p, offset %"
       G_GINT64_FORMAT ", offset_end %" G_GINT64_FORMAT
@@ -173,7 +240,7 @@ gst_srt_base_sink_class_init (GstSRTBaseSinkClass * klass)
 
   /**
    * GstSRTBaseSink:uri:
-   * 
+   *
    * The URI used by SRT Connection.
    */
   properties[PROP_URI] = g_param_spec_string ("uri", "URI",
@@ -197,6 +264,8 @@ gst_srt_base_sink_class_init (GstSRTBaseSinkClass * klass)
 
   g_object_class_install_properties (gobject_class, PROP_LAST, properties);
 
+  gstbasesink_class->set_caps = GST_DEBUG_FUNCPTR (gst_srt_base_sink_set_caps);
+  gstbasesink_class->stop = GST_DEBUG_FUNCPTR (gst_srt_base_sink_stop);
   gstbasesink_class->render = GST_DEBUG_FUNCPTR (gst_srt_base_sink_render);
 }
 
@@ -204,7 +273,6 @@ static void
 gst_srt_base_sink_init (GstSRTBaseSink * self)
 {
   self->uri = gst_uri_from_string (SRT_DEFAULT_URI);
-  self->queued_buffers = NULL;
   self->latency = SRT_DEFAULT_LATENCY;
   self->passphrase = NULL;
   self->key_length = SRT_DEFAULT_KEY_LENGTH;
@@ -275,6 +343,46 @@ gst_srt_base_sink_uri_handler_init (gpointer g_iface, gpointer iface_data)
   iface->get_protocols = gst_srt_base_sink_uri_get_protocols;
   iface->get_uri = gst_srt_base_sink_uri_get_uri;
   iface->set_uri = gst_srt_base_sink_uri_set_uri;
+}
+
+gboolean
+gst_srt_base_sink_send_headers (GstSRTBaseSink * self,
+    GstSRTBaseSinkSendCallback send_cb, gpointer user_data)
+{
+  guint size, i;
+
+  g_return_val_if_fail (GST_IS_SRT_BASE_SINK (self), FALSE);
+  g_return_val_if_fail (send_cb, FALSE);
+
+  if (!self->headers)
+    return TRUE;
+
+  size = gst_buffer_list_length (self->headers);
+
+  GST_DEBUG_OBJECT (self, "Sending %u stream headers", size);
+
+  for (i = 0; i < size; i++) {
+    GstBuffer *buffer = gst_buffer_list_get (self->headers, i);
+    GstMapInfo info;
+    gboolean ret;
+
+    GST_TRACE_OBJECT (self, "sending header %u %" GST_PTR_FORMAT, i, buffer);
+
+    if (!gst_buffer_map (buffer, &info, GST_MAP_READ)) {
+      GST_ELEMENT_ERROR (self, RESOURCE, READ,
+          ("Could not map the input stream"), (NULL));
+      return FALSE;
+    }
+
+    ret = send_cb (self, &info, user_data);
+
+    gst_buffer_unmap (buffer, &info);
+
+    if (!ret)
+      return FALSE;
+  }
+
+  return TRUE;
 }
 
 GstStructure *
