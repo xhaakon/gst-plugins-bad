@@ -90,7 +90,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-subdir = ext/schroedinger
+subdir = gst/audiolatency
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/common/m4/as-auto-alt.m4 \
@@ -162,21 +162,18 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstschro_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
-am_libgstschro_la_OBJECTS = libgstschro_la-gstschro.lo \
-	libgstschro_la-gstschrodec.lo libgstschro_la-gstschroenc.lo \
-	libgstschro_la-gstschroutils.lo
-libgstschro_la_OBJECTS = $(am_libgstschro_la_OBJECTS)
+libgstaudiolatency_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
+am_libgstaudiolatency_la_OBJECTS =  \
+	libgstaudiolatency_la-gstaudiolatency.lo
+libgstaudiolatency_la_OBJECTS = $(am_libgstaudiolatency_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-libgstschro_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(libgstschro_la_CFLAGS) $(CFLAGS) $(libgstschro_la_LDFLAGS) \
-	$(LDFLAGS) -o $@
+libgstaudiolatency_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(libgstaudiolatency_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CCLD) $(libgstaudiolatency_la_CFLAGS) $(CFLAGS) \
+	$(libgstaudiolatency_la_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -211,8 +208,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libgstschro_la_SOURCES)
-DIST_SOURCES = $(libgstschro_la_SOURCES)
+SOURCES = $(libgstaudiolatency_la_SOURCES)
+DIST_SOURCES = $(libgstaudiolatency_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -346,6 +343,8 @@ GLIB_MKENUMS = @GLIB_MKENUMS@
 GLIB_PREFIX = @GLIB_PREFIX@
 GLIB_REQ = @GLIB_REQ@
 GME_LIBS = @GME_LIBS@
+GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
+GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
@@ -602,8 +601,6 @@ RTMP_CFLAGS = @RTMP_CFLAGS@
 RTMP_LIBS = @RTMP_LIBS@
 SBC_CFLAGS = @SBC_CFLAGS@
 SBC_LIBS = @SBC_LIBS@
-SCHRO_CFLAGS = @SCHRO_CFLAGS@
-SCHRO_LIBS = @SCHRO_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -738,29 +735,13 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wayland_scanner = @wayland_scanner@
-plugin_LTLIBRARIES = libgstschro.la
-noinst_HEADERS = \
-	gstschroutils.h
-
-libgstschro_la_SOURCES = \
-	gstschro.c \
-	gstschrodec.c \
-	gstschroenc.c \
-	gstschroutils.c
-
-libgstschro_la_CFLAGS = \
-	$(GST_PLUGINS_BASE_CFLAGS) \
-        $(GST_BASE_CFLAGS) \
-	$(GST_CFLAGS) \
-	-DGST_USE_UNSTABLE_API \
-	$(SCHRO_CFLAGS)
-
-libgstschro_la_LIBADD = \
-	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-@GST_API_VERSION@ \
-        $(GST_BASE_LIBS) $(GST_LIBS) \
-	$(SCHRO_LIBS)
-
-libgstschro_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+plugin_LTLIBRARIES = libgstaudiolatency.la
+libgstaudiolatency_la_SOURCES = gstaudiolatency.c
+noinst_HEADERS = gstaudiolatency.h
+libgstaudiolatency_la_CFLAGS = $(GST_CFLAGS)
+libgstaudiolatency_la_LIBADD = $(GST_LIBS)
+libgstaudiolatency_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstaudiolatency_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 all: all-am
 
 .SUFFIXES:
@@ -774,9 +755,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu ext/schroedinger/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu gst/audiolatency/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu ext/schroedinger/Makefile
+	  $(AUTOMAKE) --gnu gst/audiolatency/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -830,8 +811,8 @@ clean-pluginLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libgstschro.la: $(libgstschro_la_OBJECTS) $(libgstschro_la_DEPENDENCIES) $(EXTRA_libgstschro_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libgstschro_la_LINK) -rpath $(plugindir) $(libgstschro_la_OBJECTS) $(libgstschro_la_LIBADD) $(LIBS)
+libgstaudiolatency.la: $(libgstaudiolatency_la_OBJECTS) $(libgstaudiolatency_la_DEPENDENCIES) $(EXTRA_libgstaudiolatency_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libgstaudiolatency_la_LINK) -rpath $(plugindir) $(libgstaudiolatency_la_OBJECTS) $(libgstaudiolatency_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -839,10 +820,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstschro_la-gstschro.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstschro_la-gstschrodec.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstschro_la-gstschroenc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstschro_la-gstschroutils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstaudiolatency_la-gstaudiolatency.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -868,33 +846,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-libgstschro_la-gstschro.lo: gstschro.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstschro_la_CFLAGS) $(CFLAGS) -MT libgstschro_la-gstschro.lo -MD -MP -MF $(DEPDIR)/libgstschro_la-gstschro.Tpo -c -o libgstschro_la-gstschro.lo `test -f 'gstschro.c' || echo '$(srcdir)/'`gstschro.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstschro_la-gstschro.Tpo $(DEPDIR)/libgstschro_la-gstschro.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstschro.c' object='libgstschro_la-gstschro.lo' libtool=yes @AMDEPBACKSLASH@
+libgstaudiolatency_la-gstaudiolatency.lo: gstaudiolatency.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstaudiolatency_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstaudiolatency_la_CFLAGS) $(CFLAGS) -MT libgstaudiolatency_la-gstaudiolatency.lo -MD -MP -MF $(DEPDIR)/libgstaudiolatency_la-gstaudiolatency.Tpo -c -o libgstaudiolatency_la-gstaudiolatency.lo `test -f 'gstaudiolatency.c' || echo '$(srcdir)/'`gstaudiolatency.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstaudiolatency_la-gstaudiolatency.Tpo $(DEPDIR)/libgstaudiolatency_la-gstaudiolatency.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstaudiolatency.c' object='libgstaudiolatency_la-gstaudiolatency.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstschro_la_CFLAGS) $(CFLAGS) -c -o libgstschro_la-gstschro.lo `test -f 'gstschro.c' || echo '$(srcdir)/'`gstschro.c
-
-libgstschro_la-gstschrodec.lo: gstschrodec.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstschro_la_CFLAGS) $(CFLAGS) -MT libgstschro_la-gstschrodec.lo -MD -MP -MF $(DEPDIR)/libgstschro_la-gstschrodec.Tpo -c -o libgstschro_la-gstschrodec.lo `test -f 'gstschrodec.c' || echo '$(srcdir)/'`gstschrodec.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstschro_la-gstschrodec.Tpo $(DEPDIR)/libgstschro_la-gstschrodec.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstschrodec.c' object='libgstschro_la-gstschrodec.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstschro_la_CFLAGS) $(CFLAGS) -c -o libgstschro_la-gstschrodec.lo `test -f 'gstschrodec.c' || echo '$(srcdir)/'`gstschrodec.c
-
-libgstschro_la-gstschroenc.lo: gstschroenc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstschro_la_CFLAGS) $(CFLAGS) -MT libgstschro_la-gstschroenc.lo -MD -MP -MF $(DEPDIR)/libgstschro_la-gstschroenc.Tpo -c -o libgstschro_la-gstschroenc.lo `test -f 'gstschroenc.c' || echo '$(srcdir)/'`gstschroenc.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstschro_la-gstschroenc.Tpo $(DEPDIR)/libgstschro_la-gstschroenc.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstschroenc.c' object='libgstschro_la-gstschroenc.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstschro_la_CFLAGS) $(CFLAGS) -c -o libgstschro_la-gstschroenc.lo `test -f 'gstschroenc.c' || echo '$(srcdir)/'`gstschroenc.c
-
-libgstschro_la-gstschroutils.lo: gstschroutils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstschro_la_CFLAGS) $(CFLAGS) -MT libgstschro_la-gstschroutils.lo -MD -MP -MF $(DEPDIR)/libgstschro_la-gstschroutils.Tpo -c -o libgstschro_la-gstschroutils.lo `test -f 'gstschroutils.c' || echo '$(srcdir)/'`gstschroutils.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstschro_la-gstschroutils.Tpo $(DEPDIR)/libgstschro_la-gstschroutils.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstschroutils.c' object='libgstschro_la-gstschroutils.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstschro_la_CFLAGS) $(CFLAGS) -c -o libgstschro_la-gstschroutils.lo `test -f 'gstschroutils.c' || echo '$(srcdir)/'`gstschroutils.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstaudiolatency_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstaudiolatency_la_CFLAGS) $(CFLAGS) -c -o libgstaudiolatency_la-gstaudiolatency.lo `test -f 'gstaudiolatency.c' || echo '$(srcdir)/'`gstaudiolatency.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

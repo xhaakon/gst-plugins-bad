@@ -43,16 +43,22 @@ GST_DEBUG_CATEGORY_EXTERN (gst_msdkh264enc_debug);
 
 enum
 {
-  PROP_0,
-  PROP_CABAC,
+  PROP_CABAC = GST_MSDKENC_PROP_MAX,
   PROP_LOW_POWER,
   PROP_FRAME_PACKING,
+  PROP_RC_LA_DOWNSAMPLING,
+  PROP_TRELLIS,
+  PROP_MAX_SLICE_SIZE,
+  PROP_B_PYRAMID
 };
 
-#define PROP_CABAC_DEFAULT            TRUE
-#define PROP_LOWPOWER_DEFAULT         FALSE
-#define PROP_FRAME_PACKING_DEFAULT    -1
-
+#define PROP_CABAC_DEFAULT              TRUE
+#define PROP_LOWPOWER_DEFAULT           FALSE
+#define PROP_FRAME_PACKING_DEFAULT      -1
+#define PROP_RC_LA_DOWNSAMPLING_DEFAULT MFX_LOOKAHEAD_DS_UNKNOWN
+#define PROP_TRELLIS_DEFAULT            _MFX_TRELLIS_NONE
+#define PROP_MAX_SLICE_SIZE_DEFAULT     0
+#define PROP_B_PYRAMID_DEFAULT          FALSE
 
 static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
@@ -283,6 +289,20 @@ gst_msdkh264enc_configure (GstMsdkEnc * encoder)
 
   gst_msdkenc_add_extra_param (encoder, (mfxExtBuffer *) & thiz->option);
 
+  encoder->option2.Trellis = thiz->trellis ? thiz->trellis : MFX_TRELLIS_OFF;
+  encoder->option2.MaxSliceSize = thiz->max_slice_size;
+  if (encoder->rate_control == MFX_RATECONTROL_LA ||
+      encoder->rate_control == MFX_RATECONTROL_LA_HRD ||
+      encoder->rate_control == MFX_RATECONTROL_LA_ICQ)
+    encoder->option2.LookAheadDS = thiz->lookahead_ds;
+
+  if (thiz->b_pyramid) {
+    encoder->option2.BRefType = MFX_B_REF_PYRAMID;
+    /* Don't define Gop structure for B-pyramid, otherwise EncodeInit
+     * will throw Invalid param error */
+    encoder->param.mfx.GopRefDist = 0;
+  }
+
   return TRUE;
 }
 
@@ -382,14 +402,11 @@ gst_msdkh264enc_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
   GstMsdkH264Enc *thiz = GST_MSDKH264ENC (object);
-  GstState state;
+
+  if (gst_msdkenc_set_common_property (object, prop_id, value, pspec))
+    return;
 
   GST_OBJECT_LOCK (thiz);
-
-  state = GST_STATE (thiz);
-  if ((state != GST_STATE_READY && state != GST_STATE_NULL) &&
-      !(pspec->flags & GST_PARAM_MUTABLE_PLAYING))
-    goto wrong_state;
 
   switch (prop_id) {
     case PROP_CABAC:
@@ -401,19 +418,24 @@ gst_msdkh264enc_set_property (GObject * object, guint prop_id,
     case PROP_FRAME_PACKING:
       thiz->frame_packing = g_value_get_enum (value);
       break;
+    case PROP_RC_LA_DOWNSAMPLING:
+      thiz->lookahead_ds = g_value_get_enum (value);
+      break;
+    case PROP_TRELLIS:
+      thiz->trellis = g_value_get_flags (value);
+      break;
+    case PROP_MAX_SLICE_SIZE:
+      thiz->max_slice_size = g_value_get_uint (value);
+      break;
+    case PROP_B_PYRAMID:
+      thiz->b_pyramid = g_value_get_boolean (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
   }
   GST_OBJECT_UNLOCK (thiz);
   return;
-
-  /* ERROR */
-wrong_state:
-  {
-    GST_WARNING_OBJECT (thiz, "setting property in wrong state");
-    GST_OBJECT_UNLOCK (thiz);
-  }
 }
 
 static void
@@ -421,6 +443,9 @@ gst_msdkh264enc_get_property (GObject * object, guint prop_id, GValue * value,
     GParamSpec * pspec)
 {
   GstMsdkH264Enc *thiz = GST_MSDKH264ENC (object);
+
+  if (gst_msdkenc_get_common_property (object, prop_id, value, pspec))
+    return;
 
   GST_OBJECT_LOCK (thiz);
   switch (prop_id) {
@@ -432,6 +457,18 @@ gst_msdkh264enc_get_property (GObject * object, guint prop_id, GValue * value,
       break;
     case PROP_FRAME_PACKING:
       g_value_set_enum (value, thiz->frame_packing);
+      break;
+    case PROP_RC_LA_DOWNSAMPLING:
+      g_value_set_enum (value, thiz->lookahead_ds);
+      break;
+    case PROP_TRELLIS:
+      g_value_set_flags (value, thiz->trellis);
+      break;
+    case PROP_MAX_SLICE_SIZE:
+      g_value_set_uint (value, thiz->max_slice_size);
+      break;
+    case PROP_B_PYRAMID:
+      g_value_set_boolean (value, thiz->b_pyramid);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -462,6 +499,8 @@ gst_msdkh264enc_class_init (GstMsdkH264EncClass * klass)
   encoder_class->configure = gst_msdkh264enc_configure;
   encoder_class->set_src_caps = gst_msdkh264enc_set_src_caps;
 
+  gst_msdkenc_install_common_properties (encoder_class);
+
   g_object_class_install_property (gobject_class, PROP_CABAC,
       g_param_spec_boolean ("cabac", "CABAC", "Enable CABAC entropy coding",
           PROP_CABAC_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
@@ -476,12 +515,34 @@ gst_msdkh264enc_class_init (GstMsdkH264EncClass * klass)
           gst_msdkh264enc_frame_packing_get_type (), PROP_FRAME_PACKING_DEFAULT,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property (gobject_class, PROP_RC_LA_DOWNSAMPLING,
+      g_param_spec_enum ("rc-lookahead-ds", "Look-ahead Downsampling",
+          "Down sampling mode in look ahead bitrate control",
+          gst_msdkenc_rc_lookahead_ds_get_type (),
+          PROP_RC_LA_DOWNSAMPLING_DEFAULT,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_TRELLIS,
+      g_param_spec_flags ("trellis", "Trellis",
+          "Enable Trellis Quantization",
+          gst_msdkenc_trellis_quantization_get_type (), _MFX_TRELLIS_NONE,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_MAX_SLICE_SIZE,
+      g_param_spec_uint ("max-slice-size", "Max Slice Size",
+          "Maximum slice size in bytes (if enabled MSDK will ignore the control over num-slices)",
+          0, G_MAXUINT32, PROP_MAX_SLICE_SIZE_DEFAULT,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_B_PYRAMID,
+      g_param_spec_boolean ("b-pyramid", "B-pyramid",
+          "Enable B-Pyramid Referene structure", FALSE,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
   gst_element_class_set_static_metadata (element_class,
-      "Intel MSDK H264 encoder",
-      "Codec/Encoder/Video",
+      "Intel MSDK H264 encoder", "Codec/Encoder/Video",
       "H264 video encoder based on Intel Media SDK",
       "Josep Torra <jtorra@oblong.com>");
-
   gst_element_class_add_static_pad_template (element_class, &src_factory);
 }
 
@@ -491,4 +552,8 @@ gst_msdkh264enc_init (GstMsdkH264Enc * thiz)
   thiz->cabac = PROP_CABAC_DEFAULT;
   thiz->lowpower = PROP_LOWPOWER_DEFAULT;
   thiz->frame_packing = PROP_FRAME_PACKING_DEFAULT;
+  thiz->lookahead_ds = PROP_RC_LA_DOWNSAMPLING_DEFAULT;
+  thiz->trellis = PROP_TRELLIS_DEFAULT;
+  thiz->max_slice_size = PROP_MAX_SLICE_SIZE_DEFAULT;
+  thiz->b_pyramid = PROP_B_PYRAMID_DEFAULT;
 }

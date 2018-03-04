@@ -101,6 +101,9 @@ target_triplet = @target@
 @USE_MSDK_LIBVA_TRUE@am__append_3 = \
 @USE_MSDK_LIBVA_TRUE@	$(LIBVA_DRM_LIBS)
 
+@USE_MSDK_LIBVA_TRUE@am__append_4 = \
+@USE_MSDK_LIBVA_TRUE@	msdk_libva.h
+
 subdir = sys/msdk
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
@@ -137,7 +140,7 @@ am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
 	$(top_srcdir)/m4/progtest.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
-DIST_COMMON = $(srcdir)/Makefile.am $(noinst_HEADERS) \
+DIST_COMMON = $(srcdir)/Makefile.am $(am__noinst_HEADERS_DIST) \
 	$(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
@@ -185,7 +188,8 @@ am__libgstmsdk_la_SOURCES_DIST = gstmsdkcontext.c gstmsdkcontextutil.c \
 	gstmsdkh265enc.c gstmsdkmjpegdec.c gstmsdkmjpegenc.c \
 	gstmsdkmpeg2dec.c gstmsdkmpeg2enc.c gstmsdkvp8dec.c \
 	gstmsdkvp8enc.c gstmsdkvc1dec.c gstmsdkdec.c gstmsdkenc.c \
-	gstmsdk.c msdk.c msdk_libva.c gstmsdkallocator_libva.c
+	gstmsdk.c msdk-enums.c msdk.c msdk_libva.c \
+	gstmsdkallocator_libva.c
 @USE_MSDK_LIBVA_TRUE@am__objects_1 = libgstmsdk_la-msdk.lo \
 @USE_MSDK_LIBVA_TRUE@	libgstmsdk_la-msdk_libva.lo \
 @USE_MSDK_LIBVA_TRUE@	libgstmsdk_la-gstmsdkallocator_libva.lo
@@ -205,7 +209,7 @@ am_libgstmsdk_la_OBJECTS = libgstmsdk_la-gstmsdkcontext.lo \
 	libgstmsdk_la-gstmsdkvp8dec.lo libgstmsdk_la-gstmsdkvp8enc.lo \
 	libgstmsdk_la-gstmsdkvc1dec.lo libgstmsdk_la-gstmsdkdec.lo \
 	libgstmsdk_la-gstmsdkenc.lo libgstmsdk_la-gstmsdk.lo \
-	$(am__objects_1)
+	libgstmsdk_la-msdk-enums.lo $(am__objects_1)
 libgstmsdk_la_OBJECTS = $(am_libgstmsdk_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -275,6 +279,14 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__noinst_HEADERS_DIST = msdk.h msdk-enums.h gstmsdkcontext.h \
+	gstmsdkcontextutil.h gstmsdksystemmemory.h \
+	gstmsdkvideomemory.h gstmsdkallocator.h gstmsdkbufferpool.h \
+	gstmsdkh264dec.h gstmsdkh264enc.h gstmsdkh265dec.h \
+	gstmsdkh265enc.h gstmsdkmjpegdec.h gstmsdkmjpegenc.h \
+	gstmsdkmpeg2dec.h gstmsdkmpeg2enc.h gstmsdkvp8dec.h \
+	gstmsdkvp8enc.h gstmsdkvc1dec.h gstmsdkdec.h gstmsdkenc.h \
+	msdk_libva.h
 HEADERS = $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -403,6 +415,8 @@ GLIB_MKENUMS = @GLIB_MKENUMS@
 GLIB_PREFIX = @GLIB_PREFIX@
 GLIB_REQ = @GLIB_REQ@
 GME_LIBS = @GME_LIBS@
+GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
+GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
@@ -659,8 +673,6 @@ RTMP_CFLAGS = @RTMP_CFLAGS@
 RTMP_LIBS = @RTMP_LIBS@
 SBC_CFLAGS = @SBC_CFLAGS@
 SBC_LIBS = @SBC_LIBS@
-SCHRO_CFLAGS = @SCHRO_CFLAGS@
-SCHRO_LIBS = @SCHRO_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -802,37 +814,29 @@ libgstmsdk_la_SOURCES = gstmsdkcontext.c gstmsdkcontextutil.c \
 	gstmsdkh265enc.c gstmsdkmjpegdec.c gstmsdkmjpegenc.c \
 	gstmsdkmpeg2dec.c gstmsdkmpeg2enc.c gstmsdkvp8dec.c \
 	gstmsdkvp8enc.c gstmsdkvc1dec.c gstmsdkdec.c gstmsdkenc.c \
-	gstmsdk.c $(am__append_1)
+	gstmsdk.c msdk-enums.c $(am__append_1)
 
 # Causes linking libgstmsdk.la with CXXLINK, required by libmfx
 nodist_EXTRA_libgstmsdk_la_SOURCES = not_present.cxx
-noinst_HEADERS = \
-	msdk.h \
-	gstmsdkcontext.h \
-	gstmsdkcontextutil.h \
-	gstmsdksystemmemory.h \
-	gstmsdkvideomemory.h \
-	gstmsdkbufferpool.h \
-	gstmsdkh264dec.h \
-	gstmsdkh264enc.h \
-	gstmsdkh265dec.h \
-	gstmsdkh265enc.h \
-	gstmsdkmjpegdec.h \
-	gstmsdkmjpegenc.h \
-	gstmsdkmpeg2dec.h \
-	gstmsdkmpeg2enc.h \
-	gstmsdkvp8dec.h \
-	gstmsdkvp8enc.h \
-	gstmsdkvc1dec.h \
-	gstmsdkdec.h \
-	gstmsdkenc.h
-
+noinst_HEADERS = msdk.h msdk-enums.h gstmsdkcontext.h \
+	gstmsdkcontextutil.h gstmsdksystemmemory.h \
+	gstmsdkvideomemory.h gstmsdkallocator.h gstmsdkbufferpool.h \
+	gstmsdkh264dec.h gstmsdkh264enc.h gstmsdkh265dec.h \
+	gstmsdkh265enc.h gstmsdkmjpegdec.h gstmsdkmjpegenc.h \
+	gstmsdkmpeg2dec.h gstmsdkmpeg2enc.h gstmsdkvp8dec.h \
+	gstmsdkvp8enc.h gstmsdkvc1dec.h gstmsdkdec.h gstmsdkenc.h \
+	$(am__append_4)
 libgstmsdk_la_CFLAGS = $(GST_CFLAGS) $(GST_BASE_CFLAGS) \
 	$(GST_PBUTILS_CFLAGS) $(GST_VIDEO_CFLAGS) $(MSDK_CFLAGS) \
 	$(LIBMFX_CFLAGS) $(G_UDEV_CFLAGS) $(am__append_2)
 libgstmsdk_la_LIBADD = $(GST_LIBS) $(GST_BASE_LIBS) \
 	$(GST_PBUTILS_LIBS) $(GST_VIDEO_LIBS) $(MSDK_LIBS) \
 	$(LIBMFX_LIBS) $(G_UDEV_LIBS) $(am__append_3)
+
+# TODO: add support for windows compilation
+EXTRA_DIST = \
+	msdk_d3d.c
+
 libgstmsdk_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 all: all-am
 
@@ -932,6 +936,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkvideomemory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkvp8dec.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkvp8enc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-msdk-enums.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-msdk.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-msdk_libva.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/not_present.Plo@am__quote@
@@ -1092,6 +1097,13 @@ libgstmsdk_la-gstmsdk.lo: gstmsdk.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstmsdk.c' object='libgstmsdk_la-gstmsdk.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -c -o libgstmsdk_la-gstmsdk.lo `test -f 'gstmsdk.c' || echo '$(srcdir)/'`gstmsdk.c
+
+libgstmsdk_la-msdk-enums.lo: msdk-enums.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -MT libgstmsdk_la-msdk-enums.lo -MD -MP -MF $(DEPDIR)/libgstmsdk_la-msdk-enums.Tpo -c -o libgstmsdk_la-msdk-enums.lo `test -f 'msdk-enums.c' || echo '$(srcdir)/'`msdk-enums.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstmsdk_la-msdk-enums.Tpo $(DEPDIR)/libgstmsdk_la-msdk-enums.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='msdk-enums.c' object='libgstmsdk_la-msdk-enums.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -c -o libgstmsdk_la-msdk-enums.lo `test -f 'msdk-enums.c' || echo '$(srcdir)/'`msdk-enums.c
 
 libgstmsdk_la-msdk.lo: msdk.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -MT libgstmsdk_la-msdk.lo -MD -MP -MF $(DEPDIR)/libgstmsdk_la-msdk.Tpo -c -o libgstmsdk_la-msdk.lo `test -f 'msdk.c' || echo '$(srcdir)/'`msdk.c

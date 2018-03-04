@@ -193,7 +193,8 @@ am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstapplemedia_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am__libgstapplemedia_la_SOURCES_DIST = plugin.m vtutil.c \
 	corevideomemory.c corevideobuffer.c coremediabuffer.c \
 	videotexturecache.m atdec.c glcontexthelper.c iosassetsrc.m \
@@ -414,6 +415,8 @@ GLIB_MKENUMS = @GLIB_MKENUMS@
 GLIB_PREFIX = @GLIB_PREFIX@
 GLIB_REQ = @GLIB_REQ@
 GME_LIBS = @GME_LIBS@
+GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
+GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
@@ -670,8 +673,6 @@ RTMP_CFLAGS = @RTMP_CFLAGS@
 RTMP_LIBS = @RTMP_LIBS@
 SBC_CFLAGS = @SBC_CFLAGS@
 SBC_LIBS = @SBC_LIBS@
-SCHRO_CFLAGS = @SCHRO_CFLAGS@
-SCHRO_LIBS = @SCHRO_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@

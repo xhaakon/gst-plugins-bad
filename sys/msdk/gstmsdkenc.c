@@ -82,23 +82,6 @@ static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
         "interlace-mode = (string) progressive")
     );
 
-enum
-{
-  PROP_0,
-  PROP_HARDWARE,
-  PROP_ASYNC_DEPTH,
-  PROP_TARGET_USAGE,
-  PROP_RATE_CONTROL,
-  PROP_BITRATE,
-  PROP_QPI,
-  PROP_QPP,
-  PROP_QPB,
-  PROP_GOP_SIZE,
-  PROP_REF_FRAMES,
-  PROP_I_FRAMES,
-  PROP_B_FRAMES
-};
-
 #define PROP_HARDWARE_DEFAULT            TRUE
 #define PROP_ASYNC_DEPTH_DEFAULT         4
 #define PROP_TARGET_USAGE_DEFAULT        (MFX_TARGETUSAGE_BALANCED)
@@ -111,26 +94,15 @@ enum
 #define PROP_REF_FRAMES_DEFAULT          1
 #define PROP_I_FRAMES_DEFAULT            0
 #define PROP_B_FRAMES_DEFAULT            0
-
-#define GST_MSDKENC_RATE_CONTROL_TYPE (gst_msdkenc_rate_control_get_type())
-static GType
-gst_msdkenc_rate_control_get_type (void)
-{
-  static GType type = 0;
-
-  static const GEnumValue values[] = {
-    {MFX_RATECONTROL_CBR, "Constant Bitrate", "cbr"},
-    {MFX_RATECONTROL_VBR, "Variable Bitrate", "vbr"},
-    {MFX_RATECONTROL_CQP, "Constant Quantizer", "cqp"},
-    {MFX_RATECONTROL_AVBR, "Average Bitrate", "avbr"},
-    {0, NULL, NULL}
-  };
-
-  if (!type) {
-    type = g_enum_register_static ("GstMsdkEncRateControl", values);
-  }
-  return type;
-}
+#define PROP_NUM_SLICES_DEFAULT          0
+#define PROP_AVBR_ACCURACY_DEFAULT       0
+#define PROP_AVBR_CONVERGENCE_DEFAULT    0
+#define PROP_RC_LOOKAHEAD_DEPTH_DEFAULT  10
+#define PROP_MAX_VBV_BITRATE_DEFAULT     0
+#define PROP_MAX_FRAME_SIZE_DEFAULT      0
+#define PROP_MBBRC_DEFAULT               MFX_CODINGOPTION_OFF
+#define PROP_ADAPTIVE_I_DEFAULT          MFX_CODINGOPTION_OFF
+#define PROP_ADAPTIVE_B_DEFAULT          MFX_CODINGOPTION_OFF
 
 #define gst_msdkenc_parent_class parent_class
 G_DEFINE_TYPE (GstMsdkEnc, gst_msdkenc, GST_TYPE_VIDEO_ENCODER);
@@ -163,6 +135,87 @@ gst_msdkenc_set_context (GstElement * element, GstContext * context)
   }
 
   GST_ELEMENT_CLASS (parent_class)->set_context (element, context);
+}
+
+static void
+ensure_bitrate_control (GstMsdkEnc * thiz)
+{
+  mfxInfoMFX *mfx = &thiz->param.mfx;
+  mfxExtCodingOption2 *option2 = &thiz->option2;
+  mfxExtCodingOption3 *option3 = &thiz->option3;
+
+  mfx->RateControlMethod = thiz->rate_control;
+  /* No effect in CQP varient algorithms */
+  mfx->TargetKbps = thiz->bitrate;
+  mfx->MaxKbps = thiz->max_vbv_bitrate;
+
+  switch (mfx->RateControlMethod) {
+    case MFX_RATECONTROL_CQP:
+      mfx->QPI = thiz->qpi;
+      mfx->QPP = thiz->qpp;
+      mfx->QPB = thiz->qpb;
+      break;
+
+    case MFX_RATECONTROL_LA_ICQ:
+      option2->LookAheadDepth = thiz->lookahead_depth;
+    case MFX_RATECONTROL_ICQ:
+      mfx->ICQQuality = CLAMP (thiz->qpi, 1, 51);
+      break;
+
+    case MFX_RATECONTROL_LA:   /* VBR with LA. Only supported in H264?? */
+    case MFX_RATECONTROL_LA_HRD:       /* VBR with LA, HRD compliant */
+      option2->LookAheadDepth = thiz->lookahead_depth;
+      break;
+
+    case MFX_RATECONTROL_QVBR:
+      option3->QVBRQuality = CLAMP (thiz->qpi, 1, 51);
+      thiz->enable_extopt3 = TRUE;
+      break;
+
+    case MFX_RATECONTROL_AVBR:
+      mfx->Accuracy = thiz->accuracy;
+      mfx->Convergence = thiz->convergence;
+
+    case MFX_RATECONTROL_VBR:
+      option2->MaxFrameSize = thiz->max_frame_size * 1000;
+      break;
+
+    case MFX_RATECONTROL_VCM:
+      /*Non HRD compliant mode with no B-frame and interlaced support */
+      thiz->param.mfx.GopRefDist = 0;
+      break;
+
+    case MFX_RATECONTROL_CBR:
+      break;
+
+    default:
+      GST_ERROR ("Unsupported RateControl!");
+      break;
+  }
+}
+
+static void
+ensure_extended_coding_options (GstMsdkEnc * thiz)
+{
+  mfxExtCodingOption2 *option2 = &thiz->option2;
+  mfxExtCodingOption3 *option3 = &thiz->option3;
+
+  /* Fill ExtendedCodingOption2, set non-zero defaults too */
+  option2->Header.BufferId = MFX_EXTBUFF_CODING_OPTION2;
+  option2->Header.BufferSz = sizeof (thiz->option2);
+  option2->MBBRC = thiz->mbbrc;
+  option2->AdaptiveI = thiz->adaptive_i;
+  option2->AdaptiveB = thiz->adaptive_b;
+  option2->BitrateLimit = MFX_CODINGOPTION_OFF;
+  option2->EnableMAD = MFX_CODINGOPTION_OFF;
+  option2->UseRawRef = MFX_CODINGOPTION_OFF;
+  gst_msdkenc_add_extra_param (thiz, (mfxExtBuffer *) option2);
+
+  if (thiz->enable_extopt3) {
+    option3->Header.BufferId = MFX_EXTBUFF_CODING_OPTION3;
+    option3->Header.BufferSz = sizeof (thiz->option3);
+    gst_msdkenc_add_extra_param (thiz, (mfxExtBuffer *) option3);
+  }
 }
 
 static gboolean
@@ -304,20 +357,13 @@ gst_msdkenc_init_encoder (GstMsdkEnc * thiz)
   else
     thiz->param.IOPattern = MFX_IOPATTERN_IN_SYSTEM_MEMORY;
 
-  thiz->param.mfx.RateControlMethod = thiz->rate_control;
-  thiz->param.mfx.TargetKbps = thiz->bitrate;
   thiz->param.mfx.TargetUsage = thiz->target_usage;
   thiz->param.mfx.GopPicSize = thiz->gop_size;
   thiz->param.mfx.GopRefDist = thiz->b_frames + 1;
   thiz->param.mfx.IdrInterval = thiz->i_frames;
+  thiz->param.mfx.NumSlice = thiz->num_slices;
   thiz->param.mfx.NumRefFrame = thiz->ref_frames;
   thiz->param.mfx.EncodedOrder = 0;     /* Take input frames in display order */
-
-  if (thiz->rate_control == MFX_RATECONTROL_CQP) {
-    thiz->param.mfx.QPI = thiz->qpi;
-    thiz->param.mfx.QPP = thiz->qpp;
-    thiz->param.mfx.QPB = thiz->qpb;
-  }
 
   thiz->param.mfx.FrameInfo.Width = GST_ROUND_UP_32 (info->width);
   thiz->param.mfx.FrameInfo.Height = GST_ROUND_UP_32 (info->height);
@@ -330,6 +376,12 @@ gst_msdkenc_init_encoder (GstMsdkEnc * thiz)
   thiz->param.mfx.FrameInfo.PicStruct = MFX_PICSTRUCT_PROGRESSIVE;
   thiz->param.mfx.FrameInfo.FourCC = MFX_FOURCC_NV12;
   thiz->param.mfx.FrameInfo.ChromaFormat = MFX_CHROMAFORMAT_YUV420;
+
+  /* ensure bitrate control parameters */
+  ensure_bitrate_control (thiz);
+
+  /* Enable ExtCodingOption2 */
+  ensure_extended_coding_options (thiz);
 
   /* allow subclass configure further */
   if (klass->configure) {
@@ -675,7 +727,15 @@ gst_msdkenc_encode_frame (GstMsdkEnc * thiz, mfxFrameSurface1 * surface,
   task = gst_msdkenc_get_free_task (thiz);
 
   for (;;) {
-    status = MFXVideoENCODE_EncodeFrameAsync (session, NULL, surface,
+    /* Force key-frame if needed */
+    if (GST_VIDEO_CODEC_FRAME_IS_FORCE_KEYFRAME (input_frame))
+      thiz->enc_cntrl.FrameType =
+          MFX_FRAMETYPE_I | MFX_FRAMETYPE_IDR | MFX_FRAMETYPE_REF;
+    else
+      thiz->enc_cntrl.FrameType = MFX_FRAMETYPE_UNKNOWN;
+
+    status =
+        MFXVideoENCODE_EncodeFrameAsync (session, &thiz->enc_cntrl, surface,
         &task->output_bitstream, &task->sync_point);
     if (status != MFX_WRN_DEVICE_BUSY)
       break;
@@ -1261,123 +1321,6 @@ gst_msdkenc_propose_allocation (GstVideoEncoder * encoder, GstQuery * query)
       query);
 }
 
-static void
-gst_msdkenc_set_property (GObject * object, guint prop_id, const GValue * value,
-    GParamSpec * pspec)
-{
-  GstMsdkEnc *thiz = GST_MSDKENC (object);
-  GstState state;
-
-  GST_OBJECT_LOCK (thiz);
-
-  state = GST_STATE (thiz);
-  if ((state != GST_STATE_READY && state != GST_STATE_NULL) &&
-      !(pspec->flags & GST_PARAM_MUTABLE_PLAYING))
-    goto wrong_state;
-
-  switch (prop_id) {
-    case PROP_HARDWARE:
-      thiz->hardware = g_value_get_boolean (value);
-      break;
-    case PROP_ASYNC_DEPTH:
-      thiz->async_depth = g_value_get_uint (value);
-      break;
-    case PROP_TARGET_USAGE:
-      thiz->target_usage = g_value_get_uint (value);
-      break;
-    case PROP_RATE_CONTROL:
-      thiz->rate_control = g_value_get_enum (value);
-      break;
-    case PROP_BITRATE:
-      thiz->bitrate = g_value_get_uint (value);
-      thiz->reconfig = TRUE;
-      break;
-    case PROP_QPI:
-      thiz->qpi = g_value_get_uint (value);
-      break;
-    case PROP_QPP:
-      thiz->qpp = g_value_get_uint (value);
-      break;
-    case PROP_QPB:
-      thiz->qpb = g_value_get_uint (value);
-      break;
-    case PROP_GOP_SIZE:
-      thiz->gop_size = g_value_get_uint (value);
-      break;
-    case PROP_REF_FRAMES:
-      thiz->ref_frames = g_value_get_uint (value);
-      break;
-    case PROP_I_FRAMES:
-      thiz->i_frames = g_value_get_uint (value);
-      break;
-    case PROP_B_FRAMES:
-      thiz->b_frames = g_value_get_uint (value);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-  }
-  GST_OBJECT_UNLOCK (thiz);
-  return;
-
-  /* ERROR */
-wrong_state:
-  {
-    GST_WARNING_OBJECT (thiz, "setting property in wrong state");
-    GST_OBJECT_UNLOCK (thiz);
-  }
-}
-
-static void
-gst_msdkenc_get_property (GObject * object, guint prop_id, GValue * value,
-    GParamSpec * pspec)
-{
-  GstMsdkEnc *thiz = GST_MSDKENC (object);
-
-  GST_OBJECT_LOCK (thiz);
-  switch (prop_id) {
-    case PROP_HARDWARE:
-      g_value_set_boolean (value, thiz->hardware);
-      break;
-    case PROP_ASYNC_DEPTH:
-      g_value_set_uint (value, thiz->async_depth);
-      break;
-    case PROP_TARGET_USAGE:
-      g_value_set_uint (value, thiz->target_usage);
-      break;
-    case PROP_RATE_CONTROL:
-      g_value_set_enum (value, thiz->rate_control);
-      break;
-    case PROP_BITRATE:
-      g_value_set_uint (value, thiz->bitrate);
-      break;
-    case PROP_QPI:
-      g_value_set_uint (value, thiz->qpi);
-      break;
-    case PROP_QPP:
-      g_value_set_uint (value, thiz->qpp);
-      break;
-    case PROP_QPB:
-      g_value_set_uint (value, thiz->qpb);
-      break;
-    case PROP_GOP_SIZE:
-      g_value_set_uint (value, thiz->gop_size);
-      break;
-    case PROP_REF_FRAMES:
-      g_value_set_uint (value, thiz->ref_frames);
-      break;
-    case PROP_I_FRAMES:
-      g_value_set_uint (value, thiz->i_frames);
-      break;
-    case PROP_B_FRAMES:
-      g_value_set_uint (value, thiz->b_frames);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-  }
-  GST_OBJECT_UNLOCK (thiz);
-}
 
 static void
 gst_msdkenc_finalize (GObject * object)
@@ -1405,8 +1348,6 @@ gst_msdkenc_class_init (GstMsdkEncClass * klass)
   element_class = GST_ELEMENT_CLASS (klass);
   gstencoder_class = GST_VIDEO_ENCODER_CLASS (klass);
 
-  gobject_class->set_property = gst_msdkenc_set_property;
-  gobject_class->get_property = gst_msdkenc_get_property;
   gobject_class->finalize = gst_msdkenc_finalize;
 
   element_class->set_context = gst_msdkenc_set_context;
@@ -1420,73 +1361,6 @@ gst_msdkenc_class_init (GstMsdkEncClass * klass)
   gstencoder_class->propose_allocation =
       GST_DEBUG_FUNCPTR (gst_msdkenc_propose_allocation);
 
-  g_object_class_install_property (gobject_class, PROP_HARDWARE,
-      g_param_spec_boolean ("hardware", "Hardware", "Enable hardware encoders",
-          PROP_HARDWARE_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_ASYNC_DEPTH,
-      g_param_spec_uint ("async-depth", "Async Depth",
-          "Depth of asynchronous pipeline",
-          1, 20, PROP_ASYNC_DEPTH_DEFAULT,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_TARGET_USAGE,
-      g_param_spec_uint ("target-usage", "Target Usage",
-          "1: Best quality, 4: Balanced, 7: Best speed",
-          1, 7, PROP_TARGET_USAGE_DEFAULT,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_RATE_CONTROL,
-      g_param_spec_enum ("rate-control", "Rate Control",
-          "Rate control method", GST_MSDKENC_RATE_CONTROL_TYPE,
-          PROP_RATE_CONTROL_DEFAULT,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_BITRATE,
-      g_param_spec_uint ("bitrate", "Bitrate", "Bitrate in kbit/sec", 1,
-          2000 * 1024, PROP_BITRATE_DEFAULT,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
-          GST_PARAM_MUTABLE_PLAYING));
-
-  g_object_class_install_property (gobject_class, PROP_QPI,
-      g_param_spec_uint ("qpi", "QPI",
-          "Constant quantizer for I frames (0 unlimited)",
-          0, 51, PROP_QPI_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_QPP,
-      g_param_spec_uint ("qpp", "QPP",
-          "Constant quantizer for P frames (0 unlimited)",
-          0, 51, PROP_QPP_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_QPB,
-      g_param_spec_uint ("qpb", "QPB",
-          "Constant quantizer for B frames (0 unlimited)",
-          0, 51, PROP_QPB_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_GOP_SIZE,
-      g_param_spec_uint ("gop-size", "GOP Size", "GOP Size", 0,
-          G_MAXINT, PROP_GOP_SIZE_DEFAULT,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_REF_FRAMES,
-      g_param_spec_uint ("ref-frames", "Reference Frames",
-          "Number of reference frames",
-          0, G_MAXINT, PROP_REF_FRAMES_DEFAULT,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_I_FRAMES,
-      g_param_spec_uint ("i-frames", "I Frames",
-          "Number of I frames between IDR frames",
-          0, G_MAXINT, PROP_I_FRAMES_DEFAULT,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_B_FRAMES,
-      g_param_spec_uint ("b-frames", "B Frames",
-          "Number of B frames between I and P frames",
-          0, G_MAXINT, PROP_B_FRAMES_DEFAULT,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-
   gst_element_class_add_static_pad_template (element_class, &sink_factory);
 }
 
@@ -1498,6 +1372,11 @@ gst_msdkenc_init (GstMsdkEnc * thiz)
   thiz->target_usage = PROP_TARGET_USAGE_DEFAULT;
   thiz->rate_control = PROP_RATE_CONTROL_DEFAULT;
   thiz->bitrate = PROP_BITRATE_DEFAULT;
+  thiz->max_frame_size = PROP_MAX_FRAME_SIZE_DEFAULT;
+  thiz->max_vbv_bitrate = PROP_MAX_VBV_BITRATE_DEFAULT;
+  thiz->accuracy = PROP_AVBR_ACCURACY_DEFAULT;
+  thiz->convergence = PROP_AVBR_ACCURACY_DEFAULT;
+  thiz->lookahead_depth = PROP_RC_LOOKAHEAD_DEPTH_DEFAULT;
   thiz->qpi = PROP_QPI_DEFAULT;
   thiz->qpp = PROP_QPP_DEFAULT;
   thiz->qpb = PROP_QPB_DEFAULT;
@@ -1505,4 +1384,333 @@ gst_msdkenc_init (GstMsdkEnc * thiz)
   thiz->ref_frames = PROP_REF_FRAMES_DEFAULT;
   thiz->i_frames = PROP_I_FRAMES_DEFAULT;
   thiz->b_frames = PROP_B_FRAMES_DEFAULT;
+  thiz->num_slices = PROP_NUM_SLICES_DEFAULT;
+  thiz->mbbrc = PROP_MBBRC_DEFAULT;
+  thiz->adaptive_i = PROP_ADAPTIVE_I_DEFAULT;
+  thiz->adaptive_b = PROP_ADAPTIVE_B_DEFAULT;
+}
+
+/* gst_msdkenc_set_common_property:
+ *
+ * This is a helper function to set the common property
+ * of base encoder from subclass implementation.
+ */
+gboolean
+gst_msdkenc_set_common_property (GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec)
+{
+  GstMsdkEnc *thiz = GST_MSDKENC (object);
+  GstState state;
+  gboolean ret = TRUE;
+
+  GST_OBJECT_LOCK (thiz);
+
+  state = GST_STATE (thiz);
+  if ((state != GST_STATE_READY && state != GST_STATE_NULL) &&
+      !(pspec->flags & GST_PARAM_MUTABLE_PLAYING)) {
+    ret = FALSE;
+    goto wrong_state;
+  }
+
+  switch (prop_id) {
+    case GST_MSDKENC_PROP_HARDWARE:
+      thiz->hardware = g_value_get_boolean (value);
+      break;
+    case GST_MSDKENC_PROP_ASYNC_DEPTH:
+      thiz->async_depth = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_TARGET_USAGE:
+      thiz->target_usage = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_RATE_CONTROL:
+      thiz->rate_control = g_value_get_enum (value);
+      break;
+    case GST_MSDKENC_PROP_BITRATE:
+      thiz->bitrate = g_value_get_uint (value);
+      thiz->reconfig = TRUE;
+      break;
+    case GST_MSDKENC_PROP_MAX_FRAME_SIZE:
+      thiz->max_frame_size = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_MAX_VBV_BITRATE:
+      thiz->max_vbv_bitrate = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_AVBR_ACCURACY:
+      thiz->accuracy = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_AVBR_CONVERGENCE:
+      thiz->convergence = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_RC_LOOKAHEAD_DEPTH:
+      thiz->lookahead_depth = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_QPI:
+      thiz->qpi = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_QPP:
+      thiz->qpp = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_QPB:
+      thiz->qpb = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_GOP_SIZE:
+      thiz->gop_size = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_REF_FRAMES:
+      thiz->ref_frames = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_I_FRAMES:
+      thiz->i_frames = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_B_FRAMES:
+      thiz->b_frames = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_NUM_SLICES:
+      thiz->num_slices = g_value_get_uint (value);
+      break;
+    case GST_MSDKENC_PROP_MBBRC:
+      thiz->mbbrc = g_value_get_enum (value);
+      break;
+    case GST_MSDKENC_PROP_ADAPTIVE_I:
+      thiz->adaptive_i = g_value_get_enum (value);
+      break;
+    case GST_MSDKENC_PROP_ADAPTIVE_B:
+      thiz->adaptive_b = g_value_get_enum (value);
+      break;
+    default:
+      ret = FALSE;
+      break;
+  }
+  GST_OBJECT_UNLOCK (thiz);
+  return ret;
+
+  /* ERROR */
+wrong_state:
+  {
+    GST_WARNING_OBJECT (thiz, "setting property in wrong state");
+    GST_OBJECT_UNLOCK (thiz);
+    return ret;
+  }
+}
+
+/* gst_msdkenc_get_common_property:
+ *
+ * This is a helper function to get the common property
+ * of base encoder from subclass implementation.
+ */
+gboolean
+gst_msdkenc_get_common_property (GObject * object, guint prop_id,
+    GValue * value, GParamSpec * pspec)
+{
+  GstMsdkEnc *thiz = GST_MSDKENC (object);
+  gboolean ret = TRUE;
+
+  GST_OBJECT_LOCK (thiz);
+  switch (prop_id) {
+    case GST_MSDKENC_PROP_HARDWARE:
+      g_value_set_boolean (value, thiz->hardware);
+      break;
+    case GST_MSDKENC_PROP_ASYNC_DEPTH:
+      g_value_set_uint (value, thiz->async_depth);
+      break;
+    case GST_MSDKENC_PROP_TARGET_USAGE:
+      g_value_set_uint (value, thiz->target_usage);
+      break;
+    case GST_MSDKENC_PROP_RATE_CONTROL:
+      g_value_set_enum (value, thiz->rate_control);
+      break;
+    case GST_MSDKENC_PROP_BITRATE:
+      g_value_set_uint (value, thiz->bitrate);
+      break;
+    case GST_MSDKENC_PROP_MAX_FRAME_SIZE:
+      g_value_set_uint (value, thiz->max_frame_size);
+      break;
+    case GST_MSDKENC_PROP_MAX_VBV_BITRATE:
+      g_value_set_uint (value, thiz->max_vbv_bitrate);
+      break;
+    case GST_MSDKENC_PROP_AVBR_ACCURACY:
+      g_value_set_uint (value, thiz->accuracy);
+      break;
+    case GST_MSDKENC_PROP_AVBR_CONVERGENCE:
+      g_value_set_uint (value, thiz->convergence);
+      break;
+    case GST_MSDKENC_PROP_RC_LOOKAHEAD_DEPTH:
+      g_value_set_uint (value, thiz->lookahead_depth);
+      break;
+    case GST_MSDKENC_PROP_QPI:
+      g_value_set_uint (value, thiz->qpi);
+      break;
+    case GST_MSDKENC_PROP_QPP:
+      g_value_set_uint (value, thiz->qpp);
+      break;
+    case GST_MSDKENC_PROP_QPB:
+      g_value_set_uint (value, thiz->qpb);
+      break;
+    case GST_MSDKENC_PROP_GOP_SIZE:
+      g_value_set_uint (value, thiz->gop_size);
+      break;
+    case GST_MSDKENC_PROP_REF_FRAMES:
+      g_value_set_uint (value, thiz->ref_frames);
+      break;
+    case GST_MSDKENC_PROP_I_FRAMES:
+      g_value_set_uint (value, thiz->i_frames);
+      break;
+    case GST_MSDKENC_PROP_B_FRAMES:
+      g_value_set_uint (value, thiz->b_frames);
+      break;
+    case GST_MSDKENC_PROP_NUM_SLICES:
+      g_value_set_uint (value, thiz->num_slices);
+      break;
+    case GST_MSDKENC_PROP_MBBRC:
+      g_value_set_enum (value, thiz->mbbrc);
+      break;
+    case GST_MSDKENC_PROP_ADAPTIVE_I:
+      g_value_set_enum (value, thiz->adaptive_i);
+      break;
+    case GST_MSDKENC_PROP_ADAPTIVE_B:
+      g_value_set_enum (value, thiz->adaptive_b);
+      break;
+    default:
+      ret = FALSE;
+      break;
+  }
+  GST_OBJECT_UNLOCK (thiz);
+  return ret;
+}
+
+/* gst_msdkenc_install_common_properties:
+ * @thiz: a #GstMsdkEnc
+ *
+ * This is a helper function to install common properties
+ * of base encoder from subclass implementation.
+ * Encoders like jpeg do't require all the common properties
+ * and they can avoid installing it into base gobject.
+ */
+void
+gst_msdkenc_install_common_properties (GstMsdkEncClass * klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  GParamSpec *obj_properties[GST_MSDKENC_PROP_MAX] = { NULL, };
+
+  obj_properties[GST_MSDKENC_PROP_HARDWARE] =
+      g_param_spec_boolean ("hardware", "Hardware", "Enable hardware encoders",
+      PROP_HARDWARE_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_ASYNC_DEPTH] =
+      g_param_spec_uint ("async-depth", "Async Depth",
+      "Depth of asynchronous pipeline",
+      1, 20, PROP_ASYNC_DEPTH_DEFAULT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_TARGET_USAGE] =
+      g_param_spec_uint ("target-usage", "Target Usage",
+      "1: Best quality, 4: Balanced, 7: Best speed",
+      1, 7, PROP_TARGET_USAGE_DEFAULT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_RATE_CONTROL] =
+      g_param_spec_enum ("rate-control", "Rate Control",
+      "Rate control method", gst_msdkenc_rate_control_get_type (),
+      PROP_RATE_CONTROL_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_BITRATE] =
+      g_param_spec_uint ("bitrate", "Bitrate", "Bitrate in kbit/sec", 1,
+      2000 * 1024, PROP_BITRATE_DEFAULT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | GST_PARAM_MUTABLE_PLAYING);
+
+  obj_properties[GST_MSDKENC_PROP_MAX_FRAME_SIZE] =
+      g_param_spec_uint ("max-frame-size", "Max Frame Size",
+      "Maximum possible size (in kb) of any compressed frames (0: auto-calculate)",
+      0, G_MAXUINT16, PROP_MAX_FRAME_SIZE_DEFAULT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_MAX_VBV_BITRATE] =
+      g_param_spec_uint ("max-vbv-bitrate", "Max VBV Bitrate",
+      "Maximum bitrate(kbit/sec) at which data enters Video Buffering Verifier (0: auto-calculate)",
+      0, G_MAXUINT16, PROP_MAX_VBV_BITRATE_DEFAULT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_AVBR_ACCURACY] =
+      g_param_spec_uint ("accuracy", "Accuracy", "The AVBR Accuracy in "
+      "the unit of tenth of percent", 0, G_MAXUINT16,
+      PROP_AVBR_ACCURACY_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_AVBR_CONVERGENCE] =
+      g_param_spec_uint ("convergence", "Convergence",
+      "The AVBR Convergence in the unit of 100 frames", 0, G_MAXUINT16,
+      PROP_AVBR_CONVERGENCE_DEFAULT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_RC_LOOKAHEAD_DEPTH] =
+      g_param_spec_uint ("rc-lookahead", "Look-ahead depth",
+      "Number of frames to look ahead for Rate control", 10, 100,
+      PROP_RC_LOOKAHEAD_DEPTH_DEFAULT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_QPI] =
+      g_param_spec_uint ("qpi", "QPI",
+      "Constant quantizer for I frames (0 unlimited). Also used as "
+      "ICQQuality or QVBRQuality for different RateControl methods",
+      0, 51, PROP_QPI_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_QPP] =
+      g_param_spec_uint ("qpp", "QPP",
+      "Constant quantizer for P frames (0 unlimited)",
+      0, 51, PROP_QPP_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_QPB] =
+      g_param_spec_uint ("qpb", "QPB",
+      "Constant quantizer for B frames (0 unlimited)",
+      0, 51, PROP_QPB_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_GOP_SIZE] =
+      g_param_spec_uint ("gop-size", "GOP Size", "GOP Size", 0,
+      G_MAXINT, PROP_GOP_SIZE_DEFAULT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_REF_FRAMES] =
+      g_param_spec_uint ("ref-frames", "Reference Frames",
+      "Number of reference frames",
+      0, G_MAXINT, PROP_REF_FRAMES_DEFAULT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_I_FRAMES] =
+      g_param_spec_uint ("i-frames", "I Frames",
+      "Number of I frames between IDR frames",
+      0, G_MAXINT, PROP_I_FRAMES_DEFAULT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_B_FRAMES] =
+      g_param_spec_uint ("b-frames", "B Frames",
+      "Number of B frames between I and P frames",
+      0, G_MAXINT, PROP_B_FRAMES_DEFAULT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_NUM_SLICES] =
+      g_param_spec_uint ("num-slices", "Number of Slices",
+      "Number of slices per frame, Zero tells the encoder to "
+      "choose any slice partitioning allowed by the codec standard",
+      0, G_MAXINT, PROP_NUM_SLICES_DEFAULT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_MBBRC] =
+      g_param_spec_enum ("mbbrc", "MB level bitrate control",
+      "Macroblock level bitrate control",
+      gst_msdkenc_mbbrc_get_type (),
+      PROP_MBBRC_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_ADAPTIVE_I] =
+      g_param_spec_enum ("i-adapt", "Adaptive I-Frame Insertion",
+      "Adaptive I-Frame Insertion control",
+      gst_msdkenc_adaptive_i_get_type (),
+      PROP_ADAPTIVE_I_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  obj_properties[GST_MSDKENC_PROP_ADAPTIVE_B] =
+      g_param_spec_enum ("b-adapt", "Adaptive B-Frame Insertion",
+      "Adaptive B-Frame Insertion control",
+      gst_msdkenc_adaptive_b_get_type (),
+      PROP_ADAPTIVE_B_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class,
+      GST_MSDKENC_PROP_MAX, obj_properties);
 }

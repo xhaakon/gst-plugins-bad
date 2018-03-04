@@ -474,9 +474,6 @@
 /* Define to enable SBC bluetooth audio codec (used by sbc). */
 #undef HAVE_SBC
 
-/* Define to enable Schroedinger video codec (used by schro). */
-#undef HAVE_SCHRO
-
 /* Define to enable POSIX shared memory source and sink (used by shm). */
 #undef HAVE_SHM
 

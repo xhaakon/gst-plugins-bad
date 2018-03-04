@@ -6,15 +6,8 @@ debugutilsbad_sources = [
   'gstchecksumsink.c',
   'gstchopmydata.c',
   'gstcompare.c',
+  'gstfakevideosink.c',
   'gstwatchdog.c',
-]
-
-debugutilsbad_headers = [
-  'gstchecksumsink.h',
-  'gstchopmydata.h',
-  'gstcompare.h',
-  'gstdebugspy.h',
-  'gstwatchdog.h',
 ]
 
 gstdebugutilsbad = library('gstdebugutilsbad',
