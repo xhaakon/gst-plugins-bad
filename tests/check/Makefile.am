@@ -210,6 +210,12 @@ else
 check_webrtc=
 endif
 
+if USE_MSDK
+check_msdk=elements/msdkh264enc
+else
+check_msdk=
+endif
+
 VALGRIND_TO_FIX = \
 	elements/mpeg2enc \
 	elements/mplex    \
@@ -276,6 +282,7 @@ check_PROGRAMS = \
 	libs/mpegvideoparser \
 	libs/mpegts \
 	libs/h264parser \
+	libs/h265parser \
 	libs/vp8parser \
 	$(check_uvch264) \
 	libs/vc1parser \
@@ -289,6 +296,7 @@ check_PROGRAMS = \
 	$(check_srtp) \
 	$(check_player) \
 	$(check_webrtc) \
+	$(check_msdk) \
 	$(EXPERIMENTAL_CHECKS)
 
 noinst_HEADERS = elements/mxfdemux.h libs/isoff.h
@@ -358,6 +366,15 @@ libs_h264parser_CFLAGS = \
 	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
 
 libs_h264parser_LDADD = \
+	$(top_builddir)/gst-libs/gst/codecparsers/libgstcodecparsers-@GST_API_VERSION@.la \
+	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+
+libs_h265parser_CFLAGS = \
+	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
+	-DGST_USE_UNSTABLE_API \
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+
+libs_h265parser_LDADD = \
 	$(top_builddir)/gst-libs/gst/codecparsers/libgstcodecparsers-@GST_API_VERSION@.la \
 	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
 
@@ -559,6 +576,10 @@ elements_webrtcbin_LDADD = \
 elements_webrtcbin_CFLAGS = \
 	$(GST_PLUGINS_BASE_CLAGS) $(GST_PLUGINS_BAD_CFLAGS) $(GST_SDP_CFLAGS) \
 	$(GST_BASE_CFLAGS) $(CFLAGS) $(AM_CFLAGS)
+
+elements_msdk_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_msdk_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
+elements_msdk_SOURCES = elements/msdkh264enc.c
 
 
 distclean-local-orc:
