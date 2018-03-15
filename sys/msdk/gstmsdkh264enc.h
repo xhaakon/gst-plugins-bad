@@ -62,6 +62,10 @@ struct _GstMsdkH264Enc
   gboolean cabac;
   gboolean lowpower;
   gint frame_packing;
+  guint lookahead_ds;
+  guint trellis;
+  guint max_slice_size;
+  guint b_pyramid;
 };
 
 struct _GstMsdkH264EncClass

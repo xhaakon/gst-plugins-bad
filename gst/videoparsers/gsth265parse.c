@@ -1225,18 +1225,60 @@ digit_to_string (guint digit)
 }
 
 static const gchar *
-get_profile_string (guint8 profile_idc)
+get_profile_string (GstH265Profile profile)
 {
-  const gchar *profile = NULL;
+  switch (profile) {
+    case GST_H265_PROFILE_MAIN:
+      return "main";
+    case GST_H265_PROFILE_MAIN_10:
+      return "main-10";
+    case GST_H265_PROFILE_MAIN_STILL_PICTURE:
+      return "main-still-picture";
+    case GST_H265_PROFILE_MONOCHROME:
+      return "monochrome";
+    case GST_H265_PROFILE_MONOCHROME_12:
+      return "monochrome-12";
+    case GST_H265_PROFILE_MONOCHROME_16:
+      return "monochrome-16";
+    case GST_H265_PROFILE_MAIN_12:
+      return "main-12";
+    case GST_H265_PROFILE_MAIN_422_10:
+      return "main-422-10";
+    case GST_H265_PROFILE_MAIN_422_12:
+      return "main-422-12";
+    case GST_H265_PROFILE_MAIN_444:
+      return "main-444";
+    case GST_H265_PROFILE_MAIN_444_10:
+      return "main-444-10";
+    case GST_H265_PROFILE_MAIN_444_12:
+      return "main-444-12";
+    case GST_H265_PROFILE_MAIN_INTRA:
+      return "main-intra";
+    case GST_H265_PROFILE_MAIN_10_INTRA:
+      return "main-10-intra";
+    case GST_H265_PROFILE_MAIN_12_INTRA:
+      return "main-12-intra";
+    case GST_H265_PROFILE_MAIN_422_10_INTRA:
+      return "main-422-10-intra";
+    case GST_H265_PROFILE_MAIN_422_12_INTRA:
+      return "main-422-12-intra";
+    case GST_H265_PROFILE_MAIN_444_INTRA:
+      return "main-444-intra";
+    case GST_H265_PROFILE_MAIN_444_10_INTRA:
+      return "main-444-10-intra";
+    case GST_H265_PROFILE_MAIN_444_12_INTRA:
+      return "main-444-12-intra";
+    case GST_H265_PROFILE_MAIN_444_16_INTRA:
+      return "main-444-16-intra";
+    case GST_H265_PROFILE_MAIN_444_STILL_PICTURE:
+      return "main-444-still-picture";
+    case GST_H265_PROFILE_MAIN_444_16_STILL_PICTURE:
+      return "main-444-16-still-picture";
+    default:
+      break;
+  }
 
-  if (profile_idc == 1)
-    profile = "main";
-  else if (profile_idc == 2)
-    profile = "main-10";
-  else if (profile_idc == 3)
-    profile = "main-still-picture";
-
-  return profile;
+  return NULL;
 }
 
 static const gchar *
@@ -1298,7 +1340,7 @@ get_compatible_profile_caps (GstH265SPS * sps)
   g_value_init (&compat_profiles, GST_TYPE_LIST);
 
   switch (sps->profile_tier_level.profile_idc) {
-    case GST_H265_PROFILE_MAIN_10:
+    case GST_H265_PROFILE_IDC_MAIN_10:
       if (sps->profile_tier_level.profile_compatibility_flag[1]) {
         if (sps->profile_tier_level.profile_compatibility_flag[3]) {
           static const gchar *profile_array[] =
@@ -1310,7 +1352,7 @@ get_compatible_profile_caps (GstH265SPS * sps)
         }
       }
       break;
-    case GST_H265_PROFILE_MAIN:
+    case GST_H265_PROFILE_IDC_MAIN:
       if (sps->profile_tier_level.profile_compatibility_flag[3]) {
         static const gchar *profile_array[] =
             { "main-still-picture", "main-10", NULL
@@ -1321,7 +1363,7 @@ get_compatible_profile_caps (GstH265SPS * sps)
         profiles = profile_array;
       }
       break;
-    case GST_H265_PROFILE_MAIN_STILL_PICTURE:
+    case GST_H265_PROFILE_IDC_MAIN_STILL_PICTURE:
     {
       static const gchar *profile_array[] = { "main", "main-10", NULL
       };
@@ -1587,8 +1629,10 @@ gst_h265_parse_update_src_caps (GstH265Parse * h265parse, GstCaps * caps)
     /* set profile and level in caps */
     if (sps) {
       const gchar *profile, *tier, *level;
+      GstH265Profile p;
 
-      profile = get_profile_string (sps->profile_tier_level.profile_idc);
+      p = gst_h265_profile_tier_level_get_profile (&sps->profile_tier_level);
+      profile = get_profile_string (p);
       if (profile != NULL)
         gst_caps_set_simple (caps, "profile", G_TYPE_STRING, profile, NULL);
 
@@ -2149,10 +2193,6 @@ gst_h265_parse_set_caps (GstBaseParse * parse, GstCaps * caps)
     if (h265parse->align == GST_H265_PARSE_ALIGN_NAL)
       h265parse->split_packetized = TRUE;
     h265parse->packetized = TRUE;
-
-    /* We got all the caps infos from the codec_data so can already set the
-     * src caps. */
-    gst_h265_parse_update_src_caps (h265parse, NULL);
   }
 
   return TRUE;

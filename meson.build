@@ -1,5 +1,5 @@
 project('gst-plugins-bad', 'c', 'cpp',
-  version : '1.13.1',
+  version : '1.13.91',
   meson_version : '>= 0.40.1',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
@@ -213,7 +213,6 @@ check_functions = [
 # check token HAVE_RSVG_2_36_2
 # check token HAVE_RTMP
 # check token HAVE_SBC
-# check token HAVE_SCHRO
 # check token HAVE_SDL
 # check token HAVE_SHM
 # check token HAVE_SMOOTHSTREAMING
@@ -270,6 +269,52 @@ cdata.set_quoted('GST_API_VERSION', api_version)
 cdata.set_quoted('GST_LICENSE', 'LGPL')
 cdata.set_quoted('LIBDIR', join_paths(get_option('prefix'), get_option('libdir')))
 
+warning_flags = [
+  '-Wmissing-declarations',
+  '-Wredundant-decls',
+  '-Wwrite-strings',
+  '-Wformat',
+  '-Wformat-security',
+  '-Winit-self',
+  '-Wmissing-include-dirs',
+  '-Waddress',
+  '-Wno-multichar',
+  '-Wvla',
+  '-Wpointer-arith',
+]
+
+warning_c_flags = [
+  '-Wmissing-prototypes',
+  '-Wdeclaration-after-statement',
+  '-Wold-style-definition',
+  '-Wnested-externs',
+]
+
+warning_cxx_flags = [
+  '-Wformat-nonliteral',
+]
+
+foreach extra_arg : warning_c_flags
+  if cc.has_argument (extra_arg)
+    add_project_arguments([extra_arg], language: 'c')
+  endif
+endforeach
+
+foreach extra_arg : warning_cxx_flags
+  if cxx.has_argument (extra_arg)
+    add_project_arguments([extra_arg], language: 'cpp')
+  endif
+endforeach
+
+foreach extra_arg : warning_flags
+  if cc.has_argument (extra_arg)
+    add_project_arguments([extra_arg], language: 'c')
+  endif
+  if cxx.has_argument (extra_arg)
+    add_project_arguments([extra_arg], language: 'cpp')
+  endif
+endforeach
+
 # GStreamer package name and origin url
 gst_package_name = get_option('with-package-name')
 if gst_package_name == ''
@@ -292,6 +337,10 @@ elif host_system == 'osx'
   cdata.set_quoted('DEFAULT_VIDEOSRC', 'avfvideosrc')
 else
   cdata.set_quoted('DEFAULT_VIDEOSRC', 'videotestsrc')
+endif
+
+if host_system == 'darwin'
+  cdata.set_quoted('GST_EXTRA_MODULE_SUFFIX', '.dylib')
 endif
 
 # Mandatory GST deps
@@ -421,27 +470,15 @@ else
 endif
 
 if gst_dep.type_name() == 'internal'
-    gst_proj = subproject('gstreamer')
-
-    if gst_proj.get_variable('disable_gst_debug')
-        message('GStreamer debug system is disabled')
-        add_project_arguments('-Wno-unused', language: 'c')
-    else
-        message('GStreamer debug system is enabled')
-    endif
+  gst_debug_disabled = subproject('gstreamer').get_variable('disable_gst_debug')
 else
-    # We can't check that in the case of subprojects as we won't
-    # be able to build against an internal dependency (which is not built yet)
-    if not cc.compiles('''
-#include <gst/gstconfig.h>
-#ifdef GST_DISABLE_GST_DEBUG
-#error "debugging disabled, make compiler fail"
-#endif''' , dependencies: gst_dep)
-        message('GStreamer debug system is disabled')
-        add_global_arguments('-Wno-unused', language: 'c')
-    else
-        message('GStreamer debug system is enabled')
-    endif
+  # We can't check that in the case of subprojects as we won't
+  # be able to build against an internal dependency (which is not built yet)
+  gst_debug_disabled = cc.has_header_symbol('gst/gstconfig.h', 'GST_DISABLE_GST_DEBUG', dependencies: gst_dep)
+endif
+
+if gst_debug_disabled and cc.has_argument('-Wno-unused')
+  add_project_arguments('-Wno-unused', language: 'c')
 endif
 
 gst_plugins_bad_args = ['-DHAVE_CONFIG_H']

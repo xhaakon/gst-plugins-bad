@@ -335,6 +335,8 @@ GLIB_MKENUMS = @GLIB_MKENUMS@
 GLIB_PREFIX = @GLIB_PREFIX@
 GLIB_REQ = @GLIB_REQ@
 GME_LIBS = @GME_LIBS@
+GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
+GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
@@ -591,8 +593,6 @@ RTMP_CFLAGS = @RTMP_CFLAGS@
 RTMP_LIBS = @RTMP_LIBS@
 SBC_CFLAGS = @SBC_CFLAGS@
 SBC_LIBS = @SBC_LIBS@
-SCHRO_CFLAGS = @SCHRO_CFLAGS@
-SCHRO_LIBS = @SCHRO_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -749,7 +749,7 @@ libgstbadvideo_@GST_API_VERSION@_la_LIBADD = \
 
 libgstbadvideo_@GST_API_VERSION@_la_LDFLAGS = $(GST_LIB_LDFLAGS) $(GST_ALL_LDFLAGS) $(GST_LT_LDFLAGS)
 libgstvideo_@GST_API_VERSION@includedir = $(includedir)/gstreamer-@GST_API_VERSION@/gst/video
-libgstvideo_@GST_API_VERSION@include_HEADERS = gstvideoaggregatorpad.h gstvideoaggregator.h
+libgstvideo_@GST_API_VERSION@include_HEADERS = gstvideoaggregatorpad.h gstvideoaggregator.h video-bad-prelude.h
 all: all-am
 
 .SUFFIXES:

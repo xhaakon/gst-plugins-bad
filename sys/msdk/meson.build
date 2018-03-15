@@ -19,6 +19,7 @@ msdk_sources = [
   'gstmsdkvp8enc.c',
   'gstmsdkvc1dec.c',
   'msdk.c',
+  'msdk-enums.c'
 ]
 
 if host_machine.system() == 'windows'
@@ -28,6 +29,9 @@ else
 endif
 
 msdk_root = run_command(python3, '-c', 'import os; print(os.environ.get("INTELMEDIASDKROOT", os.environ.get("MFX_HOME", "")))').stdout().strip()
+
+have_msdk = false
+msdk_dep = []
 
 if msdk_root != ''
   msdk_libdir = [msdk_root + '/lib/lin_x64', msdk_root + '/lib/x64']
@@ -55,5 +59,6 @@ if msdk_root != ''
       install : true,
       install_dir : plugins_install_dir,
     )
+    have_msdk = true
   endif
 endif

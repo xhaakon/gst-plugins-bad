@@ -28,12 +28,29 @@
 #include <mmdeviceapi.h>
 #include <audioclient.h>
 
+#include "gstaudioclient3.h"
+
 /* Static Caps shared between source, sink, and device provider */
 #define GST_WASAPI_STATIC_CAPS "audio/x-raw, " \
         "format = (string) " GST_AUDIO_FORMATS_ALL ", " \
         "layout = (string) interleaved, " \
         "rate = " GST_AUDIO_RATE_RANGE ", " \
         "channels = " GST_AUDIO_CHANNELS_RANGE
+
+/* Standard error path */
+#define HR_FAILED_AND(hr,func,and) \
+  do { \
+    if (hr != S_OK) { \
+      gchar *msg = gst_wasapi_util_hresult_to_string (hr); \
+      GST_ERROR_OBJECT (self, #func " failed: %s", msg); \
+      g_free (msg); \
+      and; \
+    } \
+  } while (0)
+
+#define HR_FAILED_RET(hr,func,ret) HR_FAILED_AND(hr,func,return ret)
+
+#define HR_FAILED_GOTO(hr,func,where) HR_FAILED_AND(hr,func,res = FALSE; goto where)
 
 /* Device role enum property */
 typedef enum
@@ -46,6 +63,8 @@ typedef enum
 GType gst_wasapi_device_role_get_type (void);
 
 /* Utilities */
+
+gboolean gst_wasapi_util_have_audioclient3 (void);
 
 gint gst_wasapi_device_role_to_erole (gint role);
 
@@ -81,5 +100,18 @@ void gst_wasapi_util_get_best_buffer_sizes (GstAudioRingBufferSpec * spec,
     gboolean exclusive, REFERENCE_TIME default_period,
     REFERENCE_TIME min_period, REFERENCE_TIME * ret_period,
     REFERENCE_TIME * ret_buffer_duration);
+
+gboolean gst_wasapi_util_initialize_audioclient (GstElement * element,
+    GstAudioRingBufferSpec * spec, IAudioClient * client,
+    WAVEFORMATEX * format, guint sharemode, gboolean low_latency,
+    guint * ret_devicep_frames);
+
+gboolean gst_wasapi_util_initialize_audioclient3 (GstElement * element,
+    GstAudioRingBufferSpec * spec, IAudioClient3 * client,
+    WAVEFORMATEX * format, gboolean low_latency, guint * ret_devicep_frames);
+
+HANDLE gst_wasapi_util_set_thread_characteristics (void);
+
+void gst_wasapi_util_revert_thread_characteristics (HANDLE handle);
 
 #endif /* __GST_WASAPI_UTIL_H__ */

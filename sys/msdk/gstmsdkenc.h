@@ -35,6 +35,7 @@
 #include <gst/gst.h>
 #include <gst/video/gstvideoencoder.h>
 #include "msdk.h"
+#include "msdk-enums.h"
 #include "gstmsdkcontext.h"
 
 G_BEGIN_DECLS
@@ -57,6 +58,33 @@ G_BEGIN_DECLS
 typedef struct _GstMsdkEnc GstMsdkEnc;
 typedef struct _GstMsdkEncClass GstMsdkEncClass;
 typedef struct _MsdkEncTask MsdkEncTask;
+
+enum
+{
+  GST_MSDKENC_PROP_0,
+  GST_MSDKENC_PROP_HARDWARE,
+  GST_MSDKENC_PROP_ASYNC_DEPTH,
+  GST_MSDKENC_PROP_TARGET_USAGE,
+  GST_MSDKENC_PROP_RATE_CONTROL,
+  GST_MSDKENC_PROP_BITRATE,
+  GST_MSDKENC_PROP_MAX_FRAME_SIZE,
+  GST_MSDKENC_PROP_MAX_VBV_BITRATE,
+  GST_MSDKENC_PROP_AVBR_ACCURACY,
+  GST_MSDKENC_PROP_AVBR_CONVERGENCE,
+  GST_MSDKENC_PROP_RC_LOOKAHEAD_DEPTH,
+  GST_MSDKENC_PROP_QPI,
+  GST_MSDKENC_PROP_QPP,
+  GST_MSDKENC_PROP_QPB,
+  GST_MSDKENC_PROP_GOP_SIZE,
+  GST_MSDKENC_PROP_REF_FRAMES,
+  GST_MSDKENC_PROP_I_FRAMES,
+  GST_MSDKENC_PROP_B_FRAMES,
+  GST_MSDKENC_PROP_NUM_SLICES,
+  GST_MSDKENC_PROP_MBBRC,
+  GST_MSDKENC_PROP_ADAPTIVE_I,
+  GST_MSDKENC_PROP_ADAPTIVE_B,
+  GST_MSDKENC_PROP_MAX,
+};
 
 struct _GstMsdkEnc
 {
@@ -87,6 +115,14 @@ struct _GstMsdkEnc
   mfxExtBuffer *extra_params[MAX_EXTRA_PARAMS];
   guint num_extra_params;
 
+  /* Additional encoder coding options */
+  mfxExtCodingOption2 option2;
+  mfxExtCodingOption3 option3;
+  gboolean enable_extopt3;
+
+  /* parameters for per-frame based encoding control */
+  mfxEncodeCtrl enc_cntrl;
+
   GstBufferPool *msdk_pool;
   GstBufferPool *msdk_converted_pool;
   GstVideoInfo aligned_info;
@@ -100,6 +136,11 @@ struct _GstMsdkEnc
   guint target_usage;
   guint rate_control;
   guint bitrate;
+  guint max_frame_size;
+  guint max_vbv_bitrate;
+  guint accuracy;
+  guint convergence;
+  guint lookahead_depth;
   guint qpi;
   guint qpp;
   guint qpb;
@@ -107,6 +148,10 @@ struct _GstMsdkEnc
   guint ref_frames;
   guint i_frames;
   guint b_frames;
+  guint num_slices;
+  gint16 mbbrc;
+  gint16 adaptive_i;
+  gint16 adaptive_b;
 
   gboolean reconfig;
 };
@@ -122,16 +167,23 @@ struct _GstMsdkEncClass
 
 struct _MsdkEncTask
 {
-  GstVideoCodecFrame *input_frame;
   mfxSyncPoint sync_point;
   mfxBitstream output_bitstream;
-  gboolean more_data;
-  guint pending_frame_number;
 };
 
 GType gst_msdkenc_get_type (void);
 
 void gst_msdkenc_add_extra_param (GstMsdkEnc * thiz, mfxExtBuffer * param);
+
+void
+gst_msdkenc_install_common_properties (GstMsdkEncClass *encoder_class);
+
+gboolean
+gst_msdkenc_set_common_property (GObject * object, guint prop_id,
+                                 const GValue * value, GParamSpec * pspec);
+gboolean
+gst_msdkenc_get_common_property (GObject * object, guint prop_id,
+                                 GValue * value, GParamSpec * pspec);
 
 G_END_DECLS
 

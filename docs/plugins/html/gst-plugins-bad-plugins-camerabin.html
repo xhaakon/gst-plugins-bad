@@ -6,8 +6,8 @@
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="GStreamer Bad Plugins 1.0 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
-<link rel="prev" href="gst-plugins-bad-plugins-burn.html" title="burn">
-<link rel="next" href="gst-plugins-bad-plugins-chromium.html" title="chromium">
+<link rel="prev" href="gst-plugins-bad-plugins-bz2enc.html" title="bz2enc">
+<link rel="next" href="gst-plugins-bad-plugins-checksumsink.html" title="checksumsink">
 <meta name="generator" content="GTK-Doc V1.27 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -19,8 +19,8 @@
 </td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
 <td><a accesskey="u" href="ch01.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
-<td><a accesskey="p" href="gst-plugins-bad-plugins-burn.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
-<td><a accesskey="n" href="gst-plugins-bad-plugins-chromium.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+<td><a accesskey="p" href="gst-plugins-bad-plugins-bz2enc.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="gst-plugins-bad-plugins-checksumsink.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
 </tr></table>
 <div class="refentry">
 <a name="gst-plugins-bad-plugins-camerabin"></a><div class="titlepage"></div>
@@ -44,7 +44,7 @@ elements, providing an API for controlling a digital camera.</p>
 <li class="listitem"><p>Post preview images for each capture (video and image)</p></li>
 </ul></div>
 <div class="refsect3">
-<a name="id-1.2.11.3.6"></a><h4>Usage</h4>
+<a name="id-1.2.29.3.6"></a><h4>Usage</h4>
 <p>Camerabin can be created using <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstElementFactory.html#gst-element-factory-make"><code class="function">gst_element_factory_make()</code></a> just like
 any other element. Video or image capture mode can be selected using
 the <span class="type">“mode”</span> property and the file to save the capture is
@@ -67,7 +67,7 @@ will be post to the <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstBus.html#G
 'preview-image' message of type <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstMessage.html#GST-MESSAGE-ELEMENT:CAPS"><code class="literal">GST_MESSAGE_ELEMENT</code></a>.</p>
 </div>
 <div class="refsect3">
-<a name="id-1.2.11.3.7"></a><h4>Customization</h4>
+<a name="id-1.2.29.3.7"></a><h4>Customization</h4>
 <p>Camerabin provides various customization properties, allowing the user
 to set custom filters, selecting the viewfinder sink and formats to
 use to encode the captured images/videos.</p>
@@ -102,7 +102,7 @@ Check <span class="type">“video-filter”</span>, <span class="type">“image-
 <span class="type">“viewfinder-filter”</span> and <span class="type">“preview-filter”</span>.</p>
 </div>
 <div class="refsect3">
-<a name="id-1.2.11.3.8"></a><h4>Example launch line</h4>
+<a name="id-1.2.29.3.8"></a><h4>Example launch line</h4>
 <p>Unfortunately, camerabin can't be really used from gst-launch-1.0, as you
 need to send signals to control it. The following pipeline might be able
 to show the viewfinder using all the default elements.</p>
@@ -122,7 +122,7 @@ to show the viewfinder using all the default elements.</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.11.3.9.1"></a><h3>Element Information</h3>
+<a name="id-1.2.29.3.9.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -148,7 +148,7 @@ to show the viewfinder using all the default elements.</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.11.3.9.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.29.3.9.2"></a><h3>Element Pads</h3>
 </div>
 </div>
 </div>

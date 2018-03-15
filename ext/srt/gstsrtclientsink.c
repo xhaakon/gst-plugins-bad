@@ -68,6 +68,8 @@ struct _GstSRTClientSinkPrivate
   gboolean rendez_vous;
   gchar *bind_address;
   guint16 bind_port;
+
+  gboolean sent_headers;
 };
 
 #define GST_SRT_CLIENT_SINK_GET_PRIVATE(obj)  \
@@ -168,20 +170,37 @@ gst_srt_client_sink_start (GstBaseSink * sink)
 }
 
 static gboolean
+send_buffer_internal (GstSRTBaseSink * sink,
+    const GstMapInfo * mapinfo, gpointer user_data)
+{
+  SRTSOCKET sock = GPOINTER_TO_INT (user_data);
+
+  if (srt_sendmsg2 (sock, (char *) mapinfo->data, mapinfo->size,
+          0) == SRT_ERROR) {
+    GST_ELEMENT_ERROR (sink, RESOURCE, WRITE, NULL,
+        ("%s", srt_getlasterror_str ()));
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+static gboolean
 gst_srt_client_sink_send_buffer (GstSRTBaseSink * sink,
     const GstMapInfo * mapinfo)
 {
   GstSRTClientSink *self = GST_SRT_CLIENT_SINK (sink);
   GstSRTClientSinkPrivate *priv = GST_SRT_CLIENT_SINK_GET_PRIVATE (self);
 
-  if (srt_sendmsg2 (priv->sock, (char *) mapinfo->data, mapinfo->size,
-          0) == SRT_ERROR) {
-    GST_ELEMENT_ERROR (self, RESOURCE, WRITE, NULL,
-        ("%s", srt_getlasterror_str ()));
-    return FALSE;
+  if (!priv->sent_headers) {
+    if (!gst_srt_base_sink_send_headers (sink, send_buffer_internal,
+            GINT_TO_POINTER (priv->sock)))
+      return FALSE;
+
+    priv->sent_headers = TRUE;
   }
 
-  return TRUE;
+  return send_buffer_internal (sink, mapinfo, GINT_TO_POINTER (priv->sock));
 }
 
 static gboolean
@@ -205,7 +224,9 @@ gst_srt_client_sink_stop (GstBaseSink * sink)
 
   g_clear_object (&priv->sockaddr);
 
-  return TRUE;
+  priv->sent_headers = FALSE;
+
+  return GST_BASE_SINK_CLASS (parent_class)->stop (sink);
 }
 
 static void

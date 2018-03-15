@@ -114,10 +114,11 @@ check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	elements/rtponviftimestamp$(EXEEXT) elements/id3mux$(EXEEXT) \
 	pipelines/mxf$(EXEEXT) libs/isoff$(EXEEXT) \
 	libs/mpegvideoparser$(EXEEXT) libs/mpegts$(EXEEXT) \
-	libs/h264parser$(EXEEXT) libs/vp8parser$(EXEEXT) \
-	$(am__EXEEXT_18) libs/vc1parser$(EXEEXT) $(am__EXEEXT_19) \
-	$(am__EXEEXT_20) elements/viewfinderbin$(EXEEXT) \
-	$(am__EXEEXT_21) $(am__EXEEXT_22) libs/insertbin$(EXEEXT) \
+	libs/h264parser$(EXEEXT) libs/h265parser$(EXEEXT) \
+	libs/vp8parser$(EXEEXT) $(am__EXEEXT_18) \
+	libs/vc1parser$(EXEEXT) $(am__EXEEXT_19) \
+	elements/viewfinderbin$(EXEEXT) $(am__EXEEXT_20) \
+	$(am__EXEEXT_21) libs/insertbin$(EXEEXT) $(am__EXEEXT_22) \
 	$(am__EXEEXT_23) $(am__EXEEXT_24) $(am__EXEEXT_25) \
 	$(am__EXEEXT_26) $(am__EXEEXT_27)
 @WITH_GST_PLAYER_TESTS_TRUE@am__append_1 = $(PLAYER_MEDIA_FILES) libs/player_dummy.c
@@ -196,16 +197,16 @@ libparser_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 @USE_SHM_TRUE@am__EXEEXT_16 = elements/shm$(EXEEXT)
 @USE_EXIF_TRUE@am__EXEEXT_17 = elements/jifmux$(EXEEXT)
 @USE_UVCH264_TRUE@am__EXEEXT_18 = elements/uvch264demux$(EXEEXT)
-@USE_SCHRO_TRUE@am__EXEEXT_19 = elements/schroenc$(EXEEXT)
-@USE_X265_TRUE@am__EXEEXT_20 = elements/x265enc$(EXEEXT)
-@USE_ZBAR_TRUE@am__EXEEXT_21 = elements/zbar$(EXEEXT)
-@HAVE_ORC_TRUE@am__EXEEXT_22 = orc/bayer$(EXEEXT) \
+@USE_X265_TRUE@am__EXEEXT_19 = elements/x265enc$(EXEEXT)
+@USE_ZBAR_TRUE@am__EXEEXT_20 = elements/zbar$(EXEEXT)
+@HAVE_ORC_TRUE@am__EXEEXT_21 = orc/bayer$(EXEEXT) \
 @HAVE_ORC_TRUE@	orc/compositor$(EXEEXT)
-@USE_HLS_TRUE@am__EXEEXT_23 = elements/hlsdemux_m3u8$(EXEEXT)
-@USE_HLS_TRUE@am__EXEEXT_24 = elements/hls_demux$(EXEEXT)
-@USE_SRTP_TRUE@am__EXEEXT_25 = elements/srtp$(EXEEXT)
-@WITH_GST_PLAYER_TESTS_TRUE@am__EXEEXT_26 = libs/player$(EXEEXT)
-@USE_WEBRTC_TRUE@am__EXEEXT_27 = elements/webrtcbin$(EXEEXT)
+@USE_HLS_TRUE@am__EXEEXT_22 = elements/hlsdemux_m3u8$(EXEEXT)
+@USE_HLS_TRUE@am__EXEEXT_23 = elements/hls_demux$(EXEEXT)
+@USE_SRTP_TRUE@am__EXEEXT_24 = elements/srtp$(EXEEXT)
+@WITH_GST_PLAYER_TESTS_TRUE@am__EXEEXT_25 = libs/player$(EXEEXT)
+@USE_WEBRTC_TRUE@am__EXEEXT_26 = elements/webrtcbin$(EXEEXT)
+@USE_MSDK_TRUE@am__EXEEXT_27 = elements/msdkh264enc$(EXEEXT)
 @USE_DASH_TRUE@am__EXEEXT_28 = elements/dash_demux$(EXEEXT)
 @USE_IPCPIPELINE_TRUE@am__EXEEXT_29 = pipelines/ipcpipeline$(EXEEXT)
 @USE_NEON_TRUE@am__EXEEXT_30 = elements/neonhttpsrc$(EXEEXT)
@@ -420,6 +421,10 @@ elements_mplex_SOURCES = elements/mplex.c
 elements_mplex_OBJECTS = elements/mplex.$(OBJEXT)
 elements_mplex_LDADD = $(LDADD)
 elements_mplex_DEPENDENCIES = $(am__DEPENDENCIES_1)
+elements_msdkh264enc_SOURCES = elements/msdkh264enc.c
+elements_msdkh264enc_OBJECTS = elements/msdkh264enc.$(OBJEXT)
+elements_msdkh264enc_LDADD = $(LDADD)
+elements_msdkh264enc_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am_elements_mssdemux_OBJECTS =  \
 	elements/elements_mssdemux-test_http_src.$(OBJEXT) \
 	elements/elements_mssdemux-adaptive_demux_engine.$(OBJEXT) \
@@ -488,10 +493,6 @@ elements_rtponviftimestamp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(elements_rtponviftimestamp_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-elements_schroenc_SOURCES = elements/schroenc.c
-elements_schroenc_OBJECTS = elements/schroenc.$(OBJEXT)
-elements_schroenc_LDADD = $(LDADD)
-elements_schroenc_DEPENDENCIES = $(am__DEPENDENCIES_1)
 elements_shm_SOURCES = elements/shm.c
 elements_shm_OBJECTS = elements/shm.$(OBJEXT)
 elements_shm_LDADD = $(LDADD)
@@ -575,6 +576,15 @@ libs_h264parser_DEPENDENCIES = $(top_builddir)/gst-libs/gst/codecparsers/libgstc
 libs_h264parser_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(libs_h264parser_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+	-o $@
+libs_h265parser_SOURCES = libs/h265parser.c
+libs_h265parser_OBJECTS = libs/libs_h265parser-h265parser.$(OBJEXT)
+libs_h265parser_DEPENDENCIES = $(top_builddir)/gst-libs/gst/codecparsers/libgstcodecparsers-@GST_API_VERSION@.la \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
+libs_h265parser_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libs_h265parser_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
 libs_insertbin_SOURCES = libs/insertbin.c
 libs_insertbin_OBJECTS = libs/libs_insertbin-insertbin.$(OBJEXT)
@@ -724,18 +734,18 @@ SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	$(elements_jifmux_SOURCES) elements/jpegparse.c \
 	elements/kate.c elements/mpeg2enc.c elements/mpeg4videoparse.c \
 	elements/mpegtsmux.c elements/mpegvideoparse.c \
-	elements/mplex.c $(elements_mssdemux_SOURCES) \
-	elements/mxfdemux.c elements/mxfmux.c elements/neonhttpsrc.c \
-	elements/netsim.c elements/ofa.c elements/pcapparse.c \
-	elements/pnm.c elements/rtponvifparse.c \
-	elements/rtponviftimestamp.c elements/schroenc.c \
+	elements/mplex.c elements/msdkh264enc.c \
+	$(elements_mssdemux_SOURCES) elements/mxfdemux.c \
+	elements/mxfmux.c elements/neonhttpsrc.c elements/netsim.c \
+	elements/ofa.c elements/pcapparse.c elements/pnm.c \
+	elements/rtponvifparse.c elements/rtponviftimestamp.c \
 	elements/shm.c elements/srtp.c elements/templatematch.c \
 	elements/uvch264demux.c elements/videoframe-audiolevel.c \
 	elements/viewfinderbin.c elements/voaacenc.c \
 	elements/voamrwbenc.c elements/webrtcbin.c elements/x265enc.c \
 	elements/zbar.c generic/states.c libs/h264parser.c \
-	libs/insertbin.c $(libs_isoff_SOURCES) libs/mpegts.c \
-	libs/mpegvideoparser.c $(libs_player_SOURCES) \
+	libs/h265parser.c libs/insertbin.c $(libs_isoff_SOURCES) \
+	libs/mpegts.c libs/mpegvideoparser.c $(libs_player_SOURCES) \
 	$(nodist_libs_player_SOURCES) libs/vc1parser.c \
 	libs/vp8parser.c $(nodist_orc_bayer_SOURCES) \
 	$(nodist_orc_compositor_SOURCES) pipelines/ipcpipeline.c \
@@ -754,20 +764,20 @@ DIST_SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	$(elements_jifmux_SOURCES) elements/jpegparse.c \
 	elements/kate.c elements/mpeg2enc.c elements/mpeg4videoparse.c \
 	elements/mpegtsmux.c elements/mpegvideoparse.c \
-	elements/mplex.c $(elements_mssdemux_SOURCES) \
-	elements/mxfdemux.c elements/mxfmux.c elements/neonhttpsrc.c \
-	elements/netsim.c elements/ofa.c elements/pcapparse.c \
-	elements/pnm.c elements/rtponvifparse.c \
-	elements/rtponviftimestamp.c elements/schroenc.c \
+	elements/mplex.c elements/msdkh264enc.c \
+	$(elements_mssdemux_SOURCES) elements/mxfdemux.c \
+	elements/mxfmux.c elements/neonhttpsrc.c elements/netsim.c \
+	elements/ofa.c elements/pcapparse.c elements/pnm.c \
+	elements/rtponvifparse.c elements/rtponviftimestamp.c \
 	elements/shm.c elements/srtp.c elements/templatematch.c \
 	elements/uvch264demux.c elements/videoframe-audiolevel.c \
 	elements/viewfinderbin.c elements/voaacenc.c \
 	elements/voamrwbenc.c elements/webrtcbin.c elements/x265enc.c \
 	elements/zbar.c generic/states.c libs/h264parser.c \
-	libs/insertbin.c $(libs_isoff_SOURCES) libs/mpegts.c \
-	libs/mpegvideoparser.c $(libs_player_SOURCES) libs/vc1parser.c \
-	libs/vp8parser.c pipelines/ipcpipeline.c pipelines/mxf.c \
-	pipelines/streamheader.c
+	libs/h265parser.c libs/insertbin.c $(libs_isoff_SOURCES) \
+	libs/mpegts.c libs/mpegvideoparser.c $(libs_player_SOURCES) \
+	libs/vc1parser.c libs/vp8parser.c pipelines/ipcpipeline.c \
+	pipelines/mxf.c pipelines/streamheader.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -1106,6 +1116,8 @@ GLIB_MKENUMS = @GLIB_MKENUMS@
 GLIB_PREFIX = @GLIB_PREFIX@
 GLIB_REQ = @GLIB_REQ@
 GME_LIBS = @GME_LIBS@
+GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
+GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
@@ -1362,8 +1374,6 @@ RTMP_CFLAGS = @RTMP_CFLAGS@
 RTMP_LIBS = @RTMP_LIBS@
 SBC_CFLAGS = @SBC_CFLAGS@
 SBC_LIBS = @SBC_LIBS@
-SCHRO_CFLAGS = @SCHRO_CFLAGS@
-SCHRO_LIBS = @SCHRO_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -1548,8 +1558,6 @@ SUPPRESSIONS = $(top_srcdir)/common/gst.supp $(srcdir)/gst-plugins-bad.supp
 @USE_NEON_TRUE@check_neon = elements/neonhttpsrc
 @USE_OFA_FALSE@check_ofa = 
 @USE_OFA_TRUE@check_ofa = elements/ofa
-@USE_SCHRO_FALSE@check_schro = 
-@USE_SCHRO_TRUE@check_schro = elements/schroenc
 @USE_X265_FALSE@check_x265enc = 
 @USE_X265_TRUE@check_x265enc = elements/x265enc
 @USE_KATE_FALSE@check_kate = 
@@ -1594,6 +1602,8 @@ uvch264_dist_data = elements/uvch264demux_data/valid_h264_jpg.mjpg \
 @USE_IPCPIPELINE_TRUE@check_ipcpipeline = pipelines/ipcpipeline
 @USE_WEBRTC_FALSE@check_webrtc = 
 @USE_WEBRTC_TRUE@check_webrtc = elements/webrtcbin
+@USE_MSDK_FALSE@check_msdk = 
+@USE_MSDK_TRUE@check_msdk = elements/msdkh264enc
 VALGRIND_TO_FIX = \
 	elements/mpeg2enc \
 	elements/mplex    \
@@ -1665,6 +1675,15 @@ libs_h264parser_CFLAGS = \
 	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
 
 libs_h264parser_LDADD = \
+	$(top_builddir)/gst-libs/gst/codecparsers/libgstcodecparsers-@GST_API_VERSION@.la \
+	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
+
+libs_h265parser_CFLAGS = \
+	$(GST_PLUGINS_BAD_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS) \
+	-DGST_USE_UNSTABLE_API \
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+
+libs_h265parser_LDADD = \
 	$(top_builddir)/gst-libs/gst/codecparsers/libgstcodecparsers-@GST_API_VERSION@.la \
 	$(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
 
@@ -1840,6 +1859,9 @@ elements_webrtcbin_CFLAGS = \
 	$(GST_PLUGINS_BASE_CLAGS) $(GST_PLUGINS_BAD_CFLAGS) $(GST_SDP_CFLAGS) \
 	$(GST_BASE_CFLAGS) $(CFLAGS) $(AM_CFLAGS)
 
+elements_msdk_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_msdk_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
+elements_msdk_SOURCES = elements/msdkh264enc.c
 all: all-am
 
 .SUFFIXES:
@@ -2118,6 +2140,12 @@ elements/mplex.$(OBJEXT): elements/$(am__dirstamp) \
 elements/mplex$(EXEEXT): $(elements_mplex_OBJECTS) $(elements_mplex_DEPENDENCIES) $(EXTRA_elements_mplex_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/mplex$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(elements_mplex_OBJECTS) $(elements_mplex_LDADD) $(LIBS)
+elements/msdkh264enc.$(OBJEXT): elements/$(am__dirstamp) \
+	elements/$(DEPDIR)/$(am__dirstamp)
+
+elements/msdkh264enc$(EXEEXT): $(elements_msdkh264enc_OBJECTS) $(elements_msdkh264enc_DEPENDENCIES) $(EXTRA_elements_msdkh264enc_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/msdkh264enc$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(elements_msdkh264enc_OBJECTS) $(elements_msdkh264enc_LDADD) $(LIBS)
 elements/elements_mssdemux-test_http_src.$(OBJEXT):  \
 	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
 elements/elements_mssdemux-adaptive_demux_engine.$(OBJEXT):  \
@@ -2184,12 +2212,6 @@ elements/elements_rtponviftimestamp-rtponviftimestamp.$(OBJEXT):  \
 elements/rtponviftimestamp$(EXEEXT): $(elements_rtponviftimestamp_OBJECTS) $(elements_rtponviftimestamp_DEPENDENCIES) $(EXTRA_elements_rtponviftimestamp_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/rtponviftimestamp$(EXEEXT)
 	$(AM_V_CCLD)$(elements_rtponviftimestamp_LINK) $(elements_rtponviftimestamp_OBJECTS) $(elements_rtponviftimestamp_LDADD) $(LIBS)
-elements/schroenc.$(OBJEXT): elements/$(am__dirstamp) \
-	elements/$(DEPDIR)/$(am__dirstamp)
-
-elements/schroenc$(EXEEXT): $(elements_schroenc_OBJECTS) $(elements_schroenc_DEPENDENCIES) $(EXTRA_elements_schroenc_DEPENDENCIES) elements/$(am__dirstamp)
-	@rm -f elements/schroenc$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(elements_schroenc_OBJECTS) $(elements_schroenc_LDADD) $(LIBS)
 elements/shm.$(OBJEXT): elements/$(am__dirstamp) \
 	elements/$(DEPDIR)/$(am__dirstamp)
 
@@ -2280,6 +2302,12 @@ libs/libs_h264parser-h264parser.$(OBJEXT): libs/$(am__dirstamp) \
 libs/h264parser$(EXEEXT): $(libs_h264parser_OBJECTS) $(libs_h264parser_DEPENDENCIES) $(EXTRA_libs_h264parser_DEPENDENCIES) libs/$(am__dirstamp)
 	@rm -f libs/h264parser$(EXEEXT)
 	$(AM_V_CCLD)$(libs_h264parser_LINK) $(libs_h264parser_OBJECTS) $(libs_h264parser_LDADD) $(LIBS)
+libs/libs_h265parser-h265parser.$(OBJEXT): libs/$(am__dirstamp) \
+	libs/$(DEPDIR)/$(am__dirstamp)
+
+libs/h265parser$(EXEEXT): $(libs_h265parser_OBJECTS) $(libs_h265parser_DEPENDENCIES) $(EXTRA_libs_h265parser_DEPENDENCIES) libs/$(am__dirstamp)
+	@rm -f libs/h265parser$(EXEEXT)
+	$(AM_V_CCLD)$(libs_h265parser_LINK) $(libs_h265parser_OBJECTS) $(libs_h265parser_LDADD) $(LIBS)
 libs/libs_insertbin-insertbin.$(OBJEXT): libs/$(am__dirstamp) \
 	libs/$(DEPDIR)/$(am__dirstamp)
 
@@ -2430,12 +2458,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mpeg4videoparse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mpegvideoparse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mplex.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/msdkh264enc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mxfdemux.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mxfmux.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/netsim.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/ofa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/pcapparse.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/schroenc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/shm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/srtp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/templatematch.Po@am__quote@
@@ -2445,6 +2473,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/zbar.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@generic/$(DEPDIR)/generic_states-states.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libs/$(DEPDIR)/libs_h264parser-h264parser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libs/$(DEPDIR)/libs_h265parser-h265parser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libs/$(DEPDIR)/libs_insertbin-insertbin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libs/$(DEPDIR)/libs_isoff-isoff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@libs/$(DEPDIR)/libs_mpegts-mpegts.Po@am__quote@
@@ -2965,6 +2994,20 @@ libs/libs_h264parser-h264parser.obj: libs/h264parser.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libs/h264parser.c' object='libs/libs_h264parser-h264parser.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libs_h264parser_CFLAGS) $(CFLAGS) -c -o libs/libs_h264parser-h264parser.obj `if test -f 'libs/h264parser.c'; then $(CYGPATH_W) 'libs/h264parser.c'; else $(CYGPATH_W) '$(srcdir)/libs/h264parser.c'; fi`
+
+libs/libs_h265parser-h265parser.o: libs/h265parser.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libs_h265parser_CFLAGS) $(CFLAGS) -MT libs/libs_h265parser-h265parser.o -MD -MP -MF libs/$(DEPDIR)/libs_h265parser-h265parser.Tpo -c -o libs/libs_h265parser-h265parser.o `test -f 'libs/h265parser.c' || echo '$(srcdir)/'`libs/h265parser.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libs/$(DEPDIR)/libs_h265parser-h265parser.Tpo libs/$(DEPDIR)/libs_h265parser-h265parser.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libs/h265parser.c' object='libs/libs_h265parser-h265parser.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libs_h265parser_CFLAGS) $(CFLAGS) -c -o libs/libs_h265parser-h265parser.o `test -f 'libs/h265parser.c' || echo '$(srcdir)/'`libs/h265parser.c
+
+libs/libs_h265parser-h265parser.obj: libs/h265parser.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libs_h265parser_CFLAGS) $(CFLAGS) -MT libs/libs_h265parser-h265parser.obj -MD -MP -MF libs/$(DEPDIR)/libs_h265parser-h265parser.Tpo -c -o libs/libs_h265parser-h265parser.obj `if test -f 'libs/h265parser.c'; then $(CYGPATH_W) 'libs/h265parser.c'; else $(CYGPATH_W) '$(srcdir)/libs/h265parser.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libs/$(DEPDIR)/libs_h265parser-h265parser.Tpo libs/$(DEPDIR)/libs_h265parser-h265parser.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libs/h265parser.c' object='libs/libs_h265parser-h265parser.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libs_h265parser_CFLAGS) $(CFLAGS) -c -o libs/libs_h265parser-h265parser.obj `if test -f 'libs/h265parser.c'; then $(CYGPATH_W) 'libs/h265parser.c'; else $(CYGPATH_W) '$(srcdir)/libs/h265parser.c'; fi`
 
 libs/libs_insertbin-insertbin.o: libs/insertbin.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libs_insertbin_CFLAGS) $(CFLAGS) -MT libs/libs_insertbin-insertbin.o -MD -MP -MF libs/$(DEPDIR)/libs_insertbin-insertbin.Tpo -c -o libs/libs_insertbin-insertbin.o `test -f 'libs/insertbin.c' || echo '$(srcdir)/'`libs/insertbin.c
@@ -3681,6 +3724,13 @@ libs/h264parser.log: libs/h264parser$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+libs/h265parser.log: libs/h265parser$(EXEEXT)
+	@p='libs/h265parser$(EXEEXT)'; \
+	b='libs/h265parser'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 libs/vp8parser.log: libs/vp8parser$(EXEEXT)
 	@p='libs/vp8parser$(EXEEXT)'; \
 	b='libs/vp8parser'; \
@@ -3698,13 +3748,6 @@ elements/uvch264demux.log: elements/uvch264demux$(EXEEXT)
 libs/vc1parser.log: libs/vc1parser$(EXEEXT)
 	@p='libs/vc1parser$(EXEEXT)'; \
 	b='libs/vc1parser'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-elements/schroenc.log: elements/schroenc$(EXEEXT)
-	@p='elements/schroenc$(EXEEXT)'; \
-	b='elements/schroenc'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
@@ -3782,6 +3825,13 @@ libs/player.log: libs/player$(EXEEXT)
 elements/webrtcbin.log: elements/webrtcbin$(EXEEXT)
 	@p='elements/webrtcbin$(EXEEXT)'; \
 	b='elements/webrtcbin'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+elements/msdkh264enc.log: elements/msdkh264enc$(EXEEXT)
+	@p='elements/msdkh264enc$(EXEEXT)'; \
+	b='elements/msdkh264enc'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

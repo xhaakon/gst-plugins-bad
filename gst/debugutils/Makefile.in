@@ -172,7 +172,8 @@ am_libgstdebugutilsbad_la_OBJECTS =  \
 	libgstdebugutilsbad_la-gstchopmydata.lo \
 	libgstdebugutilsbad_la-gstcompare.lo \
 	libgstdebugutilsbad_la-gstwatchdog.lo \
-	libgstdebugutilsbad_la-gsterrorignore.lo
+	libgstdebugutilsbad_la-gsterrorignore.lo \
+	libgstdebugutilsbad_la-gstfakevideosink.lo
 libgstdebugutilsbad_la_OBJECTS = $(am_libgstdebugutilsbad_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -351,6 +352,8 @@ GLIB_MKENUMS = @GLIB_MKENUMS@
 GLIB_PREFIX = @GLIB_PREFIX@
 GLIB_REQ = @GLIB_REQ@
 GME_LIBS = @GME_LIBS@
+GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
+GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
@@ -607,8 +610,6 @@ RTMP_CFLAGS = @RTMP_CFLAGS@
 RTMP_LIBS = @RTMP_LIBS@
 SBC_CFLAGS = @SBC_CFLAGS@
 SBC_LIBS = @SBC_LIBS@
-SCHRO_CFLAGS = @SCHRO_CFLAGS@
-SCHRO_LIBS = @SCHRO_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -752,7 +753,8 @@ libgstdebugutilsbad_la_SOURCES = \
 	gstchopmydata.c \
 	gstcompare.c \
 	gstwatchdog.c \
-	gsterrorignore.c
+	gsterrorignore.c \
+	gstfakevideosink.c
 
 libgstdebugutilsbad_la_CFLAGS = $(GST_CFLAGS) $(GST_BASE_CFLAGS) $(GST_PLUGINS_BASE_CFLAGS)
 libgstdebugutilsbad_la_LIBADD = $(GST_BASE_LIBS) $(GST_PLUGINS_BASE_LIBS) \
@@ -766,7 +768,8 @@ noinst_HEADERS = fpsdisplaysink.h \
 	gstcompare.h \
 	gstdebugspy.h \
 	gstwatchdog.h \
-	gsterrorignore.h
+	gsterrorignore.h \
+	gstfakevideosink.h
 
 all: all-am
 
@@ -853,6 +856,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstdebugutilsbad_la-gstcompare.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstdebugutilsbad_la-gstdebugspy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstdebugutilsbad_la-gsterrorignore.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstdebugutilsbad_la-gstfakevideosink.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstdebugutilsbad_la-gstwatchdog.Plo@am__quote@
 
 .c.o:
@@ -934,6 +938,13 @@ libgstdebugutilsbad_la-gsterrorignore.lo: gsterrorignore.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gsterrorignore.c' object='libgstdebugutilsbad_la-gsterrorignore.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstdebugutilsbad_la_CFLAGS) $(CFLAGS) -c -o libgstdebugutilsbad_la-gsterrorignore.lo `test -f 'gsterrorignore.c' || echo '$(srcdir)/'`gsterrorignore.c
+
+libgstdebugutilsbad_la-gstfakevideosink.lo: gstfakevideosink.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstdebugutilsbad_la_CFLAGS) $(CFLAGS) -MT libgstdebugutilsbad_la-gstfakevideosink.lo -MD -MP -MF $(DEPDIR)/libgstdebugutilsbad_la-gstfakevideosink.Tpo -c -o libgstdebugutilsbad_la-gstfakevideosink.lo `test -f 'gstfakevideosink.c' || echo '$(srcdir)/'`gstfakevideosink.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstdebugutilsbad_la-gstfakevideosink.Tpo $(DEPDIR)/libgstdebugutilsbad_la-gstfakevideosink.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstfakevideosink.c' object='libgstdebugutilsbad_la-gstfakevideosink.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstdebugutilsbad_la_CFLAGS) $(CFLAGS) -c -o libgstdebugutilsbad_la-gstfakevideosink.lo `test -f 'gstfakevideosink.c' || echo '$(srcdir)/'`gstfakevideosink.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

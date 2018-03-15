@@ -336,6 +336,8 @@ GLIB_MKENUMS = @GLIB_MKENUMS@
 GLIB_PREFIX = @GLIB_PREFIX@
 GLIB_REQ = @GLIB_REQ@
 GME_LIBS = @GME_LIBS@
+GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
+GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
@@ -592,8 +594,6 @@ RTMP_CFLAGS = @RTMP_CFLAGS@
 RTMP_LIBS = @RTMP_LIBS@
 SBC_CFLAGS = @SBC_CFLAGS@
 SBC_LIBS = @SBC_LIBS@
-SCHRO_CFLAGS = @SCHRO_CFLAGS@
-SCHRO_LIBS = @SCHRO_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -1399,7 +1399,9 @@ update: scanobj-update
 @ENABLE_GTK_DOC_TRUE@	@if test x"$(srcdir)" != x. ; then				\
 @ENABLE_GTK_DOC_TRUE@	    for f in $(SCANOBJ_FILES) $(SCAN_FILES);			\
 @ENABLE_GTK_DOC_TRUE@	    do								\
-@ENABLE_GTK_DOC_TRUE@	        if test -e $(srcdir)/$$f; then cp -u $(srcdir)/$$f . ; fi;	\
+@ENABLE_GTK_DOC_TRUE@	        if test -e $(srcdir)/$$f; then				\
+@ENABLE_GTK_DOC_TRUE@	            cp -u $(srcdir)/$$f . || cp $(srcdir)/$$f . ;	\
+@ENABLE_GTK_DOC_TRUE@	        fi;							\
 @ENABLE_GTK_DOC_TRUE@	    done;							\
 @ENABLE_GTK_DOC_TRUE@	fi;								\
 @ENABLE_GTK_DOC_TRUE@	mkdir -p $(INSPECT_DIR); \
@@ -1433,7 +1435,9 @@ update: scanobj-update
 @ENABLE_GTK_DOC_TRUE@	@if test x"$(srcdir)" != x. ; then				\
 @ENABLE_GTK_DOC_TRUE@	    for f in $(SCANOBJ_FILES) $(SCAN_FILES);			\
 @ENABLE_GTK_DOC_TRUE@	    do								\
-@ENABLE_GTK_DOC_TRUE@	        if test -e $(srcdir)/$$f; then cp -u $(srcdir)/$$f . ; fi;	\
+@ENABLE_GTK_DOC_TRUE@	        if test -e $(srcdir)/$$f; then				\
+@ENABLE_GTK_DOC_TRUE@	            cp -u $(srcdir)/$$f . || cp $(srcdir)/$$f .;	\
+@ENABLE_GTK_DOC_TRUE@	        fi;							\
 @ENABLE_GTK_DOC_TRUE@	    done;							\
 @ENABLE_GTK_DOC_TRUE@	fi
 @ENABLE_GTK_DOC_TRUE@	@_source_dir='' ;						\

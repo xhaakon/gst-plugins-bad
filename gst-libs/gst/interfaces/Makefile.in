@@ -22,6 +22,7 @@
 #glib_gen_prefix=gst_color_balance
 #glib_gen_basename=colorbalance
 #glib_gen_decl_banner=GST_EXPORT
+#glib_gen_decl_include=\#include <gst/foo/foo-prelude.h>
 
 
 VPATH = @srcdir@
@@ -364,6 +365,8 @@ GLIB_MKENUMS = @GLIB_MKENUMS@
 GLIB_PREFIX = @GLIB_PREFIX@
 GLIB_REQ = @GLIB_REQ@
 GME_LIBS = @GME_LIBS@
+GMODULE_NO_EXPORT_CFLAGS = @GMODULE_NO_EXPORT_CFLAGS@
+GMODULE_NO_EXPORT_LIBS = @GMODULE_NO_EXPORT_LIBS@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GNUSTL_CFLAGS = @GNUSTL_CFLAGS@
@@ -620,8 +623,6 @@ RTMP_CFLAGS = @RTMP_CFLAGS@
 RTMP_LIBS = @RTMP_LIBS@
 SBC_CFLAGS = @SBC_CFLAGS@
 SBC_LIBS = @SBC_LIBS@
-SCHRO_CFLAGS = @SCHRO_CFLAGS@
-SCHRO_LIBS = @SCHRO_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -769,7 +770,8 @@ glib_enum_headers = $(headers_photography)
 glib_enum_define = GST_PHOTOGRAPHY
 glib_gen_prefix = gst_photography
 glib_gen_basename = photography
-glib_gen_decl_banner = GST_EXPORT
+glib_gen_decl_banner = GST_PHOTOGRAPHY_API
+glib_gen_decl_include = \#include <gst/interfaces/photography-prelude.h>
 built_sources = \
 	photography-enumtypes.c
 
@@ -777,6 +779,7 @@ built_headers = \
 	photography-enumtypes.h
 
 libgstphotographyinclude_HEADERS = \
+	photography-prelude.h \
 	$(headers_photography)
 
 nodist_libgstphotographyinclude_HEADERS = \
@@ -1202,7 +1205,7 @@ $(glib_gen_basename)-marshal.c: $(glib_gen_basename)-marshal.list
 
 $(glib_gen_basename)-enumtypes.h: $(glib_enum_headers)
 	$(AM_V_GEN)$(GLIB_MKENUMS) \
-	--fhead "#ifndef __$(glib_enum_define)_ENUM_TYPES_H__\n#define __$(glib_enum_define)_ENUM_TYPES_H__\n\n#include <gst/gst.h>\n\nG_BEGIN_DECLS\n" \
+	--fhead "#ifndef __$(glib_enum_define)_ENUM_TYPES_H__\n#define __$(glib_enum_define)_ENUM_TYPES_H__\n\n#include <gst/gst.h>\n$(glib_gen_decl_include)\nG_BEGIN_DECLS\n" \
 	--fprod "\n/* enumerations from \"@filename@\" */\n" \
 	--vhead "$(glib_gen_decl_banner)\nGType @enum_name@_get_type (void);\n#define GST_TYPE_@ENUMSHORT@ (@enum_name@_get_type())\n"         \
 	--ftail "G_END_DECLS\n\n#endif /* __$(glib_enum_define)_ENUM_TYPES_H__ */" \

@@ -25,6 +25,9 @@
 #include "gstwasapiutil.h"
 #include "gstwasapidevice.h"
 
+GST_DEBUG_CATEGORY_EXTERN (gst_wasapi_debug);
+#define GST_CAT_DEFAULT gst_wasapi_debug
+
 /* This was only added to MinGW in ~2015 and our Cerbero toolchain is too old */
 #if defined(_MSC_VER)
 #include <functiondiscoverykeys_devpkey.h>
@@ -37,18 +40,8 @@ DEFINE_PROPERTYKEY (PKEY_AudioEngine_DeviceFormat, 0xf19f064d, 0x82c, 0x4e27,
     0xbc, 0x73, 0x68, 0x82, 0xa1, 0xbb, 0x8e, 0x4c, 0);
 #endif
 
-
-#ifdef __uuidof
-const CLSID CLSID_MMDeviceEnumerator = __uuidof (MMDeviceEnumerator);
-const IID IID_IMMDeviceEnumerator = __uuidof (IMMDeviceEnumerator);
-const IID IID_IMMEndpoint = __uuidof (IMMEndpoint);
-const IID IID_IAudioClient = __uuidof (IAudioClient);
-const IID IID_IAudioRenderClient = __uuidof (IAudioRenderClient);
-const IID IID_IAudioCaptureClient = __uuidof (IAudioCaptureClient);
-const IID IID_IAudioClock = __uuidof (IAudioClock);
-#else
-/* __uuidof is not implemented in our Cerbero's ancient MinGW toolchain so we
- * hard-code the GUID values for all these. This is ok because these are ABI. */
+/* __uuidof is only available in C++, so we hard-code the GUID values for all
+ * these. This is ok because these are ABI. */
 const CLSID CLSID_MMDeviceEnumerator = { 0xbcde0395, 0xe52f, 0x467c,
   {0x8e, 0x3d, 0xc4, 0x57, 0x92, 0x91, 0x69, 0x2e}
 };
@@ -65,6 +58,10 @@ const IID IID_IAudioClient = { 0x1cb9ad4c, 0xdbfa, 0x4c32,
   {0xb1, 0x78, 0xc2, 0xf5, 0x68, 0xa7, 0x03, 0xb2}
 };
 
+const IID IID_IAudioClient3 = { 0x7ed4ee07, 0x8e67, 0x4cd4,
+  {0x8c, 0x1a, 0x2b, 0x7a, 0x59, 0x87, 0xad, 0x42}
+};
+
 const IID IID_IAudioClock = { 0xcd63314f, 0x3fba, 0x4a1b,
   {0x81, 0x2c, 0xef, 0x96, 0x35, 0x87, 0x28, 0xe7}
 };
@@ -76,7 +73,6 @@ const IID IID_IAudioCaptureClient = { 0xc8adbd64, 0xe71e, 0x48a0,
 const IID IID_IAudioRenderClient = { 0xf294acfc, 0x3146, 0x4483,
   {0xa7, 0xbf, 0xad, 0xdc, 0xa7, 0xc2, 0x60, 0xe2}
 };
-#endif
 
 static struct
 {
@@ -105,6 +101,37 @@ static struct
   {SPEAKER_TOP_BACK_CENTER, GST_AUDIO_CHANNEL_POSITION_TOP_REAR_CENTER},
   {SPEAKER_TOP_BACK_RIGHT, GST_AUDIO_CHANNEL_POSITION_TOP_REAR_RIGHT}
 };
+
+static int windows_major_version = 0;
+
+static struct
+{
+  HMODULE dll;
+  gboolean tried_loading;
+
+    HANDLE (WINAPI * AvSetMmThreadCharacteristics) (LPCSTR, LPDWORD);
+    BOOL (WINAPI * AvRevertMmThreadCharacteristics) (HANDLE);
+} gst_wasapi_avrt_tbl = {
+0};
+
+gboolean
+gst_wasapi_util_have_audioclient3 (void)
+{
+  if (windows_major_version > 0)
+    return windows_major_version == 10;
+
+  if (g_getenv ("GST_WASAPI_DISABLE_AUDIOCLIENT3") != NULL) {
+    windows_major_version = 6;
+    return FALSE;
+  }
+
+  /* https://msdn.microsoft.com/en-us/library/windows/desktop/ms724834(v=vs.85).aspx */
+  windows_major_version = 6;
+  if (g_win32_check_windows_version (10, 0, 0, G_WIN32_OS_ANY))
+    windows_major_version = 10;
+
+  return windows_major_version == 10;
+}
 
 GType
 gst_wasapi_device_role_get_type (void)
@@ -286,29 +313,23 @@ gst_wasapi_util_hresult_to_string (HRESULT hr)
 }
 
 static IMMDeviceEnumerator *
-gst_wasapi_util_get_device_enumerator (GstElement * element)
+gst_wasapi_util_get_device_enumerator (GstElement * self)
 {
   HRESULT hr;
   IMMDeviceEnumerator *enumerator = NULL;
 
   hr = CoCreateInstance (&CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL,
       &IID_IMMDeviceEnumerator, (void **) &enumerator);
-  if (hr != S_OK) {
-    gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-    GST_ERROR_OBJECT (element, "CoCreateInstance (MMDeviceEnumerator) failed"
-        ": %s", msg);
-    g_free (msg);
-    return NULL;
-  }
+  HR_FAILED_RET (hr, CoCreateInstance (MMDeviceEnumerator), NULL);
 
   return enumerator;
 }
 
 gboolean
-gst_wasapi_util_get_devices (GstElement * element, gboolean active,
+gst_wasapi_util_get_devices (GstElement * self, gboolean active,
     GList ** devices)
 {
-  gboolean ret = FALSE;
+  gboolean res = FALSE;
   static GstStaticCaps scaps = GST_STATIC_CAPS (GST_WASAPI_STATIC_CAPS);
   DWORD dwStateMask = active ? DEVICE_STATE_ACTIVE : DEVICE_STATEMASK_ALL;
   IMMDeviceCollection *device_collection = NULL;
@@ -319,27 +340,16 @@ gst_wasapi_util_get_devices (GstElement * element, gboolean active,
 
   *devices = NULL;
 
-  enumerator = gst_wasapi_util_get_device_enumerator (element);
+  enumerator = gst_wasapi_util_get_device_enumerator (self);
   if (!enumerator)
     return FALSE;
 
   hr = IMMDeviceEnumerator_EnumAudioEndpoints (enumerator, eAll, dwStateMask,
       &device_collection);
-  if (hr != S_OK) {
-    gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-    GST_ERROR_OBJECT (element, "IMMDeviceEnumerator::EnumAudioEndpoints "
-        "failed: %s", msg);
-    g_free (msg);
-    goto err;
-  }
+  HR_FAILED_GOTO (hr, IMMDeviceEnumerator::EnumAudioEndpoints, err);
 
   hr = IMMDeviceCollection_GetCount (device_collection, &count);
-  if (hr != S_OK) {
-    gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-    GST_ERROR_OBJECT (element, "Failed to count devices: %s", msg);
-    g_free (msg);
-    goto err;
-  }
+  HR_FAILED_GOTO (hr, IMMDeviceCollection::GetCount, err);
 
   /* Create a GList of GstDevices* to return */
   for (ii = 0; ii < count; ii++) {
@@ -404,7 +414,7 @@ gst_wasapi_util_get_devices (GstElement * element, gboolean active,
         (void **) &client);
     if (hr != S_OK) {
       gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-      GST_ERROR_OBJECT (element, "IMMDevice::Activate (IID_IAudioClient) failed"
+      GST_ERROR_OBJECT (self, "IMMDevice::Activate (IID_IAudioClient) failed"
           "on %s: %s", strid, msg);
       g_free (msg);
       goto next;
@@ -413,7 +423,7 @@ gst_wasapi_util_get_devices (GstElement * element, gboolean active,
     hr = IAudioClient_GetMixFormat (client, &format);
     if (hr != S_OK || format == NULL) {
       gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-      GST_ERROR_OBJECT ("GetMixFormat failed on %s: %s", strid, msg);
+      GST_ERROR_OBJECT (self, "GetMixFormat failed on %s: %s", strid, msg);
       g_free (msg);
       goto next;
     }
@@ -453,18 +463,18 @@ gst_wasapi_util_get_devices (GstElement * element, gboolean active,
       g_free (strid);
   }
 
-  ret = TRUE;
+  res = TRUE;
 
 err:
   if (enumerator)
     IUnknown_Release (enumerator);
   if (device_collection)
     IUnknown_Release (device_collection);
-  return ret;
+  return res;
 }
 
 gboolean
-gst_wasapi_util_get_device_format (GstElement * element,
+gst_wasapi_util_get_device_format (GstElement * self,
     gint device_mode, IMMDevice * device, IAudioClient * client,
     WAVEFORMATEX ** ret_format)
 {
@@ -474,12 +484,7 @@ gst_wasapi_util_get_device_format (GstElement * element,
   *ret_format = NULL;
 
   hr = IAudioClient_GetMixFormat (client, &format);
-  if (hr != S_OK || format == NULL) {
-    gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-    GST_ERROR_OBJECT (element, "GetMixFormat failed: %s", msg);
-    g_free (msg);
-    return FALSE;
-  }
+  HR_FAILED_RET (hr, IAudioClient::GetMixFormat, FALSE);
 
   /* WASAPI always accepts the format returned by GetMixFormat in shared mode */
   if (device_mode == AUDCLNT_SHAREMODE_SHARED)
@@ -500,18 +505,13 @@ gst_wasapi_util_get_device_format (GstElement * element,
     IPropertyStore *prop_store = NULL;
 
     hr = IMMDevice_OpenPropertyStore (device, STGM_READ, &prop_store);
-    if (hr != S_OK) {
-      gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-      GST_ERROR_OBJECT (element, "OpenPropertyStore failed: %s", msg);
-      g_free (msg);
-      return FALSE;
-    }
+    HR_FAILED_RET (hr, IMMDevice::OpenPropertyStore, FALSE);
 
     hr = IPropertyStore_GetValue (prop_store, &PKEY_AudioEngine_DeviceFormat,
         &var);
     if (hr != S_OK) {
       gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-      GST_ERROR_OBJECT (element, "GetValue failed: %s", msg);
+      GST_ERROR_OBJECT (self, "GetValue failed: %s", msg);
       g_free (msg);
       IUnknown_Release (prop_store);
       return FALSE;
@@ -530,7 +530,7 @@ gst_wasapi_util_get_device_format (GstElement * element,
   if (hr == S_OK)
     goto out;
 
-  GST_ERROR_OBJECT (element, "AudioEngine DeviceFormat not supported");
+  GST_ERROR_OBJECT (self, "AudioEngine DeviceFormat not supported");
   free (format);
   return FALSE;
 
@@ -540,7 +540,7 @@ out:
 }
 
 gboolean
-gst_wasapi_util_get_device_client (GstElement * element,
+gst_wasapi_util_get_device_client (GstElement * self,
     gboolean capture, gint role, const wchar_t * device_strid,
     IMMDevice ** ret_device, IAudioClient ** ret_client)
 {
@@ -550,39 +550,31 @@ gst_wasapi_util_get_device_client (GstElement * element,
   IMMDevice *device = NULL;
   IAudioClient *client = NULL;
 
-  if (!(enumerator = gst_wasapi_util_get_device_enumerator (element)))
+  if (!(enumerator = gst_wasapi_util_get_device_enumerator (self)))
     goto beach;
 
   if (!device_strid) {
     hr = IMMDeviceEnumerator_GetDefaultAudioEndpoint (enumerator,
         capture ? eCapture : eRender, role, &device);
-    if (hr != S_OK) {
-      gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-      GST_ERROR_OBJECT (element,
-          "IMMDeviceEnumerator::GetDefaultAudioEndpoint failed: %s", msg);
-      g_free (msg);
-      goto beach;
-    }
+    HR_FAILED_GOTO (hr, IMMDeviceEnumerator::GetDefaultAudioEndpoint, beach);
   } else {
     hr = IMMDeviceEnumerator_GetDevice (enumerator, device_strid, &device);
     if (hr != S_OK) {
       gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-      GST_ERROR_OBJECT (element, "IMMDeviceEnumerator::GetDevice (%S) failed"
+      GST_ERROR_OBJECT (self, "IMMDeviceEnumerator::GetDevice (%S) failed"
           ": %s", device_strid, msg);
       g_free (msg);
       goto beach;
     }
   }
 
-  hr = IMMDevice_Activate (device, &IID_IAudioClient, CLSCTX_ALL, NULL,
-      (void **) &client);
-  if (hr != S_OK) {
-    gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-    GST_ERROR_OBJECT (element, "IMMDevice::Activate (IID_IAudioClient) failed"
-        ": %s", msg);
-    g_free (msg);
-    goto beach;
-  }
+  if (gst_wasapi_util_have_audioclient3 ())
+    hr = IMMDevice_Activate (device, &IID_IAudioClient3, CLSCTX_ALL, NULL,
+        (void **) &client);
+  else
+    hr = IMMDevice_Activate (device, &IID_IAudioClient, CLSCTX_ALL, NULL,
+        (void **) &client);
+  HR_FAILED_GOTO (hr, IMMDevice::Activate (IID_IAudioClient), beach);
 
   IUnknown_AddRef (client);
   IUnknown_AddRef (device);
@@ -605,7 +597,7 @@ beach:
 }
 
 gboolean
-gst_wasapi_util_get_render_client (GstElement * element, IAudioClient * client,
+gst_wasapi_util_get_render_client (GstElement * self, IAudioClient * client,
     IAudioRenderClient ** ret_render_client)
 {
   gboolean res = FALSE;
@@ -614,13 +606,7 @@ gst_wasapi_util_get_render_client (GstElement * element, IAudioClient * client,
 
   hr = IAudioClient_GetService (client, &IID_IAudioRenderClient,
       (void **) &render_client);
-  if (hr != S_OK) {
-    gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-    GST_ERROR_OBJECT (element,
-        "IAudioClient::GetService (IID_IAudioRenderClient) failed: %s", msg);
-    g_free (msg);
-    goto beach;
-  }
+  HR_FAILED_GOTO (hr, IAudioClient::GetService, beach);
 
   *ret_render_client = render_client;
   res = TRUE;
@@ -630,7 +616,7 @@ beach:
 }
 
 gboolean
-gst_wasapi_util_get_capture_client (GstElement * element, IAudioClient * client,
+gst_wasapi_util_get_capture_client (GstElement * self, IAudioClient * client,
     IAudioCaptureClient ** ret_capture_client)
 {
   gboolean res = FALSE;
@@ -639,13 +625,7 @@ gst_wasapi_util_get_capture_client (GstElement * element, IAudioClient * client,
 
   hr = IAudioClient_GetService (client, &IID_IAudioCaptureClient,
       (void **) &capture_client);
-  if (hr != S_OK) {
-    gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-    GST_ERROR_OBJECT (element,
-        "IAudioClient::GetService (IID_IAudioCaptureClient) failed: %s", msg);
-    g_free (msg);
-    goto beach;
-  }
+  HR_FAILED_GOTO (hr, IAudioClient::GetService, beach);
 
   *ret_capture_client = capture_client;
   res = TRUE;
@@ -655,7 +635,7 @@ beach:
 }
 
 gboolean
-gst_wasapi_util_get_clock (GstElement * element, IAudioClient * client,
+gst_wasapi_util_get_clock (GstElement * self, IAudioClient * client,
     IAudioClock ** ret_clock)
 {
   gboolean res = FALSE;
@@ -663,13 +643,7 @@ gst_wasapi_util_get_clock (GstElement * element, IAudioClient * client,
   IAudioClock *clock = NULL;
 
   hr = IAudioClient_GetService (client, &IID_IAudioClock, (void **) &clock);
-  if (hr != S_OK) {
-    gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-    GST_ERROR_OBJECT (element,
-        "IAudioClient::GetService (IID_IAudioClock) failed: %s", msg);
-    g_free (msg);
-    goto beach;
-  }
+  HR_FAILED_GOTO (hr, IAudioClient::GetService, beach);
 
   *ret_clock = clock;
   res = TRUE;
@@ -740,14 +714,14 @@ gst_wasapi_util_waveformatex_to_channel_mask (WAVEFORMATEXTENSIBLE * format,
 
   /* Too many channels, have to assume that they are all non-positional */
   if (nChannels > G_N_ELEMENTS (wasapi_to_gst_pos)) {
-    GST_INFO ("wasapi: got too many (%i) channels, assuming non-positional",
+    GST_INFO ("Got too many (%i) channels, assuming non-positional",
         nChannels);
     goto out;
   }
 
   /* Too many bits in the channel mask, and the bits don't match nChannels */
   if (dwChannelMask >> (G_N_ELEMENTS (wasapi_to_gst_pos) + 1) != 0) {
-    GST_WARNING ("wasapi: too many bits in channel mask (%lu), assuming "
+    GST_WARNING ("Too many bits in channel mask (%lu), assuming "
         "non-positional", dwChannelMask);
     goto out;
   }
@@ -859,4 +833,165 @@ gst_wasapi_util_get_best_buffer_sizes (GstAudioRingBufferSpec * spec,
 
   *ret_period = use_period;
   *ret_buffer_duration = use_buffer;
+}
+
+gboolean
+gst_wasapi_util_initialize_audioclient (GstElement * self,
+    GstAudioRingBufferSpec * spec, IAudioClient * client,
+    WAVEFORMATEX * format, guint sharemode, gboolean low_latency,
+    guint * ret_devicep_frames)
+{
+  REFERENCE_TIME default_period, min_period;
+  REFERENCE_TIME device_period, device_buffer_duration;
+  guint rate;
+  HRESULT hr;
+
+  hr = IAudioClient_GetDevicePeriod (client, &default_period, &min_period);
+  HR_FAILED_RET (hr, IAudioClient::GetDevicePeriod, FALSE);
+
+  GST_INFO_OBJECT (self, "wasapi default period: %" G_GINT64_FORMAT
+      ", min period: %" G_GINT64_FORMAT, default_period, min_period);
+
+  rate = GST_AUDIO_INFO_RATE (&spec->info);
+
+  if (low_latency) {
+    if (sharemode == AUDCLNT_SHAREMODE_SHARED) {
+      device_period = default_period;
+      device_buffer_duration = 0;
+    } else {
+      device_period = min_period;
+      device_buffer_duration = min_period;
+    }
+  } else {
+    /* Clamp values to integral multiples of an appropriate period */
+    gst_wasapi_util_get_best_buffer_sizes (spec,
+        sharemode == AUDCLNT_SHAREMODE_EXCLUSIVE, default_period,
+        min_period, &device_period, &device_buffer_duration);
+  }
+
+  /* For some reason, we need to call this a second time for exclusive mode */
+  if (sharemode == AUDCLNT_SHAREMODE_EXCLUSIVE)
+    CoInitialize (NULL);
+
+  hr = IAudioClient_Initialize (client, sharemode,
+      AUDCLNT_STREAMFLAGS_EVENTCALLBACK, device_buffer_duration,
+      /* This must always be 0 in shared mode */
+      sharemode == AUDCLNT_SHAREMODE_SHARED ? 0 : device_period, format, NULL);
+
+  if (hr == AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED &&
+      sharemode == AUDCLNT_SHAREMODE_EXCLUSIVE) {
+    guint32 n_frames;
+
+    GST_WARNING_OBJECT (self, "initialize failed due to unaligned period %i",
+        (int) device_period);
+
+    /* Calculate a new aligned period. First get the aligned buffer size. */
+    hr = IAudioClient_GetBufferSize (client, &n_frames);
+    HR_FAILED_RET (hr, IAudioClient::GetBufferSize, FALSE);
+
+    device_period = (GST_SECOND / 100) * n_frames / rate;
+
+    GST_WARNING_OBJECT (self, "trying to re-initialize with period %i "
+        "(%i frames, %i rate)", (int) device_period, n_frames, rate);
+
+    hr = IAudioClient_Initialize (client, sharemode,
+        AUDCLNT_STREAMFLAGS_EVENTCALLBACK, device_period,
+        device_period, format, NULL);
+  }
+  HR_FAILED_RET (hr, IAudioClient::Initialize, FALSE);
+
+  *ret_devicep_frames = (rate * device_period * 100) / GST_SECOND;
+
+  return TRUE;
+}
+
+gboolean
+gst_wasapi_util_initialize_audioclient3 (GstElement * self,
+    GstAudioRingBufferSpec * spec, IAudioClient3 * client,
+    WAVEFORMATEX * format, gboolean low_latency, guint * ret_devicep_frames)
+{
+  HRESULT hr;
+  guint rate, devicep_frames;
+  guint defaultp_frames, fundp_frames, minp_frames, maxp_frames;
+  WAVEFORMATEX *tmpf;
+
+  rate = GST_AUDIO_INFO_RATE (&spec->info);
+
+  hr = IAudioClient3_GetSharedModeEnginePeriod (client, format,
+      &defaultp_frames, &fundp_frames, &minp_frames, &maxp_frames);
+  HR_FAILED_RET (hr, IAudioClient3::GetSharedModeEnginePeriod, FALSE);
+
+  GST_INFO_OBJECT (self, "Using IAudioClient3, default period %i frames, "
+      "fundamental period %i frames, minimum period %i frames, maximum period "
+      "%i frames", defaultp_frames, fundp_frames, minp_frames, maxp_frames);
+
+  if (low_latency) {
+    devicep_frames = minp_frames;
+  } else {
+    /* rate is in Hz, latency_time is in usec */
+    int tmp = (rate * spec->latency_time * GST_USECOND) / GST_SECOND;
+    devicep_frames = CLAMP (tmp, minp_frames, maxp_frames);
+    /* Ensure it's a multiple of the fundamental period */
+    tmp = devicep_frames / fundp_frames;
+    devicep_frames = tmp * fundp_frames;
+  }
+
+  hr = IAudioClient3_InitializeSharedAudioStream (client,
+      AUDCLNT_STREAMFLAGS_EVENTCALLBACK, devicep_frames, format, NULL);
+  HR_FAILED_RET (hr, IAudioClient3::InitializeSharedAudioStream, FALSE);
+
+  hr = IAudioClient3_GetCurrentSharedModeEnginePeriod (client, &tmpf,
+      &devicep_frames);
+  CoTaskMemFree (tmpf);
+  HR_FAILED_RET (hr, IAudioClient3::GetCurrentSharedModeEnginePeriod, FALSE);
+
+  *ret_devicep_frames = devicep_frames;
+  return TRUE;
+}
+
+static gboolean
+gst_wasapi_util_init_thread_priority (void)
+{
+  if (gst_wasapi_avrt_tbl.tried_loading)
+    return gst_wasapi_avrt_tbl.dll != NULL;
+
+  if (!gst_wasapi_avrt_tbl.dll)
+    gst_wasapi_avrt_tbl.dll = LoadLibrary (TEXT ("avrt.dll"));
+
+  if (!gst_wasapi_avrt_tbl.dll) {
+    GST_WARNING ("Failed to set thread priority, can't find avrt.dll");
+    gst_wasapi_avrt_tbl.tried_loading = TRUE;
+    return FALSE;
+  }
+
+  gst_wasapi_avrt_tbl.AvSetMmThreadCharacteristics =
+      GetProcAddress (gst_wasapi_avrt_tbl.dll, "AvSetMmThreadCharacteristicsA");
+  gst_wasapi_avrt_tbl.AvRevertMmThreadCharacteristics =
+      GetProcAddress (gst_wasapi_avrt_tbl.dll,
+      "AvRevertMmThreadCharacteristics");
+
+  gst_wasapi_avrt_tbl.tried_loading = TRUE;
+
+  return TRUE;
+}
+
+HANDLE
+gst_wasapi_util_set_thread_characteristics (void)
+{
+  DWORD taskIndex = 0;
+
+  if (!gst_wasapi_util_init_thread_priority ())
+    return NULL;
+
+  return gst_wasapi_avrt_tbl.AvSetMmThreadCharacteristics (TEXT ("Pro Audio"),
+      &taskIndex);
+}
+
+void
+gst_wasapi_util_revert_thread_characteristics (HANDLE handle)
+{
+  if (!gst_wasapi_util_init_thread_priority ())
+    return;
+
+  gst_wasapi_avrt_tbl.AvRevertMmThreadCharacteristics (handle);
 }

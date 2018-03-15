@@ -31,6 +31,10 @@
  * gst-launch-1.0 -v wasapisrc ! fakesink
  * ]| Capture from the default audio device and render to fakesink.
  *
+ * |[
+ * gst-launch-1.0 -v wasapisrc low-latency=true ! fakesink
+ * ]| Capture from the default audio device with the minimum possible latency and render to fakesink.
+ *
  */
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
@@ -51,6 +55,7 @@ static GstStaticPadTemplate src_template = GST_STATIC_PAD_TEMPLATE ("src",
 #define DEFAULT_ROLE          GST_WASAPI_DEVICE_ROLE_CONSOLE
 #define DEFAULT_EXCLUSIVE     FALSE
 #define DEFAULT_LOW_LATENCY   FALSE
+#define DEFAULT_AUDIOCLIENT3  FALSE
 
 enum
 {
@@ -58,7 +63,8 @@ enum
   PROP_ROLE,
   PROP_DEVICE,
   PROP_EXCLUSIVE,
-  PROP_LOW_LATENCY
+  PROP_LOW_LATENCY,
+  PROP_AUDIOCLIENT3
 };
 
 static void gst_wasapi_src_dispose (GObject * object);
@@ -121,13 +127,20 @@ gst_wasapi_src_class_init (GstWasapiSrcClass * klass)
   g_object_class_install_property (gobject_class,
       PROP_LOW_LATENCY,
       g_param_spec_boolean ("low-latency", "Low latency",
-          "Optimize all settings for lowest latency",
+          "Optimize all settings for lowest latency. Always safe to enable.",
           DEFAULT_LOW_LATENCY, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class,
+      PROP_AUDIOCLIENT3,
+      g_param_spec_boolean ("use-audioclient3", "Use the AudioClient3 API",
+          "Whether to use the Windows 10 AudioClient3 API when available",
+          DEFAULT_AUDIOCLIENT3, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   gst_element_class_add_static_pad_template (gstelement_class, &src_template);
   gst_element_class_set_static_metadata (gstelement_class, "WasapiSrc",
       "Source/Audio",
       "Stream audio from an audio capture device through WASAPI",
+      "Nirbheek Chauhan <nirbheek@centricular.com>, "
       "Ole André Vadla Ravnås <ole.andre.ravnas@tandberg.com>");
 
   gstbasesrc_class->get_caps = GST_DEBUG_FUNCPTR (gst_wasapi_src_get_caps);
@@ -155,6 +168,10 @@ gst_wasapi_src_init (GstWasapiSrc * self)
       gst_wasapi_src_get_time, gst_object_ref (self),
       (GDestroyNotify) gst_object_unref);
 
+  self->role = DEFAULT_ROLE;
+  self->sharemode = AUDCLNT_SHAREMODE_SHARED;
+  self->low_latency = DEFAULT_LOW_LATENCY;
+  self->try_audioclient3 = DEFAULT_AUDIOCLIENT3;
   self->event_handle = CreateEvent (NULL, FALSE, FALSE, NULL);
 
   CoInitialize (NULL);
@@ -229,6 +246,9 @@ gst_wasapi_src_set_property (GObject * object, guint prop_id,
     case PROP_LOW_LATENCY:
       self->low_latency = g_value_get_boolean (value);
       break;
+    case PROP_AUDIOCLIENT3:
+      self->try_audioclient3 = g_value_get_boolean (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -256,10 +276,22 @@ gst_wasapi_src_get_property (GObject * object, guint prop_id,
     case PROP_LOW_LATENCY:
       g_value_set_boolean (value, self->low_latency);
       break;
+    case PROP_AUDIOCLIENT3:
+      g_value_set_boolean (value, self->try_audioclient3);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
   }
+}
+
+static gboolean
+gst_wasapi_src_can_audioclient3 (GstWasapiSrc * self)
+{
+  if (self->sharemode == AUDCLNT_SHAREMODE_SHARED &&
+      self->try_audioclient3 && gst_wasapi_util_have_audioclient3 ())
+    return TRUE;
+  return FALSE;
 }
 
 static GstCaps *
@@ -380,94 +412,35 @@ gst_wasapi_src_prepare (GstAudioSrc * asrc, GstAudioRingBufferSpec * spec)
 {
   GstWasapiSrc *self = GST_WASAPI_SRC (asrc);
   gboolean res = FALSE;
-  REFERENCE_TIME latency_rt, default_period, min_period;
-  REFERENCE_TIME device_period, device_buffer_duration;
-  guint bpf, rate, buffer_frames;
+  REFERENCE_TIME latency_rt;
+  guint bpf, rate, devicep_frames, buffer_frames;
   HRESULT hr;
 
-  hr = IAudioClient_GetDevicePeriod (self->client, &default_period,
-      &min_period);
-  if (hr != S_OK) {
-    GST_ERROR_OBJECT (self, "IAudioClient::GetDevicePeriod failed");
-    return FALSE;
+  if (gst_wasapi_src_can_audioclient3 (self)) {
+    if (!gst_wasapi_util_initialize_audioclient3 (GST_ELEMENT (self), spec,
+            (IAudioClient3 *) self->client, self->mix_format, self->low_latency,
+            &devicep_frames))
+      goto beach;
+  } else {
+    if (!gst_wasapi_util_initialize_audioclient (GST_ELEMENT (self), spec,
+            self->client, self->mix_format, self->sharemode, self->low_latency,
+            &devicep_frames))
+      goto beach;
   }
-  GST_INFO_OBJECT (self, "wasapi default period: %" G_GINT64_FORMAT
-      ", min period: %" G_GINT64_FORMAT, default_period, min_period);
 
   bpf = GST_AUDIO_INFO_BPF (&spec->info);
   rate = GST_AUDIO_INFO_RATE (&spec->info);
 
-  if (self->low_latency) {
-    if (self->sharemode == AUDCLNT_SHAREMODE_SHARED) {
-      device_period = default_period;
-      device_buffer_duration = 0;
-    } else {
-      device_period = min_period;
-      device_buffer_duration = min_period;
-    }
-  } else {
-    /* Clamp values to integral multiples of an appropriate period */
-    gst_wasapi_util_get_best_buffer_sizes (spec,
-        self->sharemode == AUDCLNT_SHAREMODE_EXCLUSIVE, default_period,
-        min_period, &device_period, &device_buffer_duration);
-  }
-
-  /* For some reason, we need to call this a second time for exclusive mode */
-  if (self->sharemode == AUDCLNT_SHAREMODE_EXCLUSIVE)
-    CoInitialize (NULL);
-
-  hr = IAudioClient_Initialize (self->client, self->sharemode,
-      AUDCLNT_STREAMFLAGS_EVENTCALLBACK, device_buffer_duration,
-      /* This must always be 0 in shared mode */
-      self->sharemode == AUDCLNT_SHAREMODE_SHARED ? 0 : device_period,
-      self->mix_format, NULL);
-
-  if (hr == AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED &&
-      self->sharemode == AUDCLNT_SHAREMODE_EXCLUSIVE) {
-    guint32 n_frames;
-
-    GST_WARNING_OBJECT (self, "initialize failed due to unaligned period %i",
-        (int) device_period);
-
-    /* Calculate a new aligned period. First get the aligned buffer size. */
-    hr = IAudioClient_GetBufferSize (self->client, &n_frames);
-    if (hr != S_OK) {
-      gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-      GST_ELEMENT_ERROR (self, RESOURCE, OPEN_WRITE, (NULL),
-          ("IAudioClient::GetBufferSize() failed: %s", msg));
-      g_free (msg);
-      goto beach;
-    }
-
-    device_period = (GST_SECOND / 100) * n_frames / rate;
-
-    GST_WARNING_OBJECT (self, "trying to re-initialize with period %i "
-        "(%i frames, %i rate)", (int) device_period, n_frames, rate);
-
-    hr = IAudioClient_Initialize (self->client, self->sharemode,
-        AUDCLNT_STREAMFLAGS_EVENTCALLBACK, device_period,
-        device_period, self->mix_format, NULL);
-  }
-  if (hr != S_OK) {
-    gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-    GST_ELEMENT_ERROR (self, RESOURCE, OPEN_READ, (NULL),
-        ("IAudioClient::Initialize () failed: %s", msg));
-    g_free (msg);
-    goto beach;
-  }
-
   /* Total size in frames of the allocated buffer that we will read from */
   hr = IAudioClient_GetBufferSize (self->client, &buffer_frames);
-  if (hr != S_OK) {
-    GST_ERROR_OBJECT (self, "IAudioClient::GetBufferSize failed");
-    goto beach;
-  }
+  HR_FAILED_GOTO (hr, IAudioClient::GetBufferSize, beach);
 
-  GST_INFO_OBJECT (self, "buffer size is %i frames, bpf is %i bytes, "
-      "rate is %i Hz", buffer_frames, bpf, rate);
+  GST_INFO_OBJECT (self, "buffer size is %i frames, device period is %i "
+      "frames, bpf is %i bytes, rate is %i Hz", buffer_frames,
+      devicep_frames, bpf, rate);
 
-  spec->segsize = gst_util_uint64_scale_int_round (rate * bpf,
-      device_period * 100, GST_SECOND);
+  /* Actual latency-time/buffer-time will be different now */
+  spec->segsize = devicep_frames * bpf;
 
   /* We need a minimum of 2 segments to ensure glitch-free playback */
   spec->segtotal = MAX (self->buffer_frame_count * bpf / spec->segsize, 2);
@@ -477,31 +450,22 @@ gst_wasapi_src_prepare (GstAudioSrc * asrc, GstAudioRingBufferSpec * spec)
 
   /* Get WASAPI latency for logging */
   hr = IAudioClient_GetStreamLatency (self->client, &latency_rt);
-  if (hr != S_OK) {
-    GST_ERROR_OBJECT (self, "IAudioClient::GetStreamLatency failed");
-    goto beach;
-  }
+  HR_FAILED_GOTO (hr, IAudioClient::GetStreamLatency, beach);
+
   GST_INFO_OBJECT (self, "wasapi stream latency: %" G_GINT64_FORMAT " (%"
       G_GINT64_FORMAT " ms)", latency_rt, latency_rt / 10000);
 
   /* Set the event handler which will trigger reads */
   hr = IAudioClient_SetEventHandle (self->client, self->event_handle);
-  if (hr != S_OK) {
-    GST_ERROR_OBJECT (self, "IAudioClient::SetEventHandle failed");
-    goto beach;
-  }
+  HR_FAILED_GOTO (hr, IAudioClient::SetEventHandle, beach);
 
   /* Get the clock and the clock freq */
   if (!gst_wasapi_util_get_clock (GST_ELEMENT (self), self->client,
-          &self->client_clock)) {
+          &self->client_clock))
     goto beach;
-  }
 
   hr = IAudioClock_GetFrequency (self->client_clock, &self->client_clock_freq);
-  if (hr != S_OK) {
-    GST_ERROR_OBJECT (self, "IAudioClock::GetFrequency failed");
-    goto beach;
-  }
+  HR_FAILED_GOTO (hr, IAudioClock::GetFrequency, beach);
 
   /* Get capture source client and start it up */
   if (!gst_wasapi_util_get_capture_client (GST_ELEMENT (self), self->client,
@@ -510,22 +474,13 @@ gst_wasapi_src_prepare (GstAudioSrc * asrc, GstAudioRingBufferSpec * spec)
   }
 
   hr = IAudioClient_Start (self->client);
-  if (hr != S_OK) {
-    GST_ERROR_OBJECT (self, "IAudioClient::Start failed");
-    goto beach;
-  }
+  HR_FAILED_GOTO (hr, IAudioClock::Start, beach);
 
   gst_audio_ring_buffer_set_channel_positions (GST_AUDIO_BASE_SRC
       (self)->ringbuffer, self->positions);
 
-#if defined(_MSC_VER) || defined(GST_FORCE_WIN_AVRT)
   /* Increase the thread priority to reduce glitches */
-  {
-    DWORD taskIndex = 0;
-    self->thread_priority_handle =
-        AvSetMmThreadCharacteristics (TEXT ("Pro Audio"), &taskIndex);
-  }
-#endif
+  self->thread_priority_handle = gst_wasapi_util_set_thread_characteristics ();
 
   res = TRUE;
 beach:
@@ -542,15 +497,15 @@ gst_wasapi_src_unprepare (GstAudioSrc * asrc)
 {
   GstWasapiSrc *self = GST_WASAPI_SRC (asrc);
 
-  if (self->sharemode == AUDCLNT_SHAREMODE_EXCLUSIVE)
+  if (self->sharemode == AUDCLNT_SHAREMODE_EXCLUSIVE &&
+      !gst_wasapi_src_can_audioclient3 (self))
     CoUninitialize ();
 
-#if defined(_MSC_VER) || defined(GST_FORCE_WIN_AVRT)
   if (self->thread_priority_handle != NULL) {
-    AvRevertMmThreadCharacteristics (self->thread_priority_handle);
+    gst_wasapi_util_revert_thread_characteristics
+        (self->thread_priority_handle);
     self->thread_priority_handle = NULL;
   }
-#endif
 
   if (self->client != NULL) {
     IAudioClient_Stop (self->client);
@@ -636,13 +591,7 @@ gst_wasapi_src_read (GstAudioSrc * asrc, gpointer data, guint length,
 
     /* Always release all captured buffers if we've captured any at all */
     hr = IAudioCaptureClient_ReleaseBuffer (self->capture_client, have_frames);
-    if (hr != S_OK) {
-      gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-      GST_ERROR_OBJECT (self,
-          "IAudioCaptureClient::ReleaseBuffer () failed: %s", msg);
-      g_free (msg);
-      goto beach;
-    }
+    HR_FAILED_AND (hr, IAudioClock::ReleaseBuffer, goto beach);
   }
 
 
@@ -659,12 +608,7 @@ gst_wasapi_src_delay (GstAudioSrc * asrc)
   HRESULT hr;
 
   hr = IAudioClient_GetCurrentPadding (self->client, &delay);
-  if (hr != S_OK) {
-    gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-    GST_ELEMENT_ERROR (self, RESOURCE, READ, (NULL),
-        ("IAudioClient::GetCurrentPadding failed %s", msg));
-    g_free (msg);
-  }
+  HR_FAILED_RET (hr, IAudioClock::GetCurrentPadding, 0);
 
   return delay;
 }
@@ -675,23 +619,14 @@ gst_wasapi_src_reset (GstAudioSrc * asrc)
   GstWasapiSrc *self = GST_WASAPI_SRC (asrc);
   HRESULT hr;
 
-  if (self->client) {
-    hr = IAudioClient_Stop (self->client);
-    if (hr != S_OK) {
-      gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-      GST_ERROR_OBJECT (self, "IAudioClient::Stop () failed: %s", msg);
-      g_free (msg);
-      return;
-    }
+  if (!self->client)
+    return;
 
-    hr = IAudioClient_Reset (self->client);
-    if (hr != S_OK) {
-      gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-      GST_ERROR_OBJECT (self, "IAudioClient::Reset () failed: %s", msg);
-      g_free (msg);
-      return;
-    }
-  }
+  hr = IAudioClient_Stop (self->client);
+  HR_FAILED_RET (hr, IAudioClock::Stop,);
+
+  hr = IAudioClient_Reset (self->client);
+  HR_FAILED_RET (hr, IAudioClock::Reset,);
 }
 
 static GstClockTime
@@ -706,8 +641,7 @@ gst_wasapi_src_get_time (GstClock * clock, gpointer user_data)
     return GST_CLOCK_TIME_NONE;
 
   hr = IAudioClock_GetPosition (self->client_clock, &devpos, NULL);
-  if (G_UNLIKELY (hr != S_OK))
-    return GST_CLOCK_TIME_NONE;
+  HR_FAILED_RET (hr, IAudioClock::GetPosition, GST_CLOCK_TIME_NONE);
 
   result = gst_util_uint64_scale_int (devpos, GST_SECOND,
       self->client_clock_freq);
