@@ -192,10 +192,6 @@ ifeq (,$(findstring $(DEB_HOST_ARCH),m68k arm))
 DEB_CONFIGURE_EXTRA_FLAGS += --enable-gtk-doc
 endif
 
-ifneq (,$(findstring $(DEB_HOST_ARCH),armhf arm64))
-DEB_CONFIGURE_EXTRA_FLAGS += --disable-opengl --disable-glx
-endif
-
 common-binary-fixup-arch::
 	rm -r $(CURDIR)/debian/libgstreamer-plugins-bad$(gst_abi)-dev/usr/include/*/*/basecamerabinsrc \
 		$(CURDIR)/debian/libgstreamer-plugins-bad$(gst_abi)-dev/usr/include/*/*/interfaces/photography* \
