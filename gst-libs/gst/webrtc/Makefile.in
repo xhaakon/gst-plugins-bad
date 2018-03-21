@@ -25,6 +25,7 @@
 #glib_gen_decl_include=\#include <gst/foo/foo-prelude.h>
 
 
+
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -100,6 +101,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
+@HAVE_INTROSPECTION_TRUE@am__append_1 = $(BUILT_GIRSOURCES) $(typelibs_DATA)
 subdir = gst-libs/gst/webrtc
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/common/m4/as-ac-expand.m4 \
@@ -170,7 +172,8 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(libdir)" \
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(girdir)" \
+	"$(DESTDIR)$(typelibsdir)" \
 	"$(DESTDIR)$(libgstwebrtc_@GST_API_VERSION@includedir)" \
 	"$(DESTDIR)$(libgstwebrtc_@GST_API_VERSION@includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
@@ -240,6 +243,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+DATA = $(gir_DATA) $(typelibs_DATA)
 HEADERS = $(libgstwebrtc_@GST_API_VERSION@include_HEADERS) \
 	$(nodist_libgstwebrtc_@GST_API_VERSION@include_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
@@ -753,7 +757,7 @@ glib_gen_decl_banner = GST_EXPORT
 built_sources = webrtc-enumtypes.c
 built_headers = webrtc-enumtypes.h
 BUILT_SOURCES = $(built_sources) $(built_headers)
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES) $(am__append_1)
 libgstwebrtc_@GST_API_VERSION@_la_SOURCES = \
 	dtlstransport.c \
 	icetransport.c \
@@ -795,6 +799,16 @@ libgstwebrtc_@GST_API_VERSION@_la_LDFLAGS = \
 	$(GST_LT_LDFLAGS)
 
 enum_headers = $(foreach h,$(glib_enum_headers),\n\#include \"$(h)\")
+@HAVE_INTROSPECTION_TRUE@BUILT_GIRSOURCES = GstWebRTC-@GST_API_VERSION@.gir
+@HAVE_INTROSPECTION_TRUE@gir_headers = $(patsubst %,$(srcdir)/%, $(libgstwebrtc_@GST_API_VERSION@include_HEADERS))
+@HAVE_INTROSPECTION_TRUE@gir_sources = $(patsubst %,$(srcdir)/%, $(libgstwebrtc_@GST_API_VERSION@_la_SOURCES)) $(BUILT_SOURCES)
+
+# INTROSPECTION_GIRDIR/INTROSPECTION_TYPELIBDIR aren't the right place to
+# install anything - we need to install inside our prefix.
+@HAVE_INTROSPECTION_TRUE@girdir = $(datadir)/gir-1.0
+@HAVE_INTROSPECTION_TRUE@gir_DATA = $(BUILT_GIRSOURCES)
+@HAVE_INTROSPECTION_TRUE@typelibsdir = $(libdir)/girepository-1.0/
+@HAVE_INTROSPECTION_TRUE@typelibs_DATA = $(BUILT_GIRSOURCES:.gir=.typelib)
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -961,6 +975,48 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+install-girDATA: $(gir_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(gir_DATA)'; test -n "$(girdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(girdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(girdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(girdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(girdir)" || exit $$?; \
+	done
+
+uninstall-girDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(gir_DATA)'; test -n "$(girdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(girdir)'; $(am__uninstall_files_from_dir)
+install-typelibsDATA: $(typelibs_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(typelibs_DATA)'; test -n "$(typelibsdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(typelibsdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(typelibsdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(typelibsdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(typelibsdir)" || exit $$?; \
+	done
+
+uninstall-typelibsDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(typelibs_DATA)'; test -n "$(typelibsdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(typelibsdir)'; $(am__uninstall_files_from_dir)
 install-libgstwebrtc_@GST_API_VERSION@includeHEADERS: $(libgstwebrtc_@GST_API_VERSION@include_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(libgstwebrtc_@GST_API_VERSION@include_HEADERS)'; test -n "$(libgstwebrtc_@GST_API_VERSION@includedir)" || list=; \
@@ -1043,9 +1099,9 @@ distdir: $(DISTFILES)
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(DATA) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libgstwebrtc_@GST_API_VERSION@includedir)" "$(DESTDIR)$(libgstwebrtc_@GST_API_VERSION@includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(girdir)" "$(DESTDIR)$(typelibsdir)" "$(DESTDIR)$(libgstwebrtc_@GST_API_VERSION@includedir)" "$(DESTDIR)$(libgstwebrtc_@GST_API_VERSION@includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -1103,8 +1159,10 @@ info: info-am
 
 info-am:
 
-install-data-am: install-libgstwebrtc_@GST_API_VERSION@includeHEADERS \
-	install-nodist_libgstwebrtc_@GST_API_VERSION@includeHEADERS
+install-data-am: install-girDATA \
+	install-libgstwebrtc_@GST_API_VERSION@includeHEADERS \
+	install-nodist_libgstwebrtc_@GST_API_VERSION@includeHEADERS \
+	install-typelibsDATA
 
 install-dvi: install-dvi-am
 
@@ -1150,9 +1208,10 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES \
+uninstall-am: uninstall-girDATA uninstall-libLTLIBRARIES \
 	uninstall-libgstwebrtc_@GST_API_VERSION@includeHEADERS \
-	uninstall-nodist_libgstwebrtc_@GST_API_VERSION@includeHEADERS
+	uninstall-nodist_libgstwebrtc_@GST_API_VERSION@includeHEADERS \
+	uninstall-typelibsDATA
 
 .MAKE: all check install install-am install-strip
 
@@ -1161,20 +1220,22 @@ uninstall-am: uninstall-libLTLIBRARIES \
 	distclean distclean-compile distclean-generic \
 	distclean-libtool distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am \
+	install-dvi-am install-exec install-exec-am install-girDATA \
+	install-html install-html-am install-info install-info-am \
 	install-libLTLIBRARIES \
 	install-libgstwebrtc_@GST_API_VERSION@includeHEADERS \
 	install-man \
 	install-nodist_libgstwebrtc_@GST_API_VERSION@includeHEADERS \
 	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags-am uninstall uninstall-am \
+	install-strip install-typelibsDATA installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags-am uninstall uninstall-am uninstall-girDATA \
 	uninstall-libLTLIBRARIES \
 	uninstall-libgstwebrtc_@GST_API_VERSION@includeHEADERS \
-	uninstall-nodist_libgstwebrtc_@GST_API_VERSION@includeHEADERS
+	uninstall-nodist_libgstwebrtc_@GST_API_VERSION@includeHEADERS \
+	uninstall-typelibsDATA
 
 .PRECIOUS: Makefile
 
@@ -1214,6 +1275,42 @@ $(glib_gen_basename)-enumtypes.c: $(glib_enum_headers)
 
 .deps/%-enumtypes.Plo:
 	@touch $@
+
+@HAVE_INTROSPECTION_TRUE@GstWebRTC-@GST_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libgstwebrtc-@GST_API_VERSION@.la
+@HAVE_INTROSPECTION_TRUE@	$(AM_V_GEN)GST_PLUGIN_SYSTEM_PATH_1_0="" GST_PLUGIN_PATH_1_0="" GST_REGISTRY_UPDATE=no GI_SCANNER_DISABLE_CACHE=yes \
+@HAVE_INTROSPECTION_TRUE@		CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" CC="$(CC)" PKG_CONFIG="$(PKG_CONFIG)" DLLTOOL="$(DLLTOOL)" \
+@HAVE_INTROSPECTION_TRUE@		PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" \
+@HAVE_INTROSPECTION_TRUE@		$(INTROSPECTION_SCANNER) -v --namespace GstWebRTC \
+@HAVE_INTROSPECTION_TRUE@		--nsversion=@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--warn-all \
+@HAVE_INTROSPECTION_TRUE@		--strip-prefix=Gst \
+@HAVE_INTROSPECTION_TRUE@		-I$(top_srcdir)/gst-libs \
+@HAVE_INTROSPECTION_TRUE@		-I$(top_builddir)/gst-libs \
+@HAVE_INTROSPECTION_TRUE@		--c-include "gst/webrtc/webrtc.h" \
+@HAVE_INTROSPECTION_TRUE@		--add-include-path=$(top_builddir)/gst-libs \
+@HAVE_INTROSPECTION_TRUE@		--add-include-path=`PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" $(PKG_CONFIG) --variable=girdir gstreamer-1.0` \
+@HAVE_INTROSPECTION_TRUE@		--add-include-path=`PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" $(PKG_CONFIG) --variable=girdir gstreamer-sdp-1.0` \
+@HAVE_INTROSPECTION_TRUE@		--library-path=$(top_builddir)/gst-libs \
+@HAVE_INTROSPECTION_TRUE@		--library=libgstwebrtc-@GST_API_VERSION@.la \
+@HAVE_INTROSPECTION_TRUE@		--include=Gst-@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--include=GstSdp-@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--libtool="${LIBTOOL}" \
+@HAVE_INTROSPECTION_TRUE@		--pkg gstreamer-@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--pkg gstreamer-sdp-@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--pkg-export gstreamer-webrtc-@GST_API_VERSION@ \
+@HAVE_INTROSPECTION_TRUE@		--add-init-section="$(INTROSPECTION_INIT)" \
+@HAVE_INTROSPECTION_TRUE@		--output $@ \
+@HAVE_INTROSPECTION_TRUE@		$(gir_headers) \
+@HAVE_INTROSPECTION_TRUE@		$(gir_sources)
+
+@HAVE_INTROSPECTION_TRUE@%.typelib: %.gir $(INTROSPECTION_COMPILER)
+@HAVE_INTROSPECTION_TRUE@	$(AM_V_GEN)PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" \
+@HAVE_INTROSPECTION_TRUE@		$(INTROSPECTION_COMPILER) \
+@HAVE_INTROSPECTION_TRUE@		--includedir=$(srcdir)/gst-libs \
+@HAVE_INTROSPECTION_TRUE@		--includedir=$(builddir)/gst-libs \
+@HAVE_INTROSPECTION_TRUE@		--includedir=`PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" $(PKG_CONFIG) --variable=girdir gstreamer-1.0` \
+@HAVE_INTROSPECTION_TRUE@		--includedir=`PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" $(PKG_CONFIG) --variable=girdir gstreamer-sdp-1.0` \
+@HAVE_INTROSPECTION_TRUE@		$(INTROSPECTION_COMPILER_OPTS) $< -o $(@F)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

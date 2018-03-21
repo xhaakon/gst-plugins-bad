@@ -554,7 +554,6 @@
     <keyword type="property" name="The “session-id” property" link="GstWebRTCDTLSTransport.html#GstWebRTCDTLSTransport--session-id"/>
     <keyword type="property" name="The “state” property" link="GstWebRTCDTLSTransport.html#GstWebRTCDTLSTransport--state"/>
     <keyword type="property" name="The “transport” property" link="GstWebRTCDTLSTransport.html#GstWebRTCDTLSTransport--transport"/>
-    <keyword type="enum" name="enum GstWebRTCIceRole" link="GstWebRTCICETransport.html#GstWebRTCIceRole"/>
     <keyword type="enum" name="enum GstWebRTCICEConnectionState" link="GstWebRTCICETransport.html#GstWebRTCICEConnectionState"/>
     <keyword type="property" name="The “component” property" link="GstWebRTCICETransport.html#GstWebRTCICETransport--component"/>
     <keyword type="property" name="The “gathering-state” property" link="GstWebRTCICETransport.html#GstWebRTCICETransport--gathering-state"/>
@@ -562,13 +561,9 @@
     <keyword type="signal" name="The “on-new-candidate” signal" link="GstWebRTCICETransport.html#GstWebRTCICETransport-on-new-candidate"/>
     <keyword type="signal" name="The “on-selected-candidate-pair-change” signal" link="GstWebRTCICETransport.html#GstWebRTCICETransport-on-selected-candidate-pair-change"/>
     <keyword type="function" name="gst_webrtc_rtp_receiver_new ()" link="GstWebRTCRTPReceiver.html#gst-webrtc-rtp-receiver-new"/>
-    <keyword type="function" name="gst_webrtc_rtp_receiver_get_parameters ()" link="GstWebRTCRTPReceiver.html#gst-webrtc-rtp-receiver-get-parameters"/>
-    <keyword type="function" name="gst_webrtc_rtp_receiver_set_parameters ()" link="GstWebRTCRTPReceiver.html#gst-webrtc-rtp-receiver-set-parameters"/>
     <keyword type="function" name="gst_webrtc_rtp_receiver_set_rtcp_transport ()" link="GstWebRTCRTPReceiver.html#gst-webrtc-rtp-receiver-set-rtcp-transport"/>
     <keyword type="function" name="gst_webrtc_rtp_receiver_set_transport ()" link="GstWebRTCRTPReceiver.html#gst-webrtc-rtp-receiver-set-transport"/>
     <keyword type="function" name="gst_webrtc_rtp_sender_new ()" link="GstWebRTCRTPSender.html#gst-webrtc-rtp-sender-new"/>
-    <keyword type="function" name="gst_webrtc_rtp_sender_get_parameters ()" link="GstWebRTCRTPSender.html#gst-webrtc-rtp-sender-get-parameters"/>
-    <keyword type="function" name="gst_webrtc_rtp_sender_set_parameters ()" link="GstWebRTCRTPSender.html#gst-webrtc-rtp-sender-set-parameters"/>
     <keyword type="function" name="gst_webrtc_rtp_sender_set_rtcp_transport ()" link="GstWebRTCRTPSender.html#gst-webrtc-rtp-sender-set-rtcp-transport"/>
     <keyword type="function" name="gst_webrtc_rtp_sender_set_transport ()" link="GstWebRTCRTPSender.html#gst-webrtc-rtp-sender-set-transport"/>
     <keyword type="function" name="gst_webrtc_session_description_new ()" link="GstWebRTCSessionDescription.html#gst-webrtc-session-description-new"/>
@@ -1330,8 +1325,6 @@
     <keyword type="constant" name="GST_WEBRTC_DTLS_TRANSPORT_STATE_FAILED" link="GstWebRTCDTLSTransport.html#GST-WEBRTC-DTLS-TRANSPORT-STATE-FAILED:CAPS"/>
     <keyword type="constant" name="GST_WEBRTC_DTLS_TRANSPORT_STATE_CONNECTING" link="GstWebRTCDTLSTransport.html#GST-WEBRTC-DTLS-TRANSPORT-STATE-CONNECTING:CAPS"/>
     <keyword type="constant" name="GST_WEBRTC_DTLS_TRANSPORT_STATE_CONNECTED" link="GstWebRTCDTLSTransport.html#GST-WEBRTC-DTLS-TRANSPORT-STATE-CONNECTED:CAPS"/>
-    <keyword type="constant" name="GST_WEBRTC_ICE_ROLE_CONTROLLED" link="GstWebRTCICETransport.html#GST-WEBRTC-ICE-ROLE-CONTROLLED:CAPS"/>
-    <keyword type="constant" name="GST_WEBRTC_ICE_ROLE_CONTROLLING" link="GstWebRTCICETransport.html#GST-WEBRTC-ICE-ROLE-CONTROLLING:CAPS"/>
     <keyword type="constant" name="GST_WEBRTC_ICE_GATHERING_STATE_NEW" link="GstWebRTCICETransport.html#GST-WEBRTC-ICE-GATHERING-STATE-NEW:CAPS"/>
     <keyword type="constant" name="GST_WEBRTC_ICE_GATHERING_STATE_GATHERING" link="GstWebRTCICETransport.html#GST-WEBRTC-ICE-GATHERING-STATE-GATHERING:CAPS"/>
     <keyword type="constant" name="GST_WEBRTC_ICE_GATHERING_STATE_COMPLETE" link="GstWebRTCICETransport.html#GST-WEBRTC-ICE-GATHERING-STATE-COMPLETE:CAPS"/>

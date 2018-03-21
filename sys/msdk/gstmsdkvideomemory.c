@@ -114,7 +114,7 @@ gst_msdk_video_memory_new (GstAllocator * base_allocator)
 
   mem->surface = gst_msdk_video_allocator_get_surface (base_allocator);
   if (!mem->surface)
-    return FALSE;
+    return NULL;
 
   vip = &allocator->image_info;
   gst_memory_init (&mem->parent_instance, GST_MEMORY_FLAG_NO_SHARE,
@@ -136,6 +136,7 @@ gst_video_meta_map_msdk_memory (GstVideoMeta * meta, guint plane,
   GstMsdkMemoryID *mem_id;
   guint offset = 0;
   gint pitch = 0;
+  guint plane_id = plane;
 
   g_return_val_if_fail (mem, FALSE);
 
@@ -165,9 +166,14 @@ gst_video_meta_map_msdk_memory (GstVideoMeta * meta, guint plane,
   mem->mapped++;
   mem_id = mem->surface->Data.MemId;
 
+  /* msdk doesn't support I420 format and we used YV12 internally
+   * So we need to swap U/V planes for mapping */
+  if (meta->format == GST_VIDEO_FORMAT_I420)
+    plane_id = plane ? (plane == 1 ? 2 : 1) : plane;
+
 #ifndef _WIN32
-  offset = mem_id->image.offsets[plane];
-  pitch = mem_id->image.pitches[plane];
+  offset = mem_id->image.offsets[plane_id];
+  pitch = mem_id->image.pitches[plane_id];
 #else
   /* TODO: This is just to avoid compile errors on Windows.
    * Implement handling Windows-specific video-memory.
@@ -222,13 +228,13 @@ gst_msdk_video_memory_map_full (GstMemory * base_mem, GstMapInfo * info,
 
   if (!mem->surface) {
     GST_WARNING ("The surface is not allocated");
-    return FALSE;
+    return NULL;
   }
 
   if ((info->flags & GST_MAP_WRITE) && mem->surface
       && mem->surface->Data.Locked) {
     GST_WARNING ("The surface in memory %p is not still avaliable", mem);
-    return FALSE;
+    return NULL;
   }
 
   gst_msdk_frame_lock (msdk_video_allocator->context, mem->surface->Data.MemId,
