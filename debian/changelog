@@ -1,8 +1,8 @@
-gst-plugins-bad1.0 (1.14.0-1ubuntu3) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.14.0-1ubuntu3) cosmic; urgency=medium
 
   * debian/rules: gl and glx aren't here any more, don't disable
 
- -- Iain Lane <iain.lane@canonical.com>  Wed, 21 Mar 2018 17:44:10 +0000
+ -- Iain Lane <iain.lane@canonical.com>  Fri, 11 May 2018 17:44:10 +0000
 
 gst-plugins-bad1.0 (1.14.0-1ubuntu2) cosmic; urgency=medium
 
