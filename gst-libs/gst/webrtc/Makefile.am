@@ -4,7 +4,8 @@ glib_enum_headers = dtlstransport.h icetransport.h rtptransceiver.h webrtc_fwd.h
 glib_enum_define = GST_WEBRTC
 glib_gen_prefix = gst_webrtc
 glib_gen_basename = webrtc
-glib_gen_decl_banner=GST_EXPORT
+glib_gen_decl_banner=GST_WEBRTC_API
+glib_gen_decl_include=\#include <gst/webrtc/webrtc_fwd.h>
 
 built_sources = webrtc-enumtypes.c
 built_headers = webrtc-enumtypes.h
@@ -82,6 +83,7 @@ GstWebRTC-@GST_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libgstwebrtc-@GST_API_
 		--pkg gstreamer-sdp-@GST_API_VERSION@ \
 		--pkg-export gstreamer-webrtc-@GST_API_VERSION@ \
 		--add-init-section="$(INTROSPECTION_INIT)" \
+		-DGST_USE_UNSTABLE_API \
 		--output $@ \
 		$(gir_headers) \
 		$(gir_sources)

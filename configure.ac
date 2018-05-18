@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.14.0],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.14.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 1400, 0, 1400)
+AS_LIBTOOL(GST, 1401, 0, 1401)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.14.0
-GSTPB_REQ=1.14.0
+GST_REQ=1.14.1
+GSTPB_REQ=1.14.1
 
 dnl *** autotools stuff ****
 
@@ -305,6 +305,7 @@ dnl *** set variables based on configure arguments ***
 
 dnl GTK is optional and used in examples
 HAVE_GTK3=NO
+HAVE_GTK3_WAYLAND=""
 if test "x$BUILD_EXAMPLES" = "xyes"; then
   PKG_CHECK_MODULES(GTK3, gtk+-3.0 >= 3.4, HAVE_GTK3=yes, HAVE_GTK3=no)
   if test "x$HAVE_GTK3" = "xyes"; then
@@ -313,12 +314,15 @@ if test "x$BUILD_EXAMPLES" = "xyes"; then
     AC_SUBST(GTK_VERSION)
     GTK_PREFIX=`$PKG_CONFIG --variable=prefix gdk-pixbuf-2.0`
     AC_SUBST(GTK_BASE_DIR)
+    GTK3_TARGETS=`$PKG_CONFIG --variable=targets gtk+-3.0`
+    case "$GTK3_TARGETS" in  *wayland*) HAVE_GTK3_WAYLAND="1" ;; esac
   fi
 fi
 AC_SUBST(GTK3_LIBS)
 AC_SUBST(GTK3_CFLAGS)
 AC_SUBST(HAVE_GTK3)
 AM_CONDITIONAL(HAVE_GTK3, test "x$HAVE_GTK3" = "xyes")
+AM_CONDITIONAL(HAVE_GTK3_WAYLAND, test "x$HAVE_GTK3_WAYLAND" = "x1")
 
 dnl x11 is optional for librfb
 HAVE_X11=NO

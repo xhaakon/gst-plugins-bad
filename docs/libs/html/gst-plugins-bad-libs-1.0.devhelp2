@@ -1877,5 +1877,7 @@
     <keyword type="member" name="GstVideoAggregatorClass.sink-non-alpha-caps" link="GstVideoAggregator.html#GstVideoAggregatorClass.sink-non-alpha-caps"/>
     <keyword type="member" name="GstPlayerVisualization-struct.name" link="GstPlayerVisualization.html#GstPlayerVisualization-struct.name"/>
     <keyword type="member" name="GstPlayerVisualization-struct.description" link="GstPlayerVisualization.html#GstPlayerVisualization-struct.description"/>
+    <keyword type="member" name="GstWebRTCSessionDescription-struct.type" link="GstWebRTCSessionDescription.html#GstWebRTCSessionDescription-struct.type"/>
+    <keyword type="member" name="GstWebRTCSessionDescription-struct.sdp" link="GstWebRTCSessionDescription.html#GstWebRTCSessionDescription-struct.sdp"/>
   </functions>
 </book>
