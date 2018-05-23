@@ -8,7 +8,6 @@ gst-plugins-bad1.0 (1.14.1-1ubuntu1) UNRELEASED; urgency=medium
       library to. This maintains compatibility with upstream software and
       other distributions.
     + debian/control{,.in}: Update Vcs-* for Ubuntu
-    + C/R/P old -videoparsers and -faad
 
  -- Iain Lane <iain.lane@canonical.com>  Wed, 23 May 2018 12:37:01 +0100
 
