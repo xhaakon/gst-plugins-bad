@@ -1,3 +1,17 @@
+gst-plugins-bad1.0 (1.14.1-1ubuntu1) UNRELEASED; urgency=medium
+
+  * Merge with Debian unstable; remaining changes:
+    + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
+      moved to -good.
+    + Provide gstreamer-plugins-bad-1.0.pc with Requires on
+      gstreamer-plugins-good-1.0 - the package we've moved the referenced
+      library to. This maintains compatibility with upstream software and
+      other distributions.
+    + debian/control{,.in}: Update Vcs-* for Ubuntu
+    + C/R/P old -videoparsers and -faad
+
+ -- Iain Lane <iain.lane@canonical.com>  Wed, 23 May 2018 12:37:01 +0100
+
 gst-plugins-bad1.0 (1.14.1-1) unstable; urgency=medium
 
   * New upstream bugfix release
