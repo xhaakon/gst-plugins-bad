@@ -1,4 +1,4 @@
-gst-plugins-bad1.0 (1.14.1-1ubuntu1) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.14.1-1ubuntu1) cosmic; urgency=medium
 
   * Merge with Debian unstable; remaining changes:
     + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
@@ -9,7 +9,7 @@ gst-plugins-bad1.0 (1.14.1-1ubuntu1) UNRELEASED; urgency=medium
       other distributions.
     + debian/control{,.in}: Update Vcs-* for Ubuntu
 
- -- Iain Lane <iain.lane@canonical.com>  Wed, 23 May 2018 12:37:01 +0100
+ -- Iain Lane <iain.lane@canonical.com>  Wed, 23 May 2018 12:41:48 +0100
 
 gst-plugins-bad1.0 (1.14.1-1) unstable; urgency=medium
 
