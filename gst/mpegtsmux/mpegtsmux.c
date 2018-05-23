@@ -105,6 +105,8 @@
 GST_DEBUG_CATEGORY (mpegtsmux_debug);
 #define GST_CAT_DEFAULT mpegtsmux_debug
 
+#define COLLECT_DATA_PAD(collect_data) (((GstCollectData *)(collect_data))->pad)
+
 enum
 {
   PROP_0,
@@ -380,12 +382,15 @@ mpegtsmux_reset (MpegTsMux * mux, gboolean alloc)
   mux->first = TRUE;
   mux->last_flow_ret = GST_FLOW_OK;
   mux->previous_pcr = -1;
+  mux->previous_offset = 0;
   mux->pcr_rate_num = mux->pcr_rate_den = 1;
   mux->last_ts = 0;
   mux->is_delta = TRUE;
+  mux->is_header = FALSE;
 
   mux->streamheader_sent = FALSE;
   mux->pending_key_unit_ts = GST_CLOCK_TIME_NONE;
+  gst_event_replace (&mux->force_key_unit_event, NULL);
 #if 0
   mux->spn_count = 0;
 
@@ -960,6 +965,13 @@ mpegtsmux_create_streams (MpegTsMux * mux)
       tsmux_set_pmt_interval (ts_data->prog, mux->pmt_interval);
       g_hash_table_insert (mux->programs,
           GINT_TO_POINTER (ts_data->prog_id), ts_data->prog);
+
+      /* Take the first stream of the program for the PCR */
+      GST_DEBUG_OBJECT (COLLECT_DATA_PAD (ts_data),
+          "Use stream (pid=%d) from pad as PCR for program (prog_id = %d)",
+          ts_data->pid, ts_data->prog_id);
+
+      tsmux_program_set_pcr_stream (ts_data->prog, ts_data->stream);
     }
 
     if (ts_data->stream == NULL) {
@@ -985,9 +997,6 @@ no_stream:
     return ret;
   }
 }
-
-
-#define COLLECT_DATA_PAD(collect_data) (((GstCollectData *)(collect_data))->pad)
 
 static gboolean
 mpegtsmux_sink_event (GstCollectPads * pads, GstCollectData * data,
@@ -1369,16 +1378,16 @@ mpegtsmux_collected_buffer (GstCollectPads * pads, GstCollectData * data,
           GST_TIME_ARGS (running_time), count);
       gst_pad_push_event (mux->srcpad, event);
 
-      /* output PAT */
-      mux->tsmux->last_pat_ts = -1;
+      /* output PAT, SI tables */
+      tsmux_resend_pat (mux->tsmux);
+      tsmux_resend_si (mux->tsmux);
 
       /* output PMT for each program */
       for (cur = mux->tsmux->programs; cur; cur = cur->next) {
         TsMuxProgram *program = (TsMuxProgram *) cur->data;
 
-        program->last_pmt_ts = -1;
+        tsmux_resend_pmt (program);
       }
-      tsmux_program_set_pcr_stream (prog, NULL);
     }
   }
 

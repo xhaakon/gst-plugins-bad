@@ -2,16 +2,16 @@ Source: gst-plugins-bad@GST_ABI@
 Section: libs
 Priority: extra
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-XSBC-Original-Maintainer: Maintainers of GStreamer packages <pkg-gstreamer-maintainers@lists.alioth.debian.org>
+XSBC-Original-Maintainer: Maintainers of GStreamer packages <gst-plugins-bad1.0@packages.debian.org>
 Uploaders: Sebastian Dröge <slomo@debian.org>,
            Sjoerd Simons <sjoerd@debian.org>
 Build-Depends: BUILDDEPS
 Standards-Version: 3.9.3
-XS-Debian-Vcs-Git: git://anonscm.debian.org/pkg-gstreamer/gst-plugins-bad@GST_ABI@.git
-XS-Debian-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-gstreamer/gst-plugins-bad@GST_ABI@.git;a=summary
 Vcs-Git: git://git.launchpad.net/~ubuntu-desktop/ubuntu/+source/gst-plugins-bad@GST_ABI@
 Vcs-Browser: https://code.launchpad.net/~ubuntu-desktop/ubuntu/+source/gst-plugins-bad@GST_ABI@/+git/gst-plugins-bad@GST_ABI@
-Homepage: http://gstreamer.freedesktop.org/modules/gst-plugins-bad.html
+XS-Debian-Vcs-Git: https://salsa.debian.org/gstreamer-team/gst-plugins-bad1.0.git
+XS-Debian-Vcs-Browser: https://salsa.debian.org/gstreamer-team/gst-plugins-bad1.0/
+Homepage: https://gstreamer.freedesktop.org
 
 Package: @GST_PKGNAME@-plugins-bad-doc
 Architecture: all

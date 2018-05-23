@@ -52,7 +52,6 @@ static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS ("image/jpeg, "
-        "framerate = (fraction) [0/1, MAX], "
         "width = (int) [ 1, MAX ], height = (int) [ 1, MAX ], parsed = true ")
     );
 
@@ -63,6 +62,14 @@ static gboolean
 gst_msdkmjpegdec_configure (GstMsdkDec * decoder)
 {
   decoder->param.mfx.CodecId = MFX_CODEC_JPEG;
+
+  /* HACK to make sure MSDK won't crash while handling non-interleaved samples */
+  /* setting MFX_SCANTYPE_UNKNOWN (== 0) causing issues for
+     non-interleaved samples. Usage of MFXVideoDECODE_DecodeHeader
+     also doesn't seems to fix the issue. But even if we hardcode
+     the InterleaveDec to MFX_SCANTYPE_NONINTERLEAVED, msdk seems to be taking care
+     of Interleaved samples, so let's hardcode it for now */
+  decoder->param.mfx.InterleavedDec = MFX_SCANTYPE_NONINTERLEAVED;
   return TRUE;
 }
 

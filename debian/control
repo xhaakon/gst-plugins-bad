@@ -2,7 +2,7 @@ Source: gst-plugins-bad1.0
 Section: libs
 Priority: extra
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-XSBC-Original-Maintainer: Maintainers of GStreamer packages <pkg-gstreamer-maintainers@lists.alioth.debian.org>
+XSBC-Original-Maintainer: Maintainers of GStreamer packages <gst-plugins-bad1.0@packages.debian.org>
 Uploaders: Sebastian Dröge <slomo@debian.org>,
            Sjoerd Simons <sjoerd@debian.org>
 Build-Depends: autoconf (>= 2.69),
@@ -30,9 +30,9 @@ Build-Depends: autoconf (>= 2.69),
                libdrm-dev (>= 2.4.55) [linux-any],
                wayland-protocols (>= 1.4) [linux-any],
                libvulkan-dev [linux-any],
-               libgstreamer1.0-dev (>= 1.14.0),
+               libgstreamer1.0-dev (>= 1.14.1),
                gstreamer1.0-doc,
-               gstreamer1.0-plugins-base (>= 1.14.0),
+               gstreamer1.0-plugins-base (>= 1.14.1),
                gstreamer1.0-plugins-base-doc,
                gtk-doc-tools (>= 1.12),
                ladspa-sdk,
@@ -54,8 +54,8 @@ Build-Depends: autoconf (>= 2.69),
                libgme-dev,
                libgnutls28-dev (>= 2.11.3),
                libgsm1-dev,
-               libgstreamer-plugins-base1.0-dev (>= 1.14.0),
-               libgstreamer-plugins-good1.0-dev (>= 1.14.0),
+               libgstreamer-plugins-base1.0-dev (>= 1.14.1),
+               libgstreamer-plugins-good1.0-dev (>= 1.14.1),
                libgtk-3-dev (>= 3.15.0),
                libiptcdata0-dev (>= 1.0.2),
                libkate-dev (>= 0.1.7),
@@ -98,11 +98,11 @@ Build-Depends: autoconf (>= 2.69),
                nettle-dev,
                pkg-config (>= 0.11.0)
 Standards-Version: 3.9.3
-XS-Debian-Vcs-Git: git://anonscm.debian.org/pkg-gstreamer/gst-plugins-bad1.0.git
-XS-Debian-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-gstreamer/gst-plugins-bad1.0.git;a=summary
 Vcs-Git: git://git.launchpad.net/~ubuntu-desktop/ubuntu/+source/gst-plugins-bad1.0
 Vcs-Browser: https://code.launchpad.net/~ubuntu-desktop/ubuntu/+source/gst-plugins-bad1.0/+git/gst-plugins-bad1.0
-Homepage: http://gstreamer.freedesktop.org/modules/gst-plugins-bad.html
+XS-Debian-Vcs-Git: https://salsa.debian.org/gstreamer-team/gst-plugins-bad1.0.git
+XS-Debian-Vcs-Browser: https://salsa.debian.org/gstreamer-team/gst-plugins-bad1.0/
+Homepage: https://gstreamer.freedesktop.org
 
 Package: gstreamer1.0-plugins-bad-doc
 Architecture: all

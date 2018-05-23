@@ -322,7 +322,6 @@
       <sub name="gmedec" link="gst-plugins-bad-plugins-plugin-gmedec.html"/>
       <sub name="gme" link="gst-plugins-bad-plugins-plugin-gme.html"/>
       <sub name="gsm" link="gst-plugins-bad-plugins-plugin-gsm.html"/>
-      <sub name="gstsiren" link="gst-plugins-bad-plugins-plugin-gstsiren.html"/>
       <sub name="hls" link="gst-plugins-bad-plugins-plugin-hls.html"/>
       <sub name="id3tag" link="gst-plugins-bad-plugins-plugin-id3tag.html"/>
       <sub name="interlace" link="gst-plugins-bad-plugins-plugin-interlace.html"/>
@@ -361,7 +360,6 @@
       <sub name="pcapparse" link="gst-plugins-bad-plugins-plugin-pcapparse.html"/>
       <sub name="pnm" link="gst-plugins-bad-plugins-plugin-pnm.html"/>
       <sub name="proxy" link="gst-plugins-bad-plugins-plugin-proxy.html"/>
-      <sub name="rawparse" link="gst-plugins-bad-plugins-plugin-rawparse.html"/>
       <sub name="removesilence" link="gst-plugins-bad-plugins-plugin-removesilence.html"/>
       <sub name="resindvd" link="gst-plugins-bad-plugins-plugin-resindvd.html"/>
       <sub name="rfbsrc" link="gst-plugins-bad-plugins-plugin-rfbsrc.html"/>
