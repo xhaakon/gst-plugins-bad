@@ -1,6 +1,6 @@
 gst-plugins-bad1.0 (1.14.1-1ubuntu1) cosmic; urgency=medium
 
-  * Merge with Debian unstable; remaining changes:
+  * Merge with Debian unstable (LP: #1772898); remaining changes:
     + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
       moved to -good.
     + Provide gstreamer-plugins-bad-1.0.pc with Requires on
