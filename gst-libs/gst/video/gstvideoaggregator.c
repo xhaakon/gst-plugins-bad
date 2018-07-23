@@ -661,13 +661,14 @@ gst_video_aggregator_default_update_caps (GstVideoAggregator * vagg,
     gst_caps_unref (tmp);
   }
 
+  color_name = gst_video_colorimetry_to_string (&best_info.colorimetry);
+
   GST_DEBUG_OBJECT (vagg,
       "The output format will now be : %d with chroma : %s and colorimetry %s",
       best_format, gst_video_chroma_to_string (best_info.chroma_site),
-      gst_video_colorimetry_to_string (&best_info.colorimetry));
+      color_name);
 
   best_format_caps = gst_caps_copy (caps);
-  color_name = gst_video_colorimetry_to_string (&best_info.colorimetry);
   gst_caps_set_simple (best_format_caps, "format", G_TYPE_STRING,
       gst_video_format_to_string (best_format), "chroma-site", G_TYPE_STRING,
       gst_video_chroma_to_string (best_info.chroma_site), "colorimetry",
@@ -1110,7 +1111,7 @@ gst_video_aggregator_fill_queues (GstVideoAggregator * vagg,
       start_time = GST_BUFFER_TIMESTAMP (buf);
       if (start_time == -1) {
         gst_buffer_unref (buf);
-        GST_DEBUG_OBJECT (pad, "Need timestamped buffers!");
+        GST_ERROR_OBJECT (pad, "Need timestamped buffers!");
         GST_OBJECT_UNLOCK (vagg);
         return GST_FLOW_ERROR;
       }

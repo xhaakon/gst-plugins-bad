@@ -1273,7 +1273,7 @@
     <keyword type="property" name="The “learning-rate” property" link="gst-plugins-bad-plugins-segmentation.html#GstSegmentation--learning-rate"/>
     <keyword type="property" name="The “method” property" link="gst-plugins-bad-plugins-segmentation.html#GstSegmentation--method"/>
     <keyword type="property" name="The “test-mode” property" link="gst-plugins-bad-plugins-segmentation.html#GstSegmentation--test-mode"/>
-    <keyword type="struct" name="struct GstSFDec" link="gst-plugins-bad-plugins-sfdec.html#GstSFDec"/>
+    <keyword type="struct" name="struct GstSFDec" link="gst-plugins-bad-plugins-sfdec.html#GstSFDec-struct"/>
     <keyword type="struct" name="struct GstShmSink" link="gst-plugins-bad-plugins-shmsink.html#GstShmSink-struct"/>
     <keyword type="property" name="The “perms” property" link="gst-plugins-bad-plugins-shmsink.html#GstShmSink--perms"/>
     <keyword type="property" name="The “shm-size” property" link="gst-plugins-bad-plugins-shmsink.html#GstShmSink--shm-size"/>
@@ -1545,6 +1545,7 @@
     <keyword type="signal" name="The “on-negotiation-needed” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-on-negotiation-needed"/>
     <keyword type="signal" name="The “set-local-description” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-set-local-description"/>
     <keyword type="signal" name="The “set-remote-description” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-set-remote-description"/>
+    <keyword type="signal" name="The “on-new-transceiver” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-on-new-transceiver"/>
     <keyword type="struct" name="GstWebrtcDsp" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp"/>
     <keyword type="property" name="The “echo-cancel” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--echo-cancel"/>
     <keyword type="property" name="The “experimental-agc” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--experimental-agc"/>
