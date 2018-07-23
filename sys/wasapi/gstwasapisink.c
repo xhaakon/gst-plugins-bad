@@ -208,7 +208,8 @@ gst_wasapi_sink_finalize (GObject * object)
 {
   GstWasapiSink *self = GST_WASAPI_SINK (object);
 
-  g_clear_pointer (&self->mix_format, CoTaskMemFree);
+  CoTaskMemFree (self->mix_format);
+  self->mix_format = NULL;
 
   if (self->cached_caps != NULL) {
     gst_caps_unref (self->cached_caps);
@@ -610,7 +611,8 @@ gst_wasapi_sink_write (GstAudioSink * asink, gpointer data, guint length)
   GST_OBJECT_LOCK (self);
   if (self->client_needs_restart) {
     hr = IAudioClient_Start (self->client);
-    HR_FAILED_AND (hr, IAudioClient::Start, length = 0; goto beach);
+    HR_FAILED_AND (hr, IAudioClient::Start,
+      GST_OBJECT_UNLOCK (self); length = 0; goto beach);
     self->client_needs_restart = FALSE;
   }
   GST_OBJECT_UNLOCK (self);
