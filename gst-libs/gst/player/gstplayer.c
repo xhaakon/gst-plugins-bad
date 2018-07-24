@@ -492,7 +492,10 @@ gst_player_dispose (GObject * object)
   if (self->loop) {
     g_main_loop_quit (self->loop);
 
-    g_thread_join (self->thread);
+    if (self->thread != g_thread_self ())
+      g_thread_join (self->thread);
+    else
+      g_thread_unref (self->thread);
     self->thread = NULL;
 
     g_main_loop_unref (self->loop);
@@ -1499,7 +1502,8 @@ emit_duration_changed (GstPlayer * self, GstClockTime duration)
 {
   gboolean updated = FALSE;
 
-  g_return_if_fail (self->cached_duration != duration);
+  if (self->cached_duration == duration)
+    return;
 
   GST_DEBUG_OBJECT (self, "Duration changed %" GST_TIME_FORMAT,
       GST_TIME_ARGS (duration));

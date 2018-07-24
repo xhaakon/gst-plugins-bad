@@ -1,3 +1,28 @@
+gst-plugins-bad1.0 (1.14.2-1ubuntu1) cosmic; urgency=low
+
+  * Merge from Debian unstable.  Remaining changes:
+    + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
+      moved to -good.
+    + Provide gstreamer-plugins-bad-1.0.pc with Requires on
+      gstreamer-plugins-good-1.0 - the package we've moved the referenced
+      library to. This maintains compatibility with upstream software and
+      other distributions.
+    + debian/control{,.in}: Update Vcs-* for Ubuntu
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 24 Jul 2018 12:05:07 +0200
+
+gst-plugins-bad1.0 (1.14.2-1) unstable; urgency=medium
+
+  * New upstream bugfix release
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 23 Jul 2018 12:21:14 +0300
+
+gst-plugins-bad1.0 (1.14.1-1ubuntu2) cosmic; urgency=medium
+
+  * No-change rebuild for x265 soname change.
+
+ -- Matthias Klose <doko@ubuntu.com>  Wed, 13 Jun 2018 12:15:02 +0200
+
 gst-plugins-bad1.0 (1.14.1-1ubuntu1) cosmic; urgency=medium
 
   * Merge with Debian unstable (LP: #1772898); remaining changes:
@@ -218,6 +243,12 @@ gst-plugins-bad1.0 (1.12.2-1ubuntu1) artful; urgency=medium
     + C/R/P old -videoparsers and -faad
 
  -- Iain Lane <iain.lane@canonical.com>  Tue, 18 Jul 2017 16:20:28 +0100
+
+gst-plugins-bad1.0 (1.12.2-1) unstable; urgency=medium
+
+  * New upstream bugfix release
+
+ -- Iain Lane <iain.lane@canonical.com>  Fri, 14 Jul 2017 13:35:08 +0300
 
 gst-plugins-bad1.0 (1.12.1-1ubuntu1) artful; urgency=medium
 
@@ -3559,4 +3590,3 @@ gst-plugins-bad0.10 (0.10.0+cvs20060214-1) unstable; urgency=low
   * Initial release.
 
  -- Joe Wreschnig <piman@debian.org>  Tue, 14 Feb 2006 13:22:33 -0600
-
