@@ -1,3 +1,14 @@
+gst-plugins-bad1.0 (1.14.2-2) UNRELEASED; urgency=medium
+
+  * gir1.2-gst-plugins-bad-1.0: Install the typelibs into a multi-arch
+    library directory.
+  * debian/control.in:
+    - Mark gir1.2-gst-plugins-bad-1.0 Multi-Arch: same.
+    - Remove a duplicate ${gir:Depends} from gir1.2-gst-plugins-bad-1.0.
+    - Mark libgstreamer-plugins-bad1.0-dev Multi-Arch: same.
+
+ -- Hugh McMaster <hugh.mcmaster@outlook.com>  Tue, 04 Sep 2018 22:21:39 +1000
+
 gst-plugins-bad1.0 (1.14.2-1) unstable; urgency=medium
 
   * New upstream bugfix release
