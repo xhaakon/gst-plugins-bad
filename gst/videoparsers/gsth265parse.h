@@ -63,12 +63,15 @@ struct _GstH265Parse
 
   /* state */
   GstH265Parser *nalparser;
+  guint state;
   guint align;
   guint format;
   gint current_off;
 
   GstClockTime last_report;
   gboolean push_codec;
+  /* The following variables have a meaning in context of "have
+   * VPS/SPS/PPS to push downstream", e.g. to update caps */
   gboolean have_vps;
   gboolean have_sps;
   gboolean have_pps;
@@ -77,6 +80,8 @@ struct _GstH265Parse
   GstBuffer *vps_nals[GST_H265_MAX_VPS_COUNT];
   GstBuffer *sps_nals[GST_H265_MAX_SPS_COUNT];
   GstBuffer *pps_nals[GST_H265_MAX_PPS_COUNT];
+
+  gboolean discont;
 
   /* frame parsing */
   gint idr_pos, sei_pos;
@@ -88,7 +93,7 @@ struct _GstH265Parse
   gboolean picture_start;
 
   /* props */
-  guint interval;
+  gint interval;
 
   gboolean sent_codec_tag;
 

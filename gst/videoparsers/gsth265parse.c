@@ -55,6 +55,22 @@ enum
   GST_H265_PARSE_ALIGN_AU
 };
 
+enum
+{
+  GST_H265_PARSE_STATE_GOT_SPS = 1 << 0,
+  GST_H265_PARSE_STATE_GOT_PPS = 1 << 1,
+  GST_H265_PARSE_STATE_GOT_SLICE = 1 << 2,
+
+  GST_H265_PARSE_STATE_VALID_PICTURE_HEADERS = (GST_H265_PARSE_STATE_GOT_SPS |
+      GST_H265_PARSE_STATE_GOT_PPS),
+  GST_H265_PARSE_STATE_VALID_PICTURE =
+      (GST_H265_PARSE_STATE_VALID_PICTURE_HEADERS |
+      GST_H265_PARSE_STATE_GOT_SLICE)
+};
+
+#define GST_H265_PARSE_STATE_VALID(parse, expected_state) \
+  (((parse)->state & (expected_state)) == (expected_state))
+
 static GstStaticPadTemplate sinktemplate = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
@@ -107,11 +123,12 @@ gst_h265_parse_class_init (GstH265ParseClass * klass)
   gobject_class->get_property = gst_h265_parse_get_property;
 
   g_object_class_install_property (gobject_class, PROP_CONFIG_INTERVAL,
-      g_param_spec_uint ("config-interval",
+      g_param_spec_int ("config-interval",
           "VPS SPS PPS Send Interval",
           "Send VPS, SPS and PPS Insertion Interval in seconds (sprop parameter sets "
-          "will be multiplexed in the data stream when detected.) (0 = disabled)",
-          0, 3600, DEFAULT_CONFIG_INTERVAL,
+          "will be multiplexed in the data stream when detected.) "
+          "(0 = disabled, -1 = send with every IDR frame)",
+          -1, 3600, DEFAULT_CONFIG_INTERVAL,
           G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS));
   /* Override BaseParse vfuncs */
   parse_class->start = GST_DEBUG_FUNCPTR (gst_h265_parse_start);
@@ -171,8 +188,10 @@ gst_h265_parse_reset_frame (GstH265Parse * h265parse)
 }
 
 static void
-gst_h265_parse_reset (GstH265Parse * h265parse)
+gst_h265_parse_reset_stream_info (GstH265Parse * h265parse)
 {
+  gint i;
+
   h265parse->width = 0;
   h265parse->height = 0;
   h265parse->fps_num = 0;
@@ -181,27 +200,44 @@ gst_h265_parse_reset (GstH265Parse * h265parse)
   h265parse->upstream_par_d = -1;
   h265parse->parsed_par_n = 0;
   h265parse->parsed_par_n = 0;
-  gst_buffer_replace (&h265parse->codec_data, NULL);
-  gst_buffer_replace (&h265parse->codec_data_in, NULL);
-  h265parse->nal_length_size = 4;
-  h265parse->packetized = FALSE;
-  h265parse->transform = FALSE;
-
-  h265parse->align = GST_H265_PARSE_ALIGN_NONE;
-  h265parse->format = GST_H265_PARSE_FORMAT_NONE;
-
-  h265parse->last_report = GST_CLOCK_TIME_NONE;
-  h265parse->push_codec = FALSE;
   h265parse->have_pps = FALSE;
   h265parse->have_sps = FALSE;
   h265parse->have_vps = FALSE;
 
+  h265parse->align = GST_H265_PARSE_ALIGN_NONE;
+  h265parse->format = GST_H265_PARSE_FORMAT_NONE;
+
+  h265parse->transform = FALSE;
+  h265parse->nal_length_size = 4;
+  h265parse->packetized = FALSE;
+  h265parse->push_codec = FALSE;
+
+  gst_buffer_replace (&h265parse->codec_data, NULL);
+  gst_buffer_replace (&h265parse->codec_data_in, NULL);
+
+  gst_h265_parse_reset_frame (h265parse);
+
+  for (i = 0; i < GST_H265_MAX_VPS_COUNT; i++)
+    gst_buffer_replace (&h265parse->vps_nals[i], NULL);
+  for (i = 0; i < GST_H265_MAX_SPS_COUNT; i++)
+    gst_buffer_replace (&h265parse->sps_nals[i], NULL);
+  for (i = 0; i < GST_H265_MAX_PPS_COUNT; i++)
+    gst_buffer_replace (&h265parse->pps_nals[i], NULL);
+}
+
+static void
+gst_h265_parse_reset (GstH265Parse * h265parse)
+{
+  h265parse->last_report = GST_CLOCK_TIME_NONE;
+
   h265parse->sent_codec_tag = FALSE;
 
   h265parse->pending_key_unit_ts = GST_CLOCK_TIME_NONE;
-  h265parse->force_key_unit_event = NULL;
+  gst_event_replace (&h265parse->force_key_unit_event, NULL);
 
-  gst_h265_parse_reset_frame (h265parse);
+  h265parse->discont = FALSE;
+
+  gst_h265_parse_reset_stream_info (h265parse);
 }
 
 static gboolean
@@ -213,6 +249,7 @@ gst_h265_parse_start (GstBaseParse * parse)
   gst_h265_parse_reset (h265parse);
 
   h265parse->nalparser = gst_h265_parser_new ();
+  h265parse->state = 0;
 
   gst_base_parse_set_min_frame_size (parse, 7);
 
@@ -222,18 +259,10 @@ gst_h265_parse_start (GstBaseParse * parse)
 static gboolean
 gst_h265_parse_stop (GstBaseParse * parse)
 {
-  guint i;
   GstH265Parse *h265parse = GST_H265_PARSE (parse);
 
   GST_DEBUG_OBJECT (parse, "stop");
   gst_h265_parse_reset (h265parse);
-
-  for (i = 0; i < GST_H265_MAX_VPS_COUNT; i++)
-    gst_buffer_replace (&h265parse->vps_nals[i], NULL);
-  for (i = 0; i < GST_H265_MAX_SPS_COUNT; i++)
-    gst_buffer_replace (&h265parse->sps_nals[i], NULL);
-  for (i = 0; i < GST_H265_MAX_PPS_COUNT; i++)
-    gst_buffer_replace (&h265parse->pps_nals[i], NULL);
 
   gst_h265_parser_free (h265parse->nalparser);
 
@@ -356,7 +385,8 @@ gst_h265_parse_negotiate (GstH265Parse * h265parse, gint in_format,
   h265parse->format = format;
   h265parse->align = align;
 
-  h265parse->transform = (in_format != h265parse->format);
+  h265parse->transform = in_format != h265parse->format ||
+      align == GST_H265_PARSE_ALIGN_AU;
 
   if (caps)
     gst_caps_unref (caps);
@@ -486,7 +516,7 @@ _nal_name (GstH265NalUnitType nal_type)
 #endif
 
 /* caller guarantees 2 bytes of nal payload */
-static void
+static gboolean
 gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
 {
   GstH265PPS pps = { 0, };
@@ -500,7 +530,7 @@ gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
   /* nothing to do for broken input */
   if (G_UNLIKELY (nalu->size < 2)) {
     GST_DEBUG_OBJECT (h265parse, "not processing nal size %u", nalu->size);
-    return;
+    return TRUE;
   }
 
   /* we have a peek as well */
@@ -513,8 +543,10 @@ gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
       /* It is not mandatory to have VPS in the stream. But it might
        * be needed for other extensions like svc */
       pres = gst_h265_parser_parse_vps (nalparser, nalu, &vps);
-      if (pres != GST_H265_PARSER_OK)
+      if (pres != GST_H265_PARSER_OK) {
         GST_WARNING_OBJECT (h265parse, "failed to parse VPS");
+        return FALSE;
+      }
 
       GST_DEBUG_OBJECT (h265parse, "triggering src caps check");
       h265parse->update_caps = TRUE;
@@ -533,12 +565,17 @@ gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
       h265parse->header |= TRUE;
       break;
     case GST_H265_NAL_SPS:
+      /* reset state, everything else is obsolete */
+      h265parse->state = 0;
+
       pres = gst_h265_parser_parse_sps (nalparser, nalu, &sps, TRUE);
 
 
       /* arranged for a fallback sps.id, so use that one and only warn */
-      if (pres != GST_H265_PARSER_OK)
+      if (pres != GST_H265_PARSER_OK) {
         GST_WARNING_OBJECT (h265parse, "failed to parse SPS:");
+        return FALSE;
+      }
 
       GST_DEBUG_OBJECT (h265parse, "triggering src caps check");
       h265parse->update_caps = TRUE;
@@ -554,14 +591,23 @@ gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
 
       gst_h265_parser_store_nal (h265parse, sps.id, nal_type, nalu);
       h265parse->header |= TRUE;
+      h265parse->state |= GST_H265_PARSE_STATE_GOT_SPS;
       break;
     case GST_H265_NAL_PPS:
+      /* expected state: got-sps */
+      h265parse->state &= GST_H265_PARSE_STATE_GOT_SPS;
+      if (!GST_H265_PARSE_STATE_VALID (h265parse, GST_H265_PARSE_STATE_GOT_SPS))
+        return FALSE;
+
       pres = gst_h265_parser_parse_pps (nalparser, nalu, &pps);
 
 
       /* arranged for a fallback pps.id, so use that one and only warn */
-      if (pres != GST_H265_PARSER_OK)
+      if (pres != GST_H265_PARSER_OK) {
         GST_WARNING_OBJECT (h265parse, "failed to parse PPS:");
+        if (pres != GST_H265_PARSER_BROKEN_LINK)
+          return FALSE;
+      }
 
       /* parameters might have changed, force caps check */
       if (!h265parse->have_pps) {
@@ -580,9 +626,15 @@ gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
 
       gst_h265_parser_store_nal (h265parse, pps.id, nal_type, nalu);
       h265parse->header |= TRUE;
+      h265parse->state |= GST_H265_PARSE_STATE_GOT_PPS;
       break;
     case GST_H265_NAL_PREFIX_SEI:
     case GST_H265_NAL_SUFFIX_SEI:
+      /* expected state: got-sps */
+      if (!GST_H265_PARSE_STATE_VALID (h265parse, GST_H265_PARSE_STATE_GOT_SPS))
+        return FALSE;
+
+      h265parse->header |= TRUE;
       /*Fixme: parse sei messages */
       /* mark SEI pos */
       if (h265parse->sei_pos == -1) {
@@ -614,11 +666,19 @@ gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
     {
       GstH265SliceHdr slice;
 
+      /* expected state: got-sps|got-pps (valid picture headers) */
+      h265parse->state &= GST_H265_PARSE_STATE_VALID_PICTURE_HEADERS;
+      if (!GST_H265_PARSE_STATE_VALID (h265parse,
+              GST_H265_PARSE_STATE_VALID_PICTURE_HEADERS))
+        return FALSE;
+
       pres = gst_h265_parser_parse_slice_hdr (nalparser, nalu, &slice);
 
       if (pres == GST_H265_PARSER_OK) {
         if (GST_H265_IS_I_SLICE (&slice))
           h265parse->keyframe |= TRUE;
+
+        h265parse->state |= GST_H265_PARSE_STATE_GOT_SLICE;
       }
       if (slice.first_slice_segment_in_pic_flag == 1)
         GST_DEBUG_OBJECT (h265parse,
@@ -656,8 +716,21 @@ gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
             h265parse->idr_pos);
       }
       break;
+    case GST_H265_NAL_AUD:
+      /* Just accumulate AU Delimiter, whether it's before SPS or not */
+      pres = gst_h265_parser_parse_nal (nalparser, nalu);
+      if (pres != GST_H265_PARSER_OK)
+        return FALSE;
+      break;
     default:
-      gst_h265_parser_parse_nal (nalparser, nalu);
+      /* drop anything before the initial SPS */
+      if (!GST_H265_PARSE_STATE_VALID (h265parse, GST_H265_PARSE_STATE_GOT_SPS))
+        return FALSE;
+
+      pres = gst_h265_parser_parse_nal (nalparser, nalu);
+      if (pres != GST_H265_PARSER_OK)
+        return FALSE;
+      break;
   }
 
   /* if HEVC output needed, collect properly prefixed nal in adapter,
@@ -670,6 +743,8 @@ gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
         nalu->data + nalu->offset, nalu->size);
     gst_adapter_push (h265parse->frame_out, buf);
   }
+
+  return TRUE;
 }
 
 /* caller guarantees at least 3 bytes of nal payload for each nal
@@ -684,10 +759,10 @@ gst_h265_parse_collect_nal (GstH265Parse * h265parse, const guint8 * data,
   GstH265NalUnit nnalu;
 
   GST_DEBUG_OBJECT (h265parse, "parsing collected nal");
-  parse_res = gst_h265_parser_identify_nalu (h265parse->nalparser, data,
-      nalu->offset + nalu->size, size, &nnalu);
+  parse_res = gst_h265_parser_identify_nalu_unchecked (h265parse->nalparser,
+      data, nalu->offset + nalu->size, size, &nnalu);
 
-  if (parse_res == GST_H265_PARSER_ERROR)
+  if (parse_res != GST_H265_PARSER_OK)
     return FALSE;
 
   /* determine if AU complete */
@@ -805,7 +880,6 @@ gst_h265_parse_handle_frame_packetized (GstBaseParse * parse,
     if (h265parse->split_packetized) {
       GST_ELEMENT_ERROR (h265parse, STREAM, FAILED, (NULL),
           ("invalid HEVC input data"));
-      gst_buffer_unref (buffer);
 
       return GST_FLOW_ERROR;
     } else {
@@ -832,6 +906,11 @@ gst_h265_parse_handle_frame (GstBaseParse * parse,
   GstH265NalUnit nalu;
   GstH265ParserResult pres;
   gint framesize;
+
+  if (G_UNLIKELY (GST_BUFFER_FLAG_IS_SET (frame->buffer,
+              GST_BUFFER_FLAG_DISCONT))) {
+    h265parse->discont = TRUE;
+  }
 
   /* delegate in packetized case, no skipping should be needed */
   if (h265parse->packetized)
@@ -972,14 +1051,9 @@ gst_h265_parse_handle_frame (GstBaseParse * parse,
       }
     }
 
-    if (nalu.type == GST_H265_NAL_VPS ||
-        nalu.type == GST_H265_NAL_SPS ||
-        nalu.type == GST_H265_NAL_PPS ||
-        (h265parse->have_sps && h265parse->have_pps)) {
-      gst_h265_parse_process_nal (h265parse, &nalu);
-    } else {
+    if (!gst_h265_parse_process_nal (h265parse, &nalu)) {
       GST_WARNING_OBJECT (h265parse,
-          "no SPS/PPS yet, nal Type: %d %s, Size: %u will be dropped",
+          "broken/invalid nal Type: %d %s, Size: %u will be dropped",
           nalu.type, _nal_name (nalu.type), nalu.size);
       *skipsize = nalu.size;
       goto skip;
@@ -1019,7 +1093,13 @@ out:
 
 skip:
   GST_DEBUG_OBJECT (h265parse, "skipping %d", *skipsize);
-  gst_h265_parse_reset_frame (h265parse);
+  /* If we are collecting access units, we need to preserve the initial
+   * config headers (SPS, PPS et al.) and only reset the frame if another
+   * slice NAL was received. This means that broken pictures are discarded */
+  if (h265parse->align != GST_H265_PARSE_ALIGN_AU ||
+      !(h265parse->state & GST_H265_PARSE_STATE_VALID_PICTURE_HEADERS) ||
+      (h265parse->state & GST_H265_PARSE_STATE_GOT_SLICE))
+    gst_h265_parse_reset_frame (h265parse);
   goto out;
 
 invalid_stream:
@@ -1721,6 +1801,11 @@ gst_h265_parse_parse_frame (GstBaseParse * parse, GstBaseParseFrame * frame)
   else
     GST_BUFFER_FLAG_UNSET (buffer, GST_BUFFER_FLAG_HEADER);
 
+  if (h265parse->discont) {
+    GST_BUFFER_FLAG_SET (buffer, GST_BUFFER_FLAG_DISCONT);
+    h265parse->discont = FALSE;
+  }
+
   /* replace with transformed HEVC output if applicable */
   av = gst_adapter_available (h265parse->frame_out);
   if (av) {
@@ -1855,6 +1940,115 @@ gst_h265_parse_prepare_key_unit (GstH265Parse * parse, GstEvent * event)
   parse->push_codec = TRUE;
 }
 
+static gboolean
+gst_h265_parse_handle_vps_sps_pps_nals (GstH265Parse * h265parse,
+    GstBuffer * buffer, GstBaseParseFrame * frame)
+{
+  GstBuffer *codec_nal;
+  gint i;
+  gboolean send_done = FALSE;
+  GstClockTime timestamp = GST_BUFFER_TIMESTAMP (buffer);
+
+  if (h265parse->align == GST_H265_PARSE_ALIGN_NAL) {
+    /* send separate config NAL buffers */
+    GST_DEBUG_OBJECT (h265parse, "- sending VPS/SPS/PPS");
+    for (i = 0; i < GST_H265_MAX_VPS_COUNT; i++) {
+      if ((codec_nal = h265parse->vps_nals[i])) {
+        GST_DEBUG_OBJECT (h265parse, "sending VPS nal");
+        gst_h265_parse_push_codec_buffer (h265parse, codec_nal, timestamp);
+        send_done = TRUE;
+      }
+    }
+    for (i = 0; i < GST_H265_MAX_SPS_COUNT; i++) {
+      if ((codec_nal = h265parse->sps_nals[i])) {
+        GST_DEBUG_OBJECT (h265parse, "sending SPS nal");
+        gst_h265_parse_push_codec_buffer (h265parse, codec_nal, timestamp);
+        send_done = TRUE;
+      }
+    }
+    for (i = 0; i < GST_H265_MAX_PPS_COUNT; i++) {
+      if ((codec_nal = h265parse->pps_nals[i])) {
+        GST_DEBUG_OBJECT (h265parse, "sending PPS nal");
+        gst_h265_parse_push_codec_buffer (h265parse, codec_nal, timestamp);
+        send_done = TRUE;
+      }
+    }
+  } else {
+    /* insert config NALs into AU */
+    GstByteWriter bw;
+    GstBuffer *new_buf;
+    const gboolean bs = h265parse->format == GST_H265_PARSE_FORMAT_BYTE;
+    const gint nls = 4 - h265parse->nal_length_size;
+    gboolean ok;
+
+    gst_byte_writer_init_with_size (&bw, gst_buffer_get_size (buffer), FALSE);
+    ok = gst_byte_writer_put_buffer (&bw, buffer, 0, h265parse->idr_pos);
+    GST_DEBUG_OBJECT (h265parse, "- inserting VPS/SPS/PPS");
+    for (i = 0; i < GST_H265_MAX_VPS_COUNT; i++) {
+      if ((codec_nal = h265parse->vps_nals[i])) {
+        gsize nal_size = gst_buffer_get_size (codec_nal);
+        GST_DEBUG_OBJECT (h265parse, "inserting VPS nal");
+        if (bs) {
+          ok &= gst_byte_writer_put_uint32_be (&bw, 1);
+        } else {
+          ok &= gst_byte_writer_put_uint32_be (&bw, (nal_size << (nls * 8)));
+          ok &= gst_byte_writer_set_pos (&bw,
+              gst_byte_writer_get_pos (&bw) - nls);
+        }
+
+        ok &= gst_byte_writer_put_buffer (&bw, codec_nal, 0, nal_size);
+        send_done = TRUE;
+      }
+    }
+    for (i = 0; i < GST_H265_MAX_SPS_COUNT; i++) {
+      if ((codec_nal = h265parse->sps_nals[i])) {
+        gsize nal_size = gst_buffer_get_size (codec_nal);
+        GST_DEBUG_OBJECT (h265parse, "inserting SPS nal");
+        if (bs) {
+          ok &= gst_byte_writer_put_uint32_be (&bw, 1);
+        } else {
+          ok &= gst_byte_writer_put_uint32_be (&bw, (nal_size << (nls * 8)));
+          ok &= gst_byte_writer_set_pos (&bw,
+              gst_byte_writer_get_pos (&bw) - nls);
+        }
+
+        ok &= gst_byte_writer_put_buffer (&bw, codec_nal, 0, nal_size);
+        send_done = TRUE;
+      }
+    }
+    for (i = 0; i < GST_H265_MAX_PPS_COUNT; i++) {
+      if ((codec_nal = h265parse->pps_nals[i])) {
+        gsize nal_size = gst_buffer_get_size (codec_nal);
+        GST_DEBUG_OBJECT (h265parse, "inserting PPS nal");
+        if (bs) {
+          ok &= gst_byte_writer_put_uint32_be (&bw, 1);
+        } else {
+          ok &= gst_byte_writer_put_uint32_be (&bw, (nal_size << (nls * 8)));
+          ok &= gst_byte_writer_set_pos (&bw,
+              gst_byte_writer_get_pos (&bw) - nls);
+        }
+        ok &= gst_byte_writer_put_buffer (&bw, codec_nal, 0, nal_size);
+        send_done = TRUE;
+      }
+    }
+    ok &= gst_byte_writer_put_buffer (&bw, buffer, h265parse->idr_pos, -1);
+    /* collect result and push */
+    new_buf = gst_byte_writer_reset_and_get_buffer (&bw);
+    gst_buffer_copy_into (new_buf, buffer, GST_BUFFER_COPY_METADATA, 0, -1);
+    /* should already be keyframe/IDR, but it may not have been,
+     * so mark it as such to avoid being discarded by picky decoder */
+    GST_BUFFER_FLAG_UNSET (new_buf, GST_BUFFER_FLAG_DELTA_UNIT);
+    gst_buffer_replace (&frame->out_buffer, new_buf);
+    gst_buffer_unref (new_buf);
+    /* some result checking seems to make some compilers happy */
+    if (G_UNLIKELY (!ok)) {
+      GST_ERROR_OBJECT (h265parse, "failed to insert SPS/PPS");
+    }
+  }
+
+  return send_done;
+}
+
 static GstFlowReturn
 gst_h265_parse_pre_push_frame (GstBaseParse * parse, GstBaseParseFrame * frame)
 {
@@ -1904,10 +2098,12 @@ gst_h265_parse_pre_push_frame (GstBaseParse * parse, GstBaseParseFrame * frame)
   if (h265parse->interval > 0 || h265parse->push_codec) {
     GstClockTime timestamp = GST_BUFFER_TIMESTAMP (buffer);
     guint64 diff;
+    gboolean initial_frame = FALSE;
 
     /* init */
     if (!GST_CLOCK_TIME_IS_VALID (h265parse->last_report)) {
       h265parse->last_report = timestamp;
+      initial_frame = TRUE;
     }
 
     if (h265parse->idr_pos >= 0) {
@@ -1927,126 +2123,37 @@ gst_h265_parse_pre_push_frame (GstBaseParse * parse, GstBaseParseFrame * frame)
           GST_TIME_ARGS (diff));
 
       if (GST_TIME_AS_SECONDS (diff) >= h265parse->interval ||
-          h265parse->push_codec) {
-        GstBuffer *codec_nal;
-        gint i;
+          initial_frame || h265parse->push_codec) {
         GstClockTime new_ts;
 
         /* avoid overwriting a perfectly fine timestamp */
         new_ts = GST_CLOCK_TIME_IS_VALID (timestamp) ? timestamp :
             h265parse->last_report;
 
-        if (h265parse->align == GST_H265_PARSE_ALIGN_NAL) {
-          /* send separate config NAL buffers */
-          GST_DEBUG_OBJECT (h265parse, "- sending VPS/SPS/PPS");
-          for (i = 0; i < GST_H265_MAX_VPS_COUNT; i++) {
-            if ((codec_nal = h265parse->vps_nals[i])) {
-              GST_DEBUG_OBJECT (h265parse, "sending VPS nal");
-              gst_h265_parse_push_codec_buffer (h265parse, codec_nal,
-                  timestamp);
-              h265parse->last_report = new_ts;
-            }
-          }
-          for (i = 0; i < GST_H265_MAX_SPS_COUNT; i++) {
-            if ((codec_nal = h265parse->sps_nals[i])) {
-              GST_DEBUG_OBJECT (h265parse, "sending SPS nal");
-              gst_h265_parse_push_codec_buffer (h265parse, codec_nal,
-                  timestamp);
-              h265parse->last_report = new_ts;
-            }
-          }
-          for (i = 0; i < GST_H265_MAX_PPS_COUNT; i++) {
-            if ((codec_nal = h265parse->pps_nals[i])) {
-              GST_DEBUG_OBJECT (h265parse, "sending PPS nal");
-              gst_h265_parse_push_codec_buffer (h265parse, codec_nal,
-                  timestamp);
-              h265parse->last_report = new_ts;
-            }
-          }
-        } else {
-          /* insert config NALs into AU */
-          GstByteWriter bw;
-          GstBuffer *new_buf;
-          const gboolean bs = h265parse->format == GST_H265_PARSE_FORMAT_BYTE;
-          const gint nls = 4 - h265parse->nal_length_size;
-          gboolean ok;
-
-          gst_byte_writer_init_with_size (&bw, gst_buffer_get_size (buffer),
-              FALSE);
-          ok = gst_byte_writer_put_buffer (&bw, buffer, 0, h265parse->idr_pos);
-          GST_DEBUG_OBJECT (h265parse, "- inserting VPS/SPS/PPS");
-          for (i = 0; i < GST_H265_MAX_VPS_COUNT; i++) {
-            if ((codec_nal = h265parse->vps_nals[i])) {
-              gsize nal_size = gst_buffer_get_size (codec_nal);
-              GST_DEBUG_OBJECT (h265parse, "inserting VPS nal");
-              if (bs) {
-                ok &= gst_byte_writer_put_uint32_be (&bw, 1);
-              } else {
-                ok &= gst_byte_writer_put_uint32_be (&bw,
-                    (nal_size << (nls * 8)));
-                ok &= gst_byte_writer_set_pos (&bw,
-                    gst_byte_writer_get_pos (&bw) - nls);
-              }
-
-              ok &= gst_byte_writer_put_buffer (&bw, codec_nal, 0, nal_size);
-              h265parse->last_report = new_ts;
-            }
-          }
-          for (i = 0; i < GST_H265_MAX_SPS_COUNT; i++) {
-            if ((codec_nal = h265parse->sps_nals[i])) {
-              gsize nal_size = gst_buffer_get_size (codec_nal);
-              GST_DEBUG_OBJECT (h265parse, "inserting SPS nal");
-              if (bs) {
-                ok &= gst_byte_writer_put_uint32_be (&bw, 1);
-              } else {
-                ok &= gst_byte_writer_put_uint32_be (&bw,
-                    (nal_size << (nls * 8)));
-                ok &= gst_byte_writer_set_pos (&bw,
-                    gst_byte_writer_get_pos (&bw) - nls);
-              }
-
-              ok &= gst_byte_writer_put_buffer (&bw, codec_nal, 0, nal_size);
-              h265parse->last_report = new_ts;
-            }
-          }
-          for (i = 0; i < GST_H265_MAX_PPS_COUNT; i++) {
-            if ((codec_nal = h265parse->pps_nals[i])) {
-              gsize nal_size = gst_buffer_get_size (codec_nal);
-              GST_DEBUG_OBJECT (h265parse, "inserting PPS nal");
-              if (bs) {
-                ok &= gst_byte_writer_put_uint32_be (&bw, 1);
-              } else {
-                ok &= gst_byte_writer_put_uint32_be (&bw,
-                    (nal_size << (nls * 8)));
-                ok &= gst_byte_writer_set_pos (&bw,
-                    gst_byte_writer_get_pos (&bw) - nls);
-              }
-              ok &= gst_byte_writer_put_buffer (&bw, codec_nal, 0, nal_size);
-              h265parse->last_report = new_ts;
-            }
-          }
-          ok &=
-              gst_byte_writer_put_buffer (&bw, buffer, h265parse->idr_pos, -1);
-          /* collect result and push */
-          new_buf = gst_byte_writer_reset_and_get_buffer (&bw);
-          gst_buffer_copy_into (new_buf, buffer, GST_BUFFER_COPY_METADATA, 0,
-              -1);
-          /* should already be keyframe/IDR, but it may not have been,
-           * so mark it as such to avoid being discarded by picky decoder */
-          GST_BUFFER_FLAG_UNSET (new_buf, GST_BUFFER_FLAG_DELTA_UNIT);
-          gst_buffer_replace (&frame->out_buffer, new_buf);
-          gst_buffer_unref (new_buf);
-          /* some result checking seems to make some compilers happy */
-          if (G_UNLIKELY (!ok)) {
-            GST_ERROR_OBJECT (h265parse, "failed to insert SPS/PPS");
-          }
+        if (gst_h265_parse_handle_vps_sps_pps_nals (h265parse, buffer, frame)) {
+          h265parse->last_report = new_ts;
         }
       }
+
       /* we pushed whatever we had */
       h265parse->push_codec = FALSE;
       h265parse->have_vps = FALSE;
       h265parse->have_sps = FALSE;
       h265parse->have_pps = FALSE;
+      h265parse->state &= GST_H265_PARSE_STATE_VALID_PICTURE_HEADERS;
+    }
+  } else if (h265parse->interval == -1) {
+    if (h265parse->idr_pos >= 0) {
+      GST_LOG_OBJECT (h265parse, "IDR nal at offset %d", h265parse->idr_pos);
+
+      gst_h265_parse_handle_vps_sps_pps_nals (h265parse, buffer, frame);
+
+      /* we pushed whatever we had */
+      h265parse->push_codec = FALSE;
+      h265parse->have_vps = FALSE;
+      h265parse->have_sps = FALSE;
+      h265parse->have_pps = FALSE;
+      h265parse->state &= GST_H265_PARSE_STATE_VALID_PICTURE_HEADERS;
     }
   }
 
@@ -2067,11 +2174,19 @@ gst_h265_parse_set_caps (GstBaseParse * parse, GstCaps * caps)
   guint num_nals, i, j;
   GstH265NalUnit nalu;
   GstH265ParserResult parseres;
+  GstCaps *old_caps;
 
   h265parse = GST_H265_PARSE (parse);
 
   /* reset */
   h265parse->push_codec = FALSE;
+
+  old_caps = gst_pad_get_current_caps (GST_BASE_PARSE_SINK_PAD (parse));
+  if (old_caps) {
+    if (!gst_caps_is_equal (old_caps, caps))
+      gst_h265_parse_reset_stream_info (h265parse);
+    gst_caps_unref (old_caps);
+  }
 
   str = gst_caps_get_structure (caps, 0);
 
@@ -2323,6 +2438,8 @@ gst_h265_parse_event (GstBaseParse * parse, GstEvent * event)
       break;
     case GST_EVENT_SEGMENT:
     {
+      h265parse->last_report = GST_CLOCK_TIME_NONE;
+
       res = GST_BASE_PARSE_CLASS (parent_class)->sink_event (parse, event);
       break;
     }
@@ -2380,7 +2497,7 @@ gst_h265_parse_set_property (GObject * object, guint prop_id,
 
   switch (prop_id) {
     case PROP_CONFIG_INTERVAL:
-      parse->interval = g_value_get_uint (value);
+      parse->interval = g_value_get_int (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -2397,7 +2514,7 @@ gst_h265_parse_get_property (GObject * object, guint prop_id, GValue * value,
 
   switch (prop_id) {
     case PROP_CONFIG_INTERVAL:
-      g_value_set_uint (value, parse->interval);
+      g_value_set_int (value, parse->interval);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
