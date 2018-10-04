@@ -661,13 +661,14 @@ gst_video_aggregator_default_update_caps (GstVideoAggregator * vagg,
     gst_caps_unref (tmp);
   }
 
+  color_name = gst_video_colorimetry_to_string (&best_info.colorimetry);
+
   GST_DEBUG_OBJECT (vagg,
       "The output format will now be : %d with chroma : %s and colorimetry %s",
       best_format, gst_video_chroma_to_string (best_info.chroma_site),
-      gst_video_colorimetry_to_string (&best_info.colorimetry));
+      color_name);
 
   best_format_caps = gst_caps_copy (caps);
-  color_name = gst_video_colorimetry_to_string (&best_info.colorimetry);
   gst_caps_set_simple (best_format_caps, "format", G_TYPE_STRING,
       gst_video_format_to_string (best_format), "chroma-site", G_TYPE_STRING,
       gst_video_chroma_to_string (best_info.chroma_site), "colorimetry",
@@ -713,6 +714,23 @@ gst_video_aggregator_default_update_src_caps (GstAggregator * agg,
   *ret = vagg_klass->update_caps (vagg, caps);
 
   return GST_FLOW_OK;
+}
+
+static gboolean
+_pad_set_info (GstElement * element, GstPad * pad, gpointer user_data)
+{
+  GstVideoAggregator *vagg = GST_VIDEO_AGGREGATOR (element);
+  GstVideoAggregatorPad *vaggpad = GST_VIDEO_AGGREGATOR_PAD (pad);
+  GstVideoAggregatorPadClass *vaggpad_klass =
+      GST_VIDEO_AGGREGATOR_PAD_GET_CLASS (vaggpad);
+
+  if (vaggpad_klass->set_info
+      && !vaggpad_klass->set_info (vaggpad, vagg, &vaggpad->info,
+          &vagg->info)) {
+    return FALSE;
+  }
+
+  return TRUE;
 }
 
 static gboolean
@@ -767,16 +785,7 @@ gst_video_aggregator_default_negotiated_src_caps (GstAggregator * agg,
   }
 
   /* Then browse the sinks once more, setting or unsetting conversion if needed */
-  for (l = GST_ELEMENT (vagg)->sinkpads; l; l = l->next) {
-    GstVideoAggregatorPad *pad = GST_VIDEO_AGGREGATOR_PAD (l->data);
-    GstVideoAggregatorPadClass *vaggpad_klass =
-        GST_VIDEO_AGGREGATOR_PAD_GET_CLASS (pad);
-
-    if (vaggpad_klass->set_info
-        && !vaggpad_klass->set_info (pad, vagg, &pad->info, &vagg->info)) {
-      return FALSE;
-    }
-  }
+  gst_element_foreach_sink_pad (GST_ELEMENT_CAST (vagg), _pad_set_info, NULL);
 
   if (vagg->priv->current_caps == NULL ||
       gst_caps_is_equal (caps, vagg->priv->current_caps) == FALSE) {
@@ -799,6 +808,7 @@ gst_video_aggregator_get_sinkpads_interlace_mode (GstVideoAggregator * vagg,
 {
   GList *walk;
 
+  GST_OBJECT_LOCK (vagg);
   for (walk = GST_ELEMENT (vagg)->sinkpads; walk; walk = g_list_next (walk)) {
     GstVideoAggregatorPad *vaggpad = walk->data;
 
@@ -807,9 +817,11 @@ gst_video_aggregator_get_sinkpads_interlace_mode (GstVideoAggregator * vagg,
     if (vaggpad->info.finfo
         && GST_VIDEO_INFO_FORMAT (&vaggpad->info) != GST_VIDEO_FORMAT_UNKNOWN) {
       *mode = GST_VIDEO_INFO_INTERLACE_MODE (&vaggpad->info);
+      GST_OBJECT_UNLOCK (vagg);
       return TRUE;
     }
   }
+  GST_OBJECT_UNLOCK (vagg);
   return FALSE;
 }
 
@@ -1110,7 +1122,7 @@ gst_video_aggregator_fill_queues (GstVideoAggregator * vagg,
       start_time = GST_BUFFER_TIMESTAMP (buf);
       if (start_time == -1) {
         gst_buffer_unref (buf);
-        GST_DEBUG_OBJECT (pad, "Need timestamped buffers!");
+        GST_ERROR_OBJECT (pad, "Need timestamped buffers!");
         GST_OBJECT_UNLOCK (vagg);
         return GST_FLOW_ERROR;
       }

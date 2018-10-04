@@ -1,3 +1,43 @@
+gst-plugins-bad1.0 (1.14.4-1ubuntu1) UNRELEASED; urgency=medium
+
+  * Merge with Debian unstable; remaining changes:
+    + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
+      moved to -good.
+    + Provide gstreamer-plugins-bad-1.0.pc with Requires on
+      gstreamer-plugins-good-1.0 - the package we've moved the referenced
+      library to. This maintains compatibility with upstream software and
+      other distributions.
+    + debian/control{,.in}: Update Vcs-* for Ubuntu
+
+ -- Iain Lane <iain.lane@canonical.com>  Thu, 04 Oct 2018 18:02:41 +0100
+
+gst-plugins-bad1.0 (1.14.4-1) unstable; urgency=medium
+
+  * New upstream bugfix release
+
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 03 Oct 2018 13:57:59 +0300
+
+gst-plugins-bad1.0 (1.14.3-1) unstable; urgency=medium
+
+  [ Hugh McMaster ]
+  * gir1.2-gst-plugins-bad-1.0: Install the typelibs into a multi-arch
+    library directory.
+  * debian/control.in:
+    - Mark gir1.2-gst-plugins-bad-1.0 Multi-Arch: same.
+    - Remove a duplicate ${gir:Depends} from gir1.2-gst-plugins-bad-1.0.
+    - Mark libgstreamer-plugins-bad1.0-dev Multi-Arch: same.
+
+  [ Sebastian Dröge ]
+  * New upstream bugfix release.
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 17 Sep 2018 10:03:13 +0300
+
+gst-plugins-bad1.0 (1.14.2-1) unstable; urgency=medium
+
+  * New upstream bugfix release
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 23 Jul 2018 12:21:14 +0300
+
 gst-plugins-bad1.0 (1.14.1-1ubuntu1) cosmic; urgency=medium
 
   * Merge with Debian unstable (LP: #1772898); remaining changes:

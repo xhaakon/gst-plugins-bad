@@ -1,7 +1,7 @@
 @GST_LIB_DEV_DEP@
 @GST_EXTRA_BUILD_DEPENDS@
-libgstreamer-plugins-base@GST_ABI@-dev (>= 1.14.1)
-libgstreamer-plugins-good@GST_ABI@-dev (>= 1.14.1)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 1.14.4)
+libgstreamer-plugins-good@GST_ABI@-dev (>= 1.14.4)
 autotools-dev
 dh-autoreconf
 automake (>= 1.14)
@@ -29,7 +29,7 @@ libexif-dev (>= 0.6.16)
 libexempi-dev
 libiptcdata0-dev (>= 1.0.2)
 libwildmidi-dev (>= 0.2.3)
-gstreamer@GST_ABI@-plugins-base (>= 1.14.1)
+gstreamer@GST_ABI@-plugins-base (>= 1.14.4)
 libofa0-dev (>= 0.9.3)
 libdvdnav-dev (>= 4.1.2) [!hurd-any]
 libssl-dev

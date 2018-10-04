@@ -328,11 +328,7 @@ gst_audio_buffer_split_output (GstAudioBufferSplit * self, gboolean force,
   GstFlowReturn ret = GST_FLOW_OK;
   GstClockTime resync_time;
 
-  GST_OBJECT_LOCK (self);
-  resync_time =
-      gst_audio_stream_align_get_timestamp_at_discont (self->stream_align);
-  GST_OBJECT_UNLOCK (self);
-
+  resync_time = self->resync_time;
   size = samples_per_buffer * bpf;
 
   /* If we accumulated enough error for one sample, include one
@@ -348,6 +344,10 @@ gst_audio_buffer_split_output (GstAudioBufferSplit * self, gboolean force,
 
     size = MIN (size, avail);
     buffer = gst_adapter_take_buffer (self->adapter, size);
+
+    /* After a reset we have to set the discont flag */
+    if (self->current_offset == 0)
+      GST_BUFFER_FLAG_SET (buffer, GST_BUFFER_FLAG_DISCONT);
 
     resync_time_diff =
         gst_util_uint64_scale (self->current_offset, GST_SECOND, rate);
@@ -385,6 +385,13 @@ gst_audio_buffer_split_output (GstAudioBufferSplit * self, gboolean force,
     ret = gst_pad_push (self->srcpad, buffer);
     if (ret != GST_FLOW_OK)
       break;
+
+    /* Update the size based on the accumulated error we have now after
+     * taking out a buffer. Same code as above */
+    size = samples_per_buffer * bpf;
+    if (self->error_per_buffer + self->accumulated_error >=
+        self->output_buffer_duration_d)
+      size += bpf;
   }
 
   return ret;
@@ -418,6 +425,7 @@ gst_audio_buffer_split_handle_discont (GstAudioBufferSplit * self,
 
     self->current_offset = 0;
     self->accumulated_error = 0;
+    self->resync_time = GST_BUFFER_PTS (buffer);
   }
 
   return ret;

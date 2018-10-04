@@ -8,7 +8,7 @@
 <link rel="up" href="ch01.html" title="gst-plugins-bad Elements">
 <link rel="prev" href="gst-plugins-bad-plugins-webpenc.html" title="webpenc">
 <link rel="next" href="gst-plugins-bad-plugins-webrtcdsp.html" title="webrtcdsp">
-<meta name="generator" content="GTK-Doc V1.27 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.28 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -151,6 +151,11 @@
 <td class="signal_type"><span class="returnvalue">void</span></td>
 <td class="signal_name"><a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-set-remote-description" title="The “set-remote-description” signal">set-remote-description</a></td>
 <td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-ACTION:CAPS">Action</a></td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-on-new-transceiver" title="The “on-new-transceiver” signal">on-new-transceiver</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></td>
 </tr>
 </tbody>
 </table></div>
@@ -432,7 +437,7 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 <pre class="programlisting"><span class="returnvalue">void</span>
 user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin"><span class="type">GstWebRTCBin</span></a> *object,
                <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstStructure.html#GstStructure-struct"><span class="type">GstStructure</span></a> *options,
-               <span class="type">GstPromise</span>   *promise,
+               <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a>   *promise,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>      user_data)</pre>
 <div class="refsect3">
 <a name="GstWebRTCBin-create-answer.parameters"></a><h4>Parameters</h4>
@@ -455,7 +460,7 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 </tr>
 <tr>
 <td class="parameter_name"><p>promise</p></td>
-<td class="parameter_description"><p>a <span class="type">GstPromise</span> which will contain the answer</p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a> which will contain the answer</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -474,7 +479,7 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 <pre class="programlisting"><span class="returnvalue">void</span>
 user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin"><span class="type">GstWebRTCBin</span></a> *object,
                <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstStructure.html#GstStructure-struct"><span class="type">GstStructure</span></a> *options,
-               <span class="type">GstPromise</span>   *promise,
+               <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a>   *promise,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>      user_data)</pre>
 <div class="refsect3">
 <a name="GstWebRTCBin-create-offer.parameters"></a><h4>Parameters</h4>
@@ -497,7 +502,7 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 </tr>
 <tr>
 <td class="parameter_name"><p>promise</p></td>
-<td class="parameter_description"><p>a <span class="type">GstPromise</span> which will contain the offer</p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a> which will contain the offer</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -516,7 +521,7 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 <pre class="programlisting"><span class="returnvalue">void</span>
 user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin"><span class="type">GstWebRTCBin</span></a> *object,
                <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPad.html#GstPad-struct"><span class="type">GstPad</span></a>       *promise,
-               <span class="type">GstPromise</span>   *arg2,
+               <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a>   *arg2,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>      user_data)</pre>
 <p>The <em class="parameter"><code>promise</code></em>
  will contain the result of retrieving the session statistics.
@@ -578,7 +583,7 @@ the RTCStats dictionary (https://www.w3.org/TR/webrtc/<span class="type">rtcstat
 </tr>
 <tr>
 <td class="parameter_name"><p>promise</p></td>
-<td class="parameter_description"><p>a <span class="type">GstPromise</span> for the result</p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a> for the result</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -698,7 +703,7 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 <pre class="programlisting"><span class="returnvalue">void</span>
 user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin"><span class="type">GstWebRTCBin</span></a>                *object,
                <span class="type">GstWebRTCSessionDescription</span> *type,
-               <span class="type">GstPromise</span>                  *sdp,
+               <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a>                  *sdp,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>                     user_data)</pre>
 <div class="refsect3">
 <a name="GstWebRTCBin-set-local-description.parameters"></a><h4>Parameters</h4>
@@ -726,7 +731,7 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 </tr>
 <tr>
 <td class="parameter_name"><p>promise (allow-none)</p></td>
-<td class="parameter_description"><p>a <span class="type">GstPromise</span> to be notified when it's set</p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a> to be notified when it's set</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -745,7 +750,7 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 <pre class="programlisting"><span class="returnvalue">void</span>
 user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin"><span class="type">GstWebRTCBin</span></a>                *object,
                <span class="type">GstWebRTCSessionDescription</span> *type,
-               <span class="type">GstPromise</span>                  *sdp,
+               <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a>                  *sdp,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>                     user_data)</pre>
 <div class="refsect3">
 <a name="GstWebRTCBin-set-remote-description.parameters"></a><h4>Parameters</h4>
@@ -773,7 +778,7 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 </tr>
 <tr>
 <td class="parameter_name"><p>promise (allow-none)</p></td>
-<td class="parameter_description"><p>a <span class="type">GstPromise</span> to be notified when it's set</p></td>
+<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a> to be notified when it's set</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -786,9 +791,45 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 </div>
 <p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-ACTION:CAPS">Action</a></p>
 </div>
+<hr>
+<div class="refsect2">
+<a name="GstWebRTCBin-on-new-transceiver"></a><h3>The <code class="literal">“on-new-transceiver”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin"><span class="type">GstWebRTCBin</span></a>            *object,
+               <span class="type">GstWebRTCRTPTransceiver</span> *candidate,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>                 user_data)</pre>
+<div class="refsect3">
+<a name="GstWebRTCBin-on-new-transceiver.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>object</p></td>
+<td class="parameter_description"><p>the <span class="type">GstWebRtcBin</span></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>candidate</p></td>
+<td class="parameter_description"><p>the new <span class="type">GstWebRTCRTPTransceiver</span></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></p>
+</div>
 </div>
 </div>
 <div class="footer">
-<hr>Generated by GTK-Doc V1.27</div>
+<hr>Generated by GTK-Doc V1.28</div>
 </body>
 </html>

@@ -390,13 +390,12 @@ static GstFlowReturn
 gst_pitch_flush_buffer (GstPitch * pitch, gboolean send)
 {
   GstBuffer *buffer;
+  
+  if (pitch->priv->st->numUnprocessedSamples() != 0) {
+    GST_DEBUG_OBJECT (pitch, "flushing buffer");
+    pitch->priv->st->flush ();   
+  }
 
-  GST_DEBUG_OBJECT (pitch, "flushing buffer");
-
-  if (pitch->next_buffer_offset == 0)
-    return GST_FLOW_OK;
-
-  pitch->priv->st->flush ();
   if (!send)
     return GST_FLOW_OK;
 
@@ -427,6 +426,7 @@ gst_pitch_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
       GstSeekType cur_type, stop_type;
       gint64 cur, stop;
       gfloat stream_time_ratio;
+      guint32 seqnum;
 
       GST_OBJECT_LOCK (pitch);
       stream_time_ratio = pitch->priv->stream_time_ratio;
@@ -434,6 +434,8 @@ gst_pitch_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
 
       gst_event_parse_seek (event, &rate, &format, &flags,
           &cur_type, &cur, &stop_type, &stop);
+
+      seqnum = gst_event_get_seqnum (event);
 
       gst_event_unref (event);
 
@@ -444,6 +446,7 @@ gst_pitch_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
 
         event = gst_event_new_seek (rate, format, flags,
             cur_type, cur, stop_type, stop);
+        gst_event_set_seqnum (event, seqnum);
         res = gst_pad_event_default (pad, parent, event);
       } else {
         GST_WARNING_OBJECT (pitch,
@@ -648,8 +651,6 @@ gst_pitch_src_query (GstPad * pad, GstObject * parent, GstQuery * query)
           min += pitch->min_latency;
           if (max != GST_CLOCK_TIME_NONE)
             max += pitch->max_latency;
-          else
-            max = pitch->max_latency;
 
           GST_DEBUG ("Calculated total latency : min %"
               GST_TIME_FORMAT " max %" GST_TIME_FORMAT,

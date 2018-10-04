@@ -43,7 +43,7 @@
 /* Standard error path */
 #define HR_FAILED_AND(hr,func,and) \
   do { \
-    if (hr != S_OK) { \
+    if (FAILED (hr)) { \
       gchar *msg = gst_wasapi_util_hresult_to_string (hr); \
       GST_ERROR_OBJECT (self, #func " failed (%x): %s", (guint) hr, msg); \
       g_free (msg); \
@@ -112,9 +112,5 @@ gboolean gst_wasapi_util_initialize_audioclient (GstElement * element,
 gboolean gst_wasapi_util_initialize_audioclient3 (GstElement * element,
     GstAudioRingBufferSpec * spec, IAudioClient3 * client,
     WAVEFORMATEX * format, gboolean low_latency, guint * ret_devicep_frames);
-
-HANDLE gst_wasapi_util_set_thread_characteristics (void);
-
-void gst_wasapi_util_revert_thread_characteristics (HANDLE handle);
 
 #endif /* __GST_WASAPI_UTIL_H__ */
