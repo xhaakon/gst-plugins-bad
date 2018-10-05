@@ -8,8 +8,9 @@ gst-plugins-bad1.0 (1.14.4-1ubuntu1) UNRELEASED; urgency=medium
       library to. This maintains compatibility with upstream software and
       other distributions.
     + debian/control{,.in}: Update Vcs-* for Ubuntu
+  * debian/gbp.conf: Set the debian-branch to ubuntu
 
- -- Iain Lane <iain.lane@canonical.com>  Thu, 04 Oct 2018 18:02:41 +0100
+ -- Iain Lane <iain.lane@canonical.com>  Fri, 05 Oct 2018 12:32:29 +0100
 
 gst-plugins-bad1.0 (1.14.4-1) unstable; urgency=medium
 
