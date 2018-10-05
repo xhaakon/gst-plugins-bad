@@ -1,4 +1,4 @@
-gst-plugins-bad1.0 (1.14.4-1ubuntu1) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.14.4-1ubuntu1) cosmic; urgency=medium
 
   * Merge with Debian unstable; remaining changes:
     + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
@@ -10,7 +10,7 @@ gst-plugins-bad1.0 (1.14.4-1ubuntu1) UNRELEASED; urgency=medium
     + debian/control{,.in}: Update Vcs-* for Ubuntu
   * debian/gbp.conf: Set the debian-branch to ubuntu
 
- -- Iain Lane <iain.lane@canonical.com>  Fri, 05 Oct 2018 12:32:29 +0100
+ -- Iain Lane <iain.lane@canonical.com>  Fri, 05 Oct 2018 12:32:36 +0100
 
 gst-plugins-bad1.0 (1.14.4-1) unstable; urgency=medium
 
