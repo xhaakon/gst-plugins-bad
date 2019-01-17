@@ -3,7 +3,7 @@ de265_sources = [
   'libde265-dec.c',
 ]
 
-de265_dep = dependency('libde265', version : '>= 0.9', required : false)
+de265_dep = dependency('libde265', version : '>= 0.9', required : get_option('libde265'))
 
 if de265_dep.found()
   gstde265 = library('gstde265',
@@ -14,4 +14,5 @@ if de265_dep.found()
     install : true,
     install_dir : plugins_install_dir,
   )
+  pkgconfig.generate(gstde265, install_dir : plugins_pkgconfig_install_dir)
 endif

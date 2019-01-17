@@ -90,19 +90,22 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-@USE_MSDK_LIBVA_TRUE@am__append_1 = \
+@USE_MSDK_VP9_DEC_TRUE@am__append_1 = $(libgstmsdk_vp9dec_source_c)
+@USE_MSDK_VP9_DEC_TRUE@am__append_2 = $(libgstmsdk_vp9dec_source_h)
+@USE_MSDK_LIBVA_TRUE@am__append_3 = \
 @USE_MSDK_LIBVA_TRUE@	msdk.c \
 @USE_MSDK_LIBVA_TRUE@	msdk_libva.c \
 @USE_MSDK_LIBVA_TRUE@	gstmsdkallocator_libva.c
 
-@USE_MSDK_LIBVA_TRUE@am__append_2 = \
+@USE_MSDK_LIBVA_TRUE@am__append_4 = \
 @USE_MSDK_LIBVA_TRUE@	$(LIBVA_DRM_CFLAGS)
 
-@USE_MSDK_LIBVA_TRUE@am__append_3 = \
+@USE_MSDK_LIBVA_TRUE@am__append_5 = \
 @USE_MSDK_LIBVA_TRUE@	$(LIBVA_DRM_LIBS)
 
-@USE_MSDK_LIBVA_TRUE@am__append_4 = \
-@USE_MSDK_LIBVA_TRUE@	msdk_libva.h
+@USE_MSDK_LIBVA_TRUE@am__append_6 = \
+@USE_MSDK_LIBVA_TRUE@	msdk_libva.h \
+@USE_MSDK_LIBVA_TRUE@	gstmsdkallocator_libva.h
 
 subdir = sys/msdk
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -181,16 +184,19 @@ libgstmsdk_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
 am__libgstmsdk_la_SOURCES_DIST = gstmsdkcontext.c gstmsdkcontextutil.c \
 	gstmsdksystemmemory.c gstmsdkvideomemory.c gstmsdkbufferpool.c \
 	gstmsdkh264dec.c gstmsdkh264enc.c gstmsdkh265dec.c \
 	gstmsdkh265enc.c gstmsdkmjpegdec.c gstmsdkmjpegenc.c \
 	gstmsdkmpeg2dec.c gstmsdkmpeg2enc.c gstmsdkvp8dec.c \
 	gstmsdkvp8enc.c gstmsdkvc1dec.c gstmsdkdec.c gstmsdkenc.c \
-	gstmsdk.c msdk-enums.c msdk.c msdk_libva.c \
+	gstmsdkvpp.c gstmsdk.c msdk-enums.c gstmsdkvpputil.c \
+	gstmsdkdecproputil.c gstmsdkvp9dec.c msdk.c msdk_libva.c \
 	gstmsdkallocator_libva.c
-@USE_MSDK_LIBVA_TRUE@am__objects_1 = libgstmsdk_la-msdk.lo \
+am__objects_1 = libgstmsdk_la-gstmsdkvp9dec.lo
+@USE_MSDK_VP9_DEC_TRUE@am__objects_2 = $(am__objects_1)
+@USE_MSDK_LIBVA_TRUE@am__objects_3 = libgstmsdk_la-msdk.lo \
 @USE_MSDK_LIBVA_TRUE@	libgstmsdk_la-msdk_libva.lo \
 @USE_MSDK_LIBVA_TRUE@	libgstmsdk_la-gstmsdkallocator_libva.lo
 am_libgstmsdk_la_OBJECTS = libgstmsdk_la-gstmsdkcontext.lo \
@@ -208,8 +214,11 @@ am_libgstmsdk_la_OBJECTS = libgstmsdk_la-gstmsdkcontext.lo \
 	libgstmsdk_la-gstmsdkmpeg2enc.lo \
 	libgstmsdk_la-gstmsdkvp8dec.lo libgstmsdk_la-gstmsdkvp8enc.lo \
 	libgstmsdk_la-gstmsdkvc1dec.lo libgstmsdk_la-gstmsdkdec.lo \
-	libgstmsdk_la-gstmsdkenc.lo libgstmsdk_la-gstmsdk.lo \
-	libgstmsdk_la-msdk-enums.lo $(am__objects_1)
+	libgstmsdk_la-gstmsdkenc.lo libgstmsdk_la-gstmsdkvpp.lo \
+	libgstmsdk_la-gstmsdk.lo libgstmsdk_la-msdk-enums.lo \
+	libgstmsdk_la-gstmsdkvpputil.lo \
+	libgstmsdk_la-gstmsdkdecproputil.lo $(am__objects_2) \
+	$(am__objects_3)
 libgstmsdk_la_OBJECTS = $(am_libgstmsdk_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -240,6 +249,7 @@ am__depfiles_remade = ./$(DEPDIR)/libgstmsdk_la-gstmsdk.Plo \
 	./$(DEPDIR)/libgstmsdk_la-gstmsdkcontext.Plo \
 	./$(DEPDIR)/libgstmsdk_la-gstmsdkcontextutil.Plo \
 	./$(DEPDIR)/libgstmsdk_la-gstmsdkdec.Plo \
+	./$(DEPDIR)/libgstmsdk_la-gstmsdkdecproputil.Plo \
 	./$(DEPDIR)/libgstmsdk_la-gstmsdkenc.Plo \
 	./$(DEPDIR)/libgstmsdk_la-gstmsdkh264dec.Plo \
 	./$(DEPDIR)/libgstmsdk_la-gstmsdkh264enc.Plo \
@@ -254,6 +264,9 @@ am__depfiles_remade = ./$(DEPDIR)/libgstmsdk_la-gstmsdk.Plo \
 	./$(DEPDIR)/libgstmsdk_la-gstmsdkvideomemory.Plo \
 	./$(DEPDIR)/libgstmsdk_la-gstmsdkvp8dec.Plo \
 	./$(DEPDIR)/libgstmsdk_la-gstmsdkvp8enc.Plo \
+	./$(DEPDIR)/libgstmsdk_la-gstmsdkvp9dec.Plo \
+	./$(DEPDIR)/libgstmsdk_la-gstmsdkvpp.Plo \
+	./$(DEPDIR)/libgstmsdk_la-gstmsdkvpputil.Plo \
 	./$(DEPDIR)/libgstmsdk_la-msdk-enums.Plo \
 	./$(DEPDIR)/libgstmsdk_la-msdk.Plo \
 	./$(DEPDIR)/libgstmsdk_la-msdk_libva.Plo \
@@ -310,7 +323,8 @@ am__noinst_HEADERS_DIST = msdk.h msdk-enums.h gstmsdkcontext.h \
 	gstmsdkh265enc.h gstmsdkmjpegdec.h gstmsdkmjpegenc.h \
 	gstmsdkmpeg2dec.h gstmsdkmpeg2enc.h gstmsdkvp8dec.h \
 	gstmsdkvp8enc.h gstmsdkvc1dec.h gstmsdkdec.h gstmsdkenc.h \
-	msdk_libva.h
+	gstmsdkvpp.h gstmsdkvpputil.h gstmsdkdecproputil.h \
+	gstmsdkvp9dec.h msdk_libva.h gstmsdkallocator_libva.h
 HEADERS = $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -335,8 +349,6 @@ am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/depcomp README
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 ACLOCAL_AMFLAGS = @ACLOCAL_AMFLAGS@
-ACMENC_CFLAGS = @ACMENC_CFLAGS@
-ACMMP3DEC_CFLAGS = @ACMMP3DEC_CFLAGS@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AOM_CFLAGS = @AOM_CFLAGS@
@@ -371,8 +383,6 @@ CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
-DAALA_CFLAGS = @DAALA_CFLAGS@
-DAALA_LIBS = @DAALA_LIBS@
 DECKLINK_CXXFLAGS = @DECKLINK_CXXFLAGS@
 DECKLINK_LIBS = @DECKLINK_LIBS@
 DEFAULT_AUDIOSINK = @DEFAULT_AUDIOSINK@
@@ -629,7 +639,6 @@ NICE_CFLAGS = @NICE_CFLAGS@
 NICE_LIBS = @NICE_LIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
-NVENCODE_CFLAGS = @NVENCODE_CFLAGS@
 NVENCODE_LIBS = @NVENCODE_LIBS@
 OBJC = @OBJC@
 OBJCDEPMODE = @OBJCDEPMODE@
@@ -640,8 +649,6 @@ OFA_CFLAGS = @OFA_CFLAGS@
 OFA_LIBS = @OFA_LIBS@
 OPENAL_CFLAGS = @OPENAL_CFLAGS@
 OPENAL_LIBS = @OPENAL_LIBS@
-OPENCV_3_CFLAGS = @OPENCV_3_CFLAGS@
-OPENCV_3_LIBS = @OPENCV_3_LIBS@
 OPENCV_CFLAGS = @OPENCV_CFLAGS@
 OPENCV_LIBS = @OPENCV_LIBS@
 OPENCV_PREFIX = @OPENCV_PREFIX@
@@ -677,6 +684,8 @@ PACKAGE_VERSION_MICRO = @PACKAGE_VERSION_MICRO@
 PACKAGE_VERSION_MINOR = @PACKAGE_VERSION_MINOR@
 PACKAGE_VERSION_NANO = @PACKAGE_VERSION_NANO@
 PACKAGE_VERSION_RELEASE = @PACKAGE_VERSION_RELEASE@
+PANGO_CFLAGS = @PANGO_CFLAGS@
+PANGO_LIBS = @PANGO_LIBS@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 PLUGINDIR = @PLUGINDIR@
@@ -707,7 +716,6 @@ SOUNDTOUCH_CFLAGS = @SOUNDTOUCH_CFLAGS@
 SOUNDTOUCH_LIBS = @SOUNDTOUCH_LIBS@
 SPANDSP_CFLAGS = @SPANDSP_CFLAGS@
 SPANDSP_LIBS = @SPANDSP_LIBS@
-SPC_LIBS = @SPC_LIBS@
 SRTP_CFLAGS = @SRTP_CFLAGS@
 SRTP_LIBS = @SRTP_LIBS@
 SRT_CFLAGS = @SRT_CFLAGS@
@@ -722,6 +730,7 @@ TIGER_LIBS = @TIGER_LIBS@
 TTML_CFLAGS = @TTML_CFLAGS@
 TTML_LIBS = @TTML_LIBS@
 USE_NLS = @USE_NLS@
+USRSCTP_LIBS = @USRSCTP_LIBS@
 VALGRIND_CFLAGS = @VALGRIND_CFLAGS@
 VALGRIND_LIBS = @VALGRIND_LIBS@
 VALGRIND_PATH = @VALGRIND_PATH@
@@ -838,7 +847,8 @@ libgstmsdk_la_SOURCES = gstmsdkcontext.c gstmsdkcontextutil.c \
 	gstmsdkh265enc.c gstmsdkmjpegdec.c gstmsdkmjpegenc.c \
 	gstmsdkmpeg2dec.c gstmsdkmpeg2enc.c gstmsdkvp8dec.c \
 	gstmsdkvp8enc.c gstmsdkvc1dec.c gstmsdkdec.c gstmsdkenc.c \
-	gstmsdk.c msdk-enums.c $(am__append_1)
+	gstmsdkvpp.c gstmsdk.c msdk-enums.c gstmsdkvpputil.c \
+	gstmsdkdecproputil.c $(am__append_1) $(am__append_3)
 
 # Causes linking libgstmsdk.la with CXXLINK, required by libmfx
 nodist_EXTRA_libgstmsdk_la_SOURCES = not_present.cxx
@@ -849,13 +859,19 @@ noinst_HEADERS = msdk.h msdk-enums.h gstmsdkcontext.h \
 	gstmsdkh265enc.h gstmsdkmjpegdec.h gstmsdkmjpegenc.h \
 	gstmsdkmpeg2dec.h gstmsdkmpeg2enc.h gstmsdkvp8dec.h \
 	gstmsdkvp8enc.h gstmsdkvc1dec.h gstmsdkdec.h gstmsdkenc.h \
-	$(am__append_4)
+	gstmsdkvpp.h gstmsdkvpputil.h gstmsdkdecproputil.h \
+	$(am__append_2) $(am__append_6)
+
+# Conditional build for vp9 decoder
+libgstmsdk_vp9dec_source_c = gstmsdkvp9dec.c
+libgstmsdk_vp9dec_source_h = gstmsdkvp9dec.h
 libgstmsdk_la_CFLAGS = $(GST_CFLAGS) $(GST_BASE_CFLAGS) \
-	$(GST_PBUTILS_CFLAGS) $(GST_VIDEO_CFLAGS) $(MSDK_CFLAGS) \
-	$(LIBMFX_CFLAGS) $(G_UDEV_CFLAGS) $(am__append_2)
+	$(GST_PBUTILS_CFLAGS) $(GST_VIDEO_CFLAGS) \
+	$(GST_ALLOCATORS_CFLAGS) $(MSDK_CFLAGS) $(LIBMFX_CFLAGS) \
+	$(G_UDEV_CFLAGS) $(am__append_4)
 libgstmsdk_la_LIBADD = $(GST_LIBS) $(GST_BASE_LIBS) \
-	$(GST_PBUTILS_LIBS) $(GST_VIDEO_LIBS) $(MSDK_LIBS) \
-	$(LIBMFX_LIBS) $(G_UDEV_LIBS) $(am__append_3)
+	$(GST_PBUTILS_LIBS) $(GST_VIDEO_LIBS) $(GST_ALLOCATORS_LIBS) \
+	$(MSDK_LIBS) $(LIBMFX_LIBS) $(G_UDEV_LIBS) $(am__append_5)
 
 # TODO: add support for windows compilation
 EXTRA_DIST = \
@@ -946,6 +962,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkcontext.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkcontextutil.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkdec.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkdecproputil.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkenc.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkh264dec.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkh264enc.Plo@am__quote@ # am--include-marker
@@ -960,6 +977,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkvideomemory.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkvp8dec.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkvp8enc.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkvp9dec.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkvpp.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-gstmsdkvpputil.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-msdk-enums.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-msdk.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstmsdk_la-msdk_libva.Plo@am__quote@ # am--include-marker
@@ -1121,6 +1141,13 @@ libgstmsdk_la-gstmsdkenc.lo: gstmsdkenc.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -c -o libgstmsdk_la-gstmsdkenc.lo `test -f 'gstmsdkenc.c' || echo '$(srcdir)/'`gstmsdkenc.c
 
+libgstmsdk_la-gstmsdkvpp.lo: gstmsdkvpp.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -MT libgstmsdk_la-gstmsdkvpp.lo -MD -MP -MF $(DEPDIR)/libgstmsdk_la-gstmsdkvpp.Tpo -c -o libgstmsdk_la-gstmsdkvpp.lo `test -f 'gstmsdkvpp.c' || echo '$(srcdir)/'`gstmsdkvpp.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstmsdk_la-gstmsdkvpp.Tpo $(DEPDIR)/libgstmsdk_la-gstmsdkvpp.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstmsdkvpp.c' object='libgstmsdk_la-gstmsdkvpp.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -c -o libgstmsdk_la-gstmsdkvpp.lo `test -f 'gstmsdkvpp.c' || echo '$(srcdir)/'`gstmsdkvpp.c
+
 libgstmsdk_la-gstmsdk.lo: gstmsdk.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -MT libgstmsdk_la-gstmsdk.lo -MD -MP -MF $(DEPDIR)/libgstmsdk_la-gstmsdk.Tpo -c -o libgstmsdk_la-gstmsdk.lo `test -f 'gstmsdk.c' || echo '$(srcdir)/'`gstmsdk.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstmsdk_la-gstmsdk.Tpo $(DEPDIR)/libgstmsdk_la-gstmsdk.Plo
@@ -1134,6 +1161,27 @@ libgstmsdk_la-msdk-enums.lo: msdk-enums.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='msdk-enums.c' object='libgstmsdk_la-msdk-enums.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -c -o libgstmsdk_la-msdk-enums.lo `test -f 'msdk-enums.c' || echo '$(srcdir)/'`msdk-enums.c
+
+libgstmsdk_la-gstmsdkvpputil.lo: gstmsdkvpputil.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -MT libgstmsdk_la-gstmsdkvpputil.lo -MD -MP -MF $(DEPDIR)/libgstmsdk_la-gstmsdkvpputil.Tpo -c -o libgstmsdk_la-gstmsdkvpputil.lo `test -f 'gstmsdkvpputil.c' || echo '$(srcdir)/'`gstmsdkvpputil.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstmsdk_la-gstmsdkvpputil.Tpo $(DEPDIR)/libgstmsdk_la-gstmsdkvpputil.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstmsdkvpputil.c' object='libgstmsdk_la-gstmsdkvpputil.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -c -o libgstmsdk_la-gstmsdkvpputil.lo `test -f 'gstmsdkvpputil.c' || echo '$(srcdir)/'`gstmsdkvpputil.c
+
+libgstmsdk_la-gstmsdkdecproputil.lo: gstmsdkdecproputil.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -MT libgstmsdk_la-gstmsdkdecproputil.lo -MD -MP -MF $(DEPDIR)/libgstmsdk_la-gstmsdkdecproputil.Tpo -c -o libgstmsdk_la-gstmsdkdecproputil.lo `test -f 'gstmsdkdecproputil.c' || echo '$(srcdir)/'`gstmsdkdecproputil.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstmsdk_la-gstmsdkdecproputil.Tpo $(DEPDIR)/libgstmsdk_la-gstmsdkdecproputil.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstmsdkdecproputil.c' object='libgstmsdk_la-gstmsdkdecproputil.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -c -o libgstmsdk_la-gstmsdkdecproputil.lo `test -f 'gstmsdkdecproputil.c' || echo '$(srcdir)/'`gstmsdkdecproputil.c
+
+libgstmsdk_la-gstmsdkvp9dec.lo: gstmsdkvp9dec.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -MT libgstmsdk_la-gstmsdkvp9dec.lo -MD -MP -MF $(DEPDIR)/libgstmsdk_la-gstmsdkvp9dec.Tpo -c -o libgstmsdk_la-gstmsdkvp9dec.lo `test -f 'gstmsdkvp9dec.c' || echo '$(srcdir)/'`gstmsdkvp9dec.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstmsdk_la-gstmsdkvp9dec.Tpo $(DEPDIR)/libgstmsdk_la-gstmsdkvp9dec.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstmsdkvp9dec.c' object='libgstmsdk_la-gstmsdkvp9dec.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -c -o libgstmsdk_la-gstmsdkvp9dec.lo `test -f 'gstmsdkvp9dec.c' || echo '$(srcdir)/'`gstmsdkvp9dec.c
 
 libgstmsdk_la-msdk.lo: msdk.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmsdk_la_CFLAGS) $(CFLAGS) -MT libgstmsdk_la-msdk.lo -MD -MP -MF $(DEPDIR)/libgstmsdk_la-msdk.Tpo -c -o libgstmsdk_la-msdk.lo `test -f 'msdk.c' || echo '$(srcdir)/'`msdk.c
@@ -1320,6 +1368,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkcontext.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkcontextutil.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkdec.Plo
+	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkdecproputil.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkenc.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkh264dec.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkh264enc.Plo
@@ -1334,6 +1383,9 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkvideomemory.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkvp8dec.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkvp8enc.Plo
+	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkvp9dec.Plo
+	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkvpp.Plo
+	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkvpputil.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-msdk-enums.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-msdk.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-msdk_libva.Plo
@@ -1389,6 +1441,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkcontext.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkcontextutil.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkdec.Plo
+	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkdecproputil.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkenc.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkh264dec.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkh264enc.Plo
@@ -1403,6 +1456,9 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkvideomemory.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkvp8dec.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkvp8enc.Plo
+	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkvp9dec.Plo
+	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkvpp.Plo
+	-rm -f ./$(DEPDIR)/libgstmsdk_la-gstmsdkvpputil.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-msdk-enums.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-msdk.Plo
 	-rm -f ./$(DEPDIR)/libgstmsdk_la-msdk_libva.Plo

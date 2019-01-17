@@ -129,7 +129,8 @@ enum
   PROP_TIMECODE_FORMAT,
   PROP_KEYER_MODE,
   PROP_KEYER_LEVEL,
-  PROP_HW_SERIAL_NUMBER
+  PROP_HW_SERIAL_NUMBER,
+  PROP_CC_LINE,
 };
 
 static void gst_decklink_video_sink_set_property (GObject * object,
@@ -141,9 +142,6 @@ static void gst_decklink_video_sink_finalize (GObject * object);
 static GstStateChangeReturn
 gst_decklink_video_sink_change_state (GstElement * element,
     GstStateChange transition);
-static void
-gst_decklink_video_sink_state_changed (GstElement * element,
-    GstState old_state, GstState new_state, GstState pending_state);
 static GstClock *gst_decklink_video_sink_provide_clock (GstElement * element);
 
 static GstCaps *gst_decklink_video_sink_get_caps (GstBaseSink * bsink,
@@ -159,6 +157,8 @@ static gboolean gst_decklink_video_sink_close (GstBaseSink * bsink);
 static gboolean gst_decklink_video_sink_stop (GstDecklinkVideoSink * self);
 static gboolean gst_decklink_video_sink_propose_allocation (GstBaseSink * bsink,
     GstQuery * query);
+static gboolean gst_decklink_video_sink_event (GstBaseSink * bsink,
+    GstEvent * event);
 
 static void
 gst_decklink_video_sink_start_scheduled_playback (GstElement * element);
@@ -191,8 +191,6 @@ gst_decklink_video_sink_class_init (GstDecklinkVideoSinkClass * klass)
 
   element_class->change_state =
       GST_DEBUG_FUNCPTR (gst_decklink_video_sink_change_state);
-  element_class->state_changed =
-      GST_DEBUG_FUNCPTR (gst_decklink_video_sink_state_changed);
   element_class->provide_clock =
       GST_DEBUG_FUNCPTR (gst_decklink_video_sink_provide_clock);
 
@@ -207,6 +205,7 @@ gst_decklink_video_sink_class_init (GstDecklinkVideoSinkClass * klass)
   basesink_class->stop = GST_DEBUG_FUNCPTR (gst_decklink_video_sink_close);
   basesink_class->propose_allocation =
       GST_DEBUG_FUNCPTR (gst_decklink_video_sink_propose_allocation);
+  basesink_class->event = GST_DEBUG_FUNCPTR (gst_decklink_video_sink_event);
 
   g_object_class_install_property (gobject_class, PROP_MODE,
       g_param_spec_enum ("mode", "Playback Mode",
@@ -255,6 +254,13 @@ gst_decklink_video_sink_class_init (GstDecklinkVideoSinkClass * klass)
           "The serial number (hardware ID) of the Decklink card",
           NULL, (GParamFlags) (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)));
 
+  g_object_class_install_property (gobject_class, PROP_CC_LINE,
+      g_param_spec_int ("cc-line", "CC Line",
+          "Line number to use for inserting closed captions (0 = disabled)", 0,
+          22, 0,
+          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
+              G_PARAM_CONSTRUCT)));
+
   templ_caps = gst_decklink_mode_get_template_caps (FALSE);
   templ_caps = gst_caps_make_writable (templ_caps);
   /* For output we support any framerate and only really care about timestamps */
@@ -279,6 +285,7 @@ gst_decklink_video_sink_init (GstDecklinkVideoSink * self)
   self->video_format = GST_DECKLINK_VIDEO_FORMAT_8BIT_YUV;
   /* VITC is legacy, we should expect RP188 in modern use cases */
   self->timecode_format = bmdTimecodeRP188Any;
+  self->caption_line = 0;
 
   gst_base_sink_set_max_lateness (GST_BASE_SINK_CAST (self), 20 * GST_MSECOND);
   gst_base_sink_set_qos_enabled (GST_BASE_SINK_CAST (self), TRUE);
@@ -325,6 +332,9 @@ gst_decklink_video_sink_set_property (GObject * object, guint property_id,
     case PROP_KEYER_LEVEL:
       self->keyer_level = g_value_get_int (value);
       break;
+    case PROP_CC_LINE:
+      self->caption_line = g_value_get_int (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -363,6 +373,9 @@ gst_decklink_video_sink_get_property (GObject * object, guint property_id,
         g_value_set_string (value, self->output->hw_serial_number);
       else
         g_value_set_string (value, NULL);
+      break;
+    case PROP_CC_LINE:
+      g_value_set_int (value, self->caption_line);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -468,6 +481,9 @@ gst_decklink_video_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
   else
     flags = bmdVideoOutputRP188;
 
+  if (self->caption_line > 0)
+    flags = (BMDVideoOutputFlags) (flags | bmdVideoOutputVANC);
+
   ret = self->output->output->EnableVideoOutput (mode->mode, flags);
   if (ret != S_OK) {
     GST_WARNING_OBJECT (self, "Failed to enable video output: 0x%08lx",
@@ -482,6 +498,12 @@ gst_decklink_video_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
   if (self->output->start_scheduled_playback)
     self->output->start_scheduled_playback (self->output->videosink);
   g_mutex_unlock (&self->output->lock);
+
+  if (self->vbiencoder) {
+    gst_video_vbi_encoder_free (self->vbiencoder);
+    self->vbiencoder = NULL;
+    self->anc_vformat = GST_VIDEO_FORMAT_UNKNOWN;
+  }
 
   return TRUE;
 }
@@ -531,80 +553,196 @@ gst_decklink_video_sink_convert_to_internal_clock (GstDecklinkVideoSink * self,
     GstClockTime * timestamp, GstClockTime * duration)
 {
   GstClock *clock;
+  GstClockTime internal_base, external_base, internal_offset;
 
   g_assert (timestamp != NULL);
 
   clock = gst_element_get_clock (GST_ELEMENT_CAST (self));
-  if (clock && clock != self->output->clock) {
+  GST_OBJECT_LOCK (self);
+  internal_base = self->internal_base_time;
+  external_base = self->external_base_time;
+  internal_offset = self->internal_time_offset;
+  GST_OBJECT_UNLOCK (self);
+
+  if (!clock || clock != self->output->clock) {
     GstClockTime internal, external, rate_n, rate_d;
+    GstClockTime external_timestamp = *timestamp;
+    GstClockTime base_time;
+
     gst_clock_get_calibration (self->output->clock, &internal, &external,
         &rate_n, &rate_d);
 
-    if (self->internal_base_time != GST_CLOCK_TIME_NONE) {
-      GstClockTime external_timestamp = *timestamp;
-      GstClockTime base_time;
+    // Convert to the running time corresponding to both clock times
+    if (!GST_CLOCK_TIME_IS_VALID (internal_base) || internal < internal_base)
+      internal = 0;
+    else
+      internal -= internal_base;
 
-      // Convert to the running time corresponding to both clock times
-      if (internal < self->internal_base_time)
-        internal = 0;
-      else
-        internal -= self->internal_base_time;
+    if (!GST_CLOCK_TIME_IS_VALID (external_base) || external < external_base)
+      external = 0;
+    else
+      external -= external_base;
 
-      if (external < self->external_base_time)
-        external = 0;
-      else
-        external -= self->external_base_time;
+    // Convert timestamp to the "running time" since we started scheduled
+    // playback, that is the difference between the pipeline's base time
+    // and our own base time.
+    base_time = gst_element_get_base_time (GST_ELEMENT_CAST (self));
+    if (base_time > external_base)
+      base_time = 0;
+    else
+      base_time = external_base - base_time;
 
-      // Convert timestamp to the "running time" since we started scheduled
-      // playback, that is the difference between the pipeline's base time
-      // and our own base time.
-      base_time = gst_element_get_base_time (GST_ELEMENT_CAST (self));
-      if (base_time > self->external_base_time)
-        base_time = 0;
-      else
-        base_time = self->external_base_time - base_time;
+    if (external_timestamp < base_time)
+      external_timestamp = 0;
+    else
+      external_timestamp = external_timestamp - base_time;
 
-      if (external_timestamp < base_time)
-        external_timestamp = 0;
-      else
-        external_timestamp = external_timestamp - base_time;
+    // Get the difference in the external time, note
+    // that the running time is external time.
+    // Then scale this difference and offset it to
+    // our internal time. Now we have the running time
+    // according to our internal clock.
+    //
+    // For the duration we just scale
+    *timestamp =
+        gst_clock_unadjust_with_calibration (NULL, external_timestamp,
+        internal, external, rate_n, rate_d);
 
-      // Get the difference in the external time, note
-      // that the running time is external time.
-      // Then scale this difference and offset it to
-      // our internal time. Now we have the running time
-      // according to our internal clock.
-      //
-      // For the duration we just scale
-      *timestamp =
-          gst_clock_unadjust_with_calibration (NULL, external_timestamp,
-          internal, external, rate_n, rate_d);
+    GST_LOG_OBJECT (self,
+        "Converted %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT " (internal: %"
+        GST_TIME_FORMAT " external %" GST_TIME_FORMAT " rate: %lf)",
+        GST_TIME_ARGS (external_timestamp), GST_TIME_ARGS (*timestamp),
+        GST_TIME_ARGS (internal), GST_TIME_ARGS (external),
+        ((gdouble) rate_n) / ((gdouble) rate_d));
+
+    if (duration) {
+      GstClockTime external_duration = *duration;
+
+      *duration = gst_util_uint64_scale (external_duration, rate_d, rate_n);
 
       GST_LOG_OBJECT (self,
-          "Converted %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT " (internal: %"
-          GST_TIME_FORMAT " external %" GST_TIME_FORMAT " rate: %lf)",
-          GST_TIME_ARGS (external_timestamp), GST_TIME_ARGS (*timestamp),
-          GST_TIME_ARGS (internal), GST_TIME_ARGS (external),
-          ((gdouble) rate_n) / ((gdouble) rate_d));
-
-      if (duration) {
-        GstClockTime external_duration = *duration;
-
-        *duration = gst_util_uint64_scale (external_duration, rate_d, rate_n);
-
-        GST_LOG_OBJECT (self,
-            "Converted duration %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT
-            " (internal: %" GST_TIME_FORMAT " external %" GST_TIME_FORMAT
-            " rate: %lf)", GST_TIME_ARGS (external_duration),
-            GST_TIME_ARGS (*duration), GST_TIME_ARGS (internal),
-            GST_TIME_ARGS (external), ((gdouble) rate_n) / ((gdouble) rate_d));
-      }
-    } else {
-      GST_LOG_OBJECT (self, "No clock conversion needed, not started yet");
+          "Converted duration %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT
+          " (internal: %" GST_TIME_FORMAT " external %" GST_TIME_FORMAT
+          " rate: %lf)", GST_TIME_ARGS (external_duration),
+          GST_TIME_ARGS (*duration), GST_TIME_ARGS (internal),
+          GST_TIME_ARGS (external), ((gdouble) rate_n) / ((gdouble) rate_d));
     }
   } else {
-    GST_LOG_OBJECT (self, "No clock conversion needed, same clocks");
+    GST_LOG_OBJECT (self, "No clock conversion needed, same clocks: %"
+        GST_TIME_FORMAT, GST_TIME_ARGS (*timestamp));
   }
+
+  if (external_base != GST_CLOCK_TIME_NONE &&
+          internal_base != GST_CLOCK_TIME_NONE)
+    *timestamp += internal_offset;
+  else
+    *timestamp = gst_clock_get_internal_time (self->output->clock);
+
+  GST_LOG_OBJECT (self, "Output timestamp %" GST_TIME_FORMAT
+      " using clock epoch %" GST_TIME_FORMAT,
+      GST_TIME_ARGS (*timestamp), GST_TIME_ARGS (self->output->clock_epoch));
+
+  if (clock)
+    gst_object_unref (clock);
+}
+
+/* Copied from ext/closedcaption/gstccconverter.c */
+/* Converts raw CEA708 cc_data and an optional timecode into CDP */
+static guint
+convert_cea708_cc_data_cea708_cdp_internal (GstDecklinkVideoSink * self,
+    const guint8 * cc_data, guint cc_data_len, guint8 * cdp, guint cdp_len,
+    const GstVideoTimeCodeMeta * tc_meta)
+{
+  GstByteWriter bw;
+  guint8 flags, checksum;
+  guint i, len;
+  const GstDecklinkMode *mode = gst_decklink_get_mode (self->mode);
+
+  gst_byte_writer_init_with_data (&bw, cdp, cdp_len, FALSE);
+  gst_byte_writer_put_uint16_be_unchecked (&bw, 0x9669);
+  /* Write a length of 0 for now */
+  gst_byte_writer_put_uint8_unchecked (&bw, 0);
+  if (mode->fps_n == 24000 && mode->fps_d == 1001) {
+    gst_byte_writer_put_uint8_unchecked (&bw, 0x1f);
+  } else if (mode->fps_n == 24 && mode->fps_d == 1) {
+    gst_byte_writer_put_uint8_unchecked (&bw, 0x2f);
+  } else if (mode->fps_n == 25 && mode->fps_d == 1) {
+    gst_byte_writer_put_uint8_unchecked (&bw, 0x3f);
+  } else if (mode->fps_n == 30 && mode->fps_d == 1001) {
+    gst_byte_writer_put_uint8_unchecked (&bw, 0x4f);
+  } else if (mode->fps_n == 30 && mode->fps_d == 1) {
+    gst_byte_writer_put_uint8_unchecked (&bw, 0x5f);
+  } else if (mode->fps_n == 50 && mode->fps_d == 1) {
+    gst_byte_writer_put_uint8_unchecked (&bw, 0x6f);
+  } else if (mode->fps_n == 60000 && mode->fps_d == 1001) {
+    gst_byte_writer_put_uint8_unchecked (&bw, 0x7f);
+  } else if (mode->fps_n == 60 && mode->fps_d == 1) {
+    gst_byte_writer_put_uint8_unchecked (&bw, 0x8f);
+  } else {
+    g_assert_not_reached ();
+  }
+
+  /* ccdata_present | caption_service_active */
+  flags = 0x42;
+
+  /* time_code_present */
+  if (tc_meta)
+    flags |= 0x80;
+
+  /* reserved */
+  flags |= 0x01;
+
+  gst_byte_writer_put_uint8_unchecked (&bw, flags);
+
+  gst_byte_writer_put_uint16_be_unchecked (&bw, self->cdp_hdr_sequence_cntr);
+
+  if (tc_meta) {
+    const GstVideoTimeCode *tc = &tc_meta->tc;
+
+    gst_byte_writer_put_uint8_unchecked (&bw, 0x71);
+    gst_byte_writer_put_uint8_unchecked (&bw, 0xc0 |
+        (((tc->hours % 10) & 0x3) << 4) |
+        ((tc->hours - (tc->hours % 10)) & 0xf));
+
+    gst_byte_writer_put_uint8_unchecked (&bw, 0x80 |
+        (((tc->minutes % 10) & 0x7) << 4) |
+        ((tc->minutes - (tc->minutes % 10)) & 0xf));
+
+    gst_byte_writer_put_uint8_unchecked (&bw,
+        (tc->field_count <
+            2 ? 0x00 : 0x80) | (((tc->seconds %
+                    10) & 0x7) << 4) | ((tc->seconds -
+                (tc->seconds % 10)) & 0xf));
+
+    gst_byte_writer_put_uint8_unchecked (&bw,
+        ((tc->config.flags & GST_VIDEO_TIME_CODE_FLAGS_DROP_FRAME) ? 0x80 :
+            0x00) | (((tc->frames % 10) & 0x3) << 4) | ((tc->frames -
+                (tc->frames % 10)) & 0xf));
+  }
+
+  gst_byte_writer_put_uint8_unchecked (&bw, 0x72);
+  gst_byte_writer_put_uint8_unchecked (&bw, 0xe0 | cc_data_len / 3);
+  gst_byte_writer_put_data_unchecked (&bw, cc_data, cc_data_len);
+
+  gst_byte_writer_put_uint8_unchecked (&bw, 0x74);
+  gst_byte_writer_put_uint16_be_unchecked (&bw, self->cdp_hdr_sequence_cntr);
+  self->cdp_hdr_sequence_cntr++;
+  /* We calculate the checksum afterwards */
+  gst_byte_writer_put_uint8_unchecked (&bw, 0);
+
+  len = gst_byte_writer_get_pos (&bw);
+  gst_byte_writer_set_pos (&bw, 2);
+  gst_byte_writer_put_uint8_unchecked (&bw, len);
+
+  checksum = 0;
+  for (i = 0; i < len; i++) {
+    checksum += cdp[i];
+  }
+  checksum &= 0xff;
+  checksum = 256 - checksum;
+  cdp[len - 1] = checksum;
+
+  return len;
 }
 
 static GstFlowReturn
@@ -728,18 +866,135 @@ gst_decklink_video_sink_prepare (GstBaseSink * bsink, GstBuffer * buffer)
     g_free (tc_str);
   }
 
-  gst_decklink_video_sink_convert_to_internal_clock (self, &running_time, &running_time_duration);
+  if (self->caption_line != 0) {
+    IDeckLinkVideoFrameAncillary *vanc_frame = NULL;
+    gpointer iter = NULL;
+    GstVideoCaptionMeta *cc_meta;
+    guint8 *vancdata;
+    gboolean got_captions = FALSE;
 
-  if (!self->output->started) {
-    GST_LOG_OBJECT (self, "Showing video frame synchronously because PAUSED");
-    ret = self->output->output->DisplayVideoFrameSync (frame);
-    if (ret != S_OK) {
-      GST_ELEMENT_WARNING (self, STREAM, FAILED,
-          (NULL), ("Failed to show video frame synchronously: 0x%08lx",
-              (unsigned long) ret));
-      ret = S_OK;
+    /* Put any closed captions into the configured line */
+    while ((cc_meta =
+            (GstVideoCaptionMeta *) gst_buffer_iterate_meta_filtered (buffer,
+                &iter, GST_VIDEO_CAPTION_META_API_TYPE))) {
+      if (self->vbiencoder == NULL) {
+        self->vbiencoder =
+            gst_video_vbi_encoder_new (self->info.finfo->format,
+            self->info.width);
+        self->anc_vformat = self->info.finfo->format;
+      }
+
+      switch (cc_meta->caption_type) {
+        case GST_VIDEO_CAPTION_TYPE_CEA608_RAW:{
+          guint8 data[138];
+          guint i, n;
+
+          n = cc_meta->size / 2;
+          if (cc_meta->size > 46) {
+            GST_WARNING_OBJECT (self, "Too big raw CEA608 buffer");
+            break;
+          }
+
+          /* This is the offset from line 9 for 525-line fields and from line
+           * 5 for 625-line fields.
+           *
+           * The highest bit is set for field 1 but not for field 0, but we
+           * have no way of knowning the field here
+           */
+          for (i = 0; i < n; i++) {
+            data[3 * i] =
+                self->info.height ==
+                525 ? self->caption_line - 9 : self->caption_line - 5;
+            data[3 * i + 1] = cc_meta->data[2 * i];
+            data[3 * i + 2] = cc_meta->data[2 * i + 1];
+          }
+
+          if (!gst_video_vbi_encoder_add_ancillary (self->vbiencoder,
+                  FALSE,
+                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_708 >> 8,
+                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_708 & 0xff, data, 3))
+            GST_WARNING_OBJECT (self, "Couldn't add meta to ancillary data");
+
+          got_captions = TRUE;
+
+          break;
+        }
+        case GST_VIDEO_CAPTION_TYPE_CEA608_S334_1A:{
+          if (!gst_video_vbi_encoder_add_ancillary (self->vbiencoder,
+                  FALSE,
+                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_708 >> 8,
+                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_708 & 0xff, cc_meta->data,
+                  cc_meta->size))
+            GST_WARNING_OBJECT (self, "Couldn't add meta to ancillary data");
+
+          got_captions = TRUE;
+
+          break;
+        }
+        case GST_VIDEO_CAPTION_TYPE_CEA708_RAW:{
+          guint8 data[256];
+          guint n;
+
+          n = cc_meta->size / 3;
+          if (cc_meta->size > 46) {
+            GST_WARNING_OBJECT (self, "Too big raw CEA708 buffer");
+            break;
+          }
+
+          n = convert_cea708_cc_data_cea708_cdp_internal (self, cc_meta->data,
+              cc_meta->size, data, sizeof (data), tc_meta);
+          if (!gst_video_vbi_encoder_add_ancillary (self->vbiencoder, FALSE,
+                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_708 >> 8,
+                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_708 & 0xff, data, n))
+            GST_WARNING_OBJECT (self, "Couldn't add meta to ancillary data");
+
+          got_captions = TRUE;
+
+          break;
+        }
+        case GST_VIDEO_CAPTION_TYPE_CEA708_CDP:{
+          if (!gst_video_vbi_encoder_add_ancillary (self->vbiencoder,
+                  FALSE,
+                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_708 >> 8,
+                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_708 & 0xff, cc_meta->data,
+                  cc_meta->size))
+            GST_WARNING_OBJECT (self, "Couldn't add meta to ancillary data");
+
+          got_captions = TRUE;
+
+          break;
+        }
+        default:{
+          GST_FIXME_OBJECT (self, "Caption type %d not supported",
+              cc_meta->caption_type);
+          break;
+        }
+      }
     }
+
+    if (got_captions
+        && self->output->output->CreateAncillaryData (format,
+            &vanc_frame) == S_OK) {
+      if (vanc_frame->GetBufferForVerticalBlankingLine (self->caption_line,
+              (void **) &vancdata) == S_OK) {
+        gst_video_vbi_encoder_write_line (self->vbiencoder, vancdata);
+        if (frame->SetAncillaryData (vanc_frame) != S_OK) {
+          GST_WARNING_OBJECT (self, "Failed to set ancillary data");
+        }
+      } else {
+        GST_WARNING_OBJECT (self,
+            "Failed to get buffer for line %d ancillary data",
+            self->caption_line);
+      }
+      vanc_frame->Release ();
+    } else if (got_captions) {
+      GST_WARNING_OBJECT (self, "Failed to allocate ancillary data frame");
+    }
+
   }
+
+  gst_decklink_video_sink_convert_to_internal_clock (self, &running_time,
+      &running_time_duration);
 
   GST_LOG_OBJECT (self, "Scheduling video frame %p at %" GST_TIME_FORMAT
       " with duration %" GST_TIME_FORMAT, frame, GST_TIME_ARGS (running_time),
@@ -792,6 +1047,10 @@ gst_decklink_video_sink_open (GstBaseSink * bsink)
   self->output->clock_epoch += self->output->clock_last_time;
   self->output->clock_last_time = 0;
   self->output->clock_offset = 0;
+  GST_OBJECT_LOCK (self);
+  self->internal_base_time = GST_CLOCK_TIME_NONE;
+  self->external_base_time = GST_CLOCK_TIME_NONE;
+  GST_OBJECT_UNLOCK (self);
   g_mutex_unlock (&self->output->lock);
 
   return TRUE;
@@ -808,7 +1067,7 @@ gst_decklink_video_sink_close (GstBaseSink * bsink)
     g_mutex_lock (&self->output->lock);
     self->output->mode = NULL;
     self->output->video_enabled = FALSE;
-    if (self->output->start_scheduled_playback)
+    if (self->output->start_scheduled_playback && self->output->videosink)
       self->output->start_scheduled_playback (self->output->videosink);
     g_mutex_unlock (&self->output->lock);
 
@@ -835,7 +1094,29 @@ gst_decklink_video_sink_stop (GstDecklinkVideoSink * self)
     self->output->output->SetScheduledFrameCompletionCallback (NULL);
   }
 
+  if (self->vbiencoder) {
+    gst_video_vbi_encoder_free (self->vbiencoder);
+    self->vbiencoder = NULL;
+    self->anc_vformat = GST_VIDEO_FORMAT_UNKNOWN;
+  }
+
   return TRUE;
+}
+
+static void
+_wait_for_stop_notify (GstDecklinkVideoSink * self)
+{
+  bool active = false;
+
+  self->output->output->IsScheduledPlaybackRunning (&active);
+  while (active) {
+    /* cause sometimes decklink stops without notifying us... */
+    guint64 wait_time = g_get_monotonic_time () + G_TIME_SPAN_SECOND;
+    if (!g_cond_wait_until (&self->output->cond, &self->output->lock,
+            wait_time))
+      GST_WARNING_OBJECT (self, "Failed to wait for stop notification");
+    self->output->output->IsScheduledPlaybackRunning (&active);
+  }
 }
 
 static void
@@ -845,7 +1126,6 @@ gst_decklink_video_sink_start_scheduled_playback (GstElement * element)
   GstClockTime start_time;
   HRESULT res;
   bool active;
-  GstClock *clock = NULL;
 
   // Check if we're already started
   if (self->output->started) {
@@ -868,52 +1148,24 @@ gst_decklink_video_sink_start_scheduled_playback (GstElement * element)
     return;
   }
 
-  if ((GST_STATE (self) != GST_STATE_PLAYING
-          && GST_STATE_PENDING (self) != GST_STATE_PLAYING)
+  if ((GST_STATE (self) < GST_STATE_PAUSED
+          && GST_STATE_PENDING (self) < GST_STATE_PAUSED)
       || (self->output->audiosink &&
-          GST_STATE (self->output->audiosink) != GST_STATE_PLAYING
-          && GST_STATE_PENDING (self->output->audiosink) !=
-          GST_STATE_PLAYING)) {
+          GST_STATE (self->output->audiosink) < GST_STATE_PAUSED
+          && GST_STATE_PENDING (self->output->audiosink) < GST_STATE_PAUSED)) {
     GST_DEBUG_OBJECT (self,
         "Not starting scheduled playback yet: "
-        "Elements are not set to PLAYING yet");
-    return;
-  }
-
-  clock = gst_element_get_clock (element);
-  if (!clock) {
-    GST_ELEMENT_ERROR (self, STREAM, FAILED, (NULL),
-        ("Scheduled playback supposed to start but we have no clock"));
+        "Elements are not set to PAUSED yet");
     return;
   }
   // Need to unlock to get the clock time
   g_mutex_unlock (&self->output->lock);
 
-  // FIXME: start time is the same for the complete pipeline,
-  // but what we need here is the start time of this element!
-  start_time = gst_element_get_base_time (element);
-  if (start_time != GST_CLOCK_TIME_NONE)
-    start_time = gst_clock_get_time (clock) - start_time;
-
-  // FIXME: This will probably not work
-  if (start_time == GST_CLOCK_TIME_NONE)
-    start_time = 0;
-
-  // Current times of internal and external clock when we go to
-  // playing. We need this to convert the pipeline running time
-  // to the running time of the hardware
-  //
-  // We can't use the normal base time for the external clock
-  // because we might go to PLAYING later than the pipeline
-  self->internal_base_time = gst_clock_get_internal_time (self->output->clock);
-  self->external_base_time = gst_clock_get_internal_time (clock);
-
-  gst_decklink_video_sink_convert_to_internal_clock (self, &start_time, NULL);
+  start_time = gst_clock_get_internal_time (self->output->clock);
 
   g_mutex_lock (&self->output->lock);
   // Check if someone else started in the meantime
   if (self->output->started) {
-    gst_object_unref (clock);
     return;
   }
 
@@ -929,14 +1181,10 @@ gst_decklink_video_sink_start_scheduled_playback (GstElement * element)
       GST_ELEMENT_ERROR (self, STREAM, FAILED,
           (NULL), ("Failed to stop scheduled playback: 0x%08lx",
               (unsigned long) res));
-      gst_object_unref (clock);
       return;
     }
     // Wait until scheduled playback actually stopped
-    do {
-      g_cond_wait (&self->output->cond, &self->output->lock);
-      self->output->output->IsScheduledPlaybackRunning (&active);
-    } while (active);
+    _wait_for_stop_notify (self);
   }
 
   GST_DEBUG_OBJECT (self,
@@ -950,22 +1198,10 @@ gst_decklink_video_sink_start_scheduled_playback (GstElement * element)
     GST_ELEMENT_ERROR (self, STREAM, FAILED,
         (NULL), ("Failed to start scheduled playback: 0x%08lx",
             (unsigned long) res));
-    gst_object_unref (clock);
     return;
   }
 
   self->output->started = TRUE;
-  self->output->clock_restart = TRUE;
-
-  // Need to unlock to get the clock time
-  g_mutex_unlock (&self->output->lock);
-
-  // Sample the clocks again to get the most accurate values
-  // after we started scheduled playback
-  self->internal_base_time = gst_clock_get_internal_time (self->output->clock);
-  self->external_base_time = gst_clock_get_internal_time (clock);
-  g_mutex_lock (&self->output->lock);
-  gst_object_unref (clock);
 }
 
 static GstStateChangeReturn
@@ -974,34 +1210,11 @@ gst_decklink_video_sink_stop_scheduled_playback (GstDecklinkVideoSink * self)
   GstStateChangeReturn ret = GST_STATE_CHANGE_SUCCESS;
   GstClockTime start_time;
   HRESULT res;
-  GstClock *clock;
 
   if (!self->output->started)
     return ret;
 
-  clock = gst_element_get_clock (GST_ELEMENT_CAST (self));
-  if (clock) {
-    // FIXME: start time is the same for the complete pipeline,
-    // but what we need here is the start time of this element!
-    start_time = gst_element_get_base_time (GST_ELEMENT (self));
-    if (start_time != GST_CLOCK_TIME_NONE)
-      start_time = gst_clock_get_time (clock) - start_time;
-
-    // FIXME: This will probably not work
-    if (start_time == GST_CLOCK_TIME_NONE)
-      start_time = 0;
-
-    gst_decklink_video_sink_convert_to_internal_clock (self, &start_time, NULL);
-
-    // The start time is now the running time when we stopped
-    // playback
-
-    gst_object_unref (clock);
-  } else {
-    GST_WARNING_OBJECT (self,
-        "No clock, stopping scheduled playback immediately");
-    start_time = 0;
-  }
+  start_time = gst_clock_get_internal_time (self->output->clock);
 
   GST_DEBUG_OBJECT (self,
       "Stopping scheduled playback at %" GST_TIME_FORMAT,
@@ -1016,17 +1229,15 @@ gst_decklink_video_sink_stop_scheduled_playback (GstDecklinkVideoSink * self)
             res));
     ret = GST_STATE_CHANGE_FAILURE;
   } else {
-    bool active = false;
 
     // Wait until scheduled playback actually stopped
-    do {
-        g_cond_wait (&self->output->cond, &self->output->lock);
-        self->output->output->IsScheduledPlaybackRunning (&active);
-    } while (active);
+    _wait_for_stop_notify (self);
   }
+  g_mutex_unlock (&self->output->lock);
+  GST_OBJECT_LOCK (self);
   self->internal_base_time = GST_CLOCK_TIME_NONE;
   self->external_base_time = GST_CLOCK_TIME_NONE;
-  g_mutex_unlock (&self->output->lock);
+  GST_OBJECT_UNLOCK (self);
 
   return ret;
 }
@@ -1038,10 +1249,17 @@ gst_decklink_video_sink_change_state (GstElement * element,
   GstDecklinkVideoSink *self = GST_DECKLINK_VIDEO_SINK_CAST (element);
   GstStateChangeReturn ret = GST_STATE_CHANGE_SUCCESS;
 
+  GST_DEBUG_OBJECT (self, "changing state: %s => %s",
+      gst_element_state_get_name (GST_STATE_TRANSITION_CURRENT (transition)),
+      gst_element_state_get_name (GST_STATE_TRANSITION_NEXT (transition)));
+
   switch (transition) {
     case GST_STATE_CHANGE_READY_TO_PAUSED:
+      self->vbiencoder = NULL;
+      self->anc_vformat = GST_VIDEO_FORMAT_UNKNOWN;
+      self->cdp_hdr_sequence_cntr = 0;
+
       g_mutex_lock (&self->output->lock);
-      self->output->clock_start_time = GST_CLOCK_TIME_NONE;
       self->output->clock_epoch += self->output->clock_last_time;
       self->output->clock_last_time = 0;
       self->output->clock_offset = 0;
@@ -1049,24 +1267,51 @@ gst_decklink_video_sink_change_state (GstElement * element,
       gst_element_post_message (element,
           gst_message_new_clock_provide (GST_OBJECT_CAST (element),
               self->output->clock, TRUE));
+      g_mutex_lock (&self->output->lock);
+      if (self->output->start_scheduled_playback)
+        self->output->start_scheduled_playback (self->output->videosink);
+      g_mutex_unlock (&self->output->lock);
       break;
     case GST_STATE_CHANGE_PAUSED_TO_PLAYING:{
       GstClock *clock;
 
       clock = gst_element_get_clock (GST_ELEMENT_CAST (self));
       if (clock) {
-        if (clock && clock != self->output->clock) {
+        if (clock != self->output->clock) {
           gst_clock_set_master (self->output->clock, clock);
         }
+
+        GST_OBJECT_LOCK (self);
+        if (self->external_base_time == GST_CLOCK_TIME_NONE || self->internal_base_time == GST_CLOCK_TIME_NONE) {
+          self->external_base_time = gst_clock_get_internal_time (clock);
+          self->internal_base_time = gst_clock_get_internal_time (self->output->clock);
+          self->internal_time_offset = self->internal_base_time;
+        }
+
+        GST_INFO_OBJECT (self, "clock has been set to %" GST_PTR_FORMAT
+            ", updated base times - internal: %" GST_TIME_FORMAT
+            " external: %" GST_TIME_FORMAT " internal offset %"
+            GST_TIME_FORMAT, clock,
+            GST_TIME_ARGS (self->internal_base_time),
+            GST_TIME_ARGS (self->external_base_time),
+            GST_TIME_ARGS (self->internal_time_offset));
+        GST_OBJECT_UNLOCK (self);
+
         gst_object_unref (clock);
       } else {
         GST_ELEMENT_ERROR (self, STREAM, FAILED,
             (NULL), ("Need a clock to go to PLAYING"));
         ret = GST_STATE_CHANGE_FAILURE;
       }
-
       break;
     }
+    case GST_STATE_CHANGE_PAUSED_TO_READY:
+      if (gst_decklink_video_sink_stop_scheduled_playback (self) ==
+          GST_STATE_CHANGE_FAILURE)
+        ret = GST_STATE_CHANGE_FAILURE;
+      break;
+    case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+      break;
     default:
       break;
   }
@@ -1078,7 +1323,7 @@ gst_decklink_video_sink_change_state (GstElement * element,
     return ret;
 
   switch (transition) {
-    case GST_STATE_CHANGE_PAUSED_TO_READY:
+    case GST_STATE_CHANGE_PAUSED_TO_READY:{
       gst_element_post_message (element,
           gst_message_new_clock_lost (GST_OBJECT_CAST (element),
               self->output->clock));
@@ -1086,26 +1331,24 @@ gst_decklink_video_sink_change_state (GstElement * element,
       // Reset calibration to make the clock reusable next time we use it
       gst_clock_set_calibration (self->output->clock, 0, 0, 1, 1);
       g_mutex_lock (&self->output->lock);
-      self->output->clock_start_time = GST_CLOCK_TIME_NONE;
       self->output->clock_epoch += self->output->clock_last_time;
       self->output->clock_last_time = 0;
       self->output->clock_offset = 0;
       g_mutex_unlock (&self->output->lock);
       gst_decklink_video_sink_stop (self);
-      break;
-    case GST_STATE_CHANGE_PLAYING_TO_PAUSED:{
-      if (gst_decklink_video_sink_stop_scheduled_playback (self) ==
-          GST_STATE_CHANGE_FAILURE)
-        ret = GST_STATE_CHANGE_FAILURE;
-      break;
-    }
-    case GST_STATE_CHANGE_PAUSED_TO_PLAYING:{
-      g_mutex_lock (&self->output->lock);
-      if (self->output->start_scheduled_playback)
-        self->output->start_scheduled_playback (self->output->videosink);
-      g_mutex_unlock (&self->output->lock);
+      GST_OBJECT_LOCK (self);
+      self->internal_base_time = GST_CLOCK_TIME_NONE;
+      self->external_base_time = GST_CLOCK_TIME_NONE;
+      GST_OBJECT_UNLOCK (self);
       break;
     }
+    case GST_STATE_CHANGE_READY_TO_PAUSED:{
+      break;
+    }
+    case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+      break;
+    case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+      break;
     default:
       break;
   }
@@ -1113,18 +1356,35 @@ gst_decklink_video_sink_change_state (GstElement * element,
   return ret;
 }
 
-static void
-gst_decklink_video_sink_state_changed (GstElement * element,
-    GstState old_state, GstState new_state, GstState pending_state)
+static gboolean
+gst_decklink_video_sink_event (GstBaseSink * bsink, GstEvent * event)
 {
-  GstDecklinkVideoSink *self = GST_DECKLINK_VIDEO_SINK_CAST (element);
+  GstDecklinkVideoSink *self = GST_DECKLINK_VIDEO_SINK_CAST (bsink);
 
-  // Aka gst_element_lost_state()
-  if (old_state == GST_STATE_PAUSED &&
-      new_state == GST_STATE_PAUSED && pending_state == GST_STATE_PAUSED &&
-      GST_STATE_TARGET (element) == GST_STATE_PLAYING) {
-    gst_decklink_video_sink_stop_scheduled_playback (self);
+  switch (GST_EVENT_TYPE (event)) {
+    case GST_EVENT_FLUSH_START:
+    {
+      break;
+    }
+    case GST_EVENT_FLUSH_STOP:
+    {
+      gboolean reset_time;
+
+      gst_event_parse_flush_stop (event, &reset_time);
+      if (reset_time) {
+        GST_OBJECT_LOCK (self);
+        /* force a recalculation of clock base times */
+        self->external_base_time = GST_CLOCK_TIME_NONE;
+        self->internal_base_time = GST_CLOCK_TIME_NONE;
+        GST_OBJECT_UNLOCK (self);
+      }
+      break;
+    }
+    default:
+      break;
   }
+
+  return GST_BASE_SINK_CLASS (parent_class)->event (bsink, event);
 }
 
 static GstClock *

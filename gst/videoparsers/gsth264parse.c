@@ -196,6 +196,8 @@ gst_h264_parse_reset_frame (GstH264Parse * h264parse)
   h264parse->header = FALSE;
   h264parse->frame_start = FALSE;
   h264parse->aud_insert = TRUE;
+  h264parse->have_sps_in_frame = FALSE;
+  h264parse->have_pps_in_frame = FALSE;
   gst_adapter_clear (h264parse->frame_out);
 }
 
@@ -565,6 +567,7 @@ gst_h264_parse_process_sei (GstH264Parse * h264parse, GstH264NalUnit * nalu)
             sei.payload.recovery_point.exact_match_flag,
             sei.payload.recovery_point.broken_link_flag,
             sei.payload.recovery_point.changing_slice_group_idc);
+        h264parse->keyframe = TRUE;
         break;
 
         /* Additional messages that are not innerly useful to the
@@ -743,6 +746,7 @@ gst_h264_parse_process_nal (GstH264Parse * h264parse, GstH264NalUnit * nalu)
       GST_DEBUG_OBJECT (h264parse, "triggering src caps check");
       h264parse->update_caps = TRUE;
       h264parse->have_sps = TRUE;
+      h264parse->have_sps_in_frame = TRUE;
       if (h264parse->push_codec && h264parse->have_pps) {
         /* SPS and PPS found in stream before the first pre_push_frame, no need
          * to forcibly push at start */
@@ -777,6 +781,7 @@ gst_h264_parse_process_nal (GstH264Parse * h264parse, GstH264NalUnit * nalu)
         h264parse->update_caps = TRUE;
       }
       h264parse->have_pps = TRUE;
+      h264parse->have_pps_in_frame = TRUE;
       if (h264parse->push_codec && h264parse->have_sps) {
         /* SPS and PPS found in stream before the first pre_push_frame, no need
          * to forcibly push at start */
@@ -1629,11 +1634,19 @@ get_profile_string (GstH264SPS * sps)
       profile = "extended";
       break;
     case 100:
-      profile = "high";
+      if (sps->constraint_set4_flag) {
+        if (sps->constraint_set5_flag)
+          profile = "constrained-high";
+        else
+          profile = "progressive-high";
+      } else
+        profile = "high";
       break;
     case 110:
       if (sps->constraint_set3_flag)
         profile = "high-10-intra";
+      else if (sps->constraint_set4_flag)
+        profile = "progressive-high-10";
       else
         profile = "high-10";
       break;
@@ -2306,6 +2319,11 @@ gst_h264_parse_handle_sps_pps_nals (GstH264Parse * h264parse,
   gboolean send_done = FALSE;
   GstClockTime timestamp = GST_BUFFER_TIMESTAMP (buffer);
 
+  if (h264parse->have_sps_in_frame && h264parse->have_pps_in_frame) {
+    GST_DEBUG_OBJECT (h264parse, "SPS/PPS exist in frame, will not insert");
+    return TRUE;
+  }
+
   if (h264parse->align == GST_H264_PARSE_ALIGN_NAL) {
     /* send separate config NAL buffers */
     GST_DEBUG_OBJECT (h264parse, "- sending SPS/PPS");
@@ -2696,6 +2714,10 @@ gst_h264_parse_set_caps (GstBaseParse * parse, GstCaps * caps)
     gst_buffer_unmap (codec_data, &map);
 
     gst_buffer_replace (&h264parse->codec_data_in, codec_data);
+
+    /* don't confuse codec_data with inband sps/pps */
+    h264parse->have_sps_in_frame = FALSE;
+    h264parse->have_pps_in_frame = FALSE;
   } else if (format == GST_H264_PARSE_FORMAT_BYTE) {
     GST_DEBUG_OBJECT (h264parse, "have bytestream h264");
     /* nothing to pre-process */

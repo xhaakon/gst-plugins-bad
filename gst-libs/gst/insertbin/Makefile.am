@@ -9,6 +9,7 @@ libgstinsertbin_@GST_API_VERSION@include_HEADERS = gstinsertbin.h
 
 libgstinsertbin_@GST_API_VERSION@_la_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) \
+	-DBUILDING_GST_INSERT_BIN \
 	$(GST_CFLAGS)
 
 libgstinsertbin_@GST_API_VERSION@_la_LIBADD = \
@@ -45,7 +46,7 @@ GstInsertBin-@GST_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libgstinsertbin-@GS
 		--library=libgstinsertbin-@GST_API_VERSION@.la \
 		--include=Gst-@GST_API_VERSION@ \
 		--include=GstBase-@GST_API_VERSION@ \
-		--libtool="$(top_builddir)/libtool" \
+		--libtool="${LIBTOOL}" \
 		--pkg gstreamer-@GST_API_VERSION@ \
 		--pkg gstreamer-base-@GST_API_VERSION@ \
 		--pkg-export gstreamer-insertbin-@GST_API_VERSION@ \

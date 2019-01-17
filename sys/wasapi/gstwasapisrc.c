@@ -53,6 +53,7 @@ static GstStaticPadTemplate src_template = GST_STATIC_PAD_TEMPLATE ("src",
     GST_STATIC_CAPS (GST_WASAPI_STATIC_CAPS));
 
 #define DEFAULT_ROLE          GST_WASAPI_DEVICE_ROLE_CONSOLE
+#define DEFAULT_LOOPBACK      FALSE
 #define DEFAULT_EXCLUSIVE     FALSE
 #define DEFAULT_LOW_LATENCY   FALSE
 #define DEFAULT_AUDIOCLIENT3  FALSE
@@ -65,6 +66,7 @@ enum
   PROP_0,
   PROP_ROLE,
   PROP_DEVICE,
+  PROP_LOOPBACK,
   PROP_EXCLUSIVE,
   PROP_LOW_LATENCY,
   PROP_AUDIOCLIENT3
@@ -124,6 +126,12 @@ gst_wasapi_src_class_init (GstWasapiSrcClass * klass)
           NULL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class,
+      PROP_LOOPBACK,
+      g_param_spec_boolean ("loopback", "Loopback recording",
+          "Open the sink device for loopback recording",
+          DEFAULT_LOOPBACK, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class,
       PROP_EXCLUSIVE,
       g_param_spec_boolean ("exclusive", "Exclusive mode",
           "Open the device in exclusive mode",
@@ -177,6 +185,7 @@ gst_wasapi_src_init (GstWasapiSrc * self)
 
   self->role = DEFAULT_ROLE;
   self->sharemode = AUDCLNT_SHAREMODE_SHARED;
+  self->loopback = DEFAULT_LOOPBACK;
   self->low_latency = DEFAULT_LOW_LATENCY;
   self->try_audioclient3 = DEFAULT_AUDIOCLIENT3;
   self->event_handle = CreateEvent (NULL, FALSE, FALSE, NULL);
@@ -221,11 +230,11 @@ gst_wasapi_src_finalize (GObject * object)
   CoTaskMemFree (self->mix_format);
   self->mix_format = NULL;
 
+  CoUninitialize ();
+
   g_clear_pointer (&self->cached_caps, gst_caps_unref);
   g_clear_pointer (&self->positions, g_free);
   g_clear_pointer (&self->device_strid, g_free);
-
-  CoUninitialize ();
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -248,6 +257,9 @@ gst_wasapi_src_set_property (GObject * object, guint prop_id,
           device ? g_utf8_to_utf16 (device, -1, NULL, NULL, NULL) : NULL;
       break;
     }
+    case PROP_LOOPBACK:
+      self->loopback = g_value_get_boolean (value);
+      break;
     case PROP_EXCLUSIVE:
       self->sharemode = g_value_get_boolean (value)
           ? AUDCLNT_SHAREMODE_EXCLUSIVE : AUDCLNT_SHAREMODE_SHARED;
@@ -277,6 +289,9 @@ gst_wasapi_src_get_property (GObject * object, guint prop_id,
     case PROP_DEVICE:
       g_value_take_string (value, self->device_strid ?
           g_utf16_to_utf8 (self->device_strid, -1, NULL, NULL, NULL) : NULL);
+      break;
+    case PROP_LOOPBACK:
+      g_value_set_boolean (value, self->loopback);
       break;
     case PROP_EXCLUSIVE:
       g_value_set_boolean (value,
@@ -381,8 +396,9 @@ gst_wasapi_src_open (GstAudioSrc * asrc)
    * even if the old device was unplugged. We need to handle this somehow.
    * For example, perhaps we should automatically switch to the new device if
    * the default device is changed and a device isn't explicitly selected. */
-  if (!gst_wasapi_util_get_device_client (GST_ELEMENT (self), TRUE,
-          self->role, self->device_strid, &device, &client)) {
+  if (!gst_wasapi_util_get_device_client (GST_ELEMENT (self),
+          self->loopback ? eRender : eCapture, self->role, self->device_strid,
+          &device, &client)) {
     if (!self->device_strid)
       GST_ELEMENT_ERROR (self, RESOURCE, OPEN_READ, (NULL),
           ("Failed to get default device"));
@@ -433,12 +449,12 @@ gst_wasapi_src_prepare (GstAudioSrc * asrc, GstAudioRingBufferSpec * spec)
   if (gst_wasapi_src_can_audioclient3 (self)) {
     if (!gst_wasapi_util_initialize_audioclient3 (GST_ELEMENT (self), spec,
             (IAudioClient3 *) self->client, self->mix_format, self->low_latency,
-            &devicep_frames))
+            self->loopback, &devicep_frames))
       goto beach;
   } else {
     if (!gst_wasapi_util_initialize_audioclient (GST_ELEMENT (self), spec,
             self->client, self->mix_format, self->sharemode, self->low_latency,
-            &devicep_frames))
+            self->loopback, &devicep_frames))
       goto beach;
   }
 
@@ -492,6 +508,7 @@ gst_wasapi_src_prepare (GstAudioSrc * asrc, GstAudioRingBufferSpec * spec)
 
   hr = IAudioClient_Start (self->client);
   HR_FAILED_GOTO (hr, IAudioClock::Start, beach);
+  self->client_needs_restart = FALSE;
 
   gst_audio_ring_buffer_set_channel_positions (GST_AUDIO_BASE_SRC
       (self)->ringbuffer, self->positions);
@@ -511,8 +528,6 @@ gst_wasapi_src_unprepare (GstAudioSrc * asrc)
 {
   GstWasapiSrc *self = GST_WASAPI_SRC (asrc);
 
-  CoUninitialize ();
-
   if (self->client != NULL) {
     IAudioClient_Stop (self->client);
   }
@@ -528,6 +543,8 @@ gst_wasapi_src_unprepare (GstAudioSrc * asrc)
   }
 
   self->client_clock_freq = 0;
+
+  CoUninitialize ();
 
   return TRUE;
 }
@@ -545,7 +562,8 @@ gst_wasapi_src_read (GstAudioSrc * asrc, gpointer data, guint length,
   GST_OBJECT_LOCK (self);
   if (self->client_needs_restart) {
     hr = IAudioClient_Start (self->client);
-    HR_FAILED_AND (hr, IAudioClient::Start, length = 0; goto beach);
+    HR_FAILED_ELEMENT_ERROR_AND (hr, IAudioClient::Start, self,
+        GST_OBJECT_UNLOCK (self); goto err);
     self->client_needs_restart = FALSE;
   }
   GST_OBJECT_UNLOCK (self);
@@ -559,23 +577,22 @@ gst_wasapi_src_read (GstAudioSrc * asrc, gpointer data, guint length,
     if (dwWaitResult != WAIT_OBJECT_0) {
       GST_ERROR_OBJECT (self, "Error waiting for event handle: %x",
           (guint) dwWaitResult);
-      length = 0;
-      goto beach;
+      goto err;
     }
 
     hr = IAudioCaptureClient_GetBuffer (self->capture_client,
         (BYTE **) & from, &have_frames, &flags, NULL, NULL);
     if (hr != S_OK) {
-      gchar *msg = gst_wasapi_util_hresult_to_string (hr);
-      if (hr == AUDCLNT_S_BUFFER_EMPTY)
+      if (hr == AUDCLNT_S_BUFFER_EMPTY) {
+        gchar *msg = gst_wasapi_util_hresult_to_string (hr);
         GST_WARNING_OBJECT (self, "IAudioCaptureClient::GetBuffer failed: %s"
             ", retrying", msg);
-      else
-        GST_ERROR_OBJECT (self, "IAudioCaptureClient::GetBuffer failed: %s",
-            msg);
-      g_free (msg);
-      length = 0;
-      goto beach;
+        g_free (msg);
+        length = 0;
+        goto out;
+      }
+      HR_FAILED_ELEMENT_ERROR_AND (hr, IAudioCaptureClient::GetBuffer, self,
+          goto err);
     }
 
     if (flags != 0)
@@ -612,13 +629,17 @@ gst_wasapi_src_read (GstAudioSrc * asrc, gpointer data, guint length,
 
     /* Always release all captured buffers if we've captured any at all */
     hr = IAudioCaptureClient_ReleaseBuffer (self->capture_client, have_frames);
-    HR_FAILED_AND (hr, IAudioClock::ReleaseBuffer, goto beach);
+    HR_FAILED_ELEMENT_ERROR_AND (hr, IAudioCaptureClient::ReleaseBuffer, self,
+        goto err);
   }
 
 
-beach:
-
+out:
   return length;
+
+err:
+  length = -1;
+  goto out;
 }
 
 static guint

@@ -630,23 +630,6 @@ gst_compare_get_type
 </SECTION>
 
 <SECTION>
-<FILE>element-compositor</FILE>
-<TITLE>compositor</TITLE>
-GstCompositor
-GstCompositorBackground
-<SUBSECTION Standard>
-GstCompositorClass
-GST_COMPOSITOR
-GST_COMPOSITOR_CAST
-GST_IS_COMPOSITOR
-GST_COMPOSITOR_CLASS
-GST_IS_COMPOSITOR_CLASS
-GST_TYPE_COMPOSITOR
-<SUBSECTION Private>
-gst_compositor_get_type
-</SECTION>
-
-<SECTION>
 <FILE>element-curlfilesink</FILE>
 <TITLE>curlfilesink</TITLE>
 GstCurlFileSink
@@ -1569,88 +1552,6 @@ GST_IS_GDP_PAY_CLASS
 GST_TYPE_GDP_PAY
 <SUBSECTION Private>
 gst_gdp_pay_get_type
-</SECTION>
-
-<SECTION>
-<FILE>element-glmixerbin</FILE>
-<TITLE>glmixerbin</TITLE>
-GstGLMixerBin
-GstGLMixerBinStartTimeSelection
-<SUBSECTION Standard>
-GstGLMixerBinClass
-GST_GL_MIXER_BIN
-GST_GL_MIXER_BIN_CAST
-GST_IS_GL_MIXER_BIN
-GST_GL_MIXER_BIN_CLASS
-GST_IS_GL_MIXER_BIN_CLASS
-GST_TYPE_GL_MIXER_BIN
-<SUBSECTION Private>
-gst_gl_mixer_bin_get_type
-</SECTION>
-
-<SECTION>
-<FILE>element-glmosaic</FILE>
-<TITLE>glmosaic</TITLE>
-GstGLMosaic
-<SUBSECTION Standard>
-GstGLMosaicClass
-GST_GL_MOSAIC
-GST_GL_MOSAIC_CAST
-GST_IS_GL_MOSAIC
-GST_GL_MOSAIC_CLASS
-GST_IS_GL_MOSAIC_CLASS
-GST_TYPE_GL_MOSAIC
-<SUBSECTION Private>
-gst_gl_mosaic_get_type
-</SECTION>
-
-<SECTION>
-<FILE>element-glstereomix</FILE>
-<TITLE>glstereomix</TITLE>
-GstGLStereoMix
-<SUBSECTION Standard>
-GstGLStereoMixClass
-GST_GL_STEREO_MIX
-GST_GL_STEREO_MIX_CAST
-GST_IS_GL_STEREO_MIX
-GST_GL_STEREO_MIX_CLASS
-GST_IS_GL_STEREO_MIX_CLASS
-GST_TYPE_GL_STEREO_MIX
-<SUBSECTION Private>
-gst_gl_stereo_mix_get_type
-</SECTION>
-
-<SECTION>
-<FILE>element-glvideomixerelement</FILE>
-<TITLE>glvideomixerelement</TITLE>
-GstGLVideoMixer
-GstGLVideoMixerBackground
-<SUBSECTION Standard>
-GstGLVideoMixerClass
-GST_GL_VIDEO_MIXER
-GST_GL_VIDEO_MIXER_CAST
-GST_IS_GL_VIDEO_MIXER
-GST_GL_VIDEO_MIXER_CLASS
-GST_IS_GL_VIDEO_MIXER_CLASS
-GST_TYPE_GL_VIDEO_MIXER
-<SUBSECTION Private>
-gst_gl_video_mixer_get_type
-</SECTION>
-
-<SECTION>
-<FILE>element-glvideomixer</FILE>
-<TITLE>glvideomixer</TITLE>
-GstGLVideoMixerBin
-<SUBSECTION Standard>
-GstGLVideoMixerBinClass
-GST_GL_VIDEO_MIXER_BIN
-GST_GL_VIDEO_MIXER_BIN_CAST
-GST_IS_GL_VIDEO_MIXER_BIN
-GST_GL_VIDEO_MIXER_BIN_CLASS
-GST_IS_GL_VIDEO_MIXER_BIN_CLASS
-GST_TYPE_GL_VIDEO_MIXER_BIN
-<SUBSECTION Private>
-gst_gl_video_mixer_bin_get_type
 </SECTION>
 
 <SECTION>
@@ -3491,22 +3392,6 @@ gst_srtp_enc_get_type
 </SECTION>
 
 <SECTION>
-<FILE>element-stereo</FILE>
-<TITLE>stereo</TITLE>
-GstStereo
-<SUBSECTION Standard>
-GstStereoClass
-GST_STEREO
-GST_STEREO_CAST
-GST_IS_STEREO
-GST_STEREO_CLASS
-GST_IS_STEREO_CLASS
-GST_TYPE_STEREO
-<SUBSECTION Private>
-gst_stereo_get_type
-</SECTION>
-
-<SECTION>
 <FILE>element-stretch</FILE>
 <TITLE>stretch</TITLE>
 GstStretch
@@ -3600,6 +3485,19 @@ GST_IS_TIME_CODE_STAMPER_CLASS
 GST_TYPE_TIME_CODE_STAMPER
 <SUBSECTION Private>
 gst_time_code_stamper_get_type
+</SECTION>
+
+<SECTION>
+<FILE>element-testsrcbin</FILE>
+<TITLE>testsrcbin</TITLE>
+GstTestSrcBin
+<SUBSECTION Standard>
+GstTestSrcBinClass
+GST_TEST_SRC_BIN
+GST_IS_TEST_SRC_BIN
+GST_TEST_SRC_BIN_CLASS
+<SUBSECTION Private>
+gst_test_src_bin_get_type
 </SECTION>
 
 <SECTION>

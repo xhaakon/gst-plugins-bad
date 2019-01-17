@@ -1097,6 +1097,33 @@ error:
   return GST_H265_PARSER_ERROR;
 }
 
+static GstH265ParserResult
+gst_h265_parser_parse_recovery_point (GstH265Parser * parser,
+    GstH265RecoveryPoint * rp, NalReader * nr)
+{
+  GstH265SPS *const sps = parser->last_sps;
+  gint32 max_pic_order_cnt_lsb;
+
+  GST_DEBUG ("parsing \"Recovery point\"");
+  if (!sps || !sps->valid) {
+    GST_WARNING ("didn't get the associated sequence paramater set for the "
+        "current access unit");
+    goto error;
+  }
+
+  max_pic_order_cnt_lsb = pow (2, (sps->log2_max_pic_order_cnt_lsb_minus4 + 4));
+  READ_SE_ALLOWED (nr, rp->recovery_poc_cnt, -max_pic_order_cnt_lsb / 2,
+      max_pic_order_cnt_lsb - 1);
+  READ_UINT8 (nr, rp->exact_match_flag, 1);
+  READ_UINT8 (nr, rp->broken_link_flag, 1);
+
+  return GST_H265_PARSER_OK;
+
+error:
+  GST_WARNING ("error parsing \"Recovery point\"");
+  return GST_H265_PARSER_ERROR;
+}
+
 /******** API *************/
 
 /**
@@ -1226,7 +1253,12 @@ gst_h265_parser_identify_nalu (GstH265Parser * parser,
       gst_h265_parser_identify_nalu_unchecked (parser, data, offset, size,
       nalu);
 
-  if (res != GST_H265_PARSER_OK || nalu->size == 2)
+  if (res != GST_H265_PARSER_OK)
+    goto beach;
+
+  /* The two NALs are exactly 2 bytes size and are placed at the end of an AU,
+   * there is no need to wait for the following */
+  if (nalu->type == GST_H265_NAL_EOS || nalu->type == GST_H265_NAL_EOB)
     goto beach;
 
   off2 = scan_for_start_codes (data + nalu->offset, size - nalu->offset);
@@ -1395,9 +1427,8 @@ gst_h265_parse_vps (GstH265NalUnit * nalu, GstH265VPS * vps)
 
   READ_UINT8 (&nr, vps->id, 4);
 
-  /* skip reserved_three_2bits */
-  if (!nal_reader_skip (&nr, 2))
-    goto error;
+  READ_UINT8 (&nr, vps->base_layer_internal_flag, 1);
+  READ_UINT8 (&nr, vps->base_layer_available_flag, 1);
 
   READ_UINT8 (&nr, vps->max_layers_minus1, 6);
   READ_UINT8 (&nr, vps->max_sub_layers_minus1, 3);
@@ -1434,14 +1465,20 @@ gst_h265_parse_vps (GstH265NalUnit * nalu, GstH265VPS * vps)
   }
 
   READ_UINT8 (&nr, vps->max_layer_id, 6);
-  CHECK_ALLOWED_MAX (vps->max_layer_id, 0);
+  /* shall allow 63 */
+  CHECK_ALLOWED_MAX (vps->max_layer_id, 63);
 
   READ_UE_MAX (&nr, vps->num_layer_sets_minus1, 1023);
-  CHECK_ALLOWED_MAX (vps->num_layer_sets_minus1, 0);
+  /* allowd range is 0 to 1023 */
+  CHECK_ALLOWED_MAX (vps->num_layer_sets_minus1, 1023);
 
-  for (i = 1; i <= vps->num_layer_sets_minus1; i++)
-    for (j = 0; j <= vps->max_layer_id; j++)
+  for (i = 1; i <= vps->num_layer_sets_minus1; i++) {
+    for (j = 0; j <= vps->max_layer_id; j++) {
+      /* layer_id_included_flag[i][j] */
+      /* FIXME: need to parse this when we can support parsing multi-layer info. */
       nal_reader_skip (&nr, 1);
+    }
+  }
 
   READ_UINT8 (&nr, vps->timing_info_present_flag, 1);
 
@@ -1454,14 +1491,44 @@ gst_h265_parse_vps (GstH265NalUnit * nalu, GstH265VPS * vps)
       READ_UE_MAX (&nr, vps->num_ticks_poc_diff_one_minus1, G_MAXUINT32 - 1);
 
     READ_UE_MAX (&nr, vps->num_hrd_parameters, 1024);
-    CHECK_ALLOWED_MAX (vps->num_hrd_parameters, 1);
+    /* allowd range is
+     * 0 to vps_num_layer_sets_minus1 + 1 */
+    CHECK_ALLOWED_MAX (vps->num_hrd_parameters, vps->num_layer_sets_minus1 + 1);
 
     if (vps->num_hrd_parameters) {
       READ_UE_MAX (&nr, vps->hrd_layer_set_idx, 1023);
-      CHECK_ALLOWED_MAX (vps->hrd_layer_set_idx, 0);
+      /* allowd range is
+       * ( vps_base_layer_internal_flag ? 0 : 1 ) to vps_num_layer_sets_minus1
+       */
+      CHECK_ALLOWED_MAX (vps->hrd_layer_set_idx, vps->num_layer_sets_minus1);
 
       if (!gst_h265_parse_hrd_parameters (&vps->hrd_params, &nr,
               vps->cprms_present_flag, vps->max_sub_layers_minus1))
+        goto error;
+    }
+
+    /* FIXME: VPS can have multiple hrd parameters, and therefore hrd_params
+     * should be an array (like Garray). But it also requires new _clear()
+     * method for free the array in GstH265VPS whenever gst_h265_parse_vps()
+     * is called. Need to work for multi-layer related parsing supporting
+     *
+     * FIXME: Following code is just work around to find correct
+     * vps_extension position */
+
+    /* skip the first parsed one above */
+    for (i = 1; i < vps->num_hrd_parameters; i++) {
+      guint16 hrd_layer_set_idx;
+      guint8 cprms_present_flag;
+      GstH265HRDParams hrd_params;
+
+      READ_UE_MAX (&nr, hrd_layer_set_idx, 1023);
+      CHECK_ALLOWED_MAX (hrd_layer_set_idx, vps->num_layer_sets_minus1);
+
+      /* need parsing if (i > 1) */
+      READ_UINT8 (&nr, cprms_present_flag, 1);
+
+      if (!gst_h265_parse_hrd_parameters (&hrd_params, &nr,
+              cprms_present_flag, vps->max_sub_layers_minus1))
         goto error;
     }
   }
@@ -2240,6 +2307,10 @@ gst_h265_parser_parse_sei_message (GstH265Parser * parser,
         /* size not set; might depend on emulation_prevention_three_byte */
         res = gst_h265_parser_parse_pic_timing (parser,
             &sei->payload.pic_timing, nr);
+        break;
+      case GST_H265_SEI_RECOVERY_POINT:
+        res = gst_h265_parser_parse_recovery_point (parser,
+            &sei->payload.recovery_point, nr);
         break;
       default:
         /* Just consume payloadSize bytes, which does not account for

@@ -35,6 +35,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_decklink_video_src_debug);
 #define DEFAULT_OUTPUT_STREAM_TIME (FALSE)
 #define DEFAULT_SKIP_FIRST_TIME (0)
 #define DEFAULT_DROP_NO_SIGNAL_FRAMES (FALSE)
+#define DEFAULT_OUTPUT_CC (FALSE)
 
 #ifndef ABSDIFF
 #define ABSDIFF(x, y) ( (x) > (y) ? ((x) - (y)) : ((y) - (x)) )
@@ -53,7 +54,8 @@ enum
   PROP_SKIP_FIRST_TIME,
   PROP_DROP_NO_SIGNAL_FRAMES,
   PROP_SIGNAL,
-  PROP_HW_SERIAL_NUMBER
+  PROP_HW_SERIAL_NUMBER,
+  PROP_OUTPUT_CC
 };
 
 typedef struct
@@ -221,6 +223,12 @@ gst_decklink_video_src_class_init (GstDecklinkVideoSrcClass * klass)
           "The serial number (hardware ID) of the Decklink card",
           NULL, (GParamFlags) (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)));
 
+  g_object_class_install_property (gobject_class, PROP_OUTPUT_CC,
+      g_param_spec_boolean ("output-cc", "Output Closed Caption",
+          "Extract and output CC as GstMeta (if present)",
+          DEFAULT_OUTPUT_CC,
+          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
+
   templ_caps = gst_decklink_mode_get_template_caps (TRUE);
   gst_element_class_add_pad_template (element_class,
       gst_pad_template_new ("src", GST_PAD_SRC, GST_PAD_ALWAYS, templ_caps));
@@ -325,6 +333,9 @@ gst_decklink_video_src_set_property (GObject * object, guint property_id,
     case PROP_DROP_NO_SIGNAL_FRAMES:
       self->drop_no_signal_frames = g_value_get_boolean (value);
       break;
+    case PROP_OUTPUT_CC:
+      self->output_cc = g_value_get_boolean (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -374,6 +385,9 @@ gst_decklink_video_src_get_property (GObject * object, guint property_id,
         g_value_set_string (value, self->input->hw_serial_number);
       else
         g_value_set_string (value, NULL);
+      break;
+    case PROP_OUTPUT_CC:
+      g_value_set_boolean (value, self->output_cc);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -744,10 +758,22 @@ gst_decklink_video_src_got_frame (GstElement * element,
           flags =
               (GstVideoTimeCodeFlags) (flags |
               GST_VIDEO_TIME_CODE_FLAGS_INTERLACED);
-        if (bmode->fps_d == 1001 && (bmode->fps_n == 30000 || bmode->fps_n == 60000))
-          flags =
-              (GstVideoTimeCodeFlags) (flags |
-              GST_VIDEO_TIME_CODE_FLAGS_DROP_FRAME);
+        if (bmode->fps_d == 1001) {
+          if (bmode->fps_n == 30000 || bmode->fps_n == 60000) {
+            /* Some occurrences have been spotted where the driver mistakenly
+             * fails to set the drop-frame flag for drop-frame timecodes.
+             * Assume always drop-frame for 29.97 and 59.94 FPS */
+            flags =
+                (GstVideoTimeCodeFlags) (flags |
+                GST_VIDEO_TIME_CODE_FLAGS_DROP_FRAME);
+          } else {
+            /* Drop-frame isn't defined for any other framerates (e.g. 23.976)
+             * */
+            flags =
+                (GstVideoTimeCodeFlags) (flags &
+                ~GST_VIDEO_TIME_CODE_FLAGS_DROP_FRAME);
+          }
+        }
         f.tc =
             gst_video_time_code_new (bmode->fps_n, bmode->fps_d, NULL, flags,
             hours, minutes, seconds, frames, field_count);
@@ -762,6 +788,97 @@ gst_decklink_video_src_got_frame (GstElement * element,
     g_cond_signal (&self->cond);
   }
   g_mutex_unlock (&self->lock);
+}
+
+static void
+extract_cc_from_vbi (GstDecklinkVideoSrc * self, GstBuffer ** buffer,
+    VideoFrame * vf, const GstDecklinkMode * mode)
+{
+  IDeckLinkVideoFrameAncillary *vanc_frame = NULL;
+  gint fi;
+  guint8 *vancdata;
+  GstVideoFormat videoformat;
+  gboolean found = FALSE;
+
+  if (vf->frame->GetAncillaryData (&vanc_frame) != S_OK)
+    return;
+
+  videoformat =
+      gst_decklink_video_format_from_type (vanc_frame->GetPixelFormat ());
+
+  if (videoformat == GST_VIDEO_FORMAT_UNKNOWN) {
+    GST_DEBUG_OBJECT (self, "Unknown video format for Ancillary data");
+    vanc_frame->Release ();
+    return;
+  }
+
+  if (videoformat != self->anc_vformat && self->vbiparser) {
+    gst_video_vbi_parser_free (self->vbiparser);
+    self->vbiparser = NULL;
+  }
+
+  GST_DEBUG_OBJECT (self, "Checking for ancillary data in VBI");
+
+  fi = self->last_cc_vbi_line;
+  if (fi == -1)
+    fi = 1;
+
+  while (fi < 22 && !found) {
+    if (vanc_frame->GetBufferForVerticalBlankingLine (fi,
+            (void **) &vancdata) == S_OK) {
+      GstVideoAncillary gstanc;
+      if (self->vbiparser == NULL) {
+        self->vbiparser = gst_video_vbi_parser_new (videoformat, mode->width);
+        self->anc_vformat = videoformat;
+      }
+      GST_DEBUG_OBJECT (self, "Might have data on line %d", fi);
+      gst_video_vbi_parser_add_line (self->vbiparser, vancdata);
+
+      while (gst_video_vbi_parser_get_ancillary (self->vbiparser,
+              &gstanc) == GST_VIDEO_VBI_PARSER_RESULT_OK) {
+        switch (GST_VIDEO_ANCILLARY_DID16 (&gstanc)) {
+          case GST_VIDEO_ANCILLARY_DID16_S334_EIA_708:
+            GST_DEBUG_OBJECT (self,
+                "Adding CEA-708 CDP meta to buffer for line %d", fi);
+            GST_MEMDUMP_OBJECT (self, "CDP", gstanc.data, gstanc.data_count);
+            gst_buffer_add_video_caption_meta (*buffer,
+                GST_VIDEO_CAPTION_TYPE_CEA708_CDP, gstanc.data,
+                gstanc.data_count);
+
+            break;
+          case GST_VIDEO_ANCILLARY_DID16_S334_EIA_608:
+            GST_DEBUG_OBJECT (self,
+                "Adding CEA-608 meta to buffer for line %d", fi);
+            GST_MEMDUMP_OBJECT (self, "CEA608", gstanc.data, gstanc.data_count);
+            gst_buffer_add_video_caption_meta (*buffer,
+                GST_VIDEO_CAPTION_TYPE_CEA608_S334_1A, gstanc.data,
+                gstanc.data_count);
+            break;
+          default:
+            /* otherwise continue looking */
+            continue;
+        }
+
+        found = TRUE;
+        self->last_cc_vbi_line = fi;
+        break;
+      }
+    }
+
+    /* If we didn't find it at the previous line, start again searching from
+     * line 1 onwards */
+    if (!found && (gint) self->last_cc_vbi_line != -1) {
+      self->last_cc_vbi_line = -1;
+      fi = 1;
+    } else {
+      fi++;
+    }
+  }
+
+  if (!found)
+    self->last_cc_vbi_line = -1;
+
+  vanc_frame->Release ();
 }
 
 static GstFlowReturn
@@ -854,13 +971,18 @@ gst_decklink_video_src_create (GstPushSrc * bsrc, GstBuffer ** buffer)
 
   g_mutex_unlock (&self->lock);
   if (caps_changed) {
+    self->last_cc_vbi_line = -1;
     caps = gst_decklink_mode_get_caps (f.mode, f.format, TRUE);
     gst_video_info_from_caps (&self->info, caps);
     gst_base_src_set_caps (GST_BASE_SRC_CAST (bsrc), caps);
     gst_element_post_message (GST_ELEMENT_CAST (self),
         gst_message_new_latency (GST_OBJECT_CAST (self)));
     gst_caps_unref (caps);
-
+    if (self->vbiparser) {
+      gst_video_vbi_parser_free (self->vbiparser);
+      self->vbiparser = NULL;
+      self->anc_vformat = GST_VIDEO_FORMAT_UNKNOWN;
+    }
   }
 
   f.frame->GetBytes ((gpointer *) & data);
@@ -894,6 +1016,13 @@ gst_decklink_video_src_create (GstPushSrc * bsrc, GstBuffer ** buffer)
     }
   }
 
+  mode = gst_decklink_get_mode (self->mode);
+
+  // If we have a format that supports VANC and we are asked to extract CC,
+  // then do it here.
+  if (self->output_cc && mode->vanc && !self->no_signal)
+    extract_cc_from_vbi (self, buffer, vf, mode);
+
   if (f.no_signal)
     GST_BUFFER_FLAG_SET (*buffer, GST_BUFFER_FLAG_GAP);
   GST_BUFFER_TIMESTAMP (*buffer) = f.timestamp;
@@ -907,7 +1036,6 @@ gst_decklink_video_src_create (GstPushSrc * bsrc, GstBuffer ** buffer)
       gst_static_caps_get (&hardware_reference), f.hardware_timestamp,
       f.hardware_duration);
 
-  mode = gst_decklink_get_mode (self->mode);
   if (mode->interlaced && mode->tff)
     GST_BUFFER_FLAG_SET (*buffer,
         GST_VIDEO_BUFFER_FLAG_TFF | GST_VIDEO_BUFFER_FLAG_INTERLACED);
@@ -1008,6 +1136,7 @@ gst_decklink_video_src_open (GstDecklinkVideoSrc * self)
   g_assert (mode != NULL);
   g_mutex_lock (&self->input->lock);
   self->input->mode = mode;
+  self->input->format = self->caps_format;
   self->input->got_video_frame = gst_decklink_video_src_got_frame;
   self->input->start_streams = gst_decklink_video_src_start_streams;
   g_mutex_unlock (&self->input->lock);
@@ -1055,6 +1184,12 @@ gst_decklink_video_src_stop (GstDecklinkVideoSrc * self)
     g_mutex_unlock (&self->input->lock);
 
     self->input->input->DisableVideoInput ();
+  }
+
+  if (self->vbiparser) {
+    gst_video_vbi_parser_free (self->vbiparser);
+    self->vbiparser = NULL;
+    self->anc_vformat = GST_VIDEO_FORMAT_UNKNOWN;
   }
 
   return TRUE;
@@ -1120,6 +1255,8 @@ gst_decklink_video_src_change_state (GstElement * element,
         GST_WARNING_OBJECT (self, "Warning: mode=auto and format!=auto may \
                             not work");
       }
+      self->vbiparser = NULL;
+      self->anc_vformat = GST_VIDEO_FORMAT_UNKNOWN;
       break;
     case GST_STATE_CHANGE_READY_TO_PAUSED:
       self->flushing = FALSE;

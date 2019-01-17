@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.14.4],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.15.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 1404, 0, 1404)
+AS_LIBTOOL(GST, 1501, 0, 1501)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.14.4
-GSTPB_REQ=1.14.4
+GST_REQ=1.15.1
+GSTPB_REQ=1.15.1
 
 dnl *** autotools stuff ****
 
@@ -202,11 +202,11 @@ AG_GST_CHECK_GST_BASE($GST_API_VERSION, [$GST_REQ], yes)
 AG_GST_CHECK_GST_CHECK($GST_API_VERSION, [$GST_REQ], no)
 AG_GST_CHECK_GST_CONTROLLER($GST_API_VERSION, [$GST_REQ], yes)
 AG_GST_CHECK_GST_NET($GST_API_VERSION, [$GST_REQ], yes)
-AG_GST_PKG_CHECK_MODULES(GST_VIDEO, gstreamer-video-[$GST_API_VERSION], [$GST_REQ], yes)
-AG_GST_PKG_CHECK_MODULES(GST_AUDIO, gstreamer-audio-[$GST_API_VERSION], [$GST_REQ], yes)
-AG_GST_PKG_CHECK_MODULES(GST_PBUTILS, gstreamer-pbutils-[$GST_API_VERSION], [$GST_REQ], yes)
-AG_GST_PKG_CHECK_MODULES(GST_GL, gstreamer-gl-[$GST_API_VERSION], [$GST_REQ], no)
-AG_GST_PKG_CHECK_MODULES(GST_SDP, gstreamer-sdp-[$GST_API_VERSION], [$GST_REQ], yes)
+AG_GST_PKG_CHECK_MODULES(GST_VIDEO, gstreamer-video-[$GST_API_VERSION], [$GSTPB_REQ], yes)
+AG_GST_PKG_CHECK_MODULES(GST_AUDIO, gstreamer-audio-[$GST_API_VERSION], [$GSTPB_REQ], yes)
+AG_GST_PKG_CHECK_MODULES(GST_PBUTILS, gstreamer-pbutils-[$GST_API_VERSION], [$GSTPB_REQ], yes)
+AG_GST_PKG_CHECK_MODULES(GST_GL, gstreamer-gl-[$GST_API_VERSION], [$GSTPB_REQ], no)
+AG_GST_PKG_CHECK_MODULES(GST_SDP, gstreamer-sdp-[$GST_API_VERSION], [$GSTPB_REQ], yes)
 
 if test "x$HAVE_GST_GL" = "xyes"; then
 
@@ -244,6 +244,7 @@ if test "x$HAVE_GST_GL" = "xyes"; then
   case "$GST_GL_APIS" in  *gles2*) GST_GL_HAVE_API_GLES2="1" ;; esac
   case "$GST_GL_APIS" in "gl"|"gl "*|*" gl"|*" gl "*) GST_GL_HAVE_API_GL="1" ;; esac
 fi
+AM_CONDITIONAL(USE_OPENGL, test "x$GST_GL_HAVE_API_GL" = "x1")
 
 AM_CONDITIONAL(HAVE_GST_CHECK, test "x$HAVE_GST_CHECK" = "xyes")
 
@@ -251,9 +252,9 @@ AG_GST_CHECK_GST_PLUGINS_BASE($GST_API_VERSION, [$GSTPB_REQ], yes)
 
 dnl check for uninstalled plugin directories for unit tests
 AG_GST_CHECK_UNINSTALLED_SETUP([
-  AG_GST_CHECK_GST_PLUGINS_GOOD($GST_API_VERSION, [0.11.0])
-  AG_GST_CHECK_GST_PLUGINS_UGLY($GST_API_VERSION, [0.11.0])
-  AG_GST_CHECK_GST_PLUGINS_LIBAV($GST_API_VERSION, [0.11.0])
+  AG_GST_CHECK_GST_PLUGINS_GOOD($GST_API_VERSION, [$GSTPB_REQ])
+  AG_GST_CHECK_GST_PLUGINS_UGLY($GST_API_VERSION, [$GSTPB_REQ])
+  AG_GST_CHECK_GST_PLUGINS_LIBAV($GST_API_VERSION, [$GSTPB_REQ])
 ])
 
 dnl Check for documentation xrefs
@@ -440,7 +441,6 @@ AG_GST_CHECK_PLUGIN(audiobuffersplit)
 AG_GST_CHECK_PLUGIN(audiofxbad)
 AG_GST_CHECK_PLUGIN(audiolatency)
 AG_GST_CHECK_PLUGIN(audiomixmatrix)
-AG_GST_CHECK_PLUGIN(compositor)
 AG_GST_CHECK_PLUGIN(audiovisualizers)
 AG_GST_CHECK_PLUGIN(autoconvert)
 AG_GST_CHECK_PLUGIN(bayer)
@@ -484,7 +484,6 @@ AG_GST_CHECK_PLUGIN(siren)
 AG_GST_CHECK_PLUGIN(smooth)
 AG_GST_CHECK_PLUGIN(speed)
 AG_GST_CHECK_PLUGIN(subenc)
-AG_GST_CHECK_PLUGIN(stereo)
 AG_GST_CHECK_PLUGIN(timecode)
 AG_GST_CHECK_PLUGIN(videofilters)
 AG_GST_CHECK_PLUGIN(videoparsers)
@@ -945,11 +944,15 @@ AG_GST_CHECK_FEATURE(CUDA, [NVIDIA CUDA API],, [
       CUDA_LIBS="-L$CUDA_PREFIX/lib -L$CUDA_PREFIX/lib64 -L$CUDA_PREFIX/lib/stubs -L$CUDA_PREFIX/lib64/stubs -lcuda -lcudart"
     fi
   else
-    PKG_CHECK_MODULES([CUDA], [cuda-8.0 cudart-8.0],, [
-      PKG_CHECK_MODULES([CUDA], [cuda-7.5 cudart-7.5],, [
-        PKG_CHECK_MODULES([CUDA], [cuda-7.0 cudart-7.0],, [
-          PKG_CHECK_MODULES([CUDA], [cuda-6.5 cudart-6.5],, [
-            AC_MSG_WARN([Could not find cuda headers/libraries])])])])])
+    PKG_CHECK_MODULES([CUDA], [cuda-10.0 cudart-10.0],, [
+      PKG_CHECK_MODULES([CUDA], [cuda-9.2 cudart-9.2],, [
+        PKG_CHECK_MODULES([CUDA], [cuda-9.1 cudart-9.1],, [
+          PKG_CHECK_MODULES([CUDA], [cuda-9.0 cudart-9.0],, [
+            PKG_CHECK_MODULES([CUDA], [cuda-8.0 cudart-8.0],, [
+              PKG_CHECK_MODULES([CUDA], [cuda-7.5 cudart-7.5],, [
+                PKG_CHECK_MODULES([CUDA], [cuda-7.0 cudart-7.0],, [
+                  PKG_CHECK_MODULES([CUDA], [cuda-6.5 cudart-6.5],, [
+                    AC_MSG_WARN([Could not find cuda headers/libraries])])])])])])])])])
   fi
 
   HAVE_CUDA_H=no
@@ -977,11 +980,8 @@ AG_GST_CHECK_FEATURE(CUDA, [NVIDIA CUDA API],, [
 dnl *** NVDEC ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_NVDEC, true)
 AG_GST_CHECK_FEATURE(NVDEC, [nvdec], nvdec, [
-  HAVE_NVCUVID_H=no
   save_CPPFLAGS="$CPPFLAGS"
   CPPFLAGS="$CUDA_CFLAGS $save_CPPFLAGS"
-  AC_CHECK_HEADER([nvcuvid.h], [HAVE_NVCUVID_H=yes],
-      AC_MSG_WARN([Could not find nvcuvid.h]))
   CPPFLAGS=$save_CPPFLAGS
 
   HAVE_NVCUVID=no
@@ -991,7 +991,7 @@ AG_GST_CHECK_FEATURE(NVDEC, [nvdec], nvdec, [
       AC_MSG_WARN([Could not find library nvcuvid]))
   LIBS="$save_LIBS"
 
-  if test "x$HAVE_NVCUVID_H" = "xyes" -a "x$HAVE_NVCUVID" = "xyes"; then
+  if test "x$HAVE_NVCUVID" = "xyes"; then
     HAVE_NVDEC=yes
   else
     HAVE_NVDEC=no
@@ -1001,26 +1001,6 @@ AG_GST_CHECK_FEATURE(NVDEC, [nvdec], nvdec, [
 dnl *** NVENC ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_NVENC, true)
 AG_GST_CHECK_FEATURE(NVENC, [NVIDIA Encode API], nvenc, [
-  dnl nvEncodeAPI.h header
-  HAVE_NVENCODEAPI_H=no
-  AC_ARG_VAR(NVENCODE_CFLAGS, [C compiler flags for NvEncodeAPI.h])
-  save_CPPFLAGS="$CPPFLAGS"
-  CPPFLAGS="$NVENCODE_CFLAGS $save_CPPFLAGS"
-  AC_CHECK_HEADER([nvEncodeAPI.h], [
-      AC_PREPROC_IFELSE([AC_LANG_SOURCE([[#include <nvEncodeAPI.h>
-          #if NVENCAPI_MAJOR_VERSION < 5
-          #error "Need nvEncodeAPI.h >= 5.0"
-          #endif
-          ]])], [
-          HAVE_NVENCODEAPI_H=yes
-          ], [
-          AC_MSG_WARN([nvEncodeAPI.h must be >= 5.0])
-          ])
-      ],
-      AC_MSG_WARN([Could not find nvEncodeAPI.h]))
-  AC_SUBST(NVENCODE_CFLAGS)
-  CPPFLAGS="$save_CPPFLAGS"
-
   dnl libnvnidia-encode library
   HAVE_NVENCODE_LIB=no
   AC_ARG_VAR(NVENCODE_LIBS, [linker flags for nvidia-encode])
@@ -1037,10 +1017,9 @@ AG_GST_CHECK_FEATURE(NVENC, [NVIDIA Encode API], nvenc, [
       -a "x$HAVE_CUDART_H" = "xyes" \
       -a "x$HAVE_CUDA_LIB" = "xyes" \
       -a "x$HAVE_CUDART_LIB" = "xyes" \
-      -a "x$HAVE_NVENCODEAPI_H" = "xyes" \
       -a "x$HAVE_NVENCODE_LIB" = "xyes"; then
     HAVE_NVENC="yes"
-    if test x"$USE_OPENGL" = x"yes"; then
+    if test "x$GST_GL_HAVE_API_GL" = "x1"; then
       dnl cuda-gl interop header
       save_CPPFLAGS="$CPPFLAGS"
       CPPFLAGS="$save_CPPFLAGS $CUDA_CFLAGS"
@@ -1065,6 +1044,7 @@ AG_GST_CHECK_FEATURE(TINYALSA, [tinyalsa], tinyalsa, [
 dnl check for intel mediasdk
 translit(dnm, m, l) AM_CONDITIONAL(USE_MSDK, true)
 AG_GST_CHECK_FEATURE(MSDK, [Intel MediaSDK], msdk, [
+  AG_GST_PKG_CHECK_MODULES(GST_ALLOCATORS, gstreamer-allocators-1.0)
   PKG_CHECK_MODULES(G_UDEV, gudev-1.0 , [
           AC_DEFINE([HAVE_GUDEV], 1, [Define if gudev is installed])
           HAVE_GUDEV="yes" ],
@@ -1073,6 +1053,16 @@ AG_GST_CHECK_FEATURE(MSDK, [Intel MediaSDK], msdk, [
   [
     AC_DEFINE(HAVE_LIBMFX, 1, [Define if mfx_dispatcher is available])
     HAVE_MSDK="yes"
+    dnl external msdk dispatchers sometimes install headers into prefix/mfx/
+    save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="$LIBMFX_CFLAGS $save_CPPFLAGS"
+    AC_CHECK_HEADER(mfx/mfxdefs.h, [HAVE_MFX_MFXDEFS_H=1], [HAVE_MFX_MFXDEFS_H=0])
+    if test $HAVE_MFX_MFXDEFS_H -eq 1; then
+      MFX_INCDIR="`$PKG_CONFIG --variable=includedir libmfx`"
+      MSDK_CFLAGS="-I$MFX_INCDIR/mfx"
+      AC_SUBST(MSDK_CFLAGS)
+    fi
+    CPPFLAGS="$save_CPPFLAGS"
   ], [
     AC_ARG_WITH([msdk-prefix],
             AS_HELP_STRING([--with-msdk-prefix],
@@ -1082,8 +1072,8 @@ AG_GST_CHECK_FEATURE(MSDK, [Intel MediaSDK], msdk, [
             [AS_IF([test "x$MFX_HOME" != "x"],
                    [MSDK_PREFIX="$MFX_HOME"],
                    [MSDK_PREFIX="/opt/intel/media"])])
-    MSDK_CFLAGS="-I$MSDK_PREFIX/include"
-    MSDK_LIBS="-L$MSDK_PREFIX/lib/lin_x64 -lmfx -ldl"
+    MSDK_CFLAGS="-I$MSDK_PREFIX/include -I$MSDK_PREFIX/include/mfx"
+    MSDK_LIBS="-L$MSDK_PREFIX/lib/lin_x64 -L$MSDK_PREFIX/lib/x64 -L$MSDK_PREFIX/lib64 -L$MSDK_PREFIX/lib -lmfx -ldl"
     AC_SUBST(MSDK_CFLAGS)
     AC_SUBST(MSDK_LIBS)
 
@@ -1116,9 +1106,25 @@ AG_GST_CHECK_FEATURE(MSDK, [Intel MediaSDK], msdk, [
   else
     HAVE_MSDK="no"
   fi
-])
+], [], [
+  dnl check the availability of vp9 apis
+  USE_MSDK_VP9_DEC=0
+  save_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$LIBMFX_CFLAGS $MSDK_CFLAGS $save_CPPFLAGS"
+  AC_CHECK_HEADER(mfxvp9.h, [HAVE_MFXVP9_H=1], [HAVE_MFXVP9_H=0],
+  [
+    #include <mfxplugin.h>
+  ])
+
+  if test $HAVE_MFXVP9_H -eq 1; then
+      USE_MSDK_VP9_DEC=1
+      AC_DEFINE(USE_MSDK_VP9_DEC, 1, [Define if MediaSDK VP9 decoder api is available])
+  fi
+], [USE_MSDK_VP9_DEC=0])
 AM_CONDITIONAL(USE_MSDK_LIBVA,
     test "x$HAVE_MSDK" = "xyes" -a "x$HAVE_LIBVA_DRM" = "xyes")
+AM_CONDITIONAL([USE_MSDK_VP9_DEC],
+    [test $USE_MSDK_VP9_DEC -eq 1])
 
 dnl *** ext plug-ins ***
 dnl keep this list sorted alphabetically !
@@ -1319,7 +1325,7 @@ dnl **** Wayland ****
 translit(dnm, m, l) AM_CONDITIONAL(USE_WAYLAND, true)
 AC_PATH_PROG([wayland_scanner], [wayland-scanner])
 AG_GST_CHECK_FEATURE(WAYLAND, [wayland sink], wayland , [
-  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.4.0 libdrm >= 2.4.55 wayland-protocols >= 1.4, [
+  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.11.0 libdrm >= 2.4.55 wayland-protocols >= 1.4, [
     if test "x$wayland_scanner" != "x"; then
       HAVE_WAYLAND="yes"
       AC_SUBST(WAYLAND_PROTOCOLS_DATADIR, `$PKG_CONFIG --variable=pkgdatadir wayland-protocols`)
@@ -1340,20 +1346,6 @@ AG_GST_CHECK_FEATURE(WEBP, [WebP], webp , [
   ])
   AC_SUBST(WEBP_CFLAGS)
   AC_SUBST(WEBP_LIBS)
-])
-
-dnl *** Daala ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_DAALA, true)
-AG_GST_CHECK_FEATURE(DAALA, [daala], daala, [
-  if test "x$BUILD_EXPERIMENTAL" = "xyes"; then
-    PKG_CHECK_MODULES(DAALA, daalaenc daaladec, [
-            HAVE_DAALA="yes"
-    ], [
-            HAVE_DAALA="no"
-    ])
-    AC_SUBST(DAALA_CFLAGS)
-    AC_SUBST(DAALA_LIBS)
-  fi
 ])
 
 dnl *** DTS ***
@@ -1421,12 +1413,14 @@ AG_GST_CHECK_FEATURE(FBDEV, [linux framebuffer], fbdevsink, [
 dnl *** fdkaac ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_FDK_AAC, true)
 AG_GST_CHECK_FEATURE(FDK_AAC, [fdkaac plugin], fdkaac, [
-  PKG_CHECK_MODULES(FDK_AAC, fdk-aac >= 0.1.4, [
-    HAVE_FDK_AAC="yes",
-    HAVE_FDK_AAC_0_1_4="yes"
+  PKG_CHECK_MODULES(FDK_AAC, fdk-aac, HAVE_FDK_AAC="yes", HAVE_FDK_AAC="no")
+
+  PKG_CHECK_EXISTS(fdk-aac >= 2.0.0, [
+    AC_DEFINE(HAVE_FDK_AAC_2_0_0, 1, [Define if we have fdk-aac >= 2.0.0])
+  ])
+
+  PKG_CHECK_EXISTS(fdk-aac >= 0.1.4, [
     AC_DEFINE(HAVE_FDK_AAC_0_1_4, 1, [Define if we have fdk-aac >= 0.1.4])
-  ],[
-    PKG_CHECK_MODULES(FDK_AAC, fdk-aac, HAVE_FDK_AAC="yes", HAVE_FDK_AAC="no")
   ])
 ])
 
@@ -1789,12 +1783,7 @@ AG_GST_CHECK_FEATURE(MUSEPACK, [musepackdec], musepack, [
     HAVE_MUSEPACK="yes"
     MUSEPACK_LIBS="-lmpcdec"
     AC_SUBST(MUSEPACK_LIBS)
-    ], [AC_CHECK_HEADER([mpcdec/mpcdec.h], [
-      HAVE_MUSEPACK="yes"
-      MUSEPACK_LIBS="-lmpcdec"
-      AC_DEFINE(MPC_IS_OLD_API, 1, [Define if the old MusePack API is used])
-      AC_SUBST(MUSEPACK_LIBS)
-    ], [HAVE_MUSEPACK="no"])])
+    ], [HAVE_MUSEPACK="no"])
 ])
 
 dnl *** neon ***
@@ -1836,25 +1825,50 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
   dnl a new version and the no-backward-compatibility define. (There doesn't
   dnl seem to be a switch to suppress the warnings the cvcompat.h header
   dnl causes.)
-  PKG_CHECK_MODULES(OPENCV, opencv >= 2.3.0 opencv < 3.5.0 , [
+  PKG_CHECK_MODULES([OPENCV], [opencv >= 3.0.0 opencv < 3.5.0] , [
     AC_PROG_CXX
     AC_LANG([C++])
     OLD_CPPFLAGS=$CPPFLAGS
     CPPFLAGS=$OPENCV_CFLAGS
     something_not_found=no
-    AC_CHECK_HEADERS([opencv2/core/core_c.h \
-                      opencv2/core/version.hpp \
-                      opencv2/highgui/highgui_c.h \
-                      opencv2/imgproc/imgproc.hpp \
-                      opencv2/imgproc/imgproc_c.h \
-                      opencv2/objdetect/objdetect.hpp \
-                      opencv2/video/background_segm.hpp], [], [something_not_found=yes])
+    AC_CHECK_HEADERS([opencv2/bgsegm.hpp \
+                      opencv2/calib3d.hpp \
+                      opencv2/core.hpp \
+                      opencv2/imgcodecs/imgcodecs_c.h \
+                      opencv2/imgproc.hpp \
+                      opencv2/objdetect.hpp \
+                      opencv2/opencv.hpp \
+                      opencv2/video.hpp \
+                      opencv2/bgsegm.hpp], [], [something_not_found=yes])
 
-    dnl Only required for OpenCV >= 3, we have compat code for older versions
-    PKG_CHECK_MODULES(OPENCV_3, opencv >= 3, [
-      dnl check opencv_contrib headers (not always present in opencv distributions)
-      AC_CHECK_HEADERS([opencv2/bgsegm.hpp], [], [something_not_found=yes])],
-      [NOT_A_PROBLEM=yes])
+    CPPFLAGS=$OLD_CPPFLAGS
+    AC_LANG([C])
+
+    if test $something_not_found = "yes"; then
+      AC_MSG_RESULT([not all opencv2 headers were found])
+      HAVE_OPENCV="no"
+    else
+      HAVE_OPENCV="yes"
+    fi
+  ], [
+    PKG_CHECK_MODULES([OPENCV], [opencv4 >= 4.0.0 opencv4 < 4.1.0] , [
+    AC_PROG_CXX
+    AC_LANG([C++])
+    OLD_CPPFLAGS=$CPPFLAGS
+    CPPFLAGS=$OPENCV_CFLAGS
+    something_not_found=no
+    AC_CHECK_HEADERS([opencv2/bgsegm.hpp \
+                      opencv2/calib3d.hpp \
+                      opencv2/core.hpp \
+                      opencv2/imgcodecs/legacy/constants_c.h \
+                      opencv2/imgproc/imgproc_c.h \
+                      opencv2/core/types_c.h \
+                      opencv2/core/core_c.h \
+                      opencv2/imgproc.hpp \
+                      opencv2/objdetect.hpp \
+                      opencv2/opencv.hpp \
+                      opencv2/video.hpp \
+                      opencv2/bgsegm.hpp], [], [something_not_found=yes])
 
     CPPFLAGS=$OLD_CPPFLAGS
     AC_LANG([C])
@@ -1868,6 +1882,10 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
   ], [
     HAVE_OPENCV="no"
   ])
+  ])
+  OPENCV_PREFIX="`$PKG_CONFIG --variable=prefix opencv`"
+  AC_DEFINE_UNQUOTED(OPENCV_PREFIX, "$OPENCV_PREFIX", [opencv install prefix])
+  AC_SUBST(OPENCV_PREFIX)
   OPENCV_PREFIX="`$PKG_CONFIG --variable=prefix opencv`"
   AC_DEFINE_UNQUOTED(OPENCV_PREFIX, "$OPENCV_PREFIX", [opencv install prefix])
   AC_SUBST(OPENCV_PREFIX)
@@ -1943,6 +1961,12 @@ AG_GST_CHECK_FEATURE(OPUS, [opus], opus, [
   ])
   AC_SUBST(OPUS_CFLAGS)
   AC_SUBST(OPUS_LIBS)
+])
+
+dnl *** pango ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_PANGO, true)
+AG_GST_CHECK_FEATURE(PANGO, [Pango font rendering], pango, [
+  AG_GST_PKG_CHECK_MODULES(PANGO, pango >= 1.22.0  pangocairo >= 1.22.0)
 ])
 
 dnl *** rsvg ***
@@ -2068,22 +2092,6 @@ AG_GST_CHECK_FEATURE(SOUNDTOUCH, [soundtouch plug-in], soundtouch, [
   fi
 ])
 
-dnl *** spc ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_SPC, true)
-AG_GST_CHECK_FEATURE(SPC, [spc decoder], spc, [
-  AC_CHECK_HEADER(openspc.h, [
-    AC_CHECK_LIB(openspc, OSPC_Init, [
-      SPC_LIBS="-lopenspc"
-      AC_SUBST(SPC_LIBS)
-      HAVE_SPC=yes
-    ], [
-      HAVE_SPC=no
-    ])
-  ], [
-    HAVE_SPC=no
-  ])
-])
-
 dnl *** gme ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_GME, true)
 AG_GST_CHECK_FEATURE(GME, [gme decoder], gme, [
@@ -2122,19 +2130,6 @@ AG_GST_CHECK_FEATURE(DVB, [DVB Source], dvb, [
       HAVE_DVB="no"
     ])
   ], [HAVE_DVB="no"])
-])
-
-dnl *** acm ***
-translit(dnm, m, l) AM_CONDITIONAL(USE_ACM, true)
-AG_GST_CHECK_FEATURE(ACM, [Windows ACM library], acm, [
-  AC_MSG_CHECKING([Checking for ACM support])
-  AC_CHECK_HEADERS([windows.h msacm.h],
-      [HAVE_ACM="yes"
-       AC_SUBST(ACMENC_CFLAGS)
-       AC_SUBST(ACMMP3DEC_CFLAGS)
-      ], [HAVE_ACM="no"],
-      [AC_INCLUDES_DEFAULT
-#include <windows.h>])
 ])
 
 dnl *** vdpau ***
@@ -2310,6 +2305,22 @@ AG_GST_CHECK_FEATURE(WEBRTC, [WebRTC], webrtc, [
   ])
 ])
 
+dnl *** usrsctp ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_SCTP, true)
+AG_GST_CHECK_FEATURE(SCTP, [sctp plug-in], sctp, [
+  AC_CHECK_HEADER(usrsctp.h, [
+    AC_CHECK_LIB(usrsctp, usrsctp_init, [
+      USRSCTP_LIBS="-lusrsctp"
+      AC_SUBST(USRSCTP_LIBS)
+      HAVE_SCTP=yes
+    ], [
+      HAVE_SCTP=no
+    ])
+  ], [
+    HAVE_SCTP=no
+  ])
+])
+
 else
 
 dnl not building plugins with external dependencies,
@@ -2331,7 +2342,6 @@ AM_CONDITIONAL(DECKLINK_OSX, false)
 AM_CONDITIONAL(DECKLINK_WIN, false)
 AM_CONDITIONAL(USE_DIRECTFB, false)
 AM_CONDITIONAL(USE_WAYLAND, false)
-AM_CONDITIONAL(USE_DAALA, false)
 AM_CONDITIONAL(USE_DTS, false)
 AM_CONDITIONAL(USE_EXIF, false)
 AM_CONDITIONAL(USE_RESINDVD, false)
@@ -2367,17 +2377,16 @@ AM_CONDITIONAL(USE_OPENJPEG, false)
 AM_CONDITIONAL(USE_OPENMPT, false)
 AM_CONDITIONAL(USE_OPENNI2, false)
 AM_CONDITIONAL(USE_OPUS, false)
+AM_CONDITIONAL(USE_PANGO, false)
 AM_CONDITIONAL(USE_WILDMIDI, false)
 AM_CONDITIONAL(USE_SMOOTHSTREAMING, false)
 AM_CONDITIONAL(USE_SNDFILE, false)
 AM_CONDITIONAL(USE_SOUNDTOUCH, false)
 AM_CONDITIONAL(USE_SPANDSP, false)
-AM_CONDITIONAL(USE_SPC, false)
 AM_CONDITIONAL(USE_SRTP, false)
 AM_CONDITIONAL(USE_SRT, false)
 AM_CONDITIONAL(USE_GME, false)
 AM_CONDITIONAL(USE_DVB, false)
-AM_CONDITIONAL(USE_ACM, false)
 AM_CONDITIONAL(USE_VDPAU, false)
 AM_CONDITIONAL(USE_SBC, false)
 AM_CONDITIONAL(USE_ZBAR, false)
@@ -2393,6 +2402,7 @@ AM_CONDITIONAL(USE_X265, false)
 AM_CONDITIONAL(USE_DTLS, false)
 AM_CONDITIONAL(USE_VULKAN, false)
 AM_CONDITIONAL(USE_TTML, false)
+AM_CONDITIONAL(USE_SCTP, false)
 
 fi dnl of EXT plugins
 
@@ -2421,7 +2431,13 @@ fi
 AC_SUBST(DEPRECATED_CFLAGS)
 
 VISIBILITY_CFLAGS=""
-AS_COMPILER_FLAG([-fvisibility=hidden], [VISIBILITY_CFLAGS="-fvisibility=hidden"])
+AS_COMPILER_FLAG([-fvisibility=hidden], [
+  VISIBILITY_CFLAGS="-fvisibility=hidden"
+  AC_DEFINE(GST_API_EXPORT, [extern __attribute__ ((visibility ("default")))], [public symbol export define])
+], [
+  VISIBILITY_CFLAGS=""
+  AC_DEFINE(GST_API_EXPORT, [extern], [public symbol export define])
+])
 AC_SUBST(VISIBILITY_CFLAGS)
 
 VISIBILITY_CXXFLAGS=""
@@ -2547,7 +2563,6 @@ gst/siren/Makefile
 gst/smooth/Makefile
 gst/speed/Makefile
 gst/subenc/Makefile
-gst/stereo/Makefile
 gst/timecode/Makefile
 gst/videofilters/Makefile
 gst/videoparsers/Makefile
@@ -2555,7 +2570,6 @@ gst/videosignal/Makefile
 gst/vmnc/Makefile
 gst/y4m/Makefile
 gst/yadif/Makefile
-gst/compositor/Makefile
 gst-libs/Makefile
 gst-libs/gst/Makefile
 gst-libs/gst/adaptivedemux/Makefile
@@ -2565,17 +2579,15 @@ gst-libs/gst/interfaces/Makefile
 gst-libs/gst/isoff/Makefile
 gst-libs/gst/codecparsers/Makefile
 gst-libs/gst/mpegts/Makefile
+gst-libs/gst/sctp/Makefile
 gst-libs/gst/uridownloader/Makefile
 gst-libs/gst/wayland/Makefile
 gst-libs/gst/webrtc/Makefile
 gst-libs/gst/player/Makefile
-gst-libs/gst/video/Makefile
 gst-libs/gst/audio/Makefile
 gst-libs/gst/opencv/Makefile
 sys/Makefile
 sys/dshowdecwrapper/Makefile
-sys/acmenc/Makefile
-sys/acmmp3dec/Makefile
 sys/androidmedia/Makefile
 sys/applemedia/Makefile
 sys/bluez/Makefile
@@ -2607,7 +2619,6 @@ tests/examples/Makefile
 tests/examples/avsamplesink/Makefile
 tests/examples/camerabin2/Makefile
 tests/examples/codecparsers/Makefile
-tests/examples/compositor/Makefile
 tests/examples/directfb/Makefile
 tests/examples/audiomixmatrix/Makefile
 tests/examples/ipcpipeline/Makefile
@@ -2625,20 +2636,19 @@ ext/aom/Makefile
 ext/bs2b/Makefile
 ext/bz2/Makefile
 ext/chromaprint/Makefile
+ext/closedcaption/Makefile
 ext/colormanagement/Makefile
 ext/curl/Makefile
 ext/dash/Makefile
 ext/dc1394/Makefile
 ext/directfb/Makefile
 ext/wayland/Makefile
-ext/daala/Makefile
 ext/dts/Makefile
 ext/faac/Makefile
 ext/faad/Makefile
 ext/fdkaac/Makefile
 ext/flite/Makefile
 ext/fluidsynth/Makefile
-ext/gl/Makefile
 ext/gsm/Makefile
 ext/hls/Makefile
 ext/iqa/Makefile
@@ -2666,6 +2676,7 @@ ext/rsvg/Makefile
 ext/resindvd/Makefile
 ext/rtmp/Makefile
 ext/sbc/Makefile
+ext/sctp/Makefile
 ext/smoothstreaming/Makefile
 ext/sndfile/Makefile
 ext/soundtouch/Makefile
@@ -2674,7 +2685,6 @@ ext/srt/Makefile
 ext/srtp/Makefile
 ext/teletextdec/Makefile
 ext/gme/Makefile
-ext/spc/Makefile
 ext/wildmidi/Makefile
 ext/vulkan/Makefile
 ext/vulkan/xcb/Makefile
@@ -2702,12 +2712,12 @@ pkgconfig/gstreamer-mpegts.pc
 pkgconfig/gstreamer-mpegts-uninstalled.pc
 pkgconfig/gstreamer-player.pc
 pkgconfig/gstreamer-player-uninstalled.pc
+pkgconfig/gstreamer-sctp.pc
+pkgconfig/gstreamer-sctp-uninstalled.pc
 pkgconfig/gstreamer-wayland.pc
 pkgconfig/gstreamer-wayland-uninstalled.pc
 pkgconfig/gstreamer-webrtc.pc
 pkgconfig/gstreamer-webrtc-uninstalled.pc
-pkgconfig/gstreamer-bad-video.pc
-pkgconfig/gstreamer-bad-video-uninstalled.pc
 pkgconfig/gstreamer-bad-audio.pc
 pkgconfig/gstreamer-bad-audio-uninstalled.pc
 tools/Makefile

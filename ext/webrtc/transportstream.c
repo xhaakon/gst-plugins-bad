@@ -40,6 +40,41 @@ enum
   PROP_DTLS_CLIENT,
 };
 
+GstCaps *
+transport_stream_get_caps_for_pt (TransportStream * stream, guint pt)
+{
+  guint i, len;
+
+  len = stream->ptmap->len;
+  for (i = 0; i < len; i++) {
+    PtMapItem *item = &g_array_index (stream->ptmap, PtMapItem, i);
+    if (item->pt == pt)
+      return item->caps;
+  }
+  return NULL;
+}
+
+int
+transport_stream_get_pt (TransportStream * stream, const gchar * encoding_name)
+{
+  guint i;
+  gint ret = 0;
+
+  for (i = 0; i < stream->ptmap->len; i++) {
+    PtMapItem *item = &g_array_index (stream->ptmap, PtMapItem, i);
+    if (!gst_caps_is_empty (item->caps)) {
+      GstStructure *s = gst_caps_get_structure (item->caps, 0);
+      if (!g_strcmp0 (gst_structure_get_string (s, "encoding-name"),
+              encoding_name)) {
+        ret = item->pt;
+        break;
+      }
+    }
+  }
+
+  return ret;
+}
+
 static void
 transport_stream_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
@@ -128,6 +163,7 @@ transport_stream_finalize (GObject * object)
   TransportStream *stream = TRANSPORT_STREAM (object);
 
   g_array_free (stream->ptmap, TRUE);
+  g_array_free (stream->remote_ssrcmap, TRUE);
 
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -238,6 +274,7 @@ transport_stream_init (TransportStream * stream)
 {
   stream->ptmap = g_array_new (FALSE, TRUE, sizeof (PtMapItem));
   g_array_set_clear_func (stream->ptmap, (GDestroyNotify) clear_ptmap_item);
+  stream->remote_ssrcmap = g_array_new (FALSE, TRUE, sizeof (SsrcMapItem));
 }
 
 TransportStream *

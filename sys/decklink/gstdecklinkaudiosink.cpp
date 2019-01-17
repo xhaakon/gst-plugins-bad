@@ -751,7 +751,7 @@ gst_decklink_audio_sink_open (GstBaseSink * bsink)
 {
   GstDecklinkAudioSink *self = GST_DECKLINK_AUDIO_SINK_CAST (bsink);
 
-  GST_DEBUG_OBJECT (self, "Stopping");
+  GST_DEBUG_OBJECT (self, "Starting");
 
   self->output =
       gst_decklink_acquire_nth_output (self->device_number,
@@ -845,6 +845,14 @@ gst_decklink_audio_sink_change_state (GstElement * element,
       GST_OBJECT_LOCK (self);
       gst_audio_stream_align_mark_discont (self->stream_align);
       GST_OBJECT_UNLOCK (self);
+
+      g_mutex_lock (&self->output->lock);
+      if (self->output->start_scheduled_playback)
+        self->output->start_scheduled_playback (self->output->videosink);
+      g_mutex_unlock (&self->output->lock);
+      break;
+    case GST_STATE_CHANGE_PAUSED_TO_READY:
+      gst_decklink_audio_sink_stop (self);
       break;
     default:
       break;
@@ -855,16 +863,6 @@ gst_decklink_audio_sink_change_state (GstElement * element,
     return ret;
 
   switch (transition) {
-    case GST_STATE_CHANGE_PAUSED_TO_READY:
-      gst_decklink_audio_sink_stop (self);
-      break;
-    case GST_STATE_CHANGE_PAUSED_TO_PLAYING:{
-      g_mutex_lock (&self->output->lock);
-      if (self->output->start_scheduled_playback)
-        self->output->start_scheduled_playback (self->output->videosink);
-      g_mutex_unlock (&self->output->lock);
-      break;
-    }
     default:
       break;
   }

@@ -61,6 +61,7 @@ static const struct fourcc_map gst_msdk_fourcc_mfx_to_va[] = {
   FOURCC_MFX_TO_VA (YV12, YV12),
   FOURCC_MFX_TO_VA (RGB4, ARGB),
   FOURCC_MFX_TO_VA (P8, P208),
+  FOURCC_MFX_TO_VA (P010, P010),
   {0, 0}
 };
 
@@ -103,6 +104,7 @@ gst_msdk_get_mfx_status_from_va_status (VAStatus va_res)
       break;
     case VA_STATUS_ERROR_INVALID_PARAMETER:
       mfxRes = MFX_ERR_INVALID_VIDEO_PARAM;
+      break;
     default:
       mfxRes = MFX_ERR_UNKNOWN;
       break;

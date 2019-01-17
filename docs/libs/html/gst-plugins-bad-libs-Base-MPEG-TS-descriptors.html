@@ -283,7 +283,7 @@ gst_mpegts_descriptor_from_custom (<em class="parameter"><code><a href="/usr/sha
 <tr>
 <td class="parameter_name"><p>data</p></td>
 <td class="parameter_description"><p>descriptor data (after tag and length field). </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>][<acronym title="Parameter points to an array of items."><span class="acronym">array</span></acronym> length=length]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>length</p></td>
@@ -326,7 +326,7 @@ gst_mpegts_descriptor_from_registration
 <tr>
 <td class="parameter_name"><p>additional_info</p></td>
 <td class="parameter_description"><p>pointer to optional additional info. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>][<acronym title="Parameter points to an array of items."><span class="acronym">array</span></acronym> length=additional_info_length]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>additional_info_length</p></td>

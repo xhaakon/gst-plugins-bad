@@ -54,6 +54,11 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-waylandsink.html#GstWaylandSink--display" title="The “display” property">display</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-waylandsink.html#GstWaylandSink--fullscreen" title="The “fullscreen” property">fullscreen</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -94,7 +99,7 @@ GstWaylandSink implements
 <a class="ulink" href="http://wayland.freedesktop.org/building.html" target="_top">Wayland</a> home page.
 <p> The current implementaion is based on weston compositor.</p>
 <div class="refsect3">
-<a name="id-1.2.257.8.5"></a><h4>Example pipelines</h4>
+<a name="id-1.2.251.8.5"></a><h4>Example pipelines</h4>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -111,7 +116,7 @@ GstWaylandSink implements
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.257.8.6.1"></a><h3>Element Information</h3>
+<a name="id-1.2.251.8.6.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -137,7 +142,7 @@ GstWaylandSink implements
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.257.8.6.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.251.8.6.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -195,6 +200,14 @@ GstWaylandSink implements
 <p>Wayland display name to connect to, if not supplied via the GstContext.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWaylandSink--fullscreen"></a><h3>The <code class="literal">“fullscreen”</code> property</h3>
+<pre class="programlisting">  “fullscreen”               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Whether the surface should be made fullscreen .</p>
+<p>Flags: Read / Write</p>
+<p>Default value: FALSE</p>
 </div>
 </div>
 </div>

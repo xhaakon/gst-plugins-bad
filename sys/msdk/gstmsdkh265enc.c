@@ -33,16 +33,25 @@
 #  include <config.h>
 #endif
 
-#ifdef HAVE_LIBMFX
-#  include <mfx/mfxplugin.h>
-#else
-#  include "mfxplugin.h"
-#endif
+#include <mfxplugin.h>
+
+#include <gst/allocators/gstdmabuf.h>
 
 #include "gstmsdkh265enc.h"
 
 GST_DEBUG_CATEGORY_EXTERN (gst_msdkh265enc_debug);
 #define GST_CAT_DEFAULT gst_msdkh265enc_debug
+
+static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
+    GST_PAD_SINK,
+    GST_PAD_ALWAYS,
+    GST_STATIC_CAPS ("video/x-raw, "
+        "format = (string) { NV12, I420, YV12, YUY2, UYVY, BGRA, P010_10LE }, "
+        "framerate = (fraction) [0, MAX], "
+        "width = (int) [ 16, MAX ], height = (int) [ 16, MAX ],"
+        "interlace-mode = (string) progressive" ";"
+        GST_VIDEO_CAPS_MAKE_WITH_FEATURES (GST_CAPS_FEATURE_MEMORY_DMABUF,
+            "{ NV12 }")));
 
 static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
@@ -51,7 +60,7 @@ static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
         "framerate = (fraction) [0/1, MAX], "
         "width = (int) [ 1, MAX ], height = (int) [ 1, MAX ], "
         "stream-format = (string) byte-stream , alignment = (string) au , "
-        "profile = (string) main")
+        "profile = (string) { main, main-10 } ")
     );
 
 #define gst_msdkh265enc_parent_class parent_class
@@ -89,7 +98,11 @@ gst_msdkh265enc_configure (GstMsdkEnc * encoder)
   }
 
   encoder->param.mfx.CodecId = MFX_CODEC_HEVC;
-  encoder->param.mfx.CodecProfile = MFX_PROFILE_HEVC_MAIN;
+
+  if (encoder->param.mfx.FrameInfo.FourCC == MFX_FOURCC_P010)
+    encoder->param.mfx.CodecProfile = MFX_PROFILE_HEVC_MAIN10;
+  else
+    encoder->param.mfx.CodecProfile = MFX_PROFILE_HEVC_MAIN;
 
   /* IdrInterval field of MediaSDK HEVC encoder behaves differently
    * than other encoders. IdrInteval == 1 indicate every
@@ -156,7 +169,10 @@ gst_msdkh265enc_set_src_caps (GstMsdkEnc * encoder)
 
   gst_structure_set (structure, "alignment", G_TYPE_STRING, "au", NULL);
 
-  gst_structure_set (structure, "profile", G_TYPE_STRING, "main", NULL);
+  if (encoder->param.mfx.FrameInfo.FourCC == MFX_FOURCC_P010)
+    gst_structure_set (structure, "profile", G_TYPE_STRING, "main-10", NULL);
+  else
+    gst_structure_set (structure, "profile", G_TYPE_STRING, "main", NULL);
 
   level = level_to_string (encoder->param.mfx.CodecLevel);
   if (level)
@@ -211,6 +227,7 @@ gst_msdkh265enc_class_init (GstMsdkH265EncClass * klass)
       "H265 video encoder based on Intel Media SDK",
       "Josep Torra <jtorra@oblong.com>");
 
+  gst_element_class_add_static_pad_template (element_class, &sink_factory);
   gst_element_class_add_static_pad_template (element_class, &src_factory);
 }
 

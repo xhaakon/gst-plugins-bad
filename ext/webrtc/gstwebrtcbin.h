@@ -23,21 +23,9 @@
 #include <gst/sdp/sdp.h>
 #include "fwd.h"
 #include "gstwebrtcice.h"
+#include "transportstream.h"
 
 G_BEGIN_DECLS
-
-#define GST_WEBRTC_BIN_ERROR gst_webrtc_bin_error_quark ()
-GQuark gst_webrtc_bin_error_quark (void);
-
-typedef enum
-{
-  GST_WEBRTC_BIN_ERROR_FAILED,
-  GST_WEBRTC_BIN_ERROR_INVALID_SYNTAX,
-  GST_WEBRTC_BIN_ERROR_INVALID_MODIFICATION,
-  GST_WEBRTC_BIN_ERROR_INVALID_STATE,
-  GST_WEBRTC_BIN_ERROR_BAD_SDP,
-  GST_WEBRTC_BIN_ERROR_FINGERPRINT,
-} GstWebRTCJSEPSDPError;
 
 GType gst_webrtc_bin_pad_get_type(void);
 #define GST_TYPE_WEBRTC_BIN_PAD            (gst_webrtc_bin_pad_get_type())
@@ -80,6 +68,7 @@ struct _GstWebRTCBin
   GstBin                            parent;
 
   GstElement                       *rtpbin;
+  GstElement                       *rtpfunnel;
 
   GstWebRTCSignalingState           signaling_state;
   GstWebRTCICEGatheringState        ice_gathering_state;
@@ -90,6 +79,8 @@ struct _GstWebRTCBin
   GstWebRTCSessionDescription      *pending_local_description;
   GstWebRTCSessionDescription      *current_remote_description;
   GstWebRTCSessionDescription      *pending_remote_description;
+
+  GstWebRTCBundlePolicy             bundle_policy;
 
   GstWebRTCBinPrivate              *priv;
 };
@@ -107,6 +98,13 @@ struct _GstWebRTCBinPrivate
   GArray *transceivers;
   GArray *session_mid_map;
   GArray *transports;
+  GArray *data_channels;
+  /* list of data channels we've received a sctp stream for but no data
+   * channel protocol for */
+  GArray *pending_data_channels;
+
+  GstWebRTCSCTPTransport *sctp_transport;
+  TransportStream *data_channel_transport;
 
   GstWebRTCICE *ice;
   GArray *ice_stream_map;
@@ -115,7 +113,6 @@ struct _GstWebRTCBinPrivate
   /* peerconnection variables */
   gboolean is_closed;
   gboolean need_negotiation;
-  gpointer sctp_transport;      /* FIXME */
 
   /* peerconnection helper thread for promises */
   GMainContext *main_context;
