@@ -61,7 +61,15 @@ struct _GstDecklinkVideoSink
   GstClockTime internal_base_time;
   GstClockTime external_base_time;
 
+  /* really an internal start time */
+  GstClockTime internal_time_offset;
+
   GstDecklinkOutput *output;
+
+  GstVideoVBIEncoder *vbiencoder;
+  GstVideoFormat anc_vformat;
+  gint caption_line;
+  guint16 cdp_hdr_sequence_cntr;
 };
 
 struct _GstDecklinkVideoSinkClass

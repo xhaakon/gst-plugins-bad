@@ -17,14 +17,8 @@ GObject
       GstControlSource
       GstElement
         GstAggregator
+          GstCCCombiner
           GstMXFMux
-          GstVideoAggregator
-            GstCompositor
-            GstGLBaseMixer
-              GstGLMixer
-                GstGLMosaic
-                GstGLStereoMix
-                GstGLVideoMixer
         GstAiffMux
         GstAiffParse
         GstAsfMux
@@ -87,6 +81,7 @@ GObject
           GstInterAudioSink
           GstInterSubSink
           GstRTMPSink
+          GstSRTSink
           GstShmSink
           GstVideoSink
             GstDfbVideoSink
@@ -115,8 +110,10 @@ GObject
             GstDvbSrc
             GstMMS
             GstNeonhttpSrc
+            GstOpenni2Src
             GstRTMPSrc
             GstRfbSrc
+            GstSRTSrc
             GstShmSrc
             GstToneGenerateSrc
             GstVCDSrc
@@ -137,9 +134,9 @@ GObject
               ladspa-sine-so-sine-faac
               ladspa-sine-so-sine-fcaa
             GstOFA
-            GstStereo
           GstAudioMixMatrix
           GstBayer2RGB
+          GstCCConverter
           GstDebugSpy
           GstDtmfDetect
           GstFreeverb
@@ -176,7 +173,10 @@ GObject
               GstRotate
               GstSquare
             GstLcms
+            GstLine21Decoder
             GstOpencvVideoFilter
+              GstCameraCalibrate
+              GstCameraUndistort
               GstCvDilateErode
                 GstCvDilate
                 GstCvErode
@@ -229,8 +229,6 @@ GObject
           GstFPSDisplaySink
           GstFaceOverlay
           GstFakeVideoSink
-          GstGLMixerBin
-            GstGLVideoMixerBin
           GstHlsSink
           GstHlsSink2
           GstPipeline
@@ -239,12 +237,15 @@ GObject
           GstProxySrc
           GstSDPDemux
           GstSdpSrc
+          GstTestSrcBin
           GstVideoParse
           GstViewfinderBin
           GstWebRTCBin
           RsnDvdBin
         GstBz2dec
         GstBz2enc
+        GstCCExtractor
+        GstCeaCcOverlay
         GstChopMyData
         GstCompare
         GstDVBSubOverlay
@@ -276,6 +277,7 @@ GObject
         GstMusepackDec
         GstNetSim
         GstNonstreamAudioDecoder
+          GstOpenMptDec
           GstWildmidiDec
         GstPcapParse
         GstPitch
@@ -324,16 +326,9 @@ GObject
           GstTSDemux
           MpegTSParse2
         MpegTsMux
-      GstGLContext
       GstPad
         GstAggregatorPad
           GstMXFMuxPad
-          GstVideoAggregatorPad
-            GstCompositorPad
-            GstGLBaseMixerPad
-              GstGLMixerPad
-                GstGLStereoMixPad
-                GstGLVideoMixerPad
         GstProxyPad
           GstGhostPad
             GstWebRTCBinPad
@@ -348,7 +343,9 @@ GObject
       GstRegistry
       GstTask
       GstTaskPool
+      GstWebRTCDataChannel
       GstWebRTCRTPTransceiver
+  GSocketAddress
   GstColorBalanceChannel
   GstEncodingProfile
   GstVdpDevice
@@ -391,6 +388,7 @@ GObject
     PangoFcFontMap
       PangoCairoFcFontMap
 GInterface
+  GSocketConnectable
   GTypePlugin
   GstChildProxy
   GstColorBalance

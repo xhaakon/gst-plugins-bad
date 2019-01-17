@@ -63,8 +63,10 @@
 #endif
 
 #include "gstretinex.h"
+#include <opencv2/imgproc.hpp>
+#if (CV_MAJOR_VERSION >= 4)
 #include <opencv2/imgproc/imgproc_c.h>
-#include <opencv2/imgproc/imgproc.hpp>
+#endif
 
 GST_DEBUG_CATEGORY_STATIC (gst_retinex_debug);
 #define GST_CAT_DEFAULT gst_retinex_debug
@@ -127,8 +129,8 @@ static void gst_retinex_get_property (GObject * object, guint prop_id,
 
 static GstFlowReturn gst_retinex_transform_ip (GstOpencvVideoFilter * filter,
     GstBuffer * buff, IplImage * img);
-static gboolean gst_retinex_set_caps (GstOpencvVideoFilter* btrans,
-     gint in_width, gint in_height, gint in_depth, gint in_channels,
+static gboolean gst_retinex_set_caps (GstOpencvVideoFilter * btrans,
+    gint in_width, gint in_height, gint in_depth, gint in_channels,
     gint out_width, gint out_height, gint out_depth, gint out_channels);
 
 static void gst_retinex_release_all_images (GstRetinex * filter);
@@ -230,9 +232,9 @@ gst_retinex_get_property (GObject * object, guint prop_id,
 }
 
 static gboolean
-gst_retinex_set_caps (GstOpencvVideoFilter * filter, gint in_width, gint in_height,
-    gint in_depth, gint in_channels, gint out_width, gint out_height,
-    gint out_depth, gint out_channels)
+gst_retinex_set_caps (GstOpencvVideoFilter * filter, gint in_width,
+    gint in_height, gint in_depth, gint in_channels, gint out_width,
+    gint out_height, gint out_depth, gint out_channels)
 {
   GstRetinex *retinex = GST_RETINEX (filter);
   CvSize size;
@@ -277,14 +279,14 @@ gst_retinex_release_all_images (GstRetinex * filter)
 
 static GstFlowReturn
 gst_retinex_transform_ip (GstOpencvVideoFilter * filter, GstBuffer * buf,
-        IplImage * img)
+    IplImage * img)
 {
   GstRetinex *retinex = GST_RETINEX (filter);
   double sigma = 14.0;
   int gain = 128;
   int offset = 128;
   int filter_size;
-  Mat icvD = cvarrToMat(retinex->cvD, false);
+  Mat icvD = cvarrToMat (retinex->cvD, false);
 
   /* Basic retinex restoration.  The image and a filtered image are converted
      to the log domain and subtracted.
@@ -307,8 +309,7 @@ gst_retinex_transform_ip (GstOpencvVideoFilter * filter, GstBuffer * buf,
     cvSub (retinex->cvB, retinex->cvC, retinex->cvA, NULL);
 
     /*  Restore */
-    cvConvertScale (retinex->cvA, img, (float) gain,
-        (float) offset);
+    cvConvertScale (retinex->cvA, img, (float) gain, (float) offset);
   }
   /* Multiscale retinex restoration.  The image and a set of filtered images are
      converted to the log domain and subtracted from the original with some set
@@ -354,8 +355,7 @@ gst_retinex_transform_ip (GstOpencvVideoFilter * filter, GstBuffer * buf,
     }
 
     /*  Restore */
-    cvConvertScale (retinex->cvB, img, (float) gain,
-        (float) offset);
+    cvConvertScale (retinex->cvB, img, (float) gain, (float) offset);
   }
 
   return GST_FLOW_OK;

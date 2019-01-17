@@ -1,4 +1,4 @@
-directfb_dep = dependency('directfb', version : '>= 0.9.24', required : false)
+directfb_dep = dependency('directfb', version : '>= 0.9.24', required : get_option('directfb'))
 
 if directfb_dep.found()
   gstdirectfb = library('gstdirectfb',
@@ -9,4 +9,5 @@ if directfb_dep.found()
     install : true,
     install_dir : plugins_install_dir,
   )
+  pkgconfig.generate(gstdirectfb, install_dir : plugins_pkgconfig_install_dir)
 endif

@@ -31,9 +31,6 @@
 
 #include "gstnvdec.h"
 
-#include <gst/gl/gstglfuncs.h>
-#include <cudaGL.h>
-
 typedef enum
 {
   GST_NVDEC_QUEUE_ITEM_TYPE_SEQUENCE,
@@ -225,7 +222,7 @@ static GstStaticPadTemplate gst_nvdec_sink_template =
     GST_STATIC_CAPS ("video/x-h264, stream-format=byte-stream, alignment=au; "
         "video/x-h265, stream-format=byte-stream, alignment=au; "
         "video/mpeg, mpegversion={ 1, 2, 4 }, systemstream=false; "
-        "image/jpeg")
+        "image/jpeg; video/x-vp8; video/x-vp9")
     );
 
 static GstStaticPadTemplate gst_nvdec_src_template =
@@ -537,6 +534,10 @@ gst_nvdec_set_format (GstVideoDecoder * decoder, GstVideoCodecState * state)
     parser_params.CodecType = cudaVideoCodec_JPEG;
   } else if (!g_strcmp0 (caps_name, "video/x-h265")) {
     parser_params.CodecType = cudaVideoCodec_HEVC;
+  } else if (!g_strcmp0 (caps_name, "video/x-vp8")) {
+    parser_params.CodecType = cudaVideoCodec_VP8;
+  } else if (!g_strcmp0 (caps_name, "video/x-vp9")) {
+    parser_params.CodecType = cudaVideoCodec_VP9;
   } else {
     GST_ERROR_OBJECT (nvdec, "failed to determine codec type");
     return FALSE;
@@ -693,10 +694,17 @@ handle_pending_frames (GstNvDec * nvdec)
           vinfo = &state->info;
           vinfo->fps_n = fps_n;
           vinfo->fps_d = fps_d;
-          if (format->progressive_sequence)
+          if (format->progressive_sequence) {
             vinfo->interlace_mode = GST_VIDEO_INTERLACE_MODE_PROGRESSIVE;
-          else
+
+            /* nvdec doesn't seem to deal with interlacing with hevc so rely
+             * on upstream's value */
+            if (format->codec == cudaVideoCodec_HEVC) {
+              vinfo->interlace_mode = nvdec->input_state->info.interlace_mode;
+            }
+          } else {
             vinfo->interlace_mode = GST_VIDEO_INTERLACE_MODE_MIXED;
+          }
 
           GST_LOG_OBJECT (decoder,
               "Reading colorimetry information full-range %d matrix %d transfer %d primaries %d",

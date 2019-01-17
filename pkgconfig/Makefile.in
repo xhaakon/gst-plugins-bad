@@ -133,10 +133,10 @@ CONFIG_CLEAN_FILES = gstreamer-plugins-bad.pc \
 	gstreamer-codecparsers-uninstalled.pc gstreamer-insertbin.pc \
 	gstreamer-insertbin-uninstalled.pc gstreamer-mpegts.pc \
 	gstreamer-mpegts-uninstalled.pc gstreamer-player.pc \
-	gstreamer-player-uninstalled.pc gstreamer-wayland.pc \
+	gstreamer-player-uninstalled.pc gstreamer-sctp.pc \
+	gstreamer-sctp-uninstalled.pc gstreamer-wayland.pc \
 	gstreamer-wayland-uninstalled.pc gstreamer-webrtc.pc \
-	gstreamer-webrtc-uninstalled.pc gstreamer-bad-video.pc \
-	gstreamer-bad-video-uninstalled.pc gstreamer-bad-audio.pc \
+	gstreamer-webrtc-uninstalled.pc gstreamer-bad-audio.pc \
 	gstreamer-bad-audio-uninstalled.pc
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
@@ -191,8 +191,6 @@ am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(srcdir)/gstreamer-bad-audio-uninstalled.pc.in \
 	$(srcdir)/gstreamer-bad-audio.pc.in \
-	$(srcdir)/gstreamer-bad-video-uninstalled.pc.in \
-	$(srcdir)/gstreamer-bad-video.pc.in \
 	$(srcdir)/gstreamer-codecparsers-uninstalled.pc.in \
 	$(srcdir)/gstreamer-codecparsers.pc.in \
 	$(srcdir)/gstreamer-insertbin-uninstalled.pc.in \
@@ -203,6 +201,8 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(srcdir)/gstreamer-player.pc.in \
 	$(srcdir)/gstreamer-plugins-bad-uninstalled.pc.in \
 	$(srcdir)/gstreamer-plugins-bad.pc.in \
+	$(srcdir)/gstreamer-sctp-uninstalled.pc.in \
+	$(srcdir)/gstreamer-sctp.pc.in \
 	$(srcdir)/gstreamer-wayland-uninstalled.pc.in \
 	$(srcdir)/gstreamer-wayland.pc.in \
 	$(srcdir)/gstreamer-webrtc-uninstalled.pc.in \
@@ -210,8 +210,6 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 ACLOCAL_AMFLAGS = @ACLOCAL_AMFLAGS@
-ACMENC_CFLAGS = @ACMENC_CFLAGS@
-ACMMP3DEC_CFLAGS = @ACMMP3DEC_CFLAGS@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AOM_CFLAGS = @AOM_CFLAGS@
@@ -246,8 +244,6 @@ CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
-DAALA_CFLAGS = @DAALA_CFLAGS@
-DAALA_LIBS = @DAALA_LIBS@
 DECKLINK_CXXFLAGS = @DECKLINK_CXXFLAGS@
 DECKLINK_LIBS = @DECKLINK_LIBS@
 DEFAULT_AUDIOSINK = @DEFAULT_AUDIOSINK@
@@ -504,7 +500,6 @@ NICE_CFLAGS = @NICE_CFLAGS@
 NICE_LIBS = @NICE_LIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
-NVENCODE_CFLAGS = @NVENCODE_CFLAGS@
 NVENCODE_LIBS = @NVENCODE_LIBS@
 OBJC = @OBJC@
 OBJCDEPMODE = @OBJCDEPMODE@
@@ -515,8 +510,6 @@ OFA_CFLAGS = @OFA_CFLAGS@
 OFA_LIBS = @OFA_LIBS@
 OPENAL_CFLAGS = @OPENAL_CFLAGS@
 OPENAL_LIBS = @OPENAL_LIBS@
-OPENCV_3_CFLAGS = @OPENCV_3_CFLAGS@
-OPENCV_3_LIBS = @OPENCV_3_LIBS@
 OPENCV_CFLAGS = @OPENCV_CFLAGS@
 OPENCV_LIBS = @OPENCV_LIBS@
 OPENCV_PREFIX = @OPENCV_PREFIX@
@@ -552,6 +545,8 @@ PACKAGE_VERSION_MICRO = @PACKAGE_VERSION_MICRO@
 PACKAGE_VERSION_MINOR = @PACKAGE_VERSION_MINOR@
 PACKAGE_VERSION_NANO = @PACKAGE_VERSION_NANO@
 PACKAGE_VERSION_RELEASE = @PACKAGE_VERSION_RELEASE@
+PANGO_CFLAGS = @PANGO_CFLAGS@
+PANGO_LIBS = @PANGO_LIBS@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 PLUGINDIR = @PLUGINDIR@
@@ -582,7 +577,6 @@ SOUNDTOUCH_CFLAGS = @SOUNDTOUCH_CFLAGS@
 SOUNDTOUCH_LIBS = @SOUNDTOUCH_LIBS@
 SPANDSP_CFLAGS = @SPANDSP_CFLAGS@
 SPANDSP_LIBS = @SPANDSP_LIBS@
-SPC_LIBS = @SPC_LIBS@
 SRTP_CFLAGS = @SRTP_CFLAGS@
 SRTP_LIBS = @SRTP_LIBS@
 SRT_CFLAGS = @SRT_CFLAGS@
@@ -597,6 +591,7 @@ TIGER_LIBS = @TIGER_LIBS@
 TTML_CFLAGS = @TTML_CFLAGS@
 TTML_LIBS = @TTML_LIBS@
 USE_NLS = @USE_NLS@
+USRSCTP_LIBS = @USRSCTP_LIBS@
 VALGRIND_CFLAGS = @VALGRIND_CFLAGS@
 VALGRIND_LIBS = @VALGRIND_LIBS@
 VALGRIND_PATH = @VALGRIND_PATH@
@@ -714,9 +709,9 @@ pcverfiles = \
 	gstreamer-insertbin-@GST_API_VERSION@.pc \
 	gstreamer-mpegts-@GST_API_VERSION@.pc \
 	gstreamer-player-@GST_API_VERSION@.pc \
+	gstreamer-sctp-@GST_API_VERSION@.pc \
 	gstreamer-webrtc-@GST_API_VERSION@.pc \
-	gstreamer-bad-audio-@GST_API_VERSION@.pc \
-	gstreamer-bad-video-@GST_API_VERSION@.pc
+	gstreamer-bad-audio-@GST_API_VERSION@.pc
 
 pcverfiles_uninstalled = \
 	gstreamer-plugins-bad-@GST_API_VERSION@-uninstalled.pc \
@@ -724,9 +719,9 @@ pcverfiles_uninstalled = \
 	gstreamer-insertbin-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-mpegts-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-player-@GST_API_VERSION@-uninstalled.pc \
+	gstreamer-sctp-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-webrtc-@GST_API_VERSION@-uninstalled.pc \
-	gstreamer-bad-audio-@GST_API_VERSION@-uninstalled.pc \
-	gstreamer-bad-video-@GST_API_VERSION@-uninstalled.pc
+	gstreamer-bad-audio-@GST_API_VERSION@-uninstalled.pc
 
 cp_verbose = $(cp_verbose_$(V))
 cp_verbose_ = $(cp_verbose_$(AM_DEFAULT_VERBOSITY))
@@ -742,7 +737,7 @@ pcinfiles = \
            gstreamer-player.pc.in gstreamer-player-uninstalled.pc.in \
            gstreamer-webrtc.pc.in gstreamer-webrtc-uninstalled.pc.in \
            gstreamer-bad-audio.pc.in gstreamer-bad-audio-uninstalled.pc.in \
-           gstreamer-bad-video.pc.in gstreamer-bad-video-uninstalled.pc.in
+           gstreamer-sctp.pc.in gstreamer-sctp-uninstalled.pc.in
 
 DISTCLEANFILES = $(pcinfiles:.in=)
 EXTRA_DIST = $(pcinfiles)
@@ -798,6 +793,10 @@ gstreamer-player.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-player.pc
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-player-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-player-uninstalled.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+gstreamer-sctp.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-sctp.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+gstreamer-sctp-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-sctp-uninstalled.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-wayland.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-wayland.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-wayland-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-wayland-uninstalled.pc.in
@@ -805,10 +804,6 @@ gstreamer-wayland-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstrea
 gstreamer-webrtc.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-webrtc.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-webrtc-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-webrtc-uninstalled.pc.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-gstreamer-bad-video.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-video.pc.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-gstreamer-bad-video-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-video-uninstalled.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 gstreamer-bad-audio.pc: $(top_builddir)/config.status $(srcdir)/gstreamer-bad-audio.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
@@ -1014,9 +1009,7 @@ all-local: $(pcverfiles) $(pcverfiles_uninstalled)
 ### rather than hardcoding it in the file directly.
 	$(AM_V_GEN) sed \
 		-e "s|[@]audiolibdir[@]|$(abs_top_builddir)/gst-libs/gst/audio/.libs|" \
-		-e "s|[@]videolibdir[@]|$(abs_top_builddir)/gst-libs/gst/video/.libs|" \
 		-e "s|[@]codecparserslibdir[@]|$(abs_top_builddir)/gst-libs/gst/codecparsers/.libs|" \
-		-e "s|[@]gllibdir[@]|$(abs_top_builddir)/gst-libs/gst/gl/.libs|" \
 		-e "s|[@]insertbinlibdir[@]|$(abs_top_builddir)/gst-libs/gst/insertbin/.libs|" \
 		-e "s|[@]mpegtslibdir[@]|$(abs_top_builddir)/gst-libs/gst/mpegts/.libs|" \
 		-e "s|[@]playerlibdir[@]|$(abs_top_builddir)/gst-libs/gst/player/.libs|" \

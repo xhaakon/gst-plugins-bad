@@ -184,6 +184,9 @@ gst_h265_parse_reset_frame (GstH265Parse * h265parse)
   h265parse->sei_pos = -1;
   h265parse->keyframe = FALSE;
   h265parse->header = FALSE;
+  h265parse->have_vps_in_frame = FALSE;
+  h265parse->have_sps_in_frame = FALSE;
+  h265parse->have_pps_in_frame = FALSE;
   gst_adapter_clear (h265parse->frame_out);
 }
 
@@ -515,6 +518,42 @@ _nal_name (GstH265NalUnitType nal_type)
 }
 #endif
 
+static void
+gst_h265_parse_process_sei (GstH265Parse * h265parse, GstH265NalUnit * nalu)
+{
+  GstH265SEIMessage sei;
+  GstH265Parser *nalparser = h265parse->nalparser;
+  GstH265ParserResult pres;
+  GArray *messages;
+  guint i;
+
+  pres = gst_h265_parser_parse_sei (nalparser, nalu, &messages);
+  if (pres != GST_H265_PARSER_OK)
+    GST_WARNING_OBJECT (h265parse, "failed to parse one or more SEI message");
+
+  /* Even if pres != GST_H265_PARSER_OK, some message could have been parsed and
+   * stored in messages.
+   */
+  for (i = 0; i < messages->len; i++) {
+    sei = g_array_index (messages, GstH265SEIMessage, i);
+    switch (sei.payloadType) {
+      case GST_H265_SEI_RECOVERY_POINT:
+        GST_LOG_OBJECT (h265parse, "recovery point found: %u %u %u",
+            sei.payload.recovery_point.recovery_poc_cnt,
+            sei.payload.recovery_point.exact_match_flag,
+            sei.payload.recovery_point.broken_link_flag);
+        h265parse->keyframe = TRUE;
+        break;
+
+      case GST_H265_SEI_BUF_PERIOD:
+      case GST_H265_SEI_PIC_TIMING:
+        /* FIXME */
+        break;
+    }
+  }
+  g_array_free (messages, TRUE);
+}
+
 /* caller guarantees 2 bytes of nal payload */
 static gboolean
 gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
@@ -551,6 +590,7 @@ gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
       GST_DEBUG_OBJECT (h265parse, "triggering src caps check");
       h265parse->update_caps = TRUE;
       h265parse->have_vps = TRUE;
+      h265parse->have_vps_in_frame = TRUE;
       if (h265parse->push_codec && h265parse->have_pps) {
         /* VPS/SPS/PPS found in stream before the first pre_push_frame, no need
          * to forcibly push at start */
@@ -580,6 +620,7 @@ gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
       GST_DEBUG_OBJECT (h265parse, "triggering src caps check");
       h265parse->update_caps = TRUE;
       h265parse->have_sps = TRUE;
+      h265parse->have_sps_in_frame = TRUE;
       if (h265parse->push_codec && h265parse->have_pps) {
         /* SPS and PPS found in stream before the first pre_push_frame, no need
          * to forcibly push at start */
@@ -615,6 +656,7 @@ gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
         h265parse->update_caps = TRUE;
       }
       h265parse->have_pps = TRUE;
+      h265parse->have_pps_in_frame = TRUE;
       if (h265parse->push_codec && h265parse->have_sps) {
         /* SPS and PPS found in stream before the first pre_push_frame, no need
          * to forcibly push at start */
@@ -635,7 +677,9 @@ gst_h265_parse_process_nal (GstH265Parse * h265parse, GstH265NalUnit * nalu)
         return FALSE;
 
       h265parse->header |= TRUE;
-      /*Fixme: parse sei messages */
+
+      gst_h265_parse_process_sei (h265parse, nalu);
+
       /* mark SEI pos */
       if (h265parse->sei_pos == -1) {
         if (h265parse->transform)
@@ -1949,6 +1993,12 @@ gst_h265_parse_handle_vps_sps_pps_nals (GstH265Parse * h265parse,
   gboolean send_done = FALSE;
   GstClockTime timestamp = GST_BUFFER_TIMESTAMP (buffer);
 
+  if (h265parse->have_vps_in_frame && h265parse->have_sps_in_frame
+      && h265parse->have_pps_in_frame) {
+    GST_DEBUG_OBJECT (h265parse, "VPS/SPS/PPS exist in frame, will not insert");
+    return TRUE;
+  }
+
   if (h265parse->align == GST_H265_PARSE_ALIGN_NAL) {
     /* send separate config NAL buffers */
     GST_DEBUG_OBJECT (h265parse, "- sending VPS/SPS/PPS");
@@ -2260,6 +2310,11 @@ gst_h265_parse_set_caps (GstBaseParse * parse, GstCaps * caps)
       }
     }
     gst_buffer_unmap (codec_data, &map);
+
+    /* don't confuse codec_data with inband vps/sps/pps */
+    h265parse->have_vps_in_frame = FALSE;
+    h265parse->have_sps_in_frame = FALSE;
+    h265parse->have_pps_in_frame = FALSE;
   } else {
     GST_DEBUG_OBJECT (h265parse, "have bytestream h265");
     /* nothing to pre-process */

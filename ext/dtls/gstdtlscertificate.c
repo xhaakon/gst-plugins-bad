@@ -45,16 +45,17 @@
 #endif
 #endif
 
+#include <openssl/bn.h>
+#include <openssl/rsa.h>
 #include <openssl/ssl.h>
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define X509_getm_notBefore X509_get_notBefore
+#define X509_getm_notAfter X509_get_notAfter
+#endif
 
 GST_DEBUG_CATEGORY_STATIC (gst_dtls_certificate_debug);
 #define GST_CAT_DEFAULT gst_dtls_certificate_debug
-
-G_DEFINE_TYPE_WITH_CODE (GstDtlsCertificate, gst_dtls_certificate,
-    G_TYPE_OBJECT, GST_DEBUG_CATEGORY_INIT (gst_dtls_certificate_debug,
-        "dtlscertificate", 0, "DTLS Certificate"));
-
-#define GST_DTLS_CERTIFICATE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), GST_TYPE_DTLS_CERTIFICATE, GstDtlsCertificatePrivate))
 
 enum
 {
@@ -75,6 +76,11 @@ struct _GstDtlsCertificatePrivate
   gchar *pem;
 };
 
+G_DEFINE_TYPE_WITH_CODE (GstDtlsCertificate, gst_dtls_certificate,
+    G_TYPE_OBJECT, G_ADD_PRIVATE (GstDtlsCertificate)
+    GST_DEBUG_CATEGORY_INIT (gst_dtls_certificate_debug,
+        "dtlscertificate", 0, "DTLS Certificate"));
+
 static void gst_dtls_certificate_finalize (GObject * gobject);
 static void gst_dtls_certificate_set_property (GObject *, guint prop_id,
     const GValue *, GParamSpec *);
@@ -88,8 +94,6 @@ static void
 gst_dtls_certificate_class_init (GstDtlsCertificateClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (GstDtlsCertificatePrivate));
 
   gobject_class->set_property = gst_dtls_certificate_set_property;
   gobject_class->get_property = gst_dtls_certificate_get_property;
@@ -111,8 +115,9 @@ gst_dtls_certificate_class_init (GstDtlsCertificateClass * klass)
 static void
 gst_dtls_certificate_init (GstDtlsCertificate * self)
 {
-  GstDtlsCertificatePrivate *priv = GST_DTLS_CERTIFICATE_GET_PRIVATE (self);
-  self->priv = priv;
+  GstDtlsCertificatePrivate *priv;
+
+  self->priv = priv = gst_dtls_certificate_get_instance_private (self);
 
   priv->x509 = NULL;
   priv->private_key = NULL;
@@ -240,8 +245,8 @@ init_generated (GstDtlsCertificate * self)
 
   X509_set_version (priv->x509, 2);
   ASN1_INTEGER_set (X509_get_serialNumber (priv->x509), 0);
-  X509_gmtime_adj (X509_get_notBefore (priv->x509), 0);
-  X509_gmtime_adj (X509_get_notAfter (priv->x509), 31536000L);  /* A year */
+  X509_gmtime_adj (X509_getm_notBefore (priv->x509), 0);
+  X509_gmtime_adj (X509_getm_notAfter (priv->x509), 31536000L); /* A year */
   X509_set_pubkey (priv->x509, priv->private_key);
 
   name = X509_get_subject_name (priv->x509);

@@ -27,18 +27,42 @@
 
 #include <string.h>
 
-#if HAVE_GST_GL
+GST_DEBUG_CATEGORY_STATIC (gst_nv_h264_enc_debug);
+#define GST_CAT_DEFAULT gst_nv_h264_enc_debug
+
+#if HAVE_NVENC_GST_GL
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 #include <cuda_gl_interop.h>
-#define GST_USE_UNSTABLE_API
 #include <gst/gl/gl.h>
 #endif
 
 #define parent_class gst_nv_h264_enc_parent_class
 G_DEFINE_TYPE (GstNvH264Enc, gst_nv_h264_enc, GST_TYPE_NV_BASE_ENC);
 
+#if HAVE_NVENC_GST_GL
+#define GL_CAPS_STR \
+  ";" \
+  "video/x-raw(memory:GLMemory), " \
+  "format = (string) { NV12, Y444 }, " \
+  "width = (int) [ 16, 4096 ], height = (int) [ 16, 2160 ], " \
+  "framerate = (fraction) [0, MAX]," \
+  "interlace-mode = { progressive, mixed, interleaved } "
+#else
+#define GL_CAPS_STR ""
+#endif
+
 /* *INDENT-OFF* */
+static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
+    GST_PAD_SINK,
+    GST_PAD_ALWAYS,
+    GST_STATIC_CAPS ("video/x-raw, " "format = (string) { NV12, I420 }, "       // TODO: YV12, Y444 support
+        "width = (int) [ 16, 4096 ], height = (int) [ 16, 2160 ], "
+        "framerate = (fraction) [0, MAX],"
+        "interlace-mode = { progressive, mixed, interleaved } "
+        GL_CAPS_STR
+    ));
+
 static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
@@ -89,6 +113,7 @@ gst_nv_h264_enc_class_init (GstNvH264EncClass * klass)
   nvenc_class->set_src_caps = gst_nv_h264_enc_set_src_caps;
   nvenc_class->set_pic_params = gst_nv_h264_enc_set_pic_params;
 
+  gst_element_class_add_static_pad_template (element_class, &sink_factory);
   gst_element_class_add_static_pad_template (element_class, &src_factory);
 
   gst_element_class_set_static_metadata (element_class,
@@ -97,6 +122,9 @@ gst_nv_h264_enc_class_init (GstNvH264EncClass * klass)
       "Encode H.264 video streams using NVIDIA's hardware-accelerated NVENC encoder API",
       "Tim-Philipp Müller <tim@centricular.com>\n"
       "Matthew Waters <matthew@centricular.com>");
+
+  GST_DEBUG_CATEGORY_INIT (gst_nv_h264_enc_debug,
+      "nvh264enc", 0, "Nvidia H.264 encoder");
 }
 
 static void

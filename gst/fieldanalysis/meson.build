@@ -15,10 +15,10 @@ if have_orcc
 else
   orc_h = configure_file(input : orcsrc + '-dist.h',
     output : orcsrc + '.h',
-    configuration : configuration_data())
+    copy : true)
   orc_c = configure_file(input : orcsrc + '-dist.c',
     output : orcsrc + '.c',
-    configuration : configuration_data())
+    copy : true)
 endif
 
 gstfieldanalysis = library('gstfieldanalysis',
@@ -29,3 +29,4 @@ gstfieldanalysis = library('gstfieldanalysis',
   install : true,
   install_dir : plugins_install_dir,
 )
+pkgconfig.generate(gstfieldanalysis, install_dir : plugins_pkgconfig_install_dir)

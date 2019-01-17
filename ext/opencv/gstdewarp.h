@@ -47,8 +47,11 @@
 
 #include <gst/gst.h>
 #include <gst/opencv/gstopencvvideofilter.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
+#if (CV_MAJOR_VERSION >= 4)
+#include <opencv2/imgproc/imgproc_c.h>
+#endif
 
 G_BEGIN_DECLS
 /* #defines don't like whitespacey bits */

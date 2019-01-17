@@ -24,7 +24,10 @@
 #endif
 
 #include "gstopencvutils.h"
-#include <opencv2/core/core_c.h>
+#include <opencv2/core.hpp>
+#if (CV_MAJOR_VERSION >= 4)
+#include <opencv2/core/types_c.h>
+#endif
 
 /*
 The various opencv image containers or headers store the following information:
@@ -92,7 +95,7 @@ gst_opencv_parse_iplimage_params_from_caps (GstCaps * caps, gint * width,
   }
 
   return gst_opencv_iplimage_params_from_video_info (&info, width, height,
-          ipldepth, channels, err);
+      ipldepth, channels, err);
 }
 
 gboolean
@@ -118,7 +121,7 @@ gst_opencv_iplimage_params_from_video_info (GstVideoInfo * info, gint * width,
 
 gboolean
 gst_opencv_cv_image_type_from_video_format (GstVideoFormat format,
-    int * cv_type, GError ** err)
+    int *cv_type, GError ** err)
 {
   const gchar *format_str;
 

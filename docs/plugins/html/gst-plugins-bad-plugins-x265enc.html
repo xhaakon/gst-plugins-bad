@@ -74,6 +74,11 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-x265enc.html#GstX265Enc--tune" title="The “tune” property">tune</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-x265enc.html#GstX265Enc--key-int-max" title="The “key-int-max” property">key-int-max</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -112,7 +117,7 @@ GstX265Enc implements
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.266.8.3.1"></a><h3>Element Information</h3>
+<a name="id-1.2.260.8.3.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -138,7 +143,7 @@ GstX265Enc implements
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.266.8.3.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.260.8.3.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -251,6 +256,15 @@ GstX265Enc implements
 <p>Preset name for tuning options.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: ssim</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstX265Enc--key-int-max"></a><h3>The <code class="literal">“key-int-max”</code> property</h3>
+<pre class="programlisting">  “key-int-max”              <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>Maximal distance between two key-frames (0 = x265 default / 250).</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 0</p>
 </div>
 </div>
 </div>

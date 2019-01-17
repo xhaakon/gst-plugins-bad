@@ -23,11 +23,10 @@
 #include <gst/gst.h>
 #include <gst/video/video.h>
 
-#include <nvEncodeAPI.h>
+#include "nvEncodeAPI.h"
 #include <cuda.h>
 
 GST_DEBUG_CATEGORY_EXTERN (gst_nvenc_debug);
-#define GST_CAT_DEFAULT gst_nvenc_debug
 
 CUcontext               gst_nvenc_create_cuda_context (guint device_id);
 

@@ -37,6 +37,12 @@ typedef struct
   GstCaps *caps;
 } PtMapItem;
 
+typedef struct
+{
+  guint32 ssrc;
+  guint media_idx;
+} SsrcMapItem;
+
 struct _TransportStream
 {
   GstObject                 parent;
@@ -54,6 +60,7 @@ struct _TransportStream
   GstWebRTCDTLSTransport   *rtcp_transport;
 
   GArray                   *ptmap;                  /* array of PtMapItem's */
+  GArray                   *remote_ssrcmap;         /* array of SsrcMapItem's */
 };
 
 struct _TransportStreamClass
@@ -63,6 +70,10 @@ struct _TransportStreamClass
 
 TransportStream *       transport_stream_new        (GstWebRTCBin * webrtc,
                                                      guint session_id);
+int                     transport_stream_get_pt     (TransportStream * stream,
+                                                     const gchar * encoding_name);
+GstCaps *               transport_stream_get_caps_for_pt    (TransportStream * stream,
+                                                             guint pt);
 
 G_END_DECLS
 

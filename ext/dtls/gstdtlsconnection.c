@@ -42,15 +42,15 @@
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
+#ifdef G_OS_WIN32
+#include <winsock2.h>
+#else
 #include <string.h>
+#include <errno.h>
+#endif
 
 GST_DEBUG_CATEGORY_STATIC (gst_dtls_connection_debug);
 #define GST_CAT_DEFAULT gst_dtls_connection_debug
-G_DEFINE_TYPE_WITH_CODE (GstDtlsConnection, gst_dtls_connection, G_TYPE_OBJECT,
-    GST_DEBUG_CATEGORY_INIT (gst_dtls_connection_debug, "dtlsconnection", 0,
-        "DTLS Connection"));
-
-#define GST_DTLS_CONNECTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), GST_TYPE_DTLS_CONNECTION, GstDtlsConnectionPrivate))
 
 #define SRTP_KEY_LEN 16
 #define SRTP_SALT_LEN 14
@@ -99,6 +99,11 @@ struct _GstDtlsConnectionPrivate
   GThreadPool *thread_pool;
 };
 
+G_DEFINE_TYPE_WITH_CODE (GstDtlsConnection, gst_dtls_connection, G_TYPE_OBJECT,
+    G_ADD_PRIVATE (GstDtlsConnection)
+    GST_DEBUG_CATEGORY_INIT (gst_dtls_connection_debug, "dtlsconnection", 0,
+        "DTLS Connection"));
+
 static void gst_dtls_connection_finalize (GObject * gobject);
 static void gst_dtls_connection_set_property (GObject *, guint prop_id,
     const GValue *, GParamSpec *);
@@ -120,8 +125,6 @@ static void
 gst_dtls_connection_class_init (GstDtlsConnectionClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (GstDtlsConnectionPrivate));
 
   gobject_class->set_property = gst_dtls_connection_set_property;
 
@@ -163,8 +166,9 @@ gst_dtls_connection_class_init (GstDtlsConnectionClass * klass)
 static void
 gst_dtls_connection_init (GstDtlsConnection * self)
 {
-  GstDtlsConnectionPrivate *priv = GST_DTLS_CONNECTION_GET_PRIVATE (self);
-  self->priv = priv;
+  GstDtlsConnectionPrivate *priv;
+
+  self->priv = priv = gst_dtls_connection_get_instance_private (self);
 
   priv->ssl = NULL;
   priv->bio = NULL;
@@ -708,36 +712,53 @@ beach:
   self->priv->keys_exported = TRUE;
 }
 
+static int
+ssl_warn_cb (const char *str, size_t len, void *u)
+{
+  GstDtlsConnection *self = u;
+  GST_WARNING_OBJECT (self, "ssl error: %s", str);
+  return 0;
+}
+
+static int
+ssl_err_cb (const char *str, size_t len, void *u)
+{
+  GstDtlsConnection *self = u;
+  GST_ERROR_OBJECT (self, "ssl error: %s", str);
+  return 0;
+}
+
 static void
 openssl_poll (GstDtlsConnection * self)
 {
   int ret;
-  char buf[512];
   int error;
 
   log_state (self, "poll: before handshake");
 
+  ERR_clear_error ();
   ret = SSL_do_handshake (self->priv->ssl);
 
   log_state (self, "poll: after handshake");
 
-  if (ret == 1) {
-    if (!self->priv->keys_exported) {
-      GST_INFO_OBJECT (self,
-          "handshake just completed successfully, exporting keys");
-      export_srtp_keys (self);
-    } else {
-      GST_INFO_OBJECT (self, "handshake is completed");
-    }
-    return;
-  } else {
-    if (ret == 0) {
+  switch (ret) {
+    case 1:
+      if (!self->priv->keys_exported) {
+        GST_INFO_OBJECT (self,
+            "handshake just completed successfully, exporting keys");
+        export_srtp_keys (self);
+      } else {
+        GST_INFO_OBJECT (self, "handshake is completed");
+      }
+      return;
+    case 0:
       GST_DEBUG_OBJECT (self, "do_handshake encountered EOF");
-    } else if (ret == -1) {
-      GST_WARNING_OBJECT (self, "do_handshake encountered BIO error");
-    } else {
+      break;
+    case -1:
+      GST_DEBUG_OBJECT (self, "do_handshake encountered BIO error");
+      break;
+    default:
       GST_DEBUG_OBJECT (self, "do_handshake returned %d", ret);
-    }
   }
 
   error = SSL_get_error (self->priv->ssl, ret);
@@ -747,9 +768,9 @@ openssl_poll (GstDtlsConnection * self)
       GST_WARNING_OBJECT (self, "no error, handshake should be done");
       break;
     case SSL_ERROR_SSL:
-      GST_LOG_OBJECT (self, "SSL error %d: %s", error,
-          ERR_error_string (ERR_get_error (), buf));
-      break;
+      GST_ERROR_OBJECT (self, "SSL error");
+      ERR_print_errors_cb (ssl_err_cb, self);
+      return;
     case SSL_ERROR_WANT_READ:
       GST_LOG_OBJECT (self, "SSL wants read");
       break;
@@ -757,12 +778,26 @@ openssl_poll (GstDtlsConnection * self)
       GST_LOG_OBJECT (self, "SSL wants write");
       break;
     case SSL_ERROR_SYSCALL:{
-      GST_LOG_OBJECT (self, "SSL syscall (error) : %lu", ERR_get_error ());
+      gchar message[1024] = "<unknown>";
+      gint syserror;
+#ifdef G_OS_WIN32
+      syserror = WSAGetLastError ();
+      FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM, NULL, syserror, 0, message,
+          sizeof message, NULL);
+#else
+      syserror = errno;
+      strerror_r (syserror, message, sizeof message);
+#endif
+      GST_CAT_LEVEL_LOG (GST_CAT_DEFAULT,
+          syserror != 0 ? GST_LEVEL_WARNING : GST_LEVEL_LOG,
+          self, "SSL syscall error: errno %d: %s", syserror, message);
       break;
     }
     default:
       GST_WARNING_OBJECT (self, "Unknown SSL error: %d, ret: %d", error, ret);
   }
+
+  ERR_print_errors_cb (ssl_warn_cb, self);
 }
 
 static int

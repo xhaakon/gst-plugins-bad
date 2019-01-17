@@ -70,22 +70,10 @@ else
 WAYLAND_DIR=
 endif
 
-if USE_DAALA
-DAALA_DIR=daala
-else
-DAALA_DIR=
-endif
-
 if USE_DTS
 DTS_DIR=dts
 else
 DTS_DIR=
-endif
-
-if USE_GL
-GL_DIR=gl
-else
-GL_DIR=
 endif
 
 if USE_RESINDVD
@@ -256,6 +244,12 @@ else
 OPUS_DIR=
 endif
 
+if USE_PANGO
+CLOSEDCAPTION_DIR=closedcaption
+else
+CLOSEDCAPTION_DIR=
+endif
+
 if USE_RSVG
 RSVG_DIR=rsvg
 else
@@ -278,6 +272,12 @@ if USE_SBC
 SBC_DIR=sbc
 else
 SBC_DIR=
+endif
+
+if USE_SCTP
+SCTP_DIR=sctp
+else
+SCTP_DIR=
 endif
 
 if USE_SMOOTHSTREAMING
@@ -308,12 +308,6 @@ if USE_SPANDSP
 SPANDSP_DIR = spandsp
 else
 SPANDSP_DIR =
-endif
-
-if USE_SPC
-SPC_DIR=spc
-else
-SPC_DIR=
 endif
 
 if USE_SRT
@@ -410,15 +404,14 @@ SUBDIRS=\
 	$(BZ2_DIR) \
 	$(COLORMANAGEMENT_DIR) \
 	$(CHROMAPRINT_DIR) \
+	$(CLOSEDCAPTION_DIR) \
 	$(CURL_DIR) \
 	$(DASH_DIR) \
 	$(DC1394_DIR) \
 	$(DIRECTFB_DIR) \
 	$(WAYLAND_DIR) \
-	$(DAALA_DIR) \
 	$(DTS_DIR) \
 	$(RESINDVD_DIR) \
-	$(GL_DIR) \
 	$(FAAC_DIR) \
 	$(FAAD_DIR) \
 	$(FDK_AAC_DIR) \
@@ -448,13 +441,13 @@ SUBDIRS=\
 	$(OPUS_DIR) \
 	$(RSVG_DIR) \
 	$(SBC_DIR) \
+	$(SCTP_DIR) \
 	$(SMOOTHSTREAMING_DIR) \
 	$(SMOOTHWAVE_DIR) \
 	$(SNDFILE_DIR) \
 	$(SOUNDTOUCH_DIR) \
 	$(SPANDSP_DIR) \
 	$(GME_DIR) \
-	$(SPC_DIR) \
 	$(SRT_DIR) \
 	$(SRTP_DIR) \
 	$(TELETEXTDEC_DIR) \
@@ -477,6 +470,7 @@ DIST_SUBDIRS = \
 	bz2 \
 	colormanagement \
 	chromaprint \
+	closedcaption \
 	curl \
 	dash \
 	dc1394 \
@@ -495,9 +489,7 @@ DIST_SUBDIRS = \
 	libde265 \
 	libmms \
 	lv2 \
-	daala \
 	dts \
-	gl \
 	modplug \
 	mpeg2enc \
 	mplex \
@@ -515,11 +507,11 @@ DIST_SUBDIRS = \
 	rsvg \
 	resindvd \
 	sbc \
+	sctp \
 	smoothstreaming \
 	sndfile \
 	soundtouch \
 	spandsp \
-	spc \
 	srt \
 	srtp \
 	gme \
