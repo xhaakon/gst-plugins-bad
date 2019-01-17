@@ -2,6 +2,7 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaccurip.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstadpcmdec.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstadpcmenc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaiff.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaom.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaudiofxbad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstasfmux.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstassrender.so
@@ -16,9 +17,9 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstbs2b.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstbz2.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcamerabin.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstchromaprint.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstclosedcaption.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcoloreffects.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcolormanagement.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcompositor.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcurl.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdashdemux.so
 @dc1394@
@@ -68,7 +69,6 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmxf.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstnetsim.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstofa.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenal.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenglmixers.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenexr.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenjpeg.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopenmpt.so
@@ -92,8 +92,8 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsndfile.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsoundtouch.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstspandsp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstspeed.so
+debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsrt.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsrtp.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgststereo.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsubenc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstteletext.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgsttimecode.so
