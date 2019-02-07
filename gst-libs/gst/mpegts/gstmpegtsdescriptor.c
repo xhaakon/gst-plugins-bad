@@ -1,7 +1,7 @@
 /*
- * gstmpegtsdescriptor.c - 
+ * gstmpegtsdescriptor.c -
  * Copyright (C) 2013 Edward Hervey
- * 
+ *
  * Authors:
  *   Edward Hervey <edward@collabora.com>
  *
@@ -20,16 +20,32 @@
  * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 
 #include "mpegts.h"
 #include "gstmpegts-private.h"
 
+#define DEFINE_STATIC_COPY_FUNCTION(type, name) \
+static type * _##name##_copy (type * source) \
+{ \
+  return g_slice_dup (type, source); \
+}
+
+#define DEFINE_STATIC_FREE_FUNCTION(type, name) \
+static void _##name##_free (type * source) \
+{ \
+  g_slice_free (type, source); \
+}
+
 /**
  * SECTION:gstmpegtsdescriptor
  * @title: Base MPEG-TS descriptors
- * @short_description: Descriptors for ITU H.222.0 | ISO/IEC 13818-1 
+ * @short_description: Descriptors for ITU H.222.0 | ISO/IEC 13818-1
  * @include: gst/mpegts/mpegts.h
  *
  * These are the base descriptor types and methods.
@@ -61,7 +77,7 @@
  *
  * * Add common validation code for data presence and minimum/maximum expected
  *   size.
- * * Add parsing methods for the following descriptors that were previously 
+ * * Add parsing methods for the following descriptors that were previously
  *   handled in mpegtsbase:
  *   * GST_MTS_DESC_DVB_DATA_BROADCAST_ID
  *   * GST_MTS_DESC_DVB_CAROUSEL_IDENTIFIER
@@ -841,7 +857,7 @@ gst_mpegts_find_descriptor (GPtrArray * descriptors, guint8 tag)
 /**
  * gst_mpegts_descriptor_from_registration:
  * @format_identifier: (transfer none): a 4 character format identifier string
- * @additional_info: (transfer none) (allow-none): pointer to optional additional info
+ * @additional_info: (transfer none) (allow-none) (array length=additional_info_length): pointer to optional additional info
  * @additional_info_length: length of the optional @additional_info
  *
  * Creates a %GST_MTS_DESC_REGISTRATION #GstMpegtsDescriptor
@@ -874,7 +890,7 @@ gst_mpegts_descriptor_from_registration (const gchar * format_identifier,
  * @descriptor: a %GST_MTS_DESC_CA #GstMpegtsDescriptor
  * @ca_system_id: (out): the type of CA system used
  * @ca_pid: (out): The PID containing ECM or EMM data
- * @private_data: (out) (allow-none): The private data
+ * @private_data: (out) (allow-none) (array length=private_data_size): The private data
  * @private_data_size: (out) (allow-none): The size of @private_data in bytes
  *
  * Extracts the Conditional Access information from @descriptor.
@@ -1064,6 +1080,28 @@ gst_mpegts_descriptor_from_iso_639_language (const gchar * language)
   return descriptor;
 }
 
+DEFINE_STATIC_COPY_FUNCTION (GstMpegtsLogicalChannelDescriptor,
+    gst_mpegts_logical_channel_descriptor);
+
+DEFINE_STATIC_FREE_FUNCTION (GstMpegtsLogicalChannelDescriptor,
+    gst_mpegts_logical_channel_descriptor);
+
+G_DEFINE_BOXED_TYPE (GstMpegtsLogicalChannelDescriptor,
+    gst_mpegts_logical_channel_descriptor,
+    (GBoxedCopyFunc) _gst_mpegts_logical_channel_descriptor_copy,
+    (GFreeFunc) _gst_mpegts_logical_channel_descriptor_free);
+
+DEFINE_STATIC_COPY_FUNCTION (GstMpegtsLogicalChannel,
+    gst_mpegts_logical_channel);
+
+DEFINE_STATIC_FREE_FUNCTION (GstMpegtsLogicalChannel,
+    gst_mpegts_logical_channel);
+
+G_DEFINE_BOXED_TYPE (GstMpegtsLogicalChannel,
+    gst_mpegts_logical_channel,
+    (GBoxedCopyFunc) _gst_mpegts_logical_channel_copy,
+    (GFreeFunc) _gst_mpegts_logical_channel_free);
+
 /**
  * gst_mpegts_descriptor_parse_logical_channel:
  * @descriptor: a %GST_MTS_DESC_DTG_LOGICAL_CHANNEL #GstMpegtsDescriptor
@@ -1104,7 +1142,7 @@ gst_mpegts_descriptor_parse_logical_channel (const GstMpegtsDescriptor *
 /**
  * gst_mpegts_descriptor_from_custom:
  * @tag: descriptor tag
- * @data: (transfer none): descriptor data (after tag and length field)
+ * @data: (transfer none) (array length=length): descriptor data (after tag and length field)
  * @length: length of @data
  *
  * Creates a #GstMpegtsDescriptor with custom @tag and @data
@@ -1131,7 +1169,7 @@ gst_mpegts_descriptor_from_custom (guint8 tag, const guint8 * data,
  * gst_mpegts_descriptor_from_custom_with_extension:
  * @tag: descriptor tag
  * @tag_extension: descriptor tag extension
- * @data: (transfer none): descriptor data (after tag and length field)
+ * @data: (transfer none) (array length=length): descriptor data (after tag and length field)
  * @length: length of @data
  *
  * Creates a #GstMpegtsDescriptor with custom @tag, @tag_extension and @data

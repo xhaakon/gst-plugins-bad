@@ -41,21 +41,13 @@
 GST_DEBUG_CATEGORY_STATIC (gst_debug_msdkcontext);
 #define GST_CAT_DEFAULT gst_debug_msdkcontext
 
-#define GST_MSDK_CONTEXT_GET_PRIVATE(obj) \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GST_TYPE_MSDK_CONTEXT, \
-      GstMsdkContextPrivate))
-
-#define gst_msdk_context_parent_class parent_class
-G_DEFINE_TYPE_WITH_CODE (GstMsdkContext, gst_msdk_context, GST_TYPE_OBJECT,
-    GST_DEBUG_CATEGORY_INIT (gst_debug_msdkcontext, "msdkcontext", 0,
-        "MSDK Context"));
-
 struct _GstMsdkContextPrivate
 {
   mfxSession session;
   GList *cached_alloc_responses;
   gboolean hardware;
   gboolean is_joined;
+  gboolean has_frame_allocator;
   GstMsdkContextJobType job_type;
   gint shared_async_depth;
   GMutex mutex;
@@ -65,6 +57,12 @@ struct _GstMsdkContextPrivate
   VADisplay dpy;
 #endif
 };
+
+#define gst_msdk_context_parent_class parent_class
+G_DEFINE_TYPE_WITH_CODE (GstMsdkContext, gst_msdk_context, GST_TYPE_OBJECT,
+    G_ADD_PRIVATE (GstMsdkContext)
+    GST_DEBUG_CATEGORY_INIT (gst_debug_msdkcontext, "msdkcontext", 0,
+        "MSDK Context"));
 
 #ifndef _WIN32
 
@@ -208,7 +206,7 @@ failed:
 static void
 gst_msdk_context_init (GstMsdkContext * context)
 {
-  GstMsdkContextPrivate *priv = GST_MSDK_CONTEXT_GET_PRIVATE (context);
+  GstMsdkContextPrivate *priv = gst_msdk_context_get_instance_private (context);
 
   context->priv = priv;
 
@@ -257,7 +255,6 @@ static void
 gst_msdk_context_class_init (GstMsdkContextClass * klass)
 {
   GObjectClass *const g_object_class = G_OBJECT_CLASS (klass);
-  g_type_class_add_private (klass, sizeof (GstMsdkContextPrivate));
 
   g_object_class->finalize = gst_msdk_context_finalize;
 }
@@ -287,12 +284,7 @@ gst_msdk_context_new_with_parent (GstMsdkContext * parent)
   status = MFXCloneSession (parent_priv->session, &priv->session);
   if (status != MFX_ERR_NONE) {
     GST_ERROR ("Failed to clone mfx session");
-    return NULL;
-  }
-
-  status = MFXJoinSession (parent_priv->session, priv->session);
-  if (status != MFX_ERR_NONE) {
-    GST_ERROR ("Failed to join mfx session");
+    g_object_unref (obj);
     return NULL;
   }
 
@@ -308,6 +300,14 @@ gst_msdk_context_new_with_parent (GstMsdkContext * parent)
   if (priv->hardware) {
     status = MFXVideoCORE_SetHandle (priv->session, MFX_HANDLE_VA_DISPLAY,
         (mfxHDL) parent_priv->dpy);
+
+    if (status != MFX_ERR_NONE) {
+      GST_ERROR ("Setting VA handle failed (%s)",
+          msdk_status_to_string (status));
+      g_object_unref (obj);
+      return NULL;
+    }
+
   }
 #endif
 
@@ -355,7 +355,14 @@ _find_request (gconstpointer resp, gconstpointer req)
   GstMsdkAllocResponse *cached_resp = (GstMsdkAllocResponse *) resp;
   mfxFrameAllocRequest *_req = (mfxFrameAllocRequest *) req;
 
-  return cached_resp ? cached_resp->request.Type != _req->Type : -1;
+  /* Confirm if it's under the size of the cached response */
+  if (_req->Info.Width <= cached_resp->request.Info.Width &&
+      _req->Info.Height <= cached_resp->request.Info.Height) {
+    return _req->Type & cached_resp->
+        request.Type & MFX_MEMTYPE_FROM_DECODE ? 0 : -1;
+  }
+
+  return -1;
 }
 
 GstMsdkAllocResponse *
@@ -591,4 +598,26 @@ gst_msdk_context_add_shared_async_depth (GstMsdkContext * context,
     gint async_depth)
 {
   context->priv->shared_async_depth += async_depth;
+}
+
+void
+gst_msdk_context_set_frame_allocator (GstMsdkContext * context,
+    mfxFrameAllocator * allocator)
+{
+  GstMsdkContextPrivate *priv = context->priv;
+
+  g_mutex_lock (&priv->mutex);
+
+  if (!priv->has_frame_allocator) {
+    mfxStatus status;
+
+    status = MFXVideoCORE_SetFrameAllocator (priv->session, allocator);
+
+    if (status != MFX_ERR_NONE)
+      GST_ERROR ("Failed to set frame allocator");
+    else
+      priv->has_frame_allocator = 1;
+  }
+
+  g_mutex_unlock (&priv->mutex);
 }

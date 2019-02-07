@@ -59,7 +59,10 @@
 #endif
 
 #include "gstcvsobel.h"
+#include <opencv2/imgproc.hpp>
+#if (CV_MAJOR_VERSION >= 4)
 #include <opencv2/imgproc/imgproc_c.h>
+#endif
 
 GST_DEBUG_CATEGORY_STATIC (gst_cv_sobel_debug);
 #define GST_CAT_DEFAULT gst_cv_sobel_debug
@@ -158,7 +161,8 @@ gst_cv_sobel_class_init (GstCvSobelClass * klass)
   g_object_class_install_property (gobject_class, PROP_MASK,
       g_param_spec_boolean ("mask", "Mask",
           "Sets whether the detected derivative edges should be used as a mask on the original input or not",
-          DEFAULT_MASK, (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
+          DEFAULT_MASK,
+          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 
   gst_element_class_add_static_pad_template (element_class, &src_factory);
   gst_element_class_add_static_pad_template (element_class, &sink_factory);
@@ -191,12 +195,14 @@ gst_cv_sobel_set_caps (GstOpencvVideoFilter * transform,
   GstCvSobel *filter = GST_CV_SOBEL (transform);
 
   if (filter->cvSobel != NULL) {
-      cvReleaseImage (&filter->cvGray);
-      cvReleaseImage (&filter->cvSobel);
+    cvReleaseImage (&filter->cvGray);
+    cvReleaseImage (&filter->cvSobel);
   }
 
-  filter->cvGray = cvCreateImage (cvSize (in_width, in_height), IPL_DEPTH_8U, 1);
-  filter->cvSobel = cvCreateImage (cvSize (out_width, out_height), IPL_DEPTH_8U, 1);
+  filter->cvGray =
+      cvCreateImage (cvSize (in_width, in_height), IPL_DEPTH_8U, 1);
+  filter->cvSobel =
+      cvCreateImage (cvSize (out_width, out_height), IPL_DEPTH_8U, 1);
 
   return TRUE;
 }

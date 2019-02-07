@@ -176,11 +176,12 @@ libgstsrt_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 am_libgstsrt_la_OBJECTS = libgstsrt_la-gstsrt.lo \
-	libgstsrt_la-gstsrtbasesrc.lo libgstsrt_la-gstsrtclientsrc.lo \
-	libgstsrt_la-gstsrtserversrc.lo libgstsrt_la-gstsrtbasesink.lo \
-	libgstsrt_la-gstsrtclientsink.lo \
-	libgstsrt_la-gstsrtserversink.lo
-libgstsrt_la_OBJECTS = $(am_libgstsrt_la_OBJECTS)
+	libgstsrt_la-gstsrtobject.lo libgstsrt_la-gstsrtsink.lo \
+	libgstsrt_la-gstsrtsrc.lo
+am__objects_1 = libgstsrt_la-gstsrt-enumtypes.lo
+nodist_libgstsrt_la_OBJECTS = $(am__objects_1)
+libgstsrt_la_OBJECTS = $(am_libgstsrt_la_OBJECTS) \
+	$(nodist_libgstsrt_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -203,13 +204,11 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/libgstsrt_la-gstsrt.Plo \
-	./$(DEPDIR)/libgstsrt_la-gstsrtbasesink.Plo \
-	./$(DEPDIR)/libgstsrt_la-gstsrtbasesrc.Plo \
-	./$(DEPDIR)/libgstsrt_la-gstsrtclientsink.Plo \
-	./$(DEPDIR)/libgstsrt_la-gstsrtclientsrc.Plo \
-	./$(DEPDIR)/libgstsrt_la-gstsrtserversink.Plo \
-	./$(DEPDIR)/libgstsrt_la-gstsrtserversrc.Plo
+am__depfiles_remade = ./$(DEPDIR)/libgstsrt_la-gstsrt-enumtypes.Plo \
+	./$(DEPDIR)/libgstsrt_la-gstsrt.Plo \
+	./$(DEPDIR)/libgstsrt_la-gstsrtobject.Plo \
+	./$(DEPDIR)/libgstsrt_la-gstsrtsink.Plo \
+	./$(DEPDIR)/libgstsrt_la-gstsrtsrc.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -229,7 +228,7 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libgstsrt_la_SOURCES)
+SOURCES = $(libgstsrt_la_SOURCES) $(nodist_libgstsrt_la_SOURCES)
 DIST_SOURCES = $(libgstsrt_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
@@ -261,8 +260,6 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 ACLOCAL_AMFLAGS = @ACLOCAL_AMFLAGS@
-ACMENC_CFLAGS = @ACMENC_CFLAGS@
-ACMMP3DEC_CFLAGS = @ACMMP3DEC_CFLAGS@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AOM_CFLAGS = @AOM_CFLAGS@
@@ -297,8 +294,6 @@ CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
-DAALA_CFLAGS = @DAALA_CFLAGS@
-DAALA_LIBS = @DAALA_LIBS@
 DECKLINK_CXXFLAGS = @DECKLINK_CXXFLAGS@
 DECKLINK_LIBS = @DECKLINK_LIBS@
 DEFAULT_AUDIOSINK = @DEFAULT_AUDIOSINK@
@@ -555,7 +550,6 @@ NICE_CFLAGS = @NICE_CFLAGS@
 NICE_LIBS = @NICE_LIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
-NVENCODE_CFLAGS = @NVENCODE_CFLAGS@
 NVENCODE_LIBS = @NVENCODE_LIBS@
 OBJC = @OBJC@
 OBJCDEPMODE = @OBJCDEPMODE@
@@ -566,8 +560,6 @@ OFA_CFLAGS = @OFA_CFLAGS@
 OFA_LIBS = @OFA_LIBS@
 OPENAL_CFLAGS = @OPENAL_CFLAGS@
 OPENAL_LIBS = @OPENAL_LIBS@
-OPENCV_3_CFLAGS = @OPENCV_3_CFLAGS@
-OPENCV_3_LIBS = @OPENCV_3_LIBS@
 OPENCV_CFLAGS = @OPENCV_CFLAGS@
 OPENCV_LIBS = @OPENCV_LIBS@
 OPENCV_PREFIX = @OPENCV_PREFIX@
@@ -603,6 +595,8 @@ PACKAGE_VERSION_MICRO = @PACKAGE_VERSION_MICRO@
 PACKAGE_VERSION_MINOR = @PACKAGE_VERSION_MINOR@
 PACKAGE_VERSION_NANO = @PACKAGE_VERSION_NANO@
 PACKAGE_VERSION_RELEASE = @PACKAGE_VERSION_RELEASE@
+PANGO_CFLAGS = @PANGO_CFLAGS@
+PANGO_LIBS = @PANGO_LIBS@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 PLUGINDIR = @PLUGINDIR@
@@ -633,7 +627,6 @@ SOUNDTOUCH_CFLAGS = @SOUNDTOUCH_CFLAGS@
 SOUNDTOUCH_LIBS = @SOUNDTOUCH_LIBS@
 SPANDSP_CFLAGS = @SPANDSP_CFLAGS@
 SPANDSP_LIBS = @SPANDSP_LIBS@
-SPC_LIBS = @SPC_LIBS@
 SRTP_CFLAGS = @SRTP_CFLAGS@
 SRTP_LIBS = @SRTP_LIBS@
 SRT_CFLAGS = @SRT_CFLAGS@
@@ -648,6 +641,7 @@ TIGER_LIBS = @TIGER_LIBS@
 TTML_CFLAGS = @TTML_CFLAGS@
 TTML_LIBS = @TTML_LIBS@
 USE_NLS = @USE_NLS@
+USRSCTP_LIBS = @USRSCTP_LIBS@
 VALGRIND_CFLAGS = @VALGRIND_CFLAGS@
 VALGRIND_LIBS = @VALGRIND_LIBS@
 VALGRIND_PATH = @VALGRIND_PATH@
@@ -760,12 +754,9 @@ wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstsrt.la
 libgstsrt_la_SOURCES = \
 	gstsrt.c \
-	gstsrtbasesrc.c \
-	gstsrtclientsrc.c \
-	gstsrtserversrc.c \
-	gstsrtbasesink.c \
-	gstsrtclientsink.c \
-	gstsrtserversink.c \
+	gstsrtobject.c \
+	gstsrtsink.c \
+	gstsrtsrc.c \
 	$(NULL)
 
 libgstsrt_la_CFLAGS = \
@@ -784,19 +775,23 @@ libgstsrt_la_LIBADD = \
     $(NULL)
 
 libgstsrt_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+glib_enum_headers = gstsrt-enums.h
+glib_enum_define = GST_SRT
+glib_gen_prefix = gst_srt
+glib_gen_basename = gstsrt
+BUILT_SOURCES = gstsrt-enumtypes.c gstsrt-enumtypes.h
+nodist_libgstsrt_la_SOURCES = $(BUILT_SOURCES)
 CLEANFILES = $(BUILT_SOURCES)
 noinst_HEADERS = \
-	gstsrt.h \
-	gstsrtbasesrc.h \
-	gstsrtclientsrc.h \
-	gstsrtserversrc.h \
-	gstsrtbasesink.h \
-	gstsrtclientsink.h  \
-	gstsrtserversink.h \
+	gstsrt-enums.h \
+	gstsrtobject.h \
+	gstsrtsink.h \
+	gstsrtsrc.h \
 	$(NULL)
 
 enum_headers = $(foreach h,$(glib_enum_headers),\n\#include \"$(h)\")
-all: all-am
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .lo .o .obj
@@ -875,13 +870,11 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsrt_la-gstsrt-enumtypes.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsrt_la-gstsrt.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsrt_la-gstsrtbasesink.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsrt_la-gstsrtbasesrc.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsrt_la-gstsrtclientsink.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsrt_la-gstsrtclientsrc.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsrt_la-gstsrtserversink.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsrt_la-gstsrtserversrc.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsrt_la-gstsrtobject.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsrt_la-gstsrtsink.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstsrt_la-gstsrtsrc.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -920,47 +913,33 @@ libgstsrt_la-gstsrt.lo: gstsrt.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -c -o libgstsrt_la-gstsrt.lo `test -f 'gstsrt.c' || echo '$(srcdir)/'`gstsrt.c
 
-libgstsrt_la-gstsrtbasesrc.lo: gstsrtbasesrc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -MT libgstsrt_la-gstsrtbasesrc.lo -MD -MP -MF $(DEPDIR)/libgstsrt_la-gstsrtbasesrc.Tpo -c -o libgstsrt_la-gstsrtbasesrc.lo `test -f 'gstsrtbasesrc.c' || echo '$(srcdir)/'`gstsrtbasesrc.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstsrt_la-gstsrtbasesrc.Tpo $(DEPDIR)/libgstsrt_la-gstsrtbasesrc.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstsrtbasesrc.c' object='libgstsrt_la-gstsrtbasesrc.lo' libtool=yes @AMDEPBACKSLASH@
+libgstsrt_la-gstsrtobject.lo: gstsrtobject.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -MT libgstsrt_la-gstsrtobject.lo -MD -MP -MF $(DEPDIR)/libgstsrt_la-gstsrtobject.Tpo -c -o libgstsrt_la-gstsrtobject.lo `test -f 'gstsrtobject.c' || echo '$(srcdir)/'`gstsrtobject.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstsrt_la-gstsrtobject.Tpo $(DEPDIR)/libgstsrt_la-gstsrtobject.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstsrtobject.c' object='libgstsrt_la-gstsrtobject.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -c -o libgstsrt_la-gstsrtbasesrc.lo `test -f 'gstsrtbasesrc.c' || echo '$(srcdir)/'`gstsrtbasesrc.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -c -o libgstsrt_la-gstsrtobject.lo `test -f 'gstsrtobject.c' || echo '$(srcdir)/'`gstsrtobject.c
 
-libgstsrt_la-gstsrtclientsrc.lo: gstsrtclientsrc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -MT libgstsrt_la-gstsrtclientsrc.lo -MD -MP -MF $(DEPDIR)/libgstsrt_la-gstsrtclientsrc.Tpo -c -o libgstsrt_la-gstsrtclientsrc.lo `test -f 'gstsrtclientsrc.c' || echo '$(srcdir)/'`gstsrtclientsrc.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstsrt_la-gstsrtclientsrc.Tpo $(DEPDIR)/libgstsrt_la-gstsrtclientsrc.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstsrtclientsrc.c' object='libgstsrt_la-gstsrtclientsrc.lo' libtool=yes @AMDEPBACKSLASH@
+libgstsrt_la-gstsrtsink.lo: gstsrtsink.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -MT libgstsrt_la-gstsrtsink.lo -MD -MP -MF $(DEPDIR)/libgstsrt_la-gstsrtsink.Tpo -c -o libgstsrt_la-gstsrtsink.lo `test -f 'gstsrtsink.c' || echo '$(srcdir)/'`gstsrtsink.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstsrt_la-gstsrtsink.Tpo $(DEPDIR)/libgstsrt_la-gstsrtsink.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstsrtsink.c' object='libgstsrt_la-gstsrtsink.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -c -o libgstsrt_la-gstsrtclientsrc.lo `test -f 'gstsrtclientsrc.c' || echo '$(srcdir)/'`gstsrtclientsrc.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -c -o libgstsrt_la-gstsrtsink.lo `test -f 'gstsrtsink.c' || echo '$(srcdir)/'`gstsrtsink.c
 
-libgstsrt_la-gstsrtserversrc.lo: gstsrtserversrc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -MT libgstsrt_la-gstsrtserversrc.lo -MD -MP -MF $(DEPDIR)/libgstsrt_la-gstsrtserversrc.Tpo -c -o libgstsrt_la-gstsrtserversrc.lo `test -f 'gstsrtserversrc.c' || echo '$(srcdir)/'`gstsrtserversrc.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstsrt_la-gstsrtserversrc.Tpo $(DEPDIR)/libgstsrt_la-gstsrtserversrc.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstsrtserversrc.c' object='libgstsrt_la-gstsrtserversrc.lo' libtool=yes @AMDEPBACKSLASH@
+libgstsrt_la-gstsrtsrc.lo: gstsrtsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -MT libgstsrt_la-gstsrtsrc.lo -MD -MP -MF $(DEPDIR)/libgstsrt_la-gstsrtsrc.Tpo -c -o libgstsrt_la-gstsrtsrc.lo `test -f 'gstsrtsrc.c' || echo '$(srcdir)/'`gstsrtsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstsrt_la-gstsrtsrc.Tpo $(DEPDIR)/libgstsrt_la-gstsrtsrc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstsrtsrc.c' object='libgstsrt_la-gstsrtsrc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -c -o libgstsrt_la-gstsrtserversrc.lo `test -f 'gstsrtserversrc.c' || echo '$(srcdir)/'`gstsrtserversrc.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -c -o libgstsrt_la-gstsrtsrc.lo `test -f 'gstsrtsrc.c' || echo '$(srcdir)/'`gstsrtsrc.c
 
-libgstsrt_la-gstsrtbasesink.lo: gstsrtbasesink.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -MT libgstsrt_la-gstsrtbasesink.lo -MD -MP -MF $(DEPDIR)/libgstsrt_la-gstsrtbasesink.Tpo -c -o libgstsrt_la-gstsrtbasesink.lo `test -f 'gstsrtbasesink.c' || echo '$(srcdir)/'`gstsrtbasesink.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstsrt_la-gstsrtbasesink.Tpo $(DEPDIR)/libgstsrt_la-gstsrtbasesink.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstsrtbasesink.c' object='libgstsrt_la-gstsrtbasesink.lo' libtool=yes @AMDEPBACKSLASH@
+libgstsrt_la-gstsrt-enumtypes.lo: gstsrt-enumtypes.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -MT libgstsrt_la-gstsrt-enumtypes.lo -MD -MP -MF $(DEPDIR)/libgstsrt_la-gstsrt-enumtypes.Tpo -c -o libgstsrt_la-gstsrt-enumtypes.lo `test -f 'gstsrt-enumtypes.c' || echo '$(srcdir)/'`gstsrt-enumtypes.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstsrt_la-gstsrt-enumtypes.Tpo $(DEPDIR)/libgstsrt_la-gstsrt-enumtypes.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstsrt-enumtypes.c' object='libgstsrt_la-gstsrt-enumtypes.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -c -o libgstsrt_la-gstsrtbasesink.lo `test -f 'gstsrtbasesink.c' || echo '$(srcdir)/'`gstsrtbasesink.c
-
-libgstsrt_la-gstsrtclientsink.lo: gstsrtclientsink.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -MT libgstsrt_la-gstsrtclientsink.lo -MD -MP -MF $(DEPDIR)/libgstsrt_la-gstsrtclientsink.Tpo -c -o libgstsrt_la-gstsrtclientsink.lo `test -f 'gstsrtclientsink.c' || echo '$(srcdir)/'`gstsrtclientsink.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstsrt_la-gstsrtclientsink.Tpo $(DEPDIR)/libgstsrt_la-gstsrtclientsink.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstsrtclientsink.c' object='libgstsrt_la-gstsrtclientsink.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -c -o libgstsrt_la-gstsrtclientsink.lo `test -f 'gstsrtclientsink.c' || echo '$(srcdir)/'`gstsrtclientsink.c
-
-libgstsrt_la-gstsrtserversink.lo: gstsrtserversink.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -MT libgstsrt_la-gstsrtserversink.lo -MD -MP -MF $(DEPDIR)/libgstsrt_la-gstsrtserversink.Tpo -c -o libgstsrt_la-gstsrtserversink.lo `test -f 'gstsrtserversink.c' || echo '$(srcdir)/'`gstsrtserversink.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstsrt_la-gstsrtserversink.Tpo $(DEPDIR)/libgstsrt_la-gstsrtserversink.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstsrtserversink.c' object='libgstsrt_la-gstsrtserversink.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -c -o libgstsrt_la-gstsrtserversink.lo `test -f 'gstsrtserversink.c' || echo '$(srcdir)/'`gstsrtserversink.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstsrt_la_CFLAGS) $(CFLAGS) -c -o libgstsrt_la-gstsrt-enumtypes.lo `test -f 'gstsrt-enumtypes.c' || echo '$(srcdir)/'`gstsrt-enumtypes.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1054,13 +1033,15 @@ distdir-am: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-check: check-am
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs:
 	for dir in "$(DESTDIR)$(plugindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -1091,19 +1072,18 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
 clean-am: clean-generic clean-libtool clean-pluginLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrt.Plo
-	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtbasesink.Plo
-	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtbasesrc.Plo
-	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtclientsink.Plo
-	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtclientsrc.Plo
-	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtserversink.Plo
-	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtserversrc.Plo
+		-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrt-enumtypes.Plo
+	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrt.Plo
+	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtobject.Plo
+	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtsink.Plo
+	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtsrc.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1149,13 +1129,11 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrt.Plo
-	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtbasesink.Plo
-	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtbasesrc.Plo
-	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtclientsink.Plo
-	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtclientsrc.Plo
-	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtserversink.Plo
-	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtserversrc.Plo
+		-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrt-enumtypes.Plo
+	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrt.Plo
+	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtobject.Plo
+	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtsink.Plo
+	-rm -f ./$(DEPDIR)/libgstsrt_la-gstsrtsrc.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -1174,7 +1152,7 @@ ps-am:
 
 uninstall-am: uninstall-pluginLTLIBRARIES
 
-.MAKE: install-am install-strip
+.MAKE: all check install install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--depfiles check check-am clean \
 	clean-generic clean-libtool clean-pluginLTLIBRARIES \
@@ -1200,7 +1178,7 @@ $(glib_gen_basename)-marshal.h: $(glib_gen_basename)-marshal.list
 	mv $(glib_gen_basename)-marshal.h.tmp $(glib_gen_basename)-marshal.h
 
 $(glib_gen_basename)-marshal.c: $(glib_gen_basename)-marshal.list
-	$(AM_V_GEN)echo "#include \"$(glib_gen_basename)-marshal.h\"" >> $(glib_gen_basename)-marshal.c.tmp && \
+	$(AM_V_GEN)echo "#include \"config.h\"\n#include \"$(glib_gen_basename)-marshal.h\"" >> $(glib_gen_basename)-marshal.c.tmp && \
 	$(GLIB_GENMARSHAL) --body --prefix=$(glib_gen_prefix)_marshal $^ >> $(glib_gen_basename)-marshal.c.tmp && \
 	mv $(glib_gen_basename)-marshal.c.tmp $(glib_gen_basename)-marshal.c
 
@@ -1215,7 +1193,7 @@ $(glib_gen_basename)-enumtypes.h: $(glib_enum_headers)
 $(glib_gen_basename)-enumtypes.c: $(glib_enum_headers)
 	@if test "x$(glib_enum_headers)" = "x"; then echo "ERROR: glib_enum_headers is empty, please fix Makefile"; exit 1; fi
 	$(AM_V_GEN)$(GLIB_MKENUMS) \
-	--fhead "#include \"$(glib_gen_basename)-enumtypes.h\"\n$(enum_headers)" \
+	--fhead "#ifdef HAVE_CONFIG_H\n#include \"config.h\"\n#endif\n\n#include \"$(glib_gen_basename)-enumtypes.h\"\n$(enum_headers)" \
 	--fprod "\n/* enumerations from \"@filename@\" */" \
 	--vhead "GType\n@enum_name@_get_type (void)\n{\n  static volatile gsize g_define_type_id__volatile = 0;\n  if (g_once_init_enter (&g_define_type_id__volatile)) {\n    static const G@Type@Value values[] = {"     \
 	--vprod "      { @VALUENAME@, \"@VALUENAME@\", \"@valuenick@\" }," \

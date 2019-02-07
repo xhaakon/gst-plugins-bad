@@ -1399,7 +1399,7 @@ registered by http://www.dvbservices.com/. </p></td>
 <tr>
 <td class="parameter_name"><p>private_data</p></td>
 <td class="parameter_description"><p>additional data or NULL. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>]</span></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>][<acronym title="NULL is OK, both for passing and for returning."><span class="acronym">allow-none</span></acronym>][<acronym title="Parameter points to an array of items."><span class="acronym">array</span></acronym> length=length]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>length</p></td>
@@ -1573,7 +1573,7 @@ gst_mpegts_descriptor_parse_dvb_data_broadcast_id
 <tr>
 <td class="parameter_name"><p>id_selector_bytes</p></td>
 <td class="parameter_description"><p>the selector bytes, if present. </p></td>
-<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>][<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>][<acronym title="Parameter points to an array of items."><span class="acronym">array</span></acronym> length=len]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>len</p></td>
@@ -1937,8 +1937,8 @@ gst_mpegts_descriptor_parse_dvb_multilingual_component
 </tr>
 <tr>
 <td class="parameter_name"><p>component_tag</p></td>
-<td class="parameter_description"><p>the component tag</p></td>
-<td class="parameter_annotations"> </td>
+<td class="parameter_description"><p>the component tag. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
 </tr>
 <tr>
 <td class="parameter_name"><p>component_description_items</p></td>
@@ -2497,7 +2497,7 @@ type from the various DVB specifications.</p>
 <pre class="programlisting">struct GstMpegtsSatelliteDeliverySystemDescriptor {
   guint32                            frequency;
   gfloat                             orbital_position;
-  gboolean                           west_east; 
+  gboolean                           west_east;
   GstMpegtsSatellitePolarizationType polarization;
 
   GstMpegtsSatelliteRolloff          roll_off;

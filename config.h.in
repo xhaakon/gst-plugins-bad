@@ -43,6 +43,9 @@
 /* Define if GSM header in gsm/ subdir */
 #undef GSM_HEADER_IN_SUBDIR
 
+/* public symbol export define */
+#undef GST_API_EXPORT
+
 /* GStreamer API Version */
 #undef GST_API_VERSION
 
@@ -75,9 +78,6 @@
 
 /* GStreamer package release date/time for plugins as YYYY-MM-DD */
 #undef GST_PACKAGE_RELEASE_DATETIME
-
-/* Define to enable Windows ACM library (used by acm). */
-#undef HAVE_ACM
 
 /* Define to enable Android Media (used by androidmedia). */
 #undef HAVE_ANDROID_MEDIA
@@ -174,9 +174,6 @@
 /* Define to enable Curl plugin (used by curl). */
 #undef HAVE_CURL
 
-/* Define to enable daala (used by daala). */
-#undef HAVE_DAALA
-
 /* Define to enable DASH plug-in (used by dash). */
 #undef HAVE_DASH
 
@@ -240,6 +237,9 @@
 
 /* Define if we have fdk-aac >= 0.1.4 */
 #undef HAVE_FDK_AAC_0_1_4
+
+/* Define if we have fdk-aac >= 2.0.0 */
+#undef HAVE_FDK_AAC_2_0_0
 
 /* Define to enable Flite plugin (used by flite). */
 #undef HAVE_FLITE
@@ -346,9 +346,6 @@
 /* Define to enable mplex (used by mplex). */
 #undef HAVE_MPLEX
 
-/* Define to 1 if you have the <msacm.h> header file. */
-#undef HAVE_MSACM_H
-
 /* Define to enable Intel MediaSDK (used by msdk). */
 #undef HAVE_MSDK
 
@@ -391,28 +388,40 @@
 /* Define to 1 if you have the <opencv2/bgsegm.hpp> header file. */
 #undef HAVE_OPENCV2_BGSEGM_HPP
 
+/* Define to 1 if you have the <opencv2/calib3d.hpp> header file. */
+#undef HAVE_OPENCV2_CALIB3D_HPP
+
 /* Define to 1 if you have the <opencv2/core/core_c.h> header file. */
 #undef HAVE_OPENCV2_CORE_CORE_C_H
 
-/* Define to 1 if you have the <opencv2/core/version.hpp> header file. */
-#undef HAVE_OPENCV2_CORE_VERSION_HPP
+/* Define to 1 if you have the <opencv2/core.hpp> header file. */
+#undef HAVE_OPENCV2_CORE_HPP
 
-/* Define to 1 if you have the <opencv2/highgui/highgui_c.h> header file. */
-#undef HAVE_OPENCV2_HIGHGUI_HIGHGUI_C_H
+/* Define to 1 if you have the <opencv2/core/types_c.h> header file. */
+#undef HAVE_OPENCV2_CORE_TYPES_C_H
+
+/* Define to 1 if you have the <opencv2/imgcodecs/imgcodecs_c.h> header file.
+   */
+#undef HAVE_OPENCV2_IMGCODECS_IMGCODECS_C_H
+
+/* Define to 1 if you have the <opencv2/imgcodecs/legacy/constants_c.h> header
+   file. */
+#undef HAVE_OPENCV2_IMGCODECS_LEGACY_CONSTANTS_C_H
+
+/* Define to 1 if you have the <opencv2/imgproc.hpp> header file. */
+#undef HAVE_OPENCV2_IMGPROC_HPP
 
 /* Define to 1 if you have the <opencv2/imgproc/imgproc_c.h> header file. */
 #undef HAVE_OPENCV2_IMGPROC_IMGPROC_C_H
 
-/* Define to 1 if you have the <opencv2/imgproc/imgproc.hpp> header file. */
-#undef HAVE_OPENCV2_IMGPROC_IMGPROC_HPP
+/* Define to 1 if you have the <opencv2/objdetect.hpp> header file. */
+#undef HAVE_OPENCV2_OBJDETECT_HPP
 
-/* Define to 1 if you have the <opencv2/objdetect/objdetect.hpp> header file.
-   */
-#undef HAVE_OPENCV2_OBJDETECT_OBJDETECT_HPP
+/* Define to 1 if you have the <opencv2/opencv.hpp> header file. */
+#undef HAVE_OPENCV2_OPENCV_HPP
 
-/* Define to 1 if you have the <opencv2/video/background_segm.hpp> header
-   file. */
-#undef HAVE_OPENCV2_VIDEO_BACKGROUND_SEGM_HPP
+/* Define to 1 if you have the <opencv2/video.hpp> header file. */
+#undef HAVE_OPENCV2_VIDEO_HPP
 
 /* Define to enable openexr library (used by openexr). */
 #undef HAVE_OPENEXR
@@ -447,6 +456,9 @@
 /* Apple Mac OS X operating system detected */
 #undef HAVE_OSX
 
+/* Define to enable Pango font rendering (used by pango). */
+#undef HAVE_PANGO
+
 /* Define to 1 if you have the `pipe2' function. */
 #undef HAVE_PIPE2
 
@@ -474,6 +486,9 @@
 /* Define to enable SBC bluetooth audio codec (used by sbc). */
 #undef HAVE_SBC
 
+/* Define to enable sctp plug-in (used by sctp). */
+#undef HAVE_SCTP
+
 /* Define to enable POSIX shared memory source and sink (used by shm). */
 #undef HAVE_SHM
 
@@ -491,9 +506,6 @@
 
 /* Define to enable Spandsp (used by spandsp). */
 #undef HAVE_SPANDSP
-
-/* Define to enable spc decoder (used by spc). */
-#undef HAVE_SPC
 
 /* Define to enable srt library (used by srt). */
 #undef HAVE_SRT
@@ -600,9 +612,6 @@
 /* Defined if compiling for Windows */
 #undef HAVE_WIN32
 
-/* Define to 1 if you have the <windows.h> header file. */
-#undef HAVE_WINDOWS_H
-
 /* Define to enable Winks plug-in (used by winks). */
 #undef HAVE_WINKS
 
@@ -635,9 +644,6 @@
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
-
-/* Define if the old MusePack API is used */
-#undef MPC_IS_OLD_API
 
 /* OpenCV path name */
 #undef OPENCV_PATH_NAME
@@ -693,6 +699,9 @@
 
 /* the target CPU */
 #undef TARGET_CPU
+
+/* Define if MediaSDK VP9 decoder api is available */
+#undef USE_MSDK_VP9_DEC
 
 /* Version number of package */
 #undef VERSION

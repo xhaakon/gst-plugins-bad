@@ -23,8 +23,25 @@
 
 #include "gstnvenc.h"
 #include "gstnvh264enc.h"
+#include "gstnvh265enc.h"
+#include <gmodule.h>
+
+#ifdef _WIN32
+#ifdef _WIN64
+#define NVENC_LIBRARY_NAME "nvEncodeAPI64.dll"
+#else
+#define NVENC_LIBRARY_NAME "nvEncodeAPI.dll"
+#endif
+#else
+#define NVENC_LIBRARY_NAME "libnvidia-encode.so.1"
+#endif
+
+typedef NVENCSTATUS NVENCAPI
+tNvEncodeAPICreateInstance (NV_ENCODE_API_FUNCTION_LIST * functionList);
+tNvEncodeAPICreateInstance *nvEncodeAPICreateInstance;
 
 GST_DEBUG_CATEGORY (gst_nvenc_debug);
+#define GST_CAT_DEFAULT gst_nvenc_debug
 
 static NV_ENCODE_API_FUNCTION_LIST nvenc_api;
 
@@ -285,9 +302,13 @@ gst_nvenc_create_cuda_context (guint device_id)
   for (i = 0; i < dev_count; ++i) {
     if (cuDeviceGet (&cdev, i) == CUDA_SUCCESS
         && cuDeviceGetName (name, sizeof (name), cdev) == CUDA_SUCCESS
-        && cuDeviceComputeCapability (&maj, &min, cdev) == CUDA_SUCCESS) {
-      GST_INFO ("GPU #%d supports NVENC: %s (%s) (Compute SM %d.%d)",
-          i, (((maj << 4) + min) >= 0x30) ? "yes" : "no", name, maj, min);
+        && cuDeviceGetAttribute (&maj,
+            CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cdev) == CUDA_SUCCESS
+        && cuDeviceGetAttribute (&min,
+            CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR,
+            cdev) == CUDA_SUCCESS) {
+      GST_INFO ("GPU #%d supports NVENC: %s (%s) (Compute SM %d.%d)", i,
+          (((maj << 4) + min) >= 0x30) ? "yes" : "no", name, maj, min);
       if (i == device_id) {
         cuda_dev = cdev;
       }
@@ -322,18 +343,43 @@ gst_nvenc_destroy_cuda_context (CUcontext ctx)
 }
 
 static gboolean
+load_nvenc_library (void)
+{
+  GModule *module;
+
+  module = g_module_open (NVENC_LIBRARY_NAME, G_MODULE_BIND_LAZY);
+  if (module == NULL) {
+    GST_ERROR ("%s", g_module_error ());
+    return FALSE;
+  }
+
+  if (!g_module_symbol (module, "NvEncodeAPICreateInstance",
+          (gpointer *) & nvEncodeAPICreateInstance)) {
+    GST_ERROR ("%s", g_module_error ());
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+static gboolean
 plugin_init (GstPlugin * plugin)
 {
   GST_DEBUG_CATEGORY_INIT (gst_nvenc_debug, "nvenc", 0, "Nvidia NVENC encoder");
 
   nvenc_api.version = NV_ENCODE_API_FUNCTION_LIST_VER;
-  if (NvEncodeAPICreateInstance (&nvenc_api) != NV_ENC_SUCCESS) {
+  if (!load_nvenc_library ())
+    return FALSE;
+
+  if (nvEncodeAPICreateInstance (&nvenc_api) != NV_ENC_SUCCESS) {
     GST_ERROR ("Failed to get NVEncodeAPI function table!");
   } else {
     GST_INFO ("Created NVEncodeAPI instance, got function table");
 
     gst_element_register (plugin, "nvh264enc", GST_RANK_PRIMARY * 2,
         gst_nv_h264_enc_get_type ());
+    gst_element_register (plugin, "nvh265enc", GST_RANK_PRIMARY * 2,
+        gst_nv_h265_enc_get_type ());
   }
 
   return TRUE;

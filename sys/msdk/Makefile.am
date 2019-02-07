@@ -19,8 +19,11 @@ libgstmsdk_la_SOURCES = \
 	gstmsdkvc1dec.c \
 	gstmsdkdec.c \
 	gstmsdkenc.c \
+	gstmsdkvpp.c \
 	gstmsdk.c \
-        msdk-enums.c
+	msdk-enums.c \
+	gstmsdkvpputil.c \
+	gstmsdkdecproputil.c
 
 # Causes linking libgstmsdk.la with CXXLINK, required by libmfx
 nodist_EXTRA_libgstmsdk_la_SOURCES = not_present.cxx
@@ -46,13 +49,25 @@ noinst_HEADERS = \
 	gstmsdkvp8enc.h \
 	gstmsdkvc1dec.h \
 	gstmsdkdec.h \
-	gstmsdkenc.h
+	gstmsdkenc.h \
+	gstmsdkvpp.h \
+	gstmsdkvpputil.h \
+	gstmsdkdecproputil.h
+
+# Conditional build for vp9 decoder
+libgstmsdk_vp9dec_source_c = gstmsdkvp9dec.c
+libgstmsdk_vp9dec_source_h = gstmsdkvp9dec.h
+if USE_MSDK_VP9_DEC
+libgstmsdk_la_SOURCES += $(libgstmsdk_vp9dec_source_c)
+noinst_HEADERS += $(libgstmsdk_vp9dec_source_h)
+endif
 
 libgstmsdk_la_CFLAGS = \
 	$(GST_CFLAGS) \
 	$(GST_BASE_CFLAGS) \
 	$(GST_PBUTILS_CFLAGS) \
 	$(GST_VIDEO_CFLAGS) \
+	$(GST_ALLOCATORS_CFLAGS) \
 	$(MSDK_CFLAGS) \
 	$(LIBMFX_CFLAGS)\
 	$(G_UDEV_CFLAGS)
@@ -62,6 +77,7 @@ libgstmsdk_la_LIBADD = \
 	$(GST_BASE_LIBS) \
 	$(GST_PBUTILS_LIBS) \
 	$(GST_VIDEO_LIBS) \
+	$(GST_ALLOCATORS_LIBS) \
 	$(MSDK_LIBS) \
 	$(LIBMFX_LIBS) \
 	$(G_UDEV_LIBS)
@@ -76,7 +92,8 @@ libgstmsdk_la_CFLAGS += \
 libgstmsdk_la_LIBADD += \
 	$(LIBVA_DRM_LIBS)
 noinst_HEADERS += \
-	msdk_libva.h
+	msdk_libva.h \
+	gstmsdkallocator_libva.h
 endif
 
 # TODO: add support for windows compilation

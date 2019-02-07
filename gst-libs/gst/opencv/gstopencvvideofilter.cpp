@@ -50,7 +50,10 @@
 #include "gstopencvvideofilter.h"
 #include "gstopencvutils.h"
 
+#include <opencv2/core.hpp>
+#if (CV_MAJOR_VERSION >= 4)
 #include <opencv2/core/core_c.h>
+#endif
 
 GST_DEBUG_CATEGORY_STATIC (gst_opencv_video_filter_debug);
 #define GST_CAT_DEFAULT gst_opencv_video_filter_debug
@@ -76,10 +79,10 @@ static void gst_opencv_video_filter_set_property (GObject * object,
 static void gst_opencv_video_filter_get_property (GObject * object,
     guint prop_id, GValue * value, GParamSpec * pspec);
 
-static GstFlowReturn gst_opencv_video_filter_transform_frame (GstVideoFilter * trans,
-    GstVideoFrame * inframe, GstVideoFrame * outframe);
-static GstFlowReturn gst_opencv_video_filter_transform_frame_ip (GstVideoFilter * trans,
-    GstVideoFrame * frame);
+static GstFlowReturn gst_opencv_video_filter_transform_frame (GstVideoFilter *
+    trans, GstVideoFrame * inframe, GstVideoFrame * outframe);
+static GstFlowReturn gst_opencv_video_filter_transform_frame_ip (GstVideoFilter
+    * trans, GstVideoFrame * frame);
 
 static gboolean gst_opencv_video_filter_set_info (GstVideoFilter * trans,
     GstCaps * incaps, GstVideoInfo * in_info, GstCaps * outcaps,
@@ -117,7 +120,8 @@ gst_opencv_video_filter_class_init (GstOpencvVideoFilterClass * klass)
   gobject_class->get_property = gst_opencv_video_filter_get_property;
 
   vfilter_class->transform_frame = gst_opencv_video_filter_transform_frame;
-  vfilter_class->transform_frame_ip = gst_opencv_video_filter_transform_frame_ip;
+  vfilter_class->transform_frame_ip =
+      gst_opencv_video_filter_transform_frame_ip;
   vfilter_class->set_info = gst_opencv_video_filter_set_info;
 }
 
@@ -127,8 +131,8 @@ gst_opencv_video_filter_init (GstOpencvVideoFilter * transform)
 }
 
 static GstFlowReturn
-gst_opencv_video_filter_transform_frame (GstVideoFilter *trans,
-        GstVideoFrame *inframe, GstVideoFrame *outframe)
+gst_opencv_video_filter_transform_frame (GstVideoFilter * trans,
+    GstVideoFrame * inframe, GstVideoFrame * outframe)
 {
   GstOpencvVideoFilter *transform;
   GstOpencvVideoFilterClass *fclass;
@@ -180,7 +184,7 @@ gst_opencv_video_filter_transform_frame_ip (GstVideoFilter * trans,
 
 static gboolean
 gst_opencv_video_filter_set_info (GstVideoFilter * trans, GstCaps * incaps,
-        GstVideoInfo * in_info, GstCaps * outcaps, GstVideoInfo * out_info)
+    GstVideoInfo * in_info, GstCaps * outcaps, GstVideoInfo * out_info)
 {
   GstOpencvVideoFilter *transform = GST_OPENCV_VIDEO_FILTER (trans);
   GstOpencvVideoFilterClass *klass =

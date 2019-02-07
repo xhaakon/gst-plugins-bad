@@ -85,11 +85,11 @@
 #endif
 
 #include "gstgrabcut.h"
-extern "C"
-{
+#include <opencv2/imgproc.hpp>
+#if (CV_MAJOR_VERSION >= 4)
 #include <opencv2/imgproc/imgproc_c.h>
-}
-#include <opencv2/imgproc/imgproc.hpp>
+#endif
+
 GST_DEBUG_CATEGORY_STATIC (gst_grabcut_debug);
 #define GST_CAT_DEFAULT gst_grabcut_debug
 
@@ -201,8 +201,7 @@ gst_grabcut_init (GstGrabcut * filter)
 {
   filter->test_mode = DEFAULT_TEST_MODE;
   filter->scale = DEFAULT_SCALE;
-  gst_opencv_video_filter_set_in_place (GST_OPENCV_VIDEO_FILTER (filter),
-      TRUE);
+  gst_opencv_video_filter_set_in_place (GST_OPENCV_VIDEO_FILTER (filter), TRUE);
 }
 
 
@@ -302,7 +301,7 @@ gst_grabcut_release_all_pointers (GstGrabcut * filter)
 
 static GstFlowReturn
 gst_grabcut_transform_ip (GstOpencvVideoFilter * filter, GstBuffer * buffer,
-        IplImage * img)
+    IplImage * img)
 {
   GstGrabcut *gc = GST_GRABCUT (filter);
   gint alphapixels;
@@ -315,7 +314,7 @@ gst_grabcut_transform_ip (GstOpencvVideoFilter * filter, GstBuffer * buffer,
     gc->facepos.width = meta->w * gc->scale * 0.9;
     gc->facepos.height = meta->h * gc->scale * 1.1;
   } else {
-    memset (static_cast<void*>(&(gc->facepos)), 0, sizeof (gc->facepos));
+    memset (static_cast < void *>(&(gc->facepos)), 0, sizeof (gc->facepos));
   }
 
   /*  normally input should be RGBA */
@@ -404,9 +403,9 @@ int
 initialise_grabcut (struct grabcut_params *GC, IplImage * image_c,
     CvMat * mask_c)
 {
-  GC->image = (void *) new Mat (cvarrToMat (image_c, false));    /*  "true" refers to copydata */
+  GC->image = (void *) new Mat (cvarrToMat (image_c, false));   /*  "true" refers to copydata */
   GC->mask = (void *) new Mat (cvarrToMat (mask_c, false));
-  GC->bgdModel = (void *) new Mat ();       /*  "true" refers to copydata */
+  GC->bgdModel = (void *) new Mat ();   /*  "true" refers to copydata */
   GC->fgdModel = (void *) new Mat ();
 
   return (0);
@@ -421,8 +420,7 @@ run_grabcut_iteration (struct grabcut_params *GC, IplImage * image_c,
 
   if (cvCountNonZero (mask_c))
     grabCut (*((Mat *) GC->image), *((Mat *) GC->mask), Rect (),
-        *((Mat *) GC->bgdModel), *((Mat *) GC->fgdModel), 1,
-        GC_INIT_WITH_MASK);
+        *((Mat *) GC->bgdModel), *((Mat *) GC->fgdModel), 1, GC_INIT_WITH_MASK);
 
   return (0);
 }
@@ -434,8 +432,7 @@ run_grabcut_iteration2 (struct grabcut_params *GC, IplImage * image_c,
   ((Mat *) GC->image)->data = (uchar *) image_c->imageData;
   ((Mat *) GC->mask)->data = mask_c->data.ptr;
   grabCut (*((Mat *) GC->image), *((Mat *) GC->mask), *(bbox),
-      *((Mat *) GC->bgdModel), *((Mat *) GC->fgdModel), 1,
-      GC_INIT_WITH_RECT);
+      *((Mat *) GC->bgdModel), *((Mat *) GC->fgdModel), 1, GC_INIT_WITH_RECT);
 
   return (0);
 }

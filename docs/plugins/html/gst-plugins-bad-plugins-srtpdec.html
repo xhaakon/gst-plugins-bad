@@ -163,14 +163,20 @@ when the request-key signal is emitted by the decoder. The rollover
 counters should have been transmitted by a signaling protocol by some
 other means. If no rollover counter is provided by the user, 0 is
 used by default.</p>
+<p>It is possible to receive a stream protected by multiple master keys, each buffer
+then contains a Master Key Identifier (MKI) to identify which key was used for this
+buffer. If multiple keys are needed, the first key can be specified in the caps as
+"srtp-key=(buffer)key1data, mki=(buffer)mki1data", then the second one can be given in
+the same caps as "srtp-key2=(buffer)key2data, mki2=(buffer)mki2data", and more can
+be added up to 15.</p>
 <div class="refsect3">
-<a name="id-1.2.218.8.13"></a><h4>Example pipelines</h4>
+<a name="id-1.2.212.8.14"></a><h4>Example pipelines</h4>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
       <tr>
         <td class="listing_lines" align="right"><pre>1</pre></td>
-        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> udpsrc port<span class="gtkdoc opt">=</span><span class="number">5004</span> caps<span class="gtkdoc opt">=</span><span class="string">&apos;application/x-srtp, payload=(int)8, ssrc=(uint)1356955624, srtp-key=(buffer)012345678901234567890123456789012345678901234567890123456789, srtp-cipher=(string)aes-128-icm, srtp-auth=(string)hmac-sha1-80, srtcp-cipher=(string)aes-128-icm, srtcp-auth=(string)hmac-sha1-80, roc=(uint)0&apos;</span> <span class="gtkdoc opt">!</span>  srtpdec <span class="gtkdoc opt">!</span> rtppcmadepay <span class="gtkdoc opt">!</span> alawdec <span class="gtkdoc opt">!</span> pulsesink</pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> udpsrc port<span class="gtkdoc opt">=</span><span class="number">5004</span> caps<span class="gtkdoc opt">=</span><span class="string">&apos;application/x-srtp, payload=(int)8, ssrc=(uint)1356955624, srtp-key=(buffer)012345678901234567890123456789012345678901234567890123456789, srtp-cipher=(string)aes-128-icm, srtp-auth=(string)hmac-sha1-80, srtcp-cipher=(string)aes-128-icm, srtcp-auth=(string)hmac-sha1-80&apos;</span> <span class="gtkdoc opt">!</span>  srtpdec <span class="gtkdoc opt">!</span> rtppcmadepay <span class="gtkdoc opt">!</span> alawdec <span class="gtkdoc opt">!</span> pulsesink</pre></td>
       </tr>
     </tbody>
   </table>
@@ -195,7 +201,7 @@ that the receiver will recognize it.</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.218.8.14.1"></a><h3>Element Information</h3>
+<a name="id-1.2.212.8.15.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -221,7 +227,7 @@ that the receiver will recognize it.</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.218.8.14.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.212.8.15.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">

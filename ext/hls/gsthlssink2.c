@@ -104,6 +104,7 @@ gst_hls_sink2_finalize (GObject * object)
   g_free (sink->location);
   g_free (sink->playlist_location);
   g_free (sink->playlist_root);
+  g_free (sink->current_location);
   if (sink->playlist)
     gst_m3u8_playlist_free (sink->playlist);
 
@@ -197,7 +198,7 @@ gst_hls_sink2_init (GstHlsSink2 * sink)
   mux = gst_element_factory_make ("mpegtsmux", NULL);
   g_object_set (sink->splitmuxsink, "location", sink->location, "max-size-time",
       ((GstClockTime) sink->target_duration * GST_SECOND),
-      "send-keyframe-requests", TRUE, "muxer", mux, NULL);
+      "send-keyframe-requests", TRUE, "muxer", mux, "reset-muxer", FALSE, NULL);
 
   GST_OBJECT_FLAG_SET (sink, GST_ELEMENT_FLAG_SINK);
 

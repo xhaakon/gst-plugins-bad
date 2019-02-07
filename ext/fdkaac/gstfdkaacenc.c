@@ -62,56 +62,110 @@ static const struct
   GstAudioChannelPosition positions[8];
 } channel_layouts[] = {
   {
+    /* MPEG 1: Mono */
     1, MODE_1, {
   GST_AUDIO_CHANNEL_POSITION_MONO}}, {
+    /* MPEG 2: Stereo */
     2, MODE_2, {
   GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT,
           GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT}}, {
+    /* MPEG 3: Stereo + Center */
     3, MODE_1_2, {
   GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
           GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT,
           GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT}}, {
-    3, MODE_2_1, {
-  GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT,
-          GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT,
-          GST_AUDIO_CHANNEL_POSITION_LFE1}}, {
+    /* MPEG 4: Stereo + Center + Rear center */
     4, MODE_1_2_1, {
   GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
           GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT,
           GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT,
           GST_AUDIO_CHANNEL_POSITION_REAR_CENTER}}, {
+    /* MPEG 5: 5.0 Surround */
     5, MODE_1_2_2, {
-  GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
+      GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
           GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT,
           GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT,
-          GST_AUDIO_CHANNEL_POSITION_SIDE_LEFT,
-          GST_AUDIO_CHANNEL_POSITION_SIDE_RIGHT}}, {
+          /* FIXME: SURROUND instead of REAR is more to spec */
+  GST_AUDIO_CHANNEL_POSITION_REAR_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_REAR_RIGHT}}, {
+    /* MPEG 6: 5.1 Surround */
     6, MODE_1_2_2_1, {
-  GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
+      GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
           GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT,
           GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT,
-          GST_AUDIO_CHANNEL_POSITION_SIDE_LEFT,
-          GST_AUDIO_CHANNEL_POSITION_SIDE_RIGHT,
-          GST_AUDIO_CHANNEL_POSITION_LFE1}}
-#ifdef HAVE_FDK_AAC_0_1_4
-  , {
-    8, MODE_7_1_REAR_SURROUND, {
-  GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
-          GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT,
-          GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT,
-          GST_AUDIO_CHANNEL_POSITION_SIDE_LEFT,
-          GST_AUDIO_CHANNEL_POSITION_SIDE_RIGHT,
-          GST_AUDIO_CHANNEL_POSITION_REAR_LEFT,
+          /* FIXME: SURROUND instead of REAR is more to spec */
+  GST_AUDIO_CHANNEL_POSITION_REAR_LEFT,
           GST_AUDIO_CHANNEL_POSITION_REAR_RIGHT,
           GST_AUDIO_CHANNEL_POSITION_LFE1}}, {
-    8, MODE_7_1_FRONT_CENTER, {
-  GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
+    /* MPEG 7: SDDS for cinema */
+    8, MODE_1_2_2_2_1, {
+      GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
           GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT_OF_CENTER,
           GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT_OF_CENTER,
           GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT,
           GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT,
-          GST_AUDIO_CHANNEL_POSITION_SIDE_LEFT,
+          /* FIXME: SURROUND instead of REAR is more to spec */
+  GST_AUDIO_CHANNEL_POSITION_REAR_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_REAR_RIGHT,
+          GST_AUDIO_CHANNEL_POSITION_LFE1}}
+#ifdef HAVE_FDK_AAC_2_0_0
+  , {
+    /* MPEG 11: 6.1 Surround */
+    7, MODE_6_1, {
+      GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
+          GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT,
+          /* FIXME: SURROUND instead of REAR is more to spec */
+  GST_AUDIO_CHANNEL_POSITION_REAR_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_REAR_RIGHT,
+          GST_AUDIO_CHANNEL_POSITION_REAR_CENTER,
+          GST_AUDIO_CHANNEL_POSITION_LFE1}}, {
+    /* MPEG 12: 7.1 Surround */
+    8, MODE_7_1_BACK, {
+      GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
+          GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT,
+          /* FIXME: SURROUND instead of SIDE is more to spec */
+  GST_AUDIO_CHANNEL_POSITION_SIDE_LEFT,
           GST_AUDIO_CHANNEL_POSITION_SIDE_RIGHT,
+          GST_AUDIO_CHANNEL_POSITION_REAR_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_REAR_RIGHT,
+          GST_AUDIO_CHANNEL_POSITION_LFE1}}, {
+    /* MPEG 14: 5.1.2 Surround */
+    8, MODE_7_1_TOP_FRONT, {
+      GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
+          GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT,
+          /* FIXME: SURROUND instead of REAR is more to spec */
+  GST_AUDIO_CHANNEL_POSITION_REAR_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_REAR_RIGHT,
+          GST_AUDIO_CHANNEL_POSITION_LFE1,
+          GST_AUDIO_CHANNEL_POSITION_TOP_FRONT_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_TOP_FRONT_RIGHT}}
+#endif
+#ifdef HAVE_FDK_AAC_0_1_4
+  , {
+    /* Non-standard PCE clone of mode 12 */
+    8, MODE_7_1_REAR_SURROUND, {
+      GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
+          GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT,
+          /* FIXME: SURROUND instead of SIDE is more to spec */
+  GST_AUDIO_CHANNEL_POSITION_SIDE_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_SIDE_RIGHT,
+          GST_AUDIO_CHANNEL_POSITION_REAR_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_REAR_RIGHT,
+          GST_AUDIO_CHANNEL_POSITION_LFE1}}, {
+    /* Non-standard PCE clone of mode 7 */
+    8, MODE_7_1_FRONT_CENTER, {
+      GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
+          GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT_OF_CENTER,
+          GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT_OF_CENTER,
+          GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT,
+          /* FIXME: SURROUND instead of REAR is more to spec */
+  GST_AUDIO_CHANNEL_POSITION_REAR_LEFT,
+          GST_AUDIO_CHANNEL_POSITION_REAR_RIGHT,
           GST_AUDIO_CHANNEL_POSITION_LFE1}}
 #endif
 };
@@ -292,9 +346,8 @@ gst_fdkaacenc_set_format (GstAudioEncoder * enc, GstAudioInfo * info)
   if (allowed_caps)
     gst_caps_unref (allowed_caps);
 
-  if ((err =
-          aacEncOpen (&self->enc, 0,
-              GST_AUDIO_INFO_CHANNELS (info))) != AACENC_OK) {
+  err = aacEncOpen (&self->enc, 0, GST_AUDIO_INFO_CHANNELS (info));
+  if (err != AACENC_OK) {
     GST_ERROR_OBJECT (self, "Unable to open encoder: %d\n", err);
     return FALSE;
   }
@@ -529,11 +582,10 @@ gst_fdkaacenc_handle_frame (GstAudioEncoder * enc, GstBuffer * inbuf)
   out_desc.bufSizes = &out_sizes;
   out_desc.bufElSizes = &out_el_sizes;
 
-  if ((err = aacEncEncode (self->enc, &in_desc, &out_desc, &in_args,
-              &out_args)) != AACENC_OK) {
-    if (!inbuf && err == AACENC_ENCODE_EOF)
-      goto out;
-
+  err = aacEncEncode (self->enc, &in_desc, &out_desc, &in_args, &out_args);
+  if (err == AACENC_ENCODE_EOF && !inbuf)
+    goto out;
+  else if (err != AACENC_OK) {
     GST_ERROR_OBJECT (self, "Failed to encode data: %d", err);
     ret = GST_FLOW_ERROR;
     goto out;

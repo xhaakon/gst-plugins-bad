@@ -29,7 +29,9 @@
 #define __GST_NVDEC_H__
 
 #include <gst/gl/gl.h>
-#include <nvcuvid.h>
+#include <gst/gl/gstglfuncs.h>
+#include "nvcuvid.h"
+#include <cudaGL.h>
 
 G_BEGIN_DECLS
 

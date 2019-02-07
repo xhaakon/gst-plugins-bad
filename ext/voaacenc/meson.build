@@ -1,6 +1,6 @@
 voaac_sources = ['gstvoaac.c', 'gstvoaacenc.c']
 
-voaac_dep = dependency('vo-aacenc', required : false)
+voaac_dep = dependency('vo-aacenc', required : get_option('voaacenc'))
 
 if voaac_dep.found()
   gstbz2 = library('gstvoaacenc',
@@ -12,4 +12,5 @@ if voaac_dep.found()
     install : true,
     install_dir : plugins_install_dir,
   )
+  pkgconfig.generate(gstbz2, install_dir : plugins_pkgconfig_install_dir)
 endif

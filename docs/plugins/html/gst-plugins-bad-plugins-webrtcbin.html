@@ -88,6 +88,11 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--turn-server" title="The “turn-server” property">turn-server</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
+<tr>
+<td class="property_type"><span class="type">GstWebRTCBundlePolicy</span></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--bundle-policy" title="The “bundle-policy” property">bundle-policy</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -153,6 +158,22 @@
 <td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-ACTION:CAPS">Action</a></td>
 </tr>
 <tr>
+<td class="signal_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a></td>
+<td class="signal_name"><a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-add-turn-server" title="The “add-turn-server” signal">add-turn-server</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-ACTION:CAPS">Action</a></td>
+</tr>
+<tr>
+<td class="signal_type">
+<span class="returnvalue">GstWebRTCDataChannel</span>*</td>
+<td class="signal_name"><a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-create-data-channel" title="The “create-data-channel” signal">create-data-channel</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-ACTION:CAPS">Action</a></td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-on-data-channel" title="The “on-data-channel” signal">on-data-channel</a></td>
+<td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></td>
+</tr>
+<tr>
 <td class="signal_type"><span class="returnvalue">void</span></td>
 <td class="signal_name"><a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-on-new-transceiver" title="The “on-new-transceiver” signal">on-new-transceiver</a></td>
 <td class="signal_flags"><a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></td>
@@ -194,7 +215,7 @@ GstWebRTCBin implements
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.260.9.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.254.9.2.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -220,7 +241,7 @@ GstWebRTCBin implements
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.260.9.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.254.9.2.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -342,9 +363,17 @@ GstWebRTCBin implements
 <div class="refsect2">
 <a name="GstWebRTCBin--turn-server"></a><h3>The <code class="literal">“turn-server”</code> property</h3>
 <pre class="programlisting">  “turn-server”              <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
-<p>The TURN server of the form turn(s)://username:password@host:port.</p>
+<p>The TURN server of the form turn(s)://username:password@host:port. This is a convenience property, use #GstWebRTCBin::add-turn-server if you wish to use multiple TURN servers.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebRTCBin--bundle-policy"></a><h3>The <code class="literal">“bundle-policy”</code> property</h3>
+<pre class="programlisting">  “bundle-policy”            <span class="type">GstWebRTCBundlePolicy</span></pre>
+<p>The policy to apply for bundling.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: GST_WEBRTC_BUNDLE_POLICY_NONE</p>
 </div>
 </div>
 <div class="refsect1">
@@ -556,7 +585,7 @@ the RTCStats dictionary (https://www.w3.org/TR/webrtc/<span class="type">rtcstat
  "packets-lost"         G_TYPE_UINT                number of packets lost
  "jitter"               G_TYPE_DOUBLE              packet jitter measured in secondss</p>
 <p>RTCInboundRTPStreamStats supported fields (https://w3c.github.io/webrtc-stats/<span class="type">inboundrtpstats-dict</span>*)</p>
-<p> "remote-id"           G_TYPE_STRING               identifier for the associated RTCRemoteOutboundRTPSTreamStats</p>
+<p> "remote-id"           G_TYPE_STRING               identifier for the associated RTCRemoteOutboundRTPStreamStats</p>
 <p>RTCRemoteInboundRTPStreamStats supported fields (https://w3c.github.io/webrtc-stats/<span class="type">remoteinboundrtpstats-dict</span>*)</p>
 <p> "local-id"            G_TYPE_STRING               identifier for the associated RTCOutboundRTPSTreamStats
  "round-trip-time"     G_TYPE_DOUBLE               round trip time of packets measured in seconds</p>
@@ -702,8 +731,8 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 <a name="GstWebRTCBin-set-local-description"></a><h3>The <code class="literal">“set-local-description”</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin"><span class="type">GstWebRTCBin</span></a>                *object,
-               <span class="type">GstWebRTCSessionDescription</span> *type,
-               <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a>                  *sdp,
+               <span class="type">GstWebRTCSessionDescription</span> *desc,
+               <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a>                  *promise (allow-none),
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>                     user_data)</pre>
 <div class="refsect3">
 <a name="GstWebRTCBin-set-local-description.parameters"></a><h4>Parameters</h4>
@@ -720,13 +749,8 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>type</p></td>
-<td class="parameter_description"><p>the type of description being set</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>sdp</p></td>
-<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0/gst-plugins-base-libs-GstSDPMessage.html#GstSDPMessage"><span class="type">GstSDPMessage</span></a> description</p></td>
+<td class="parameter_name"><p>desc</p></td>
+<td class="parameter_description"><p>a <span class="type">GstWebRTCSessionDescription</span> description</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -749,8 +773,8 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 <a name="GstWebRTCBin-set-remote-description"></a><h3>The <code class="literal">“set-remote-description”</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin"><span class="type">GstWebRTCBin</span></a>                *object,
-               <span class="type">GstWebRTCSessionDescription</span> *type,
-               <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a>                  *sdp,
+               <span class="type">GstWebRTCSessionDescription</span> *desc,
+               <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstPromise.html#GstPromise-struct"><span class="type">GstPromise</span></a>                  *promise (allow-none),
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>                     user_data)</pre>
 <div class="refsect3">
 <a name="GstWebRTCBin-set-remote-description.parameters"></a><h4>Parameters</h4>
@@ -767,13 +791,8 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
-<td class="parameter_name"><p>type</p></td>
-<td class="parameter_description"><p>the type of description being set</p></td>
-<td class="parameter_annotations"> </td>
-</tr>
-<tr>
-<td class="parameter_name"><p>sdp</p></td>
-<td class="parameter_description"><p>a <a href="/usr/share/gtk-doc/html/gst-plugins-base-libs-1.0/gst-plugins-base-libs-GstSDPMessage.html#GstSDPMessage"><span class="type">GstSDPMessage</span></a> description</p></td>
+<td class="parameter_name"><p>desc</p></td>
+<td class="parameter_description"><p>a <span class="type">GstWebRTCSessionDescription</span> description</p></td>
 <td class="parameter_annotations"> </td>
 </tr>
 <tr>
@@ -790,6 +809,90 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstW
 </table></div>
 </div>
 <p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-ACTION:CAPS">Action</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebRTCBin-add-turn-server"></a><h3>The <code class="literal">“add-turn-server”</code> signal</h3>
+<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin"><span class="type">GstWebRTCBin</span></a> *object,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>        *uri,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>      user_data)</pre>
+<p>Add a turn server to obtain ICE candidates from</p>
+<div class="refsect3">
+<a name="GstWebRTCBin-add-turn-server.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>object</p></td>
+<td class="parameter_description"><p>the <span class="type">GstWebRtcBin</span></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>uri</p></td>
+<td class="parameter_description"><p>The uri of the server of the form turn(s)://username:password<em class="parameter"><code>host</code></em>
+:port</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-ACTION:CAPS">Action</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebRTCBin-create-data-channel"></a><h3>The <code class="literal">“create-data-channel”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">GstWebRTCDataChannel</span>*
+user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin"><span class="type">GstWebRTCBin</span></a> *gstwebrtcbin,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>        *arg1,
+               <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstStructure.html#GstStructure-struct"><span class="type">GstStructure</span></a> *arg2,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>      user_data)</pre>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-ACTION:CAPS">Action</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebRTCBin-on-data-channel"></a><h3>The <code class="literal">“on-data-channel”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin"><span class="type">GstWebRTCBin</span></a>         *object,
+               <span class="type">GstWebRTCDataChannel</span> *candidate,
+               <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>              user_data)</pre>
+<div class="refsect3">
+<a name="GstWebRTCBin-on-data-channel.parameters"></a><h4>Parameters</h4>
+<div class="informaltable"><table class="informaltable" width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>object</p></td>
+<td class="parameter_description"><p>the <span class="type">GstWebRtcBin</span></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>candidate</p></td>
+<td class="parameter_description"><p>the new <span class="type">GstWebRTCDataChannel</span></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></p>
 </div>
 <hr>
 <div class="refsect2">

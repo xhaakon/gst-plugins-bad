@@ -1,7 +1,7 @@
 @GST_LIB_DEV_DEP@
 @GST_EXTRA_BUILD_DEPENDS@
-libgstreamer-plugins-base@GST_ABI@-dev (>= 1.14.4)
-libgstreamer-plugins-good@GST_ABI@-dev (>= 1.14.4)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 1.15.1)
+libgstreamer-plugins-good@GST_ABI@-dev (>= 1.15.1)
 autotools-dev
 dh-autoreconf
 automake (>= 1.14)
@@ -29,7 +29,7 @@ libexif-dev (>= 0.6.16)
 libexempi-dev
 libiptcdata0-dev (>= 1.0.2)
 libwildmidi-dev (>= 0.2.3)
-gstreamer@GST_ABI@-plugins-base (>= 1.14.4)
+gstreamer@GST_ABI@-plugins-base (>= 1.15.1)
 libofa0-dev (>= 0.9.3)
 libdvdnav-dev (>= 4.1.2) [!hurd-any]
 libssl-dev
@@ -68,7 +68,7 @@ nettle-dev
 libbs2b-dev
 libde265-dev
 libx265-dev
-libopencv-dev (>= 2.3.0)
+libopencv-dev (>= 3.0.0)
 libgirepository1.0-dev (>= 0.9.12-4~)
 gobject-introspection (>= 0.9.12-4~)
 gir1.2-glib-2.0
@@ -80,3 +80,6 @@ libwebrtc-audio-processing-dev (>= 0.2)
 liblcms2-dev (>= 2.7)
 libopenmpt-dev
 libnice-dev (>= 0.1.14)
+libpango1.0-dev (>= 1.22)
+libsrt-dev
+libaom-dev

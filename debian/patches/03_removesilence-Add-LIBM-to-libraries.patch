@@ -1,0 +1,29 @@
+From a3a67c3c3024d7b154311e70638e873bc75e2fd6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <sebastian@centricular.com>
+Date: Thu, 17 Jan 2019 17:14:31 +0200
+Subject: [PATCH] removesilence: Add $(LIBM) to libraries
+
+/usr/bin/ld: .libs/libgstremovesilence_la-vad_private.o: in function `vad_set_threshold':
+./gst/removesilence/vad_private.c:108: undefined reference to `pow'
+/usr/bin/ld: .libs/libgstremovesilence_la-vad_private.o: in function `vad_get_threshold_as_db':
+./gst/removesilence/vad_private.c:114: undefined reference to `log10'
+---
+ gst/removesilence/Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/gst/removesilence/Makefile.am b/gst/removesilence/Makefile.am
+index ce9ba96e2..d1430de59 100644
+--- a/gst/removesilence/Makefile.am
++++ b/gst/removesilence/Makefile.am
+@@ -3,7 +3,7 @@ plugin_LTLIBRARIES = libgstremovesilence.la
+ 
+ libgstremovesilence_la_SOURCES = gstremovesilence.c vad_private.c
+ libgstremovesilence_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS)
+-libgstremovesilence_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS)
++libgstremovesilence_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LIBM)
+ libgstremovesilence_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+ 
+ noinst_HEADERS = \
+-- 
+2.20.1
+

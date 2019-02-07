@@ -1,3 +1,43 @@
+gst-plugins-bad1.0 (1.15.1-1ubuntu1) UNRELEASED; urgency=medium
+
+  * Merge with Debian unstable; remaining changes:
+    + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
+      moved to -good.
+    + Provide gstreamer-plugins-bad-1.0.pc with Requires on
+      gstreamer-plugins-good-1.0 - the package we've moved the referenced
+      library to. This maintains compatibility with upstream software and
+      other distributions.
+    + debian/control{,.in}: Update Vcs-* for Ubuntu
+  * debian/gbp.conf: Set the debian-branch to ubuntu
+
+ -- Sebastien Bacher <seb128@ubuntu.com>  Thu, 07 Feb 2019 17:01:08 +0100
+
+gst-plugins-bad1.0 (1.15.1-1) experimental; urgency=medium
+
+  * New upstream development release
+    + Fixes build with OpenCV 3.4.4 (Closes: #915709).
+    + debian/rules,
+      debian/build-deps.in,
+      debian/gstreamer-plugins-bad.install:
+      - Update GStreamer dependency.
+      - Update wayland dependency to >= 1.11.0.
+      - Update OpenCV dependency to >= 3.0.0.
+      - Add Pango dependency for the new closedcaption plugin.
+      - Add SRT dependency for the new SRT plugin.
+      - Add AOM (AV1) dependency for the new AOM plugin.
+      - Remove openglmixers plugin that moved to gst-plugins-base.
+  * debian/rules:
+    + Only build documentation if we build the documentation package. Thanks
+      to Simon McVittie for the patch.
+  * debian/patches/02_opencv-data-path.patch,
+    debian/control.in:
+    + Fix path to opencv-data files and Recommend opencv-data for the
+      gstreamer1.0-oppencv package (Closes: #877586).
+  * debian/patches/03_removesilence-Add-LIBM-to-libraries.patch:
+    + Fix linking of removesilence plugin.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 17 Jan 2019 16:44:44 +0200
+
 gst-plugins-bad1.0 (1.14.4-1ubuntu1) cosmic; urgency=medium
 
   * Merge with Debian unstable; remaining changes:

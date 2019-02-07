@@ -40,6 +40,12 @@ else
 check_assrender =
 endif
 
+if USE_PANGO
+check_closedcaption = elements/ccconverter elements/cccombiner elements/ccextractor
+else
+check_closedcaption =
+endif
+
 if USE_DASH
 check_dash = elements/dash_mpd
 check_dash_demux = elements/dash_demux
@@ -121,7 +127,7 @@ check_kate=
 endif
 
 if HAVE_ORC
-check_orc = orc/bayer orc/compositor
+check_orc = orc/bayer
 else
 check_orc =
 endif
@@ -232,6 +238,7 @@ VALGRIND_TESTS_DISABLE = \
 #            actually looks at the data and doesn't like randomness
 noinst_PROGRAMS = \
 	pipelines/streamheader \
+	$(check_mssdemux) \
 	$(check_dash_demux) \
 	$(check_ipcpipeline) \
 	$(check_neon)
@@ -239,6 +246,7 @@ noinst_PROGRAMS = \
 check_PROGRAMS = \
 	generic/states \
 	$(check_assrender) \
+	$(check_closedcaption) \
 	$(check_dash) \
 	$(check_dtls) \
 	$(check_faac)  \
@@ -247,7 +255,6 @@ check_PROGRAMS = \
 	$(check_voamrwbenc) \
 	$(check_mpeg2enc)  \
 	$(check_mplex)     \
-	$(check_mssdemux) \
 	$(check_ofa)        \
 	$(check_kate)  \
 	$(check_opencv) \
@@ -257,11 +264,11 @@ check_PROGRAMS = \
 	elements/videoframe-audiolevel \
 	elements/autoconvert \
 	elements/autovideoconvert \
+	elements/avwait \
 	elements/asfmux \
 	elements/camerabin \
 	elements/gdppay \
 	elements/gdpdepay \
-	elements/compositor \
 	$(check_jifmux) \
 	elements/jpegparse \
 	elements/h263parse \
@@ -284,6 +291,7 @@ check_PROGRAMS = \
 	libs/h264parser \
 	libs/h265parser \
 	libs/vp8parser \
+	libs/planaraudioadapter \
 	$(check_uvch264) \
 	libs/vc1parser \
 	$(check_x265enc) \
@@ -325,7 +333,10 @@ libparser_la_CFLAGS = \
 	-I$(top_srcdir)/tests/check \
 	$(GST_CFLAGS) $(GST_CHECK_CFLAGS) $(GST_OPTION_CFLAGS)
 
-elements_mpegvideoparse_LDADD = libparser.la $(LDADD)
+elements_mpegvideoparse_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) \
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+elements_mpegvideoparse_LDADD = libparser.la \
+	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) $(LDADD)
 
 elements_mpeg4videoparse_LDADD = libparser.la $(LDADD)
 
@@ -403,6 +414,13 @@ elements_videoframe_audiolevel_LDADD = \
 	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
 	$(GST_AUDIO_LIBS)
 
+elements_avwait_CFLAGS = \
+	$(GST_PLUGINS_BASE_CFLAGS) \
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+elements_avwait_LDADD = \
+	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
+	$(GST_AUDIO_LIBS) $(GST_VIDEO_LIBS)
+
 elements_faad_CFLAGS = \
 	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
@@ -441,6 +459,15 @@ elements_camerabin_LDADD = \
         $(GST_PLUGINS_BASE_LIBS) -lgstpbutils-$(GST_API_VERSION) \
         $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
 elements_camerabin_SOURCES = elements/camerabin.c
+
+elements_ccconverter_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_ccconverter_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
+
+elements_cccombiner_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_cccombiner_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
+
+elements_ccextractor_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_ccextractor_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
 
 elements_jifmux_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(EXIF_CFLAGS) $(AM_CFLAGS)
 elements_jifmux_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgsttag-$(GST_API_VERSION) $(GST_CHECK_LIBS) $(EXIF_LIBS) $(LDADD)
@@ -544,12 +571,6 @@ orc/bayer.c: $(top_srcdir)/gst/bayer/gstbayerorc.orc
 	$(MKDIR_P) orc
 	$(ORCC) --test -o $@ $<
 
-elements_compositor_LDADD = \
-	$(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
-elements_compositor_CFLAGS = \
-	$(GST_PLUGINS_BASE_CFLAGS) \
-	$(GST_BASE_CFLAGS) $(CFLAGS) $(AM_CFLAGS)
-
 elements_hlsdemux_m3u8_CFLAGS = $(GST_BASE_CFLAGS) $(AM_CFLAGS) -I$(top_srcdir)/ext/hls
 elements_hlsdemux_m3u8_LDADD = $(GST_BASE_LIBS) $(LDADD)
 elements_hlsdemux_m3u8_SOURCES = elements/hlsdemux_m3u8.c
@@ -560,15 +581,6 @@ elements_hls_demux_LDADD = \
 	$(GST_PLUGINS_BASE_LIBS) -lgsttag-$(GST_API_VERSION) -lgstapp-$(GST_API_VERSION) \
 	$(GST_BASE_LIBS) $(LDADD)
 elements_hls_demux_SOURCES = elements/test_http_src.c elements/test_http_src.h elements/adaptive_demux_engine.c elements/adaptive_demux_engine.h elements/adaptive_demux_common.c elements/adaptive_demux_common.h elements/hls_demux.c
-
-orc_compositor_CFLAGS = $(ORC_CFLAGS)
-orc_compositor_LDADD = $(ORC_LIBS) -lorc-test-0.4
-nodist_orc_compositor_SOURCES = orc/compositor.c
-orc_videobox_CFLAGS = $(ORC_CFLAGS)
-
-orc/compositor.c: $(top_srcdir)/gst/compositor/compositororc.orc
-	$(MKDIR_P) orc/
-	$(ORCC) --test -o $@ $<
 
 elements_webrtcbin_LDADD = \
 	$(top_builddir)/gst-libs/gst/webrtc/libgstwebrtc-@GST_API_VERSION@.la \
@@ -581,6 +593,12 @@ elements_msdk_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS
 elements_msdk_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
 elements_msdk_SOURCES = elements/msdkh264enc.c
 
+libs_planaraudioadapter_LDADD = \
+	$(top_builddir)/gst-libs/gst/audio/libgstbadaudio-@GST_API_VERSION@.la \
+	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_AUDIO_LIBS) $(LDADD)
+libs_planaraudioadapter_CFLAGS = \
+	$(GST_PLUGINS_BASE_CLAGS) $(GST_PLUGINS_BAD_CFLAGS) \
+	$(GST_BASE_CFLAGS) $(GST_AUDIO_CFLAGS) $(CFLAGS) $(AM_CFLAGS)
 
 distclean-local-orc:
 	rm -rf orc

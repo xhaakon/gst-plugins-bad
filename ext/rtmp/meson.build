@@ -4,7 +4,7 @@ rtmp_sources = [
   'gstrtmpsrc.c',
 ]
 
-rtmp_dep = dependency('librtmp', required : false)
+rtmp_dep = dependency('librtmp', required : get_option('rtmp'))
 
 if rtmp_dep.found()
   gstrtmp = library('gstrtmp',
@@ -15,4 +15,5 @@ if rtmp_dep.found()
     install : true,
     install_dir : plugins_install_dir,
   )
+  pkgconfig.generate(gstrtmp, install_dir : plugins_pkgconfig_install_dir)
 endif

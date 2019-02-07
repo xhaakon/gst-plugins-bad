@@ -61,12 +61,16 @@
 #  include <config.h>
 #endif
 
-#include "../../gst-libs/gst/gst-i18n-plugin.h"
+#include <gst/gst-i18n-plugin.h>
 #include "gsttemplatematch.h"
-#if (CV_MAJOR_VERSION >= 3)
 #include <opencv2/imgproc.hpp>
-#endif
+#if (CV_MAJOR_VERSION >= 4)
 #include <opencv2/imgproc/imgproc_c.h>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgcodecs/legacy/constants_c.h>
+#else
+#include <opencv2/imgcodecs/imgcodecs_c.h>
+#endif
 
 GST_DEBUG_CATEGORY_STATIC (gst_template_match_debug);
 #define GST_CAT_DEFAULT gst_template_match_debug
@@ -181,7 +185,16 @@ gst_template_match_load_template (GstTemplateMatch * filter, gchar * templ)
       NULL;
 
   if (templ) {
+#if (CV_MAJOR_VERSION >= 4)
+    cv::Mat mat = cv::imread (templ);
+    newTemplateImage =
+        cvCreateImage (cvSize (mat.cols, mat.rows), cvIplDepth (mat.flags),
+        mat.channels ());
+    IplImage ipltemp = mat;
+    cvCopy (&ipltemp, newTemplateImage);
+#else
     newTemplateImage = cvLoadImage (templ, CV_LOAD_IMAGE_COLOR);
+#endif
     if (!newTemplateImage) {
       /* Unfortunately OpenCV doesn't seem to provide any way of finding out
          why the image load failed, so we can't be more specific than FAILED: */

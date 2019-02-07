@@ -19,7 +19,8 @@ libgstnvdec_la_LIBADD = \
 	$(GST_GL_LIBS) \
 	$(GST_PBUTILS_LIBS) \
 	$(GST_VIDEO_LIBS) \
-	$(GST_LIBS) \
-	$(CUDA_LIBS) -lnvcuvid
+	$(GST_LIBS)
+
+libgstnvdec_la_LIBADD += $(CUDA_LIBS) -lnvcuvid
 
 libgstnvdec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)

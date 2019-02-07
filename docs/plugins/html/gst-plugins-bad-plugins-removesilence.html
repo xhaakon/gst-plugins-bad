@@ -52,6 +52,31 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-removesilence.html#GstRemoveSilence--remove" title="The “remove” property">remove</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-removesilence.html#GstRemoveSilence--minimum-silence-buffers" title="The “minimum-silence-buffers” property">minimum-silence-buffers</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-removesilence.html#GstRemoveSilence--minimum-silence-time" title="The “minimum-silence-time” property">minimum-silence-time</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-removesilence.html#GstRemoveSilence--silent" title="The “silent” property">silent</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-removesilence.html#GstRemoveSilence--squash" title="The “squash” property">squash</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-removesilence.html#GstRemoveSilence--threshold" title="The “threshold” property">threshold</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -80,9 +105,16 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-removesilence.description"></a><h2>Description</h2>
-<p>Removes all silence periods from an audio stream, dropping silence buffers.</p>
+<p>Removes all silence periods from an audio stream, dropping silence buffers.
+If the "silent" property is disabled, removesilence will generate
+bus messages named "removesilence". 
+The message's structure contains one of these fields:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> "silence_detected": the PTS for the first silent buffer after a non silence period.</p></li>
+<li class="listitem"><p><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> "silence_finished": the PTS for the first non silent buffer after a silence period.</p></li>
+</ul></div>
 <div class="refsect3">
-<a name="id-1.2.182.7.3"></a><h4>Example launch line</h4>
+<a name="id-1.2.176.7.4"></a><h4>Example launch line</h4>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -99,7 +131,7 @@
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.182.7.4.1"></a><h3>Element Information</h3>
+<a name="id-1.2.176.7.5.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -115,7 +147,8 @@
 <tr>
 <td><p><span class="term">author</span></p></td>
 <td>Tiago Katcipis &lt;tiagokatcipis@gmail.com&gt;
-        Paulo Pizarro  &lt;paulo.pizarro@gmail.com&gt;</td>
+        Paulo Pizarro  &lt;paulo.pizarro@gmail.com&gt;
+        Nicola Murino  &lt;nicola.murino@gmail.com&gt;</td>
 </tr>
 <tr>
 <td><p><span class="term">class</span></p></td>
@@ -126,7 +159,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.182.7.4.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.176.7.5.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -206,6 +239,49 @@
 <p>Set to true to remove silence from the stream, false otherwhise.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstRemoveSilence--minimum-silence-buffers"></a><h3>The <code class="literal">“minimum-silence-buffers”</code> property</h3>
+<pre class="programlisting">  “minimum-silence-buffers”  <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a></pre>
+<p>Define the minimum number of consecutive silence buffers before removing silence, 0 means disabled. This will not introduce latency.</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: &lt;= 10000</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstRemoveSilence--minimum-silence-time"></a><h3>The <code class="literal">“minimum-silence-time”</code> property</h3>
+<pre class="programlisting">  “minimum-silence-time”     <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a></pre>
+<p>Define the minimum silence time in nanoseconds before removing  silence, 0 means disabled. This will not introduce latency.</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: &lt;= 10000000000</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstRemoveSilence--silent"></a><h3>The <code class="literal">“silent”</code> property</h3>
+<pre class="programlisting">  “silent”                   <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Disable/enable bus message notifications for silence detected/finished.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: TRUE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstRemoveSilence--squash"></a><h3>The <code class="literal">“squash”</code> property</h3>
+<pre class="programlisting">  “squash”                   <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Set to true to retimestamp buffers when silence is removed and so avoid timestamp gap.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstRemoveSilence--threshold"></a><h3>The <code class="literal">“threshold”</code> property</h3>
+<pre class="programlisting">  “threshold”                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>Set the silence threshold used on the internal VAD in dB.</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: [-70,70]</p>
+<p>Default value: -60</p>
 </div>
 </div>
 </div>

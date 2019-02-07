@@ -37,7 +37,7 @@ GST_DEBUG_CATEGORY_EXTERN (gst_msdk_debug);
 #define GST_CAT_DEFAULT gst_msdk_debug
 
 #define INVALID_INDEX         ((guint) -1)
-#define GST_MSDK_ALIGNMENT_PADDING(num) (32 - ((num) & 31))
+#define GST_MSDK_ALIGNMENT_PADDING(num,padding) ((padding) - ((num) & ((padding) - 1)))
 
 struct map
 {
@@ -53,9 +53,11 @@ static const struct map gst_msdk_video_format_to_mfx_map[] = {
   GST_VIDEO_INFO_TO_MFX_MAP (NV12, YUV420, NV12),
   GST_VIDEO_INFO_TO_MFX_MAP (YV12, YUV420, YV12),
   GST_VIDEO_INFO_TO_MFX_MAP (I420, YUV420, YV12),
+  GST_VIDEO_INFO_TO_MFX_MAP (P010_10LE, YUV420, P010),
   GST_VIDEO_INFO_TO_MFX_MAP (YUY2, YUV422, YUY2),
   GST_VIDEO_INFO_TO_MFX_MAP (UYVY, YUV422, UYVY),
   GST_VIDEO_INFO_TO_MFX_MAP (BGRA, YUV444, RGB4),
+  GST_VIDEO_INFO_TO_MFX_MAP (BGRx, YUV444, RGB4),
   {0, 0, 0}
 };
 
@@ -167,14 +169,14 @@ msdk_open_session (mfxIMPL impl)
     goto failed;
   }
 
-  MFXQueryIMPL (session, &implementation);
+  status = MFXQueryIMPL (session, &implementation);
   if (status != MFX_ERR_NONE) {
     GST_ERROR ("Query implementation failed (%s)",
         msdk_status_to_string (status));
     goto failed;
   }
 
-  MFXQueryVersion (session, &version);
+  status = MFXQueryVersion (session, &version);
   if (status != MFX_ERR_NONE) {
     GST_ERROR ("Query version failed (%s)", msdk_status_to_string (status));
     goto failed;
@@ -214,12 +216,12 @@ gst_msdk_set_video_alignment (GstVideoInfo * info,
 
   gst_video_alignment_reset (alignment);
   for (i = 0; i < GST_VIDEO_INFO_N_PLANES (info); i++)
-    alignment->stride_align[i] = 31;    /* 32-byte alignment */
+    alignment->stride_align[i] = 15;    /* 16-byte alignment */
 
-  if (width & 31)
-    alignment->padding_right = GST_MSDK_ALIGNMENT_PADDING (width);
+  if (width & 15)
+    alignment->padding_right = GST_MSDK_ALIGNMENT_PADDING (width, 16);
   if (height & 31)
-    alignment->padding_bottom = GST_MSDK_ALIGNMENT_PADDING (height);
+    alignment->padding_bottom = GST_MSDK_ALIGNMENT_PADDING (height, 32);
 }
 
 static const struct map *
@@ -256,7 +258,7 @@ gst_msdk_set_mfx_frame_info_from_video_info (mfxFrameInfo * mfx_info,
 {
   g_return_if_fail (info && mfx_info);
 
-  mfx_info->Width = GST_ROUND_UP_32 (GST_VIDEO_INFO_WIDTH (info));
+  mfx_info->Width = GST_ROUND_UP_16 (GST_VIDEO_INFO_WIDTH (info));
   mfx_info->Height = GST_ROUND_UP_32 (GST_VIDEO_INFO_HEIGHT (info));
   mfx_info->CropW = GST_VIDEO_INFO_WIDTH (info);
   mfx_info->CropH = GST_VIDEO_INFO_HEIGHT (info);
@@ -264,11 +266,19 @@ gst_msdk_set_mfx_frame_info_from_video_info (mfxFrameInfo * mfx_info,
   mfx_info->FrameRateExtD = GST_VIDEO_INFO_FPS_D (info);
   mfx_info->AspectRatioW = GST_VIDEO_INFO_PAR_N (info);
   mfx_info->AspectRatioH = GST_VIDEO_INFO_PAR_D (info);
-  mfx_info->PicStruct = MFX_PICSTRUCT_PROGRESSIVE;      /* this is by default */
+  mfx_info->PicStruct =
+      !GST_VIDEO_INFO_IS_INTERLACED (info) ? MFX_PICSTRUCT_PROGRESSIVE :
+      MFX_PICSTRUCT_UNKNOWN;
   mfx_info->FourCC =
       gst_msdk_get_mfx_fourcc_from_format (GST_VIDEO_INFO_FORMAT (info));
   mfx_info->ChromaFormat =
       gst_msdk_get_mfx_chroma_from_format (GST_VIDEO_INFO_FORMAT (info));
+
+  if (mfx_info->FourCC == MFX_FOURCC_P010) {
+    mfx_info->BitDepthLuma = 10;
+    mfx_info->BitDepthChroma = 10;
+    mfx_info->Shift = 1;
+  }
 
   return;
 }
@@ -282,7 +292,8 @@ gst_msdk_is_msdk_buffer (GstBuffer * buf)
   allocator = GST_MEMORY_CAST (mem)->allocator;
 
   if (allocator && (GST_IS_MSDK_VIDEO_ALLOCATOR (allocator) ||
-          GST_IS_MSDK_SYSTEM_ALLOCATOR (allocator)))
+          GST_IS_MSDK_SYSTEM_ALLOCATOR (allocator) ||
+          GST_IS_MSDK_DMABUF_ALLOCATOR (allocator)))
     return TRUE;
   else
     return FALSE;
@@ -298,6 +309,25 @@ gst_msdk_get_surface_from_buffer (GstBuffer * buf)
 
   if (GST_IS_MSDK_VIDEO_ALLOCATOR (allocator))
     return GST_MSDK_VIDEO_MEMORY_CAST (mem)->surface;
-  else
+  else if (GST_IS_MSDK_SYSTEM_ALLOCATOR (allocator))
     return GST_MSDK_SYSTEM_MEMORY_CAST (mem)->surface;
+  else if (GST_IS_MSDK_DMABUF_ALLOCATOR (allocator)) {
+    return gst_mini_object_get_qdata (GST_MINI_OBJECT (mem),
+        g_quark_from_static_string ("GstMsdkBufferSurface"));
+  }
+
+  return NULL;
+}
+
+GstVideoFormat
+gst_msdk_get_video_format_from_mfx_fourcc (mfxU32 fourcc)
+{
+  const struct map *m = gst_msdk_video_format_to_mfx_map;
+
+  for (; m->mfx_fourcc != 0; m++) {
+    if (m->mfx_fourcc == fourcc)
+      return m->format;
+  }
+
+  return GST_VIDEO_FORMAT_UNKNOWN;
 }

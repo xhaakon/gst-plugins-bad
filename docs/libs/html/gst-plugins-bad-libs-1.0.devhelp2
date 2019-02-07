@@ -24,10 +24,6 @@
       <sub name="Useful elements" link="tools.html">
         <sub name="GstInsertbin" link="gst-plugins-bad-libs-GstInsertbin.html"/>
       </sub>
-      <sub name="Video helpers and baseclasses" link="video.html">
-        <sub name="GstVideoAggregator" link="GstVideoAggregator.html"/>
-        <sub name="GstVideoAggregatorPad" link="GstVideoAggregatorPad.html"/>
-      </sub>
       <sub name="Player Library" link="player.html">
         <sub name="GstPlayer" link="GstPlayer.html"/>
         <sub name="GstPlayerMediaInfo" link="GstPlayerMediaInfo.html"/>
@@ -43,7 +39,7 @@
         <sub name="GstWebRTCSessionDescription" link="GstWebRTCSessionDescription.html"/>
         <sub name="GstWebRTCRTPTransceiver" link="GstWebRTCRTPTransceiver.html"/>
       </sub>
-      <sub name="Interfaces" link="ch07.html">
+      <sub name="Interfaces" link="ch06.html">
         <sub name="GstPhotography" link="gst-plugins-bad-libs-GstPhotography.html"/>
       </sub>
     </sub>
@@ -270,16 +266,16 @@
     <keyword type="function" name="gst_mpegts_section_get_atsc_stt ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-atsc-stt"/>
     <keyword type="function" name="gst_mpegts_atsc_stt_get_datetime_utc ()" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#gst-mpegts-atsc-stt-get-datetime-utc"/>
     <keyword type="enum" name="enum GstMpegtsSectionATSCTableID" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsSectionATSCTableID"/>
-    <keyword type="struct" name="struct GstMpegtsAtscVCTSource" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource"/>
-    <keyword type="struct" name="struct GstMpegtsAtscVCT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCT"/>
+    <keyword type="struct" name="struct GstMpegtsAtscVCTSource" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct"/>
+    <keyword type="struct" name="struct GstMpegtsAtscVCT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCT-struct"/>
     <keyword type="enum" name="enum GstMpegtsAtscMGTTableType" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTableType"/>
-    <keyword type="struct" name="struct GstMpegtsAtscMGTTable" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable"/>
-    <keyword type="struct" name="struct GstMpegtsAtscMGT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGT"/>
-    <keyword type="struct" name="struct GstMpegtsAtscMultString" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMultString"/>
-    <keyword type="struct" name="struct GstMpegtsAtscEITEvent" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent"/>
-    <keyword type="struct" name="struct GstMpegtsAtscEIT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEIT"/>
-    <keyword type="struct" name="struct GstMpegtsAtscETT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscETT"/>
-    <keyword type="struct" name="struct GstMpegtsAtscSTT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT"/>
+    <keyword type="struct" name="struct GstMpegtsAtscMGTTable" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable-struct"/>
+    <keyword type="struct" name="struct GstMpegtsAtscMGT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGT-struct"/>
+    <keyword type="struct" name="struct GstMpegtsAtscMultString" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMultString-struct"/>
+    <keyword type="struct" name="struct GstMpegtsAtscEITEvent" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent-struct"/>
+    <keyword type="struct" name="struct GstMpegtsAtscEIT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEIT-struct"/>
+    <keyword type="struct" name="struct GstMpegtsAtscETT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscETT-struct"/>
+    <keyword type="struct" name="struct GstMpegtsAtscSTT" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT-struct"/>
     <keyword type="function" name="gst_mpegts_section_get_nit ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-section-get-nit"/>
     <keyword type="function" name="gst_mpegts_nit_new ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-nit-new"/>
     <keyword type="function" name="gst_mpegts_nit_stream_new ()" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#gst-mpegts-nit-stream-new"/>
@@ -396,12 +392,6 @@
     <keyword type="signal" name="The “insert-before” signal" link="gst-plugins-bad-libs-GstInsertbin.html#GstInsertBin-insert-before"/>
     <keyword type="signal" name="The “prepend” signal" link="gst-plugins-bad-libs-GstInsertbin.html#GstInsertBin-prepend"/>
     <keyword type="signal" name="The “remove” signal" link="gst-plugins-bad-libs-GstInsertbin.html#GstInsertBin-remove"/>
-    <keyword type="struct" name="struct GstVideoAggregator" link="GstVideoAggregator.html#GstVideoAggregator-struct"/>
-    <keyword type="struct" name="struct GstVideoAggregatorClass" link="GstVideoAggregator.html#GstVideoAggregatorClass"/>
-    <keyword type="struct" name="struct GstVideoAggregatorPad" link="GstVideoAggregatorPad.html#GstVideoAggregatorPad-struct"/>
-    <keyword type="struct" name="struct GstVideoAggregatorPadClass" link="GstVideoAggregatorPad.html#GstVideoAggregatorPadClass"/>
-    <keyword type="property" name="The “ignore-eos” property" link="GstVideoAggregatorPad.html#GstVideoAggregatorPad--ignore-eos"/>
-    <keyword type="property" name="The “zorder” property" link="GstVideoAggregatorPad.html#GstVideoAggregatorPad--zorder"/>
     <keyword type="function" name="gst_player_new ()" link="GstPlayer.html#gst-player-new"/>
     <keyword type="function" name="gst_player_play ()" link="GstPlayer.html#gst-player-play"/>
     <keyword type="function" name="gst_player_pause ()" link="GstPlayer.html#gst-player-pause"/>
@@ -445,6 +435,8 @@
     <keyword type="function" name="gst_player_set_multiview_flags ()" link="GstPlayer.html#gst-player-set-multiview-flags" since="1.10"/>
     <keyword type="function" name="gst_player_get_audio_video_offset ()" link="GstPlayer.html#gst-player-get-audio-video-offset"/>
     <keyword type="function" name="gst_player_set_audio_video_offset ()" link="GstPlayer.html#gst-player-set-audio-video-offset"/>
+    <keyword type="function" name="gst_player_get_subtitle_video_offset ()" link="GstPlayer.html#gst-player-get-subtitle-video-offset"/>
+    <keyword type="function" name="gst_player_set_subtitle_video_offset ()" link="GstPlayer.html#gst-player-set-subtitle-video-offset"/>
     <keyword type="function" name="gst_player_get_rate ()" link="GstPlayer.html#gst-player-get-rate"/>
     <keyword type="function" name="gst_player_set_rate ()" link="GstPlayer.html#gst-player-set-rate"/>
     <keyword type="function" name="gst_player_get_video_snapshot ()" link="GstPlayer.html#gst-player-get-video-snapshot"/>
@@ -475,6 +467,7 @@
     <keyword type="property" name="The “position” property" link="GstPlayer.html#GstPlayer--position"/>
     <keyword type="property" name="The “rate” property" link="GstPlayer.html#GstPlayer--rate"/>
     <keyword type="property" name="The “signal-dispatcher” property" link="GstPlayer.html#GstPlayer--signal-dispatcher"/>
+    <keyword type="property" name="The “subtitle-video-offset” property" link="GstPlayer.html#GstPlayer--subtitle-video-offset"/>
     <keyword type="property" name="The “suburi” property" link="GstPlayer.html#GstPlayer--suburi"/>
     <keyword type="property" name="The “uri” property" link="GstPlayer.html#GstPlayer--uri"/>
     <keyword type="property" name="The “video-multiview-flags” property" link="GstPlayer.html#GstPlayer--video-multiview-flags"/>
@@ -1715,58 +1708,58 @@
     <keyword type="member" name="GstMpegtsDescriptor-struct.tag-extension" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor-struct.tag-extension"/>
     <keyword type="member" name="GstMpegtsDescriptor-struct.length" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor-struct.length"/>
     <keyword type="member" name="GstMpegtsDescriptor-struct.data" link="gst-plugins-bad-libs-Base-MPEG-TS-descriptors.html#GstMpegtsDescriptor-struct.data"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.short-name" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.short-name"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.major-channel-number" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.major-channel-number"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.minor-channel-number" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.minor-channel-number"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.modulation-mode" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.modulation-mode"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.carrier-frequency" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.carrier-frequency"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.channel-TSID" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.channel-TSID"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.program-number" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.program-number"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.ETM-location" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.ETM-location"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.access-controlled" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.access-controlled"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.hidden" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.hidden"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.path-select" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.path-select"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.out-of-band" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.out-of-band"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.hide-guide" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.hide-guide"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.service-type" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.service-type"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.source-id" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.source-id"/>
-    <keyword type="member" name="GstMpegtsAtscVCTSource.descriptors" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource.descriptors"/>
-    <keyword type="member" name="GstMpegtsAtscVCT.transport-stream-id" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCT.transport-stream-id"/>
-    <keyword type="member" name="GstMpegtsAtscVCT.protocol-version" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCT.protocol-version"/>
-    <keyword type="member" name="GstMpegtsAtscVCT.sources" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCT.sources"/>
-    <keyword type="member" name="GstMpegtsAtscVCT.descriptors" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCT.descriptors"/>
-    <keyword type="member" name="GstMpegtsAtscMGTTable.table-type" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable.table-type"/>
-    <keyword type="member" name="GstMpegtsAtscMGTTable.pid" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable.pid"/>
-    <keyword type="member" name="GstMpegtsAtscMGTTable.version-number" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable.version-number"/>
-    <keyword type="member" name="GstMpegtsAtscMGTTable.number-bytes" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable.number-bytes"/>
-    <keyword type="member" name="GstMpegtsAtscMGTTable.descriptors" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable.descriptors"/>
-    <keyword type="member" name="GstMpegtsAtscMGT.protocol-version" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGT.protocol-version"/>
-    <keyword type="member" name="GstMpegtsAtscMGT.tables-defined" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGT.tables-defined"/>
-    <keyword type="member" name="GstMpegtsAtscMGT.tables" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGT.tables"/>
-    <keyword type="member" name="GstMpegtsAtscMGT.descriptors" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGT.descriptors"/>
-    <keyword type="member" name="GstMpegtsAtscMultString.iso-639-langcode" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMultString.iso-639-langcode"/>
-    <keyword type="member" name="GstMpegtsAtscMultString.segments" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMultString.segments"/>
-    <keyword type="member" name="GstMpegtsAtscEITEvent.event-id" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent.event-id"/>
-    <keyword type="member" name="GstMpegtsAtscEITEvent.start-time" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent.start-time"/>
-    <keyword type="member" name="GstMpegtsAtscEITEvent.etm-location" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent.etm-location"/>
-    <keyword type="member" name="GstMpegtsAtscEITEvent.length-in-seconds" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent.length-in-seconds"/>
-    <keyword type="member" name="GstMpegtsAtscEITEvent.titles" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent.titles"/>
-    <keyword type="member" name="GstMpegtsAtscEITEvent.descriptors" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent.descriptors"/>
-    <keyword type="member" name="GstMpegtsAtscEIT.source-id" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEIT.source-id"/>
-    <keyword type="member" name="GstMpegtsAtscEIT.protocol-version" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEIT.protocol-version"/>
-    <keyword type="member" name="GstMpegtsAtscEIT.events" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEIT.events"/>
-    <keyword type="member" name="GstMpegtsAtscETT.ett-table-id-extension" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscETT.ett-table-id-extension"/>
-    <keyword type="member" name="GstMpegtsAtscETT.protocol-version" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscETT.protocol-version"/>
-    <keyword type="member" name="GstMpegtsAtscETT.etm-id" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscETT.etm-id"/>
-    <keyword type="member" name="GstMpegtsAtscETT.messages" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscETT.messages"/>
-    <keyword type="member" name="GstMpegtsAtscSTT.protocol-version" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT.protocol-version"/>
-    <keyword type="member" name="GstMpegtsAtscSTT.system-time" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT.system-time"/>
-    <keyword type="member" name="GstMpegtsAtscSTT.gps-utc-offset" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT.gps-utc-offset"/>
-    <keyword type="member" name="GstMpegtsAtscSTT.ds-status" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT.ds-status"/>
-    <keyword type="member" name="GstMpegtsAtscSTT.ds-dayofmonth" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT.ds-dayofmonth"/>
-    <keyword type="member" name="GstMpegtsAtscSTT.ds-hour" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT.ds-hour"/>
-    <keyword type="member" name="GstMpegtsAtscSTT.descriptors" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT.descriptors"/>
-    <keyword type="member" name="GstMpegtsAtscSTT.utc-datetime" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT.utc-datetime"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.short-name" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.short-name"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.major-channel-number" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.major-channel-number"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.minor-channel-number" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.minor-channel-number"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.modulation-mode" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.modulation-mode"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.carrier-frequency" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.carrier-frequency"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.channel-TSID" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.channel-TSID"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.program-number" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.program-number"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.ETM-location" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.ETM-location"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.access-controlled" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.access-controlled"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.hidden" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.hidden"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.path-select" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.path-select"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.out-of-band" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.out-of-band"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.hide-guide" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.hide-guide"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.service-type" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.service-type"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.source-id" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.source-id"/>
+    <keyword type="member" name="GstMpegtsAtscVCTSource-struct.descriptors" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCTSource-struct.descriptors"/>
+    <keyword type="member" name="GstMpegtsAtscVCT-struct.transport-stream-id" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCT-struct.transport-stream-id"/>
+    <keyword type="member" name="GstMpegtsAtscVCT-struct.protocol-version" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCT-struct.protocol-version"/>
+    <keyword type="member" name="GstMpegtsAtscVCT-struct.sources" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCT-struct.sources"/>
+    <keyword type="member" name="GstMpegtsAtscVCT-struct.descriptors" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscVCT-struct.descriptors"/>
+    <keyword type="member" name="GstMpegtsAtscMGTTable-struct.table-type" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable-struct.table-type"/>
+    <keyword type="member" name="GstMpegtsAtscMGTTable-struct.pid" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable-struct.pid"/>
+    <keyword type="member" name="GstMpegtsAtscMGTTable-struct.version-number" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable-struct.version-number"/>
+    <keyword type="member" name="GstMpegtsAtscMGTTable-struct.number-bytes" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable-struct.number-bytes"/>
+    <keyword type="member" name="GstMpegtsAtscMGTTable-struct.descriptors" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGTTable-struct.descriptors"/>
+    <keyword type="member" name="GstMpegtsAtscMGT-struct.protocol-version" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGT-struct.protocol-version"/>
+    <keyword type="member" name="GstMpegtsAtscMGT-struct.tables-defined" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGT-struct.tables-defined"/>
+    <keyword type="member" name="GstMpegtsAtscMGT-struct.tables" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGT-struct.tables"/>
+    <keyword type="member" name="GstMpegtsAtscMGT-struct.descriptors" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMGT-struct.descriptors"/>
+    <keyword type="member" name="GstMpegtsAtscMultString-struct.iso-639-langcode" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMultString-struct.iso-639-langcode"/>
+    <keyword type="member" name="GstMpegtsAtscMultString-struct.segments" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscMultString-struct.segments"/>
+    <keyword type="member" name="GstMpegtsAtscEITEvent-struct.event-id" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent-struct.event-id"/>
+    <keyword type="member" name="GstMpegtsAtscEITEvent-struct.start-time" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent-struct.start-time"/>
+    <keyword type="member" name="GstMpegtsAtscEITEvent-struct.etm-location" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent-struct.etm-location"/>
+    <keyword type="member" name="GstMpegtsAtscEITEvent-struct.length-in-seconds" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent-struct.length-in-seconds"/>
+    <keyword type="member" name="GstMpegtsAtscEITEvent-struct.titles" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent-struct.titles"/>
+    <keyword type="member" name="GstMpegtsAtscEITEvent-struct.descriptors" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEITEvent-struct.descriptors"/>
+    <keyword type="member" name="GstMpegtsAtscEIT-struct.source-id" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEIT-struct.source-id"/>
+    <keyword type="member" name="GstMpegtsAtscEIT-struct.protocol-version" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEIT-struct.protocol-version"/>
+    <keyword type="member" name="GstMpegtsAtscEIT-struct.events" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscEIT-struct.events"/>
+    <keyword type="member" name="GstMpegtsAtscETT-struct.ett-table-id-extension" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscETT-struct.ett-table-id-extension"/>
+    <keyword type="member" name="GstMpegtsAtscETT-struct.protocol-version" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscETT-struct.protocol-version"/>
+    <keyword type="member" name="GstMpegtsAtscETT-struct.etm-id" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscETT-struct.etm-id"/>
+    <keyword type="member" name="GstMpegtsAtscETT-struct.messages" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscETT-struct.messages"/>
+    <keyword type="member" name="GstMpegtsAtscSTT-struct.protocol-version" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT-struct.protocol-version"/>
+    <keyword type="member" name="GstMpegtsAtscSTT-struct.system-time" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT-struct.system-time"/>
+    <keyword type="member" name="GstMpegtsAtscSTT-struct.gps-utc-offset" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT-struct.gps-utc-offset"/>
+    <keyword type="member" name="GstMpegtsAtscSTT-struct.ds-status" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT-struct.ds-status"/>
+    <keyword type="member" name="GstMpegtsAtscSTT-struct.ds-dayofmonth" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT-struct.ds-dayofmonth"/>
+    <keyword type="member" name="GstMpegtsAtscSTT-struct.ds-hour" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT-struct.ds-hour"/>
+    <keyword type="member" name="GstMpegtsAtscSTT-struct.descriptors" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT-struct.descriptors"/>
+    <keyword type="member" name="GstMpegtsAtscSTT-struct.utc-datetime" link="gst-plugins-bad-libs-ATSC-variants-of-MPEG-TS-sections.html#GstMpegtsAtscSTT-struct.utc-datetime"/>
     <keyword type="member" name="GstMpegtsNIT.actual-network" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsNIT.actual-network"/>
     <keyword type="member" name="GstMpegtsNIT.network-id" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsNIT.network-id"/>
     <keyword type="member" name="GstMpegtsNIT.descriptors" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-sections.html#GstMpegtsNIT.descriptors"/>
@@ -1869,12 +1862,6 @@
     <keyword type="member" name="GstMpegtsDvbMultilingualServiceNameItem.service-name" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualServiceNameItem.service-name"/>
     <keyword type="member" name="GstMpegtsDvbMultilingualComponentItem.language-code" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualComponentItem.language-code"/>
     <keyword type="member" name="GstMpegtsDvbMultilingualComponentItem.description" link="gst-plugins-bad-libs-DVB-variants-of-MPEG-TS-descriptors.html#GstMpegtsDvbMultilingualComponentItem.description"/>
-    <keyword type="member" name="GstVideoAggregator-struct.info" link="GstVideoAggregator.html#GstVideoAggregator-struct.info"/>
-    <keyword type="member" name="GstVideoAggregatorClass.update-caps" link="GstVideoAggregator.html#GstVideoAggregatorClass.update-caps"/>
-    <keyword type="member" name="GstVideoAggregatorClass.aggregate-frames" link="GstVideoAggregator.html#GstVideoAggregatorClass.aggregate-frames"/>
-    <keyword type="member" name="GstVideoAggregatorClass.get-output-buffer" link="GstVideoAggregator.html#GstVideoAggregatorClass.get-output-buffer"/>
-    <keyword type="member" name="GstVideoAggregatorClass.find-best-format" link="GstVideoAggregator.html#GstVideoAggregatorClass.find-best-format"/>
-    <keyword type="member" name="GstVideoAggregatorClass.sink-non-alpha-caps" link="GstVideoAggregator.html#GstVideoAggregatorClass.sink-non-alpha-caps"/>
     <keyword type="member" name="GstPlayerVisualization-struct.name" link="GstPlayerVisualization.html#GstPlayerVisualization-struct.name"/>
     <keyword type="member" name="GstPlayerVisualization-struct.description" link="GstPlayerVisualization.html#GstPlayerVisualization-struct.description"/>
     <keyword type="member" name="GstWebRTCSessionDescription-struct.type" link="GstWebRTCSessionDescription.html#GstWebRTCSessionDescription-struct.type"/>

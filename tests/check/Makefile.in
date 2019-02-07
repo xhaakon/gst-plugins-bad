@@ -92,7 +92,7 @@ build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
 noinst_PROGRAMS = pipelines/streamheader$(EXEEXT) $(am__EXEEXT_28) \
-	$(am__EXEEXT_29) $(am__EXEEXT_30)
+	$(am__EXEEXT_29) $(am__EXEEXT_30) $(am__EXEEXT_31)
 check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4) \
 	$(am__EXEEXT_5) $(am__EXEEXT_6) $(am__EXEEXT_7) \
@@ -101,9 +101,9 @@ check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	$(am__EXEEXT_15) $(am__EXEEXT_16) elements/aiffparse$(EXEEXT) \
 	elements/videoframe-audiolevel$(EXEEXT) \
 	elements/autoconvert$(EXEEXT) \
-	elements/autovideoconvert$(EXEEXT) elements/asfmux$(EXEEXT) \
-	elements/camerabin$(EXEEXT) elements/gdppay$(EXEEXT) \
-	elements/gdpdepay$(EXEEXT) elements/compositor$(EXEEXT) \
+	elements/autovideoconvert$(EXEEXT) elements/avwait$(EXEEXT) \
+	elements/asfmux$(EXEEXT) elements/camerabin$(EXEEXT) \
+	elements/gdppay$(EXEEXT) elements/gdpdepay$(EXEEXT) \
 	$(am__EXEEXT_17) elements/jpegparse$(EXEEXT) \
 	elements/h263parse$(EXEEXT) elements/h264parse$(EXEEXT) \
 	elements/mpegtsmux$(EXEEXT) elements/mpegvideoparse$(EXEEXT) \
@@ -115,8 +115,8 @@ check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	pipelines/mxf$(EXEEXT) libs/isoff$(EXEEXT) \
 	libs/mpegvideoparser$(EXEEXT) libs/mpegts$(EXEEXT) \
 	libs/h264parser$(EXEEXT) libs/h265parser$(EXEEXT) \
-	libs/vp8parser$(EXEEXT) $(am__EXEEXT_18) \
-	libs/vc1parser$(EXEEXT) $(am__EXEEXT_19) \
+	libs/vp8parser$(EXEEXT) libs/planaraudioadapter$(EXEEXT) \
+	$(am__EXEEXT_18) libs/vc1parser$(EXEEXT) $(am__EXEEXT_19) \
 	elements/viewfinderbin$(EXEEXT) $(am__EXEEXT_20) \
 	$(am__EXEEXT_21) libs/insertbin$(EXEEXT) $(am__EXEEXT_22) \
 	$(am__EXEEXT_23) $(am__EXEEXT_24) $(am__EXEEXT_25) \
@@ -165,15 +165,17 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 @USE_ASSRENDER_TRUE@am__EXEEXT_1 = elements/assrender$(EXEEXT)
-@USE_DASH_TRUE@am__EXEEXT_2 = elements/dash_mpd$(EXEEXT)
-@USE_DTLS_TRUE@am__EXEEXT_3 = elements/dtls$(EXEEXT)
-@USE_FAAC_TRUE@am__EXEEXT_4 = elements/faac$(EXEEXT)
-@USE_FAAD_TRUE@am__EXEEXT_5 = elements/faad$(EXEEXT)
-@USE_VOAACENC_TRUE@am__EXEEXT_6 = elements/voaacenc$(EXEEXT)
-@USE_VOAMRWBENC_TRUE@am__EXEEXT_7 = elements/voamrwbenc$(EXEEXT)
-@USE_MPEG2ENC_TRUE@am__EXEEXT_8 = elements/mpeg2enc$(EXEEXT)
-@USE_MPLEX_TRUE@am__EXEEXT_9 = elements/mplex$(EXEEXT)
-@USE_SMOOTHSTREAMING_TRUE@am__EXEEXT_10 = elements/mssdemux$(EXEEXT)
+@USE_PANGO_TRUE@am__EXEEXT_2 = elements/ccconverter$(EXEEXT) \
+@USE_PANGO_TRUE@	elements/cccombiner$(EXEEXT) \
+@USE_PANGO_TRUE@	elements/ccextractor$(EXEEXT)
+@USE_DASH_TRUE@am__EXEEXT_3 = elements/dash_mpd$(EXEEXT)
+@USE_DTLS_TRUE@am__EXEEXT_4 = elements/dtls$(EXEEXT)
+@USE_FAAC_TRUE@am__EXEEXT_5 = elements/faac$(EXEEXT)
+@USE_FAAD_TRUE@am__EXEEXT_6 = elements/faad$(EXEEXT)
+@USE_VOAACENC_TRUE@am__EXEEXT_7 = elements/voaacenc$(EXEEXT)
+@USE_VOAMRWBENC_TRUE@am__EXEEXT_8 = elements/voamrwbenc$(EXEEXT)
+@USE_MPEG2ENC_TRUE@am__EXEEXT_9 = elements/mpeg2enc$(EXEEXT)
+@USE_MPLEX_TRUE@am__EXEEXT_10 = elements/mplex$(EXEEXT)
 @USE_OFA_TRUE@am__EXEEXT_11 = elements/ofa$(EXEEXT)
 @USE_KATE_TRUE@am__EXEEXT_12 = elements/kate$(EXEEXT)
 @USE_OPENCV_TRUE@am__EXEEXT_13 = elements/templatematch$(EXEEXT)
@@ -187,17 +189,17 @@ CONFIG_CLEAN_VPATH_FILES =
 @USE_UVCH264_TRUE@am__EXEEXT_18 = elements/uvch264demux$(EXEEXT)
 @USE_X265_TRUE@am__EXEEXT_19 = elements/x265enc$(EXEEXT)
 @USE_ZBAR_TRUE@am__EXEEXT_20 = elements/zbar$(EXEEXT)
-@HAVE_ORC_TRUE@am__EXEEXT_21 = orc/bayer$(EXEEXT) \
-@HAVE_ORC_TRUE@	orc/compositor$(EXEEXT)
+@HAVE_ORC_TRUE@am__EXEEXT_21 = orc/bayer$(EXEEXT)
 @USE_HLS_TRUE@am__EXEEXT_22 = elements/hlsdemux_m3u8$(EXEEXT)
 @USE_HLS_TRUE@am__EXEEXT_23 = elements/hls_demux$(EXEEXT)
 @USE_SRTP_TRUE@am__EXEEXT_24 = elements/srtp$(EXEEXT)
 @WITH_GST_PLAYER_TESTS_TRUE@am__EXEEXT_25 = libs/player$(EXEEXT)
 @USE_WEBRTC_TRUE@am__EXEEXT_26 = elements/webrtcbin$(EXEEXT)
 @USE_MSDK_TRUE@am__EXEEXT_27 = elements/msdkh264enc$(EXEEXT)
-@USE_DASH_TRUE@am__EXEEXT_28 = elements/dash_demux$(EXEEXT)
-@USE_IPCPIPELINE_TRUE@am__EXEEXT_29 = pipelines/ipcpipeline$(EXEEXT)
-@USE_NEON_TRUE@am__EXEEXT_30 = elements/neonhttpsrc$(EXEEXT)
+@USE_SMOOTHSTREAMING_TRUE@am__EXEEXT_28 = elements/mssdemux$(EXEEXT)
+@USE_DASH_TRUE@am__EXEEXT_29 = elements/dash_demux$(EXEEXT)
+@USE_IPCPIPELINE_TRUE@am__EXEEXT_30 = pipelines/ipcpipeline$(EXEEXT)
+@USE_NEON_TRUE@am__EXEEXT_31 = elements/neonhttpsrc$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libparser_la_LIBADD =
@@ -239,6 +241,16 @@ elements_autovideoconvert_OBJECTS =  \
 	elements/autovideoconvert.$(OBJEXT)
 elements_autovideoconvert_LDADD = $(LDADD)
 elements_autovideoconvert_DEPENDENCIES = $(am__DEPENDENCIES_1)
+elements_avwait_SOURCES = elements/avwait.c
+elements_avwait_OBJECTS = elements/avwait-avwait.$(OBJEXT)
+elements_avwait_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
+elements_avwait_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(elements_avwait_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+	-o $@
 am_elements_camerabin_OBJECTS =  \
 	elements/camerabin-camerabin.$(OBJEXT)
 elements_camerabin_OBJECTS = $(am_elements_camerabin_OBJECTS)
@@ -250,15 +262,35 @@ elements_camerabin_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(elements_camerabin_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-elements_compositor_SOURCES = elements/compositor.c
-elements_compositor_OBJECTS =  \
-	elements/elements_compositor-compositor.$(OBJEXT)
-elements_compositor_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+elements_cccombiner_SOURCES = elements/cccombiner.c
+elements_cccombiner_OBJECTS =  \
+	elements/cccombiner-cccombiner.$(OBJEXT)
+elements_cccombiner_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_2)
-elements_compositor_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+elements_cccombiner_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(elements_compositor_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(elements_cccombiner_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+elements_ccconverter_SOURCES = elements/ccconverter.c
+elements_ccconverter_OBJECTS =  \
+	elements/ccconverter-ccconverter.$(OBJEXT)
+elements_ccconverter_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
+elements_ccconverter_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(elements_ccconverter_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+elements_ccextractor_SOURCES = elements/ccextractor.c
+elements_ccextractor_OBJECTS =  \
+	elements/ccextractor-ccextractor.$(OBJEXT)
+elements_ccextractor_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
+elements_ccextractor_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(elements_ccextractor_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 elements_curlfilesink_SOURCES = elements/curlfilesink.c
 elements_curlfilesink_OBJECTS = elements/curlfilesink.$(OBJEXT)
@@ -409,9 +441,14 @@ elements_mpegtsmux_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(elements_mpegtsmux_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 elements_mpegvideoparse_SOURCES = elements/mpegvideoparse.c
-elements_mpegvideoparse_OBJECTS = elements/mpegvideoparse.$(OBJEXT)
+elements_mpegvideoparse_OBJECTS =  \
+	elements/mpegvideoparse-mpegvideoparse.$(OBJEXT)
 elements_mpegvideoparse_DEPENDENCIES = libparser.la \
-	$(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+elements_mpegvideoparse_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(elements_mpegvideoparse_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 elements_mplex_SOURCES = elements/mplex.c
 elements_mplex_OBJECTS = elements/mplex.$(OBJEXT)
 elements_mplex_LDADD = $(LDADD)
@@ -614,6 +651,16 @@ libs_mpegvideoparser_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(libs_mpegvideoparser_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
+libs_planaraudioadapter_SOURCES = libs/planaraudioadapter.c
+libs_planaraudioadapter_OBJECTS =  \
+	libs/planaraudioadapter-planaraudioadapter.$(OBJEXT)
+libs_planaraudioadapter_DEPENDENCIES = $(top_builddir)/gst-libs/gst/audio/libgstbadaudio-@GST_API_VERSION@.la \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+libs_planaraudioadapter_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libs_planaraudioadapter_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 am_libs_player_OBJECTS = libs/player-player.$(OBJEXT)
 @WITH_GST_PLAYER_TESTS_TRUE@nodist_libs_player_OBJECTS = libs/player-player_dummy.$(OBJEXT)
 libs_player_OBJECTS = $(am_libs_player_OBJECTS) \
@@ -649,14 +696,6 @@ orc_bayer_DEPENDENCIES = $(am__DEPENDENCIES_1)
 orc_bayer_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(orc_bayer_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-nodist_orc_compositor_OBJECTS =  \
-	orc/orc_compositor-compositor.$(OBJEXT)
-orc_compositor_OBJECTS = $(nodist_orc_compositor_OBJECTS)
-orc_compositor_DEPENDENCIES = $(am__DEPENDENCIES_1)
-orc_compositor_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(orc_compositor_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o \
-	$@
 pipelines_ipcpipeline_SOURCES = pipelines/ipcpipeline.c
 pipelines_ipcpipeline_OBJECTS =  \
 	pipelines/ipcpipeline-ipcpipeline.$(OBJEXT)
@@ -700,7 +739,11 @@ am__depfiles_remade = elements/$(DEPDIR)/aiffparse.Po \
 	elements/$(DEPDIR)/assrender-assrender.Po \
 	elements/$(DEPDIR)/autoconvert.Po \
 	elements/$(DEPDIR)/autovideoconvert.Po \
+	elements/$(DEPDIR)/avwait-avwait.Po \
 	elements/$(DEPDIR)/camerabin-camerabin.Po \
+	elements/$(DEPDIR)/cccombiner-cccombiner.Po \
+	elements/$(DEPDIR)/ccconverter-ccconverter.Po \
+	elements/$(DEPDIR)/ccextractor-ccextractor.Po \
 	elements/$(DEPDIR)/curlfilesink.Po \
 	elements/$(DEPDIR)/curlftpsink.Po \
 	elements/$(DEPDIR)/curlhttpsink.Po \
@@ -711,9 +754,7 @@ am__depfiles_remade = elements/$(DEPDIR)/aiffparse.Po \
 	elements/$(DEPDIR)/dash_demux-dash_demux.Po \
 	elements/$(DEPDIR)/dash_demux-test_http_src.Po \
 	elements/$(DEPDIR)/dash_mpd-dash_mpd.Po \
-	elements/$(DEPDIR)/dtls.Po \
-	elements/$(DEPDIR)/elements_compositor-compositor.Po \
-	elements/$(DEPDIR)/faac-faac.Po \
+	elements/$(DEPDIR)/dtls.Po elements/$(DEPDIR)/faac-faac.Po \
 	elements/$(DEPDIR)/faad-faad.Po \
 	elements/$(DEPDIR)/gdpdepay-gdpdepay.Po \
 	elements/$(DEPDIR)/gdppay-gdppay.Po \
@@ -732,7 +773,7 @@ am__depfiles_remade = elements/$(DEPDIR)/aiffparse.Po \
 	elements/$(DEPDIR)/mpeg2enc.Po \
 	elements/$(DEPDIR)/mpeg4videoparse.Po \
 	elements/$(DEPDIR)/mpegtsmux-mpegtsmux.Po \
-	elements/$(DEPDIR)/mpegvideoparse.Po \
+	elements/$(DEPDIR)/mpegvideoparse-mpegvideoparse.Po \
 	elements/$(DEPDIR)/mplex.Po elements/$(DEPDIR)/msdkh264enc.Po \
 	elements/$(DEPDIR)/mssdemux-adaptive_demux_common.Po \
 	elements/$(DEPDIR)/mssdemux-adaptive_demux_engine.Po \
@@ -759,12 +800,12 @@ am__depfiles_remade = elements/$(DEPDIR)/aiffparse.Po \
 	libs/$(DEPDIR)/insertbin-insertbin.Po \
 	libs/$(DEPDIR)/isoff-isoff.Po libs/$(DEPDIR)/mpegts-mpegts.Po \
 	libs/$(DEPDIR)/mpegvideoparser-mpegvideoparser.Po \
+	libs/$(DEPDIR)/planaraudioadapter-planaraudioadapter.Po \
 	libs/$(DEPDIR)/player-player.Po \
 	libs/$(DEPDIR)/player-player_dummy.Po \
 	libs/$(DEPDIR)/vc1parser-vc1parser.Po \
 	libs/$(DEPDIR)/vp8parser-vp8parser.Po \
 	orc/$(DEPDIR)/bayer-bayer.Po \
-	orc/$(DEPDIR)/orc_compositor-compositor.Po \
 	pipelines/$(DEPDIR)/ipcpipeline-ipcpipeline.Po \
 	pipelines/$(DEPDIR)/mxf.Po \
 	pipelines/$(DEPDIR)/streamheader-streamheader.Po
@@ -789,14 +830,16 @@ am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/asfmux.c elements/assrender.c elements/autoconvert.c \
-	elements/autovideoconvert.c $(elements_camerabin_SOURCES) \
-	elements/compositor.c elements/curlfilesink.c \
-	elements/curlftpsink.c elements/curlhttpsink.c \
-	elements/curlsftpsink.c elements/curlsmtpsink.c \
-	$(elements_dash_demux_SOURCES) $(elements_dash_mpd_SOURCES) \
-	elements/dtls.c elements/faac.c elements/faad.c \
-	elements/gdpdepay.c elements/gdppay.c elements/h263parse.c \
-	elements/h264parse.c $(elements_hls_demux_SOURCES) \
+	elements/autovideoconvert.c elements/avwait.c \
+	$(elements_camerabin_SOURCES) elements/cccombiner.c \
+	elements/ccconverter.c elements/ccextractor.c \
+	elements/curlfilesink.c elements/curlftpsink.c \
+	elements/curlhttpsink.c elements/curlsftpsink.c \
+	elements/curlsmtpsink.c $(elements_dash_demux_SOURCES) \
+	$(elements_dash_mpd_SOURCES) elements/dtls.c elements/faac.c \
+	elements/faad.c elements/gdpdepay.c elements/gdppay.c \
+	elements/h263parse.c elements/h264parse.c \
+	$(elements_hls_demux_SOURCES) \
 	$(elements_hlsdemux_m3u8_SOURCES) elements/id3mux.c \
 	$(elements_jifmux_SOURCES) elements/jpegparse.c \
 	elements/kate.c elements/mpeg2enc.c elements/mpeg4videoparse.c \
@@ -812,21 +855,23 @@ SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/voamrwbenc.c elements/webrtcbin.c elements/x265enc.c \
 	elements/zbar.c generic/states.c libs/h264parser.c \
 	libs/h265parser.c libs/insertbin.c $(libs_isoff_SOURCES) \
-	libs/mpegts.c libs/mpegvideoparser.c $(libs_player_SOURCES) \
-	$(nodist_libs_player_SOURCES) libs/vc1parser.c \
-	libs/vp8parser.c $(nodist_orc_bayer_SOURCES) \
-	$(nodist_orc_compositor_SOURCES) pipelines/ipcpipeline.c \
-	pipelines/mxf.c pipelines/streamheader.c
+	libs/mpegts.c libs/mpegvideoparser.c libs/planaraudioadapter.c \
+	$(libs_player_SOURCES) $(nodist_libs_player_SOURCES) \
+	libs/vc1parser.c libs/vp8parser.c $(nodist_orc_bayer_SOURCES) \
+	pipelines/ipcpipeline.c pipelines/mxf.c \
+	pipelines/streamheader.c
 DIST_SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/asfmux.c elements/assrender.c elements/autoconvert.c \
-	elements/autovideoconvert.c $(elements_camerabin_SOURCES) \
-	elements/compositor.c elements/curlfilesink.c \
-	elements/curlftpsink.c elements/curlhttpsink.c \
-	elements/curlsftpsink.c elements/curlsmtpsink.c \
-	$(elements_dash_demux_SOURCES) $(elements_dash_mpd_SOURCES) \
-	elements/dtls.c elements/faac.c elements/faad.c \
-	elements/gdpdepay.c elements/gdppay.c elements/h263parse.c \
-	elements/h264parse.c $(elements_hls_demux_SOURCES) \
+	elements/autovideoconvert.c elements/avwait.c \
+	$(elements_camerabin_SOURCES) elements/cccombiner.c \
+	elements/ccconverter.c elements/ccextractor.c \
+	elements/curlfilesink.c elements/curlftpsink.c \
+	elements/curlhttpsink.c elements/curlsftpsink.c \
+	elements/curlsmtpsink.c $(elements_dash_demux_SOURCES) \
+	$(elements_dash_mpd_SOURCES) elements/dtls.c elements/faac.c \
+	elements/faad.c elements/gdpdepay.c elements/gdppay.c \
+	elements/h263parse.c elements/h264parse.c \
+	$(elements_hls_demux_SOURCES) \
 	$(elements_hlsdemux_m3u8_SOURCES) elements/id3mux.c \
 	$(elements_jifmux_SOURCES) elements/jpegparse.c \
 	elements/kate.c elements/mpeg2enc.c elements/mpeg4videoparse.c \
@@ -842,9 +887,10 @@ DIST_SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/voamrwbenc.c elements/webrtcbin.c elements/x265enc.c \
 	elements/zbar.c generic/states.c libs/h264parser.c \
 	libs/h265parser.c libs/insertbin.c $(libs_isoff_SOURCES) \
-	libs/mpegts.c libs/mpegvideoparser.c $(libs_player_SOURCES) \
-	libs/vc1parser.c libs/vp8parser.c pipelines/ipcpipeline.c \
-	pipelines/mxf.c pipelines/streamheader.c
+	libs/mpegts.c libs/mpegvideoparser.c libs/planaraudioadapter.c \
+	$(libs_player_SOURCES) libs/vc1parser.c libs/vp8parser.c \
+	pipelines/ipcpipeline.c pipelines/mxf.c \
+	pipelines/streamheader.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -1079,8 +1125,6 @@ am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/common/check.mak \
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 ACLOCAL_AMFLAGS = @ACLOCAL_AMFLAGS@
-ACMENC_CFLAGS = @ACMENC_CFLAGS@
-ACMMP3DEC_CFLAGS = @ACMMP3DEC_CFLAGS@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AOM_CFLAGS = @AOM_CFLAGS@
@@ -1115,8 +1159,6 @@ CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
-DAALA_CFLAGS = @DAALA_CFLAGS@
-DAALA_LIBS = @DAALA_LIBS@
 DECKLINK_CXXFLAGS = @DECKLINK_CXXFLAGS@
 DECKLINK_LIBS = @DECKLINK_LIBS@
 DEFAULT_AUDIOSINK = @DEFAULT_AUDIOSINK@
@@ -1373,7 +1415,6 @@ NICE_CFLAGS = @NICE_CFLAGS@
 NICE_LIBS = @NICE_LIBS@
 NM = @NM@
 NMEDIT = @NMEDIT@
-NVENCODE_CFLAGS = @NVENCODE_CFLAGS@
 NVENCODE_LIBS = @NVENCODE_LIBS@
 OBJC = @OBJC@
 OBJCDEPMODE = @OBJCDEPMODE@
@@ -1384,8 +1425,6 @@ OFA_CFLAGS = @OFA_CFLAGS@
 OFA_LIBS = @OFA_LIBS@
 OPENAL_CFLAGS = @OPENAL_CFLAGS@
 OPENAL_LIBS = @OPENAL_LIBS@
-OPENCV_3_CFLAGS = @OPENCV_3_CFLAGS@
-OPENCV_3_LIBS = @OPENCV_3_LIBS@
 OPENCV_CFLAGS = @OPENCV_CFLAGS@
 OPENCV_LIBS = @OPENCV_LIBS@
 OPENCV_PREFIX = @OPENCV_PREFIX@
@@ -1421,6 +1460,8 @@ PACKAGE_VERSION_MICRO = @PACKAGE_VERSION_MICRO@
 PACKAGE_VERSION_MINOR = @PACKAGE_VERSION_MINOR@
 PACKAGE_VERSION_NANO = @PACKAGE_VERSION_NANO@
 PACKAGE_VERSION_RELEASE = @PACKAGE_VERSION_RELEASE@
+PANGO_CFLAGS = @PANGO_CFLAGS@
+PANGO_LIBS = @PANGO_LIBS@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 PLUGINDIR = @PLUGINDIR@
@@ -1451,7 +1492,6 @@ SOUNDTOUCH_CFLAGS = @SOUNDTOUCH_CFLAGS@
 SOUNDTOUCH_LIBS = @SOUNDTOUCH_LIBS@
 SPANDSP_CFLAGS = @SPANDSP_CFLAGS@
 SPANDSP_LIBS = @SPANDSP_LIBS@
-SPC_LIBS = @SPC_LIBS@
 SRTP_CFLAGS = @SRTP_CFLAGS@
 SRTP_LIBS = @SRTP_LIBS@
 SRT_CFLAGS = @SRT_CFLAGS@
@@ -1466,6 +1506,7 @@ TIGER_LIBS = @TIGER_LIBS@
 TTML_CFLAGS = @TTML_CFLAGS@
 TTML_LIBS = @TTML_LIBS@
 USE_NLS = @USE_NLS@
+USRSCTP_LIBS = @USRSCTP_LIBS@
 VALGRIND_CFLAGS = @VALGRIND_CFLAGS@
 VALGRIND_LIBS = @VALGRIND_LIBS@
 VALGRIND_PATH = @VALGRIND_PATH@
@@ -1601,6 +1642,8 @@ CLEANFILES = core.* test-registry.* $(am__append_1)
 SUPPRESSIONS = $(top_srcdir)/common/gst.supp $(srcdir)/gst-plugins-bad.supp
 @USE_ASSRENDER_FALSE@check_assrender = 
 @USE_ASSRENDER_TRUE@check_assrender = elements/assrender
+@USE_PANGO_FALSE@check_closedcaption = 
+@USE_PANGO_TRUE@check_closedcaption = elements/ccconverter elements/cccombiner elements/ccextractor
 @USE_DASH_FALSE@check_dash = 
 @USE_DASH_TRUE@check_dash = elements/dash_mpd
 @USE_DASH_FALSE@check_dash_demux = 
@@ -1630,7 +1673,7 @@ SUPPRESSIONS = $(top_srcdir)/common/gst.supp $(srcdir)/gst-plugins-bad.supp
 @USE_KATE_FALSE@check_kate = 
 @USE_KATE_TRUE@check_kate = elements/kate
 @HAVE_ORC_FALSE@check_orc = 
-@HAVE_ORC_TRUE@check_orc = orc/bayer orc/compositor
+@HAVE_ORC_TRUE@check_orc = orc/bayer
 @USE_ZBAR_FALSE@check_zbar = 
 @USE_ZBAR_TRUE@check_zbar = elements/zbar
 @USE_OPENCV_FALSE@check_opencv = 
@@ -1706,7 +1749,12 @@ libparser_la_CFLAGS = \
 	-I$(top_srcdir)/tests/check \
 	$(GST_CFLAGS) $(GST_CHECK_CFLAGS) $(GST_OPTION_CFLAGS)
 
-elements_mpegvideoparse_LDADD = libparser.la $(LDADD)
+elements_mpegvideoparse_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) \
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+
+elements_mpegvideoparse_LDADD = libparser.la \
+	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) $(LDADD)
+
 elements_mpeg4videoparse_LDADD = libparser.la $(LDADD)
 elements_h263parse_LDADD = libparser.la $(LDADD)
 elements_h264parse_LDADD = libparser.la $(LDADD)
@@ -1780,6 +1828,14 @@ elements_videoframe_audiolevel_LDADD = \
 	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
 	$(GST_AUDIO_LIBS)
 
+elements_avwait_CFLAGS = \
+	$(GST_PLUGINS_BASE_CFLAGS) \
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+
+elements_avwait_LDADD = \
+	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
+	$(GST_AUDIO_LIBS) $(GST_VIDEO_LIBS)
+
 elements_faad_CFLAGS = \
 	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
@@ -1823,6 +1879,12 @@ elements_camerabin_LDADD = \
         $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD)
 
 elements_camerabin_SOURCES = elements/camerabin.c
+elements_ccconverter_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_ccconverter_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
+elements_cccombiner_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_cccombiner_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
+elements_ccextractor_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_ccextractor_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
 elements_jifmux_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(EXIF_CFLAGS) $(AM_CFLAGS)
 elements_jifmux_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgsttag-$(GST_API_VERSION) $(GST_CHECK_LIBS) $(EXIF_LIBS) $(LDADD)
 elements_jifmux_SOURCES = elements/jifmux.c
@@ -1897,13 +1959,6 @@ EXTRA_DIST = gst-plugins-bad.supp $(uvch264_dist_data)
 orc_bayer_CFLAGS = $(ORC_CFLAGS)
 orc_bayer_LDADD = $(ORC_LIBS) -lorc-test-0.4
 nodist_orc_bayer_SOURCES = orc/bayer.c
-elements_compositor_LDADD = \
-	$(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
-
-elements_compositor_CFLAGS = \
-	$(GST_PLUGINS_BASE_CFLAGS) \
-	$(GST_BASE_CFLAGS) $(CFLAGS) $(AM_CFLAGS)
-
 elements_hlsdemux_m3u8_CFLAGS = $(GST_BASE_CFLAGS) $(AM_CFLAGS) -I$(top_srcdir)/ext/hls
 elements_hlsdemux_m3u8_LDADD = $(GST_BASE_LIBS) $(LDADD)
 elements_hlsdemux_m3u8_SOURCES = elements/hlsdemux_m3u8.c
@@ -1914,10 +1969,6 @@ elements_hls_demux_LDADD = \
 	$(GST_BASE_LIBS) $(LDADD)
 
 elements_hls_demux_SOURCES = elements/test_http_src.c elements/test_http_src.h elements/adaptive_demux_engine.c elements/adaptive_demux_engine.h elements/adaptive_demux_common.c elements/adaptive_demux_common.h elements/hls_demux.c
-orc_compositor_CFLAGS = $(ORC_CFLAGS)
-orc_compositor_LDADD = $(ORC_LIBS) -lorc-test-0.4
-nodist_orc_compositor_SOURCES = orc/compositor.c
-orc_videobox_CFLAGS = $(ORC_CFLAGS)
 elements_webrtcbin_LDADD = \
 	$(top_builddir)/gst-libs/gst/webrtc/libgstwebrtc-@GST_API_VERSION@.la \
 	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_SDP_LIBS) $(LDADD)
@@ -1929,6 +1980,14 @@ elements_webrtcbin_CFLAGS = \
 elements_msdk_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 elements_msdk_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
 elements_msdk_SOURCES = elements/msdkh264enc.c
+libs_planaraudioadapter_LDADD = \
+	$(top_builddir)/gst-libs/gst/audio/libgstbadaudio-@GST_API_VERSION@.la \
+	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_AUDIO_LIBS) $(LDADD)
+
+libs_planaraudioadapter_CFLAGS = \
+	$(GST_PLUGINS_BASE_CLAGS) $(GST_PLUGINS_BAD_CFLAGS) \
+	$(GST_BASE_CFLAGS) $(GST_AUDIO_CFLAGS) $(CFLAGS) $(AM_CFLAGS)
+
 all: all-am
 
 .SUFFIXES:
@@ -2033,18 +2092,36 @@ elements/autovideoconvert.$(OBJEXT): elements/$(am__dirstamp) \
 elements/autovideoconvert$(EXEEXT): $(elements_autovideoconvert_OBJECTS) $(elements_autovideoconvert_DEPENDENCIES) $(EXTRA_elements_autovideoconvert_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/autovideoconvert$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(elements_autovideoconvert_OBJECTS) $(elements_autovideoconvert_LDADD) $(LIBS)
+elements/avwait-avwait.$(OBJEXT): elements/$(am__dirstamp) \
+	elements/$(DEPDIR)/$(am__dirstamp)
+
+elements/avwait$(EXEEXT): $(elements_avwait_OBJECTS) $(elements_avwait_DEPENDENCIES) $(EXTRA_elements_avwait_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/avwait$(EXEEXT)
+	$(AM_V_CCLD)$(elements_avwait_LINK) $(elements_avwait_OBJECTS) $(elements_avwait_LDADD) $(LIBS)
 elements/camerabin-camerabin.$(OBJEXT): elements/$(am__dirstamp) \
 	elements/$(DEPDIR)/$(am__dirstamp)
 
 elements/camerabin$(EXEEXT): $(elements_camerabin_OBJECTS) $(elements_camerabin_DEPENDENCIES) $(EXTRA_elements_camerabin_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/camerabin$(EXEEXT)
 	$(AM_V_CCLD)$(elements_camerabin_LINK) $(elements_camerabin_OBJECTS) $(elements_camerabin_LDADD) $(LIBS)
-elements/elements_compositor-compositor.$(OBJEXT):  \
-	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
+elements/cccombiner-cccombiner.$(OBJEXT): elements/$(am__dirstamp) \
+	elements/$(DEPDIR)/$(am__dirstamp)
 
-elements/compositor$(EXEEXT): $(elements_compositor_OBJECTS) $(elements_compositor_DEPENDENCIES) $(EXTRA_elements_compositor_DEPENDENCIES) elements/$(am__dirstamp)
-	@rm -f elements/compositor$(EXEEXT)
-	$(AM_V_CCLD)$(elements_compositor_LINK) $(elements_compositor_OBJECTS) $(elements_compositor_LDADD) $(LIBS)
+elements/cccombiner$(EXEEXT): $(elements_cccombiner_OBJECTS) $(elements_cccombiner_DEPENDENCIES) $(EXTRA_elements_cccombiner_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/cccombiner$(EXEEXT)
+	$(AM_V_CCLD)$(elements_cccombiner_LINK) $(elements_cccombiner_OBJECTS) $(elements_cccombiner_LDADD) $(LIBS)
+elements/ccconverter-ccconverter.$(OBJEXT): elements/$(am__dirstamp) \
+	elements/$(DEPDIR)/$(am__dirstamp)
+
+elements/ccconverter$(EXEEXT): $(elements_ccconverter_OBJECTS) $(elements_ccconverter_DEPENDENCIES) $(EXTRA_elements_ccconverter_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/ccconverter$(EXEEXT)
+	$(AM_V_CCLD)$(elements_ccconverter_LINK) $(elements_ccconverter_OBJECTS) $(elements_ccconverter_LDADD) $(LIBS)
+elements/ccextractor-ccextractor.$(OBJEXT): elements/$(am__dirstamp) \
+	elements/$(DEPDIR)/$(am__dirstamp)
+
+elements/ccextractor$(EXEEXT): $(elements_ccextractor_OBJECTS) $(elements_ccextractor_DEPENDENCIES) $(EXTRA_elements_ccextractor_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/ccextractor$(EXEEXT)
+	$(AM_V_CCLD)$(elements_ccextractor_LINK) $(elements_ccextractor_OBJECTS) $(elements_ccextractor_LDADD) $(LIBS)
 elements/curlfilesink.$(OBJEXT): elements/$(am__dirstamp) \
 	elements/$(DEPDIR)/$(am__dirstamp)
 
@@ -2195,12 +2272,12 @@ elements/mpegtsmux-mpegtsmux.$(OBJEXT): elements/$(am__dirstamp) \
 elements/mpegtsmux$(EXEEXT): $(elements_mpegtsmux_OBJECTS) $(elements_mpegtsmux_DEPENDENCIES) $(EXTRA_elements_mpegtsmux_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/mpegtsmux$(EXEEXT)
 	$(AM_V_CCLD)$(elements_mpegtsmux_LINK) $(elements_mpegtsmux_OBJECTS) $(elements_mpegtsmux_LDADD) $(LIBS)
-elements/mpegvideoparse.$(OBJEXT): elements/$(am__dirstamp) \
-	elements/$(DEPDIR)/$(am__dirstamp)
+elements/mpegvideoparse-mpegvideoparse.$(OBJEXT):  \
+	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
 
 elements/mpegvideoparse$(EXEEXT): $(elements_mpegvideoparse_OBJECTS) $(elements_mpegvideoparse_DEPENDENCIES) $(EXTRA_elements_mpegvideoparse_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/mpegvideoparse$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(elements_mpegvideoparse_OBJECTS) $(elements_mpegvideoparse_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(elements_mpegvideoparse_LINK) $(elements_mpegvideoparse_OBJECTS) $(elements_mpegvideoparse_LDADD) $(LIBS)
 elements/mplex.$(OBJEXT): elements/$(am__dirstamp) \
 	elements/$(DEPDIR)/$(am__dirstamp)
 
@@ -2399,6 +2476,12 @@ libs/mpegvideoparser-mpegvideoparser.$(OBJEXT): libs/$(am__dirstamp) \
 libs/mpegvideoparser$(EXEEXT): $(libs_mpegvideoparser_OBJECTS) $(libs_mpegvideoparser_DEPENDENCIES) $(EXTRA_libs_mpegvideoparser_DEPENDENCIES) libs/$(am__dirstamp)
 	@rm -f libs/mpegvideoparser$(EXEEXT)
 	$(AM_V_CCLD)$(libs_mpegvideoparser_LINK) $(libs_mpegvideoparser_OBJECTS) $(libs_mpegvideoparser_LDADD) $(LIBS)
+libs/planaraudioadapter-planaraudioadapter.$(OBJEXT):  \
+	libs/$(am__dirstamp) libs/$(DEPDIR)/$(am__dirstamp)
+
+libs/planaraudioadapter$(EXEEXT): $(libs_planaraudioadapter_OBJECTS) $(libs_planaraudioadapter_DEPENDENCIES) $(EXTRA_libs_planaraudioadapter_DEPENDENCIES) libs/$(am__dirstamp)
+	@rm -f libs/planaraudioadapter$(EXEEXT)
+	$(AM_V_CCLD)$(libs_planaraudioadapter_LINK) $(libs_planaraudioadapter_OBJECTS) $(libs_planaraudioadapter_LDADD) $(LIBS)
 libs/player-player.$(OBJEXT): libs/$(am__dirstamp) \
 	libs/$(DEPDIR)/$(am__dirstamp)
 libs/player-player_dummy.$(OBJEXT): libs/$(am__dirstamp) \
@@ -2431,12 +2514,6 @@ orc/bayer-bayer.$(OBJEXT): orc/$(am__dirstamp) \
 orc/bayer$(EXEEXT): $(orc_bayer_OBJECTS) $(orc_bayer_DEPENDENCIES) $(EXTRA_orc_bayer_DEPENDENCIES) orc/$(am__dirstamp)
 	@rm -f orc/bayer$(EXEEXT)
 	$(AM_V_CCLD)$(orc_bayer_LINK) $(orc_bayer_OBJECTS) $(orc_bayer_LDADD) $(LIBS)
-orc/orc_compositor-compositor.$(OBJEXT): orc/$(am__dirstamp) \
-	orc/$(DEPDIR)/$(am__dirstamp)
-
-orc/compositor$(EXEEXT): $(orc_compositor_OBJECTS) $(orc_compositor_DEPENDENCIES) $(EXTRA_orc_compositor_DEPENDENCIES) orc/$(am__dirstamp)
-	@rm -f orc/compositor$(EXEEXT)
-	$(AM_V_CCLD)$(orc_compositor_LINK) $(orc_compositor_OBJECTS) $(orc_compositor_LDADD) $(LIBS)
 pipelines/$(am__dirstamp):
 	@$(MKDIR_P) pipelines
 	@: > pipelines/$(am__dirstamp)
@@ -2479,7 +2556,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/assrender-assrender.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/autoconvert.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/autovideoconvert.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/avwait-avwait.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/camerabin-camerabin.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/cccombiner-cccombiner.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/ccconverter-ccconverter.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/ccextractor-ccextractor.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/curlfilesink.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/curlftpsink.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/curlhttpsink.Po@am__quote@ # am--include-marker
@@ -2491,7 +2572,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/dash_demux-test_http_src.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/dash_mpd-dash_mpd.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/dtls.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_compositor-compositor.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/faac-faac.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/faad-faad.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/gdpdepay-gdpdepay.Po@am__quote@ # am--include-marker
@@ -2511,7 +2591,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mpeg2enc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mpeg4videoparse.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mpegtsmux-mpegtsmux.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mpegvideoparse.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mpegvideoparse-mpegvideoparse.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mplex.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/msdkh264enc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mssdemux-adaptive_demux_common.Po@am__quote@ # am--include-marker
@@ -2545,12 +2625,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@libs/$(DEPDIR)/isoff-isoff.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@libs/$(DEPDIR)/mpegts-mpegts.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@libs/$(DEPDIR)/mpegvideoparser-mpegvideoparser.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@libs/$(DEPDIR)/planaraudioadapter-planaraudioadapter.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@libs/$(DEPDIR)/player-player.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@libs/$(DEPDIR)/player-player_dummy.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@libs/$(DEPDIR)/vc1parser-vc1parser.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@libs/$(DEPDIR)/vp8parser-vp8parser.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@orc/$(DEPDIR)/bayer-bayer.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@orc/$(DEPDIR)/orc_compositor-compositor.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@pipelines/$(DEPDIR)/ipcpipeline-ipcpipeline.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@pipelines/$(DEPDIR)/mxf.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@pipelines/$(DEPDIR)/streamheader-streamheader.Po@am__quote@ # am--include-marker
@@ -2606,6 +2686,20 @@ elements/assrender-assrender.obj: elements/assrender.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_assrender_CFLAGS) $(CFLAGS) -c -o elements/assrender-assrender.obj `if test -f 'elements/assrender.c'; then $(CYGPATH_W) 'elements/assrender.c'; else $(CYGPATH_W) '$(srcdir)/elements/assrender.c'; fi`
 
+elements/avwait-avwait.o: elements/avwait.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_avwait_CFLAGS) $(CFLAGS) -MT elements/avwait-avwait.o -MD -MP -MF elements/$(DEPDIR)/avwait-avwait.Tpo -c -o elements/avwait-avwait.o `test -f 'elements/avwait.c' || echo '$(srcdir)/'`elements/avwait.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/avwait-avwait.Tpo elements/$(DEPDIR)/avwait-avwait.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/avwait.c' object='elements/avwait-avwait.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_avwait_CFLAGS) $(CFLAGS) -c -o elements/avwait-avwait.o `test -f 'elements/avwait.c' || echo '$(srcdir)/'`elements/avwait.c
+
+elements/avwait-avwait.obj: elements/avwait.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_avwait_CFLAGS) $(CFLAGS) -MT elements/avwait-avwait.obj -MD -MP -MF elements/$(DEPDIR)/avwait-avwait.Tpo -c -o elements/avwait-avwait.obj `if test -f 'elements/avwait.c'; then $(CYGPATH_W) 'elements/avwait.c'; else $(CYGPATH_W) '$(srcdir)/elements/avwait.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/avwait-avwait.Tpo elements/$(DEPDIR)/avwait-avwait.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/avwait.c' object='elements/avwait-avwait.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_avwait_CFLAGS) $(CFLAGS) -c -o elements/avwait-avwait.obj `if test -f 'elements/avwait.c'; then $(CYGPATH_W) 'elements/avwait.c'; else $(CYGPATH_W) '$(srcdir)/elements/avwait.c'; fi`
+
 elements/camerabin-camerabin.o: elements/camerabin.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_camerabin_CFLAGS) $(CFLAGS) -MT elements/camerabin-camerabin.o -MD -MP -MF elements/$(DEPDIR)/camerabin-camerabin.Tpo -c -o elements/camerabin-camerabin.o `test -f 'elements/camerabin.c' || echo '$(srcdir)/'`elements/camerabin.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/camerabin-camerabin.Tpo elements/$(DEPDIR)/camerabin-camerabin.Po
@@ -2620,19 +2714,47 @@ elements/camerabin-camerabin.obj: elements/camerabin.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_camerabin_CFLAGS) $(CFLAGS) -c -o elements/camerabin-camerabin.obj `if test -f 'elements/camerabin.c'; then $(CYGPATH_W) 'elements/camerabin.c'; else $(CYGPATH_W) '$(srcdir)/elements/camerabin.c'; fi`
 
-elements/elements_compositor-compositor.o: elements/compositor.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_compositor_CFLAGS) $(CFLAGS) -MT elements/elements_compositor-compositor.o -MD -MP -MF elements/$(DEPDIR)/elements_compositor-compositor.Tpo -c -o elements/elements_compositor-compositor.o `test -f 'elements/compositor.c' || echo '$(srcdir)/'`elements/compositor.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_compositor-compositor.Tpo elements/$(DEPDIR)/elements_compositor-compositor.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/compositor.c' object='elements/elements_compositor-compositor.o' libtool=no @AMDEPBACKSLASH@
+elements/cccombiner-cccombiner.o: elements/cccombiner.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_cccombiner_CFLAGS) $(CFLAGS) -MT elements/cccombiner-cccombiner.o -MD -MP -MF elements/$(DEPDIR)/cccombiner-cccombiner.Tpo -c -o elements/cccombiner-cccombiner.o `test -f 'elements/cccombiner.c' || echo '$(srcdir)/'`elements/cccombiner.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/cccombiner-cccombiner.Tpo elements/$(DEPDIR)/cccombiner-cccombiner.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/cccombiner.c' object='elements/cccombiner-cccombiner.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_compositor_CFLAGS) $(CFLAGS) -c -o elements/elements_compositor-compositor.o `test -f 'elements/compositor.c' || echo '$(srcdir)/'`elements/compositor.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_cccombiner_CFLAGS) $(CFLAGS) -c -o elements/cccombiner-cccombiner.o `test -f 'elements/cccombiner.c' || echo '$(srcdir)/'`elements/cccombiner.c
 
-elements/elements_compositor-compositor.obj: elements/compositor.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_compositor_CFLAGS) $(CFLAGS) -MT elements/elements_compositor-compositor.obj -MD -MP -MF elements/$(DEPDIR)/elements_compositor-compositor.Tpo -c -o elements/elements_compositor-compositor.obj `if test -f 'elements/compositor.c'; then $(CYGPATH_W) 'elements/compositor.c'; else $(CYGPATH_W) '$(srcdir)/elements/compositor.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_compositor-compositor.Tpo elements/$(DEPDIR)/elements_compositor-compositor.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/compositor.c' object='elements/elements_compositor-compositor.obj' libtool=no @AMDEPBACKSLASH@
+elements/cccombiner-cccombiner.obj: elements/cccombiner.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_cccombiner_CFLAGS) $(CFLAGS) -MT elements/cccombiner-cccombiner.obj -MD -MP -MF elements/$(DEPDIR)/cccombiner-cccombiner.Tpo -c -o elements/cccombiner-cccombiner.obj `if test -f 'elements/cccombiner.c'; then $(CYGPATH_W) 'elements/cccombiner.c'; else $(CYGPATH_W) '$(srcdir)/elements/cccombiner.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/cccombiner-cccombiner.Tpo elements/$(DEPDIR)/cccombiner-cccombiner.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/cccombiner.c' object='elements/cccombiner-cccombiner.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_compositor_CFLAGS) $(CFLAGS) -c -o elements/elements_compositor-compositor.obj `if test -f 'elements/compositor.c'; then $(CYGPATH_W) 'elements/compositor.c'; else $(CYGPATH_W) '$(srcdir)/elements/compositor.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_cccombiner_CFLAGS) $(CFLAGS) -c -o elements/cccombiner-cccombiner.obj `if test -f 'elements/cccombiner.c'; then $(CYGPATH_W) 'elements/cccombiner.c'; else $(CYGPATH_W) '$(srcdir)/elements/cccombiner.c'; fi`
+
+elements/ccconverter-ccconverter.o: elements/ccconverter.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_ccconverter_CFLAGS) $(CFLAGS) -MT elements/ccconverter-ccconverter.o -MD -MP -MF elements/$(DEPDIR)/ccconverter-ccconverter.Tpo -c -o elements/ccconverter-ccconverter.o `test -f 'elements/ccconverter.c' || echo '$(srcdir)/'`elements/ccconverter.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/ccconverter-ccconverter.Tpo elements/$(DEPDIR)/ccconverter-ccconverter.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/ccconverter.c' object='elements/ccconverter-ccconverter.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_ccconverter_CFLAGS) $(CFLAGS) -c -o elements/ccconverter-ccconverter.o `test -f 'elements/ccconverter.c' || echo '$(srcdir)/'`elements/ccconverter.c
+
+elements/ccconverter-ccconverter.obj: elements/ccconverter.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_ccconverter_CFLAGS) $(CFLAGS) -MT elements/ccconverter-ccconverter.obj -MD -MP -MF elements/$(DEPDIR)/ccconverter-ccconverter.Tpo -c -o elements/ccconverter-ccconverter.obj `if test -f 'elements/ccconverter.c'; then $(CYGPATH_W) 'elements/ccconverter.c'; else $(CYGPATH_W) '$(srcdir)/elements/ccconverter.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/ccconverter-ccconverter.Tpo elements/$(DEPDIR)/ccconverter-ccconverter.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/ccconverter.c' object='elements/ccconverter-ccconverter.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_ccconverter_CFLAGS) $(CFLAGS) -c -o elements/ccconverter-ccconverter.obj `if test -f 'elements/ccconverter.c'; then $(CYGPATH_W) 'elements/ccconverter.c'; else $(CYGPATH_W) '$(srcdir)/elements/ccconverter.c'; fi`
+
+elements/ccextractor-ccextractor.o: elements/ccextractor.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_ccextractor_CFLAGS) $(CFLAGS) -MT elements/ccextractor-ccextractor.o -MD -MP -MF elements/$(DEPDIR)/ccextractor-ccextractor.Tpo -c -o elements/ccextractor-ccextractor.o `test -f 'elements/ccextractor.c' || echo '$(srcdir)/'`elements/ccextractor.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/ccextractor-ccextractor.Tpo elements/$(DEPDIR)/ccextractor-ccextractor.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/ccextractor.c' object='elements/ccextractor-ccextractor.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_ccextractor_CFLAGS) $(CFLAGS) -c -o elements/ccextractor-ccextractor.o `test -f 'elements/ccextractor.c' || echo '$(srcdir)/'`elements/ccextractor.c
+
+elements/ccextractor-ccextractor.obj: elements/ccextractor.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_ccextractor_CFLAGS) $(CFLAGS) -MT elements/ccextractor-ccextractor.obj -MD -MP -MF elements/$(DEPDIR)/ccextractor-ccextractor.Tpo -c -o elements/ccextractor-ccextractor.obj `if test -f 'elements/ccextractor.c'; then $(CYGPATH_W) 'elements/ccextractor.c'; else $(CYGPATH_W) '$(srcdir)/elements/ccextractor.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/ccextractor-ccextractor.Tpo elements/$(DEPDIR)/ccextractor-ccextractor.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/ccextractor.c' object='elements/ccextractor-ccextractor.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_ccextractor_CFLAGS) $(CFLAGS) -c -o elements/ccextractor-ccextractor.obj `if test -f 'elements/ccextractor.c'; then $(CYGPATH_W) 'elements/ccextractor.c'; else $(CYGPATH_W) '$(srcdir)/elements/ccextractor.c'; fi`
 
 elements/dash_demux-test_http_src.o: elements/test_http_src.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_dash_demux_CFLAGS) $(CFLAGS) -MT elements/dash_demux-test_http_src.o -MD -MP -MF elements/$(DEPDIR)/dash_demux-test_http_src.Tpo -c -o elements/dash_demux-test_http_src.o `test -f 'elements/test_http_src.c' || echo '$(srcdir)/'`elements/test_http_src.c
@@ -2871,6 +2993,20 @@ elements/mpegtsmux-mpegtsmux.obj: elements/mpegtsmux.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/mpegtsmux.c' object='elements/mpegtsmux-mpegtsmux.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpegtsmux_CFLAGS) $(CFLAGS) -c -o elements/mpegtsmux-mpegtsmux.obj `if test -f 'elements/mpegtsmux.c'; then $(CYGPATH_W) 'elements/mpegtsmux.c'; else $(CYGPATH_W) '$(srcdir)/elements/mpegtsmux.c'; fi`
+
+elements/mpegvideoparse-mpegvideoparse.o: elements/mpegvideoparse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpegvideoparse_CFLAGS) $(CFLAGS) -MT elements/mpegvideoparse-mpegvideoparse.o -MD -MP -MF elements/$(DEPDIR)/mpegvideoparse-mpegvideoparse.Tpo -c -o elements/mpegvideoparse-mpegvideoparse.o `test -f 'elements/mpegvideoparse.c' || echo '$(srcdir)/'`elements/mpegvideoparse.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/mpegvideoparse-mpegvideoparse.Tpo elements/$(DEPDIR)/mpegvideoparse-mpegvideoparse.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/mpegvideoparse.c' object='elements/mpegvideoparse-mpegvideoparse.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpegvideoparse_CFLAGS) $(CFLAGS) -c -o elements/mpegvideoparse-mpegvideoparse.o `test -f 'elements/mpegvideoparse.c' || echo '$(srcdir)/'`elements/mpegvideoparse.c
+
+elements/mpegvideoparse-mpegvideoparse.obj: elements/mpegvideoparse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpegvideoparse_CFLAGS) $(CFLAGS) -MT elements/mpegvideoparse-mpegvideoparse.obj -MD -MP -MF elements/$(DEPDIR)/mpegvideoparse-mpegvideoparse.Tpo -c -o elements/mpegvideoparse-mpegvideoparse.obj `if test -f 'elements/mpegvideoparse.c'; then $(CYGPATH_W) 'elements/mpegvideoparse.c'; else $(CYGPATH_W) '$(srcdir)/elements/mpegvideoparse.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/mpegvideoparse-mpegvideoparse.Tpo elements/$(DEPDIR)/mpegvideoparse-mpegvideoparse.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/mpegvideoparse.c' object='elements/mpegvideoparse-mpegvideoparse.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpegvideoparse_CFLAGS) $(CFLAGS) -c -o elements/mpegvideoparse-mpegvideoparse.obj `if test -f 'elements/mpegvideoparse.c'; then $(CYGPATH_W) 'elements/mpegvideoparse.c'; else $(CYGPATH_W) '$(srcdir)/elements/mpegvideoparse.c'; fi`
 
 elements/mssdemux-test_http_src.o: elements/test_http_src.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mssdemux_CFLAGS) $(CFLAGS) -MT elements/mssdemux-test_http_src.o -MD -MP -MF elements/$(DEPDIR)/mssdemux-test_http_src.Tpo -c -o elements/mssdemux-test_http_src.o `test -f 'elements/test_http_src.c' || echo '$(srcdir)/'`elements/test_http_src.c
@@ -3138,6 +3274,20 @@ libs/mpegvideoparser-mpegvideoparser.obj: libs/mpegvideoparser.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libs_mpegvideoparser_CFLAGS) $(CFLAGS) -c -o libs/mpegvideoparser-mpegvideoparser.obj `if test -f 'libs/mpegvideoparser.c'; then $(CYGPATH_W) 'libs/mpegvideoparser.c'; else $(CYGPATH_W) '$(srcdir)/libs/mpegvideoparser.c'; fi`
 
+libs/planaraudioadapter-planaraudioadapter.o: libs/planaraudioadapter.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libs_planaraudioadapter_CFLAGS) $(CFLAGS) -MT libs/planaraudioadapter-planaraudioadapter.o -MD -MP -MF libs/$(DEPDIR)/planaraudioadapter-planaraudioadapter.Tpo -c -o libs/planaraudioadapter-planaraudioadapter.o `test -f 'libs/planaraudioadapter.c' || echo '$(srcdir)/'`libs/planaraudioadapter.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libs/$(DEPDIR)/planaraudioadapter-planaraudioadapter.Tpo libs/$(DEPDIR)/planaraudioadapter-planaraudioadapter.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libs/planaraudioadapter.c' object='libs/planaraudioadapter-planaraudioadapter.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libs_planaraudioadapter_CFLAGS) $(CFLAGS) -c -o libs/planaraudioadapter-planaraudioadapter.o `test -f 'libs/planaraudioadapter.c' || echo '$(srcdir)/'`libs/planaraudioadapter.c
+
+libs/planaraudioadapter-planaraudioadapter.obj: libs/planaraudioadapter.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libs_planaraudioadapter_CFLAGS) $(CFLAGS) -MT libs/planaraudioadapter-planaraudioadapter.obj -MD -MP -MF libs/$(DEPDIR)/planaraudioadapter-planaraudioadapter.Tpo -c -o libs/planaraudioadapter-planaraudioadapter.obj `if test -f 'libs/planaraudioadapter.c'; then $(CYGPATH_W) 'libs/planaraudioadapter.c'; else $(CYGPATH_W) '$(srcdir)/libs/planaraudioadapter.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libs/$(DEPDIR)/planaraudioadapter-planaraudioadapter.Tpo libs/$(DEPDIR)/planaraudioadapter-planaraudioadapter.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libs/planaraudioadapter.c' object='libs/planaraudioadapter-planaraudioadapter.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libs_planaraudioadapter_CFLAGS) $(CFLAGS) -c -o libs/planaraudioadapter-planaraudioadapter.obj `if test -f 'libs/planaraudioadapter.c'; then $(CYGPATH_W) 'libs/planaraudioadapter.c'; else $(CYGPATH_W) '$(srcdir)/libs/planaraudioadapter.c'; fi`
+
 libs/player-player.o: libs/player.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libs_player_CFLAGS) $(CFLAGS) -MT libs/player-player.o -MD -MP -MF libs/$(DEPDIR)/player-player.Tpo -c -o libs/player-player.o `test -f 'libs/player.c' || echo '$(srcdir)/'`libs/player.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libs/$(DEPDIR)/player-player.Tpo libs/$(DEPDIR)/player-player.Po
@@ -3207,20 +3357,6 @@ orc/bayer-bayer.obj: orc/bayer.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='orc/bayer.c' object='orc/bayer-bayer.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(orc_bayer_CFLAGS) $(CFLAGS) -c -o orc/bayer-bayer.obj `if test -f 'orc/bayer.c'; then $(CYGPATH_W) 'orc/bayer.c'; else $(CYGPATH_W) '$(srcdir)/orc/bayer.c'; fi`
-
-orc/orc_compositor-compositor.o: orc/compositor.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(orc_compositor_CFLAGS) $(CFLAGS) -MT orc/orc_compositor-compositor.o -MD -MP -MF orc/$(DEPDIR)/orc_compositor-compositor.Tpo -c -o orc/orc_compositor-compositor.o `test -f 'orc/compositor.c' || echo '$(srcdir)/'`orc/compositor.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) orc/$(DEPDIR)/orc_compositor-compositor.Tpo orc/$(DEPDIR)/orc_compositor-compositor.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='orc/compositor.c' object='orc/orc_compositor-compositor.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(orc_compositor_CFLAGS) $(CFLAGS) -c -o orc/orc_compositor-compositor.o `test -f 'orc/compositor.c' || echo '$(srcdir)/'`orc/compositor.c
-
-orc/orc_compositor-compositor.obj: orc/compositor.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(orc_compositor_CFLAGS) $(CFLAGS) -MT orc/orc_compositor-compositor.obj -MD -MP -MF orc/$(DEPDIR)/orc_compositor-compositor.Tpo -c -o orc/orc_compositor-compositor.obj `if test -f 'orc/compositor.c'; then $(CYGPATH_W) 'orc/compositor.c'; else $(CYGPATH_W) '$(srcdir)/orc/compositor.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) orc/$(DEPDIR)/orc_compositor-compositor.Tpo orc/$(DEPDIR)/orc_compositor-compositor.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='orc/compositor.c' object='orc/orc_compositor-compositor.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(orc_compositor_CFLAGS) $(CFLAGS) -c -o orc/orc_compositor-compositor.obj `if test -f 'orc/compositor.c'; then $(CYGPATH_W) 'orc/compositor.c'; else $(CYGPATH_W) '$(srcdir)/orc/compositor.c'; fi`
 
 pipelines/ipcpipeline-ipcpipeline.o: pipelines/ipcpipeline.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pipelines_ipcpipeline_CFLAGS) $(CFLAGS) -MT pipelines/ipcpipeline-ipcpipeline.o -MD -MP -MF pipelines/$(DEPDIR)/ipcpipeline-ipcpipeline.Tpo -c -o pipelines/ipcpipeline-ipcpipeline.o `test -f 'pipelines/ipcpipeline.c' || echo '$(srcdir)/'`pipelines/ipcpipeline.c
@@ -3468,6 +3604,27 @@ elements/assrender.log: elements/assrender$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+elements/ccconverter.log: elements/ccconverter$(EXEEXT)
+	@p='elements/ccconverter$(EXEEXT)'; \
+	b='elements/ccconverter'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+elements/cccombiner.log: elements/cccombiner$(EXEEXT)
+	@p='elements/cccombiner$(EXEEXT)'; \
+	b='elements/cccombiner'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+elements/ccextractor.log: elements/ccextractor$(EXEEXT)
+	@p='elements/ccextractor$(EXEEXT)'; \
+	b='elements/ccextractor'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 elements/dash_mpd.log: elements/dash_mpd$(EXEEXT)
 	@p='elements/dash_mpd$(EXEEXT)'; \
 	b='elements/dash_mpd'; \
@@ -3520,13 +3677,6 @@ elements/mpeg2enc.log: elements/mpeg2enc$(EXEEXT)
 elements/mplex.log: elements/mplex$(EXEEXT)
 	@p='elements/mplex$(EXEEXT)'; \
 	b='elements/mplex'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-elements/mssdemux.log: elements/mssdemux$(EXEEXT)
-	@p='elements/mssdemux$(EXEEXT)'; \
-	b='elements/mssdemux'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
@@ -3622,6 +3772,13 @@ elements/autovideoconvert.log: elements/autovideoconvert$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+elements/avwait.log: elements/avwait$(EXEEXT)
+	@p='elements/avwait$(EXEEXT)'; \
+	b='elements/avwait'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 elements/asfmux.log: elements/asfmux$(EXEEXT)
 	@p='elements/asfmux$(EXEEXT)'; \
 	b='elements/asfmux'; \
@@ -3646,13 +3803,6 @@ elements/gdppay.log: elements/gdppay$(EXEEXT)
 elements/gdpdepay.log: elements/gdpdepay$(EXEEXT)
 	@p='elements/gdpdepay$(EXEEXT)'; \
 	b='elements/gdpdepay'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-elements/compositor.log: elements/compositor$(EXEEXT)
-	@p='elements/compositor$(EXEEXT)'; \
-	b='elements/compositor'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
@@ -3811,6 +3961,13 @@ libs/vp8parser.log: libs/vp8parser$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+libs/planaraudioadapter.log: libs/planaraudioadapter$(EXEEXT)
+	@p='libs/planaraudioadapter$(EXEEXT)'; \
+	b='libs/planaraudioadapter'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 elements/uvch264demux.log: elements/uvch264demux$(EXEEXT)
 	@p='elements/uvch264demux$(EXEEXT)'; \
 	b='elements/uvch264demux'; \
@@ -3849,13 +4006,6 @@ elements/zbar.log: elements/zbar$(EXEEXT)
 orc/bayer.log: orc/bayer$(EXEEXT)
 	@p='orc/bayer$(EXEEXT)'; \
 	b='orc/bayer'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-orc/compositor.log: orc/compositor$(EXEEXT)
-	@p='orc/compositor$(EXEEXT)'; \
-	b='orc/compositor'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
@@ -4018,7 +4168,11 @@ distclean: distclean-am
 	-rm -f elements/$(DEPDIR)/assrender-assrender.Po
 	-rm -f elements/$(DEPDIR)/autoconvert.Po
 	-rm -f elements/$(DEPDIR)/autovideoconvert.Po
+	-rm -f elements/$(DEPDIR)/avwait-avwait.Po
 	-rm -f elements/$(DEPDIR)/camerabin-camerabin.Po
+	-rm -f elements/$(DEPDIR)/cccombiner-cccombiner.Po
+	-rm -f elements/$(DEPDIR)/ccconverter-ccconverter.Po
+	-rm -f elements/$(DEPDIR)/ccextractor-ccextractor.Po
 	-rm -f elements/$(DEPDIR)/curlfilesink.Po
 	-rm -f elements/$(DEPDIR)/curlftpsink.Po
 	-rm -f elements/$(DEPDIR)/curlhttpsink.Po
@@ -4030,7 +4184,6 @@ distclean: distclean-am
 	-rm -f elements/$(DEPDIR)/dash_demux-test_http_src.Po
 	-rm -f elements/$(DEPDIR)/dash_mpd-dash_mpd.Po
 	-rm -f elements/$(DEPDIR)/dtls.Po
-	-rm -f elements/$(DEPDIR)/elements_compositor-compositor.Po
 	-rm -f elements/$(DEPDIR)/faac-faac.Po
 	-rm -f elements/$(DEPDIR)/faad-faad.Po
 	-rm -f elements/$(DEPDIR)/gdpdepay-gdpdepay.Po
@@ -4050,7 +4203,7 @@ distclean: distclean-am
 	-rm -f elements/$(DEPDIR)/mpeg2enc.Po
 	-rm -f elements/$(DEPDIR)/mpeg4videoparse.Po
 	-rm -f elements/$(DEPDIR)/mpegtsmux-mpegtsmux.Po
-	-rm -f elements/$(DEPDIR)/mpegvideoparse.Po
+	-rm -f elements/$(DEPDIR)/mpegvideoparse-mpegvideoparse.Po
 	-rm -f elements/$(DEPDIR)/mplex.Po
 	-rm -f elements/$(DEPDIR)/msdkh264enc.Po
 	-rm -f elements/$(DEPDIR)/mssdemux-adaptive_demux_common.Po
@@ -4084,12 +4237,12 @@ distclean: distclean-am
 	-rm -f libs/$(DEPDIR)/isoff-isoff.Po
 	-rm -f libs/$(DEPDIR)/mpegts-mpegts.Po
 	-rm -f libs/$(DEPDIR)/mpegvideoparser-mpegvideoparser.Po
+	-rm -f libs/$(DEPDIR)/planaraudioadapter-planaraudioadapter.Po
 	-rm -f libs/$(DEPDIR)/player-player.Po
 	-rm -f libs/$(DEPDIR)/player-player_dummy.Po
 	-rm -f libs/$(DEPDIR)/vc1parser-vc1parser.Po
 	-rm -f libs/$(DEPDIR)/vp8parser-vp8parser.Po
 	-rm -f orc/$(DEPDIR)/bayer-bayer.Po
-	-rm -f orc/$(DEPDIR)/orc_compositor-compositor.Po
 	-rm -f pipelines/$(DEPDIR)/ipcpipeline-ipcpipeline.Po
 	-rm -f pipelines/$(DEPDIR)/mxf.Po
 	-rm -f pipelines/$(DEPDIR)/streamheader-streamheader.Po
@@ -4143,7 +4296,11 @@ maintainer-clean: maintainer-clean-am
 	-rm -f elements/$(DEPDIR)/assrender-assrender.Po
 	-rm -f elements/$(DEPDIR)/autoconvert.Po
 	-rm -f elements/$(DEPDIR)/autovideoconvert.Po
+	-rm -f elements/$(DEPDIR)/avwait-avwait.Po
 	-rm -f elements/$(DEPDIR)/camerabin-camerabin.Po
+	-rm -f elements/$(DEPDIR)/cccombiner-cccombiner.Po
+	-rm -f elements/$(DEPDIR)/ccconverter-ccconverter.Po
+	-rm -f elements/$(DEPDIR)/ccextractor-ccextractor.Po
 	-rm -f elements/$(DEPDIR)/curlfilesink.Po
 	-rm -f elements/$(DEPDIR)/curlftpsink.Po
 	-rm -f elements/$(DEPDIR)/curlhttpsink.Po
@@ -4155,7 +4312,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f elements/$(DEPDIR)/dash_demux-test_http_src.Po
 	-rm -f elements/$(DEPDIR)/dash_mpd-dash_mpd.Po
 	-rm -f elements/$(DEPDIR)/dtls.Po
-	-rm -f elements/$(DEPDIR)/elements_compositor-compositor.Po
 	-rm -f elements/$(DEPDIR)/faac-faac.Po
 	-rm -f elements/$(DEPDIR)/faad-faad.Po
 	-rm -f elements/$(DEPDIR)/gdpdepay-gdpdepay.Po
@@ -4175,7 +4331,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f elements/$(DEPDIR)/mpeg2enc.Po
 	-rm -f elements/$(DEPDIR)/mpeg4videoparse.Po
 	-rm -f elements/$(DEPDIR)/mpegtsmux-mpegtsmux.Po
-	-rm -f elements/$(DEPDIR)/mpegvideoparse.Po
+	-rm -f elements/$(DEPDIR)/mpegvideoparse-mpegvideoparse.Po
 	-rm -f elements/$(DEPDIR)/mplex.Po
 	-rm -f elements/$(DEPDIR)/msdkh264enc.Po
 	-rm -f elements/$(DEPDIR)/mssdemux-adaptive_demux_common.Po
@@ -4209,12 +4365,12 @@ maintainer-clean: maintainer-clean-am
 	-rm -f libs/$(DEPDIR)/isoff-isoff.Po
 	-rm -f libs/$(DEPDIR)/mpegts-mpegts.Po
 	-rm -f libs/$(DEPDIR)/mpegvideoparser-mpegvideoparser.Po
+	-rm -f libs/$(DEPDIR)/planaraudioadapter-planaraudioadapter.Po
 	-rm -f libs/$(DEPDIR)/player-player.Po
 	-rm -f libs/$(DEPDIR)/player-player_dummy.Po
 	-rm -f libs/$(DEPDIR)/vc1parser-vc1parser.Po
 	-rm -f libs/$(DEPDIR)/vp8parser-vp8parser.Po
 	-rm -f orc/$(DEPDIR)/bayer-bayer.Po
-	-rm -f orc/$(DEPDIR)/orc_compositor-compositor.Po
 	-rm -f pipelines/$(DEPDIR)/ipcpipeline-ipcpipeline.Po
 	-rm -f pipelines/$(DEPDIR)/mxf.Po
 	-rm -f pipelines/$(DEPDIR)/streamheader-streamheader.Po
@@ -4513,10 +4669,6 @@ distclean-local: distclean-local-orc
 
 orc/bayer.c: $(top_srcdir)/gst/bayer/gstbayerorc.orc
 	$(MKDIR_P) orc
-	$(ORCC) --test -o $@ $<
-
-orc/compositor.c: $(top_srcdir)/gst/compositor/compositororc.orc
-	$(MKDIR_P) orc/
 	$(ORCC) --test -o $@ $<
 
 distclean-local-orc:
