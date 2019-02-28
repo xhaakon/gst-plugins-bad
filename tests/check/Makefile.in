@@ -181,6 +181,7 @@ CONFIG_CLEAN_VPATH_FILES =
 @USE_OPENCV_TRUE@am__EXEEXT_13 = elements/templatematch$(EXEEXT)
 @USE_SSH2_TRUE@am__EXEEXT_14 = elements/curlsftpsink$(EXEEXT)
 @USE_CURL_TRUE@am__EXEEXT_15 = elements/curlhttpsink$(EXEEXT) \
+@USE_CURL_TRUE@	elements/curlhttpsrc$(EXEEXT) \
 @USE_CURL_TRUE@	elements/curlfilesink$(EXEEXT) \
 @USE_CURL_TRUE@	elements/curlftpsink$(EXEEXT) $(am__EXEEXT_14) \
 @USE_CURL_TRUE@	elements/curlsmtpsink$(EXEEXT)
@@ -304,6 +305,16 @@ elements_curlhttpsink_SOURCES = elements/curlhttpsink.c
 elements_curlhttpsink_OBJECTS = elements/curlhttpsink.$(OBJEXT)
 elements_curlhttpsink_LDADD = $(LDADD)
 elements_curlhttpsink_DEPENDENCIES = $(am__DEPENDENCIES_1)
+elements_curlhttpsrc_SOURCES = elements/curlhttpsrc.c
+elements_curlhttpsrc_OBJECTS =  \
+	elements/curlhttpsrc-curlhttpsrc.$(OBJEXT)
+elements_curlhttpsrc_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
+elements_curlhttpsrc_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(elements_curlhttpsrc_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 elements_curlsftpsink_SOURCES = elements/curlsftpsink.c
 elements_curlsftpsink_OBJECTS = elements/curlsftpsink.$(OBJEXT)
 elements_curlsftpsink_LDADD = $(LDADD)
@@ -747,6 +758,7 @@ am__depfiles_remade = elements/$(DEPDIR)/aiffparse.Po \
 	elements/$(DEPDIR)/curlfilesink.Po \
 	elements/$(DEPDIR)/curlftpsink.Po \
 	elements/$(DEPDIR)/curlhttpsink.Po \
+	elements/$(DEPDIR)/curlhttpsrc-curlhttpsrc.Po \
 	elements/$(DEPDIR)/curlsftpsink.Po \
 	elements/$(DEPDIR)/curlsmtpsink.Po \
 	elements/$(DEPDIR)/dash_demux-adaptive_demux_common.Po \
@@ -834,12 +846,12 @@ SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	$(elements_camerabin_SOURCES) elements/cccombiner.c \
 	elements/ccconverter.c elements/ccextractor.c \
 	elements/curlfilesink.c elements/curlftpsink.c \
-	elements/curlhttpsink.c elements/curlsftpsink.c \
-	elements/curlsmtpsink.c $(elements_dash_demux_SOURCES) \
-	$(elements_dash_mpd_SOURCES) elements/dtls.c elements/faac.c \
-	elements/faad.c elements/gdpdepay.c elements/gdppay.c \
-	elements/h263parse.c elements/h264parse.c \
-	$(elements_hls_demux_SOURCES) \
+	elements/curlhttpsink.c elements/curlhttpsrc.c \
+	elements/curlsftpsink.c elements/curlsmtpsink.c \
+	$(elements_dash_demux_SOURCES) $(elements_dash_mpd_SOURCES) \
+	elements/dtls.c elements/faac.c elements/faad.c \
+	elements/gdpdepay.c elements/gdppay.c elements/h263parse.c \
+	elements/h264parse.c $(elements_hls_demux_SOURCES) \
 	$(elements_hlsdemux_m3u8_SOURCES) elements/id3mux.c \
 	$(elements_jifmux_SOURCES) elements/jpegparse.c \
 	elements/kate.c elements/mpeg2enc.c elements/mpeg4videoparse.c \
@@ -866,12 +878,12 @@ DIST_SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	$(elements_camerabin_SOURCES) elements/cccombiner.c \
 	elements/ccconverter.c elements/ccextractor.c \
 	elements/curlfilesink.c elements/curlftpsink.c \
-	elements/curlhttpsink.c elements/curlsftpsink.c \
-	elements/curlsmtpsink.c $(elements_dash_demux_SOURCES) \
-	$(elements_dash_mpd_SOURCES) elements/dtls.c elements/faac.c \
-	elements/faad.c elements/gdpdepay.c elements/gdppay.c \
-	elements/h263parse.c elements/h264parse.c \
-	$(elements_hls_demux_SOURCES) \
+	elements/curlhttpsink.c elements/curlhttpsrc.c \
+	elements/curlsftpsink.c elements/curlsmtpsink.c \
+	$(elements_dash_demux_SOURCES) $(elements_dash_mpd_SOURCES) \
+	elements/dtls.c elements/faac.c elements/faad.c \
+	elements/gdpdepay.c elements/gdppay.c elements/h263parse.c \
+	elements/h264parse.c $(elements_hls_demux_SOURCES) \
 	$(elements_hlsdemux_m3u8_SOURCES) elements/id3mux.c \
 	$(elements_jifmux_SOURCES) elements/jpegparse.c \
 	elements/kate.c elements/mpeg2enc.c elements/mpeg4videoparse.c \
@@ -1539,6 +1551,8 @@ WILDMIDI_LIBS = @WILDMIDI_LIBS@
 WINKS_LIBS = @WINKS_LIBS@
 WINSCREENCAP_LIBS = @WINSCREENCAP_LIBS@
 WINSOCK2_LIBS = @WINSOCK2_LIBS@
+WPE_CFLAGS = @WPE_CFLAGS@
+WPE_LIBS = @WPE_LIBS@
 X11_CFLAGS = @X11_CFLAGS@
 X11_LIBS = @X11_LIBS@
 X265_CFLAGS = @X265_CFLAGS@
@@ -1625,9 +1639,9 @@ AM_TESTS_ENVIRONMENT = CK_DEFAULT_TIMEOUT=20 $(REGISTRY_ENVIRONMENT) \
 	GST_STATE_IGNORE_ELEMENTS="avdtpsrc camerabin dc1394src \
 	decklinksrc decklinksink dtlssrtpdec dtlssrtpenc dvbsrc \
 	dvbbasebin dfbvideosink festival fluidsynth kmssink rsndvdbin \
-	vcdsrc rfbsrc vdpauyuvvideo vdpauvideoyuv vdpaumpegdec \
-	vdpaumpeg4dec vdpauh264dec vdpauvideopostprocess vdpausink \
-	neonhttpsrc waylandsink"
+	rfbsrc vdpauyuvvideo vdpauvideoyuv vdpaumpegdec vdpaumpeg4dec \
+	vdpauh264dec vdpauvideopostprocess vdpausink neonhttpsrc \
+	waylandsink"
 
 # inspect every plugin feature
 GST_INSPECT = $(GST_TOOLS_DIR)/gst-inspect-$(GST_API_VERSION)
@@ -1692,6 +1706,7 @@ SUPPRESSIONS = $(top_srcdir)/common/gst.supp $(srcdir)/gst-plugins-bad.supp
 @WITH_GST_PLAYER_TESTS_TRUE@check_player = libs/player
 @USE_CURL_FALSE@check_curl = 
 @USE_CURL_TRUE@check_curl = elements/curlhttpsink \
+@USE_CURL_TRUE@	elements/curlhttpsrc \
 @USE_CURL_TRUE@	elements/curlfilesink \
 @USE_CURL_TRUE@	elements/curlftpsink \
 @USE_CURL_TRUE@	$(check_curl_sftp) \
@@ -1885,6 +1900,8 @@ elements_cccombiner_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_
 elements_cccombiner_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
 elements_ccextractor_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 elements_ccextractor_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
+elements_curlhttpsrc_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GIO_CFLAGS) $(AM_CFLAGS)
+elements_curlhttpsrc_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GIO_LIBS) $(LDADD)
 elements_jifmux_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(EXIF_CFLAGS) $(AM_CFLAGS)
 elements_jifmux_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgsttag-$(GST_API_VERSION) $(GST_CHECK_LIBS) $(EXIF_LIBS) $(LDADD)
 elements_jifmux_SOURCES = elements/jifmux.c
@@ -2140,6 +2157,12 @@ elements/curlhttpsink.$(OBJEXT): elements/$(am__dirstamp) \
 elements/curlhttpsink$(EXEEXT): $(elements_curlhttpsink_OBJECTS) $(elements_curlhttpsink_DEPENDENCIES) $(EXTRA_elements_curlhttpsink_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/curlhttpsink$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(elements_curlhttpsink_OBJECTS) $(elements_curlhttpsink_LDADD) $(LIBS)
+elements/curlhttpsrc-curlhttpsrc.$(OBJEXT): elements/$(am__dirstamp) \
+	elements/$(DEPDIR)/$(am__dirstamp)
+
+elements/curlhttpsrc$(EXEEXT): $(elements_curlhttpsrc_OBJECTS) $(elements_curlhttpsrc_DEPENDENCIES) $(EXTRA_elements_curlhttpsrc_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/curlhttpsrc$(EXEEXT)
+	$(AM_V_CCLD)$(elements_curlhttpsrc_LINK) $(elements_curlhttpsrc_OBJECTS) $(elements_curlhttpsrc_LDADD) $(LIBS)
 elements/curlsftpsink.$(OBJEXT): elements/$(am__dirstamp) \
 	elements/$(DEPDIR)/$(am__dirstamp)
 
@@ -2564,6 +2587,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/curlfilesink.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/curlftpsink.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/curlhttpsink.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/curlhttpsrc-curlhttpsrc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/curlsftpsink.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/curlsmtpsink.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/dash_demux-adaptive_demux_common.Po@am__quote@ # am--include-marker
@@ -2755,6 +2779,20 @@ elements/ccextractor-ccextractor.obj: elements/ccextractor.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/ccextractor.c' object='elements/ccextractor-ccextractor.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_ccextractor_CFLAGS) $(CFLAGS) -c -o elements/ccextractor-ccextractor.obj `if test -f 'elements/ccextractor.c'; then $(CYGPATH_W) 'elements/ccextractor.c'; else $(CYGPATH_W) '$(srcdir)/elements/ccextractor.c'; fi`
+
+elements/curlhttpsrc-curlhttpsrc.o: elements/curlhttpsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_curlhttpsrc_CFLAGS) $(CFLAGS) -MT elements/curlhttpsrc-curlhttpsrc.o -MD -MP -MF elements/$(DEPDIR)/curlhttpsrc-curlhttpsrc.Tpo -c -o elements/curlhttpsrc-curlhttpsrc.o `test -f 'elements/curlhttpsrc.c' || echo '$(srcdir)/'`elements/curlhttpsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/curlhttpsrc-curlhttpsrc.Tpo elements/$(DEPDIR)/curlhttpsrc-curlhttpsrc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/curlhttpsrc.c' object='elements/curlhttpsrc-curlhttpsrc.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_curlhttpsrc_CFLAGS) $(CFLAGS) -c -o elements/curlhttpsrc-curlhttpsrc.o `test -f 'elements/curlhttpsrc.c' || echo '$(srcdir)/'`elements/curlhttpsrc.c
+
+elements/curlhttpsrc-curlhttpsrc.obj: elements/curlhttpsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_curlhttpsrc_CFLAGS) $(CFLAGS) -MT elements/curlhttpsrc-curlhttpsrc.obj -MD -MP -MF elements/$(DEPDIR)/curlhttpsrc-curlhttpsrc.Tpo -c -o elements/curlhttpsrc-curlhttpsrc.obj `if test -f 'elements/curlhttpsrc.c'; then $(CYGPATH_W) 'elements/curlhttpsrc.c'; else $(CYGPATH_W) '$(srcdir)/elements/curlhttpsrc.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/curlhttpsrc-curlhttpsrc.Tpo elements/$(DEPDIR)/curlhttpsrc-curlhttpsrc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/curlhttpsrc.c' object='elements/curlhttpsrc-curlhttpsrc.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_curlhttpsrc_CFLAGS) $(CFLAGS) -c -o elements/curlhttpsrc-curlhttpsrc.obj `if test -f 'elements/curlhttpsrc.c'; then $(CYGPATH_W) 'elements/curlhttpsrc.c'; else $(CYGPATH_W) '$(srcdir)/elements/curlhttpsrc.c'; fi`
 
 elements/dash_demux-test_http_src.o: elements/test_http_src.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_dash_demux_CFLAGS) $(CFLAGS) -MT elements/dash_demux-test_http_src.o -MD -MP -MF elements/$(DEPDIR)/dash_demux-test_http_src.Tpo -c -o elements/dash_demux-test_http_src.o `test -f 'elements/test_http_src.c' || echo '$(srcdir)/'`elements/test_http_src.c
@@ -3709,6 +3747,13 @@ elements/curlhttpsink.log: elements/curlhttpsink$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+elements/curlhttpsrc.log: elements/curlhttpsrc$(EXEEXT)
+	@p='elements/curlhttpsrc$(EXEEXT)'; \
+	b='elements/curlhttpsrc'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 elements/curlfilesink.log: elements/curlfilesink$(EXEEXT)
 	@p='elements/curlfilesink$(EXEEXT)'; \
 	b='elements/curlfilesink'; \
@@ -4176,6 +4221,7 @@ distclean: distclean-am
 	-rm -f elements/$(DEPDIR)/curlfilesink.Po
 	-rm -f elements/$(DEPDIR)/curlftpsink.Po
 	-rm -f elements/$(DEPDIR)/curlhttpsink.Po
+	-rm -f elements/$(DEPDIR)/curlhttpsrc-curlhttpsrc.Po
 	-rm -f elements/$(DEPDIR)/curlsftpsink.Po
 	-rm -f elements/$(DEPDIR)/curlsmtpsink.Po
 	-rm -f elements/$(DEPDIR)/dash_demux-adaptive_demux_common.Po
@@ -4304,6 +4350,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f elements/$(DEPDIR)/curlfilesink.Po
 	-rm -f elements/$(DEPDIR)/curlftpsink.Po
 	-rm -f elements/$(DEPDIR)/curlhttpsink.Po
+	-rm -f elements/$(DEPDIR)/curlhttpsrc-curlhttpsrc.Po
 	-rm -f elements/$(DEPDIR)/curlsftpsink.Po
 	-rm -f elements/$(DEPDIR)/curlsmtpsink.Po
 	-rm -f elements/$(DEPDIR)/dash_demux-adaptive_demux_common.Po

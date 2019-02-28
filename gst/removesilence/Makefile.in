@@ -163,7 +163,8 @@ am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstremovesilence_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am_libgstremovesilence_la_OBJECTS =  \
 	libgstremovesilence_la-gstremovesilence.lo \
 	libgstremovesilence_la-vad_private.lo
@@ -658,6 +659,8 @@ WILDMIDI_LIBS = @WILDMIDI_LIBS@
 WINKS_LIBS = @WINKS_LIBS@
 WINSCREENCAP_LIBS = @WINSCREENCAP_LIBS@
 WINSOCK2_LIBS = @WINSOCK2_LIBS@
+WPE_CFLAGS = @WPE_CFLAGS@
+WPE_LIBS = @WPE_LIBS@
 X11_CFLAGS = @X11_CFLAGS@
 X11_LIBS = @X11_LIBS@
 X265_CFLAGS = @X265_CFLAGS@
@@ -738,7 +741,7 @@ wayland_scanner = @wayland_scanner@
 plugin_LTLIBRARIES = libgstremovesilence.la
 libgstremovesilence_la_SOURCES = gstremovesilence.c vad_private.c
 libgstremovesilence_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS)
-libgstremovesilence_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS)
+libgstremovesilence_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LIBM)
 libgstremovesilence_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 noinst_HEADERS = \
 	gstremovesilence.h \

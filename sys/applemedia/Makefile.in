@@ -109,6 +109,7 @@ target_triplet = @target@
 
 @HAVE_AVFOUNDATION_TRUE@am__append_6 = \
 @HAVE_AVFOUNDATION_TRUE@	avfvideosrc.m				\
+@HAVE_AVFOUNDATION_TRUE@	avfdeviceprovider.m			\
 @HAVE_AVFOUNDATION_TRUE@	avfassetsrc.m				\
 @HAVE_AVFOUNDATION_TRUE@	avsamplevideosink.m
 
@@ -198,14 +199,16 @@ libgstapplemedia_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 am__libgstapplemedia_la_SOURCES_DIST = plugin.m vtutil.c \
 	corevideomemory.c corevideobuffer.c coremediabuffer.c \
 	videotexturecache.m atdec.c glcontexthelper.c iosassetsrc.m \
-	iosglmemory.c iosurfacememory.c avfvideosrc.m avfassetsrc.m \
-	avsamplevideosink.m vtenc.c vtdec.c
+	iosglmemory.c iosurfacememory.c avfvideosrc.m \
+	avfdeviceprovider.m avfassetsrc.m avsamplevideosink.m vtenc.c \
+	vtdec.c
 @HAVE_IOS_TRUE@am__objects_1 = libgstapplemedia_la-iosassetsrc.lo \
 @HAVE_IOS_TRUE@	libgstapplemedia_la-iosglmemory.lo
 @HAVE_IOS_FALSE@am__objects_2 =  \
 @HAVE_IOS_FALSE@	libgstapplemedia_la-iosurfacememory.lo
 @HAVE_AVFOUNDATION_TRUE@am__objects_3 =  \
 @HAVE_AVFOUNDATION_TRUE@	libgstapplemedia_la-avfvideosrc.lo \
+@HAVE_AVFOUNDATION_TRUE@	libgstapplemedia_la-avfdeviceprovider.lo \
 @HAVE_AVFOUNDATION_TRUE@	libgstapplemedia_la-avfassetsrc.lo \
 @HAVE_AVFOUNDATION_TRUE@	libgstapplemedia_la-avsamplevideosink.lo
 @HAVE_VIDEOTOOLBOX_TRUE@am__objects_4 = libgstapplemedia_la-vtenc.lo \
@@ -245,6 +248,7 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/libgstapplemedia_la-atdec.Plo \
 	./$(DEPDIR)/libgstapplemedia_la-avfassetsrc.Plo \
+	./$(DEPDIR)/libgstapplemedia_la-avfdeviceprovider.Plo \
 	./$(DEPDIR)/libgstapplemedia_la-avfvideosrc.Plo \
 	./$(DEPDIR)/libgstapplemedia_la-avsamplevideosink.Plo \
 	./$(DEPDIR)/libgstapplemedia_la-coremediabuffer.Plo \
@@ -741,6 +745,8 @@ WILDMIDI_LIBS = @WILDMIDI_LIBS@
 WINKS_LIBS = @WINKS_LIBS@
 WINSCREENCAP_LIBS = @WINSCREENCAP_LIBS@
 WINSOCK2_LIBS = @WINSOCK2_LIBS@
+WPE_CFLAGS = @WPE_CFLAGS@
+WPE_LIBS = @WPE_LIBS@
 X11_CFLAGS = @X11_CFLAGS@
 X11_LIBS = @X11_LIBS@
 X265_CFLAGS = @X265_CFLAGS@
@@ -958,6 +964,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-atdec.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-avfassetsrc.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-avfdeviceprovider.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-avfvideosrc.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-avsamplevideosink.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstapplemedia_la-coremediabuffer.Plo@am__quote@ # am--include-marker
@@ -1125,6 +1132,13 @@ libgstapplemedia_la-avfvideosrc.lo: avfvideosrc.m
 @AMDEP_TRUE@@am__fastdepOBJC_FALSE@	DEPDIR=$(DEPDIR) $(OBJCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepOBJC_FALSE@	$(AM_V_OBJC@am__nodep@)$(LIBTOOL) $(AM_V_lt) $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_OBJCFLAGS) $(OBJCFLAGS) -c -o libgstapplemedia_la-avfvideosrc.lo `test -f 'avfvideosrc.m' || echo '$(srcdir)/'`avfvideosrc.m
 
+libgstapplemedia_la-avfdeviceprovider.lo: avfdeviceprovider.m
+@am__fastdepOBJC_TRUE@	$(AM_V_OBJC)$(LIBTOOL) $(AM_V_lt) $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_OBJCFLAGS) $(OBJCFLAGS) -MT libgstapplemedia_la-avfdeviceprovider.lo -MD -MP -MF $(DEPDIR)/libgstapplemedia_la-avfdeviceprovider.Tpo -c -o libgstapplemedia_la-avfdeviceprovider.lo `test -f 'avfdeviceprovider.m' || echo '$(srcdir)/'`avfdeviceprovider.m
+@am__fastdepOBJC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstapplemedia_la-avfdeviceprovider.Tpo $(DEPDIR)/libgstapplemedia_la-avfdeviceprovider.Plo
+@AMDEP_TRUE@@am__fastdepOBJC_FALSE@	$(AM_V_OBJC)source='avfdeviceprovider.m' object='libgstapplemedia_la-avfdeviceprovider.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepOBJC_FALSE@	DEPDIR=$(DEPDIR) $(OBJCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepOBJC_FALSE@	$(AM_V_OBJC@am__nodep@)$(LIBTOOL) $(AM_V_lt) $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_OBJCFLAGS) $(OBJCFLAGS) -c -o libgstapplemedia_la-avfdeviceprovider.lo `test -f 'avfdeviceprovider.m' || echo '$(srcdir)/'`avfdeviceprovider.m
+
 libgstapplemedia_la-avfassetsrc.lo: avfassetsrc.m
 @am__fastdepOBJC_TRUE@	$(AM_V_OBJC)$(LIBTOOL) $(AM_V_lt) $(libgstapplemedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgstapplemedia_la_CPPFLAGS) $(CPPFLAGS) $(libgstapplemedia_la_OBJCFLAGS) $(OBJCFLAGS) -MT libgstapplemedia_la-avfassetsrc.lo -MD -MP -MF $(DEPDIR)/libgstapplemedia_la-avfassetsrc.Tpo -c -o libgstapplemedia_la-avfassetsrc.lo `test -f 'avfassetsrc.m' || echo '$(srcdir)/'`avfassetsrc.m
 @am__fastdepOBJC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstapplemedia_la-avfassetsrc.Tpo $(DEPDIR)/libgstapplemedia_la-avfassetsrc.Plo
@@ -1275,6 +1289,7 @@ clean-am: clean-generic clean-libtool clean-pluginLTLIBRARIES \
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/libgstapplemedia_la-atdec.Plo
 	-rm -f ./$(DEPDIR)/libgstapplemedia_la-avfassetsrc.Plo
+	-rm -f ./$(DEPDIR)/libgstapplemedia_la-avfdeviceprovider.Plo
 	-rm -f ./$(DEPDIR)/libgstapplemedia_la-avfvideosrc.Plo
 	-rm -f ./$(DEPDIR)/libgstapplemedia_la-avsamplevideosink.Plo
 	-rm -f ./$(DEPDIR)/libgstapplemedia_la-coremediabuffer.Plo
@@ -1336,6 +1351,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/libgstapplemedia_la-atdec.Plo
 	-rm -f ./$(DEPDIR)/libgstapplemedia_la-avfassetsrc.Plo
+	-rm -f ./$(DEPDIR)/libgstapplemedia_la-avfdeviceprovider.Plo
 	-rm -f ./$(DEPDIR)/libgstapplemedia_la-avfvideosrc.Plo
 	-rm -f ./$(DEPDIR)/libgstapplemedia_la-avsamplevideosink.Plo
 	-rm -f ./$(DEPDIR)/libgstapplemedia_la-coremediabuffer.Plo

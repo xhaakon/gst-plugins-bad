@@ -67,6 +67,11 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-audiobuffersplit.html#GstAudioBufferSplit--gapless" title="The “gapless” property">gapless</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-audiobuffersplit.html#GstAudioBufferSplit--max-silence-time" title="The “max-silence-time” property">max-silence-time</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -227,6 +232,14 @@
 <p>Insert silence/drop samples instead of creating a discontinuity.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstAudioBufferSplit--max-silence-time"></a><h3>The <code class="literal">“max-silence-time”</code> property</h3>
+<pre class="programlisting">  “max-silence-time”         <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a></pre>
+<p>Do not insert silence in gapless mode if the gap exceeds this period (in ns) (0 = disabled).</p>
+<p>Flags: Read / Write</p>
+<p>Default value: 0</p>
 </div>
 </div>
 </div>
