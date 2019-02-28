@@ -1,3 +1,2 @@
 01_fix-modplug-linking.patch
 02_opencv-data-path.patch
-03_removesilence-Add-LIBM-to-libraries.patch

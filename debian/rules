@@ -49,7 +49,7 @@ gst_abi=$(gst_major).$(gst_minor)
 gst_lib=libgstreamer$(gst_abi)-0
 gst_lib_dev=libgstreamer$(gst_abi)-dev
 # what gstreamer version is needed
-gst_lib_dev_dep=$(gst_lib_dev) (>= 1.15.1)
+gst_lib_dev_dep=$(gst_lib_dev) (>= 1.15.2)
 
 gst_pkgname=gstreamer$(gst_abi)
 gst_deb_abi=$(gst_abi)-0
@@ -82,7 +82,6 @@ DEB_DH_STRIP_ARGS := --dbg-package=$(gst_pkgname)-plugins-bad-dbg
 ifeq ($(DEB_HOST_ARCH_OS),linux)
 dvb = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstdvb.so
 fbdev = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstfbdevsink.so
-vcd = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstvcdsrc.so
 cdaudio = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstcdaudio.so
 dc1394 = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstdc1394.so
 decklink = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstdecklink.so
@@ -130,7 +129,6 @@ pre-build::
 			-e 's,@decklink@,$(decklink),g' \
 			-e 's,@linsys@,$(linsys),g' \
 			-e 's,@fbdev@,$(fbdev),g' \
-			-e 's,@vcd@,$(vcd),g' \
 			-e 's,@dc1394@,$(dc1394),g' \
 			-e 's,@cdaudio@,$(cdaudio),g' \
 			-e 's,@resindvd@,$(resindvd),g' \
