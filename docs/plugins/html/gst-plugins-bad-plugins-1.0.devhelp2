@@ -232,7 +232,6 @@
       <sub name="uvch264mjpgdemux" link="gst-plugins-bad-plugins-uvch264mjpgdemux.html"/>
       <sub name="uvch264src" link="gst-plugins-bad-plugins-uvch264src.html"/>
       <sub name="vc1parse" link="gst-plugins-bad-plugins-vc1parse.html"/>
-      <sub name="vcdsrc" link="gst-plugins-bad-plugins-vcdsrc.html"/>
       <sub name="vdpaumpegdec" link="gst-plugins-bad-plugins-vdpaumpegdec.html"/>
       <sub name="videoanalyse" link="gst-plugins-bad-plugins-videoanalyse.html"/>
       <sub name="videodiff" link="gst-plugins-bad-plugins-videodiff.html"/>
@@ -375,7 +374,6 @@
       <sub name="timecode" link="gst-plugins-bad-plugins-plugin-timecode.html"/>
       <sub name="ttmlsubs" link="gst-plugins-bad-plugins-plugin-ttmlsubs.html"/>
       <sub name="uvch264" link="gst-plugins-bad-plugins-plugin-uvch264.html"/>
-      <sub name="vcdsrc" link="gst-plugins-bad-plugins-plugin-vcdsrc.html"/>
       <sub name="vdpau" link="gst-plugins-bad-plugins-plugin-vdpau.html"/>
       <sub name="videofiltersbad" link="gst-plugins-bad-plugins-plugin-videofiltersbad.html"/>
       <sub name="videoframe_audiolevel" link="gst-plugins-bad-plugins-plugin-videoframe_audiolevel.html"/>
@@ -425,6 +423,7 @@
     <keyword type="property" name="The “output-buffer-duration” property" link="gst-plugins-bad-plugins-audiobuffersplit.html#GstAudioBufferSplit--output-buffer-duration"/>
     <keyword type="property" name="The “strict-buffer-size” property" link="gst-plugins-bad-plugins-audiobuffersplit.html#GstAudioBufferSplit--strict-buffer-size"/>
     <keyword type="property" name="The “gapless” property" link="gst-plugins-bad-plugins-audiobuffersplit.html#GstAudioBufferSplit--gapless"/>
+    <keyword type="property" name="The “max-silence-time” property" link="gst-plugins-bad-plugins-audiobuffersplit.html#GstAudioBufferSplit--max-silence-time"/>
     <keyword type="struct" name="struct GstAudioChannelMix" link="gst-plugins-bad-plugins-audiochannelmix.html#GstAudioChannelMix-struct"/>
     <keyword type="property" name="The “left-to-left” property" link="gst-plugins-bad-plugins-audiochannelmix.html#GstAudioChannelMix--left-to-left"/>
     <keyword type="property" name="The “left-to-right” property" link="gst-plugins-bad-plugins-audiochannelmix.html#GstAudioChannelMix--left-to-right"/>
@@ -1439,10 +1438,6 @@
     <keyword type="signal" name="The “get-enum-setting” signal" link="gst-plugins-bad-plugins-uvch264src.html#GstUvcH264Src-get-enum-setting"/>
     <keyword type="signal" name="The “get-int-setting” signal" link="gst-plugins-bad-plugins-uvch264src.html#GstUvcH264Src-get-int-setting"/>
     <keyword type="struct" name="struct GstVC1Parse" link="gst-plugins-bad-plugins-vc1parse.html#GstVC1Parse-struct"/>
-    <keyword type="struct" name="struct GstVCDSrc" link="gst-plugins-bad-plugins-vcdsrc.html#GstVCDSrc-struct"/>
-    <keyword type="property" name="The “device” property" link="gst-plugins-bad-plugins-vcdsrc.html#GstVCDSrc--device"/>
-    <keyword type="property" name="The “max-errors” property" link="gst-plugins-bad-plugins-vcdsrc.html#GstVCDSrc--max-errors"/>
-    <keyword type="property" name="The “track” property" link="gst-plugins-bad-plugins-vcdsrc.html#GstVCDSrc--track"/>
     <keyword type="struct" name="struct GstVdpMpegDec" link="gst-plugins-bad-plugins-vdpaumpegdec.html#GstVdpMpegDec-struct"/>
     <keyword type="property" name="The “display” property" link="gst-plugins-bad-plugins-vdpaumpegdec.html#GstVdpMpegDec--display"/>
     <keyword type="struct" name="struct GstVideoAnalyse" link="gst-plugins-bad-plugins-videoanalyse.html#GstVideoAnalyse-struct"/>
@@ -1523,6 +1518,7 @@
     <keyword type="property" name="The “stun-server” property" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--stun-server"/>
     <keyword type="property" name="The “turn-server” property" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--turn-server"/>
     <keyword type="property" name="The “bundle-policy” property" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--bundle-policy"/>
+    <keyword type="property" name="The “ice-transport-policy” property" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--ice-transport-policy"/>
     <keyword type="signal" name="The “add-ice-candidate” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-add-ice-candidate"/>
     <keyword type="signal" name="The “add-transceiver” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-add-transceiver"/>
     <keyword type="signal" name="The “create-answer” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-create-answer"/>

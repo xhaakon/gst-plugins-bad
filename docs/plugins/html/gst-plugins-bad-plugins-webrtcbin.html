@@ -93,6 +93,11 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--bundle-policy" title="The “bundle-policy” property">bundle-policy</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
+<tr>
+<td class="property_type"><span class="type">GstWebRTCICETransportPolicy</span></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin--ice-transport-policy" title="The “ice-transport-policy” property">ice-transport-policy</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -215,7 +220,7 @@ GstWebRTCBin implements
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.254.9.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.253.9.2.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -241,7 +246,7 @@ GstWebRTCBin implements
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.254.9.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.253.9.2.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -374,6 +379,14 @@ GstWebRTCBin implements
 <p>The policy to apply for bundling.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: GST_WEBRTC_BUNDLE_POLICY_NONE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstWebRTCBin--ice-transport-policy"></a><h3>The <code class="literal">“ice-transport-policy”</code> property</h3>
+<pre class="programlisting">  “ice-transport-policy”     <span class="type">GstWebRTCICETransportPolicy</span></pre>
+<p>The policy to apply for ICE transport.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: GST_WEBRTC_ICE_TRANSPORT_POLICY_ALL</p>
 </div>
 </div>
 <div class="refsect1">

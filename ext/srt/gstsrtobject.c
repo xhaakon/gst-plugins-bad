@@ -28,7 +28,7 @@
 #include <gio/gnetworking.h>
 #include <stdlib.h>
 
-GST_DEBUG_CATEGORY (gst_debug_srtobject);
+GST_DEBUG_CATEGORY_EXTERN (gst_debug_srtobject);
 #define GST_CAT_DEFAULT gst_debug_srtobject
 
 enum
@@ -96,7 +96,7 @@ srt_caller_invoke_removed_closure (SRTCaller * caller, GstSRTObject * srtobject)
   g_value_set_int (&values[0], caller->sock);
 
   g_value_init (&values[1], G_TYPE_SOCKET_ADDRESS);
-  g_value_set_pointer (&values[1], caller->sockaddr);
+  g_value_set_object (&values[1], caller->sockaddr);
 
   g_closure_invoke (srtobject->caller_removed_closure, NULL, 2, values, NULL);
 
@@ -122,7 +122,8 @@ static struct srt_constant_params srt_params[] = {
 static gint srt_init_refcount = 0;
 
 static gboolean
-gst_srt_object_set_default_params (SRTSOCKET sock, GError ** error)
+gst_srt_object_set_common_params (SRTSOCKET sock, GstSRTObject * srtobject,
+    GError ** error)
 {
   struct srt_constant_params *params = srt_params;
 
@@ -131,6 +132,28 @@ gst_srt_object_set_default_params (SRTSOCKET sock, GError ** error)
       g_set_error (error, GST_LIBRARY_ERROR, GST_LIBRARY_ERROR_SETTINGS,
           "failed to set %s (reason: %s)", params->name,
           srt_getlasterror_str ());
+      return FALSE;
+    }
+  }
+
+  if (srtobject->passphrase != NULL && srtobject->passphrase[0] != '\0') {
+    gint pbkeylen;
+
+    if (srt_setsockopt (sock, 0, SRTO_PASSPHRASE, srtobject->passphrase,
+            strlen (srtobject->passphrase))) {
+      g_set_error (error, GST_LIBRARY_ERROR, GST_LIBRARY_ERROR_SETTINGS,
+          "failed to set passphrase (reason: %s)", srt_getlasterror_str ());
+
+      return FALSE;
+    }
+
+    if (!gst_structure_get_int (srtobject->parameters, "pbkeylen", &pbkeylen)) {
+      pbkeylen = GST_SRT_DEFAULT_PBKEYLEN;
+    }
+
+    if (srt_setsockopt (sock, 0, SRTO_PBKEYLEN, &pbkeylen, sizeof (int))) {
+      g_set_error (error, GST_LIBRARY_ERROR, GST_LIBRARY_ERROR_SETTINGS,
+          "failed to set pbkeylen (reason: %s)", srt_getlasterror_str ());
       return FALSE;
     }
   }
@@ -187,6 +210,8 @@ gst_srt_object_destroy (GstSRTObject * srtobject)
   GST_DEBUG_OBJECT (srtobject->element, "Destroying srtobject");
   gst_structure_free (srtobject->parameters);
 
+  g_free (srtobject->passphrase);
+
   if (g_atomic_int_dec_and_test (&srt_init_refcount)) {
     srt_cleanup ();
     GST_DEBUG_OBJECT (srtobject->element, "Cleaning up SRT");
@@ -225,7 +250,8 @@ gst_srt_object_set_property_helper (GstSRTObject * srtobject,
       gst_structure_set_value (srtobject->parameters, "localport", value);
       break;
     case PROP_PASSPHRASE:
-      gst_structure_set_value (srtobject->parameters, "passphrase", value);
+      g_free (srtobject->passphrase);
+      srtobject->passphrase = g_value_dup_string (value);
       break;
     case PROP_PBKEYLEN:
       gst_structure_set_value (srtobject->parameters, "pbkeylen", value);
@@ -268,11 +294,11 @@ gst_srt_object_get_property_helper (GstSRTObject * srtobject,
       break;
     }
     case PROP_PBKEYLEN:{
-      GstSRTKeyLengthBits v;
+      GstSRTKeyLength v;
       if (!gst_structure_get_enum (srtobject->parameters, "pbkeylen",
-              GST_TYPE_SRT_KEY_LENGTH_BITS, (gint *) & v)) {
+              GST_TYPE_SRT_KEY_LENGTH, (gint *) & v)) {
         GST_WARNING_OBJECT (srtobject->element, "Failed to get 'pbkeylen'");
-        v = GST_SRT_KEY_LENGTH_BITS_NO_KEY;
+        v = GST_SRT_KEY_LENGTH_NO_KEY;
       }
       g_value_set_enum (value, v);
       break;
@@ -360,7 +386,7 @@ gst_srt_object_install_properties_helper (GObjectClass * gobject_class)
    * The local port to bind when #GstSRTSrc:mode is listener or rendezvous.
    * This property can be set by URI parameters.
    */
-  g_object_class_install_property (gobject_class, PROP_POLL_TIMEOUT,
+  g_object_class_install_property (gobject_class, PROP_LOCALPORT,
       g_param_spec_uint ("localport", "Local port",
           "Local port to bind", 0,
           65535, GST_SRT_DEFAULT_PORT,
@@ -373,7 +399,7 @@ gst_srt_object_install_properties_helper (GObjectClass * gobject_class)
    * The password for the encrypted transmission.
    * This property can be set by URI parameters.
    */
-  g_object_class_install_property (gobject_class, PROP_LOCALADDRESS,
+  g_object_class_install_property (gobject_class, PROP_PASSPHRASE,
       g_param_spec_string ("passphrase", "Passphrase",
           "Password for the encrypted transmission", "",
           G_PARAM_WRITABLE | GST_PARAM_MUTABLE_READY | G_PARAM_STATIC_STRINGS));
@@ -386,7 +412,7 @@ gst_srt_object_install_properties_helper (GObjectClass * gobject_class)
    */
   g_object_class_install_property (gobject_class, PROP_PBKEYLEN,
       g_param_spec_enum ("pbkeylen", "Crypto key length",
-          "Crypto key length in bits", GST_TYPE_SRT_KEY_LENGTH_BITS,
+          "Crypto key length in bytes", GST_TYPE_SRT_KEY_LENGTH,
           GST_SRT_DEFAULT_PBKEYLEN,
           G_PARAM_READWRITE | GST_PARAM_MUTABLE_READY |
           G_PARAM_STATIC_STRINGS));
@@ -440,8 +466,8 @@ gst_srt_object_install_properties_helper (GObjectClass * gobject_class)
 }
 
 static void
-gst_srt_object_set_enum_value (GstStructure * s, GType enum_type, gpointer key,
-    gpointer value)
+gst_srt_object_set_enum_value (GstStructure * s, GType enum_type,
+    gconstpointer key, gconstpointer value)
 {
   GEnumClass *enum_class;
   GEnumValue *enum_value;
@@ -494,15 +520,18 @@ gst_srt_object_validate_parameters (GstStructure * s, GstUri * uri)
     guint local_port;
     const gchar *local_address = gst_structure_get_string (s, "localaddress");
 
-
     if (local_address == NULL) {
-      gst_srt_object_set_string_value (s, "localaddress",
-          GST_SRT_DEFAULT_LOCALADDRESS);
+      local_address =
+          gst_uri_get_host (uri) ==
+          NULL ? GST_SRT_DEFAULT_LOCALADDRESS : gst_uri_get_host (uri);
+      gst_srt_object_set_string_value (s, "localaddress", local_address);
     }
 
     if (!gst_structure_get_uint (s, "localport", &local_port)) {
-      gst_srt_object_set_uint_value (s, "localport",
-          G_STRINGIFY (GST_SRT_DEFAULT_PORT));
+      local_port =
+          gst_uri_get_port (uri) ==
+          GST_URI_NO_PORT ? GST_SRT_DEFAULT_PORT : gst_uri_get_port (uri);
+      gst_structure_set (s, "localport", G_TYPE_UINT, local_port, NULL);
     }
   }
 }
@@ -514,6 +543,7 @@ gst_srt_object_set_uri (GstSRTObject * srtobject, const gchar * uri,
   GHashTable *query_table = NULL;
   GHashTableIter iter;
   gpointer key, value;
+  const char *addr_str;
 
   if (srtobject->opened) {
     g_warning
@@ -541,29 +571,35 @@ gst_srt_object_set_uri (GstSRTObject * srtobject, const gchar * uri,
       gst_uri_get_host (srtobject->uri), gst_uri_get_port (srtobject->uri),
       query_table == NULL ? 0 : g_hash_table_size (query_table));
 
-  if (!query_table) {
-    GST_DEBUG_OBJECT (srtobject->element, "No parameters from uri");
-    return TRUE;
-  }
+  addr_str = gst_uri_get_host (srtobject->uri);
+  if (addr_str)
+    gst_srt_object_set_enum_value (srtobject->parameters,
+        GST_TYPE_SRT_CONNECTION_MODE, "mode", "caller");
+  else
+    gst_srt_object_set_enum_value (srtobject->parameters,
+        GST_TYPE_SRT_CONNECTION_MODE, "mode", "listener");
 
-  g_hash_table_iter_init (&iter, query_table);
-  while (g_hash_table_iter_next (&iter, &key, &value)) {
-    if (!g_strcmp0 ("mode", key)) {
-      gst_srt_object_set_enum_value (srtobject->parameters,
-          GST_TYPE_SRT_CONNECTION_MODE, key, value);
-    } else if (!g_strcmp0 ("localaddress", key)) {
-      gst_srt_object_set_string_value (srtobject->parameters, key, value);
-    } else if (!g_strcmp0 ("localport", key)) {
-      gst_srt_object_set_uint_value (srtobject->parameters, key, value);
-    } else if (!g_strcmp0 ("passphrase", key)) {
-      gst_srt_object_set_string_value (srtobject->parameters, key, value);
-    } else if (!g_strcmp0 ("pbkeylen", key)) {
-      gst_srt_object_set_enum_value (srtobject->parameters,
-          GST_TYPE_SRT_KEY_LENGTH_BITS, key, value);
+  if (query_table) {
+    g_hash_table_iter_init (&iter, query_table);
+    while (g_hash_table_iter_next (&iter, &key, &value)) {
+      if (!g_strcmp0 ("mode", key)) {
+        gst_srt_object_set_enum_value (srtobject->parameters,
+            GST_TYPE_SRT_CONNECTION_MODE, key, value);
+      } else if (!g_strcmp0 ("localaddress", key)) {
+        gst_srt_object_set_string_value (srtobject->parameters, key, value);
+      } else if (!g_strcmp0 ("localport", key)) {
+        gst_srt_object_set_uint_value (srtobject->parameters, key, value);
+      } else if (!g_strcmp0 ("passphrase", key)) {
+        g_free (srtobject->passphrase);
+        srtobject->passphrase = g_strdup (value);
+      } else if (!g_strcmp0 ("pbkeylen", key)) {
+        gst_srt_object_set_enum_value (srtobject->parameters,
+            GST_TYPE_SRT_KEY_LENGTH, key, value);
+      }
     }
-  }
 
-  g_hash_table_unref (query_table);
+    g_hash_table_unref (query_table);
+  }
 
   gst_srt_object_validate_parameters (srtobject->parameters, srtobject->uri);
 
@@ -654,15 +690,17 @@ idle_listen_source_cb (gpointer data)
 
     /* notifying caller-added */
     if (srtobject->caller_added_closure != NULL) {
-      GValue values[2] = { G_VALUE_INIT };
+      GValue values[2] = { G_VALUE_INIT, G_VALUE_INIT };
 
       g_value_init (&values[0], G_TYPE_INT);
       g_value_set_int (&values[0], caller->sock);
 
       g_value_init (&values[1], G_TYPE_SOCKET_ADDRESS);
-      g_value_set_pointer (&values[1], caller->sockaddr);
+      g_value_set_object (&values[1], caller->sockaddr);
 
       g_closure_invoke (srtobject->caller_added_closure, NULL, 2, values, NULL);
+
+      g_value_unset (&values[1]);
     }
 
     GST_DEBUG_OBJECT (srtobject->element, "Accept to connect");
@@ -708,7 +746,7 @@ gst_srt_object_wait_connect (GstSRTObject * srtobject,
     goto failed;
   }
 
-  if (!gst_srt_object_set_default_params (sock, error)) {
+  if (!gst_srt_object_set_common_params (sock, srtobject, error)) {
     goto failed;
   }
 
@@ -787,6 +825,7 @@ gst_srt_object_connect (GstSRTObject * srtobject,
   gint option_val = -1;
   gint sock_flags = SRT_EPOLL_ERR;
   guint local_port = 0;
+  const gchar *local_address = NULL;
 
   sock = srt_socket (AF_INET, SOCK_DGRAM, 0);
   if (sock == SRT_INVALID_SOCK) {
@@ -795,7 +834,7 @@ gst_srt_object_connect (GstSRTObject * srtobject,
     goto failed;
   }
 
-  if (!gst_srt_object_set_default_params (sock, error)) {
+  if (!gst_srt_object_set_common_params (sock, srtobject, error)) {
     goto failed;
   }
 
@@ -828,13 +867,13 @@ gst_srt_object_connect (GstSRTObject * srtobject,
   }
 
   gst_structure_get_uint (srtobject->parameters, "localport", &local_port);
-
+  local_address =
+      gst_structure_get_string (srtobject->parameters, "localaddress");
   /* According to SRT norm, bind local address and port if specified */
-  if (local_port != 0) {
+  if (local_address != NULL && local_port != 0) {
     gpointer bind_sa;
     gsize bind_sa_len;
-    const gchar *local_address =
-        gst_structure_get_string (srtobject->parameters, "localaddress");
+
     GSocketAddress *bind_addr =
         g_inet_socket_address_new_from_string (local_address,
         local_port);
@@ -928,21 +967,35 @@ gst_srt_object_open_full (GstSRTObject * srtobject,
 
   gpointer sa;
   size_t sa_len;
+  const gchar *addr_str;
 
   srtobject->opened = FALSE;
 
   if (caller_added_func != NULL) {
     srtobject->caller_added_closure =
         g_cclosure_new (G_CALLBACK (caller_added_func), srtobject, NULL);
+    g_closure_set_marshal (srtobject->caller_added_closure,
+        g_cclosure_marshal_generic);
   }
 
   if (caller_removed_func != NULL) {
     srtobject->caller_removed_closure =
         g_cclosure_new (G_CALLBACK (caller_removed_func), srtobject, NULL);
+    g_closure_set_marshal (srtobject->caller_removed_closure,
+        g_cclosure_marshal_generic);
+  }
+
+  addr_str = gst_uri_get_host (srtobject->uri);
+
+  if (addr_str == NULL) {
+    addr_str = "0.0.0.0";
+    GST_DEBUG_OBJECT (srtobject->element,
+        "Given uri doesn't have hostname or address. Use any (%s) and"
+        " setting listener mode", addr_str);
   }
 
   socket_address =
-      g_inet_socket_address_new_from_string (gst_uri_get_host (srtobject->uri),
+      g_inet_socket_address_new_from_string (addr_str,
       gst_uri_get_port (srtobject->uri));
 
   if (socket_address == NULL) {

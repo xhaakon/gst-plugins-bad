@@ -763,6 +763,8 @@ WILDMIDI_LIBS = @WILDMIDI_LIBS@
 WINKS_LIBS = @WINKS_LIBS@
 WINSCREENCAP_LIBS = @WINSCREENCAP_LIBS@
 WINSOCK2_LIBS = @WINSOCK2_LIBS@
+WPE_CFLAGS = @WPE_CFLAGS@
+WPE_LIBS = @WPE_LIBS@
 X11_CFLAGS = @X11_CFLAGS@
 X11_LIBS = @X11_LIBS@
 X265_CFLAGS = @X265_CFLAGS@
@@ -873,9 +875,10 @@ libgstmsdk_la_LIBADD = $(GST_LIBS) $(GST_BASE_LIBS) \
 	$(GST_PBUTILS_LIBS) $(GST_VIDEO_LIBS) $(GST_ALLOCATORS_LIBS) \
 	$(MSDK_LIBS) $(LIBMFX_LIBS) $(G_UDEV_LIBS) $(am__append_5)
 
-# TODO: add support for windows compilation
+# Windows compilation files, used by meson
 EXTRA_DIST = \
-	msdk_d3d.c
+	msdk_d3d.c \
+	gstmsdkallocator_d3d.c
 
 libgstmsdk_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 all: all-am

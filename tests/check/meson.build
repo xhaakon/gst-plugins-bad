@@ -59,6 +59,7 @@ if host_machine.system() != 'windows'
     [['elements/cccombiner.c']],
     [['elements/ccextractor.c']],
     [['elements/curlhttpsink.c'], not curl_dep.found(), [curl_dep]],
+    [['elements/curlhttpsrc.c'], not curl_dep.found(), [curl_dep, gio_dep]],
     [['elements/curlfilesink.c'],
         not curl_dep.found() or not cdata.has('HAVE_UNISTD_H'), [curl_dep]],
     [['elements/curlftpsink.c'], not curl_dep.found(), [curl_dep]],
@@ -151,13 +152,17 @@ orc_tests = [
   ['orc_bayer', files('../../gst/bayer/gstbayerorc.orc')],
 ]
 
+orc_test_dep = dependency('', required : false)
 if have_orcc
   # FIXME: there should really just be a separate orc-test-0.4.pc file for this
   if orc_dep.type_name() == 'pkgconfig'
-    orc_test_dep = cc.find_library('orc-test-0.4', dependencies: orc_dep)
+    orc_test_dep = cc.find_library('orc-test-0.4', required : false)
   else
-    orc_test_dep = dependency('', fallback: ['orc', 'orc_test_dep'])
+    orc_test_dep = dependency('', fallback: ['orc', 'orc_test_dep'], required: false)
   endif
+endif
+
+if have_orcc and orc_test_dep.found()
   foreach t : orc_tests
     tname = t[0]
     torcfile = t[1]

@@ -18,7 +18,7 @@ AM_TESTS_ENVIRONMENT += \
 	    decklinksrc \
 	    decklinksink dtlssrtpdec dtlssrtpenc dvbsrc dvbbasebin dfbvideosink festival fluidsynth \
 	    kmssink \
-	    rsndvdbin vcdsrc rfbsrc vdpauyuvvideo vdpauvideoyuv \
+	    rsndvdbin rfbsrc vdpauyuvvideo vdpauvideoyuv \
 	    vdpaumpegdec vdpaumpeg4dec vdpauh264dec vdpauvideopostprocess vdpausink neonhttpsrc waylandsink"
 
 plugindir = $(libdir)/gstreamer-@GST_API_VERSION@
@@ -178,6 +178,7 @@ endif
 
 if USE_CURL
 check_curl = elements/curlhttpsink \
+	elements/curlhttpsrc \
 	elements/curlfilesink \
 	elements/curlftpsink \
 	$(check_curl_sftp) \
@@ -468,6 +469,9 @@ elements_cccombiner_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BAS
 
 elements_ccextractor_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 elements_ccextractor_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
+
+elements_curlhttpsrc_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GIO_CFLAGS) $(AM_CFLAGS)
+elements_curlhttpsrc_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GIO_LIBS) $(LDADD)
 
 elements_jifmux_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(EXIF_CFLAGS) $(AM_CFLAGS)
 elements_jifmux_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgsttag-$(GST_API_VERSION) $(GST_CHECK_LIBS) $(EXIF_LIBS) $(LDADD)

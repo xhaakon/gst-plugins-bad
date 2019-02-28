@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.15.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.15.2],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 1501, 0, 1501)
+AS_LIBTOOL(GST, 1502, 0, 1502)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.15.1
-GSTPB_REQ=1.15.1
+GST_REQ=1.15.2
+GSTPB_REQ=1.15.2
 
 dnl *** autotools stuff ****
 
@@ -886,12 +886,6 @@ AG_GST_CHECK_FEATURE(IPCPIPELINE, [Unix sockets], ipcpipeline, [
     else
         HAVE_IPCPIPELINE=no
     fi
-])
-
-dnl check for Video CD
-translit(dnm, m, l) AM_CONDITIONAL(USE_VCD, true)
-AG_GST_CHECK_FEATURE(VCD, [Video CD], vcdsrc, [
-  AC_CHECK_HEADER(linux/cdrom.h, HAVE_VCD="yes", HAVE_VCD="no")
 ])
 
 dnl check for OpenSL ES
@@ -1834,7 +1828,6 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
     AC_CHECK_HEADERS([opencv2/bgsegm.hpp \
                       opencv2/calib3d.hpp \
                       opencv2/core.hpp \
-                      opencv2/imgcodecs/imgcodecs_c.h \
                       opencv2/imgproc.hpp \
                       opencv2/objdetect.hpp \
                       opencv2/opencv.hpp \
@@ -1860,10 +1853,6 @@ AG_GST_CHECK_FEATURE(OPENCV, [opencv plugins], opencv, [
     AC_CHECK_HEADERS([opencv2/bgsegm.hpp \
                       opencv2/calib3d.hpp \
                       opencv2/core.hpp \
-                      opencv2/imgcodecs/legacy/constants_c.h \
-                      opencv2/imgproc/imgproc_c.h \
-                      opencv2/core/types_c.h \
-                      opencv2/core/core_c.h \
                       opencv2/imgproc.hpp \
                       opencv2/objdetect.hpp \
                       opencv2/opencv.hpp \
@@ -2305,6 +2294,15 @@ AG_GST_CHECK_FEATURE(WEBRTC, [WebRTC], webrtc, [
   ])
 ])
 
+dnl *** WPE ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_WPE, true)
+AG_GST_CHECK_FEATURE(WPE, [WPE plug-in], wpe, [
+PKG_CHECK_MODULES(WPE, [ wpe-webkit-0.1 >= 2.22 wpebackend-fdo-0.1 egl xkbcommon ], [
+    HAVE_WPE="yes" ], [
+    HAVE_WPE="no"
+  ])
+])
+
 dnl *** usrsctp ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_SCTP, true)
 AG_GST_CHECK_FEATURE(SCTP, [sctp plug-in], sctp, [
@@ -2607,7 +2605,6 @@ sys/opensles/Makefile
 sys/shm/Makefile
 sys/tinyalsa/Makefile
 sys/uvch264/Makefile
-sys/vcd/Makefile
 sys/vdpau/Makefile
 sys/wasapi/Makefile
 sys/winks/Makefile
@@ -2695,6 +2692,7 @@ ext/zbar/Makefile
 ext/dtls/Makefile
 ext/webrtc/Makefile
 ext/webrtcdsp/Makefile
+ext/wpe/Makefile
 ext/ttml/Makefile
 po/Makefile.in
 docs/Makefile
