@@ -121,5 +121,4 @@ debian/tmp/usr/share/gstreamer-@GST_ABI@/presets/
 @uvch264@
 @waylandsink@
 @kms@
-@vcd@
 @vulkan@

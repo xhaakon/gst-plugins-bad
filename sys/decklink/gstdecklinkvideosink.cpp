@@ -270,7 +270,8 @@ gst_decklink_video_sink_class_init (GstDecklinkVideoSinkClass * klass)
   gst_caps_unref (templ_caps);
 
   gst_element_class_set_static_metadata (element_class, "Decklink Video Sink",
-      "Video/Sink", "Decklink Sink", "David Schleef <ds@entropywave.com>, "
+      "Video/Sink/Hardware", "Decklink Sink",
+      "David Schleef <ds@entropywave.com>, "
       "Sebastian Dröge <sebastian@centricular.com>");
 
   GST_DEBUG_CATEGORY_INIT (gst_decklink_video_sink_debug, "decklinkvideosink",
@@ -475,8 +476,8 @@ gst_decklink_video_sink_set_caps (GstBaseSink * bsink, GstCaps * caps)
    * Note that this flag will have no effect in practice if the video stream
    * does not contain timecode metadata.
    */
-  if (self->timecode_format == GST_DECKLINK_TIMECODE_FORMAT_VITC ||
-      self->timecode_format == GST_DECKLINK_TIMECODE_FORMAT_VITCFIELD2)
+  if ((gint64) self->timecode_format == (gint64) GST_DECKLINK_TIMECODE_FORMAT_VITC ||
+      (gint64) self->timecode_format == (gint64) GST_DECKLINK_TIMECODE_FORMAT_VITCFIELD2)
     flags = bmdVideoOutputVITC;
   else
     flags = bmdVideoOutputRP188;
@@ -902,17 +903,16 @@ gst_decklink_video_sink_prepare (GstBaseSink * bsink, GstBuffer * buffer)
            * have no way of knowning the field here
            */
           for (i = 0; i < n; i++) {
-            data[3 * i] =
-                self->info.height ==
-                525 ? self->caption_line - 9 : self->caption_line - 5;
+            data[3 * i] = 0x80 | (self->info.height ==
+                525 ? self->caption_line - 9 : self->caption_line - 5);
             data[3 * i + 1] = cc_meta->data[2 * i];
             data[3 * i + 2] = cc_meta->data[2 * i + 1];
           }
 
           if (!gst_video_vbi_encoder_add_ancillary (self->vbiencoder,
                   FALSE,
-                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_708 >> 8,
-                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_708 & 0xff, data, 3))
+                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_608 >> 8,
+                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_608 & 0xff, data, 3))
             GST_WARNING_OBJECT (self, "Couldn't add meta to ancillary data");
 
           got_captions = TRUE;
@@ -922,8 +922,8 @@ gst_decklink_video_sink_prepare (GstBaseSink * bsink, GstBuffer * buffer)
         case GST_VIDEO_CAPTION_TYPE_CEA608_S334_1A:{
           if (!gst_video_vbi_encoder_add_ancillary (self->vbiencoder,
                   FALSE,
-                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_708 >> 8,
-                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_708 & 0xff, cc_meta->data,
+                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_608 >> 8,
+                  GST_VIDEO_ANCILLARY_DID16_S334_EIA_608 & 0xff, cc_meta->data,
                   cc_meta->size))
             GST_WARNING_OBJECT (self, "Couldn't add meta to ancillary data");
 

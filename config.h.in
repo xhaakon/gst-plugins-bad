@@ -391,28 +391,11 @@
 /* Define to 1 if you have the <opencv2/calib3d.hpp> header file. */
 #undef HAVE_OPENCV2_CALIB3D_HPP
 
-/* Define to 1 if you have the <opencv2/core/core_c.h> header file. */
-#undef HAVE_OPENCV2_CORE_CORE_C_H
-
 /* Define to 1 if you have the <opencv2/core.hpp> header file. */
 #undef HAVE_OPENCV2_CORE_HPP
 
-/* Define to 1 if you have the <opencv2/core/types_c.h> header file. */
-#undef HAVE_OPENCV2_CORE_TYPES_C_H
-
-/* Define to 1 if you have the <opencv2/imgcodecs/imgcodecs_c.h> header file.
-   */
-#undef HAVE_OPENCV2_IMGCODECS_IMGCODECS_C_H
-
-/* Define to 1 if you have the <opencv2/imgcodecs/legacy/constants_c.h> header
-   file. */
-#undef HAVE_OPENCV2_IMGCODECS_LEGACY_CONSTANTS_C_H
-
 /* Define to 1 if you have the <opencv2/imgproc.hpp> header file. */
 #undef HAVE_OPENCV2_IMGPROC_HPP
-
-/* Define to 1 if you have the <opencv2/imgproc/imgproc_c.h> header file. */
-#undef HAVE_OPENCV2_IMGPROC_IMGPROC_C_H
 
 /* Define to 1 if you have the <opencv2/objdetect.hpp> header file. */
 #undef HAVE_OPENCV2_OBJDETECT_HPP
@@ -570,9 +553,6 @@
 /* Define if valgrind should be used */
 #undef HAVE_VALGRIND
 
-/* Define to enable Video CD (used by vcdsrc). */
-#undef HAVE_VCD
-
 /* Define to enable VDPAU (used by vdpau). */
 #undef HAVE_VDPAU
 
@@ -620,6 +600,9 @@
 
 /* Define to 1 if you have the <winsock2.h> header file. */
 #undef HAVE_WINSOCK2_H
+
+/* Define to enable WPE plug-in (used by wpe). */
+#undef HAVE_WPE
 
 /* Define to 1 if you have the <ws2tcpip.h> header file. */
 #undef HAVE_WS2TCPIP_H
