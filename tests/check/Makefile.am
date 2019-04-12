@@ -41,7 +41,7 @@ check_assrender =
 endif
 
 if USE_PANGO
-check_closedcaption = elements/ccconverter elements/cccombiner elements/ccextractor
+check_closedcaption = elements/ccconverter elements/cccombiner elements/ccextractor elements/line21
 else
 check_closedcaption =
 endif
@@ -223,6 +223,12 @@ else
 check_msdk=
 endif
 
+if USE_NVENC
+check_nvenc=elements/nvenc
+else
+check_nvenc=
+endif
+
 VALGRIND_TO_FIX = \
 	elements/mpeg2enc \
 	elements/mplex    \
@@ -306,6 +312,7 @@ check_PROGRAMS = \
 	$(check_player) \
 	$(check_webrtc) \
 	$(check_msdk) \
+	$(check_nvenc) \
 	$(EXPERIMENTAL_CHECKS)
 
 noinst_HEADERS = elements/mxfdemux.h libs/isoff.h
@@ -343,7 +350,10 @@ elements_mpeg4videoparse_LDADD = libparser.la $(LDADD)
 
 elements_h263parse_LDADD = libparser.la $(LDADD)
 
-elements_h264parse_LDADD = libparser.la $(LDADD)
+elements_h264parse_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) \
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+elements_h264parse_LDADD = libparser.la \
+	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) $(LDADD)
 
 elements_pcapparse_LDADD = libparser.la $(LDADD)
 
@@ -469,6 +479,9 @@ elements_cccombiner_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BAS
 
 elements_ccextractor_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 elements_ccextractor_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
+
+elements_line21_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_line21_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
 
 elements_curlhttpsrc_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GIO_CFLAGS) $(AM_CFLAGS)
 elements_curlhttpsrc_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GIO_LIBS) $(LDADD)

@@ -50,7 +50,7 @@ static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
     GST_STATIC_CAPS ("video/x-raw, "
         "format = (string) { NV12 }, "
         "framerate = (fraction) [0, MAX], "
-        "width = (int) [ 16, MAX ], height = (int) [ 16, MAX ],"
+        "width = (int) [ 1, MAX ], height = (int) [ 1, MAX ],"
         "interlace-mode = (string) progressive;"
         GST_VIDEO_CAPS_MAKE_WITH_FEATURES (GST_CAPS_FEATURE_MEMORY_DMABUF,
             "{ NV12 }") ";")
@@ -263,6 +263,7 @@ gst_msdkdec_set_context (GstElement * element, GstContext * context)
 static gboolean
 gst_msdkdec_init_decoder (GstMsdkDec * thiz)
 {
+  GstMsdkDecClass *klass = GST_MSDKDEC_GET_CLASS (thiz);
   GstVideoInfo *info;
   mfxSession session;
   mfxStatus status;
@@ -300,13 +301,8 @@ gst_msdkdec_init_decoder (GstMsdkDec * thiz)
   g_return_val_if_fail (thiz->param.mfx.FrameInfo.Width
       && thiz->param.mfx.FrameInfo.Height, FALSE);
 
-  /* Force 32 bit rounding to avoid messing up of memory alignment when
-   * dealing with different allocators */
-  /* Fixme: msdk sometimes only requires 16 bit rounding, optimization possible */
-  thiz->param.mfx.FrameInfo.Width =
-      GST_ROUND_UP_16 (thiz->param.mfx.FrameInfo.Width);
-  thiz->param.mfx.FrameInfo.Height =
-      GST_ROUND_UP_32 (thiz->param.mfx.FrameInfo.Height);
+  klass->preinit_decoder (thiz);
+
   /* Set framerate only if provided.
    * If not, framerate will be assumed inside the driver.
    * Also we respect the upstream provided fps values */
@@ -323,9 +319,6 @@ gst_msdkdec_init_decoder (GstMsdkDec * thiz)
     thiz->param.mfx.FrameInfo.AspectRatioH = info->par_d;
   }
 
-  thiz->param.mfx.FrameInfo.PicStruct =
-      thiz->param.mfx.FrameInfo.PicStruct ? thiz->param.mfx.
-      FrameInfo.PicStruct : MFX_PICSTRUCT_PROGRESSIVE;
   thiz->param.mfx.FrameInfo.FourCC =
       thiz->param.mfx.FrameInfo.FourCC ? thiz->param.mfx.
       FrameInfo.FourCC : MFX_FOURCC_NV12;
@@ -345,12 +338,7 @@ gst_msdkdec_init_decoder (GstMsdkDec * thiz)
         msdk_status_to_string (status));
   }
 
-  /* Force the structure to MFX_PICSTRUCT_PROGRESSIVE if it is unknow to
-   * work-around MSDK issue:
-   * https://github.com/Intel-Media-SDK/MediaSDK/issues/1139
-   */
-  if (thiz->param.mfx.FrameInfo.PicStruct == MFX_PICSTRUCT_UNKNOWN)
-    thiz->param.mfx.FrameInfo.PicStruct = MFX_PICSTRUCT_PROGRESSIVE;
+  klass->postinit_decoder (thiz);
 
   status = MFXVideoDECODE_QueryIOSurf (session, &thiz->param, &request);
   if (status < MFX_ERR_NONE) {
@@ -687,8 +675,9 @@ gst_msdkdec_start (GstVideoDecoder * decoder)
       gst_msdk_context_add_job_type (thiz->context, GST_MSDK_JOB_DECODER);
     }
   } else {
-    gst_msdk_context_ensure_context (GST_ELEMENT_CAST (thiz), thiz->hardware,
-        GST_MSDK_JOB_DECODER);
+    if (!gst_msdk_context_ensure_context (GST_ELEMENT_CAST (thiz),
+            thiz->hardware, GST_MSDK_JOB_DECODER))
+      return FALSE;
     GST_INFO_OBJECT (thiz, "Creating new context %" GST_PTR_FORMAT,
         thiz->context);
   }
@@ -857,7 +846,7 @@ gst_msdkdec_handle_frame (GstVideoDecoder * decoder, GstVideoCodecFrame * frame)
   mfxSession session;
   mfxStatus status;
   GstMapInfo map_info;
-  guint i;
+  guint i, retry_err_incompatible = 0;
   gsize data_size;
   gboolean hard_reset = FALSE;
 
@@ -1004,14 +993,29 @@ gst_msdkdec_handle_frame (GstVideoDecoder * decoder, GstVideoCodecFrame * frame)
 
     /* media-sdk requires complete reset since the surface is inadaquate to
      * do further decoding */
-    if (status == MFX_ERR_INCOMPATIBLE_VIDEO_PARAM) {
+    if (status == MFX_ERR_INCOMPATIBLE_VIDEO_PARAM &&
+        retry_err_incompatible++ < 1) {
+      /* MFX_ERR_INCOMPATIBLE_VIDEO_PARAM means the current mfx surface is not
+       * suitable for the current frame, call MFXVideoDECODE_DecodeHeader to get
+       * the current frame size then do memory re-allocation, otherwise
+       * MFXVideoDECODE_DecodeFrameAsync still will fail for next call */
+      status = MFXVideoDECODE_DecodeHeader (session, &bitstream, &thiz->param);
+      if (status == MFX_ERR_MORE_DATA) {
+        flow = GST_FLOW_OK;
+        goto done;
+      }
+
       /* Requires memory re-allocation, do a hard reset */
       if (!gst_msdkdec_negotiate (thiz, TRUE))
         goto error;
-      status =
-          MFXVideoDECODE_DecodeFrameAsync (session, &bitstream,
-          surface->surface, &task->surface, &task->sync_point);
+
+      /* The current surface is freed when doing a hard reset, a new surface is
+       * required for the new resolution */
+      surface = NULL;
+      continue;
     }
+
+    retry_err_incompatible = 0;
 
     if (G_LIKELY (status == MFX_ERR_NONE)
         || (status == MFX_WRN_VIDEO_PARAM_CHANGED)) {
@@ -1449,6 +1453,28 @@ gst_msdkdec_finalize (GObject * object)
   g_object_unref (thiz->adapter);
 }
 
+static gboolean
+gst_msdkdec_preinit_decoder (GstMsdkDec * decoder)
+{
+  decoder->param.mfx.FrameInfo.Width =
+      GST_ROUND_UP_16 (decoder->param.mfx.FrameInfo.Width);
+  decoder->param.mfx.FrameInfo.Height =
+      GST_ROUND_UP_32 (decoder->param.mfx.FrameInfo.Height);
+
+  decoder->param.mfx.FrameInfo.PicStruct =
+      decoder->param.mfx.FrameInfo.PicStruct ? decoder->param.mfx.
+      FrameInfo.PicStruct : MFX_PICSTRUCT_PROGRESSIVE;
+
+  return TRUE;
+}
+
+static gboolean
+gst_msdkdec_postinit_decoder (GstMsdkDec * decoder)
+{
+  /* Do nothing */
+  return TRUE;
+}
+
 static void
 gst_msdkdec_class_init (GstMsdkDecClass * klass)
 {
@@ -1476,6 +1502,9 @@ gst_msdkdec_class_init (GstMsdkDecClass * klass)
       GST_DEBUG_FUNCPTR (gst_msdkdec_decide_allocation);
   decoder_class->flush = GST_DEBUG_FUNCPTR (gst_msdkdec_flush);
   decoder_class->drain = GST_DEBUG_FUNCPTR (gst_msdkdec_drain);
+
+  klass->preinit_decoder = GST_DEBUG_FUNCPTR (gst_msdkdec_preinit_decoder);
+  klass->postinit_decoder = GST_DEBUG_FUNCPTR (gst_msdkdec_postinit_decoder);
 
   g_object_class_install_property (gobject_class, GST_MSDKDEC_PROP_HARDWARE,
       g_param_spec_boolean ("hardware", "Hardware", "Enable hardware decoders",

@@ -1,0 +1,26 @@
+From aedfb415c26f10da8b99560eb147140701ec5ce8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Sebastian=20Dr=C3=B6ge?= <sebastian@centricular.com>
+Date: Fri, 12 Apr 2019 10:22:56 +0300
+Subject: [PATCH] sctp: Create plugin with $(GST_PLUGIN_LDFLAGS)
+
+Otherwise we don't create a plugin but a proper shared library with
+version information, i.e. libgstsctp.so.0.0.0.
+---
+ ext/sctp/Makefile.am | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/ext/sctp/Makefile.am b/ext/sctp/Makefile.am
+index 7f535ee69..957ee6a93 100644
+--- a/ext/sctp/Makefile.am
++++ b/ext/sctp/Makefile.am
+@@ -14,6 +14,7 @@ libgstsctp_la_CFLAGS = \
+     -I$(top_srcdir)/gst-libs
+ 
+ libgstsctp_la_LIBADD = $(GST_LIBS) $(GST_BASE_LIBS) $(USRSCTP_LIBS) $(top_builddir)/gst-libs/gst/sctp/libgstsctp-1.0.la
++libgstsctp_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+ 
+ noinst_HEADERS = \
+     sctpassociation.h \
+-- 
+2.20.1
+

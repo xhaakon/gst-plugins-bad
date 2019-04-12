@@ -175,7 +175,8 @@ am_libgstwaylandsink_la_OBJECTS =  \
 nodist_libgstwaylandsink_la_OBJECTS =  \
 	libgstwaylandsink_la-viewporter-protocol.lo \
 	libgstwaylandsink_la-linux-dmabuf-unstable-v1-protocol.lo \
-	libgstwaylandsink_la-fullscreen-shell-unstable-v1-protocol.lo
+	libgstwaylandsink_la-fullscreen-shell-unstable-v1-protocol.lo \
+	libgstwaylandsink_la-xdg-shell-protocol.lo
 libgstwaylandsink_la_OBJECTS = $(am_libgstwaylandsink_la_OBJECTS) \
 	$(nodist_libgstwaylandsink_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -210,7 +211,8 @@ am__depfiles_remade = ./$(DEPDIR)/libgstwaylandsink_la-fullscreen-shell-unstable
 	./$(DEPDIR)/libgstwaylandsink_la-wllinuxdmabuf.Plo \
 	./$(DEPDIR)/libgstwaylandsink_la-wlshmallocator.Plo \
 	./$(DEPDIR)/libgstwaylandsink_la-wlvideoformat.Plo \
-	./$(DEPDIR)/libgstwaylandsink_la-wlwindow.Plo
+	./$(DEPDIR)/libgstwaylandsink_la-wlwindow.Plo \
+	./$(DEPDIR)/libgstwaylandsink_la-xdg-shell-protocol.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -762,7 +764,9 @@ BUILT_SOURCES = \
 	linux-dmabuf-unstable-v1-protocol.c \
 	linux-dmabuf-unstable-v1-client-protocol.h \
 	fullscreen-shell-unstable-v1-protocol.c \
-	fullscreen-shell-unstable-v1-client-protocol.h
+	fullscreen-shell-unstable-v1-client-protocol.h \
+	xdg-shell-protocol.c \
+	xdg-shell-client-protocol.h
 
 libgstwaylandsink_la_SOURCES = \
 	gstwaylandsink.c \
@@ -776,7 +780,8 @@ libgstwaylandsink_la_SOURCES = \
 nodist_libgstwaylandsink_la_SOURCES = \
 	viewporter-protocol.c \
 	linux-dmabuf-unstable-v1-protocol.c \
-	fullscreen-shell-unstable-v1-protocol.c
+	fullscreen-shell-unstable-v1-protocol.c \
+	xdg-shell-protocol.c
 
 libgstwaylandsink_la_CFLAGS = \
 	$(GST_PLUGINS_BAD_CFLAGS) \
@@ -891,6 +896,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wlshmallocator.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wlvideoformat.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-wlwindow.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstwaylandsink_la-xdg-shell-protocol.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -991,6 +997,13 @@ libgstwaylandsink_la-fullscreen-shell-unstable-v1-protocol.lo: fullscreen-shell-
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='fullscreen-shell-unstable-v1-protocol.c' object='libgstwaylandsink_la-fullscreen-shell-unstable-v1-protocol.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-fullscreen-shell-unstable-v1-protocol.lo `test -f 'fullscreen-shell-unstable-v1-protocol.c' || echo '$(srcdir)/'`fullscreen-shell-unstable-v1-protocol.c
+
+libgstwaylandsink_la-xdg-shell-protocol.lo: xdg-shell-protocol.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -MT libgstwaylandsink_la-xdg-shell-protocol.lo -MD -MP -MF $(DEPDIR)/libgstwaylandsink_la-xdg-shell-protocol.Tpo -c -o libgstwaylandsink_la-xdg-shell-protocol.lo `test -f 'xdg-shell-protocol.c' || echo '$(srcdir)/'`xdg-shell-protocol.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstwaylandsink_la-xdg-shell-protocol.Tpo $(DEPDIR)/libgstwaylandsink_la-xdg-shell-protocol.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='xdg-shell-protocol.c' object='libgstwaylandsink_la-xdg-shell-protocol.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstwaylandsink_la_CFLAGS) $(CFLAGS) -c -o libgstwaylandsink_la-xdg-shell-protocol.lo `test -f 'xdg-shell-protocol.c' || echo '$(srcdir)/'`xdg-shell-protocol.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1140,6 +1153,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/libgstwaylandsink_la-wlshmallocator.Plo
 	-rm -f ./$(DEPDIR)/libgstwaylandsink_la-wlvideoformat.Plo
 	-rm -f ./$(DEPDIR)/libgstwaylandsink_la-wlwindow.Plo
+	-rm -f ./$(DEPDIR)/libgstwaylandsink_la-xdg-shell-protocol.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1195,6 +1209,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/libgstwaylandsink_la-wlshmallocator.Plo
 	-rm -f ./$(DEPDIR)/libgstwaylandsink_la-wlvideoformat.Plo
 	-rm -f ./$(DEPDIR)/libgstwaylandsink_la-wlwindow.Plo
+	-rm -f ./$(DEPDIR)/libgstwaylandsink_la-xdg-shell-protocol.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

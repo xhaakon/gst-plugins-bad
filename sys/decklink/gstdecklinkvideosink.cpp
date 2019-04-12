@@ -17,6 +17,118 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Suite 500,
  * Boston, MA 02110-1335, USA.
  */
+/**
+ * SECTION:element-decklinkvideosink
+ * @short_description: Outputs Video to a BlackMagic DeckLink Device
+ *
+ * Playout Video to a BlackMagic DeckLink Device.
+ *
+ * ## Sample pipeline
+ * |[
+ * gst-launch-1.0 \
+ *   videotestsrc ! \
+ *   decklinkvideosink device-number=0 mode=1080p25
+ * ]|
+ * Playout a 1080p25 test-video to the SDI-Out of Card 0. Devices are numbered
+ * starting with 0.
+ *
+ * # Duplex-Mode:
+ * Certain DechLink Cards like the Duo2 or the Quad2 contain two or four
+ * independant SDI units with two connectors each. These units can operate either
+ * in half- or in full-duplex mode.
+ *
+ * The Duplex-Mode of a Card can be configured using the `duplex-mode`-Property.
+ * Cards that to not support Duplex-Modes are not influenced by the property.
+ *
+ * ## Half-Duplex-Mode (default):
+ * By default decklinkvideosink will configure them into half-duplex mode, so that
+ * each connector acts as if it were an independant DeckLink Card which can either
+ * be used as an Input or as an Output. In this mode the Duo2 can be used as as 4 SDI
+ * In-/Outputs and the Quad2 as 8 SDI In-/Outputs.
+ *
+ * |[
+ *  gst-launch-1.0 \
+ *    videotestsrc foreground-color=0x00ff0000 ! decklinkvideosink device-number=0 mode=1080p25 \
+ *    videotestsrc foreground-color=0x0000ff00 ! decklinkvideosink device-number=1 mode=1080p25 \
+ *    videotestsrc foreground-color=0x000000ff ! decklinkvideosink device-number=2 mode=1080p25 \
+ *    videotestsrc foreground-color=0x00ffffff ! decklinkvideosink device-number=3 mode=1080p25
+ * ]|
+ * Playout four Test-Screen with colored Snow on the first four units in the System
+ * (ie. the Connectors 1-4 of a Duo2 unit).
+ *
+ * |[
+ *  gst-launch-1.0 \
+ *    videotestsrc is-live=true foreground-color=0x0000ff00 ! decklinkvideosink device-number=0 mode=1080p25 \
+ *    decklinkvideosrc device-number=1 mode=1080p25 ! autovideosink \
+ *    decklinkvideosrc device-number=2 mode=1080p25 ! autovideosink \
+ *    videotestsrc is-live=true foreground-color=0x00ff0000 ! decklinkvideosink device-number=3 mode=1080p25
+ * ]|
+ * Capture 1080p25 from the second and third unit in the System,
+ * Playout a Test-Screen with colored Snow on the first and fourth unit
+ * (ie. the Connectors 1-4 of a Duo2 unit).
+ *
+ * ## Device-Number-Mapping in Half-Duplex-Mode
+ * The device-number to connector-mapping is as follows for the Duo2
+ * - `device-number=0` SDI1
+ * - `device-number=1` SDI3
+ * - `device-number=2` SDI2
+ * - `device-number=3` SDI4
+ *
+ * And for the Quad2
+ * - `device-number=0` SDI1
+ * - `device-number=1` SDI3
+ * - `device-number=2` SDI5
+ * - `device-number=3` SDI7
+ * - `device-number=4` SDI2
+ * - `device-number=5` SDI4
+ * - `device-number=6` SDI6
+ * - `device-number=7` SDI8
+ *
+ * ## Full-Duplex-Mode:
+ * When operating in full-duplex mode, two connectors of a unit are combined to
+ * a single device, performing keying with the second connection.
+ *
+ * ## Device-Number-Mapping in Full-Duplex-Mode
+ * The device-number to connector-mapping in full-duplex-mode is as follows for the Duo2
+ * - `device-number=0` SDI1 primary, SDI2 secondary
+ * - `device-number=1` SDI3 primaty, SDI4 secondary
+ *
+ * And for the Quad2
+ * - `device-number=0` SDI1 primary, SDI2 secondary
+ * - `device-number=1` SDI3 primaty, SDI4 secondary
+ * - `device-number=2` SDI5 primary, SDI6 secondary
+ * - `device-number=3` SDI7 primary, SDI8 secondary
+ *
+ * # Keying
+ * Keying is the process of overlaing Video with an Alpha-Channel on top of an
+ * existing Video-Stream. The Duo2 and Quad2-Cards can perform two different
+ * Keying-Modes when operated in full-duplex mode. Both modes expect Video with
+ * an Alpha-Channel.
+ *
+ * ## Internal Keyer:
+ * In internal Keying-Mode the primary port becomes an Input and the secondary port
+ * an Output. The unit overlays Video played back from the Computer onto the Input
+ * and outputs the combined Video-Stream to the Output.
+ *
+ * |[
+ * gst-launch-1.0 \
+ *  videotestsrc foreground-color=0x00000000 background-color=0x00000000 ! \
+ *  video/x-raw,format=BGRA,width=1920,height=1080 ! \
+ *  decklinkvideosink device-number=0 duplex-mode=full keyer-mode=internal video-format=8bit-bgra mode=1080p25
+ * ]|
+ *
+ * ## External Keyer:
+ * In external Keying-Mode the primary port outputs the alpha-chanel as the
+ * luma-value (key-channel). Transparent pixels are black, opaque pixels are white.
+ * The RGB-Component of the Video are output on the secondary channel.
+ *
+ * |[
+ * gst-launch-1.0 \
+ *  videotestsrc foreground-color=0x00000000 background-color=0x00000000 ! \
+ *  video/x-raw,format=BGRA,width=1920,height=1080 ! \
+ *  decklinkvideosink device-number=0 duplex-mode=full keyer-mode=external video-format=8bit-bgra mode=1080p25
+ * ]|
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -126,6 +238,7 @@ enum
   PROP_MODE,
   PROP_DEVICE_NUMBER,
   PROP_VIDEO_FORMAT,
+  PROP_DUPLEX_MODE,
   PROP_TIMECODE_FORMAT,
   PROP_KEYER_MODE,
   PROP_KEYER_LEVEL,
@@ -227,6 +340,20 @@ gst_decklink_video_sink_class_init (GstDecklinkVideoSinkClass * klass)
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
               G_PARAM_CONSTRUCT)));
 
+  g_object_class_install_property (gobject_class, PROP_DUPLEX_MODE,
+      g_param_spec_enum ("duplex-mode", "Duplex mode",
+          "Certain DeckLink devices such as the DeckLink Quad 2 and the "
+          "DeckLink Duo 2 support configuration of the duplex mode of "
+          "individual sub-devices."
+          "A sub-device configured as full-duplex will use two connectors, "
+          "which allows simultaneous capture and playback, internal keying, "
+          "and fill & key scenarios."
+          "A half-duplex sub-device will use a single connector as an "
+          "individual capture or playback channel.",
+          GST_TYPE_DECKLINK_DUPLEX_MODE, GST_DECKLINK_DUPLEX_MODE_HALF,
+          (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS |
+              G_PARAM_CONSTRUCT)));
+
   g_object_class_install_property (gobject_class, PROP_TIMECODE_FORMAT,
       g_param_spec_enum ("timecode-format", "Timecode format",
           "Timecode format type to use for playback",
@@ -284,6 +411,7 @@ gst_decklink_video_sink_init (GstDecklinkVideoSink * self)
   self->mode = GST_DECKLINK_MODE_NTSC;
   self->device_number = 0;
   self->video_format = GST_DECKLINK_VIDEO_FORMAT_8BIT_YUV;
+  self->duplex_mode = bmdDuplexModeHalf;
   /* VITC is legacy, we should expect RP188 in modern use cases */
   self->timecode_format = bmdTimecodeRP188Any;
   self->caption_line = 0;
@@ -319,6 +447,11 @@ gst_decklink_video_sink_set_property (GObject * object, guint property_id,
               ("Format %d not supported", self->video_format), (NULL));
           break;
       }
+      break;
+    case PROP_DUPLEX_MODE:
+      self->duplex_mode =
+          gst_decklink_duplex_mode_from_enum ((GstDecklinkDuplexMode)
+          g_value_get_enum (value));
       break;
     case PROP_TIMECODE_FORMAT:
       self->timecode_format =
@@ -357,6 +490,10 @@ gst_decklink_video_sink_get_property (GObject * object, guint property_id,
       break;
     case PROP_VIDEO_FORMAT:
       g_value_set_enum (value, self->video_format);
+      break;
+    case PROP_DUPLEX_MODE:
+      g_value_set_enum (value,
+          gst_decklink_duplex_mode_to_enum (self->duplex_mode));
       break;
     case PROP_TIMECODE_FORMAT:
       g_value_set_enum (value,

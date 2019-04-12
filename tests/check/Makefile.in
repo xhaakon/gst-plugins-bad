@@ -91,8 +91,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-noinst_PROGRAMS = pipelines/streamheader$(EXEEXT) $(am__EXEEXT_28) \
-	$(am__EXEEXT_29) $(am__EXEEXT_30) $(am__EXEEXT_31)
+noinst_PROGRAMS = pipelines/streamheader$(EXEEXT) $(am__EXEEXT_29) \
+	$(am__EXEEXT_30) $(am__EXEEXT_31) $(am__EXEEXT_32)
 check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4) \
 	$(am__EXEEXT_5) $(am__EXEEXT_6) $(am__EXEEXT_7) \
@@ -120,7 +120,7 @@ check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	elements/viewfinderbin$(EXEEXT) $(am__EXEEXT_20) \
 	$(am__EXEEXT_21) libs/insertbin$(EXEEXT) $(am__EXEEXT_22) \
 	$(am__EXEEXT_23) $(am__EXEEXT_24) $(am__EXEEXT_25) \
-	$(am__EXEEXT_26) $(am__EXEEXT_27)
+	$(am__EXEEXT_26) $(am__EXEEXT_27) $(am__EXEEXT_28)
 @WITH_GST_PLAYER_TESTS_TRUE@am__append_1 = $(PLAYER_MEDIA_FILES) libs/player_dummy.c
 subdir = tests/check
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -167,7 +167,8 @@ CONFIG_CLEAN_VPATH_FILES =
 @USE_ASSRENDER_TRUE@am__EXEEXT_1 = elements/assrender$(EXEEXT)
 @USE_PANGO_TRUE@am__EXEEXT_2 = elements/ccconverter$(EXEEXT) \
 @USE_PANGO_TRUE@	elements/cccombiner$(EXEEXT) \
-@USE_PANGO_TRUE@	elements/ccextractor$(EXEEXT)
+@USE_PANGO_TRUE@	elements/ccextractor$(EXEEXT) \
+@USE_PANGO_TRUE@	elements/line21$(EXEEXT)
 @USE_DASH_TRUE@am__EXEEXT_3 = elements/dash_mpd$(EXEEXT)
 @USE_DTLS_TRUE@am__EXEEXT_4 = elements/dtls$(EXEEXT)
 @USE_FAAC_TRUE@am__EXEEXT_5 = elements/faac$(EXEEXT)
@@ -197,10 +198,11 @@ CONFIG_CLEAN_VPATH_FILES =
 @WITH_GST_PLAYER_TESTS_TRUE@am__EXEEXT_25 = libs/player$(EXEEXT)
 @USE_WEBRTC_TRUE@am__EXEEXT_26 = elements/webrtcbin$(EXEEXT)
 @USE_MSDK_TRUE@am__EXEEXT_27 = elements/msdkh264enc$(EXEEXT)
-@USE_SMOOTHSTREAMING_TRUE@am__EXEEXT_28 = elements/mssdemux$(EXEEXT)
-@USE_DASH_TRUE@am__EXEEXT_29 = elements/dash_demux$(EXEEXT)
-@USE_IPCPIPELINE_TRUE@am__EXEEXT_30 = pipelines/ipcpipeline$(EXEEXT)
-@USE_NEON_TRUE@am__EXEEXT_31 = elements/neonhttpsrc$(EXEEXT)
+@USE_NVENC_TRUE@am__EXEEXT_28 = elements/nvenc$(EXEEXT)
+@USE_SMOOTHSTREAMING_TRUE@am__EXEEXT_29 = elements/mssdemux$(EXEEXT)
+@USE_DASH_TRUE@am__EXEEXT_30 = elements/dash_demux$(EXEEXT)
+@USE_IPCPIPELINE_TRUE@am__EXEEXT_31 = pipelines/ipcpipeline$(EXEEXT)
+@USE_NEON_TRUE@am__EXEEXT_32 = elements/neonhttpsrc$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libparser_la_LIBADD =
@@ -386,8 +388,13 @@ elements_h263parse_SOURCES = elements/h263parse.c
 elements_h263parse_OBJECTS = elements/h263parse.$(OBJEXT)
 elements_h263parse_DEPENDENCIES = libparser.la $(am__DEPENDENCIES_2)
 elements_h264parse_SOURCES = elements/h264parse.c
-elements_h264parse_OBJECTS = elements/h264parse.$(OBJEXT)
-elements_h264parse_DEPENDENCIES = libparser.la $(am__DEPENDENCIES_2)
+elements_h264parse_OBJECTS = elements/h264parse-h264parse.$(OBJEXT)
+elements_h264parse_DEPENDENCIES = libparser.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
+elements_h264parse_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(elements_h264parse_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 am_elements_hls_demux_OBJECTS =  \
 	elements/hls_demux-test_http_src.$(OBJEXT) \
 	elements/hls_demux-adaptive_demux_engine.$(OBJEXT) \
@@ -434,6 +441,15 @@ elements_kate_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 elements_kate_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(elements_kate_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+elements_line21_SOURCES = elements/line21.c
+elements_line21_OBJECTS = elements/line21-line21.$(OBJEXT)
+elements_line21_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
+elements_line21_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(elements_line21_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+	-o $@
 elements_mpeg2enc_SOURCES = elements/mpeg2enc.c
 elements_mpeg2enc_OBJECTS = elements/mpeg2enc.$(OBJEXT)
 elements_mpeg2enc_LDADD = $(LDADD)
@@ -503,6 +519,10 @@ elements_netsim_SOURCES = elements/netsim.c
 elements_netsim_OBJECTS = elements/netsim.$(OBJEXT)
 elements_netsim_LDADD = $(LDADD)
 elements_netsim_DEPENDENCIES = $(am__DEPENDENCIES_1)
+elements_nvenc_SOURCES = elements/nvenc.c
+elements_nvenc_OBJECTS = elements/nvenc.$(OBJEXT)
+elements_nvenc_LDADD = $(LDADD)
+elements_nvenc_DEPENDENCIES = $(am__DEPENDENCIES_1)
 elements_ofa_SOURCES = elements/ofa.c
 elements_ofa_OBJECTS = elements/ofa.$(OBJEXT)
 elements_ofa_LDADD = $(LDADD)
@@ -771,7 +791,7 @@ am__depfiles_remade = elements/$(DEPDIR)/aiffparse.Po \
 	elements/$(DEPDIR)/gdpdepay-gdpdepay.Po \
 	elements/$(DEPDIR)/gdppay-gdppay.Po \
 	elements/$(DEPDIR)/h263parse.Po \
-	elements/$(DEPDIR)/h264parse.Po \
+	elements/$(DEPDIR)/h264parse-h264parse.Po \
 	elements/$(DEPDIR)/hls_demux-adaptive_demux_common.Po \
 	elements/$(DEPDIR)/hls_demux-adaptive_demux_engine.Po \
 	elements/$(DEPDIR)/hls_demux-hls_demux.Po \
@@ -782,6 +802,7 @@ am__depfiles_remade = elements/$(DEPDIR)/aiffparse.Po \
 	elements/$(DEPDIR)/jpegparse.Po \
 	elements/$(DEPDIR)/kate-kate.Po \
 	elements/$(DEPDIR)/libparser_la-parser.Plo \
+	elements/$(DEPDIR)/line21-line21.Po \
 	elements/$(DEPDIR)/mpeg2enc.Po \
 	elements/$(DEPDIR)/mpeg4videoparse.Po \
 	elements/$(DEPDIR)/mpegtsmux-mpegtsmux.Po \
@@ -793,8 +814,9 @@ am__depfiles_remade = elements/$(DEPDIR)/aiffparse.Po \
 	elements/$(DEPDIR)/mssdemux-test_http_src.Po \
 	elements/$(DEPDIR)/mxfdemux.Po elements/$(DEPDIR)/mxfmux.Po \
 	elements/$(DEPDIR)/neonhttpsrc-neonhttpsrc.Po \
-	elements/$(DEPDIR)/netsim.Po elements/$(DEPDIR)/ofa.Po \
-	elements/$(DEPDIR)/pcapparse.Po elements/$(DEPDIR)/pnm-pnm.Po \
+	elements/$(DEPDIR)/netsim.Po elements/$(DEPDIR)/nvenc.Po \
+	elements/$(DEPDIR)/ofa.Po elements/$(DEPDIR)/pcapparse.Po \
+	elements/$(DEPDIR)/pnm-pnm.Po \
 	elements/$(DEPDIR)/rtponvifparse-rtponvifparse.Po \
 	elements/$(DEPDIR)/rtponviftimestamp-rtponviftimestamp.Po \
 	elements/$(DEPDIR)/shm.Po elements/$(DEPDIR)/srtp.Po \
@@ -854,22 +876,23 @@ SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/h264parse.c $(elements_hls_demux_SOURCES) \
 	$(elements_hlsdemux_m3u8_SOURCES) elements/id3mux.c \
 	$(elements_jifmux_SOURCES) elements/jpegparse.c \
-	elements/kate.c elements/mpeg2enc.c elements/mpeg4videoparse.c \
-	elements/mpegtsmux.c elements/mpegvideoparse.c \
-	elements/mplex.c elements/msdkh264enc.c \
-	$(elements_mssdemux_SOURCES) elements/mxfdemux.c \
-	elements/mxfmux.c elements/neonhttpsrc.c elements/netsim.c \
-	elements/ofa.c elements/pcapparse.c elements/pnm.c \
-	elements/rtponvifparse.c elements/rtponviftimestamp.c \
-	elements/shm.c elements/srtp.c elements/templatematch.c \
-	elements/uvch264demux.c elements/videoframe-audiolevel.c \
-	elements/viewfinderbin.c elements/voaacenc.c \
-	elements/voamrwbenc.c elements/webrtcbin.c elements/x265enc.c \
-	elements/zbar.c generic/states.c libs/h264parser.c \
-	libs/h265parser.c libs/insertbin.c $(libs_isoff_SOURCES) \
-	libs/mpegts.c libs/mpegvideoparser.c libs/planaraudioadapter.c \
-	$(libs_player_SOURCES) $(nodist_libs_player_SOURCES) \
-	libs/vc1parser.c libs/vp8parser.c $(nodist_orc_bayer_SOURCES) \
+	elements/kate.c elements/line21.c elements/mpeg2enc.c \
+	elements/mpeg4videoparse.c elements/mpegtsmux.c \
+	elements/mpegvideoparse.c elements/mplex.c \
+	elements/msdkh264enc.c $(elements_mssdemux_SOURCES) \
+	elements/mxfdemux.c elements/mxfmux.c elements/neonhttpsrc.c \
+	elements/netsim.c elements/nvenc.c elements/ofa.c \
+	elements/pcapparse.c elements/pnm.c elements/rtponvifparse.c \
+	elements/rtponviftimestamp.c elements/shm.c elements/srtp.c \
+	elements/templatematch.c elements/uvch264demux.c \
+	elements/videoframe-audiolevel.c elements/viewfinderbin.c \
+	elements/voaacenc.c elements/voamrwbenc.c elements/webrtcbin.c \
+	elements/x265enc.c elements/zbar.c generic/states.c \
+	libs/h264parser.c libs/h265parser.c libs/insertbin.c \
+	$(libs_isoff_SOURCES) libs/mpegts.c libs/mpegvideoparser.c \
+	libs/planaraudioadapter.c $(libs_player_SOURCES) \
+	$(nodist_libs_player_SOURCES) libs/vc1parser.c \
+	libs/vp8parser.c $(nodist_orc_bayer_SOURCES) \
 	pipelines/ipcpipeline.c pipelines/mxf.c \
 	pipelines/streamheader.c
 DIST_SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
@@ -886,23 +909,23 @@ DIST_SOURCES = $(libparser_la_SOURCES) elements/aiffparse.c \
 	elements/h264parse.c $(elements_hls_demux_SOURCES) \
 	$(elements_hlsdemux_m3u8_SOURCES) elements/id3mux.c \
 	$(elements_jifmux_SOURCES) elements/jpegparse.c \
-	elements/kate.c elements/mpeg2enc.c elements/mpeg4videoparse.c \
-	elements/mpegtsmux.c elements/mpegvideoparse.c \
-	elements/mplex.c elements/msdkh264enc.c \
-	$(elements_mssdemux_SOURCES) elements/mxfdemux.c \
-	elements/mxfmux.c elements/neonhttpsrc.c elements/netsim.c \
-	elements/ofa.c elements/pcapparse.c elements/pnm.c \
-	elements/rtponvifparse.c elements/rtponviftimestamp.c \
-	elements/shm.c elements/srtp.c elements/templatematch.c \
-	elements/uvch264demux.c elements/videoframe-audiolevel.c \
-	elements/viewfinderbin.c elements/voaacenc.c \
-	elements/voamrwbenc.c elements/webrtcbin.c elements/x265enc.c \
-	elements/zbar.c generic/states.c libs/h264parser.c \
-	libs/h265parser.c libs/insertbin.c $(libs_isoff_SOURCES) \
-	libs/mpegts.c libs/mpegvideoparser.c libs/planaraudioadapter.c \
-	$(libs_player_SOURCES) libs/vc1parser.c libs/vp8parser.c \
-	pipelines/ipcpipeline.c pipelines/mxf.c \
-	pipelines/streamheader.c
+	elements/kate.c elements/line21.c elements/mpeg2enc.c \
+	elements/mpeg4videoparse.c elements/mpegtsmux.c \
+	elements/mpegvideoparse.c elements/mplex.c \
+	elements/msdkh264enc.c $(elements_mssdemux_SOURCES) \
+	elements/mxfdemux.c elements/mxfmux.c elements/neonhttpsrc.c \
+	elements/netsim.c elements/nvenc.c elements/ofa.c \
+	elements/pcapparse.c elements/pnm.c elements/rtponvifparse.c \
+	elements/rtponviftimestamp.c elements/shm.c elements/srtp.c \
+	elements/templatematch.c elements/uvch264demux.c \
+	elements/videoframe-audiolevel.c elements/viewfinderbin.c \
+	elements/voaacenc.c elements/voamrwbenc.c elements/webrtcbin.c \
+	elements/x265enc.c elements/zbar.c generic/states.c \
+	libs/h264parser.c libs/h265parser.c libs/insertbin.c \
+	$(libs_isoff_SOURCES) libs/mpegts.c libs/mpegvideoparser.c \
+	libs/planaraudioadapter.c $(libs_player_SOURCES) \
+	libs/vc1parser.c libs/vp8parser.c pipelines/ipcpipeline.c \
+	pipelines/mxf.c pipelines/streamheader.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -1657,7 +1680,7 @@ SUPPRESSIONS = $(top_srcdir)/common/gst.supp $(srcdir)/gst-plugins-bad.supp
 @USE_ASSRENDER_FALSE@check_assrender = 
 @USE_ASSRENDER_TRUE@check_assrender = elements/assrender
 @USE_PANGO_FALSE@check_closedcaption = 
-@USE_PANGO_TRUE@check_closedcaption = elements/ccconverter elements/cccombiner elements/ccextractor
+@USE_PANGO_TRUE@check_closedcaption = elements/ccconverter elements/cccombiner elements/ccextractor elements/line21
 @USE_DASH_FALSE@check_dash = 
 @USE_DASH_TRUE@check_dash = elements/dash_mpd
 @USE_DASH_FALSE@check_dash_demux = 
@@ -1729,6 +1752,8 @@ uvch264_dist_data = elements/uvch264demux_data/valid_h264_jpg.mjpg \
 @USE_WEBRTC_TRUE@check_webrtc = elements/webrtcbin
 @USE_MSDK_FALSE@check_msdk = 
 @USE_MSDK_TRUE@check_msdk = elements/msdkh264enc
+@USE_NVENC_FALSE@check_nvenc = 
+@USE_NVENC_TRUE@check_nvenc = elements/nvenc
 VALGRIND_TO_FIX = \
 	elements/mpeg2enc \
 	elements/mplex    \
@@ -1772,7 +1797,12 @@ elements_mpegvideoparse_LDADD = libparser.la \
 
 elements_mpeg4videoparse_LDADD = libparser.la $(LDADD)
 elements_h263parse_LDADD = libparser.la $(LDADD)
-elements_h264parse_LDADD = libparser.la $(LDADD)
+elements_h264parse_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) \
+	$(GST_BASE_CFLAGS) $(GST_CFLAGS) $(AM_CFLAGS)
+
+elements_h264parse_LDADD = libparser.la \
+	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-$(GST_API_VERSION) $(LDADD)
+
 elements_pcapparse_LDADD = libparser.la $(LDADD)
 libs_isoff_CFLAGS = $(AM_CFLAGS) $(GST_BASE_CFLAGS) $(GST_PLUGINS_BAD_CFLAGS)
 libs_isoff_LDADD = $(LDADD) $(GST_BASE_LIBS) \
@@ -1900,6 +1930,8 @@ elements_cccombiner_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_
 elements_cccombiner_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
 elements_ccextractor_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
 elements_ccextractor_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
+elements_line21_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_line21_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_VIDEO_LIBS) $(GST_BASE_LIBS) $(LDADD)
 elements_curlhttpsrc_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GIO_CFLAGS) $(AM_CFLAGS)
 elements_curlhttpsrc_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GIO_LIBS) $(LDADD)
 elements_jifmux_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(EXIF_CFLAGS) $(AM_CFLAGS)
@@ -2229,12 +2261,12 @@ elements/h263parse.$(OBJEXT): elements/$(am__dirstamp) \
 elements/h263parse$(EXEEXT): $(elements_h263parse_OBJECTS) $(elements_h263parse_DEPENDENCIES) $(EXTRA_elements_h263parse_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/h263parse$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(elements_h263parse_OBJECTS) $(elements_h263parse_LDADD) $(LIBS)
-elements/h264parse.$(OBJEXT): elements/$(am__dirstamp) \
+elements/h264parse-h264parse.$(OBJEXT): elements/$(am__dirstamp) \
 	elements/$(DEPDIR)/$(am__dirstamp)
 
 elements/h264parse$(EXEEXT): $(elements_h264parse_OBJECTS) $(elements_h264parse_DEPENDENCIES) $(EXTRA_elements_h264parse_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/h264parse$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(elements_h264parse_OBJECTS) $(elements_h264parse_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(elements_h264parse_LINK) $(elements_h264parse_OBJECTS) $(elements_h264parse_LDADD) $(LIBS)
 elements/hls_demux-test_http_src.$(OBJEXT): elements/$(am__dirstamp) \
 	elements/$(DEPDIR)/$(am__dirstamp)
 elements/hls_demux-adaptive_demux_engine.$(OBJEXT):  \
@@ -2277,6 +2309,12 @@ elements/kate-kate.$(OBJEXT): elements/$(am__dirstamp) \
 elements/kate$(EXEEXT): $(elements_kate_OBJECTS) $(elements_kate_DEPENDENCIES) $(EXTRA_elements_kate_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/kate$(EXEEXT)
 	$(AM_V_CCLD)$(elements_kate_LINK) $(elements_kate_OBJECTS) $(elements_kate_LDADD) $(LIBS)
+elements/line21-line21.$(OBJEXT): elements/$(am__dirstamp) \
+	elements/$(DEPDIR)/$(am__dirstamp)
+
+elements/line21$(EXEEXT): $(elements_line21_OBJECTS) $(elements_line21_DEPENDENCIES) $(EXTRA_elements_line21_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/line21$(EXEEXT)
+	$(AM_V_CCLD)$(elements_line21_LINK) $(elements_line21_OBJECTS) $(elements_line21_LDADD) $(LIBS)
 elements/mpeg2enc.$(OBJEXT): elements/$(am__dirstamp) \
 	elements/$(DEPDIR)/$(am__dirstamp)
 
@@ -2349,6 +2387,12 @@ elements/netsim.$(OBJEXT): elements/$(am__dirstamp) \
 elements/netsim$(EXEEXT): $(elements_netsim_OBJECTS) $(elements_netsim_DEPENDENCIES) $(EXTRA_elements_netsim_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/netsim$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(elements_netsim_OBJECTS) $(elements_netsim_LDADD) $(LIBS)
+elements/nvenc.$(OBJEXT): elements/$(am__dirstamp) \
+	elements/$(DEPDIR)/$(am__dirstamp)
+
+elements/nvenc$(EXEEXT): $(elements_nvenc_OBJECTS) $(elements_nvenc_DEPENDENCIES) $(EXTRA_elements_nvenc_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/nvenc$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(elements_nvenc_OBJECTS) $(elements_nvenc_LDADD) $(LIBS)
 elements/ofa.$(OBJEXT): elements/$(am__dirstamp) \
 	elements/$(DEPDIR)/$(am__dirstamp)
 
@@ -2601,7 +2645,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/gdpdepay-gdpdepay.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/gdppay-gdppay.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/h263parse.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/h264parse.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/h264parse-h264parse.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/hls_demux-adaptive_demux_common.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/hls_demux-adaptive_demux_engine.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/hls_demux-hls_demux.Po@am__quote@ # am--include-marker
@@ -2612,6 +2656,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/jpegparse.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/kate-kate.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/libparser_la-parser.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/line21-line21.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mpeg2enc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mpeg4videoparse.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mpegtsmux-mpegtsmux.Po@am__quote@ # am--include-marker
@@ -2626,6 +2671,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mxfmux.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/neonhttpsrc-neonhttpsrc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/netsim.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/nvenc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/ofa.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/pcapparse.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/pnm-pnm.Po@am__quote@ # am--include-marker
@@ -2920,6 +2966,20 @@ elements/gdppay-gdppay.obj: elements/gdppay.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_gdppay_CFLAGS) $(CFLAGS) -c -o elements/gdppay-gdppay.obj `if test -f 'elements/gdppay.c'; then $(CYGPATH_W) 'elements/gdppay.c'; else $(CYGPATH_W) '$(srcdir)/elements/gdppay.c'; fi`
 
+elements/h264parse-h264parse.o: elements/h264parse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_h264parse_CFLAGS) $(CFLAGS) -MT elements/h264parse-h264parse.o -MD -MP -MF elements/$(DEPDIR)/h264parse-h264parse.Tpo -c -o elements/h264parse-h264parse.o `test -f 'elements/h264parse.c' || echo '$(srcdir)/'`elements/h264parse.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/h264parse-h264parse.Tpo elements/$(DEPDIR)/h264parse-h264parse.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/h264parse.c' object='elements/h264parse-h264parse.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_h264parse_CFLAGS) $(CFLAGS) -c -o elements/h264parse-h264parse.o `test -f 'elements/h264parse.c' || echo '$(srcdir)/'`elements/h264parse.c
+
+elements/h264parse-h264parse.obj: elements/h264parse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_h264parse_CFLAGS) $(CFLAGS) -MT elements/h264parse-h264parse.obj -MD -MP -MF elements/$(DEPDIR)/h264parse-h264parse.Tpo -c -o elements/h264parse-h264parse.obj `if test -f 'elements/h264parse.c'; then $(CYGPATH_W) 'elements/h264parse.c'; else $(CYGPATH_W) '$(srcdir)/elements/h264parse.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/h264parse-h264parse.Tpo elements/$(DEPDIR)/h264parse-h264parse.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/h264parse.c' object='elements/h264parse-h264parse.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_h264parse_CFLAGS) $(CFLAGS) -c -o elements/h264parse-h264parse.obj `if test -f 'elements/h264parse.c'; then $(CYGPATH_W) 'elements/h264parse.c'; else $(CYGPATH_W) '$(srcdir)/elements/h264parse.c'; fi`
+
 elements/hls_demux-test_http_src.o: elements/test_http_src.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_hls_demux_CFLAGS) $(CFLAGS) -MT elements/hls_demux-test_http_src.o -MD -MP -MF elements/$(DEPDIR)/hls_demux-test_http_src.Tpo -c -o elements/hls_demux-test_http_src.o `test -f 'elements/test_http_src.c' || echo '$(srcdir)/'`elements/test_http_src.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/hls_demux-test_http_src.Tpo elements/$(DEPDIR)/hls_demux-test_http_src.Po
@@ -3017,6 +3077,20 @@ elements/kate-kate.obj: elements/kate.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/kate.c' object='elements/kate-kate.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_kate_CFLAGS) $(CFLAGS) -c -o elements/kate-kate.obj `if test -f 'elements/kate.c'; then $(CYGPATH_W) 'elements/kate.c'; else $(CYGPATH_W) '$(srcdir)/elements/kate.c'; fi`
+
+elements/line21-line21.o: elements/line21.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_line21_CFLAGS) $(CFLAGS) -MT elements/line21-line21.o -MD -MP -MF elements/$(DEPDIR)/line21-line21.Tpo -c -o elements/line21-line21.o `test -f 'elements/line21.c' || echo '$(srcdir)/'`elements/line21.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/line21-line21.Tpo elements/$(DEPDIR)/line21-line21.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/line21.c' object='elements/line21-line21.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_line21_CFLAGS) $(CFLAGS) -c -o elements/line21-line21.o `test -f 'elements/line21.c' || echo '$(srcdir)/'`elements/line21.c
+
+elements/line21-line21.obj: elements/line21.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_line21_CFLAGS) $(CFLAGS) -MT elements/line21-line21.obj -MD -MP -MF elements/$(DEPDIR)/line21-line21.Tpo -c -o elements/line21-line21.obj `if test -f 'elements/line21.c'; then $(CYGPATH_W) 'elements/line21.c'; else $(CYGPATH_W) '$(srcdir)/elements/line21.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/line21-line21.Tpo elements/$(DEPDIR)/line21-line21.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/line21.c' object='elements/line21-line21.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_line21_CFLAGS) $(CFLAGS) -c -o elements/line21-line21.obj `if test -f 'elements/line21.c'; then $(CYGPATH_W) 'elements/line21.c'; else $(CYGPATH_W) '$(srcdir)/elements/line21.c'; fi`
 
 elements/mpegtsmux-mpegtsmux.o: elements/mpegtsmux.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpegtsmux_CFLAGS) $(CFLAGS) -MT elements/mpegtsmux-mpegtsmux.o -MD -MP -MF elements/$(DEPDIR)/mpegtsmux-mpegtsmux.Tpo -c -o elements/mpegtsmux-mpegtsmux.o `test -f 'elements/mpegtsmux.c' || echo '$(srcdir)/'`elements/mpegtsmux.c
@@ -3663,6 +3737,13 @@ elements/ccextractor.log: elements/ccextractor$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+elements/line21.log: elements/line21$(EXEEXT)
+	@p='elements/line21$(EXEEXT)'; \
+	b='elements/line21'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 elements/dash_mpd.log: elements/dash_mpd$(EXEEXT)
 	@p='elements/dash_mpd$(EXEEXT)'; \
 	b='elements/dash_mpd'; \
@@ -4104,6 +4185,13 @@ elements/msdkh264enc.log: elements/msdkh264enc$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+elements/nvenc.log: elements/nvenc$(EXEEXT)
+	@p='elements/nvenc$(EXEEXT)'; \
+	b='elements/nvenc'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 .test.log:
 	@p='$<'; \
 	$(am__set_b); \
@@ -4235,7 +4323,7 @@ distclean: distclean-am
 	-rm -f elements/$(DEPDIR)/gdpdepay-gdpdepay.Po
 	-rm -f elements/$(DEPDIR)/gdppay-gdppay.Po
 	-rm -f elements/$(DEPDIR)/h263parse.Po
-	-rm -f elements/$(DEPDIR)/h264parse.Po
+	-rm -f elements/$(DEPDIR)/h264parse-h264parse.Po
 	-rm -f elements/$(DEPDIR)/hls_demux-adaptive_demux_common.Po
 	-rm -f elements/$(DEPDIR)/hls_demux-adaptive_demux_engine.Po
 	-rm -f elements/$(DEPDIR)/hls_demux-hls_demux.Po
@@ -4246,6 +4334,7 @@ distclean: distclean-am
 	-rm -f elements/$(DEPDIR)/jpegparse.Po
 	-rm -f elements/$(DEPDIR)/kate-kate.Po
 	-rm -f elements/$(DEPDIR)/libparser_la-parser.Plo
+	-rm -f elements/$(DEPDIR)/line21-line21.Po
 	-rm -f elements/$(DEPDIR)/mpeg2enc.Po
 	-rm -f elements/$(DEPDIR)/mpeg4videoparse.Po
 	-rm -f elements/$(DEPDIR)/mpegtsmux-mpegtsmux.Po
@@ -4260,6 +4349,7 @@ distclean: distclean-am
 	-rm -f elements/$(DEPDIR)/mxfmux.Po
 	-rm -f elements/$(DEPDIR)/neonhttpsrc-neonhttpsrc.Po
 	-rm -f elements/$(DEPDIR)/netsim.Po
+	-rm -f elements/$(DEPDIR)/nvenc.Po
 	-rm -f elements/$(DEPDIR)/ofa.Po
 	-rm -f elements/$(DEPDIR)/pcapparse.Po
 	-rm -f elements/$(DEPDIR)/pnm-pnm.Po
@@ -4364,7 +4454,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f elements/$(DEPDIR)/gdpdepay-gdpdepay.Po
 	-rm -f elements/$(DEPDIR)/gdppay-gdppay.Po
 	-rm -f elements/$(DEPDIR)/h263parse.Po
-	-rm -f elements/$(DEPDIR)/h264parse.Po
+	-rm -f elements/$(DEPDIR)/h264parse-h264parse.Po
 	-rm -f elements/$(DEPDIR)/hls_demux-adaptive_demux_common.Po
 	-rm -f elements/$(DEPDIR)/hls_demux-adaptive_demux_engine.Po
 	-rm -f elements/$(DEPDIR)/hls_demux-hls_demux.Po
@@ -4375,6 +4465,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f elements/$(DEPDIR)/jpegparse.Po
 	-rm -f elements/$(DEPDIR)/kate-kate.Po
 	-rm -f elements/$(DEPDIR)/libparser_la-parser.Plo
+	-rm -f elements/$(DEPDIR)/line21-line21.Po
 	-rm -f elements/$(DEPDIR)/mpeg2enc.Po
 	-rm -f elements/$(DEPDIR)/mpeg4videoparse.Po
 	-rm -f elements/$(DEPDIR)/mpegtsmux-mpegtsmux.Po
@@ -4389,6 +4480,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f elements/$(DEPDIR)/mxfmux.Po
 	-rm -f elements/$(DEPDIR)/neonhttpsrc-neonhttpsrc.Po
 	-rm -f elements/$(DEPDIR)/netsim.Po
+	-rm -f elements/$(DEPDIR)/nvenc.Po
 	-rm -f elements/$(DEPDIR)/ofa.Po
 	-rm -f elements/$(DEPDIR)/pcapparse.Po
 	-rm -f elements/$(DEPDIR)/pnm-pnm.Po

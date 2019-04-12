@@ -56,7 +56,7 @@ static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
     GST_STATIC_CAPS ("video/x-raw, "
         "format = (string) { NV12, P010_10LE }, "
         "framerate = (fraction) [0, MAX], "
-        "width = (int) [ 16, MAX ], height = (int) [ 16, MAX ],"
+        "width = (int) [ 1, MAX ], height = (int) [ 1, MAX ],"
         "interlace-mode = (string) progressive;"
         GST_VIDEO_CAPS_MAKE_WITH_FEATURES (GST_CAPS_FEATURE_MEMORY_DMABUF,
             "{ NV12, P010_10LE }") ";")
@@ -148,6 +148,21 @@ gst_msdkdec_vp9_get_property (GObject * object, guint prop_id, GValue * value,
   GST_OBJECT_UNLOCK (thiz);
 }
 
+static gboolean
+gst_msdkvp9dec_preinit_decoder (GstMsdkDec * decoder)
+{
+  decoder->param.mfx.FrameInfo.Width =
+      GST_ROUND_UP_16 (decoder->param.mfx.FrameInfo.Width);
+  decoder->param.mfx.FrameInfo.Height =
+      GST_ROUND_UP_16 (decoder->param.mfx.FrameInfo.Height);
+
+  decoder->param.mfx.FrameInfo.PicStruct =
+      decoder->param.mfx.FrameInfo.PicStruct ? decoder->param.mfx.
+      FrameInfo.PicStruct : MFX_PICSTRUCT_PROGRESSIVE;
+
+  return TRUE;
+}
+
 static void
 gst_msdkvp9dec_class_init (GstMsdkVP9DecClass * klass)
 {
@@ -163,6 +178,8 @@ gst_msdkvp9dec_class_init (GstMsdkVP9DecClass * klass)
   gobject_class->get_property = gst_msdkdec_vp9_get_property;
 
   decoder_class->configure = GST_DEBUG_FUNCPTR (gst_msdkvp9dec_configure);
+  decoder_class->preinit_decoder =
+      GST_DEBUG_FUNCPTR (gst_msdkvp9dec_preinit_decoder);
 
   gst_element_class_set_static_metadata (element_class,
       "Intel MSDK VP9 decoder",

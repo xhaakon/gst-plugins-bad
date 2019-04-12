@@ -167,8 +167,8 @@ void WPEThreadedView::initialize(GstWpeSrc* src, GstGLContext* context, GstGLDis
     static std::once_flag s_loaderFlag;
     std::call_once(s_loaderFlag,
         [] {
-#if defined(WPE_BACKEND_CHECK_VERSION) && WPE_BACKEND_CHECK_VERSION(0, 2, 0)
-            wpe_loader_init("libWPEBackend-fdo-0.1.so");
+#if defined(WPE_BACKEND_CHECK_VERSION) && WPE_BACKEND_CHECK_VERSION(1, 2, 0)
+            wpe_loader_init("libWPEBackend-fdo-1.0.so");
 #endif
         });
 
@@ -204,8 +204,11 @@ void WPEThreadedView::initialize(GstWpeSrc* src, GstGLContext* context, GstGLDis
 
             view.wpe.exportable = wpe_view_backend_exportable_fdo_egl_create(&s_exportableClient,
                 &view, view.wpe.width, view.wpe.height);
-            auto* viewBackend = webkit_web_view_backend_new(
-                wpe_view_backend_exportable_fdo_get_view_backend(view.wpe.exportable), nullptr, nullptr);
+            auto* wpeViewBackend = wpe_view_backend_exportable_fdo_get_view_backend(view.wpe.exportable);
+            auto* viewBackend = webkit_web_view_backend_new(wpeViewBackend, nullptr, nullptr);
+#if defined(WPE_BACKEND_CHECK_VERSION) && WPE_BACKEND_CHECK_VERSION(1, 1, 0)
+            wpe_view_backend_add_activity_state(wpeViewBackend, wpe_view_activity_state_visible | wpe_view_activity_state_focused | wpe_view_activity_state_in_window);
+#endif
 
             view.webkit.view = WEBKIT_WEB_VIEW(g_object_new(WEBKIT_TYPE_WEB_VIEW,
                 "backend", viewBackend, nullptr));
@@ -330,14 +333,14 @@ void WPEThreadedView::loadUriUnlocked(const gchar* uri)
 {
     if (webkit.uri)
         g_free(webkit.uri);
+
+    GST_DEBUG("loading %s", uri);
     webkit.uri = g_strdup(uri);
     webkit_web_view_load_uri(webkit.view, webkit.uri);
 }
 
 void WPEThreadedView::loadUri(const gchar* uri)
 {
-    GST_DEBUG("loading %s", uri);
-
     struct UriContext {
         WPEThreadedView& view;
         const gchar* uri;
@@ -371,11 +374,13 @@ void WPEThreadedView::loadUri(const gchar* uri)
 
 void WPEThreadedView::setDrawBackground(gboolean drawsBackground)
 {
-#if 1
-    // See https://bugs.webkit.org/show_bug.cgi?id=192305
-    GST_FIXME("set_draws_background API not upstream yet");
+#if WEBKIT_CHECK_VERSION(2, 23, 0)
+    GST_DEBUG("%s background rendering", drawsBackground ? "Enabling" : "Disabling");
+    WebKitColor color;
+    webkit_color_parse(&color, drawsBackground ? "white" : "transparent");
+    webkit_web_view_set_background_color(webkit.view, &color);
 #else
-    webkit_web_view_set_draws_background(webkit.view, drawsBackground);
+    GST_FIXME("webkit_web_view_set_background_color is not implemented in WPE %u.%u. Please upgrade to 2.24", webkit_get_major_version(), webkit_get_minor_version());
 #endif
 }
 

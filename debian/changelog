@@ -1,3 +1,26 @@
+gst-plugins-bad1.0 (1.15.90-1ubuntu1) disco; urgency=medium
+
+  * Merge with Debian unstable; remaining changes:
+    + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
+      moved to -good.
+    + Provide gstreamer-plugins-bad-1.0.pc with Requires on
+      gstreamer-plugins-good-1.0 - the package we've moved the referenced
+      library to. This maintains compatibility with upstream software and
+      other distributions.
+    + debian/control{,.in}: Update Vcs-* for Ubuntu
+  * debian/gbp.conf: Set the debian-branch to ubuntu
+
+ -- Sebastien Bacher <seb128@ubuntu.com>  Fri, 12 Apr 2019 11:15:01 +0200
+
+gst-plugins-bad1.0 (1.15.90-1) experimental; urgency=medium
+
+  * New upstream release candidate
+  * debian/build-deps.in,
+    debian/gstreamer-plugins-bad.install:
+    + Add SCTP plugin for WebRTC datachannels.
+
+ -- Sebastian Dröge <slomo@debian.org>  Fri, 12 Apr 2019 10:02:12 +0300
+
 gst-plugins-bad1.0 (1.15.2-1ubuntu1) disco; urgency=medium
 
   * Merge with Debian unstable; remaining changes:
