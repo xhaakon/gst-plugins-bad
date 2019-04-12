@@ -76,6 +76,11 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-hlssink2.html#GstHlsSink2--target-duration" title="The “target-duration” property">target-duration</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-hlssink2.html#GstHlsSink2--send-keyframe-requests" title="The “send-keyframe-requests” property">send-keyframe-requests</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -250,6 +255,14 @@ GstHlsSink2 implements
 <p>The target duration in seconds of a segment/file. (0 - disabled, useful for management of segment duration by the streaming server).</p>
 <p>Flags: Read / Write</p>
 <p>Default value: 15</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstHlsSink2--send-keyframe-requests"></a><h3>The <code class="literal">“send-keyframe-requests”</code> property</h3>
+<pre class="programlisting">  “send-keyframe-requests”   <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Send keyframe requests to ensure correct fragmentation. If this is disabled then the input must have keyframes in regular intervals.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: TRUE</p>
 </div>
 </div>
 </div>

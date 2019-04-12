@@ -3,7 +3,7 @@ AC_PREREQ([2.69])
 dnl initialize autoconf
 dnl when going to/from release please set the nano (fourth number) right !
 dnl releases only do Wall, git and prerelease does Werror too
-AC_INIT([GStreamer Bad Plug-ins],[1.15.2],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
+AC_INIT([GStreamer Bad Plug-ins],[1.15.90],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-bad])
 
 AG_GST_INIT
 
@@ -51,11 +51,11 @@ dnl - interfaces added/removed/changed -> increment CURRENT, REVISION = 0
 dnl - interfaces added -> increment AGE
 dnl - interfaces removed -> AGE = 0
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 1502, 0, 1502)
+AS_LIBTOOL(GST, 1590, 0, 1590)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.15.2
-GSTPB_REQ=1.15.2
+GST_REQ=1.15.90
+GSTPB_REQ=1.15.90
 
 dnl *** autotools stuff ****
 
@@ -938,15 +938,16 @@ AG_GST_CHECK_FEATURE(CUDA, [NVIDIA CUDA API],, [
       CUDA_LIBS="-L$CUDA_PREFIX/lib -L$CUDA_PREFIX/lib64 -L$CUDA_PREFIX/lib/stubs -L$CUDA_PREFIX/lib64/stubs -lcuda -lcudart"
     fi
   else
-    PKG_CHECK_MODULES([CUDA], [cuda-10.0 cudart-10.0],, [
-      PKG_CHECK_MODULES([CUDA], [cuda-9.2 cudart-9.2],, [
-        PKG_CHECK_MODULES([CUDA], [cuda-9.1 cudart-9.1],, [
-          PKG_CHECK_MODULES([CUDA], [cuda-9.0 cudart-9.0],, [
-            PKG_CHECK_MODULES([CUDA], [cuda-8.0 cudart-8.0],, [
-              PKG_CHECK_MODULES([CUDA], [cuda-7.5 cudart-7.5],, [
-                PKG_CHECK_MODULES([CUDA], [cuda-7.0 cudart-7.0],, [
-                  PKG_CHECK_MODULES([CUDA], [cuda-6.5 cudart-6.5],, [
-                    AC_MSG_WARN([Could not find cuda headers/libraries])])])])])])])])])
+    PKG_CHECK_MODULES([CUDA], [cuda-10.1 cudart-10.1],, [
+      PKG_CHECK_MODULES([CUDA], [cuda-10.0 cudart-10.0],, [
+        PKG_CHECK_MODULES([CUDA], [cuda-9.2 cudart-9.2],, [
+          PKG_CHECK_MODULES([CUDA], [cuda-9.1 cudart-9.1],, [
+            PKG_CHECK_MODULES([CUDA], [cuda-9.0 cudart-9.0],, [
+              PKG_CHECK_MODULES([CUDA], [cuda-8.0 cudart-8.0],, [
+                PKG_CHECK_MODULES([CUDA], [cuda-7.5 cudart-7.5],, [
+                  PKG_CHECK_MODULES([CUDA], [cuda-7.0 cudart-7.0],, [
+                    PKG_CHECK_MODULES([CUDA], [cuda-6.5 cudart-6.5],, [
+                      AC_MSG_WARN([Could not find cuda headers/libraries])])])])])])])])])])
   fi
 
   HAVE_CUDA_H=no
@@ -1319,7 +1320,7 @@ dnl **** Wayland ****
 translit(dnm, m, l) AM_CONDITIONAL(USE_WAYLAND, true)
 AC_PATH_PROG([wayland_scanner], [wayland-scanner])
 AG_GST_CHECK_FEATURE(WAYLAND, [wayland sink], wayland , [
-  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.11.0 libdrm >= 2.4.55 wayland-protocols >= 1.4, [
+  PKG_CHECK_MODULES(WAYLAND, wayland-client >= 1.11.0 libdrm >= 2.4.55 wayland-protocols >= 1.15, [
     if test "x$wayland_scanner" != "x"; then
       HAVE_WAYLAND="yes"
       AC_SUBST(WAYLAND_PROTOCOLS_DATADIR, `$PKG_CONFIG --variable=pkgdatadir wayland-protocols`)
@@ -1549,7 +1550,7 @@ AG_GST_CHECK_FEATURE(SRTP, [srtp library], srtp, [
     AC_DEFINE([HAVE_SRTP2], 1, [Define if libsrtp2 is used])
   else
     PKG_CHECK_MODULES(SRTP, libsrtp, HAVE_SRTP="yes",
-      AG_GST_CHECK_LIBHEADER(SRTP, srtp, srtp_init, , srtp/srtp.h, SRTP_LIBS="-lsrtp")
+      AG_GST_CHECK_LIBHEADER(SRTP, srtp, crypto_policy_set_aes_gcm_128_16_auth, , srtp/srtp.h, SRTP_LIBS="-lsrtp")
     )
   fi
   AC_SUBST(SRTP_LIBS)
@@ -2297,7 +2298,7 @@ AG_GST_CHECK_FEATURE(WEBRTC, [WebRTC], webrtc, [
 dnl *** WPE ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_WPE, true)
 AG_GST_CHECK_FEATURE(WPE, [WPE plug-in], wpe, [
-PKG_CHECK_MODULES(WPE, [ wpe-webkit-0.1 >= 2.22 wpebackend-fdo-0.1 egl xkbcommon ], [
+PKG_CHECK_MODULES(WPE, [ wpe-webkit-1.0 >= 2.24 wpebackend-fdo-1.0 egl xkbcommon ], [
     HAVE_WPE="yes" ], [
     HAVE_WPE="no"
   ])

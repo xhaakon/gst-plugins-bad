@@ -57,6 +57,11 @@
 <td class="property_name"><a class="link" href="gst-plugins-bad-plugins-rtponviftimestamp.html#GstRtpOnvifTimestamp--set-e-bit" title="The “set-e-bit” property">set-e-bit</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
+<tr>
+<td class="property_type"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="gst-plugins-bad-plugins-rtponviftimestamp.html#GstRtpOnvifTimestamp--set-t-bit" title="The “set-t-bit” property">set-t-bit</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -198,6 +203,14 @@
 <a name="GstRtpOnvifTimestamp--set-e-bit"></a><h3>The <code class="literal">“set-e-bit”</code> property</h3>
 <pre class="programlisting">  “set-e-bit”                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
 <p>If the element should set the 'E' bit as defined in the ONVIF RTP extension. This increases latency by one packet.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstRtpOnvifTimestamp--set-t-bit"></a><h3>The <code class="literal">“set-t-bit”</code> property</h3>
+<pre class="programlisting">  “set-t-bit”                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>If the element should set the 'T' bit as defined in the ONVIF RTP extension. This increases latency by one packet.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: FALSE</p>
 </div>

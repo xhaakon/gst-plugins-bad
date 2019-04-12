@@ -15,8 +15,7 @@
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-srtpenc.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-srtpenc.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-srtpenc.description" class="shortcut">Description</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-srtpenc.properties" class="shortcut">Properties</a></span><span id="nav_signals">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-srtpenc.signals" class="shortcut">Signals</a></span>
 </td>
@@ -115,7 +114,7 @@
 </tbody>
 </table></div>
 </div>
-<a name="GstSrtpEnc"></a><div class="refsect1">
+<div class="refsect1">
 <a name="gst-plugins-bad-plugins-srtpenc.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
@@ -124,18 +123,9 @@
 </colgroup>
 <tbody><tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-srtpenc.html#GstSrtpEnc-struct" title="struct GstSrtpEnc">GstSrtpEnc</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-srtpenc.html#GstSrtpEnc" title="struct GstSrtpEnc">GstSrtpEnc</a></td>
 </tr></tbody>
 </table></div>
-</div>
-<div class="refsect1">
-<a name="gst-plugins-bad-plugins-srtpenc.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
-    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstObject.html#GstObject-struct">GstObject</a>
-            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstElement.html#GstElement-struct">GstElement</a>
-                <span class="lineart">╰──</span> GstSrtpEnc
-</pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-srtpenc.description"></a><h2>Description</h2>
@@ -152,7 +142,7 @@ uses the default RTP and RTCP encryption and authentication mechanisms,
 unless the user has set the relevant properties first. It also uses
 a master key that MUST be set by property (key) at the beginning. The
 master key must be of a maximum length of 46 characters (14 characters
-for the salt plus the key). The encryption and authentication mecanisms
+for the salt plus the key). The encryption and authentication mechanisms
 available are :</p>
 <p>Encryption (properties rtp-cipher and rtcp-cipher)</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
@@ -192,7 +182,7 @@ will be added to every buffer.</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.213.8.14.1"></a><h3>Element Information</h3>
+<a name="id-1.2.213.6.14.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -218,7 +208,7 @@ will be added to every buffer.</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.213.8.14.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.213.6.14.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -325,8 +315,29 @@ will be added to every buffer.</p>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-srtpenc.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstSrtpEnc-struct"></a><h3>struct GstSrtpEnc</h3>
-<pre class="programlisting">struct GstSrtpEnc;</pre>
+<a name="GstSrtpEnc"></a><h3>struct GstSrtpEnc</h3>
+<pre class="programlisting">struct GstSrtpEnc {
+  GstElement element;
+
+  gboolean random_key;
+
+  GstBuffer *key;
+  guint rtp_cipher;
+  guint rtp_auth;
+  guint rtcp_cipher;
+  guint rtcp_auth;
+  GstBuffer *mki;
+
+  srtp_t session;
+  gboolean first_session;
+  gboolean key_changed;
+
+  guint replay_window_size;
+  gboolean allow_repeat_tx;
+
+  GHashTable *ssrcs_set;
+};
+</pre>
 </div>
 </div>
 <div class="refsect1">
@@ -407,7 +418,7 @@ will be added to every buffer.</p>
 <div class="refsect2">
 <a name="GstSrtpEnc-soft-limit"></a><h3>The <code class="literal">“soft-limit”</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
-user_function (<a class="link" href="gst-plugins-bad-plugins-srtpenc.html#GstSrtpEnc"><span class="type">GstSrtpEnc</span></a> *gstsrtpenc,
+user_function (<a class="link" href="gst-plugins-bad-plugins-srtpenc.html#GstSrtpEnc" title="struct GstSrtpEnc"><span class="type">GstSrtpEnc</span></a> *gstsrtpenc,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>    user_data)</pre>
 <p>Signal emited when the stream with <em class="parameter"><code>ssrc</code></em>
  has reached the soft
@@ -441,7 +452,7 @@ provide a new key by setting the <a class="link" href="gst-plugins-bad-plugins-s
 <div class="refsect2">
 <a name="GstSrtpEnc-get-rollover-counter"></a><h3>The <code class="literal">“get-rollover-counter”</code> signal</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
-user_function (<a class="link" href="gst-plugins-bad-plugins-srtpenc.html#GstSrtpEnc"><span class="type">GstSrtpEnc</span></a> *gstsrtpenc,
+user_function (<a class="link" href="gst-plugins-bad-plugins-srtpenc.html#GstSrtpEnc" title="struct GstSrtpEnc"><span class="type">GstSrtpEnc</span></a> *gstsrtpenc,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a>       arg1,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>    user_data)</pre>
 <p>Flags: <a href="/usr/share/gtk-doc/html/gobject/gobject-Signals.html#G-SIGNAL-ACTION:CAPS">Action</a></p>
