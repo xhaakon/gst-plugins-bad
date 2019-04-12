@@ -635,6 +635,7 @@
     <keyword type="property" name="The “keyer-level” property" link="gst-plugins-bad-plugins-decklinkvideosink.html#GstDecklinkVideoSink--keyer-level"/>
     <keyword type="property" name="The “keyer-mode” property" link="gst-plugins-bad-plugins-decklinkvideosink.html#GstDecklinkVideoSink--keyer-mode"/>
     <keyword type="property" name="The “cc-line” property" link="gst-plugins-bad-plugins-decklinkvideosink.html#GstDecklinkVideoSink--cc-line"/>
+    <keyword type="property" name="The “duplex-mode” property" link="gst-plugins-bad-plugins-decklinkvideosink.html#GstDecklinkVideoSink--duplex-mode"/>
     <keyword type="struct" name="struct GstDecklinkVideoSrc" link="gst-plugins-bad-plugins-decklinkvideosrc.html#GstDecklinkVideoSrc-struct"/>
     <keyword type="property" name="The “buffer-size” property" link="gst-plugins-bad-plugins-decklinkvideosrc.html#GstDecklinkVideoSrc--buffer-size"/>
     <keyword type="property" name="The “connection” property" link="gst-plugins-bad-plugins-decklinkvideosrc.html#GstDecklinkVideoSrc--connection"/>
@@ -648,6 +649,7 @@
     <keyword type="property" name="The “signal” property" link="gst-plugins-bad-plugins-decklinkvideosrc.html#GstDecklinkVideoSrc--signal"/>
     <keyword type="property" name="The “hw-serial-number” property" link="gst-plugins-bad-plugins-decklinkvideosrc.html#GstDecklinkVideoSrc--hw-serial-number"/>
     <keyword type="property" name="The “output-cc” property" link="gst-plugins-bad-plugins-decklinkvideosrc.html#GstDecklinkVideoSrc--output-cc"/>
+    <keyword type="property" name="The “duplex-mode” property" link="gst-plugins-bad-plugins-decklinkvideosrc.html#GstDecklinkVideoSrc--duplex-mode"/>
     <keyword type="struct" name="struct GstDewarp" link="gst-plugins-bad-plugins-dewarp.html#GstDewarp-struct"/>
     <keyword type="enum" name="enum GstDewarpDisplayMode" link="gst-plugins-bad-plugins-dewarp.html#GstDewarpDisplayMode"/>
     <keyword type="enum" name="enum GstDewarpInterpolationMode" link="gst-plugins-bad-plugins-dewarp.html#GstDewarpInterpolationMode"/>
@@ -901,6 +903,7 @@
     <keyword type="property" name="The “playlist-location” property" link="gst-plugins-bad-plugins-hlssink2.html#GstHlsSink2--playlist-location"/>
     <keyword type="property" name="The “playlist-root” property" link="gst-plugins-bad-plugins-hlssink2.html#GstHlsSink2--playlist-root"/>
     <keyword type="property" name="The “target-duration” property" link="gst-plugins-bad-plugins-hlssink2.html#GstHlsSink2--target-duration"/>
+    <keyword type="property" name="The “send-keyframe-requests” property" link="gst-plugins-bad-plugins-hlssink2.html#GstHlsSink2--send-keyframe-requests"/>
     <keyword type="struct" name="struct GstHlsSink" link="gst-plugins-bad-plugins-hlssink.html#GstHlsSink-struct"/>
     <keyword type="property" name="The “location” property" link="gst-plugins-bad-plugins-hlssink.html#GstHlsSink--location"/>
     <keyword type="property" name="The “max-files” property" link="gst-plugins-bad-plugins-hlssink.html#GstHlsSink--max-files"/>
@@ -1246,6 +1249,7 @@
     <keyword type="property" name="The “cseq” property" link="gst-plugins-bad-plugins-rtponviftimestamp.html#GstRtpOnvifTimestamp--cseq"/>
     <keyword type="property" name="The “ntp-offset” property" link="gst-plugins-bad-plugins-rtponviftimestamp.html#GstRtpOnvifTimestamp--ntp-offset"/>
     <keyword type="property" name="The “set-e-bit” property" link="gst-plugins-bad-plugins-rtponviftimestamp.html#GstRtpOnvifTimestamp--set-e-bit"/>
+    <keyword type="property" name="The “set-t-bit” property" link="gst-plugins-bad-plugins-rtponviftimestamp.html#GstRtpOnvifTimestamp--set-t-bit"/>
     <keyword type="struct" name="struct GstSbcDec" link="gst-plugins-bad-plugins-sbcdec.html#GstSbcDec-struct"/>
     <keyword type="struct" name="struct GstSbcEnc" link="gst-plugins-bad-plugins-sbcenc.html#GstSbcEnc-struct"/>
     <keyword type="struct" name="struct GstSceneChange" link="gst-plugins-bad-plugins-scenechange.html#GstSceneChange-struct"/>
@@ -1323,7 +1327,7 @@
     <keyword type="struct" name="struct GstSrtEnc" link="gst-plugins-bad-plugins-srtenc.html#GstSrtEnc-struct"/>
     <keyword type="property" name="The “duration” property" link="gst-plugins-bad-plugins-srtenc.html#GstSrtEnc--duration"/>
     <keyword type="property" name="The “timestamp” property" link="gst-plugins-bad-plugins-srtenc.html#GstSrtEnc--timestamp"/>
-    <keyword type="struct" name="struct GstSrtpDec" link="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec-struct"/>
+    <keyword type="struct" name="struct GstSrtpDec" link="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec"/>
     <keyword type="property" name="The “replay-window-size” property" link="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec--replay-window-size"/>
     <keyword type="property" name="The “stats” property" link="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec--stats"/>
     <keyword type="signal" name="The “clear-keys” signal" link="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec-clear-keys"/>
@@ -1331,7 +1335,7 @@
     <keyword type="signal" name="The “request-key” signal" link="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec-request-key"/>
     <keyword type="signal" name="The “soft-limit” signal" link="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec-soft-limit"/>
     <keyword type="signal" name="The “remove-key” signal" link="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec-remove-key"/>
-    <keyword type="struct" name="struct GstSrtpEnc" link="gst-plugins-bad-plugins-srtpenc.html#GstSrtpEnc-struct"/>
+    <keyword type="struct" name="struct GstSrtpEnc" link="gst-plugins-bad-plugins-srtpenc.html#GstSrtpEnc"/>
     <keyword type="property" name="The “key” property" link="gst-plugins-bad-plugins-srtpenc.html#GstSrtpEnc--key"/>
     <keyword type="property" name="The “random-key” property" link="gst-plugins-bad-plugins-srtpenc.html#GstSrtpEnc--random-key"/>
     <keyword type="property" name="The “rtcp-auth” property" link="gst-plugins-bad-plugins-srtpenc.html#GstSrtpEnc--rtcp-auth"/>
@@ -1533,6 +1537,7 @@
     <keyword type="signal" name="The “create-data-channel” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-create-data-channel"/>
     <keyword type="signal" name="The “on-data-channel” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-on-data-channel"/>
     <keyword type="signal" name="The “on-new-transceiver” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-on-new-transceiver"/>
+    <keyword type="signal" name="The “get-transceiver” signal" link="gst-plugins-bad-plugins-webrtcbin.html#GstWebRTCBin-get-transceiver"/>
     <keyword type="struct" name="GstWebrtcDsp" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp"/>
     <keyword type="property" name="The “echo-cancel” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--echo-cancel"/>
     <keyword type="property" name="The “experimental-agc” property" link="gst-plugins-bad-plugins-webrtcdsp.html#GstWebrtcDsp--experimental-agc"/>

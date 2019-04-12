@@ -164,9 +164,10 @@ LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstclosedcaption_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__objects_1 = libgstclosedcaption_la-bit_slicer.lo \
 	libgstclosedcaption_la-decoder.lo \
+	libgstclosedcaption_la-io-sim.lo \
 	libgstclosedcaption_la-raw_decoder.lo \
 	libgstclosedcaption_la-sampling_par.lo
 am__objects_2 =
@@ -177,6 +178,7 @@ am_libgstclosedcaption_la_OBJECTS = $(am__objects_1) $(am__objects_2) \
 	libgstclosedcaption_la-gstcea708decoder.lo \
 	libgstclosedcaption_la-gstceaccoverlay.lo \
 	libgstclosedcaption_la-gstline21dec.lo \
+	libgstclosedcaption_la-gstline21enc.lo \
 	libgstclosedcaption_la-gstclosedcaption.lo
 libgstclosedcaption_la_OBJECTS = $(am_libgstclosedcaption_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -212,6 +214,8 @@ am__depfiles_remade =  \
 	./$(DEPDIR)/libgstclosedcaption_la-gstceaccoverlay.Plo \
 	./$(DEPDIR)/libgstclosedcaption_la-gstclosedcaption.Plo \
 	./$(DEPDIR)/libgstclosedcaption_la-gstline21dec.Plo \
+	./$(DEPDIR)/libgstclosedcaption_la-gstline21enc.Plo \
+	./$(DEPDIR)/libgstclosedcaption_la-io-sim.Plo \
 	./$(DEPDIR)/libgstclosedcaption_la-raw_decoder.Plo \
 	./$(DEPDIR)/libgstclosedcaption_la-sampling_par.Plo
 am__mv = mv -f
@@ -761,13 +765,16 @@ plugin_LTLIBRARIES = libgstclosedcaption.la
 zvbi_sources = \
 	bit_slicer.c \
 	decoder.c \
-        raw_decoder.c \
+	io-sim.c \
+	raw_decoder.c \
 	sampling_par.c
 
 zvbi_headers = \
 	bcd.h \
 	bit_slicer.h \
 	decoder.h \
+	hamm.h \
+	io-sim.h \
 	macros.h \
 	misc.h \
 	raw_decoder.h \
@@ -783,6 +790,7 @@ libgstclosedcaption_la_SOURCES = \
 	gstcea708decoder.c \
 	gstceaccoverlay.c \
 	gstline21dec.c \
+	gstline21enc.c \
 	gstclosedcaption.c
 
 libgstclosedcaption_la_CFLAGS = \
@@ -795,7 +803,8 @@ libgstclosedcaption_la_LIBADD = \
 	$(GST_PLUGINS_BASE_LIBS) -lgstvideo-@GST_API_VERSION@ \
 	$(GST_BASE_LIBS) \
 	$(GST_LIBS) \
-	$(PANGO_LIBS)
+	$(PANGO_LIBS) \
+	$(LIBM)
 
 libgstclosedcaption_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 noinst_HEADERS = \
@@ -805,6 +814,7 @@ noinst_HEADERS = \
 	gstcea708decoder.h \
 	gstceaccoverlay.h \
 	gstline21dec.h \
+	gstline21enc.h \
 	$(zvbi_headers)
 
 all: all-am
@@ -894,6 +904,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstclosedcaption_la-gstceaccoverlay.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstclosedcaption_la-gstclosedcaption.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstclosedcaption_la-gstline21dec.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstclosedcaption_la-gstline21enc.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstclosedcaption_la-io-sim.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstclosedcaption_la-raw_decoder.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstclosedcaption_la-sampling_par.Plo@am__quote@ # am--include-marker
 
@@ -940,6 +952,13 @@ libgstclosedcaption_la-decoder.lo: decoder.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='decoder.c' object='libgstclosedcaption_la-decoder.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstclosedcaption_la_CFLAGS) $(CFLAGS) -c -o libgstclosedcaption_la-decoder.lo `test -f 'decoder.c' || echo '$(srcdir)/'`decoder.c
+
+libgstclosedcaption_la-io-sim.lo: io-sim.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstclosedcaption_la_CFLAGS) $(CFLAGS) -MT libgstclosedcaption_la-io-sim.lo -MD -MP -MF $(DEPDIR)/libgstclosedcaption_la-io-sim.Tpo -c -o libgstclosedcaption_la-io-sim.lo `test -f 'io-sim.c' || echo '$(srcdir)/'`io-sim.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstclosedcaption_la-io-sim.Tpo $(DEPDIR)/libgstclosedcaption_la-io-sim.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='io-sim.c' object='libgstclosedcaption_la-io-sim.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstclosedcaption_la_CFLAGS) $(CFLAGS) -c -o libgstclosedcaption_la-io-sim.lo `test -f 'io-sim.c' || echo '$(srcdir)/'`io-sim.c
 
 libgstclosedcaption_la-raw_decoder.lo: raw_decoder.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstclosedcaption_la_CFLAGS) $(CFLAGS) -MT libgstclosedcaption_la-raw_decoder.lo -MD -MP -MF $(DEPDIR)/libgstclosedcaption_la-raw_decoder.Tpo -c -o libgstclosedcaption_la-raw_decoder.lo `test -f 'raw_decoder.c' || echo '$(srcdir)/'`raw_decoder.c
@@ -996,6 +1015,13 @@ libgstclosedcaption_la-gstline21dec.lo: gstline21dec.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstline21dec.c' object='libgstclosedcaption_la-gstline21dec.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstclosedcaption_la_CFLAGS) $(CFLAGS) -c -o libgstclosedcaption_la-gstline21dec.lo `test -f 'gstline21dec.c' || echo '$(srcdir)/'`gstline21dec.c
+
+libgstclosedcaption_la-gstline21enc.lo: gstline21enc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstclosedcaption_la_CFLAGS) $(CFLAGS) -MT libgstclosedcaption_la-gstline21enc.lo -MD -MP -MF $(DEPDIR)/libgstclosedcaption_la-gstline21enc.Tpo -c -o libgstclosedcaption_la-gstline21enc.lo `test -f 'gstline21enc.c' || echo '$(srcdir)/'`gstline21enc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstclosedcaption_la-gstline21enc.Tpo $(DEPDIR)/libgstclosedcaption_la-gstline21enc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstline21enc.c' object='libgstclosedcaption_la-gstline21enc.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstclosedcaption_la_CFLAGS) $(CFLAGS) -c -o libgstclosedcaption_la-gstline21enc.lo `test -f 'gstline21enc.c' || echo '$(srcdir)/'`gstline21enc.c
 
 libgstclosedcaption_la-gstclosedcaption.lo: gstclosedcaption.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstclosedcaption_la_CFLAGS) $(CFLAGS) -MT libgstclosedcaption_la-gstclosedcaption.lo -MD -MP -MF $(DEPDIR)/libgstclosedcaption_la-gstclosedcaption.Tpo -c -o libgstclosedcaption_la-gstclosedcaption.lo `test -f 'gstclosedcaption.c' || echo '$(srcdir)/'`gstclosedcaption.c
@@ -1147,6 +1173,8 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-gstceaccoverlay.Plo
 	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-gstclosedcaption.Plo
 	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-gstline21dec.Plo
+	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-gstline21enc.Plo
+	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-io-sim.Plo
 	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-raw_decoder.Plo
 	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-sampling_par.Plo
 	-rm -f Makefile
@@ -1203,6 +1231,8 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-gstceaccoverlay.Plo
 	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-gstclosedcaption.Plo
 	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-gstline21dec.Plo
+	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-gstline21enc.Plo
+	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-io-sim.Plo
 	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-raw_decoder.Plo
 	-rm -f ./$(DEPDIR)/libgstclosedcaption_la-sampling_par.Plo
 	-rm -f Makefile

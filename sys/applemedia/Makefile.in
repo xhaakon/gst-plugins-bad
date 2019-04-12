@@ -870,6 +870,7 @@ libgstapplemedia_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) \
 noinst_HEADERS = \
 	avfvideosrc.h				\
 	avsamplevideosink.h			\
+	avfdeviceprovider.h			\
 	vtenc.h					\
 	vtdec.h					\
 	vtutil.h				\

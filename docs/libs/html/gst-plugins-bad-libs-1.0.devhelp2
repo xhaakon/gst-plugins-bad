@@ -652,6 +652,7 @@
     <keyword type="constant" name="GST_H264_PARSER_NO_NAL_END" link="gst-plugins-bad-libs-h264parser.html#GST-H264-PARSER-NO-NAL-END:CAPS"/>
     <keyword type="constant" name="GST_H264_SEI_BUF_PERIOD" link="gst-plugins-bad-libs-h264parser.html#GST-H264-SEI-BUF-PERIOD:CAPS"/>
     <keyword type="constant" name="GST_H264_SEI_PIC_TIMING" link="gst-plugins-bad-libs-h264parser.html#GST-H264-SEI-PIC-TIMING:CAPS"/>
+    <keyword type="constant" name="GST_H264_SEI_REGISTERED_USER_DATA" link="gst-plugins-bad-libs-h264parser.html#GST-H264-SEI-REGISTERED-USER-DATA:CAPS"/>
     <keyword type="constant" name="GST_H264_SEI_RECOVERY_POINT" link="gst-plugins-bad-libs-h264parser.html#GST-H264-SEI-RECOVERY-POINT:CAPS"/>
     <keyword type="constant" name="GST_H264_SEI_STEREO_VIDEO_INFO" link="gst-plugins-bad-libs-h264parser.html#GST-H264-SEI-STEREO-VIDEO-INFO:CAPS"/>
     <keyword type="constant" name="GST_H264_SEI_FRAME_PACKING" link="gst-plugins-bad-libs-h264parser.html#GST-H264-SEI-FRAME-PACKING:CAPS"/>
