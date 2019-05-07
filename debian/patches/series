@@ -1,4 +1,3 @@
 01_fix-modplug-linking.patch
 pcfile-requires-plugins-good
 02_opencv-data-path.patch
-0001-sctp-Create-plugin-with-GST_PLUGIN_LDFLAGS.patch
