@@ -15,8 +15,7 @@
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
 <td width="100%" align="left" class="shortcuts">
 <a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-srtpdec.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
-                  <a href="#gst-plugins-bad-plugins-srtpdec.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#gst-plugins-bad-plugins-srtpdec.description" class="shortcut">Description</a></span><span id="nav_properties">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-srtpdec.properties" class="shortcut">Properties</a></span><span id="nav_signals">  <span class="dim">|</span> 
                   <a href="#gst-plugins-bad-plugins-srtpdec.signals" class="shortcut">Signals</a></span>
 </td>
@@ -97,7 +96,7 @@
 </tbody>
 </table></div>
 </div>
-<a name="GstSrtpDec"></a><div class="refsect1">
+<div class="refsect1">
 <a name="gst-plugins-bad-plugins-srtpdec.other"></a><h2>Types and Values</h2>
 <div class="informaltable"><table class="informaltable" width="100%" border="0">
 <colgroup>
@@ -106,18 +105,9 @@
 </colgroup>
 <tbody><tr>
 <td class="datatype_keyword">struct</td>
-<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec-struct" title="struct GstSrtpDec">GstSrtpDec</a></td>
+<td class="function_name"><a class="link" href="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec" title="struct GstSrtpDec">GstSrtpDec</a></td>
 </tr></tbody>
 </table></div>
-</div>
-<div class="refsect1">
-<a name="gst-plugins-bad-plugins-srtpdec.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject-struct">GObject</a>
-    <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
-        <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstObject.html#GstObject-struct">GstObject</a>
-            <span class="lineart">╰──</span> <a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstElement.html#GstElement-struct">GstElement</a>
-                <span class="lineart">╰──</span> GstSrtpDec
-</pre>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-srtpdec.description"></a><h2>Description</h2>
@@ -129,11 +119,11 @@ on its sink pad, and outs packets of type 'application/x-rtp' or
 <p>For each packet received, it checks if the internal SSRC is in the list
 of streams already in use. If this is not the case, it sends a signal to
 the user to get the needed parameters to create a new stream : master
-key, encryption and authentication mecanisms for both RTP and RTCP. If
+key, encryption and authentication mechanisms for both RTP and RTCP. If
 the user can't provide those parameters, the buffer is dropped and a
 warning is emitted.</p>
 <p>This element uses libsrtp library. The encryption and authentication
-mecanisms available are :</p>
+mechanisms available are :</p>
 <p>Encryption</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>AES_ICM 256 bits (maximum security)</p></li>
@@ -170,7 +160,7 @@ buffer. If multiple keys are needed, the first key can be specified in the caps 
 the same caps as "srtp-key2=(buffer)key2data, mki2=(buffer)mki2data", and more can
 be added up to 15.</p>
 <div class="refsect3">
-<a name="id-1.2.212.8.14"></a><h4>Example pipelines</h4>
+<a name="id-1.2.212.6.14"></a><h4>Example pipelines</h4>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -201,7 +191,7 @@ that the receiver will recognize it.</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.212.8.15.1"></a><h3>Element Information</h3>
+<a name="id-1.2.212.6.15.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -227,7 +217,7 @@ that the receiver will recognize it.</p>
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.212.8.15.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.212.6.15.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -334,8 +324,28 @@ that the receiver will recognize it.</p>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-srtpdec.other_details"></a><h2>Types and Values</h2>
 <div class="refsect2">
-<a name="GstSrtpDec-struct"></a><h3>struct GstSrtpDec</h3>
-<pre class="programlisting">struct GstSrtpDec;</pre>
+<a name="GstSrtpDec"></a><h3>struct GstSrtpDec</h3>
+<pre class="programlisting">struct GstSrtpDec {
+  GstElement element;
+
+  guint replay_window_size;
+
+  GstPad *rtp_sinkpad, *rtp_srcpad;
+  GstPad *rtcp_sinkpad, *rtcp_srcpad;
+
+  gboolean ask_update;
+  srtp_t session;
+  gboolean first_session;
+  GHashTable *streams;
+
+  gboolean rtp_has_segment;
+  gboolean rtcp_has_segment;
+
+#ifndef HAVE_SRTP2
+  gboolean roc_changed;
+#endif
+};
+</pre>
 </div>
 </div>
 <div class="refsect1">
@@ -361,7 +371,7 @@ that the receiver will recognize it.</p>
 <div class="refsect2">
 <a name="GstSrtpDec-clear-keys"></a><h3>The <code class="literal">“clear-keys”</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
-user_function (<a class="link" href="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec"><span class="type">GstSrtpDec</span></a> *gstsrtpdec,
+user_function (<a class="link" href="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec" title="struct GstSrtpDec"><span class="type">GstSrtpDec</span></a> *gstsrtpdec,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>    user_data)</pre>
 <p>Clear the internal list of streams</p>
 <div class="refsect3">
@@ -392,7 +402,7 @@ user_function (<a class="link" href="gst-plugins-bad-plugins-srtpdec.html#GstSrt
 <div class="refsect2">
 <a name="GstSrtpDec-hard-limit"></a><h3>The <code class="literal">“hard-limit”</code> signal</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstCaps.html#GstCaps-struct"><span class="returnvalue">GstCaps</span></a>*
-user_function (<a class="link" href="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec"><span class="type">GstSrtpDec</span></a> *gstsrtpdec,
+user_function (<a class="link" href="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec" title="struct GstSrtpDec"><span class="type">GstSrtpDec</span></a> *gstsrtpdec,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a>       ssrc,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>    user_data)</pre>
 <p>Signal emited when the stream with <em class="parameter"><code>ssrc</code></em>
@@ -435,7 +445,7 @@ is not answered, the buffers of this stream will be dropped.</p>
 <div class="refsect2">
 <a name="GstSrtpDec-request-key"></a><h3>The <code class="literal">“request-key”</code> signal</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstCaps.html#GstCaps-struct"><span class="returnvalue">GstCaps</span></a>*
-user_function (<a class="link" href="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec"><span class="type">GstSrtpDec</span></a> *gstsrtpdec,
+user_function (<a class="link" href="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec" title="struct GstSrtpDec"><span class="type">GstSrtpDec</span></a> *gstsrtpdec,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a>       ssrc,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>    user_data)</pre>
 <p>Signal emited to get the parameters relevant to stream
@@ -476,7 +486,7 @@ them wrapped in a GstCaps.</p>
 <div class="refsect2">
 <a name="GstSrtpDec-soft-limit"></a><h3>The <code class="literal">“soft-limit”</code> signal</h3>
 <pre class="programlisting"><a href="/usr/share/gtk-doc/html/gstreamer-1.0/GstCaps.html#GstCaps-struct"><span class="returnvalue">GstCaps</span></a>*
-user_function (<a class="link" href="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec"><span class="type">GstSrtpDec</span></a> *gstsrtpdec,
+user_function (<a class="link" href="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec" title="struct GstSrtpDec"><span class="type">GstSrtpDec</span></a> *gstsrtpdec,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a>       ssrc,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>    user_data)</pre>
 <p>Signal emited when the stream with <em class="parameter"><code>ssrc</code></em>
@@ -518,7 +528,7 @@ GstCaps.</p>
 <div class="refsect2">
 <a name="GstSrtpDec-remove-key"></a><h3>The <code class="literal">“remove-key”</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
-user_function (<a class="link" href="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec"><span class="type">GstSrtpDec</span></a> *gstsrtpdec,
+user_function (<a class="link" href="gst-plugins-bad-plugins-srtpdec.html#GstSrtpDec" title="struct GstSrtpDec"><span class="type">GstSrtpDec</span></a> *gstsrtpdec,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#guint"><span class="type">guint</span></a>       ssrc,
                <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>    user_data)</pre>
 <p>Removes keys for a specific SSRC</p>

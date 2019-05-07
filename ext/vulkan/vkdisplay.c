@@ -36,6 +36,12 @@
 #if GST_VULKAN_HAVE_WINDOW_WAYLAND
 #include "wayland/vkdisplay_wayland.h"
 #endif
+#if GST_VULKAN_HAVE_WINDOW_COCOA
+#include "cocoa/vkdisplay_cocoa.h"
+#endif
+#if GST_VULKAN_HAVE_WINDOW_IOS
+#include "ios/vkdisplay_ios.h"
+#endif
 
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_CONTEXT);
 #define GST_CAT_DEFAULT gst_vulkan_display_debug
@@ -426,6 +432,12 @@ gst_vulkan_display_choose_type (GstVulkanInstance * instance)
 #if GST_VULKAN_HAVE_WINDOW_WAYLAND
   CHOOSE_WINSYS (wayland, WAYLAND);
 #endif
+#if GST_VULKAN_HAVE_WINDOW_COCOA
+  CHOOSE_WINSYS (cocoa, COCOA);
+#endif
+#if GST_VULKAN_HAVE_WINDOW_IOS
+  CHOOSE_WINSYS (ios, IOS);
+#endif
 
 #undef CHOOSE_WINSYS
 
@@ -452,6 +464,14 @@ gst_vulkan_display_type_to_extension_string (GstVulkanDisplayType type)
 #if GST_VULKAN_HAVE_WINDOW_WAYLAND
   if (type & GST_VULKAN_DISPLAY_TYPE_WAYLAND)
     return VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME;
+#endif
+#if GST_VULKAN_HAVE_WINDOW_COCOA
+  if (type & GST_VULKAN_DISPLAY_TYPE_COCOA)
+    return VK_MVK_MACOS_SURFACE_EXTENSION_NAME;
+#endif
+#if GST_VULKAN_HAVE_WINDOW_IOS
+  if (type & GST_VULKAN_DISPLAY_TYPE_IOS)
+    return VK_MVK_IOS_SURFACE_EXTENSION_NAME;
 #endif
 
   return NULL;

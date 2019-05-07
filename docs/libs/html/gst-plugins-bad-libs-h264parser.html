@@ -1346,6 +1346,13 @@ value if available, 0 otherwise</p></td>
 <td class="enum_member_annotations"> </td>
 </tr>
 <tr>
+<td class="enum_member_name"><p><a name="GST-H264-SEI-REGISTERED-USER-DATA:CAPS"></a>GST_H264_SEI_REGISTERED_USER_DATA</p></td>
+<td class="enum_member_description">
+<p>Registered user data (D.2.5)</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
 <td class="enum_member_name"><p><a name="GST-H264-SEI-RECOVERY-POINT:CAPS"></a>GST_H264_SEI_RECOVERY_POINT</p></td>
 <td class="enum_member_description">
 <p>Recovery Point SEI Message (D.2.7)</p>
@@ -2569,6 +2576,7 @@ units of frame buffers.</p></td>
   union {
     GstH264BufferingPeriod buffering_period;
     GstH264PicTiming pic_timing;
+    GstH264RegisteredUserData registered_user_data;
     GstH264RecoveryPoint recovery_point;
     GstH264StereoVideoInfo stereo_video_info;
     GstH264FramePacking frame_packing;

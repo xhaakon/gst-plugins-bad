@@ -29,7 +29,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-bad-plugins-decklinkaudiosink.top_of_page"></a>decklinkaudiosink</span></h2>
-<p>decklinkaudiosink</p>
+<p>decklinkaudiosink — Outputs Audio to a BlackMagic DeckLink Device</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -96,10 +96,33 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-bad-plugins-decklinkaudiosink.description"></a><h2>Description</h2>
+<p>Playout Video and Audio to a BlackMagic DeckLink Device. Can only be used
+in conjunction with decklinkvideosink.</p>
+<div class="refsect3">
+<a name="id-1.2.54.7.3"></a><h4>Sample pipeline</h4>
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1
+2
+3</pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> \
+  videotestsrc <span class="gtkdoc opt">!</span> decklinkvideosink device<span class="gtkdoc opt">-</span>number<span class="gtkdoc opt">=</span><span class="number">0</span> mode<span class="gtkdoc opt">=</span><span class="number">1080</span>p25 \
+  audiotestsrc <span class="gtkdoc opt">!</span> decklinkaudiosink device<span class="gtkdoc opt">-</span>number<span class="gtkdoc opt">=</span><span class="number">0</span></pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>
+Playout a 1080p25 test-video with a test-audio signal to the SDI-Out of Card 0.
+Devices are numbered starting with 0.</p>
+</div>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.54.7.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.54.7.4.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -125,7 +148,7 @@
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.54.7.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.54.7.4.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -208,6 +231,10 @@
 <p>Allowed values: &lt;= 18446744073709551614</p>
 <p>Default value: 1000000000</p>
 </div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-bad-plugins-decklinkaudiosink.see-also"></a><h2>See Also</h2>
+<p>decklinkvideosink</p>
 </div>
 </div>
 <div class="footer">

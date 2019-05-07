@@ -51,15 +51,26 @@
 GST_DEBUG_CATEGORY_EXTERN (gst_msdkvpp_debug);
 #define GST_CAT_DEFAULT gst_msdkvpp_debug
 
+#if (MFX_VERSION >= 1028)
+#define SUPPORTED_SYSTEM_FORMAT \
+    "{ NV12, YV12, I420, YUY2, UYVY, VUYA, BGRA, BGRx, RGB16, P010_10LE }"
+#define SUPPORTED_DMABUF_FORMAT \
+    "{ NV12, BGRA, YUY2, UYVY, VUYA, RGB16, P010_10LE}"
+#else
+#define SUPPORTED_SYSTEM_FORMAT \
+    "{ NV12, YV12, I420, YUY2, UYVY, VUYA, BGRA, BGRx, P010_10LE }"
+#define SUPPORTED_DMABUF_FORMAT \
+    "{ NV12, BGRA, YUY2, UYVY, VUYA, P010_10LE}"
+#endif
+
 static GstStaticPadTemplate gst_msdkvpp_sink_factory =
     GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE
-        ("{ NV12, YV12, I420, YUY2, UYVY, BGRA, BGRx, P010_10LE }")
+    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE (SUPPORTED_SYSTEM_FORMAT)
         ", " "interlace-mode = (string){ progressive, interleaved, mixed }" ";"
         GST_VIDEO_CAPS_MAKE_WITH_FEATURES (GST_CAPS_FEATURE_MEMORY_DMABUF,
-            "{ NV12, BGRA, YUY2, UYVY, P010_10LE}")));
+            SUPPORTED_DMABUF_FORMAT)));
 
 static GstStaticPadTemplate gst_msdkvpp_src_factory =
     GST_STATIC_PAD_TEMPLATE ("src",
@@ -67,8 +78,9 @@ static GstStaticPadTemplate gst_msdkvpp_src_factory =
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE_WITH_FEATURES
         (GST_CAPS_FEATURE_MEMORY_DMABUF,
-            "{ BGRA, YUY2, UYVY, NV12, BGRx, P010_10LE}") ";"
-        GST_VIDEO_CAPS_MAKE ("{ BGRA, NV12, YUY2, UYVY, BGRx, P010_10LE }") ", "
+            "{ BGRA, YUY2, UYVY, NV12, VUYA, BGRx, P010_10LE, BGR10A2_LE}") ";"
+        GST_VIDEO_CAPS_MAKE
+        ("{ BGRA, NV12, YUY2, UYVY, VUYA, BGRx, P010_10LE, BGR10A2_LE }") ", "
         "interlace-mode = (string){ progressive, interleaved, mixed }" ";"));
 
 enum

@@ -98,6 +98,9 @@ gst_msdk_frame_alloc (mfxHDL pthis, mfxFrameAllocRequest * req,
     if (format == VA_RT_FORMAT_YUV420 && va_fourcc == VA_FOURCC_P010)
       format = VA_RT_FORMAT_YUV420_10;
 
+    if (format == VA_RT_FORMAT_YUV444 && va_fourcc == VA_FOURCC_A2R10G10B10)
+      format = VA_RT_FORMAT_RGB32_10;
+
     va_status = vaCreateSurfaces (gst_msdk_context_get_handle (context),
         format,
         req->Info.Width, req->Info.Height, surfaces, surfaces_num, &attrib, 1);
@@ -312,6 +315,29 @@ gst_msdk_frame_lock (mfxHDL pthis, mfxMemId mid, mfxFrameData * data)
         data->B = data->R + 2;
         data->A = data->R + 3;
         break;
+#if (MFX_VERSION >= 1028)
+      case VA_FOURCC_RGB565:
+        data->Pitch = mem_id->image.pitches[0];
+        data->R = buf + mem_id->image.offsets[0];
+        data->G = data->R;
+        data->B = data->R;
+        break;
+#endif
+      case VA_FOURCC_AYUV:
+        data->PitchHigh = (mfxU16) (mem_id->image.pitches[0] / (1 << 16));
+        data->PitchLow = (mfxU16) (mem_id->image.pitches[0] % (1 << 16));
+        data->V = buf + mem_id->image.offsets[0];
+        data->U = data->V + 1;
+        data->Y = data->V + 2;
+        data->A = data->V + 3;
+        break;
+      case VA_FOURCC_A2R10G10B10:
+        data->Pitch = mem_id->image.pitches[0];
+        data->R = buf + mem_id->image.offsets[0];
+        data->G = data->R;
+        data->B = data->R;
+        data->A = data->R;
+        break;
       default:
         g_assert_not_reached ();
         break;
@@ -447,6 +473,20 @@ gst_msdk_export_dmabuf_to_vasurface (GstMsdkContext * context,
     case GST_VIDEO_FORMAT_UYVY:
       va_chroma = VA_RT_FORMAT_YUV422;
       va_fourcc = VA_FOURCC_UYVY;
+      break;
+#if (MFX_VERSION >= 1028)
+    case GST_VIDEO_FORMAT_RGB16:
+      va_chroma = VA_RT_FORMAT_RGB16;
+      va_fourcc = VA_FOURCC_RGB565;
+      break;
+#endif
+    case GST_VIDEO_FORMAT_VUYA:
+      va_chroma = VA_RT_FORMAT_YUV444;
+      va_fourcc = VA_FOURCC_AYUV;
+      break;
+    case GST_VIDEO_FORMAT_BGR10A2_LE:
+      va_chroma = VA_RT_FORMAT_RGB32_10;
+      va_fourcc = VA_FOURCC_A2R10G10B10;
       break;
     default:
       goto error_unsupported_format;
