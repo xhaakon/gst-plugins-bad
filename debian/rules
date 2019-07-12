@@ -66,6 +66,7 @@ gst_extra_build_depends += , libwayland-dev (>= 1.11.0) [linux-any]
 gst_extra_build_depends += , libdrm-dev (>= 2.4.55) [linux-any]
 gst_extra_build_depends += , wayland-protocols (>= 1.4) [linux-any]
 gst_extra_build_depends += , libvulkan-dev [linux-any]
+gst_extra_build_depends += , libsrt-dev [linux-any]
 
 PLUGINS += plugins-bad opencv
 ifeq ($(DEB_HOST_ARCH_OS),linux)
@@ -93,6 +94,7 @@ waylandsink = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libg
 wayland = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libgstwayland-$(gst_abi).so.*
 kms = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstkms.so
 vulkan = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstvulkan.so
+srt = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstsrt.so
 endif
 
 ifeq ($(DEB_HOST_ARCH_OS),kfreebsd)
@@ -138,6 +140,7 @@ pre-build::
 			-e 's,@waylandsink@,$(waylandsink),g' \
 			-e 's,@kms@,$(kms),g' \
 			-e 's,@vulkan@,$(vulkan),g' \
+			-e 's,@srt@,$(srt),g' \
 			-e 's/@GST_ABI@/$(gst_abi)/g' \
 			debian/gstreamer-$$p.install \
 			> debian/$(gst_pkgname)-$$p.install; \
