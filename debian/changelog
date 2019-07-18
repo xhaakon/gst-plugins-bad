@@ -1,11 +1,12 @@
-gst-plugins-bad1.0 (1.16.0-2) UNRELEASED; urgency=medium
+gst-plugins-bad1.0 (1.16.0-2) unstable; urgency=medium
 
   * debian/build-deps.in,
     debian/rules,
     debian/gstreamer-plugins-bad.install:
     + Build and ship SRT plugin.
+  * Upload to unstable
 
- -- Sebastian Dröge <slomo@debian.org>  Fri, 12 Jul 2019 09:21:34 +0300
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 18 Jul 2019 11:53:43 +0300
 
 gst-plugins-bad1.0 (1.16.0-1) experimental; urgency=medium
 
