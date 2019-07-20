@@ -123,3 +123,4 @@ debian/tmp/usr/share/gstreamer-@GST_ABI@/presets/
 @waylandsink@
 @kms@
 @vulkan@
+@srt@
