@@ -1,3 +1,27 @@
+gst-plugins-bad1.0 (1.16.0-3ubuntu1) eoan; urgency=low
+
+  * Merge from Debian unstable.  Remaining changes:
+    + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
+      moved to -good.
+    + Provide gstreamer-plugins-bad-1.0.pc with Requires on
+      gstreamer-plugins-good-1.0 - the package we've moved the referenced
+      library to. This maintains compatibility with upstream software and
+      other distributions.
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 04 Sep 2019 12:39:37 +0200
+
+gst-plugins-bad1.0 (1.16.0-3) unstable; urgency=medium
+
+  * Source-only re-upload
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 02 Sep 2019 10:31:31 +0300
+
+gst-plugins-bad1.0 (1.16.0-2ubuntu2) eoan; urgency=medium
+
+  * No-change rebuild against libx265-176
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 21 Aug 2019 22:35:04 +0000
+
 gst-plugins-bad1.0 (1.16.0-2ubuntu1) eoan; urgency=low
 
   * Merge from Debian unstable.  Remaining changes:
