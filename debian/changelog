@@ -1,3 +1,11 @@
+gst-plugins-bad1.0 (1.16.0-4) UNRELEASED; urgency=medium
+
+  * debian/patches/03_default-soundfont.patch:
+    + Set a reasonable default soundfont patch (Closes: #929185).
+      Thanks to Fabian Greffrath for the patch.
+
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 04 Sep 2019 14:26:36 +0300
+
 gst-plugins-bad1.0 (1.16.0-3) unstable; urgency=medium
 
   * Source-only re-upload
