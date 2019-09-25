@@ -755,7 +755,8 @@ noinst_HEADERS = \
 	gstnvenc.h \
 	gstnvbaseenc.h \
 	gstnvh264enc.h \
-	gstnvh265enc.h
+	gstnvh265enc.h \
+	nvEncodeAPI.h
 
 libgstnvenc_la_CFLAGS = $(GST_PLUGINS_BAD_CFLAGS) \
 	$(GST_PBUTILS_CFLAGS) $(GST_VIDEO_CFLAGS) $(GST_CFLAGS) \
@@ -764,9 +765,6 @@ libgstnvenc_la_LIBADD = $(GST_PBUTILS_LIBS) $(GST_VIDEO_LIBS) \
 	$(GST_LIBS) $(CUDA_LIBS) $(GMODULE_NO_EXPORT_LIBS) \
 	$(am__append_2)
 libgstnvenc_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-EXTRA_DIST = \
-	nvEncodeAPI.h
-
 all: all-am
 
 .SUFFIXES:
