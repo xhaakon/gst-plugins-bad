@@ -1,4 +1,4 @@
-gst-plugins-bad1.0 (1.16.0-3ubuntu1) eoan; urgency=low
+gst-plugins-bad1.0 (1.16.1-1ubuntu1) UNRELEASED; urgency=medium
 
   * Merge from Debian unstable.  Remaining changes:
     + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
@@ -8,31 +8,22 @@ gst-plugins-bad1.0 (1.16.0-3ubuntu1) eoan; urgency=low
       library to. This maintains compatibility with upstream software and
       other distributions.
 
- -- Gianfranco Costamagna <locutusofborg@debian.org>  Wed, 04 Sep 2019 12:39:37 +0200
+ -- Sebastien Bacher <seb128@ubuntu.com>  Thu, 26 Sep 2019 13:38:01 +0200
+
+gst-plugins-bad1.0 (1.16.1-1) unstable; urgency=medium
+
+  * debian/patches/03_default-soundfont.patch:
+    + Set a reasonable default soundfont patch (Closes: #929185).
+      Thanks to Fabian Greffrath for the patch.
+  * New upstream bugfix release
+
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 25 Sep 2019 10:41:55 +0300
 
 gst-plugins-bad1.0 (1.16.0-3) unstable; urgency=medium
 
   * Source-only re-upload
 
  -- Sebastian Dröge <slomo@debian.org>  Mon, 02 Sep 2019 10:31:31 +0300
-
-gst-plugins-bad1.0 (1.16.0-2ubuntu2) eoan; urgency=medium
-
-  * No-change rebuild against libx265-176
-
- -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 21 Aug 2019 22:35:04 +0000
-
-gst-plugins-bad1.0 (1.16.0-2ubuntu1) eoan; urgency=low
-
-  * Merge from Debian unstable.  Remaining changes:
-    + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
-      moved to -good.
-    + Provide gstreamer-plugins-bad-1.0.pc with Requires on
-      gstreamer-plugins-good-1.0 - the package we've moved the referenced
-      library to. This maintains compatibility with upstream software and
-      other distributions.
-
- -- Gianfranco Costamagna <locutusofborg@debian.org>  Sat, 20 Jul 2019 11:29:08 +0200
 
 gst-plugins-bad1.0 (1.16.0-2) unstable; urgency=medium
 
@@ -44,39 +35,11 @@ gst-plugins-bad1.0 (1.16.0-2) unstable; urgency=medium
 
  -- Sebastian Dröge <slomo@debian.org>  Thu, 18 Jul 2019 11:53:43 +0300
 
-gst-plugins-bad1.0 (1.16.0-1ubuntu1) eoan; urgency=medium
-
-  * Merge with Debian unstable; remaining changes:
-    + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
-      moved to -good.
-    + Provide gstreamer-plugins-bad-1.0.pc with Requires on
-      gstreamer-plugins-good-1.0 - the package we've moved the referenced
-      library to. This maintains compatibility with upstream software and
-      other distributions.
-    + debian/control{,.in}: Update Vcs-* for Ubuntu
-  * debian/gbp.conf: Set the debian-branch to ubuntu
-
- -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 07 May 2019 15:34:37 +0200
-
 gst-plugins-bad1.0 (1.16.0-1) experimental; urgency=medium
 
   * New upstream release
 
  -- Sebastian Dröge <slomo@debian.org>  Fri, 19 Apr 2019 10:19:04 +0300
-
-gst-plugins-bad1.0 (1.15.90-1ubuntu1) disco; urgency=medium
-
-  * Merge with Debian unstable; remaining changes:
-    + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
-      moved to -good.
-    + Provide gstreamer-plugins-bad-1.0.pc with Requires on
-      gstreamer-plugins-good-1.0 - the package we've moved the referenced
-      library to. This maintains compatibility with upstream software and
-      other distributions.
-    + debian/control{,.in}: Update Vcs-* for Ubuntu
-  * debian/gbp.conf: Set the debian-branch to ubuntu
-
- -- Sebastien Bacher <seb128@ubuntu.com>  Fri, 12 Apr 2019 11:15:01 +0200
 
 gst-plugins-bad1.0 (1.15.90-1) experimental; urgency=medium
 
@@ -86,20 +49,6 @@ gst-plugins-bad1.0 (1.15.90-1) experimental; urgency=medium
     + Add SCTP plugin for WebRTC datachannels.
 
  -- Sebastian Dröge <slomo@debian.org>  Fri, 12 Apr 2019 10:02:12 +0300
-
-gst-plugins-bad1.0 (1.15.2-1ubuntu1) disco; urgency=medium
-
-  * Merge with Debian unstable; remaining changes:
-    + Stop installing camerabin2 basecamerabin jpegformat - plugins which have
-      moved to -good.
-    + Provide gstreamer-plugins-bad-1.0.pc with Requires on
-      gstreamer-plugins-good-1.0 - the package we've moved the referenced
-      library to. This maintains compatibility with upstream software and
-      other distributions.
-    + debian/control{,.in}: Update Vcs-* for Ubuntu
-  * debian/gbp.conf: Set the debian-branch to ubuntu
-
- -- Sebastien Bacher <seb128@ubuntu.com>  Mon, 04 Mar 2019 17:50:30 +0100
 
 gst-plugins-bad1.0 (1.15.2-1) experimental; urgency=medium
 

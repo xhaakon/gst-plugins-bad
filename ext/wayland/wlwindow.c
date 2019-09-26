@@ -107,6 +107,10 @@ handle_ping (void *data, struct wl_shell_surface *wl_shell_surface,
   wl_shell_surface_pong (wl_shell_surface, serial);
 }
 
+static const struct xdg_surface_listener xdg_surface_listener = {
+  handle_xdg_surface_configure,
+};
+
 static void
 handle_configure (void *data, struct wl_shell_surface *wl_shell_surface,
     uint32_t edges, int32_t width, int32_t height)
@@ -259,6 +263,8 @@ gst_wl_window_new_toplevel (GstWlDisplay * display, const GstVideoInfo * info,
 
   /* Check which protocol we will use (in order of preference) */
   if (display->xdg_wm_base) {
+    gint64 timeout;
+
     /* First create the XDG surface */
     window->xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base,
         window->area_surface);
@@ -286,8 +292,14 @@ gst_wl_window_new_toplevel (GstWlDisplay * display, const GstVideoInfo * info,
     wl_display_flush (display->display);
 
     g_mutex_lock (&window->configure_mutex);
-    while (!window->configured)
-      g_cond_wait (&window->configure_cond, &window->configure_mutex);
+    timeout = g_get_monotonic_time () + 100 * G_TIME_SPAN_MILLISECOND;
+    while (!window->configured) {
+      if (!g_cond_wait_until (&window->configure_cond, &window->configure_mutex,
+              timeout)) {
+        GST_WARNING ("The compositor did not send configure event.");
+        break;
+      }
+    }
     g_mutex_unlock (&window->configure_mutex);
   } else if (display->wl_shell) {
     /* go toplevel */
