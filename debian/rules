@@ -188,7 +188,9 @@ DEB_CONFIGURE_EXTRA_FLAGS += \
 	--enable-debug \
 	--with-package-name=$(GST_PACKAGE_NAME) \
 	--with-package-origin=$(GST_PACKAGE_ORIGIN) \
-	--disable-pvr
+	--disable-pvr \
+	--disable-aom \
+	--disable-sctp
 
 # Only build documentation if we are building the -doc package
 ifneq ($(filter $(gst_pkgname)-doc,$(binaries)),)

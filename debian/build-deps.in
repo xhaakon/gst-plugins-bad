@@ -82,5 +82,3 @@ libopenmpt-dev
 libnice-dev (>= 0.1.14)
 libpango1.0-dev (>= 1.22)
 libsrt-dev
-libaom-dev
-libusrsctp-dev

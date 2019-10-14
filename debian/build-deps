@@ -19,7 +19,6 @@ gstreamer@GST_ABI@-plugins-base (>= 1.16.1)
 gstreamer@GST_ABI@-plugins-base-doc
 gtk-doc-tools (>= 1.12)
 ladspa-sdk
-libaom-dev
 libass-dev (>= 0.10.4)
 libbs2b-dev
 libbz2-dev
@@ -69,7 +68,6 @@ libsrt-dev
 libsrtp2-dev (>= 2.1)
 libssl-dev
 libtool (>= 2.2.6)
-libusrsctp-dev
 libvo-aacenc-dev
 libvo-amrwbenc-dev
 libwebp-dev (>= 0.2.1)

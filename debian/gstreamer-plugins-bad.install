@@ -2,7 +2,6 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaccurip.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstadpcmdec.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstadpcmenc.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaiff.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaom.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstaudiofxbad.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstasfmux.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstassrender.so
@@ -80,7 +79,6 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrsvg.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrtmp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrtponvif.so
 @sbc@
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsctp.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsdpelem.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsegmentclip.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstshm.so
