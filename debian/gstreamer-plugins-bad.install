@@ -118,7 +118,5 @@ debian/tmp/usr/share/gstreamer-@GST_ABI@/presets/
 @decklink@
 @fbdev@
 @uvch264@
-@waylandsink@
 @kms@
-@vulkan@
 @srt@

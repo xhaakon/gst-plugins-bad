@@ -65,7 +65,6 @@ gst_extra_build_depends += , libsbc-dev (>= 1.1) [linux-any]
 gst_extra_build_depends += , libwayland-dev (>= 1.11.0) [linux-any]
 gst_extra_build_depends += , libdrm-dev (>= 2.4.55) [linux-any]
 gst_extra_build_depends += , wayland-protocols (>= 1.4) [linux-any]
-gst_extra_build_depends += , libvulkan-dev [linux-any]
 gst_extra_build_depends += , libsrt-dev [linux-any]
 
 PLUGINS += plugins-bad opencv
@@ -93,7 +92,6 @@ sbc = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstsbc.so
 waylandsink = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstwaylandsink.so
 wayland = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libgstwayland-$(gst_abi).so.*
 kms = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstkms.so
-vulkan = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstvulkan.so
 srt = debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/gstreamer-$(gst_abi)/libgstsrt.so
 endif
 
@@ -139,7 +137,6 @@ pre-build::
 			-e 's,@sbc@,$(sbc),g' \
 			-e 's,@waylandsink@,$(waylandsink),g' \
 			-e 's,@kms@,$(kms),g' \
-			-e 's,@vulkan@,$(vulkan),g' \
 			-e 's,@srt@,$(srt),g' \
 			-e 's/@GST_ABI@/$(gst_abi)/g' \
 			debian/gstreamer-$$p.install \
@@ -190,7 +187,8 @@ DEB_CONFIGURE_EXTRA_FLAGS += \
 	--with-package-origin=$(GST_PACKAGE_ORIGIN) \
 	--disable-pvr \
 	--disable-aom \
-	--disable-sctp
+	--disable-sctp \
+    --disable-vulkan
 
 # Only build documentation if we are building the -doc package
 ifneq ($(filter $(gst_pkgname)-doc,$(binaries)),)
