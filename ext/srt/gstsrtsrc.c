@@ -133,6 +133,24 @@ gst_srt_src_stop (GstBaseSrc * bsrc)
   return TRUE;
 }
 
+static GstClockTime
+gst_srt_src_srctime_to_running_time (GstSRTSrc * src, guint64 srctime)
+{
+  if (srctime == 0) {
+    return GST_CLOCK_TIME_NONE;
+  }
+
+  if (!GST_CLOCK_TIME_IS_VALID (src->base_timestamp)) {
+    GstClock *clock = GST_ELEMENT_CLOCK (src);
+
+    src->base_srctime = srctime;
+    src->base_timestamp =
+        gst_clock_get_time (clock) - GST_ELEMENT_CAST (src)->base_time;
+  }
+
+  return src->base_timestamp + ((srctime - src->base_srctime) * GST_USECOND);
+}
+
 static GstFlowReturn
 gst_srt_src_fill (GstPushSrc * src, GstBuffer * outbuf)
 {
@@ -141,6 +159,7 @@ gst_srt_src_fill (GstPushSrc * src, GstBuffer * outbuf)
   GstMapInfo info;
   GError *err = NULL;
   gssize recv_len;
+  uint64_t srctime;
 
   if (g_cancellable_is_cancelled (self->cancellable)) {
     ret = GST_FLOW_FLUSHING;
@@ -154,9 +173,12 @@ gst_srt_src_fill (GstPushSrc * src, GstBuffer * outbuf)
   }
 
   recv_len = gst_srt_object_read (self->srtobject, info.data,
-      gst_buffer_get_size (outbuf), self->cancellable, &err);
+      gst_buffer_get_size (outbuf), &srctime, self->cancellable, &err);
 
   gst_buffer_unmap (outbuf, &info);
+
+  GST_BUFFER_TIMESTAMP (outbuf) =
+      gst_srt_src_srctime_to_running_time (self, srctime);
 
   if (g_cancellable_is_cancelled (self->cancellable)) {
     ret = GST_FLOW_FLUSHING;
@@ -193,6 +215,8 @@ gst_srt_src_init (GstSRTSrc * self)
 {
   self->srtobject = gst_srt_object_new (GST_ELEMENT (self));
   self->cancellable = g_cancellable_new ();
+  self->base_srctime = 0;
+  self->base_timestamp = GST_CLOCK_TIME_NONE;
 
   gst_base_src_set_format (GST_BASE_SRC (self), GST_FORMAT_TIME);
   gst_base_src_set_live (GST_BASE_SRC (self), TRUE);

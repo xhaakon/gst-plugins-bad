@@ -49,6 +49,9 @@ struct _GstSRTSrc {
 
   GstSRTObject *srtobject;
   GCancellable *cancellable;
+
+  guint64 base_srctime;
+  GstClockTime base_timestamp;
 };
 
 struct _GstSRTSrcClass {
